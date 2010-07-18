@@ -8,6 +8,11 @@
 #ifndef ZIPFILE_H_
 #define ZIPFILE_H_
 
+#include <string>
+#include <stdint.h>
+
+using namespace std;
+
 // record signatures
 #define LFH_SIG		0x504b0304
 #define CDS_SIG		0x504b0102
@@ -44,17 +49,17 @@
 #define CM_PPMD				98
 
 struct ZipLocalFileHeader {
-	uint32 signature;
-	uint16 version;
-	uint16 flag;
-	uint16 compression;
-	uint16 modTime;
-	uint16 modDate;
-	uint32 crc;
-	uint32 compressedSize;
-	uint32 uncompressedSize;
-	uint16 fileNameLen;
-	uint16 extraFieldLen;
+	uint32_t signature;
+	uint16_t version;
+	uint16_t flag;
+	uint16_t compression;
+	uint16_t modTime;
+	uint16_t modDate;
+	uint32_t crc;
+	uint32_t compressedSize;
+	uint32_t uncompressedSize;
+	uint16_t fileNameLen;
+	uint16_t extraFieldLen;
 
 	inline bool isZip() {
 		return signature == LFH_SIG;
@@ -62,36 +67,36 @@ struct ZipLocalFileHeader {
 } __attribute__((packed));
 
 struct DataDescriptor {
-	uint32 crc;
-	uint32 compressedSize;
-	uint32 uncompressedSize;
+	uint32_t crc;
+	uint32_t compressedSize;
+	uint32_t uncompressedSize;
 } __attribute__((packed));
 
 
 struct CentralDirectory {
-	uint32 signature;
-	uint16 verMadeBy;
-	uint16 version;
-	uint16 flag;
-	uint16 compression;
-	uint16 modTime;
-	uint16 modDate;
-	uint32 crc;
-	uint32 compressedSize;
-	uint32 uncompressedSize;
-	uint16 fileNameLen;
-	uint16 extraLen;
-	uint16 commentLen;
-	uint16 diskNumber;
-	uint16 intFileAttr;
-	uint32 extFileAttr;
-	uint32 offset;
+	uint32_t signature;
+	uint16_t verMadeBy;
+	uint16_t version;
+	uint16_t flag;
+	uint16_t compression;
+	uint16_t modTime;
+	uint16_t modDate;
+	uint32_t crc;
+	uint32_t compressedSize;
+	uint32_t uncompressedSize;
+	uint16_t fileNameLen;
+	uint16_t extraLen;
+	uint16_t commentLen;
+	uint16_t diskNumber;
+	uint16_t intFileAttr;
+	uint32_t extFileAttr;
+	uint32_t offset;
 } __attribute__((packed));
 
 class ZipFile {
 public:
 	string name;
-	uint32 size;
+	uint32_t size;
 	char *data;
 
 	ZipFile(ifstream&, ZipLocalFileHeader&);
