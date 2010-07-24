@@ -14,8 +14,8 @@
 using namespace std;
 
 // record signatures
-#define LFH_SIG		0x504b0304
-#define CDS_SIG		0x504b0102
+#define LFH_SIG		0x04034b50
+#define CDS_SIG		0x02014b50
 
 // flag bits
 #define	F_ENCRYPTED				0x0001

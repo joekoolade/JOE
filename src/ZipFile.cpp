@@ -24,6 +24,7 @@ ZipFile::ZipFile(ifstream& stream, ZipLocalFileHeader& fileHeader) {
 
 	// read in file name
 	stream.read(fileName, fileHeader.fileNameLen);
+	fileName[fileHeader.fileNameLen] = '\0';
 	// initialize name
 	name = string(fileName);
 	size = fileHeader.uncompressedSize;
@@ -31,7 +32,7 @@ ZipFile::ZipFile(ifstream& stream, ZipLocalFileHeader& fileHeader) {
 	if (fileHeader.compressedSize > 0) {
 		data = (char *)malloc(fileHeader.compressedSize);
 		if (data == NULL) {
-			cerr << "ZipFile: failed to malloc: " << fileHeader.compressedSize;
+			cerr << "ZipFile: failed to malloc: " << fileHeader.compressedSize << endl;
 			exit(-1);
 		}
 		stream.read(data, fileHeader.compressedSize);

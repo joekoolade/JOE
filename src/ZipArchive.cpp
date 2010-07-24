@@ -20,7 +20,7 @@ ZipArchive::ZipArchive(char *zipfile) {
 	archiveName = string(zipfile);
 	ifstream in(zipfile, ios::in|ios::binary);
 	if(!in){
-		cerr << "Could not open zipfile" << zipfile;
+		cerr << "Could not open zipfile" << zipfile << endl;
 	}
 	size = in.tellg();
 	// Start reading in files
