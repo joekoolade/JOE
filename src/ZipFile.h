@@ -64,6 +64,10 @@ struct ZipLocalFileHeader {
 	inline bool isZip() {
 		return signature == LFH_SIG;
 	}
+	inline bool isCD() {
+		return signature == CDS_SIG;
+	}
+
 } __attribute__((packed));
 
 struct DataDescriptor {
@@ -91,6 +95,7 @@ struct CentralDirectory {
 	uint16_t intFileAttr;
 	uint32_t extFileAttr;
 	uint32_t offset;
+
 } __attribute__((packed));
 
 class ZipFile {
@@ -98,6 +103,10 @@ public:
 	string name;
 	uint32_t size;
 	char *data;
+	uint16_t compression;
+	uint16_t modTime;
+	uint32_t crc;
+	uint32_t compressedSize;
 
 	ZipFile(ifstream&, ZipLocalFileHeader&);
 };
