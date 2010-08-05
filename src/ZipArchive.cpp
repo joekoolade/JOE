@@ -33,6 +33,7 @@ ZipArchive::ZipArchive(char *zipfile) {
 			// TODO need the correct seek call
 			in.seekg(-sizeof(ZipLocalFileHeader), ios::cur);
 			in.read((char *)&cd, sizeof(CentralDirectory));
+			cout << "CDS lens: " << cd.fileNameLen << ' ' << cd.extraLen << ' '	<< cd.commentLen << endl;
 			if (cd.fileNameLen > 0) {
 				char name[1024];
 				in.read(name, cd.fileNameLen);
@@ -55,7 +56,7 @@ ZipArchive::ZipArchive(char *zipfile) {
 			cout << "made by: " << cd.verMadeBy << "  version: " << cd.version;
 			cout << "  flag: " << cd.flag << "  compression: " << cd.compression << endl;
 			cout << " size: " << cd.uncompressedSize << " compressed to: " << cd.compressedSize << endl;
-
+			cout << " disk#: " << cd.diskNumber << " offset: " << cd.offset << endl;
 
 		} else {
 			cout << "Could not find zip signature!";
