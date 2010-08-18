@@ -31,7 +31,8 @@ ZipArchive::ZipArchive(char *zipfile) {
 		} else if(zipHeader.isCD()) {
 			CentralDirectory cd;
 			// TODO need the correct seek call
-			in.seekg(-sizeof(ZipLocalFileHeader), ios::cur);
+			streamoff backup = sizeof(ZipLocalFileHeader);
+			in.seekg(-backup, ios::cur);
 			in.read((char *)&cd, sizeof(CentralDirectory));
 			cout << "CDS lens: " << cd.fileNameLen << ' ' << cd.extraLen << ' '	<< cd.commentLen << endl;
 			if (cd.fileNameLen > 0) {
