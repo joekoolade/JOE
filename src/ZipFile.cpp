@@ -9,6 +9,9 @@
 #include <fstream>
 
 #include <stdlib.h>
+//extern "C" {
+#include <zlib.h>
+// }
 
 #include "ZipFile.h"
 
@@ -28,6 +31,7 @@ ZipFile::ZipFile(ifstream& stream, ZipLocalFileHeader& fileHeader) {
 	// initialize name
 	name = string(fileName);
 	size = fileHeader.uncompressedSize;
+	compression = fileHeader.compression;
 	// read in the compressed data
 	if (fileHeader.compressedSize > 0) {
 		data = (char *)malloc(fileHeader.compressedSize);
@@ -37,5 +41,26 @@ ZipFile::ZipFile(ifstream& stream, ZipLocalFileHeader& fileHeader) {
 		}
 		stream.read(data, fileHeader.compressedSize);
 	}
-	cout << name << ' ' << size << ' ' << fileHeader.compressedSize << endl;
+	cout << name << ' ' << fileHeader.compression << ' ' << size << ' ' << fileHeader.compressedSize << endl;
+}
+
+uint8_t *ZipFile::inflate() {
+	uint8_t *infData;
+	z_stream strm;
+	uLongf destBufSize;
+
+	if(size == 0)
+		return NULL;
+
+	infData = (uint8_t *)malloc(size);
+	destBufSize = size;
+	int ret = uncompress((Bytef *)infData, (uLongf *)&destBufSize, (const Bytef *)data, compressedSize);
+
+	if(ret != Z_OK) {
+		cout << "inflate: " << zError(ret) << endl;
+		free(infData);
+		return (uint8_t *)-1;
+	}
+	cout << "Inflated --> " << name << endl;
+	return infData;
 }

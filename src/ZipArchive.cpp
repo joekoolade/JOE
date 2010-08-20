@@ -28,6 +28,7 @@ ZipArchive::ZipArchive(char *zipfile) {
 	while(!in.read((char *)&zipHeader, sizeof(ZipLocalFileHeader)).eof()) {
 		if(zipHeader.isZip()) {
 			ZipFile file(in, zipHeader);
+			file.inflate();
 		} else if(zipHeader.isCD()) {
 			CentralDirectory cd;
 			// TODO need the correct seek call

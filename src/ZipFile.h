@@ -109,5 +109,6 @@ public:
 	uint32_t compressedSize;
 
 	ZipFile(ifstream&, ZipLocalFileHeader&);
+	uint8_t *inflate();
 };
 #endif /* ZIPFILE_H_ */

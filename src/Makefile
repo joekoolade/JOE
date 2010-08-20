@@ -4,7 +4,7 @@ SRCS:=$(OBJS:.o=.cpp)
 all: test
 
 test: $(OBJS)
-	$(CXX) -o test $^
+	$(CXX) -o test  -lz $^
 
 include $(SRCS:.cpp=.d)
 	
