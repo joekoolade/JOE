@@ -21,6 +21,8 @@ class ZipArchive {
 private:
 	string archiveName;
 	uint32_t size;
+	int debug;
+    void processCD(ifstream& in);
 public:
 	std::map<string, ZipFile> fileTable;
 	ZipArchive(char *);

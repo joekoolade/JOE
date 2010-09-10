@@ -99,16 +99,21 @@ struct CentralDirectory {
 } __attribute__((packed));
 
 class ZipFile {
+private:
+	int debug;
 public:
 	string name;
 	uint32_t size;
-	char *data;
+	// compressed data
+	char *cdata;
+	// inflated data
+	uint8_t *data;
 	uint16_t compression;
 	uint16_t modTime;
 	uint32_t crc;
 	uint32_t compressedSize;
 
 	ZipFile(ifstream&, ZipLocalFileHeader&);
-	uint8_t *inflate();
+	void inflate();
 };
 #endif /* ZIPFILE_H_ */
