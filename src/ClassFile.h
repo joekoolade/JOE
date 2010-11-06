@@ -18,7 +18,10 @@ class MethodInfo;
 class AttributeInfo;
 class Interfaces;
 
+#define JAVA_MAGIC	"CAFEBABE"
+
 class   ClassFile {
+private:
     	u4 magic;
     	u2 minor_version;
     	u2 major_version;
@@ -35,6 +38,8 @@ class   ClassFile {
     	MethodInfo methods;
     	u2 attributes_count;
     	AttributeInfo attributes;
+public:
+
 };
 
 #endif /* CLASSFILE_H_ */
