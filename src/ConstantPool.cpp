@@ -7,5 +7,6 @@
  *  Copyright 2010 Joseph Kulig. All rights reserved.
  */
 
-ConstantPool::ConstantPool(ZipFile file)
+ConstantPool::ConstantPool(ZipFile file) {
+
 }
