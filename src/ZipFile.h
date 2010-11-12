@@ -115,5 +115,6 @@ public:
 
 	ZipFile(ifstream&, ZipLocalFileHeader&);
 	void inflate();
+	uint8_t *getData();
 };
 #endif /* ZIPFILE_H_ */

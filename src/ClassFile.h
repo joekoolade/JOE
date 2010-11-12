@@ -39,6 +39,7 @@ private:
     	u2 attributes_count;
     	AttributeInfo attributes;
 public:
+    	ClassFile(ZipFile);
 
 };
 

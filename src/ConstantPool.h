@@ -8,6 +8,8 @@
 #ifndef CONSTANTPOOL_H_
 #define CONSTANTPOOL_H_
 
+#include <stdint.h>
+
 typedef unsigned int u4;
 typedef unsigned short u2;
 typedef unsigned char u1;
@@ -29,8 +31,9 @@ private:
 	u1 tag;
 	vector<ConstantPool> constants;
 public:
-	ConstantPool(ZipFile);
-	void getConstantPool(unsigned char *);
+	ConstantPool(uint8_t *);
+	void getConstantPool(uint8_t *);
+	ConstantPool getConstant(uint16_t);
 };
 
 class CPClassInfo : public ConstantPool {
