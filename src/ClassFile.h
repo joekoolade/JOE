@@ -8,6 +8,8 @@
 #ifndef CLASSFILE_H_
 #define CLASSFILE_H_
 
+#include "ZipFile.h"
+
 typedef unsigned int u4;
 typedef unsigned short u2;
 typedef unsigned char u1;
@@ -18,7 +20,7 @@ class MethodInfo;
 class AttributeInfo;
 class Interfaces;
 
-#define JAVA_MAGIC	"CAFEBABE"
+#define JAVA_MAGIC	0xCAFEBABE
 
 class   ClassFile {
 private:
@@ -26,7 +28,7 @@ private:
     	u2 minor_version;
     	u2 major_version;
     	u2 constant_pool_count;
-    	ConstantPool constant_pool;
+    	ConstantPool constantPool;
     	u2 access_flags;
     	u2 this_class;
     	u2 super_class;
@@ -38,9 +40,22 @@ private:
     	MethodInfo methods;
     	u2 attributes_count;
     	AttributeInfo attributes;
+
+    	uint8_t *zfilePtr;
+    	void readMagic();
+    	void readVersion();
+    	void readConstants();
+    	void readAccessFlags();
+    	void readClassIndex();
+    	void readInterfaces();
+    	void readFields();
+    	void readMethods();
+    	void readAttributes();
 public:
     	ClassFile(ZipFile);
-
+    	virtual ~ClassFile();
+    	uint8_t *getFilePtr();
+    	void setFilePtr(uint8_t *);
 };
 
 #endif /* CLASSFILE_H_ */

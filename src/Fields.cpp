@@ -15,3 +15,7 @@ Fields::Fields() {
 Fields::~Fields() {
 	// TODO Auto-generated destructor stub
 }
+
+uint8_t *Fields::add(uint8_t *data, uint16_t count) {
+	return data;
+}

@@ -19,6 +19,7 @@ public:
 	virtual ~Interfaces();
 	void add(int);
 	int get();
+	uint8_t *add(uint8_t *, uint16_t);
 };
 
 #endif /* INTERFACES_H_ */

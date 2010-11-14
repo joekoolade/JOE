@@ -26,6 +26,8 @@ typedef unsigned char u1;
 #define CONSTANT_InterfaceMethodref	11
 #define CONSTANT_NameAndType		12
 
+class ClassFile;
+
 class ConstantPool {
 private:
 	u1 tag;
@@ -34,6 +36,9 @@ public:
 	ConstantPool(uint8_t *);
 	void getConstantPool(uint8_t *);
 	ConstantPool getConstant(uint16_t);
+	void add(ClassFile *);
+
+
 };
 
 class CPClassInfo : public ConstantPool {

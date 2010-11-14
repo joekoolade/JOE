@@ -20,6 +20,14 @@
 #define LOCALVARTABLE_ATTR_NAME	"LocalVariableTable"
 #define DEPRECATED_ATTR_NAME	"Deprecated"
 
+class Attributes {
+	vector<AttributeInfo> index;
+public:
+	Attributes();
+	virtual ~Attributes();
+	uint8_t *add(uint8_t *, uint16_t);
+};
+
 class AttributeInfo {
 	uint16_t nameIndex;
 	uint32_t length;
