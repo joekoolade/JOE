@@ -76,3 +76,17 @@ ZipArchive::ZipArchive(char *zipfile) {
 	}
 	printf("Number of classes is %d\n", size);
 }
+
+void ZipArchive::iterator() {
+	iter = fileTable.begin();
+}
+
+bool ZipArchive::hasNext() {
+	return (iter != fileTable.end());
+}
+
+ZipFile ZipArchive::next() {
+	map<string, ZipFile>::iterator iter0 = iter;
+	iter++;
+	return (ZipFile)iter0->second;
+}
