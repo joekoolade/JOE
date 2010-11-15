@@ -1,4 +1,6 @@
-OBJS:=ZipArchive.o ZipFile.o test.o
+OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
+		Fields.o Interfaces.o Methods.o
+		
 SRCS:=$(OBJS:.o=.cpp)
 
 all: test

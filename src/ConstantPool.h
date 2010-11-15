@@ -8,6 +8,8 @@
 #ifndef CONSTANTPOOL_H_
 #define CONSTANTPOOL_H_
 
+#include <vector>
+
 #include <stdint.h>
 
 typedef unsigned int u4;
@@ -28,17 +30,17 @@ typedef unsigned char u1;
 
 class ClassFile;
 
+using namespace std;
+
 class ConstantPool {
 private:
 	u1 tag;
 	vector<ConstantPool> constants;
 public:
-	ConstantPool(uint8_t *);
+	ConstantPool();
 	void getConstantPool(uint8_t *);
 	ConstantPool getConstant(uint16_t);
 	void add(ClassFile *);
-
-
 };
 
 class CPClassInfo : public ConstantPool {

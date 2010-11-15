@@ -9,6 +9,12 @@
 #define ATTRIBUTEINFO_H_
 
 #include <valarray>
+#include <vector>
+#include <string>
+
+#include <stdint.h>
+
+using namespace std;
 
 #define CONSTANT_ATTR_NAME		"ConstantValue"
 #define CODE_ATTR_NAME			"Code"
@@ -20,12 +26,15 @@
 #define LOCALVARTABLE_ATTR_NAME	"LocalVariableTable"
 #define DEPRECATED_ATTR_NAME	"Deprecated"
 
+class ClassFile;
+class AttributeInfo;
+
 class Attributes {
-	vector<AttributeInfo> index;
+	vector<AttributeInfo> attributes;
 public:
 	Attributes();
 	virtual ~Attributes();
-	uint8_t *add(uint8_t *, uint16_t);
+	void add(ClassFile *);
 };
 
 class AttributeInfo {
@@ -38,7 +47,6 @@ public:
 
 class ConstantAttribute : public AttributeInfo {
 	uint16_t constantIndex;
-	static string name = "ConstantValue";
 public:
 	ConstantAttribute();
 	virtual ~ConstantAttribute();
@@ -81,7 +89,7 @@ class InnerClassInfo {
 };
 
 class InnerClassesAttribute : public AttributeInfo {
-	vector<InnerClassInfo>;
+	vector<InnerClassInfo> innerClasses;
 public:
 	InnerClassesAttribute();
 	virtual ~InnerClassesAttribute();

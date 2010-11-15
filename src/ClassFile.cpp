@@ -7,30 +7,19 @@
 
 #include "ClassFile.h"
 
+using namespace std;
+
 ClassFile::ClassFile(ZipFile file) {
 
 	zfilePtr = file.getData();
 	readMagic();
 	readVersion();
 	readConstants();
-	access_flags = *(uint16_t *)data;
-	data += 2;
-	this_class = *(uint16_t *)data;
-	data += 2;
-	super_class = *(uint16_t *)data;
-	data += 2;
-	interfaces_count = *(uint16_t *)data;
-	data += 2;
-	data = interfaces.add(data, interfaces_count);
-	fields_count = *(uint16_t *)data;
-	data += 2;
-	data = fields.add(data, fields_count);
-	method_count = *(uint16_t *)data;
-	data += 2;
-	data = methods.add(data, method_count);
-	attributes_count = *(uint16_t *)data;
-	data += 2;
-	attributes.add(data, attributes_count);
+	readAccessFlags();
+	readInterfaces();
+	readFields();
+	readMethods();
+	readAttributes();
 }
 
 /**
@@ -52,7 +41,7 @@ void ClassFile::readMagic() {
 void ClassFile::readVersion() {
 	minor_version = *(uint16_t *)zfilePtr;
 	major_version = *(uint16_t *)(zfilePtr+2);
-	printf("class version: %d:%d", major_verison, minor_version);
+	printf("class version: %d:%d", major_version, minor_version);
 	zfilePtr += 4;
 }
 
@@ -62,9 +51,45 @@ void ClassFile::readVersion() {
 void ClassFile::readConstants() {
 	constant_pool_count = *(uint16_t *)zfilePtr;
 	zfilePtr += 2;
-	data = constantPool.add(this);
+	constantPool.add(this);
 
 }
+
+void ClassFile::readAccessFlags() {
+	access_flags = *(uint16_t *)zfilePtr;
+	zfilePtr += 2;
+}
+
+void ClassFile::readClassIndex() {
+	this_class = *(uint16_t *)zfilePtr;
+	super_class = *(uint16_t *)(zfilePtr+2);
+	zfilePtr += 4;
+}
+
+void ClassFile::readInterfaces() {
+	interfaces_count = *(uint16_t *)zfilePtr;
+	zfilePtr += 2;
+	interfaces.add(this);
+}
+
+void ClassFile::readFields() {
+	fields_count = *(uint16_t *)zfilePtr;
+	zfilePtr += 2;
+	fields.add(this);
+}
+
+void ClassFile::readMethods() {
+	methods_count = *(uint16_t *)zfilePtr;
+	zfilePtr += 2;
+	methods.add(this);
+}
+
+void ClassFile::readAttributes() {
+	attributes_count = *(uint16_t *)zfilePtr;
+	zfilePtr += 2;
+	attributes.add(this);
+}
+
 
 /**
  * Return pointer to class file

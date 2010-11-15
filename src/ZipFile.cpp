@@ -119,3 +119,7 @@ void ZipFile::inflate() {
 	TRACE_INFLATE cout << "Inflated --> " << name << endl;
 	data = infData;
 }
+
+uint8_t *ZipFile::getData() {
+	return data;
+}

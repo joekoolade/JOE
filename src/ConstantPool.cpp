@@ -7,7 +7,9 @@
  *  Copyright 2010 Joseph Kulig. All rights reserved.
  */
 
-ConstantPool::ConstantPool(uint8_t *cData) {
+#include "ConstantPool.h"
+
+ConstantPool::ConstantPool() {
 
 }
 

@@ -8,17 +8,18 @@
 #ifndef CLASSFILE_H_
 #define CLASSFILE_H_
 
+#include <stdio.h>
+
 #include "ZipFile.h"
+#include "ConstantPool.h"
+#include "AttributeInfo.h"
+#include "Fields.h"
+#include "Interfaces.h"
+#include "Methods.h"
 
 typedef unsigned int u4;
 typedef unsigned short u2;
 typedef unsigned char u1;
-
-class ConstantPool;
-class FieldInfo;
-class MethodInfo;
-class AttributeInfo;
-class Interfaces;
 
 #define JAVA_MAGIC	0xCAFEBABE
 
@@ -39,7 +40,7 @@ private:
     	u2 methods_count;
     	MethodInfo methods;
     	u2 attributes_count;
-    	AttributeInfo attributes;
+    	Attributes attributes;
 
     	uint8_t *zfilePtr;
     	void readMagic();

@@ -14,14 +14,14 @@ class MethodInfo {
 public:
 	MethodInfo();
 	virtual ~MethodInfo();
-	uint8_t *add(uint8_t *, uint16_t);
+	void add(ClassFile *);
 };
 
 class Methods {
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
-	vector<attributeInfo> attributes;
+	vector<AttributeInfo> attributes;
 public:
 	Methods();
 	virtual ~Methods();

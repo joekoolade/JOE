@@ -13,13 +13,16 @@
 #include "AttributeInfo.h"
 
 class AttributeInfo;
+class Fields;
+
+using namespace std;
 
 class FieldInfo {
 	vector<Fields> fieldsTable;
 public:
 	FieldInfo();
 	virtual ~FieldInfo();
-	uint8_t *add(uint8_t *, uint16_t);
+	void add(ClassFile *);
 };
 
 class Fields {

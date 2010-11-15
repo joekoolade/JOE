@@ -16,6 +16,14 @@ Fields::~Fields() {
 	// TODO Auto-generated destructor stub
 }
 
-uint8_t *Fields::add(uint8_t *data, uint16_t count) {
-	return data;
+FieldInfo::FieldInfo() {
+	// TODO Auto-generated constructor stub
+
+}
+
+FieldInfo::~FieldInfo() {
+	// TODO Auto-generated destructor stub
+}
+
+void FieldInfo::add(ClassFile *classFile) {
 }

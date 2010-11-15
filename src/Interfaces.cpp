@@ -15,3 +15,7 @@ Interfaces::Interfaces() {
 Interfaces::~Interfaces() {
 	// TODO Auto-generated destructor stub
 }
+
+void Interfaces::add(ClassFile *file) {
+
+}

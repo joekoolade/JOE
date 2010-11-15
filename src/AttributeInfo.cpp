@@ -15,3 +15,15 @@ AttributeInfo::AttributeInfo() {
 AttributeInfo::~AttributeInfo() {
 	// TODO Auto-generated destructor stub
 }
+
+Attributes::Attributes() {
+
+}
+
+Attributes::~Attributes() {
+
+}
+
+void Attributes::add(ClassFile *file) {
+
+}

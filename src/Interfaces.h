@@ -10,6 +10,10 @@
 
 #include <vector>
 
+class ClassFile;
+
+using namespace std;
+
 class Interfaces {
 private:
 	vector<int> interfaces;
@@ -19,7 +23,7 @@ public:
 	virtual ~Interfaces();
 	void add(int);
 	int get();
-	uint8_t *add(uint8_t *, uint16_t);
+	void add(ClassFile *);
 };
 
 #endif /* INTERFACES_H_ */

@@ -24,6 +24,5 @@ MethodInfo::~MethodInfo() {
 
 }
 
-uint8_t *MethodInfo::add(uint8_t *data, uint16_t count) {
-	return data;
+void MethodInfo::add(ClassFile *classFile) {
 }
