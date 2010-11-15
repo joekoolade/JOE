@@ -9,6 +9,10 @@
 
 using namespace std;
 
+ClassFile::~ClassFile() {
+
+}
+
 ClassFile::ClassFile(ZipFile file) {
 
 	zfilePtr = file.getData();
