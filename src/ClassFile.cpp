@@ -7,6 +7,8 @@
 
 #include "ClassFile.h"
 
+#include <iostream>
+
 #include <endian.h>
 
 using namespace std;
@@ -60,6 +62,7 @@ void ClassFile::readVersion() {
  */
 void ClassFile::readConstants() {
 	constant_pool_count = be16toh(*(uint16_t *)zfilePtr);
+	cout << "# of constants: " << constant_pool_count << endl;
 	zfilePtr += 2;
 	constantPool.add(this);
 
@@ -114,3 +117,8 @@ uint8_t *ClassFile::getFilePtr() {
 void ClassFile::setFilePtr(uint8_t *ptr) {
 	zfilePtr = ptr;
 }
+
+int ClassFile::constantPoolCount() {
+	return constant_pool_count;
+}
+

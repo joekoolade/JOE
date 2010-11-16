@@ -57,6 +57,7 @@ public:
     	virtual ~ClassFile();
     	uint8_t *getFilePtr();
     	void setFilePtr(uint8_t *);
+    	int constantPoolCount();
 };
 
 #endif /* CLASSFILE_H_ */
