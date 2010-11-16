@@ -20,15 +20,17 @@ ConstantPool::ConstantPool() {
 CPUtf8Info::CPUtf8Info(ClassFile *file) {
 	uint8_t *data = file->getFilePtr();
 
+	tag = CONSTANT_Utf8;
 	length = be16toh(*(uint16_t *)data);
 	aString.assign((const char *)(data+2), length);
 	file->setFilePtr(data+length+2);
-	cout << "utf8: " << aString << endl;
+//	cout << "utf8: " << aString << endl;
 }
 
 CPIntegerInfo::CPIntegerInfo(ClassFile *file) {
 	uint8_t *data = file->getFilePtr();
 
+	tag = CONSTANT_Integer;
 	bytes = be32toh(*(uint32_t *)data);
 	file->setFilePtr(data+4);
 }
@@ -36,6 +38,7 @@ CPIntegerInfo::CPIntegerInfo(ClassFile *file) {
 CPFloatInfo::CPFloatInfo(ClassFile *file) {
 	uint8_t *data = file->getFilePtr();
 
+	tag = CONSTANT_Float;
 	bytes = be32toh(*(uint32_t *)data);
 	file->setFilePtr(data+4);
 }
@@ -43,13 +46,16 @@ CPFloatInfo::CPFloatInfo(ClassFile *file) {
 CPClassInfo::CPClassInfo(ClassFile *file) {
 	uint8_t *data = file->getFilePtr();
 
+	tag = CONSTANT_Class;
 	nameIndex = be16toh(*(uint16_t *)data);
 	file->setFilePtr(data+2);
+    verifyClassIndex(nameIndex);
 }
 
 CPFieldref::CPFieldref(ClassFile *file) {
 	uint8_t *data = file->getFilePtr();
 
+	tag = CONSTANT_Fieldref;
 	classIndex = be16toh(*(uint16_t *)data);
 	nameTypeIndex = be16toh(*(uint16_t *)(data+2));
 	file->setFilePtr(data+4);
@@ -110,6 +116,7 @@ void ConstantPool::add(ClassFile *classFile) {
 	ConstantPool *cp;
 	int i;
 
+	constants.resize(classFile->constantPoolCount());
 	for (i = 1; i < classFile->constantPoolCount(); i++) {
 		fileData = classFile->getFilePtr();
 		tag = *fileData;
@@ -153,5 +160,15 @@ void ConstantPool::add(ClassFile *classFile) {
 			throw(-2);
 		}
 		// TODO: Add constant to map
+		constants[i] = cp;
 	}
 }
+
+void ConstantPool::verifyClassIndex(uint16_t index)
+{
+    if(constants[index]->tag != CONSTANT_Utf8) {
+		cout << ": bad class name index! " << index << " " <<  constants[index]->tag;
+		throw(-3);
+	}
+}
+

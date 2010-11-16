@@ -15,11 +15,10 @@ int main(int argc, char *argv[]) {
 	zip.iterator();
 	while(zip.hasNext()) {
 		zfile = zip.next();
-		printf("name: %s\n", zfile.name.c_str());
 		try {
 			ClassFile c(zfile);
 		} catch(int) {
-
+			printf("name: %s\n", zfile.name.c_str());
 		}
 	}
 }

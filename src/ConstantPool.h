@@ -36,7 +36,9 @@ using namespace std;
 class ConstantPool {
 private:
 	u1 tag;
-	vector<ConstantPool> constants;
+	vector<ConstantPool *> constants;
+protected:
+	void verifyClassIndex(uint16_t);
 public:
 	ConstantPool();
 	void getConstantPool(uint8_t *);

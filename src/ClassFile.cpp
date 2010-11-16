@@ -62,7 +62,7 @@ void ClassFile::readVersion() {
  */
 void ClassFile::readConstants() {
 	constant_pool_count = be16toh(*(uint16_t *)zfilePtr);
-	cout << "# of constants: " << constant_pool_count << endl;
+	// cout << "# of constants: " << constant_pool_count << endl;
 	zfilePtr += 2;
 	constantPool.add(this);
 
