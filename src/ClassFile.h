@@ -53,7 +53,7 @@ private:
     	void readMethods();
     	void readAttributes();
 public:
-    	ClassFile(ZipFile);
+    	ClassFile(ZipFile&);
     	virtual ~ClassFile();
     	uint8_t *getFilePtr();
     	void setFilePtr(uint8_t *);

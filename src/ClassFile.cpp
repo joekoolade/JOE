@@ -7,14 +7,20 @@
 
 #include "ClassFile.h"
 
+#include <endian.h>
+
 using namespace std;
 
 ClassFile::~ClassFile() {
 
 }
 
-ClassFile::ClassFile(ZipFile file) {
+ClassFile::ClassFile(ZipFile &file) {
 
+	if(file.size==0) {
+		printf("%s: file is zero!\n", file.name.c_str());
+		return;
+	}
 	zfilePtr = file.getData();
 	readMagic();
 	readVersion();
@@ -30,9 +36,9 @@ ClassFile::ClassFile(ZipFile file) {
  * Read and verify class file magic
  */
 void ClassFile::readMagic() {
-	magic = *(uint32_t *)zfilePtr;
+	magic = be32toh(*(uint32_t *)zfilePtr);
 	if(magic != JAVA_MAGIC) {
-		fprintf(stderr, "bad magic: %x", magic);
+		printf("bad magic: %x", magic);
 		throw(-1);
 	}
 	// advance file pointer
@@ -43,9 +49,9 @@ void ClassFile::readMagic() {
  * Read and store class file version
  */
 void ClassFile::readVersion() {
-	minor_version = *(uint16_t *)zfilePtr;
-	major_version = *(uint16_t *)(zfilePtr+2);
-	printf("class version: %d:%d", major_version, minor_version);
+	minor_version = be16toh(*(uint16_t *)zfilePtr);
+	major_version = be16toh(*(uint16_t *)(zfilePtr+2));
+	printf("class version: %d:%d\n", major_version, minor_version);
 	zfilePtr += 4;
 }
 
@@ -53,43 +59,43 @@ void ClassFile::readVersion() {
  * Read in the constant pool
  */
 void ClassFile::readConstants() {
-	constant_pool_count = *(uint16_t *)zfilePtr;
+	constant_pool_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
 	constantPool.add(this);
 
 }
 
 void ClassFile::readAccessFlags() {
-	access_flags = *(uint16_t *)zfilePtr;
+	access_flags = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
 }
 
 void ClassFile::readClassIndex() {
-	this_class = *(uint16_t *)zfilePtr;
-	super_class = *(uint16_t *)(zfilePtr+2);
+	this_class = be16toh(*(uint16_t *)zfilePtr);
+	super_class = be16toh(*(uint16_t *)(zfilePtr+2));
 	zfilePtr += 4;
 }
 
 void ClassFile::readInterfaces() {
-	interfaces_count = *(uint16_t *)zfilePtr;
+	interfaces_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
 	interfaces.add(this);
 }
 
 void ClassFile::readFields() {
-	fields_count = *(uint16_t *)zfilePtr;
+	fields_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
 	fields.add(this);
 }
 
 void ClassFile::readMethods() {
-	methods_count = *(uint16_t *)zfilePtr;
+	methods_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
 	methods.add(this);
 }
 
 void ClassFile::readAttributes() {
-	attributes_count = *(uint16_t *)zfilePtr;
+	attributes_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
 	attributes.add(this);
 }

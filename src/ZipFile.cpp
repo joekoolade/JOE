@@ -23,6 +23,11 @@ using namespace std;
 #define TRACE_INFLATE if(debug & DEBUG_INFLATE)
 
 #define WBITS	15		// window bits
+
+ZipFile::ZipFile() {
+
+}
+
 /**
  * @param stream reference to input file stream. Should be pointing to the file name field
  * @param fileHeader current zip file being processed
