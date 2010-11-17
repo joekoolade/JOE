@@ -113,6 +113,7 @@ void ConstantPool::add(ClassFile *classFile) {
 	uint8_t tag;
 	uint8_t *fileData;
 	ConstantPool *cp;
+	int doubleEntry;
 	int i;
 
 	constants.resize(classFile->constantPoolCount());
@@ -120,6 +121,8 @@ void ConstantPool::add(ClassFile *classFile) {
 		fileData = classFile->getFilePtr();
 		tag = *fileData;
 		classFile->setFilePtr(fileData + 1);
+		// only longs and double take up two slots
+		doubleEntry = 0;
 		switch (tag) {
 		case CONSTANT_Utf8:
 			cp = new CPUtf8Info(classFile);
@@ -147,9 +150,11 @@ void ConstantPool::add(ClassFile *classFile) {
 			break;
 		case CONSTANT_Long:
 			cp = new CPLongInfo(classFile);
+			doubleEntry = 1;
 			break;
 		case CONSTANT_Double:
 			cp = new CPDoubleInfo(classFile);
+			doubleEntry = 1;
 			break;
 		case CONSTANT_NameAndType:
 			cp = new CPNameTypeInfo(classFile);
@@ -159,8 +164,9 @@ void ConstantPool::add(ClassFile *classFile) {
 			throw(-2);
 		}
 		cp->tag = tag;
-		// TODO: Add constant to map
 		constants[i] = cp;
+		// TODO: set constant pool entry to empty
+		i += doubleEntry;
 	}
 }
 
