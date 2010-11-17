@@ -172,3 +172,54 @@ void ConstantPool::verifyClassIndex(uint16_t index)
 	}
 }
 
+ConstantPool * ConstantPool::getConstant(uint16_t index) {
+	return constants[index];
+}
+
+bool ConstantPool::isClassref() {
+	return tag == CONSTANT_Class;
+}
+
+bool ConstantPool::isFieldref() {
+	return tag == CONSTANT_Fieldref;
+}
+
+bool ConstantPool::isMethodref() {
+	return tag == CONSTANT_Methodref;
+}
+
+bool ConstantPool::isInterfaceref() {
+	return tag == CONSTANT_InterfaceMethodref;
+}
+
+bool ConstantPool::isString() {
+	return tag == CONSTANT_String;
+}
+
+bool ConstantPool::isInteger() {
+	return tag == CONSTANT_Integer;
+}
+
+bool ConstantPool::isFloat() {
+	return tag == CONSTANT_Float;
+}
+
+bool ConstantPool::isLong() {
+	return tag == CONSTANT_Long;
+}
+
+bool ConstantPool::isDouble() {
+	return tag == CONSTANT_Double;
+}
+
+bool ConstantPool::isNameType() {
+	return tag == CONSTANT_NameAndType;
+}
+
+bool ConstantPool::isUtf8() {
+	return tag == CONSTANT_Utf8;
+}
+
+string& CPUtf8Info::name() {
+	return aString;
+}

@@ -24,10 +24,12 @@ ClassFile::ClassFile(ZipFile &file) {
 		return;
 	}
 	zfilePtr = file.getData();
+	data0 = zfilePtr;
 	readMagic();
 	readVersion();
 	readConstants();
 	readAccessFlags();
+	readClassIndex();
 	readInterfaces();
 	readFields();
 	readMethods();
@@ -62,27 +64,34 @@ void ClassFile::readVersion() {
  */
 void ClassFile::readConstants() {
 	constant_pool_count = be16toh(*(uint16_t *)zfilePtr);
-	// cout << "# of constants: " << constant_pool_count << endl;
+	cout << "# of constants: " << constant_pool_count;
+	printf(" 0x%x ", zfilePtr-data0);
 	zfilePtr += 2;
 	constantPool.add(this);
+	printf("0x%x\n", zfilePtr-data0);
 
 }
 
 void ClassFile::readAccessFlags() {
 	access_flags = be16toh(*(uint16_t *)zfilePtr);
+	printf("flags: %x  ", access_flags);
 	zfilePtr += 2;
 }
 
 void ClassFile::readClassIndex() {
 	this_class = be16toh(*(uint16_t *)zfilePtr);
 	super_class = be16toh(*(uint16_t *)(zfilePtr+2));
+	printf("classes: %x %x\n", this_class, super_class);
 	zfilePtr += 4;
 }
 
 void ClassFile::readInterfaces() {
 	interfaces_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
-	interfaces.add(this);
+	if(interfaces_count==0)
+		return;
+	else
+		interfaces.add(this);
 }
 
 void ClassFile::readFields() {
@@ -124,4 +133,12 @@ int ClassFile::constantPoolCount() {
 
 uint16_t ClassFile::interfaceCount() {
 	return interfaces_count;
+}
+
+uint16_t ClassFile::fieldCount() {
+	return fields_count;
+}
+
+ConstantPool * ClassFile::getConstant(uint16_t index) {
+	return constantPool.getConstant(index);
 }

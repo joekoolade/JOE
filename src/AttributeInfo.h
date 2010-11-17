@@ -26,15 +26,17 @@ using namespace std;
 #define LOCALVARTABLE_ATTR_NAME	"LocalVariableTable"
 #define DEPRECATED_ATTR_NAME	"Deprecated"
 
-class ClassFile;
 class AttributeInfo;
+class ClassFile;
+class Fields;
 
 class Attributes {
-	vector<AttributeInfo> attributes;
+	vector<AttributeInfo *> attributes;
 public:
 	Attributes();
 	virtual ~Attributes();
 	void add(ClassFile *);
+	void addFieldAttributes(ClassFile *, Fields *);
 };
 
 class AttributeInfo {
@@ -42,6 +44,7 @@ class AttributeInfo {
 	uint32_t length;
 public:
 	AttributeInfo();
+	AttributeInfo(uint16_t,uint16_t);
 	virtual ~AttributeInfo();
 };
 
@@ -49,6 +52,7 @@ class ConstantAttribute : public AttributeInfo {
 	uint16_t constantIndex;
 public:
 	ConstantAttribute();
+	ConstantAttribute(uint16_t,uint16_t);
 	virtual ~ConstantAttribute();
 };
 
@@ -98,6 +102,7 @@ public:
 class SyntheticAttribute : public AttributeInfo {
 public:
 	SyntheticAttribute();
+	SyntheticAttribute(uint16_t);
 	virtual ~SyntheticAttribute();
 };
 
@@ -144,6 +149,7 @@ public:
 class DeprecatedAttribute : public AttributeInfo {
 public:
 	DeprecatedAttribute();
+	DeprecatedAttribute(uint16_t);
 	virtual ~DeprecatedAttribute();
 };
 #endif /* ATTRIBUTEINFO_H_ */

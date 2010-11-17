@@ -42,8 +42,19 @@ public:
 	void verifyClassIndex(uint16_t);
 	ConstantPool();
 	void getConstantPool(uint8_t *);
-	ConstantPool getConstant(uint16_t);
+	ConstantPool *getConstant(uint16_t);
 	void add(ClassFile *);
+	bool isClassref();
+	bool isFieldref();
+	bool isMethodref();
+	bool isInterfaceref();
+	bool isString();
+	bool isInteger();
+	bool isFloat();
+	bool isLong();
+	bool isDouble();
+	bool isNameType();
+	bool isUtf8();
 };
 
 class CPClassInfo : public ConstantPool {
@@ -127,6 +138,7 @@ private:
 	string aString;
 public:
 	CPUtf8Info(ClassFile *);
+	string& name();
 };
 
 #endif /* CONSTANTPOOL_H_ */

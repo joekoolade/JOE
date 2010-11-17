@@ -18,7 +18,7 @@ class Fields;
 using namespace std;
 
 class FieldInfo {
-	vector<Fields> fieldsTable;
+	vector<Fields *> fieldsTable;
 public:
 	FieldInfo();
 	virtual ~FieldInfo();
@@ -28,10 +28,18 @@ public:
 class Fields {
 	uint16_t accessFlags;
 	uint16_t nameIndex;
-	vector<AttributeInfo> attributes;
+	uint16_t descriptorIndex;
+	uint16_t attributeCount;
+	Attributes attributes;
 public:
 	Fields();
 	virtual ~Fields();
+	void setFlags(uint16_t);
+	void setNameIndex(uint16_t);
+	void setDescriptorIndex(uint16_t);
+	void setAttributeCount(uint16_t);
+	uint16_t getAttributeCount();
+	void addAttributes(ClassFile *);
 };
 
 #endif /* FIELDS_H_ */
