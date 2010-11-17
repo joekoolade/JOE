@@ -53,7 +53,7 @@ void ClassFile::readMagic() {
 void ClassFile::readVersion() {
 	minor_version = be16toh(*(uint16_t *)zfilePtr);
 	major_version = be16toh(*(uint16_t *)(zfilePtr+2));
-	printf("class version: %d:%d\n", major_version, minor_version);
+	// printf("class version: %d:%d\n", major_version, minor_version);
 	zfilePtr += 4;
 }
 
@@ -122,3 +122,6 @@ int ClassFile::constantPoolCount() {
 	return constant_pool_count;
 }
 
+uint16_t ClassFile::interfaceCount() {
+	return interfaces_count;
+}

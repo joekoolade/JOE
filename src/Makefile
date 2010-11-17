@@ -2,12 +2,16 @@ OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
 		Fields.o Interfaces.o Methods.o
 		
 SRCS:=$(OBJS:.o=.cpp)
+CXXFLAGS += -g
 
 all: test
 
 test: $(OBJS)
 	$(CXX) -o test  -lz $^
 
+clean:
+	rm *.o
+	
 include $(SRCS:.cpp=.d)
 	
 %.d: %.cpp

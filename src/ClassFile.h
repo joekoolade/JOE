@@ -58,6 +58,7 @@ public:
     	uint8_t *getFilePtr();
     	void setFilePtr(uint8_t *);
     	int constantPoolCount();
+    	uint16_t interfaceCount();
 };
 
 #endif /* CLASSFILE_H_ */

@@ -49,7 +49,6 @@ CPClassInfo::CPClassInfo(ClassFile *file) {
 	tag = CONSTANT_Class;
 	nameIndex = be16toh(*(uint16_t *)data);
 	file->setFilePtr(data+2);
-    verifyClassIndex(nameIndex);
 }
 
 CPFieldref::CPFieldref(ClassFile *file) {
@@ -159,6 +158,7 @@ void ConstantPool::add(ClassFile *classFile) {
 			printf("cp unknown tag: %d i=%d\n", tag, i);
 			throw(-2);
 		}
+		cp->tag = tag;
 		// TODO: Add constant to map
 		constants[i] = cp;
 	}

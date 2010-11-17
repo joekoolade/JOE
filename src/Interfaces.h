@@ -16,7 +16,7 @@ using namespace std;
 
 class Interfaces {
 private:
-	vector<int> interfaces;
+	vector<uint16_t> interfaces;
 
 public:
 	Interfaces();
