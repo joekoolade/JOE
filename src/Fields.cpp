@@ -42,12 +42,24 @@ void Fields::setFlags(uint16_t flags) {
 	accessFlags = flags;
 }
 
+uint16_t Fields::getFlags() {
+	return accessFlags;
+}
+
 void Fields::setNameIndex(uint16_t index) {
 	nameIndex = index;
 }
 
+uint16_t Fields::getNameIndex() {
+	return nameIndex;
+}
+
 void Fields::setDescriptorIndex(uint16_t index) {
 	descriptorIndex = index;
+}
+
+uint16_t Fields::getDescriptorIndex() {
+	return descriptorIndex;
 }
 
 void Fields::addAttributes(ClassFile *file) {
@@ -63,7 +75,7 @@ void FieldInfo::add(ClassFile *classFile) {
 
 	data = classFile->getFilePtr();
 	fieldCount = classFile->fieldCount();
-	cout << "fields added: " << fieldCount << " ";
+	cout << "fields added: " << fieldCount << endl;
 	fieldsTable.resize(fieldCount);
 	for(i=0; i < fieldCount; i++) {
 		aField = new Fields();
@@ -76,8 +88,11 @@ void FieldInfo::add(ClassFile *classFile) {
 		aField->setAttributeCount(be16toh(*(uint16_t *)data));
 		data +=2;
 		classFile->setFilePtr(data);
+		printf("field %d: %x %x %x %x\n", i, aField->getFlags(), aField->getNameIndex(),
+				aField->getDescriptorIndex(), aField->getAttributeCount());
 		if(aField->getAttributeCount()==0)
 			continue;
 		aField->addAttributes(classFile);
+		data = classFile->getFilePtr();
 	}
 }

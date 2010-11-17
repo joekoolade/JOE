@@ -35,8 +35,11 @@ public:
 	Fields();
 	virtual ~Fields();
 	void setFlags(uint16_t);
+	uint16_t getFlags();
 	void setNameIndex(uint16_t);
+	uint16_t getNameIndex();
 	void setDescriptorIndex(uint16_t);
+	uint16_t getDescriptorIndex();
 	void setAttributeCount(uint16_t);
 	uint16_t getAttributeCount();
 	void addAttributes(ClassFile *);

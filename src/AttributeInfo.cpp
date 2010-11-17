@@ -56,6 +56,7 @@ void Attributes::addFieldAttributes(ClassFile *file, Fields *field) {
 		data += 2;
 		length = be32toh(*(uint32_t *)data);
 		data += 4;
+		printf("attr %d: %x %x\n", i, nameIndex, length);
 		cp = file->getConstant(nameIndex);
 		if(!cp->isUtf8())
 			goto error;
@@ -63,20 +64,26 @@ void Attributes::addFieldAttributes(ClassFile *file, Fields *field) {
 		if(utf->name() == CONSTANT_ATTR_NAME) {
 			uint16_t constantIndex = be16toh(*(uint16_t *)data);
 			data += 2;
+			printf("constant: %x\n", constantIndex);
 			ConstantAttribute *attr = new ConstantAttribute(nameIndex, constantIndex);
 			attributes.assign(1, attr);
 		} else if(utf->name() == SYNTHETIC_ATTR_NAME) {
+			printf("synthetic\n");
 			SyntheticAttribute *attr = new SyntheticAttribute(nameIndex);
 			attributes.assign(1, attr);
 		} else if(utf->name() == DEPRECATED_ATTR_NAME) {
+			printf("deprecated\n");
 			DeprecatedAttribute *attr = new DeprecatedAttribute(nameIndex);
 			attributes.assign(1, attr);
+		} else {
+			cout << utf->name() << endl;
 		}
 
 	}
 	file->setFilePtr(data);
 	return;
 error:
+	printf("Not a UTF8!\n");
 	file->setFilePtr(data+length);
 	throw(-4);
 }
