@@ -81,7 +81,7 @@ void MethodInfo::add(ClassFile *classFile) {
 		data += 2;
 		aMethod->setAttributeCount(be16toh(*(uint16_t *)data));
 		data +=2;
-		printf("field %d: %x %x %x %x\n", i, aMethod->getFlags(), aMethod->getNameIndex(),
+		printf("method %d: %x %x %x %x\n", i, aMethod->getFlags(), aMethod->getNameIndex(),
 				aMethod->getDescriptorIndex(), aMethod->getAttributeCount());
 		classFile->setFilePtr(data);
 		if(aMethod->getAttributeCount()==0)

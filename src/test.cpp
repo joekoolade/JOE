@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 		printf("name: %s\n", zfile.name.c_str());
 		try {
 			ClassFile c(zfile);
-		} catch(int) {
-			//printf("name: %s\n", zfile.name.c_str());
+		} catch(int i) {
+			printf("caught: %s ---> %d\n", zfile.name.c_str(), i);
 		}
 	}
 }

@@ -41,8 +41,9 @@ ClassFile::ClassFile(ZipFile &file) {
  */
 void ClassFile::readMagic() {
 	magic = be32toh(*(uint32_t *)zfilePtr);
+	// cout << "magic: " << hex << magic << endl;
 	if(magic != JAVA_MAGIC) {
-		printf("bad magic: %x", magic);
+		printf("bad magic: %x\n", magic);
 		throw(-1);
 	}
 	// advance file pointer
