@@ -103,6 +103,7 @@ void ClassFile::readFields() {
 void ClassFile::readMethods() {
 	methods_count = be16toh(*(uint16_t *)zfilePtr);
 	zfilePtr += 2;
+	printf("methods #: %d\n", methods_count);
 	methods.add(this);
 }
 
@@ -137,6 +138,10 @@ uint16_t ClassFile::interfaceCount() {
 
 uint16_t ClassFile::fieldCount() {
 	return fields_count;
+}
+
+uint16_t ClassFile::getMethodCount() {
+	return methods_count;
 }
 
 ConstantPool * ClassFile::getConstant(uint16_t index) {

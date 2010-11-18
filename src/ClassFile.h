@@ -61,6 +61,7 @@ public:
     	int constantPoolCount();
     	uint16_t interfaceCount();
     	uint16_t fieldCount();
+    	uint16_t getMethodCount();
     	ConstantPool *getConstant(uint16_t);
 };
 

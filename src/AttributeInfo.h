@@ -29,6 +29,7 @@ using namespace std;
 class AttributeInfo;
 class ClassFile;
 class Fields;
+class Methods;
 
 class Attributes {
 	vector<AttributeInfo *> attributes;
@@ -37,6 +38,7 @@ public:
 	virtual ~Attributes();
 	void add(ClassFile *);
 	void addFieldAttributes(ClassFile *, Fields *);
+	void addMethodAttributes(ClassFile *, Methods *);
 };
 
 class AttributeInfo {
@@ -75,6 +77,7 @@ class CodeAttribute : public AttributeInfo {
 	vector<AttributeInfo> attributes;
 public:
 	CodeAttribute();
+	CodeAttribute(ClassFile *);
 	virtual ~CodeAttribute();
 };
 
