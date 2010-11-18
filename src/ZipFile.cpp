@@ -25,7 +25,7 @@ using namespace std;
 #define WBITS	15		// window bits
 
 ZipFile::ZipFile() {
-
+	debug = 0;
 }
 
 /**
@@ -36,6 +36,7 @@ ZipFile::ZipFile() {
 ZipFile::ZipFile(ifstream& stream, ZipLocalFileHeader& fileHeader) {
 	char fileName[255];
 
+	debug = 0;
 	// read in file name
 	stream.read(fileName, fileHeader.fileNameLen);
 	fileName[fileHeader.fileNameLen] = '\0';
@@ -78,6 +79,7 @@ void ZipFile::inflate() {
 	// data no deflated, so just copy over
 	if(compression == CM_STORED) {
 		memcpy(infData, cdata, size);
+		data = (uint8_t *)cdata;
 		return;
 	}
 
