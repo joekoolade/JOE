@@ -111,8 +111,9 @@ void Attributes::addMethodAttributes(ClassFile *file, Methods *method) {
 			goto error;
 		utf = static_cast<CPUtf8Info *>(cp);
 		if(utf->name() == CODE_ATTR_NAME) {
+			printf("Code\n");
 			file->setFilePtr(data);
-			CodeAttribute *attr = new CodeAttribute(file);
+			CodeAttribute *attr = new CodeAttribute(file, nameIndex, length);
 			attributes.assign(1, attr);
 		} else if(utf->name() == SYNTHETIC_ATTR_NAME) {
 			printf("synthetic\n");
@@ -125,14 +126,36 @@ void Attributes::addMethodAttributes(ClassFile *file, Methods *method) {
 		} else {
 			cout << utf->name() << endl;
 		}
-
 	}
+	printf("added %d attributes\n", attributes.size());
 	file->setFilePtr(data);
 	return;
 error:
 	printf("Not a UTF8!\n");
 	file->setFilePtr(data+length);
 	throw(-4);
+}
+
+ExceptionTable::ExceptionTable() {
+
+}
+
+ExceptionTable::ExceptionTable(ClassFile *classFile) {
+	uint8_t *data;
+
+	data = classFile->getFilePtr();
+	startpc = be16toh(*(uint16_t *)data);
+	data += 2;
+	endpc = be16toh(*(uint16_t *)data);
+	data += 2;
+	handlerpc = be16toh(*(uint16_t *)data);
+	data += 2;
+	catchType = be16toh(*(uint16_t *)data);
+	data += 2;
+	classFile->setFilePtr(data);
+}
+
+ExceptionTable::~ExceptionTable(){
 }
 
 CodeAttribute::CodeAttribute(){
@@ -143,7 +166,107 @@ CodeAttribute::~CodeAttribute(){
 
 }
 
-CodeAttribute::CodeAttribute(ClassFile *) {
+CodeAttribute::CodeAttribute(ClassFile *classFile, uint16_t name, uint16_t size) {
+	uint8_t *data;
+	int i;
+
+	nameIndex = name;
+	length = size;
+	data = classFile->getFilePtr();
+	maxStack = be16toh(*(uint16_t *)data);
+	data += 2;
+	maxLocals = be16toh(*(uint16_t *)data);
+	data += 2;
+	codeLength = be32toh(*(uint32_t *)data);
+	data+=4;
+	printf("code: %d %d %d\n", maxStack, maxLocals, codeLength);
+	code.resize(codeLength);
+	for(i=0; i < codeLength; i++, data++) {
+		code[i] = *data;
+	}
+	exceptionTableLength = be16toh(*(uint16_t *)data);
+	data += 2;
+	printf("exception table: %d\n", exceptionTableLength);
+	exceptionTable.resize(exceptionTableLength);
+	classFile->setFilePtr(data);
+	for(i=0; i < exceptionTableLength; i++) {
+		exceptionTable[i] = new ExceptionTable(classFile);
+	}
+	data = classFile->getFilePtr();
+	attributeCount = be16toh(*(uint16_t *)data);
+	data += 2;
+	printf("code attrs: %d\n", attributeCount);
+	attributes.resize(attributeCount);
+	for(i=0; i < attributeCount; i++) {
+		uint16_t nameIndex = be16toh(*(uint16_t *)data);
+		data += 2;
+		uint16_t length = be32toh(*(uint32_t *)data);
+		data += 4;
+		printf("code attr %d: %x %x\n", i, nameIndex, length);
+		ConstantPool *cp = classFile->getConstant(nameIndex);
+		if(!cp->isUtf8()) {
+
+		}
+		CPUtf8Info *utf = static_cast<CPUtf8Info *>(cp);
+		if(utf->name() == LINENUMTABLE_ATTR_NAME) {
+			printf("Line Number Table\n");
+			classFile->setFilePtr(data);
+			LineNumberTableAttribute *attr = new LineNumberTableAttribute(classFile, nameIndex, length);
+			attributes.assign(1, attr);
+		} else if(utf->name() == LOCALVARTABLE_ATTR_NAME) {
+			printf("Local Variable Table\n");
+			classFile->setFilePtr(data);
+			LocalVariableTableAttribute *attr = new LocalVariableTableAttribute(classFile, nameIndex, length);
+			attributes.assign(1, attr);
+		} else {
+			cout << utf->name() << ": IGNORED!" << endl;
+		}
+	}
+}
+
+LocalVariableInfo::~LocalVariableInfo() {
+}
+
+LocalVariableInfo::LocalVariableInfo(uint16_t pc, uint16_t length0, uint16_t name, uint16_t desc, uint16_t index0) {
+	startpc = pc;
+	length = length0;
+	nameIndex = name;
+	descriptorIndex = desc;
+	index = index0;
+}
+
+LocalVariableTableAttribute::~LocalVariableTableAttribute() {
+}
+
+LocalVariableTableAttribute::LocalVariableTableAttribute(ClassFile *classFile, uint16_t name, uint16_t length)
+	: AttributeInfo(name, length)
+{
+	uint8_t *data;
+	int i;
+	uint16_t startpc, length0, nameIndex, descriptorIndex, index;
+
+	data = classFile->getFilePtr();
+	uint16_t tableLength = be16toh(*(uint16_t *)data);
+	localVariableTable.resize(tableLength);
+	for(i=0; i < tableLength; i++) {
+		startpc = be16toh(*(uint16_t *)data);
+		data += 2;
+		length0 = be16toh(*(uint16_t *)data);
+		data += 2;
+		nameIndex = be16toh(*(uint16_t *)data);
+		data += 2;
+		descriptorIndex = be16toh(*(uint16_t *)data);
+		data += 2;
+		index = be16toh(*(uint16_t *)data);
+		data += 2;
+		localVariableTable[i] = new LocalVariableInfo(startpc, length0, nameIndex, descriptorIndex, index);
+	}
+}
+
+LineNumberTableAttribute::~LineNumberTableAttribute() {
+}
+
+LineNumberTableAttribute::LineNumberTableAttribute(ClassFile *, uint16_t, uint16_t) {
 
 }
 

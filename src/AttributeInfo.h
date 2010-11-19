@@ -42,6 +42,7 @@ public:
 };
 
 class AttributeInfo {
+protected:
 	uint16_t nameIndex;
 	uint32_t length;
 public:
@@ -65,19 +66,22 @@ class ExceptionTable {
 	uint16_t catchType;
 public:
 	ExceptionTable();
+	ExceptionTable(ClassFile *);
 	virtual ~ExceptionTable();
 };
 
 class CodeAttribute : public AttributeInfo {
 	uint16_t maxStack;
 	uint16_t maxLocals;
-	uint32_t length;
+	uint32_t codeLength;
 	valarray<uint8_t> code;
-	vector<ExceptionTable> exceptionTable;
-	vector<AttributeInfo> attributes;
+	uint16_t exceptionTableLength;
+	vector<ExceptionTable *> exceptionTable;
+	uint16_t attributeCount;
+	vector<AttributeInfo *> attributes;
 public:
 	CodeAttribute();
-	CodeAttribute(ClassFile *);
+	CodeAttribute(ClassFile *, uint16_t, uint16_t);
 	virtual ~CodeAttribute();
 };
 
@@ -125,9 +129,10 @@ public:
 };
 
 class LineNumberTableAttribute : public AttributeInfo {
-	vector<LineNumberInfo> lineNumberTable;
+	vector<LineNumberInfo *> lineNumberTable;
 public:
 	LineNumberTableAttribute();
+	LineNumberTableAttribute(ClassFile *, uint16_t, uint16_t);
 	virtual ~LineNumberTableAttribute();
 };
 
@@ -138,14 +143,15 @@ class LocalVariableInfo {
 	uint16_t descriptorIndex;
 	uint16_t index;
 public:
-	LocalVariableInfo();
+	LocalVariableInfo(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
 	virtual ~LocalVariableInfo();
 };
 
 class LocalVariableTableAttribute : public AttributeInfo {
-	vector<LocalVariableInfo> localVariableTable;
+	vector<LocalVariableInfo *> localVariableTable;
 public:
 	LocalVariableTableAttribute();
+	LocalVariableTableAttribute(ClassFile *, uint16_t, uint16_t);
 	virtual ~LocalVariableTableAttribute();
 };
 
