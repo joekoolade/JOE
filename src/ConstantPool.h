@@ -8,6 +8,11 @@
 #ifndef CONSTANTPOOL_H_
 #define CONSTANTPOOL_H_
 
+#include <vector>
+#include <string>
+
+#include <stdint.h>
+
 typedef unsigned int u4;
 typedef unsigned short u2;
 typedef unsigned char u1;
@@ -24,20 +29,39 @@ typedef unsigned char u1;
 #define CONSTANT_InterfaceMethodref	11
 #define CONSTANT_NameAndType		12
 
+class ClassFile;
+
+using namespace std;
+
 class ConstantPool {
 private:
+	vector<ConstantPool *> constants;
+protected:
 	u1 tag;
-	vector<ConstantPool> constants;
 public:
-	ConstantPool(ZipFile);
-	void getConstantPool(unsigned char *);
+	void verifyClassIndex(uint16_t);
+	ConstantPool();
+	void getConstantPool(uint8_t *);
+	ConstantPool *getConstant(uint16_t);
+	void add(ClassFile *);
+	bool isClassref();
+	bool isFieldref();
+	bool isMethodref();
+	bool isInterfaceref();
+	bool isString();
+	bool isInteger();
+	bool isFloat();
+	bool isLong();
+	bool isDouble();
+	bool isNameType();
+	bool isUtf8();
 };
 
 class CPClassInfo : public ConstantPool {
 private:
 	u2 nameIndex;
 public:
-	CPClassInfo(unsigned char *);
+	CPClassInfo(ClassFile *);
 
 };
 
@@ -46,7 +70,7 @@ private:
 	u2 classIndex;
 	u2 nameTypeIndex;
 public:
-	CPFieldref(unsigned char *);
+	CPFieldref(ClassFile *);
 };
 
 class CPMethodref : public ConstantPool {
@@ -54,7 +78,7 @@ private:
 	u2 classIndex;
 	u2 nameTypeIndex;
 public:
-	CPMethodref(unsigned char *);
+	CPMethodref(ClassFile *);
 };
 
 class CPInterfaceref : public ConstantPool {
@@ -62,42 +86,42 @@ private:
 	u2 classIndex;
 	u2 nameTypeIndex;
 public:
-	CPInterfaceref(unsigned char *);
+	CPInterfaceref(ClassFile *);
 };
 
 class CPStringInfo : public ConstantPool {
 private:
 	u2 stringIndex;
 public:
-	CPStringInfo(unsigned char *);
+	CPStringInfo(ClassFile *);
 };
 
 class CPIntegerInfo : public ConstantPool {
 private:
 	u4 bytes;
 public:
-	CPIntegerInfo(unsigned char *);
+	CPIntegerInfo(ClassFile *);
 };
 
 class CPFloatInfo : public ConstantPool {
 private:
 	u4 bytes;
 public:
-	CPFloatInfo(unsigned char *);
+	CPFloatInfo(ClassFile *);
 };
 
 class CPLongInfo : public ConstantPool {
 private:
 	uint64_t bytes;
 public:
-	CPLongInfo(unsigned char *);
+	CPLongInfo(ClassFile *);
 };
 
 class CPDoubleInfo : public ConstantPool {
 private:
 	uint64_t bytes;
 public:
-	CPDoubleInfo(unsigned char *);
+	CPDoubleInfo(ClassFile *);
 };
 
 class CPNameTypeInfo : public ConstantPool {
@@ -105,15 +129,16 @@ private:
 	u2 nameIndex;
 	u2 descriptorIndex;
 public:
-	CPNameTypeInfo(unsigned char *);
+	CPNameTypeInfo(ClassFile *);
 };
 
 class CPUtf8Info : public ConstantPool {
 private:
 	u2 length;
-	u1 *bytes;
+	string aString;
 public:
-	CPUtf8Info(unsigned char *);
+	CPUtf8Info(ClassFile *);
+	string& name();
 };
 
 #endif /* CONSTANTPOOL_H_ */

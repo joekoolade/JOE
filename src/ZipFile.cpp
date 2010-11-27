@@ -23,6 +23,11 @@ using namespace std;
 #define TRACE_INFLATE if(debug & DEBUG_INFLATE)
 
 #define WBITS	15		// window bits
+
+ZipFile::ZipFile() {
+	debug = 0;
+}
+
 /**
  * @param stream reference to input file stream. Should be pointing to the file name field
  * @param fileHeader current zip file being processed
@@ -31,6 +36,7 @@ using namespace std;
 ZipFile::ZipFile(ifstream& stream, ZipLocalFileHeader& fileHeader) {
 	char fileName[255];
 
+	debug = 0;
 	// read in file name
 	stream.read(fileName, fileHeader.fileNameLen);
 	fileName[fileHeader.fileNameLen] = '\0';
@@ -73,6 +79,7 @@ void ZipFile::inflate() {
 	// data no deflated, so just copy over
 	if(compression == CM_STORED) {
 		memcpy(infData, cdata, size);
+		data = (uint8_t *)cdata;
 		return;
 	}
 
@@ -118,4 +125,8 @@ void ZipFile::inflate() {
 	free(outBuffer);
 	TRACE_INFLATE cout << "Inflated --> " << name << endl;
 	data = infData;
+}
+
+uint8_t *ZipFile::getData() {
+	return data;
 }

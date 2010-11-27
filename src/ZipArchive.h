@@ -23,9 +23,13 @@ private:
 	uint32_t size;
 	int debug;
     void processCD(ifstream& in);
+    std::map<string, ZipFile>::iterator iter;
 public:
 	std::map<string, ZipFile> fileTable;
 	ZipArchive(char *);
+	void iterator();
+	bool hasNext();
+	ZipFile next();
 	~ZipArchive() {};
 };
 

@@ -113,7 +113,9 @@ public:
 	uint32_t crc;
 	uint32_t compressedSize;
 
+	ZipFile();
 	ZipFile(ifstream&, ZipLocalFileHeader&);
 	void inflate();
+	uint8_t *getData();
 };
 #endif /* ZIPFILE_H_ */
