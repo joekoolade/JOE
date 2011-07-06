@@ -189,11 +189,13 @@ int main(int argc, char **argv) {
     mvm::BumpPtrAllocator A;
     Jnjvm* vm = new(A, "Bootstrap loader") Jnjvm(A, (JnjvmBootstrapLoader*)JCL);
   
+    std::cout << "Properties:\n";
     for (std::vector<std::string>::iterator i = Properties.begin(),
          e = Properties.end(); i != e; ++i) {
 
       char* key = new char [(*i).size()+1];
       strcpy(key, (*i).c_str());
+      std::cout << key << std::endl;
       char* value = strchr(key, '=');
       if (!value) {
         delete[] key;
