@@ -1,0 +1,147 @@
+VMJC      := $(ToolDir)/vmjc$(EXEEXT)
+
+###############################################################################
+# VMKIT_RUNTIME: Provide rules to build a .cpp file with LLVM instructions
+#                generating code matching the .ll files.
+###############################################################################
+
+ifdef VMKIT_RUNTIME
+
+.PRECIOUS: LLVMRuntime.inc
+
+LLVMRuntime.inc : $(LLVMAS) $(LLC) $(VMKIT_RUNTIME)
+	$(Echo) "Building LLVM runtime with $(VMKIT_RUNTIME)"
+	$(Verb) cat $(VMKIT_RUNTIME) | $(LLVMAS) -o - | $(LLC) -march=cpp -cppgen=contents -o $@
+
+all-local:: LLVMRuntime.inc
+
+clean-local::
+	$(Verb) $(RM) -f LLVMRuntime.inc
+
+endif
+
+###############################################################################
+# VMJC_ASSEMBLY: Provide rules to build glibj.zip.s.
+###############################################################################
+
+ifdef VMJC_ASSEMBLY
+
+.PRECIOUS: glibj.zip.s
+
+glibj.zip.s : $(LOPT) $(LLC) $(VMJC)
+
+glibj.zip.bc :
+	$(Echo) "Compiling glibj.zip to llvm"
+	$(Verb) if test -d $(GLIBJ); then \
+	  $(VMJC) -f -std-compile-opts $(GLIBJ)/glibj.zip -o glibj.zip.bc; \
+	else \
+	  $(VMJC) -f -std-compile-opts $(GLIBJ) -o glibj.zip.bc; \
+	fi
+	
+glibj-optimized.zip.bc : glibj.zip.bc
+	$(Echo) "Optimizing glibj.zip"
+	$(Verb) $(LOPT) -std-compile-opts -f glibj.zip.bc -o glibj-optimized.zip.bc
+
+glibj.zip.s : glibj-optimized.zip.bc
+	$(Echo) "Compiling glibj.zip.bc to native"
+	$(Verb) $(LLC) -disable-cfi -relocation-model=pic -disable-fp-elim glibj-optimized.zip.bc -o glibj.zip.s
+
+$(ObjDir)/%.o: %.s $(ObjDir)/.dir $(BUILT_SOURCES)
+	$(Echo) "Compiling $*.s for $(BuildMode) build" $(PIC_FLAG)
+	$(Verb) $(Compile.C) $< -o $(ObjDir)/$*.o
+
+clean-local::
+	$(Verb) $(RM) -f glibj.zip.s glibj.zip.bc glibj-optimized.zip.bc
+endif
+
+###############################################################################
+# RUN_ANT: Provide rules to build MMTk into a .o file and inlining facilities.
+###############################################################################
+
+ifdef RUN_ANT
+
+MMTkLib = $(LibDir)/libFinalMMTk.a
+
+ifeq ($(shell [ ! -e $(MMTkLib) ] && echo "1"), 1)
+  COMPILE_MMTK = 1
+endif
+
+ifeq ($(COMPILE_MMTK), 1)
+  all::
+	$(Verb) $(ANT) -buildfile $(PROJ_OBJ_ROOT)/mmtk/java/build.xml
+	$(Echo) Building $(BuildMode) $(JARNAME).jar $(notdir $@)
+	$(Verb) $(LOPT) -load=$(LibDir)/JITGCPass$(SHLIBEXT) -std-compile-opts -JITGCPass -f $(LibDir)/MMTKAlloc.bc -o $(LibDir)/MMTKAlloc.bc
+	$(Verb) $(VMJC) -std-compile-opts -load=$(LibDir)/MMTKRuntime$(SHLIBEXT) -load=$(LibDir)/MMTKMagic$(SHLIBEXT) -LowerMagic $(PROJ_OBJ_ROOT)/mmtk/java/$(JARNAME).jar -disable-exceptions -disable-cooperativegc -with-clinit=org/mmtk/vm/VM,org/mmtk/utility/*,org/mmtk/policy/*,org/j3/config/* -Dmmtk.hostjvm=org.j3.mmtk.Factory -o $(JARNAME).bc -Dmmtk.properties=$(PROJ_SRC_ROOT)/mmtk/java/vmkit.properties -disable-stubs -assume-compiled
+	$(Verb) $(LOPT) -load=$(LibDir)/MMTKMagic$(SHLIBEXT) -std-compile-opts -LowerJavaRT -f $(JARNAME).bc -o $(JARNAME)-optimized.bc
+	$(Verb) $(LLVMLD) -r -o $(LibDir)/FinalMMTk.bc $(LibDir)/MMTKAlloc.bc $(JARNAME)-optimized.bc $(LibDir)/MMTKRuntime.bc
+	$(Verb) $(LOPT) $(LibDir)/FinalMMTk.bc -load=$(LibDir)/StaticGCPass$(SHLIBEXT) -std-compile-opts -StaticGCPass -o $(LibDir)/FinalMMTk.bc
+	$(Verb) $(MKDIR) $(ObjDir)
+	$(Verb) $(LLC) -disable-fp-elim -disable-cfi -disable-debug-info-print -load=$(LibDir)/StaticGCPrinter$(SHLIBEXT) $(LibDir)/FinalMMTk.bc -o $(ObjDir)/FinalMMTk.s
+	$(Verb) $(LLVMCC) -c $(ObjDir)/FinalMMTk.s -o $(ObjDir)/FinalMMTk.o
+	$(Verb) $(Archive) $(LibDir)/libFinalMMTk.a $(ObjDir)/FinalMMTk.o
+	$(Verb) $(Ranlib) $(LibDir)/libFinalMMTk.a
+	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=gcmalloc $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkMallocInline.inc
+	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=fieldWriteBarrier $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkFieldWriteInline.inc
+	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=arrayWriteBarrier $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkArrayWriteInline.inc
+	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=nonHeapWriteBarrier $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkNonHeapWriteInline.inc
+endif
+
+clean-local::
+	$(Verb) $(RM) -rf classes $(JARNAME).jar $(JARNAME).bc $(JARNAME)-optimized.bc $(ObjDir)
+endif
+
+###############################################################################
+# MODULE_WITH_GC: Provide rules for building .cpp files into an archive with
+#                 GC symbol information.
+###############################################################################
+
+ifdef MODULE_WITH_GC
+
+ObjectsBCWithGC   := $(BaseNameSources:%=$(ObjDir)/%_gc.bc)
+ObjectsSWithGC    := $(BaseNameSources:%=$(ObjDir)/%_gc.s)
+ObjectsWithGC     := $(BaseNameSources:%=$(ObjDir)/%_gc.o)
+AModule           := $(LibDir)/lib$(MODULE_WITH_GC).a
+
+$(ObjectsBCWithGC): $(ObjDir)/%_gc.bc: $(ObjDir)/%.ll $(LOPT)
+	$(Echo) "Compiling $*.ll to $*.bc for $(BuildMode) build (bytecode)"
+	$(Verb) $(LOPT) $< -load=$(VMKIT_OBJ_ROOT)/$(BuildMode)/lib/StaticGCPass$(SHLIBEXT) -std-compile-opts -StaticGCPass -o $@
+
+$(ObjectsSWithGC): $(ObjDir)/%_gc.s: $(ObjDir)/%_gc.bc $(LLC)
+	$(Echo) "Compiling $*.bc to $*.s for $(BuildMode) build"
+	$(Verb) $(LLC) -disable-cfi -disable-fp-elim -load=$(VMKIT_OBJ_ROOT)/$(BuildMode)/lib/StaticGCPrinter$(SHLIBEXT) $< -o $@
+
+$(ObjectsWithGC): $(ObjDir)/%_gc.o: $(ObjDir)/%_gc.s $(ObjDir)/.dir
+	$(Echo) "Compiling $*.s for $(BuildMode) build" $(PIC_FLAG)
+	$(Verb) $(Compile.C) $< -o $@
+
+$(AModule): $(ObjectsWithGC) $(LibDir)/.dir
+	$(Echo) Building $(BuildMode) Archive Library $(notdir $@)
+	-$(Verb) $(RM) -f $@
+	$(Verb) $(Archive) $@ $(ObjectsWithGC)
+	$(Verb) $(Ranlib) $@
+
+all-local:: $(AModule)
+
+clean-local::
+	-$(Verb) $(RM) -f $(AModule) $(ObjectsBCWithGC) $(ObjectsSWithGC) $(ObjectsWithGC)
+
+endif
+
+###############################################################################
+# BUILD_FRAMETABLE: Generate files for easy access of frametables at runtime.
+###############################################################################
+
+ifdef BUILD_FRAMETABLE
+
+FrametablesExterns.inc: $(ProjLibsPaths)
+	$(Verb) nm $(ProjLibsPaths) | grep __frametable | sed 's/\([a-f0-9]*\) \([a-zA-Z]*\) _*\([a-zA-Z0-9_]*\)/extern "C" CompiledFrames \3;/' > $@
+
+FrametablesSymbols.inc: $(ProjLibsPaths)
+	$(Verb) nm $(ProjLibsPaths) | grep __frametable | sed 's/\([a-f0-9]*\) \([a-zA-Z]*\) _*\([a-zA-Z0-9_]*\)/\&\3,/' > $@
+
+all-local:: FrametablesExterns.inc FrametablesSymbols.inc
+
+clean-local::
+	-$(Verb) $(RM) -f FrametablesExterns.inc FrametablesSymbols.inc
+	
+endif
