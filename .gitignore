@@ -3,3 +3,6 @@
 *.a
 .cproject
 .project
+ews/
+llvm/
+.git/
