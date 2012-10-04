@@ -57,72 +57,11 @@ VPATH=$(PROJ_SRC_DIR)
 
 $(UserTargets)::
 
-#------------------------------------------------------------------------
-# LLVMBuild Integration
-#------------------------------------------------------------------------
-#
-# We use llvm-build to generate all the data required by the Makefile based
-# build system in one swoop:
-#
-#  - We generate a file (a Makefile fragment) in the object root which contains
-#    all the definitions that are required by Makefiles across the entire
-#    project.
-#
-#  - We generate the library table used by llvm-config.
-#
-#  - We generate the dependencies for the Makefile fragment, so that we will
-#    automatically reconfigure outselves.
-
-# The path to the llvm-build tool itself.
-LLVMBuildTool	:= $(PROJ_SRC_ROOT)/utils/llvm-build/llvm-build
-
-# The files we are going to generate using llvm-build.
-LLVMBuildMakeFrag := $(PROJ_OBJ_ROOT)/Makefile.llvmbuild
-LLVMConfigLibraryDependenciesInc := \
-	$(PROJ_OBJ_ROOT)/tools/llvm-config/LibraryDependencies.inc
 
 # This is for temporary backwards compatibility.
 ifndef TARGET_NATIVE_ARCH
 TARGET_NATIVE_ARCH := $(ARCH)
 endif
-
-# The rule to create the LLVMBuild Makefile fragment as well as the llvm-config
-# library table.
-#
-# Note that this target gets its real dependencies generated for us by
-# llvm-build.
-#
-# We include a dependency on this Makefile to ensure that changes to the
-# generation command get picked up.
-$(LLVMBuildMakeFrag): $(PROJ_SRC_ROOT)/Makefile.rules \
-		      $(PROJ_OBJ_ROOT)/Makefile.config
-	$(Echo) Constructing LLVMBuild project information.
-	$(Verb) $(LLVMBuildTool) \
-	  --native-target "$(TARGET_NATIVE_ARCH)" \
-	  --enable-targets "$(TARGETS_TO_BUILD)" \
-	  --enable-optional-components "$(OPTIONAL_COMPONENTS)" \
-	  --write-library-table $(LLVMConfigLibraryDependenciesInc) \
-	  --write-make-fragment $(LLVMBuildMakeFrag)
-
-# For completeness, let Make know how the extra files are generated.
-$(LLVMConfigLibraryDependenciesInc): $(LLVMBuildMakeFrag)
-
-# Include the generated Makefile fragment.
-#
-# We currently only include the dependencies for the fragment itself if we are
-# at the top-level. Otherwise, recursive invocations would ends up doing
-# substantially more redundant stat'ing.
-#
-# This means that we won't properly regenerate things for developers used to
-# building from a subdirectory, but that is always somewhat unreliable.
-ifeq ($(LEVEL),.)
-LLVMBUILD_INCLUDE_DEPENDENCIES := 1
-
-# Clean the generated makefile fragment at the top-level.
-clean-local::
-	-$(Verb) $(RM) -f $(LLVMBuildMakeFrag)
-endif
--include $(LLVMBuildMakeFrag)
 
 ################################################################################
 # PRECONDITIONS: that which must be built/checked first
@@ -132,7 +71,7 @@ SrcMakefiles       := $(filter %Makefile %Makefile.tests,\
                       $(wildcard $(PROJ_SRC_DIR)/Makefile*))
 ObjMakefiles       := $(subst $(PROJ_SRC_DIR),$(PROJ_OBJ_DIR),$(SrcMakefiles))
 ConfigureScript    := $(PROJ_SRC_ROOT)/configure
-ConfigStatusScript := $(PROJ_OBJ_ROOT)/config.status
+ConfigStatusScript := 
 MakefileConfigIn   := $(strip $(wildcard $(PROJ_SRC_ROOT)/Makefile.config.in))
 MakefileCommonIn   := $(strip $(wildcard $(PROJ_SRC_ROOT)/Makefile.common.in))
 MakefileConfig     := $(PROJ_OBJ_ROOT)/Makefile.config
@@ -158,47 +97,7 @@ ifneq ($(strip $(BUILT_SOURCES)),)
 	-$(Verb) $(RM) -f $(BUILT_SOURCES)
 endif
 
-ifneq ($(PROJ_OBJ_ROOT),$(PROJ_SRC_ROOT))
-spotless:
-	$(Verb) if test -x config.status ; then \
-	  $(EchoCmd) Wiping out $(PROJ_OBJ_ROOT) ; \
-	  $(MKDIR) .spotless.save ; \
-	  $(MV) config.status .spotless.save ; \
-	  $(MV) mklib  .spotless.save ; \
-	  $(MV) projects  .spotless.save ; \
-	  $(RM) -rf * ; \
-	  $(MV) .spotless.save/config.status . ; \
-	  $(MV) .spotless.save/mklib . ; \
-	  $(MV) .spotless.save/projects . ; \
-	  $(RM) -rf .spotless.save ; \
-	  $(EchoCmd) Rebuilding configuration of $(PROJ_OBJ_ROOT) ; \
-	  $(ConfigStatusScript) --recheck $(ConfigureScriptFLAGS) && \
-	  $(ConfigStatusScript) ; \
-	else \
-	  $(EchoCmd) "make spotless" can only be run from $(PROJ_OBJ_ROOT); \
-	fi
-else
-spotless:
-	$(EchoCmd) "spotless target not supported for objdir == srcdir"
-endif
-
-$(BUILT_SOURCES) : $(ObjMakefiles)
-
-#------------------------------------------------------------------------
-# Make sure we're not using a stale configuration
-#------------------------------------------------------------------------
-reconfigure:
-	$(Echo) Reconfiguring $(PROJ_OBJ_ROOT)
-	$(Verb) cd $(PROJ_OBJ_ROOT) && \
-	  $(ConfigStatusScript) --recheck $(ConfigureScriptFLAGS) && \
-	  $(ConfigStatusScript)
-
-.PRECIOUS: $(ConfigStatusScript)
-$(ConfigStatusScript): $(ConfigureScript)
-	$(Echo) Reconfiguring with $<
-	$(Verb) cd $(PROJ_OBJ_ROOT) && \
-	  $(ConfigStatusScript) --recheck $(ConfigureScriptFLAGS) && \
-	  $(ConfigStatusScript)
+# $(BUILT_SOURCES) : $(ObjMakefiles)
 
 #------------------------------------------------------------------------
 # Make sure the configuration makefile is up to date
@@ -1574,6 +1473,7 @@ ifeq ($(HOST_OS),HP-UX)
 endif
 
 # Provide rule sets for when dependency generation is enabled
+DISABLE_AUTO_DEPENDENCIES=1
 ifndef DISABLE_AUTO_DEPENDENCIES
 
 #---------------------------------------------------------

@@ -7,9 +7,9 @@ LLVM_OBJ_ROOT = /home/jkulig/joe/jei/JEI/vmkit
 
 # Define BYTECODE_LIBRARY before including LLVM's Makefile.common to get
 # dependencies right.
-BYTECODE_LIBRARY = 1
+BYTECODE_LIBRARY = 0
 LLVMCC_OPTION = "clang"
-ENABLE_BUILT_CLANG = 1
+ENABLE_BUILT_CLANG = 0
 LLVMCC_EMITIR_FLAG = "-emit-llvm"
 
 ifeq ($(BUILD_FRAMETABLE), 1)

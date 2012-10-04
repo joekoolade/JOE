@@ -12,7 +12,8 @@ EXTRA_DIST = JniClasspath.inc JniOpenJDK.inc
 
 include $(LEVEL)/Makefile.config
 
-MODULE_WITH_GC = J3
+# MODULE_WITH_GC = J3
+LIBRARYNAME=VMCore
 
 include $(LEVEL)/Makefile.common
 
