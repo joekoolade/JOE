@@ -21,8 +21,6 @@
 #define LINUX_OS 1
 #elif defined(__APPLE__)
 #define MACOS_OS 1
-#else
-#error OS detection failed.
 #endif
 
 #if (__WORDSIZE == 32)
