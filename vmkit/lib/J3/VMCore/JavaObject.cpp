@@ -16,6 +16,7 @@
 #include "JavaTypes.h"
 #include "JavaUpcalls.h"
 #include "Jnjvm.h"
+#include <sys/time.h>
 
 #include <jni.h>
 #include "debug.h"

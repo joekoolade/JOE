@@ -12,6 +12,8 @@
 
 
 #include "types.h"
+#include <stdarg.h>
+#include <sys/time.h>
 
 #include "mvm/Allocator.h"
 #include "mvm/MethodInfo.h"
