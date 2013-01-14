@@ -197,6 +197,7 @@ public:
   void compileClassLoader(JnjvmBootstrapLoader* loader);
   void generateClassBytes(JnjvmBootstrapLoader* loader);
   void generateMain(const char* name, bool jit);
+  const char *getHostTriple();
 
 private:
   void compileAllStubs(Signdef* sign);

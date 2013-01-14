@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <sys/time.h>
+
 #include "mvm/Threads/Locks.h"
 
 #include "JavaArray.h"
