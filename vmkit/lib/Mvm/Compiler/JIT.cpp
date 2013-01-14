@@ -260,7 +260,8 @@ void BaseIntrinsics::init(llvm::Module* module) {
   LLVMContext& Context = module->getContext();
 
   MMTk_InlineMethods(module);
-  llvm_runtime::makeLLVMModuleContents(module);
+  // fixme
+  // llvm_runtime::makeLLVMModuleContents(module);
 
   // Type declaration
   ptrType = PointerType::getUnqual(Type::getInt8Ty(Context));

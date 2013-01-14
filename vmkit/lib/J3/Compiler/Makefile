@@ -8,11 +8,12 @@
 ##===----------------------------------------------------------------------===##
 LEVEL = ../../..
 
-EXTRA_DIST = JavaJITClasspath.inc JavaJITOpenJDK.inc
+# EXTRA_DIST = JavaJITClasspath.inc JavaJITOpenJDK.inc
 
 include $(LEVEL)/Makefile.config
 
-MODULE_WITH_GC = J3Compiler
+# MODULE_WITH_GC = J3Compiler
+LIBRARYNAME=Compiler
 
 include $(LEVEL)/Makefile.common
 

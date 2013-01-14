@@ -27,14 +27,16 @@ using namespace llvm;
 
 namespace j3 { 
   namespace llvm_runtime { 
-    #include "LLVMRuntime.inc"
+  //fixme
+//    #include "LLVMRuntime.inc"
   }
 }
 
 void J3Intrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
-  j3::llvm_runtime::makeLLVMModuleContents(module);
+  // fixme
+  // j3::llvm_runtime::makeLLVMModuleContents(module);
   
   LLVMContext& Context = module->getContext();
   VTType = PointerType::getUnqual(ArrayType::get(

@@ -2451,7 +2451,7 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
     true, GlobalValue::InternalLinkage, 0, "mainClass");
 
 
-  Constant* NameArray = ConstantArray::get(getLLVMContext(), name, true);
+  Constant* NameArray = ConstantArray::getAnon(getLLVMContext(), name, true);
   GvarArrayStr->setInitializer(NameArray);
   Value* Indices[2] = { JavaIntrinsics.constantZero,
                         JavaIntrinsics.constantZero };
