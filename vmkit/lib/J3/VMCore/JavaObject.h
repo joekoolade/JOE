@@ -17,6 +17,7 @@
 #include "MvmGC.h"
 
 #include "types.h"
+#include <sys/time.h>
 
 #include "JnjvmConfig.h"
 

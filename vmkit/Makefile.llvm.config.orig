@@ -162,14 +162,23 @@ NM_PATH = /usr/bin/nm
 
 # The pathnames of the programs we require to build
 CMP        := @CMP@
+<<<<<<< HEAD
 CP         :=/usr/bin/cp
 DATE       := /usr/bin/date
+=======
+CP         := /usr/bin/cp
+DATE       := @DATE@
+>>>>>>> origin/HEAD
 FIND       := @FIND@
 GREP       := /usr/bin/grep
 INSTALL    := @INSTALL@
 MKDIR      := $(LLVM_SRC_ROOT)/autoconf/mkinstalldirs
 MV         := /usr/bin/mv
+<<<<<<< HEAD
+RANLIB     := /bin/ranlib
+=======
 RANLIB     := /usr/bin/ranlib
+>>>>>>> origin/HEAD
 RM         := /usr/bin/rm
 SED        := @SED@
 TAR        := @TAR@

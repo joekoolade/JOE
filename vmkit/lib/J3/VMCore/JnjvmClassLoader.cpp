@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+
 #include <climits>
 #include <cstdlib>
 
@@ -20,7 +21,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-// for realpath
+// for PATH_MAX
+#include <limits.h>
+// for realpath()
 #include <stdlib.h>
 
 #include <string>
