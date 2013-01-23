@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <set>
+#include <cstdarg>
 
 namespace j3 {
 

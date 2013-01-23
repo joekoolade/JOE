@@ -11,6 +11,7 @@
 #define MVM_COND_H
 
 #include <cstdlib>
+#include <sys/time.h>
 #include <pthread.h>
 
 namespace mvm {

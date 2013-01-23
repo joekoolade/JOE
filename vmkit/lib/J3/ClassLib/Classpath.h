@@ -13,9 +13,9 @@
 #ifndef USE_OPENJDK
 
 // GNU Classpath values
-#define GNUClasspathLibs "@classpathlibs@"
-#define GNUClasspathGlibj "@classpathglibj@"
-#define GNUClasspathVersion "@classpathversion@"
+#define GNUClasspathLibs ""
+#define GNUClasspathGlibj ""
+#define GNUClasspathVersion ""
 
 #define ClasslibBootEnv GNUClasspathGlibj
 #define ClasslibLibEnv GNUClasspathLibs

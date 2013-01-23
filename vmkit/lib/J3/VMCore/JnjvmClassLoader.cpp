@@ -919,7 +919,7 @@ void JnjvmBootstrapLoader::analyseClasspathEnv(const char* str) {
         buf[top] = 0;
         char* rp = (char*)threadAllocator.Allocate(PATH_MAX);
         memset(rp, 0, PATH_MAX);
-        rp = realpath(buf, rp);
+        rp = NULL; // realpath(buf, rp);
         if (rp && rp[PATH_MAX - 1] == 0 && strlen(rp) != 0) {
           struct stat st;
           stat(rp, &st);

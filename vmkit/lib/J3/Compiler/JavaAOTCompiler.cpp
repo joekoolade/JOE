@@ -1791,12 +1791,19 @@ Constant* JavaAOTCompiler::CreateConstantFromVT(JavaVirtualTable* VT) {
   return Array;
 }
 
+const char *
+JavaAOTCompiler::getHostTriple() {
+	return "i686-pc-cygwin";
+}
+
 JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
   JavaLLVMCompiler(ModuleID) {
 
   std::string Error;
-  const Target* TheTarget(TargetRegistry::lookupTarget(mvm::MvmModule::getHostTriple(), Error));
-  TargetMachine* TM = TheTarget->createTargetMachine(mvm::MvmModule::getHostTriple(), "", "");
+  const Target* TheTarget(TargetRegistry::lookupTarget("i686-pc-cygwin", Error));
+  // FIXME
+  TargetMachine* TM = TheTarget->createTargetMachine(new StringRef("i686-pc-cygwin"),
+		  new StringRef("x86"), new StringRef(), );
   TheTargetData = TM->getTargetData();
   TheModule->setDataLayout(TheTargetData->getStringRepresentation());
   TheModule->setTargetTriple(TM->getTargetTriple());
@@ -2451,7 +2458,8 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
     true, GlobalValue::InternalLinkage, 0, "mainClass");
 
 
-  Constant* NameArray = ConstantArray::getAnon(getLLVMContext(), name, true);
+  // fixme
+  Constant* NameArray = 0; // ConstantArray::get(getLLVMContext(), name, true);
   GvarArrayStr->setInitializer(NameArray);
   Value* Indices[2] = { JavaIntrinsics.constantZero,
                         JavaIntrinsics.constantZero };

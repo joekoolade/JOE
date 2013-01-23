@@ -16,7 +16,7 @@
 #include "JavaTypes.h"
 #include "Jnjvm.h"
 #include "JavaThread.h"
-#include "JavaUpcalls.h"
+// #include "JavaUpcalls.h"
 #include "LockedMap.h"
 
 
