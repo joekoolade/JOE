@@ -14,6 +14,11 @@
 #include "mvm/UTF8.h"
 #include "j3/JavaLLVMCompiler.h"
 
+// for stderr
+#include <cstdio>
+// for native_class_iterator
+#include <map>
+
 namespace j3 {
 
 class ArrayObject;
