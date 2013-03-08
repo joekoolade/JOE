@@ -1,20 +1,20 @@
 OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
 		Fields.o Interfaces.o Methods.o
 
-TOP:=/home/joe/baremetal
+TOP:=..
 SRCS:=$(OBJS:.o=.cpp)
 
 LLVM_BIN = /usr/bin
 LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 
-LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
+# LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
 VMKIT_INC:=-I$(TOP)/vmkit/include 
 MVM_INC:=-I$(TOP)/vmkit/lib/Mvm/GCMmap2 -I$(TOP)/vmkit/lib/Mvm/Allocator
 J3_INC:=-I$(TOP)/vmkit/lib/J3
 INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(MVM_INC) $(J3_INC)
 
-LLVM_LIBDIR =-L$(TOP)/llvm/Release+Debug/lib
-LLVM_LIBS=$(shell $(LLVM_CONFIG) --libs jit nativecodegen scalaropts instrumentation ipa ipo bitwriter bitreader asmparser linker)
+LLVM_LIBDIR =
+LLVM_LIBS=-lLLVM-3.1.dll
 VMKIT_LIBS = -lJ3 -lClasspath -lJ3 -lJ3Compiler -lAllocator -lMvm -lMvmCompiler -lGCMmap2 -lCommonThread 
 VMKIT_LIBDIR = -L$(TOP)/vmkit/Release+Debug/lib
 
@@ -22,7 +22,7 @@ LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS)
 LIBS += -lz
 
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
-MUST_DEFINE:=-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
+MUST_DEFINE:=-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=32
 CXXFLAGS += -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)
 
 all: test

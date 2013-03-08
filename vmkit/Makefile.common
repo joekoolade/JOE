@@ -1,9 +1,9 @@
  # Set this variable to the top of the LLVM source tree.
-LLVM_SRC_ROOT =  /home/home/git/JEI/vmkit
+LLVM_SRC_ROOT =  /home/jkulig/joe/jei/JEI/vmkit
 
 # Set this variable to the top level directory where LLVM was built
 # (this is *not* the same as OBJ_ROOT as defined in LLVM's Makefile.config).
-LLVM_OBJ_ROOT = /home/home/git/JEI/vmkit
+LLVM_OBJ_ROOT = /home/jkulig/joe/jei/JEI/vmkit
 
 # Define BYTECODE_LIBRARY before including LLVM's Makefile.common to get
 # dependencies right.
