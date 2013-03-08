@@ -31,12 +31,12 @@
 #include "llvm/Support/RegistryParser.h"
 #include "llvm/Support/SystemUtils.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/System/Signals.h"
+#include "llvm/Support/Signals.h"
 #include "llvm/Target/TargetData.h"
 #include "llvm/Target/TargetMachine.h"
 
 
-#include "MvmGC.h"
+// #include "MvmGC.h"
 #include "mvm/JIT.h"
 #include "mvm/Object.h"
 #include "mvm/VirtualMachine.h"
