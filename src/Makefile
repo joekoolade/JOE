@@ -4,7 +4,7 @@ OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
 TOP:=/home/joe/baremetal
 SRCS:=$(OBJS:.o=.cpp)
 
-LLVM_BIN = $(TOP)/llvm/Release+Debug/bin
+LLVM_BIN = /usr/bin
 LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 
 LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
