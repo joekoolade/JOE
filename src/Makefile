@@ -9,7 +9,7 @@ LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 
 # LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
 VMKIT_INC:=-I$(TOP)/vmkit/include 
-MVM_INC:=-I$(TOP)/vmkit/lib/Mvm/GCMmap2 -I$(TOP)/vmkit/lib/Mvm/Allocator
+MVM_INC:=-I$(TOP)/vmkit/lib/Mvm/GCMmap2 -I$(TOP)/vmkit/lib/Mvm/Allocator -I$(TOP)/vmkit/lib
 J3_INC:=-I$(TOP)/vmkit/lib/J3
 INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(MVM_INC) $(J3_INC)
 
