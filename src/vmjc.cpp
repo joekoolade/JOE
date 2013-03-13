@@ -15,6 +15,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <llvm/Linker.h>
 #include "llvm/LinkAllPasses.h"
 #include "llvm/LinkAllVMCore.h"
 #include "llvm/Module.h"
@@ -24,6 +25,7 @@
 #include "llvm/Bitcode/ReaderWriter.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Support/IRReader.h"
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/PassNameParser.h"
@@ -36,7 +38,7 @@
 #include "llvm/Target/TargetMachine.h"
 
 
-// #include "MvmGC.h"
+#include "Mvm/MMTk/MvmGC.h"
 #include "mvm/JIT.h"
 #include "mvm/VirtualMachine.h"
 #include "mvm/Threads/Thread.h"
@@ -107,11 +109,10 @@ WithClinit("with-clinit", cl::desc("Classes to clinit"), cl::ZeroOrMore,
 
 int main(int argc, char **argv) {
   llvm_shutdown_obj X;  // Call llvm_shutdown() on exit.
-  try {
-    cl::ParseCommandLineOptions(argc, argv, "vmkit .class -> .ll compiler\n");
-    sys::PrintStackTraceOnErrorSignal();
+  cl::ParseCommandLineOptions(argc, argv, "vmkit .class -> .ll compiler\n");
+  sys::PrintStackTraceOnErrorSignal();
 
-    std::string ErrorMessage;
+  std::string ErrorMessage;
 
     
     if (InputFilename == "-") {
@@ -119,82 +120,27 @@ int main(int argc, char **argv) {
       return 0;
     }
    
-    // Disable cross-compiling for now.
-    if (false) {
-      Module* TheModule = new Module("bootstrap module",
-                                     *(new llvm::LLVMContext()));
-      if (!TargetTriple.empty())
-        TheModule->setTargetTriple(TargetTriple);
-      else
-        TheModule->setTargetTriple(mvm::MvmModule::getHostTriple());
-
-#if 0
-      // explicitly specified an architecture to compile for.
-      const Target *TheTarget = 0;
-      if (!MArch.empty()) {
-        for (TargetRegistry::iterator it = TargetRegistry::begin(),
-             ie = TargetRegistry::end(); it != ie; ++it) {
-          if (MArch == it->getName()) {
-            TheTarget = &*it;
-            break;
-          }
-        }
-
-        if (!TheTarget) {
-          errs() << argv[0] << ": error: invalid target '" << MArch << "'.\n";
-          return 1;
-        }
-      } else {
-        std::string Err;
-        TheTarget =
-          TargetRegistry::getClosestStaticTargetForModule(*TheModule, Err);
-        if (TheTarget == 0) {
-          errs() << argv[0] << ": error auto-selecting target for module '"
-                 << Err << "'.  Please use the -march option to explicitly "
-                 << "pick a target.\n";
-          return 1;
-        }
-      }
-
-      std::string FeaturesStr;
-      std::auto_ptr<TargetMachine>
-        target(TheTarget->createTargetMachine(*TheModule, FeaturesStr));
-      assert(target.get() && "Could not allocate target machine!");
-      TargetMachine &Target = *target.get();
-
-      // Install information about target datalayout stuff into the module for
-      // optimizer use.
-      TheModule->setDataLayout(Target.getTargetData()->
-                               getStringRepresentation());
-
-
-      mvm::MvmModule::initialise(CodeGenOpt::Default, TheModule, &Target);
-#endif
-    } else {
-      mvm::MvmModule::initialise();
-    }
+  mvm::MvmModule::initialise(argc, argv);
+  mvm::Collector::initialise(argc, argv);
 
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
-    mvm::Collector::initialise();
-
-    JnjvmClassLoader* JCL = mvm::VirtualMachine::initialiseJVM(Comp, false);
+  mvm::BumpPtrAllocator allocator;
+  JnjvmBootstrapLoader* loader = new(allocator, "Bootstrap loader")
+    JnjvmBootstrapLoader(allocator, Comp, false);
 
     if (DisableExceptions) Comp->disableExceptions();
     if (DisableStubs) Comp->generateStubs = false;
     if (AssumeCompiled) Comp->assumeCompiled = true;
     if (DisableCooperativeGC) Comp->disableCooperativeGC();
     
-    mvm::BumpPtrAllocator A;
-    Jnjvm* vm = new(A, "Bootstrap loader") Jnjvm(A, (JnjvmBootstrapLoader*)JCL);
+  Jnjvm* vm = new(allocator, "Bootstrap loader") Jnjvm(allocator, NULL, loader);
   
-    std::cout << "Properties:\n";
     for (std::vector<std::string>::iterator i = Properties.begin(),
          e = Properties.end(); i != e; ++i) {
 
       char* key = new char [(*i).size()+1];
       strcpy(key, (*i).c_str());
-      std::cout << key << std::endl;
       char* value = strchr(key, '=');
       if (!value) {
         delete[] key;
@@ -214,7 +160,7 @@ int main(int argc, char **argv) {
     if (PrintStats)
       Comp->printStats();
 
-    // Infer the output filename if needed.
+  // Infer the output filename if needed.
     if (OutputFilename.empty()) {
       if (InputFilename == "-") {
         OutputFilename = "-";
@@ -251,12 +197,8 @@ int main(int argc, char **argv) {
         WriteBitcodeToFile(Comp->getLLVMModule(), *Out);
 
     return 0;
-
-  } catch (const std::string& msg) {
-    errs() << argv[0] << ": " << msg << "\n";
-  } catch (...) {
-    errs() << argv[0] << ": Unexpected unknown exception occurred.\n";
-  }
-  return 1;
 }
 
+// Because MMTk has not been created yet, provide this method in order to link.
+extern "C" void MMTk_InlineMethods(llvm::Module* module) {
+}
