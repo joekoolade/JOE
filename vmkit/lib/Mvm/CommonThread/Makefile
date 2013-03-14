@@ -10,7 +10,8 @@ LEVEL = ../../..
 
 include $(LEVEL)/Makefile.config
 
-MODULE_WITH_GC = CommonThread
+# MODULE_WITH_GC = CommonThread
+LIBRARYNAME = CommonThread
 
 include $(LEVEL)/Makefile.common
 
