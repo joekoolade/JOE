@@ -1802,10 +1802,10 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
   std::string Error;
   const Target* TheTarget(TargetRegistry::lookupTarget("i686-pc-cygwin", Error));
   // FIXME
-  StringRef triple; // = new StringRef("i686-pc-cygwin");
-  StringRef cpu; // ("x86");
-  StringRef features; // = new StringRef("");
-  TargetOptions options; // = new TargetOptions();
+  StringRef triple("i686-pc-cygwin");
+  StringRef cpu("x86");
+  StringRef features("");
+  TargetOptions options();
 
   TargetMachine* TM = TheTarget->createTargetMachine(triple, cpu, features, options);
   TheTargetData = TM->getTargetData();
