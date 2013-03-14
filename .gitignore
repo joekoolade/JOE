@@ -7,3 +7,5 @@ ews/
 llvm/
 .git/
 .dir
+*.orig
+*.bak
