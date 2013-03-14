@@ -108,93 +108,95 @@ WithClinit("with-clinit", cl::desc("Classes to clinit"), cl::ZeroOrMore,
            cl::CommaSeparated);
 
 int main(int argc, char **argv) {
-  llvm_shutdown_obj X;  // Call llvm_shutdown() on exit.
-  cl::ParseCommandLineOptions(argc, argv, "vmkit .class -> .ll compiler\n");
-  sys::PrintStackTraceOnErrorSignal();
+    llvm_shutdown_obj X;  // Call llvm_shutdown() on exit.
+    cl::ParseCommandLineOptions(argc, argv, "vmkit .class -> .ll compiler\n");
+    sys::PrintStackTraceOnErrorSignal();
 
-  std::string ErrorMessage;
+    std::string ErrorMessage;
 
-    
     if (InputFilename == "-") {
-      cl::PrintHelpMessage();
-      return 0;
+        cl::PrintHelpMessage();
+        return 0;
     }
-   
-  mvm::MvmModule::initialise(argc, argv);
-  mvm::Collector::initialise(argc, argv);
 
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
-  mvm::BumpPtrAllocator allocator;
-  JnjvmBootstrapLoader* loader = new(allocator, "Bootstrap loader")
-    JnjvmBootstrapLoader(allocator, Comp, false);
+    mvm::BumpPtrAllocator allocator;
+    JnjvmBootstrapLoader* loader =
+            new (allocator, "Bootstrap loader") JnjvmBootstrapLoader(allocator,
+                    Comp, false);
 
-    if (DisableExceptions) Comp->disableExceptions();
-    if (DisableStubs) Comp->generateStubs = false;
-    if (AssumeCompiled) Comp->assumeCompiled = true;
-    if (DisableCooperativeGC) Comp->disableCooperativeGC();
-    
-  Jnjvm* vm = new(allocator, "Bootstrap loader") Jnjvm(allocator, NULL, loader);
-  
-    for (std::vector<std::string>::iterator i = Properties.begin(),
-         e = Properties.end(); i != e; ++i) {
+    if (DisableExceptions)
+        Comp->disableExceptions();
+    if (DisableStubs)
+        Comp->generateStubs = false;
+    if (AssumeCompiled)
+        Comp->assumeCompiled = true;
+    if (DisableCooperativeGC)
+        Comp->disableCooperativeGC();
 
-      char* key = new char [(*i).size()+1];
-      strcpy(key, (*i).c_str());
-      char* value = strchr(key, '=');
-      if (!value) {
-        delete[] key;
-      } else {
-        value[0] = 0;
-        vm->addProperty(key, &value[1]);
-      }
+    Jnjvm* vm = new (allocator, "Bootstrap loader") Jnjvm(allocator, NULL,
+            loader);
+
+    for (std::vector<std::string>::iterator i = Properties.begin(), e =
+            Properties.end(); i != e; ++i) {
+
+        char* key = new char[(*i).size() + 1];
+        strcpy(key, (*i).c_str());
+        char* value = strchr(key, '=');
+        if (!value) {
+            delete[] key;
+        } else {
+            value[0] = 0;
+            vm->addProperty(key, &value[1]);
+        }
     }
 
     Comp->clinits = &WithClinit;
     Comp->compileFile(vm, InputFilename.c_str());
 
     if (!MainClass.empty()) {
-      Comp->generateMain(MainClass.c_str(), WithJIT);
+        Comp->generateMain(MainClass.c_str(), WithJIT);
     }
 
     if (PrintStats)
-      Comp->printStats();
+        Comp->printStats();
 
-  // Infer the output filename if needed.
+    // Infer the output filename if needed.
     if (OutputFilename.empty()) {
-      if (InputFilename == "-") {
-        OutputFilename = "-";
-      } else {
-        std::string IFN = InputFilename;
-        int Len = IFN.length();
-        if (IFN[Len-3] == '.' && IFN[Len-2] == 'l' && IFN[Len-1] == 'l') {
-          // Source ends in .ll
-          OutputFilename = std::string(IFN.begin(), IFN.end()-3);
+        if (InputFilename == "-") {
+            OutputFilename = "-";
         } else {
-          OutputFilename = IFN;   // Append a .bc to it
-        }   
-        OutputFilename += ".bc";
-      }   
+            std::string IFN = InputFilename;
+            int Len = IFN.length();
+            if (IFN[Len - 3] == '.' && IFN[Len - 2] == 'l'
+                    && IFN[Len - 1] == 'l') {
+                // Source ends in .ll
+                OutputFilename = std::string(IFN.begin(), IFN.end() - 3);
+            } else {
+                OutputFilename = IFN;   // Append a .bc to it
+            }
+            OutputFilename += ".bc";
+        }
     }
-  
+
     std::string ErrorInfo;
-    std::auto_ptr<raw_ostream> Out 
-    (new raw_fd_ostream(OutputFilename.c_str(), ErrorInfo,
-                        raw_fd_ostream::F_Binary));
+    std::auto_ptr<raw_ostream> Out(
+            new raw_fd_ostream(OutputFilename.c_str(), ErrorInfo,
+                    raw_fd_ostream::F_Binary));
     if (!ErrorInfo.empty()) {
-      errs() << ErrorInfo << '\n';
-      return 1;
+        errs() << ErrorInfo << '\n';
+        return 1;
     }
-  
-  
+
     // Make sure that the Out file gets unlinked from the disk if we get a
     // SIGINT.
     if (OutputFilename != "-")
-      sys::RemoveFileOnSignal(sys::Path(OutputFilename));
+        sys::RemoveFileOnSignal(sys::Path(OutputFilename));
 
     if (!DisableOutput)
-      if (Force || !CheckBitcodeOutputToConsole(*Out, true))
-        WriteBitcodeToFile(Comp->getLLVMModule(), *Out);
+        if (Force || !CheckBitcodeOutputToConsole(*Out, true))
+            WriteBitcodeToFile(Comp->getLLVMModule(), *Out);
 
     return 0;
 }
