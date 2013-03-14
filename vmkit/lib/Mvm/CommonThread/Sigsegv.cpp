@@ -42,7 +42,6 @@ void sigsegvHandler(int n, siginfo_t *_info, void *context) {
   caller->ip = (void *)((ucontext_t*)context)->uc_mcontext->__ss.__eip;
 #else
   /* just like it's on the stack... */
-  caller->ip = (void *)((ucontext_t*)context)->uc_mcontext.gregs[REG_EIP]; 
 #endif
 #endif
 
