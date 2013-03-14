@@ -99,20 +99,6 @@ endif
 
 # $(BUILT_SOURCES) : $(ObjMakefiles)
 
-#------------------------------------------------------------------------
-# Make sure the configuration makefile is up to date
-#------------------------------------------------------------------------
-ifneq ($(MakefileConfigIn),)
-$(MakefileConfig): $(MakefileConfigIn) $(ConfigStatusScript)
-	$(Echo) Regenerating $@
-	$(Verb) cd $(PROJ_OBJ_ROOT) ; $(ConfigStatusScript) Makefile.config
-endif
-
-ifneq ($(MakefileCommonIn),)
-$(MakefileCommon): $(MakefileCommonIn) $(ConfigStatusScript)
-	$(Echo) Regenerating $@
-	$(Verb) cd $(PROJ_OBJ_ROOT) ; $(ConfigStatusScript) Makefile.common
-endif
 
 #------------------------------------------------------------------------
 # If the Makefile in the source tree has been updated, copy it over into the
