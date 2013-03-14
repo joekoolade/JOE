@@ -14,7 +14,6 @@
 #include "mvm/UTF8.h"
 #include "mvm/Threads/Locks.h"
 #include "mvm/Threads/Thread.h"
-#include "MvmGC.h"
 
 #include "types.h"
 #include <sys/time.h>
@@ -47,7 +46,7 @@ public:
 /// These are placed here for fast access of information from a Java object
 /// (that only points to the VT, not the class).
 ///
-class JavaVirtualTable : public VirtualTable {
+class JavaVirtualTable {
 public:
 
   /// cl - The class which defined this virtual table.
@@ -120,6 +119,14 @@ public:
   JavaVirtualTable(ClassArray* C);
   JavaVirtualTable(ClassPrimitive* C);
 
+
+  static uint32_t numberOfBaseFunctions() {
+    return 4;
+  }
+
+  static uint32_t numberOfSpecializedTracers() {
+    return 1;
+  }
 
   /// getFirstJavaMethod - Get the byte offset of the first Java method
   /// (<init>).
