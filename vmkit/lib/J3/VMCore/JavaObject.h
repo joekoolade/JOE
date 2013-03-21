@@ -21,6 +21,7 @@
 #include "JnjvmConfig.h"
 
 union jvalue;
+extern "C" void EmptyDestructor();
 
 namespace j3 {
 
@@ -29,6 +30,7 @@ class JavaThread;
 class Jnjvm;
 class Typedef;
 class UserCommonClass;
+class JavaVirtualTable;
 
 class InterfaceMethodTable : public mvm::PermanentObject {
 public:
@@ -230,26 +232,55 @@ public:
   /// defined by JnJVM.
   ///
   void setNativeDestructor(word_t tracer, const char* name);
+public:
+ word_t destructor;
+ word_t operatorDelete;
+ word_t tracer;
+ word_t specializedTracers[1];
 
+ word_t* getFunctions() {
+   return &destructor;
+ }
+
+// VirtualTable(word_t d, word_t o, word_t t) {
+//   destructor = d;
+//   operatorDelete = o;
+//   tracer = t;
+// }
+//
+// VirtualTable() {
+//   destructor = reinterpret_cast<word_t>(EmptyDestructor);
+// }
+
+ bool hasDestructor() {
+   return destructor != reinterpret_cast<word_t>(EmptyDestructor);
+ }
+
+ static void emptyTracer(void*) {}
 };
 
 
 /// JavaObject - This class represents a Java object.
 ///
-class JavaObject : public gc {
+class JavaObject {
 private:
-  
+  JavaVirtualTable *virtualTable;
   /// waitIntern - internal wait on a monitor
   ///
   static void waitIntern(JavaObject* self, struct timeval *info, bool timed);
   
 public:
 
+  JavaVirtualTable* getVirtualTable() {
+	  return virtualTable;
+  }
+
   /// getClass - Returns the class of this object.
   ///
   static UserCommonClass* getClass(const JavaObject* self) {
-    llvm_gcroot(self, 0);
-    return ((JavaVirtualTable*)self->getVirtualTable())->cl;
+//    llvm_gcroot(self, 0);
+//    return self->getVirtualTable()->cl;
+	  return NULL;
   }
   
   /// instanceOf - Is this object's class of type the given class?
