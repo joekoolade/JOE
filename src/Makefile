@@ -27,6 +27,9 @@ CXXFLAGS += -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)
 
 all: test
 
+jei: jei.o
+	$(CXX) $(LDFLAGS) -o jei jei.o $(LIBS)
+
 vmjc: vmjc.o
 	$(CXX) $(LDFLAGS) -o vmjc vmjc.o $(LIBS) 
 	
