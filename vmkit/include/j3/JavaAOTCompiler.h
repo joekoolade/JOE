@@ -197,7 +197,7 @@ public:
   
   void printStats();
   
-  void compileFile(Jnjvm* vm, const char* name);
+  void compileFile(const char* name);
   void compileClass(Class* cl);
   void compileClassLoader(JnjvmBootstrapLoader* loader);
   void generateClassBytes(JnjvmBootstrapLoader* loader);

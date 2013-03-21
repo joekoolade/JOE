@@ -209,6 +209,27 @@ Constant* JavaAOTCompiler::getResolvedConstantPool(JavaConstantPool* ctp) {
   }
 }
 
+Constant* JavaAOTCompiler::getNativeFunction(JavaMethod* meth, void* ptr) {
+  llvm::Constant* varGV = 0;
+  native_function_iterator End = nativeFunctions.end();
+  native_function_iterator I = nativeFunctions.find(meth);
+  if (I == End) {
+
+    LLVMSignatureInfo* LSI = getSignatureInfo(meth->getSignature());
+    llvm::Type* valPtrType = LSI->getNativePtrType();
+
+    Module& Mod = *getLLVMModule();
+    varGV = new GlobalVariable(Mod, valPtrType, false,
+                               GlobalValue::InternalLinkage,
+                               Constant::getNullValue(valPtrType), "");
+
+    nativeFunctions.insert(std::make_pair(meth, varGV));
+    return varGV;
+  } else {
+    return I->second;
+  }
+}
+
 Constant* JavaAOTCompiler::getMethodInClass(JavaMethod* meth) {
   Class* cl = meth->classDef;
   Constant* MOffset = 0;
@@ -378,11 +399,12 @@ Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
   final_object_iterator End = finalObjects.end();
   final_object_iterator I = finalObjects.find(obj);
   if (I == End) {
-  
-    if (mvm::Collector::begOf(obj)) {
+
+//    if (mvm::Collector::begOf(obj)) {
+	if (0) {
       Type* Ty = 0;
       CommonClass* cl = JavaObject::getClass(obj);
-      
+
       if (cl->isArray()) {
         Classpath* upcalls = cl->classLoader->bootstrapLoader->upcalls;
         CommonClass* subClass = cl->asArrayClass()->baseClass();
@@ -409,7 +431,7 @@ Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
         } else {
           Ty = JavaIntrinsics.JavaObjectType;
         }
-        
+
         std::vector<Type*> Elemts;
         ArrayType* ATy = ArrayType::get(Ty, JavaArray::getSize(obj));
         Elemts.push_back(JavaIntrinsics.JavaObjectType->getContainedType(0));
@@ -429,10 +451,10 @@ Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
 
       Constant* C = ConstantExpr::getBitCast(varGV,
                                              JavaIntrinsics.JavaObjectType);
-  
+
       finalObjects.insert(std::make_pair(obj, C));
       reverseFinalObjects.insert(std::make_pair(C, obj));
-    
+
       varGV->setInitializer(CreateConstantFromJavaObject(obj));
       return C;
     } else {
@@ -616,27 +638,6 @@ Constant* JavaAOTCompiler::getVirtualTable(JavaVirtualTable* VT) {
   } else {
     return I->second;
   } 
-}
-
-Constant* JavaAOTCompiler::getNativeFunction(JavaMethod* meth, void* ptr) {
-  llvm::Constant* varGV = 0;
-  native_function_iterator End = nativeFunctions.end();
-  native_function_iterator I = nativeFunctions.find(meth);
-  if (I == End) {
-    
-    LLVMSignatureInfo* LSI = getSignatureInfo(meth->getSignature());
-    llvm::Type* valPtrType = LSI->getNativePtrType();
-    
-    Module& Mod = *getLLVMModule();
-    varGV = new GlobalVariable(Mod, valPtrType, false,
-                               GlobalValue::InternalLinkage,
-                               Constant::getNullValue(valPtrType), "");
-  
-    nativeFunctions.insert(std::make_pair(meth, varGV));
-    return varGV;
-  } else {
-    return I->second;
-  }
 }
 
 Constant* JavaAOTCompiler::CreateConstantForBaseObject(CommonClass* cl) {
@@ -1604,8 +1605,7 @@ Constant* JavaAOTCompiler::CreateConstantFromVT(JavaVirtualTable* VT) {
     }
   }
 
-  Elemts.push_back(Tracer ? 
-      ConstantExpr::getCast(Instruction::BitCast, Tracer, PTy) : N);
+  Elemts.push_back((Tracer) ? ConstantExpr::getCast(Instruction::BitCast, Tracer, PTy) : N);
   
   for (uint32_t i = 0; i < VirtualTable::numberOfSpecializedTracers(); i++) {
     // Push null for now.
@@ -1805,9 +1805,9 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
   StringRef triple("i686-pc-cygwin");
   StringRef cpu("x86");
   StringRef features("");
-  TargetOptions options();
+  const TargetOptions options();
 
-  TargetMachine* TM = TheTarget->createTargetMachine(triple, cpu, features, options);
+  TargetMachine* TM = TheTarget->createTargetMachine(&triple, &cpu, &features, options);
   TheTargetData = TM->getTargetData();
   TheModule->setDataLayout(TheTargetData->getStringRepresentation());
   TheModule->setTargetTriple(TM->getTargetTriple());
@@ -2092,12 +2092,9 @@ extern "C" void UnreachableMagicMMTk() {
   UNREACHABLE();
 }
 
-void mainCompilerStart(JavaThread* th) {
+void mainCompilerStart() {
   
-  Jnjvm* vm = th->getJVM();
-  JnjvmBootstrapLoader* bootstrapLoader = vm->bootstrapLoader;
-  JavaAOTCompiler* M = (JavaAOTCompiler*)bootstrapLoader->getCompiler();
-  M->addJavaPasses();
+  addJavaPasses();
 
   bootstrapLoader->analyseClasspathEnv(vm->bootstrapLoader->bootClasspathEnv);
   uint32 size = strlen(name);
@@ -2107,7 +2104,7 @@ void mainCompilerStart(JavaThread* th) {
   }
 
   JavaJITCompiler* Comp = NULL;
-  if (!M->clinits->empty()) {
+  if (!clinits->empty()) {
     Comp = JavaJITCompiler::CreateCompiler("JIT");
     Comp->EmitFunctionName = true;
     if (!M->useCooperativeGC()) {
@@ -2283,12 +2280,9 @@ end:
   vm->threadSystem.leave(); 
 }
 
-void JavaAOTCompiler::compileFile(Jnjvm* vm, const char* n) {
+void JavaAOTCompiler::compileFile(const char* n) {
   name = n;
-  JavaThread* th = new JavaThread(vm);
-  vm->setMainThread(th);
-  th->start((void (*)(mvm::Thread*))mainCompilerStart);
-  vm->waitForExit();
+  mainCompilerStart();
 }
 
 void JavaAOTCompiler::compileClassLoader(JnjvmBootstrapLoader* loader) {

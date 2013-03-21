@@ -39,8 +39,6 @@ class JavaString : public JavaObject {
   static void setValue(JavaString* self, const ArrayUInt16* array) {
     llvm_gcroot(self, 0);
     llvm_gcroot(array, 0);
-    mvm::Collector::objectReferenceWriteBarrier(
-        (gc*)self, (gc**)&(self->value), (gc*)array);
   }
   static const ArrayUInt16* getValue(const JavaString* self) {
     llvm_gcroot(self, 0);

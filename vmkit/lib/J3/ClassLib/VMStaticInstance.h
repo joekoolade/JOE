@@ -48,7 +48,8 @@ public:
   ///
   static bool isVMStaticInstance(JavaObject* obj) {
     llvm_gcroot(obj, 0);
-    return obj->getVirtualTable() == &VT;
+    // return obj->getVirtualTable() == &VT;
+    return false;
   }
 
   /// ~VMStaticInstance - Nothing. Placeholder method

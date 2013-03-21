@@ -468,8 +468,6 @@ public:
 
   static VMClassLoader* allocate() {
     VMClassLoader* res = 0;
-    llvm_gcroot(res, 0);
-    res = (VMClassLoader*)gc::operator new(sizeof(VMClassLoader), &VT);
     return res;
   }
 
@@ -481,7 +479,8 @@ public:
   ///
   static bool isVMClassLoader(JavaObject* obj) {
     llvm_gcroot(obj, 0);
-    return obj->getVirtualTable() == &VT;
+//    return obj->getVirtualTable() == &VT;
+    return false;
   }
 
   /// staticTracer - Trace the internal class loader.
