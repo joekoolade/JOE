@@ -36,9 +36,21 @@
 #include "Zip.h"
 
 #include <cstdio>
+// for stat, S_IFMT and S_IFDIR
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+// for PATH_MAX
+#include <limits.h>
+// for realpath()
+#include <stdlib.h>
 
 using namespace j3;
 using namespace llvm;
+
+const char* JavaAOTCompiler::dirSeparator = "/";
+const char* JavaAOTCompiler::envSeparator = ":";
+const unsigned int JavaAOTCompiler::Magic = 0xcafebabe;
 
 bool JavaAOTCompiler::isCompiling(const CommonClass* cl) const {
   if (cl->isClass()) {
@@ -1801,13 +1813,12 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 
   std::string Error;
   const Target* TheTarget(TargetRegistry::lookupTarget("i686-pc-cygwin", Error));
-  // FIXME
-  StringRef triple("i686-pc-cygwin");
-  StringRef cpu("x86");
-  StringRef features("");
-  const TargetOptions options();
+  StringRef triple = StringRef("i686-pc-cygwin");
+  StringRef cpu = StringRef("x86");
+  StringRef features = StringRef("");
+  const TargetOptions& options = TargetOptions();
 
-  TargetMachine* TM = TheTarget->createTargetMachine(&triple, &cpu, &features, options);
+  const TargetMachine *TM = TheTarget->createTargetMachine(triple, cpu, features, options);
   TheTargetData = TM->getTargetData();
   TheModule->setDataLayout(TheTargetData->getStringRepresentation());
   TheModule->setTargetTriple(TM->getTargetTriple());
@@ -2054,12 +2065,10 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 
 void extractFiles(ClassBytes* bytes,
                   JavaAOTCompiler* M,
-                  JnjvmBootstrapLoader* bootstrapLoader,
                   std::vector<Class*>& classes) {
-  ZipArchive archive(bytes, bootstrapLoader->allocator);
+  ZipArchive archive(bytes);
    
-  mvm::BumpPtrAllocator allocator; 
-  char* realName = (char*)allocator.Allocate(4096, "temp");
+  char* realName = new char[4096]; // (char*)allocator.Allocate(4096, "temp");
   for (ZipArchive::table_iterator i = archive.filetable.begin(), 
        e = archive.filetable.end(); i != e; ++i) {
     ZipFile* file = i->second;
@@ -2076,11 +2085,11 @@ void extractFiles(ClassBytes* bytes,
       classes.push_back(cl);  
     } else if (size > 4 && (!strcmp(&name[size - 4], ".jar") || 
                             !strcmp(&name[size - 4], ".zip"))) {
-      ClassBytes* res = new (allocator, file->ucsize) ClassBytes(file->ucsize);
+      ClassBytes* res = new ClassBytes(file->ucsize);
       int ok = archive.readFile(res, file);
       if (!ok) return;
       
-      extractFiles(res, M, bootstrapLoader, classes);
+      extractFiles(res, M, classes);
     }
   }
 }
@@ -2092,7 +2101,53 @@ extern "C" void UnreachableMagicMMTk() {
   UNREACHABLE();
 }
 
-void mainCompilerStart() {
+void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
+  ClassBytes* bytes = NULL;
+  if (str != 0) {
+    unsigned int len = strlen(str);
+    char* buf =  new char[len+1]; // (char*)threadAllocator.Allocate((len + 1) * sizeof(char));
+    const char* cur = str;
+    int top = 0;
+    char c = 1;
+    while (c != 0) {
+      while (((c = cur[top]) != 0) && c != Jnjvm::envSeparator[0]) {
+        top++;
+      }
+      if (top != 0) {
+        memcpy(buf, cur, top);
+        buf[top] = 0;
+        char* rp = new char[PATH_MAX]; // (char*)threadAllocator.Allocate(PATH_MAX);
+        memset(rp, 0, PATH_MAX);
+        rp =  realpath(buf, rp);
+        if (rp && rp[PATH_MAX - 1] == 0 && strlen(rp) != 0) {
+          struct stat st;
+          stat(rp, &st);
+          if ((st.st_mode & S_IFMT) == S_IFDIR) {
+            unsigned int len = strlen(rp);
+            char* temp = new char[len+2]; // (char*)allocator.Allocate(len + 2, "Boot classpath");
+            memcpy(temp, rp, len);
+            temp[len] = dirSeparator[0];
+            temp[len + 1] = 0;
+            bootClasspath.push_back(temp);
+          } else {
+            bytes = Reader::openFile(this, rp);
+            if (bytes) {
+              ZipArchive *archive = new(allocator, "ZipArchive")
+                ZipArchive(bytes, allocator);
+              if (archive) {
+                bootArchives.push_back(archive);
+              }
+            }
+          }
+        }
+      }
+      cur = cur + top + 1;
+      top = 0;
+    }
+  }
+}
+
+void JavaAOTCompiler::mainCompilerStart() {
   
   addJavaPasses();
 

@@ -37,7 +37,7 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
   assert(HashMask != 0);
   assert(mvm::HashBits != 0);
 
-  word_t header = self->header;
+  word_t header = 0; // self->header;
   word_t GCBits;
   GCBits = header & mvm::GCBitMask;
   word_t val = header & HashMask;
@@ -57,16 +57,16 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
   assert(val <= HashMask);
 
   do {
-    header = self->header;
+    header = 0; // self->header;
     if ((header & HashMask) != 0) break;
     word_t newHeader = header | val;
     assert((newHeader & ~HashMask) == header);
-    __sync_val_compare_and_swap(&(self->header), header, newHeader);
+    // __sync_val_compare_and_swap(&(self->header), header, newHeader);
   } while (true);
 
-  assert((self->header & HashMask) != 0);
-  assert(GCBits == (self->header & mvm::GCBitMask));
-  return (self->header & HashMask) ^ (word_t)getClass(self);
+  // assert((self->header & HashMask) != 0);
+  // assert(GCBits == (self->header & mvm::GCBitMask));
+  return 0; // (self->header & HashMask) ^ (word_t)getClass(self);
 }
 
 
@@ -81,7 +81,7 @@ void JavaObject::waitIntern(
     UNREACHABLE();
   }
 
-  bool interrupted = thread->lockingThread.wait(self, table, info, timed);
+  bool interrupted = false; // thread->lockingThread.wait(self, table, info, timed);
 
   if (interrupted) {
     thread->getJVM()->interruptedException(self);
@@ -130,7 +130,7 @@ void JavaObject::notify(JavaObject* self) {
     thread->getJVM()->illegalMonitorStateException(self);
     UNREACHABLE();
   }
-  thread->lockingThread.notify(self, table);
+  // thread->lockingThread.notify(self, table);
 }
 
 void JavaObject::notifyAll(JavaObject* self) {
@@ -142,7 +142,7 @@ void JavaObject::notifyAll(JavaObject* self) {
     thread->getJVM()->illegalMonitorStateException(self);
     UNREACHABLE();
   }
-  thread->lockingThread.notifyAll(self, table);
+  // thread->lockingThread.notifyAll(self, table);
 }
 
 JavaObject* JavaObject::clone(JavaObject* src) {
@@ -186,7 +186,7 @@ JavaObject* JavaObject::clone(JavaObject* src) {
         if (field.isReference()) {
           tmp = field.getInstanceObjectField(src);
           JavaObject** ptr = field.getInstanceObjectFieldPtr(res);
-          mvm::Collector::objectReferenceWriteBarrier((gc*)res, (gc**)ptr, (gc*)tmp);
+          // mvm::Collector::objectReferenceWriteBarrier((gc*)res, (gc**)ptr, (gc*)tmp);
         } else if (field.isLong()) {
           field.setInstanceLongField(res, field.getInstanceLongField(src));
         } else if (field.isDouble()) {
@@ -212,22 +212,22 @@ JavaObject* JavaObject::clone(JavaObject* src) {
 
 void JavaObject::overflowThinLock(JavaObject* self) {
   llvm_gcroot(self, 0);
-  mvm::ThinLock::overflowThinLock(self, JavaThread::get()->getJVM()->lockSystem);
+  // mvm::ThinLock::overflowThinLock(self, JavaThread::get()->getJVM()->lockSystem);
 }
 
 void JavaObject::acquire(JavaObject* self) {
   llvm_gcroot(self, 0);
-  mvm::ThinLock::acquire(self, JavaThread::get()->getJVM()->lockSystem);
+  // mvm::ThinLock::acquire(self, JavaThread::get()->getJVM()->lockSystem);
 }
 
 void JavaObject::release(JavaObject* self) {
   llvm_gcroot(self, 0);
-  mvm::ThinLock::release(self, JavaThread::get()->getJVM()->lockSystem);
+  // mvm::ThinLock::release(self, JavaThread::get()->getJVM()->lockSystem);
 }
 
 bool JavaObject::owner(JavaObject* self) {
-  llvm_gcroot(self, 0);
-  return mvm::ThinLock::owner(self, JavaThread::get()->getJVM()->lockSystem);
+//  llvm_gcroot(self, 0);
+//  return mvm::ThinLock::owner(self, JavaThread::get()->getJVM()->lockSystem);
 }
 
 void JavaObject::decapsulePrimitive(JavaObject* obj, Jnjvm *vm, jvalue* buf,

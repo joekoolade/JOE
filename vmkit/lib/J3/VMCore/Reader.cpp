@@ -12,7 +12,6 @@
 
 #include "types.h"
 
-#include "JnjvmClassLoader.h"
 #include "Reader.h"
 #include "Zip.h"
 
@@ -22,14 +21,14 @@ const int Reader::SeekSet = SEEK_SET;
 const int Reader::SeekCur = SEEK_CUR;
 const int Reader::SeekEnd = SEEK_END;
 
-ClassBytes* Reader::openFile(JnjvmClassLoader* loader, const char* path) {
+ClassBytes* Reader::openFile(const char* path) {
   ClassBytes* res = NULL;
   FILE* fp = fopen(path, "r");
   if (fp != 0) {
     fseek(fp, 0, SeekEnd);
     long nbb = ftell(fp);
     fseek(fp, 0, SeekSet);
-    res = new (loader->allocator, nbb) ClassBytes(nbb);
+    res = new ClassBytes(nbb);
     if (fread(res->elements, nbb, 1, fp) == 0) {
       fprintf(stderr, "fread error\n");
       abort();  
@@ -39,12 +38,11 @@ ClassBytes* Reader::openFile(JnjvmClassLoader* loader, const char* path) {
   return res;
 }
 
-ClassBytes* Reader::openZip(JnjvmClassLoader* loader, ZipArchive* archive,
-                            const char* filename) {
+ClassBytes* Reader::openZip(ZipArchive* archive, const char* filename) {
   ClassBytes* res = 0;
   ZipFile* file = archive->getFile(filename);
   if (file != 0) {
-    res = new (loader->allocator, file->ucsize) ClassBytes(file->ucsize);
+    res = new ClassBytes(file->ucsize);
     if (archive->readFile(res, file) != 0) {
       return res;
     }

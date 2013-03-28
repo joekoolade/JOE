@@ -28,11 +28,6 @@ class ClassBytes {
     size = l;
   }
 
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator, int n) {
-    return allocator.Allocate(sizeof(uint32_t) + n * sizeof(uint8_t),
-                              "Class bytes");
-  }
-
   uint32_t size;
   uint8_t elements[1];
 };
@@ -71,9 +66,8 @@ public:
   static const int SeekCur;
   static const int SeekEnd;
 
-  static ClassBytes* openFile(JnjvmClassLoader* loader, const char* path);
-  static ClassBytes* openZip(JnjvmClassLoader* loader, ZipArchive* archive,
-                             const char* filename);
+  static ClassBytes* openFile(const char* path);
+  static ClassBytes* openZip(ZipArchive* archive, const char* filename);
   
   uint8 readU1() {
     ++cursor;

@@ -172,7 +172,7 @@ private:
   /// mainCompileStart - Starts the static compilation of classes in a Java
   /// thread.
   ///
-  static void mainCompilerStart(JavaThread* thread);
+  static void mainCompilerStart();
 
 public:
   

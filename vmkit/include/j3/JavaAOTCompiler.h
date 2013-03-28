@@ -25,6 +25,7 @@ class ArrayObject;
 class Attribut;
 class ClassBytes;
 class JnjvmBootstrapLoader;
+class ZipArchive;
 
 using mvm::UTF8;
 
@@ -84,6 +85,8 @@ public:
   virtual ~JavaAOTCompiler() {}
   
   virtual CommonClass* getUniqueBaseClass(CommonClass* cl);
+
+  void analyseClasspathEnv(const char* str);
 
 private:
 
@@ -191,6 +194,27 @@ public:
   bool emitClassBytes;
 
   std::vector<std::string>* clinits;
+  /// bootClasspath - List of paths for the base classes.
+  ///
+  std::vector<const char*> bootClasspath;
+
+  /// bootArchives - List of .zip or .jar files that contain base classes.
+  ///
+  std::vector<ZipArchive*> bootArchives;
+
+  /// dirSeparator - Directory separator for file paths, e.g. '\' for windows,
+  /// '/' for Unix.
+  ///
+  static const char* dirSeparator;
+
+  /// envSeparator - Paths separator for environment variables, e.g. ':'.
+  ///
+  static const char* envSeparator;
+
+  /// Magic - The magic number at the beginning of each .class file. 0xcafebabe.
+  ///
+  static const unsigned int Magic;
+
   
   
   void CreateStaticInitializer();
@@ -203,6 +227,7 @@ public:
   void generateClassBytes(JnjvmBootstrapLoader* loader);
   void generateMain(const char* name, bool jit);
   const char *getHostTriple();
+  void mainCompilerStart();
 
 private:
   void compileAllStubs(Signdef* sign);
