@@ -226,16 +226,16 @@ public:
 
   /// constructSign - Hashes a Signdef, a method signature.
   ///
-  Signdef* constructSign(const UTF8 * name);
+  // Signdef* constructSign(const UTF8 * name);
   
   /// asciizConstructUTF8 - Hashes an UTF8 created from the given asciiz.
   ///
-  const UTF8* asciizConstructUTF8(const char* asciiz);
+//  const UTF8* asciizConstructUTF8(const char* asciiz);
 
   /// readerConstructUTF8 - Hashes an UTF8 created from the given Unicode
   /// buffer.
   ///
-  const UTF8* readerConstructUTF8(const uint16* buf, uint32 size);
+//  const UTF8* readerConstructUTF8(const uint16* buf, uint32 size);
   
   /// bootstrapLoader - The bootstrap loader of the JVM. Loads the base
   /// classes.

@@ -11,8 +11,9 @@
 #define J3_AOT_COMPILER_H
 
 #include "mvm/MvmDenseMap.h"
-#include "mvm/UTF8.h"
 #include "j3/JavaLLVMCompiler.h"
+#include "UTF8.h"
+#include "LockedMap.h"
 
 // for stderr
 #include <cstdio>
@@ -26,6 +27,12 @@ class Attribut;
 class ClassBytes;
 class JnjvmBootstrapLoader;
 class ZipArchive;
+class Class;
+class ClassArray;
+class ClassBytes;
+class ClassMap;
+class Classpath;
+class CommonClass;
 
 using mvm::UTF8;
 
@@ -118,7 +125,16 @@ private:
   llvm::Constant* CreateConstantFromFPArray(const T* val, llvm::Type* Ty);
 
   llvm::Constant* CreateConstantFromObjectArray(const ArrayObject* val);
-  
+
+  /// javaTypes - Tables of Typedef defined by this class loader.
+  ///
+  TypeMap* javaTypes;
+
+  /// javaSignatures - Tables of Signdef defined by this class loader.
+  ///
+  SignMap* javaSignatures;
+
+
   std::map<CommonClass*, llvm::GlobalVariable*> nativeClasses;
   std::map<ClassBytes*, llvm::GlobalVariable*> classBytes;
   std::map<const ClassArray*, llvm::GlobalVariable*> arrayClasses;
@@ -174,6 +190,10 @@ private:
     utf8_iterator;
 
   bool isCompiling(const CommonClass* cl) const;
+  /// hashUTF8 - Tables of UTF8s defined by this class loader.
+  ///
+  UTF8Map* hashUTF8;
+  Class* loadClass;
 
 public:
   llvm::Function* StaticInitializer;
@@ -192,7 +212,7 @@ public:
   bool compileRT;
   bool precompile;
   bool emitClassBytes;
-
+  const char* bootClasspathEnv;
   std::vector<std::string>* clinits;
   /// bootClasspath - List of paths for the base classes.
   ///
@@ -230,7 +250,50 @@ public:
   void mainCompilerStart();
 
 private:
+  /// classes - The classes this class loader has loaded.
+  ///
+  ClassMap* classes;
+  /// primitiveMap - Map of primitive classes, hashed by id.
+  std::map<const char, ClassPrimitive*> primitiveMap;
+
+  ClassPrimitive* getPrimitiveClass(char id);
+
+  /// internalConstructType - Hashes a Typedef, an internal representation of
+  /// a class still not loaded.
+  ///
+  Typedef* internalConstructType(const UTF8 * name);
+
+  /// constructType - Hashes a Typedef, an internal representation of a class
+  /// still not loaded.
+  ///
+  Typedef* constructType(const UTF8 * name);
+
+  /// constructSign - Hashes a Signdef, a method signature.
+  ///
+  Signdef* constructSign(const UTF8 * name);
+  /// asciizConstructUTF8 - Hashes an UTF8 created from the given asciiz.
+  ///
+  const UTF8* asciizConstructUTF8(const char* asciiz);
+
+  /// readerConstructUTF8 - Hashes an UTF8 created from the given Unicode
+  /// buffer.
+  ///
+  const UTF8* readerConstructUTF8(const uint16* buf, uint32 size);
+
+  /// internalLoad - Load the class with the given name.
+  ///
+  virtual Class* internalLoad(const UTF8* utf8, bool doResolve,
+                                  JavaString* strName);
+
+  /// lookupClass - Finds the class of the given name in the class loader's
+  /// table.
+  ///
+  CommonClass* lookupClass(const UTF8* utf8);
+  void extractFiles(ClassBytes* bytes,
+                    std::vector<Class*>& classes);
   void compileAllStubs(Signdef* sign);
+  Class* loadName(const UTF8* name, bool doResolve,
+                      bool doThrow, JavaString* strName);
   llvm::Function* getMethodOrStub(JavaMethod* meth, Class* customizeFor);
 };
 

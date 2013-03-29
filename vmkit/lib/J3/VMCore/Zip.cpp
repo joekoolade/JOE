@@ -9,15 +9,13 @@
 
 #include <zlib.h>
 
-#include "mvm/Allocator.h"
-
 #include "JavaArray.h"
 #include "Reader.h"
 #include "Zip.h"
 
 using namespace j3;
 
-ZipArchive::ZipArchive(ClassBytes* bytes, mvm::BumpPtrAllocator& A) : allocator(A) {
+ZipArchive::ZipArchive(ClassBytes* bytes) {
   this->bytes = bytes;
   findOfscd();
   if (ofscd > -1) addFiles();
@@ -125,7 +123,7 @@ void ZipArchive::addFiles() {
 
   while (true) {
     if (memcmp(bytes->elements + temp, HDR_CENTRAL, 4)) return;
-    ZipFile* ptr = new(allocator, "ZipFile") ZipFile();
+    ZipFile* ptr = new ZipFile();
     reader.cursor = temp + 4 + C_COMPRESSION_METHOD;
     ptr->compressionMethod = readEndianDep2(reader);
     
@@ -146,8 +144,8 @@ void ZipArchive::addFiles() {
         (reader.max - temp) < ptr->filenameLength)
       return;
 
-    ptr->filename = (char*)allocator.Allocate(ptr->filenameLength + 1,
-                                              "Zip file name");
+    ptr->filename = new char[ptr->filenameLength + 1]; // (char*)allocator.Allocate(ptr->filenameLength + 1,
+                                              // "Zip file name");
     memcpy(ptr->filename, bytes->elements + temp,
            ptr->filenameLength);
     ptr->filename[ptr->filenameLength] = 0;

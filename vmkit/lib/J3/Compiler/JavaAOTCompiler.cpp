@@ -17,7 +17,7 @@
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Target/TargetData.h"
 
-#include "mvm/UTF8.h"
+#include "UTF8.h"
 #include "mvm/Threads/Thread.h"
 
 #include "j3/J3Intrinsics.h"
@@ -35,6 +35,7 @@
 #include "VMStaticInstance.h"
 #include "Zip.h"
 
+
 #include <cstdio>
 // for stat, S_IFMT and S_IFDIR
 #include <sys/types.h>
@@ -47,6 +48,7 @@
 
 using namespace j3;
 using namespace llvm;
+using mvm::UTF8;
 
 const char* JavaAOTCompiler::dirSeparator = "/";
 const char* JavaAOTCompiler::envSeparator = ":";
@@ -65,6 +67,92 @@ bool JavaAOTCompiler::isCompiling(const CommonClass* cl) const {
     return false;
   }
 }
+
+Value* JavaAOTCompiler::addCallback(Class* cl, uint16 index,
+                                    Signdef* sign, bool stat,
+                                    BasicBlock* insert) {
+
+  JavaConstantPool* ctpInfo = cl->ctpInfo;
+  Signdef* signature = 0;
+  const UTF8* name = 0;
+  const UTF8* methCl = 0;
+  ctpInfo->nameOfStaticOrSpecialMethod(index, methCl, name, signature);
+
+  fprintf(stderr, "Warning: emitting a callback from %s (%s.%s)\n",
+          UTF8Buffer(cl->name).cString(), UTF8Buffer(methCl).cString(),
+          UTF8Buffer(name).cString());
+
+  LLVMSignatureInfo* LSI = getSignatureInfo(sign);
+
+  FunctionType* type = stat ? LSI->getStaticType() :
+                              LSI->getVirtualType();
+
+  Value* func = ConstantExpr::getBitCast(Callback,
+                                         PointerType::getUnqual(type));
+
+  return func;
+}
+
+const UTF8* JavaAOTCompiler::asciizConstructUTF8(const char* asciiz) {
+  return hashUTF8->lookupOrCreateAsciiz(asciiz);
+}
+
+const UTF8* JavaAOTCompiler::readerConstructUTF8(const uint16* buf,
+                                                  uint32 size) {
+  return hashUTF8->lookupOrCreateReader(buf, size);
+}
+
+Class* JavaAOTCompiler::internalLoad(const UTF8* name, bool doResolve,
+                                          JavaString* strName) {
+  JavaObject* obj = 0;
+  CommonClass* cl = lookupClass(name);
+
+#if 0
+  if (!cl) {
+    Class* forCtp = loadClass;
+    if (strName == NULL) {
+      // strName = JavaString::internalToJava(name, isolate);
+    }
+    obj = loadClassMethod->invokeJavaObjectVirtual(isolate, forCtp, javaLoader,
+                                                   &strName);
+    cl = JavaObjectClass::getClass(((JavaObjectClass*)obj));
+  }
+
+  if (cl && doResolve && cl->isClass()) {
+    cl->asClass()->resolveClass();
+  }
+#endif
+  return (Class*)cl;
+}
+
+Class* JavaAOTCompiler::loadName(const UTF8* name, bool doResolve,
+                                      bool doThrow, JavaString* strName) {
+
+  Class* cl = internalLoad(name, doResolve, strName);
+
+//  if (!cl && doThrow) {
+//    if (name->equals(bootstrapLoader->NoClassDefFoundError)) {
+//      fprintf(stderr, "Unable to load NoClassDefFoundError");
+//      abort();
+//    }
+//    if (TheCompiler->isStaticCompiling()) {
+//      fprintf(stderr, "Could not find %s, needed for static compiling\n",
+//              UTF8Buffer(name).cString());
+//      abort();
+//    }
+//    vm->noClassDefFoundError(name);
+//  }
+
+  if (cl) {
+    ClassMap::iterator End = classes->map.end();
+    ClassMap::iterator I = classes->map.find(cl->name);
+    if (I == End)
+      classes->map.insert(std::make_pair(cl->name, cl));
+  }
+
+  return cl;
+}
+
 
 void JavaAOTCompiler::AddInitializerToClass(GlobalVariable* varGV, CommonClass* classDef) {
   if (classDef->isClass() && isCompiling(classDef)) {
@@ -362,11 +450,11 @@ JavaObject* JavaAOTCompiler::getFinalObject(llvm::Value* obj) {
 
 Constant* JavaAOTCompiler::HandleMagic(JavaObject* obj, CommonClass* objCl) {
 
-  static const UTF8* AddressArray = objCl->classLoader->asciizConstructUTF8("org/vmmagic/unboxed/AddressArray");
-  static const UTF8* WordArray = objCl->classLoader->asciizConstructUTF8("org/vmmagic/unboxed/WordArray");
-  static const UTF8* ExtentArray = objCl->classLoader->asciizConstructUTF8("org/vmmagic/unboxed/ExtentArray");
-  static const UTF8* ObjectReferenceArray = objCl->classLoader->asciizConstructUTF8("org/vmmagic/unboxed/ObjectReferenceArray");
-  static const UTF8* OffsetArray = objCl->classLoader->asciizConstructUTF8("org/vmmagic/unboxed/OffsetArray");
+  static const UTF8* AddressArray = asciizConstructUTF8("org/vmmagic/unboxed/AddressArray");
+  static const UTF8* WordArray = asciizConstructUTF8("org/vmmagic/unboxed/WordArray");
+  static const UTF8* ExtentArray = asciizConstructUTF8("org/vmmagic/unboxed/ExtentArray");
+  static const UTF8* ObjectReferenceArray = asciizConstructUTF8("org/vmmagic/unboxed/ObjectReferenceArray");
+  static const UTF8* OffsetArray = asciizConstructUTF8("org/vmmagic/unboxed/OffsetArray");
   const UTF8* name = objCl->name;
 
   if (name->equals(AddressArray) || name->equals(WordArray) ||
@@ -2018,31 +2106,6 @@ void JavaAOTCompiler::setMethod(Function* func, void* ptr, const char* name) {
   func->setLinkage(GlobalValue::ExternalLinkage);
 }
 
-Value* JavaAOTCompiler::addCallback(Class* cl, uint16 index,
-                                    Signdef* sign, bool stat,
-                                    BasicBlock* insert) {
- 
-  JavaConstantPool* ctpInfo = cl->ctpInfo;
-  Signdef* signature = 0;
-  const UTF8* name = 0;
-  const UTF8* methCl = 0;
-  ctpInfo->nameOfStaticOrSpecialMethod(index, methCl, name, signature);
-
-  fprintf(stderr, "Warning: emitting a callback from %s (%s.%s)\n",
-          UTF8Buffer(cl->name).cString(), UTF8Buffer(methCl).cString(),
-          UTF8Buffer(name).cString());
-
-  LLVMSignatureInfo* LSI = getSignatureInfo(sign);
-  
-  FunctionType* type = stat ? LSI->getStaticType() : 
-                              LSI->getVirtualType();
-  
-  Value* func = ConstantExpr::getBitCast(Callback,
-                                         PointerType::getUnqual(type));
-  
-  return func;
-}
-
 void JavaAOTCompiler::compileClass(Class* cl) {
   
   // Make sure the class is emitted.
@@ -2063,8 +2126,7 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 
 
 
-void extractFiles(ClassBytes* bytes,
-                  JavaAOTCompiler* M,
+void JavaAOTCompiler::extractFiles(ClassBytes* bytes,
                   std::vector<Class*>& classes) {
   ZipArchive archive(bytes);
    
@@ -2078,10 +2140,10 @@ void extractFiles(ClassBytes* bytes,
     if (size > 6 && !strcmp(&(name[size - 6]), ".class")) {
       memcpy(realName, name, size);
       realName[size - 6] = 0;
-      const UTF8* utf8 = bootstrapLoader->asciizConstructUTF8(realName);
-      Class* cl = bootstrapLoader->loadName(utf8, true, false, NULL);
+      const UTF8* utf8 = asciizConstructUTF8(realName);
+      Class* cl = loadName(utf8, true, false, NULL);
       assert(cl && "Class not created");
-      if (cl == ClassArray::SuperArray) M->compileRT = true;
+      if (cl == ClassArray::SuperArray) compileRT = true;
       classes.push_back(cl);  
     } else if (size > 4 && (!strcmp(&name[size - 4], ".jar") || 
                             !strcmp(&name[size - 4], ".zip"))) {
@@ -2089,7 +2151,7 @@ void extractFiles(ClassBytes* bytes,
       int ok = archive.readFile(res, file);
       if (!ok) return;
       
-      extractFiles(res, M, classes);
+      extractFiles(res, classes);
     }
   }
 }
@@ -2130,10 +2192,9 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
             temp[len + 1] = 0;
             bootClasspath.push_back(temp);
           } else {
-            bytes = Reader::openFile(this, rp);
+            bytes = Reader::openFile(rp);
             if (bytes) {
-              ZipArchive *archive = new(allocator, "ZipArchive")
-                ZipArchive(bytes, allocator);
+              ZipArchive *archive = new ZipArchive(bytes);
               if (archive) {
                 bootArchives.push_back(archive);
               }
@@ -2151,40 +2212,43 @@ void JavaAOTCompiler::mainCompilerStart() {
   
   addJavaPasses();
 
-  bootstrapLoader->analyseClasspathEnv(vm->bootstrapLoader->bootClasspathEnv);
+  analyseClasspathEnv(bootClasspathEnv);
   uint32 size = strlen(name);
   if (size > 4 && 
       (!strcmp(&name[size - 4], ".jar") || !strcmp(&name[size - 4], ".zip"))) {
-    bootstrapLoader->analyseClasspathEnv(name);
+    analyseClasspathEnv(name);
   }
 
+
+#if 0
   JavaJITCompiler* Comp = NULL;
   if (!clinits->empty()) {
     Comp = JavaJITCompiler::CreateCompiler("JIT");
     Comp->EmitFunctionName = true;
-    if (!M->useCooperativeGC()) {
-      Comp->disableCooperativeGC();
-    }
-    bootstrapLoader->setCompiler(Comp);
-    bootstrapLoader->analyseClasspathEnv(vm->classpath);
+//    if (!M->useCooperativeGC()) {
+//      Comp->disableCooperativeGC();
+//    }
+//    bootstrapLoader->setCompiler(Comp);
+    analyseClasspathEnv(vm->classpath);
   } else {
     bootstrapLoader->analyseClasspathEnv(vm->classpath);
     bootstrapLoader->upcalls->initialiseClasspath(bootstrapLoader);
   }
-  
+#endif
     
   if (size > 4 && 
       (!strcmp(&name[size - 4], ".jar") || !strcmp(&name[size - 4], ".zip"))) {
   
     std::vector<Class*> classes;
-    ClassBytes* bytes = Reader::openFile(bootstrapLoader, name);
+    ClassBytes* bytes = Reader::openFile(name);
       
     if (!bytes) {
       fprintf(stderr, "Can't find zip file.\n");
-      goto end;
+      // goto end;
+      return;
     }
 
-    extractFiles(bytes, M, bootstrapLoader, classes);
+    extractFiles(bytes, classes);
 
     // First resolve everyone so that there can not be unknown references in
     // constant pools.
@@ -2196,17 +2260,17 @@ void JavaAOTCompiler::mainCompilerStart() {
       
       for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {
         if (!isAbstract(cl->virtualMethods[i].access)) {
-          M->getMethod(&cl->virtualMethods[i], NULL);
+          getMethod(&cl->virtualMethods[i], NULL);
         }
       }
 
       for (uint32 i = 0; i < cl->nbStaticMethods; ++i) {
-        M->getMethod(&cl->staticMethods[i], NULL);
+        getMethod(&cl->staticMethods[i], NULL);
       }
     }
 
-    if (!M->clinits->empty()) {
-      vm->loadBootstrap();
+    if (!clinits->empty()) {
+//      vm->loadBootstrap();
       
       // First, if we have the magic classes available, make sure we
       // compile them so that we can call them directly and let
@@ -2221,8 +2285,8 @@ void JavaAOTCompiler::mainCompilerStart() {
                      magic.length() - 1)) {
           for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {
             if (!isAbstract(cl->virtualMethods[i].access)) {
-              Function* F = M->getMethod(&cl->virtualMethods[i], NULL);
-              M->setMethod(F, ptr, F->getName().data());
+              Function* F = getMethod(&cl->virtualMethods[i], NULL);
+              setMethod(F, ptr, F->getName().data());
               cl->virtualMethods[i].compiledPtr();
               // Set native so that we don't try to inline it.
               cl->virtualMethods[i].setNative();
@@ -2230,8 +2294,8 @@ void JavaAOTCompiler::mainCompilerStart() {
           }
 
           for (uint32 i = 0; i < cl->nbStaticMethods; ++i) {
-            Function* F = M->getMethod(&cl->staticMethods[i], NULL);
-            M->setMethod(F, ptr, F->getName().data());
+            Function* F = getMethod(&cl->staticMethods[i], NULL);
+            setMethod(F, ptr, F->getName().data());
             cl->staticMethods[i].compiledPtr();
             // Set native so that we don't try to inline it.
             cl->staticMethods[i].setNative();
@@ -2241,25 +2305,25 @@ void JavaAOTCompiler::mainCompilerStart() {
 
       // Initialize all classes given with with the -with-clinit
       // command line argument.
-      for (std::vector<std::string>::iterator i = M->clinits->begin(),
-           e = M->clinits->end(); i != e; ++i) {
+      for (std::vector<std::string>::iterator i = clinits->begin(),
+           e = clinits->end(); i != e; ++i) {
         Class* cl = NULL;
         TRY {
           if (i->at(i->length() - 1) == '*') {
             for (std::vector<Class*>::iterator ii = classes.begin(),
                  ee = classes.end(); ii != ee; ++ii) {
               cl = *ii;
-              if (!strncmp(UTF8Buffer(cl->name).cString(), i->c_str(),
-                           i->length() - 1)) {
-                cl->initialiseClass(vm);
-              }
+//              if (!strncmp(UTF8Buffer(cl->name).cString(), i->c_str(),
+//                           i->length() - 1)) {
+//                cl->initialiseClass(vm);
+//              }
             }
           } else {
-            const UTF8* name = bootstrapLoader->asciizConstructUTF8(i->c_str());
-            CommonClass* cls = bootstrapLoader->lookupClass(name);
+            const UTF8* name = asciizConstructUTF8(i->c_str());
+            CommonClass* cls = lookupClass(name);
             if (cls && cls->isClass()) {
               cl = cls->asClass();
-              cl->initialiseClass(vm);
+              // cl->initialiseClass(vm);
             } else {
               fprintf(stderr, "Class %s does not exist or is an array class.\n",
                       i->c_str());
@@ -2271,9 +2335,10 @@ void JavaAOTCompiler::mainCompilerStart() {
           abort();
         } END_CATCH;
       }
-      bootstrapLoader->setCompiler(M);
+//       bootstrapLoader->setCompiler(M);
     }
    
+#if 0
     // Set the thread as the owner of the classes, so that it knows it
     // has to compile them. 
     for (std::vector<Class*>::iterator i = classes.begin(), e = classes.end();
@@ -2286,10 +2351,9 @@ void JavaAOTCompiler::mainCompilerStart() {
          i != e; ++i) {
       M->compileClass(*i);
     }
-
+#endif
   } else {
-    mvm::ThreadAllocator allocator;
-    char* realName = (char*)allocator.Allocate(size + 1);
+    char* realName = new char[size+1]; // (char*)allocator.Allocate(size + 1);
     if (size > 6 && !strcmp(&name[size - 6], ".class")) {
       memcpy(realName, name, size - 6);
       realName[size - 6] = 0;
@@ -2297,48 +2361,198 @@ void JavaAOTCompiler::mainCompilerStart() {
       memcpy(realName, name, size + 1);
     }
    
-    const UTF8* utf8 = bootstrapLoader->asciizConstructUTF8(realName);
-    UserClass* cl = bootstrapLoader->loadName(utf8, true, true, NULL);
-    
-    if (!M->clinits->empty()) {
+    const UTF8* utf8 = asciizConstructUTF8(realName);
+    Class* cl = loadName(utf8, true, true, NULL);
+#if 0
+    if (!clinits->empty()) {
       vm->loadBootstrap();
       cl->initialiseClass(vm);
       bootstrapLoader->setCompiler(M);
     }
-    
     cl->setOwnerClass(JavaThread::get());
+#endif
     cl->resolveInnerOuterClasses();
     for (uint32 i = 0; i < cl->nbInnerClasses; ++i) {
       cl->innerClasses[i]->setOwnerClass(JavaThread::get());
-      M->compileClass(cl->innerClasses[i]);
+      compileClass(cl->innerClasses[i]);
     }
-    M->compileClass(cl);
+    compileClass(cl);
   }
 
-  if (M->compileRT) {
+  if (compileRT) {
     // Make sure that if we compile RT, the native classes are emitted.
-    M->getNativeClass(bootstrapLoader->upcalls->OfVoid);
-    M->getNativeClass(bootstrapLoader->upcalls->OfBool);
-    M->getNativeClass(bootstrapLoader->upcalls->OfByte);
-    M->getNativeClass(bootstrapLoader->upcalls->OfChar);
-    M->getNativeClass(bootstrapLoader->upcalls->OfShort);
-    M->getNativeClass(bootstrapLoader->upcalls->OfInt);
-    M->getNativeClass(bootstrapLoader->upcalls->OfFloat);
-    M->getNativeClass(bootstrapLoader->upcalls->OfLong);
-    M->getNativeClass(bootstrapLoader->upcalls->OfDouble);
+//    getNativeClass(bootstrapLoader->upcalls->OfVoid);
+//    getNativeClass(bootstrapLoader->upcalls->OfBool);
+//    getNativeClass(bootstrapLoader->upcalls->OfByte);
+//    getNativeClass(bootstrapLoader->upcalls->OfChar);
+//    getNativeClass(bootstrapLoader->upcalls->OfShort);
+//    getNativeClass(bootstrapLoader->upcalls->OfInt);
+//    getNativeClass(bootstrapLoader->upcalls->OfFloat);
+//    getNativeClass(bootstrapLoader->upcalls->OfLong);
+//    getNativeClass(bootstrapLoader->upcalls->OfDouble);
   }
 
-  M->CreateStaticInitializer();
+  CreateStaticInitializer();
 
+#if 0
 end:
 
-  vm->threadSystem.leave(); 
+  vm->threadSystem.leave();
+#endif
 }
 
 void JavaAOTCompiler::compileFile(const char* n) {
   name = n;
   mainCompilerStart();
 }
+
+static void typeError(const UTF8* name, short int l) {
+  if (l != 0) {
+    fprintf(stderr, "wrong type %d in %s", l, UTF8Buffer(name).cString());
+  } else {
+    fprintf(stderr, "wrong type %s", UTF8Buffer(name).cString());
+  }
+  abort();
+}
+
+
+static bool analyseIntern(const UTF8* name, uint32 pos, uint32 meth,
+                          uint32& ret) {
+  short int cur = name->elements[pos];
+  switch (cur) {
+    case I_PARD :
+      ret = pos + 1;
+      return true;
+    case I_BOOL :
+      ret = pos + 1;
+      return false;
+    case I_BYTE :
+      ret = pos + 1;
+      return false;
+    case I_CHAR :
+      ret = pos + 1;
+      return false;
+    case I_SHORT :
+      ret = pos + 1;
+      return false;
+    case I_INT :
+      ret = pos + 1;
+      return false;
+    case I_FLOAT :
+      ret = pos + 1;
+      return false;
+    case I_DOUBLE :
+      ret = pos + 1;
+      return false;
+    case I_LONG :
+      ret = pos + 1;
+      return false;
+    case I_VOID :
+      ret = pos + 1;
+      return false;
+    case I_TAB :
+      if (meth == 1) {
+        pos++;
+      } else {
+        while (name->elements[++pos] == I_TAB) {}
+        analyseIntern(name, pos, 1, pos);
+      }
+      ret = pos;
+      return false;
+    case I_REF :
+      if (meth != 2) {
+        while (name->elements[++pos] != I_END_REF) {}
+      }
+      ret = pos + 1;
+      return false;
+    default :
+      typeError(name, cur);
+  }
+  return false;
+}
+
+ClassPrimitive* JavaAOTCompiler::getPrimitiveClass(char id) {
+  return primitiveMap[id];
+}
+
+Typedef* JavaAOTCompiler::internalConstructType(const UTF8* name) {
+  short int cur = name->elements[0];
+  Typedef* res = 0;
+  switch (cur) {
+    case I_TAB :
+      res = new ArrayTypedef(name);
+      break;
+    case I_REF :
+      res = new ObjectTypedef(name, hashUTF8);
+      break;
+    default :
+      ClassPrimitive* cl =
+        getPrimitiveClass((char)name->elements[0]);
+      assert(cl && "No primitive");
+      // fixme
+      bool unsign = false;
+//      bool unsign = (cl == bootstrapLoader->upcalls->OfChar ||
+//                     cl == bootstrapLoader->upcalls->OfBool);
+      res = new PrimitiveTypedef(name, cl,
+                                                                unsign, cur);
+  }
+  return res;
+}
+
+
+Typedef* JavaAOTCompiler::constructType(const UTF8* name) {
+	// fixme
+//  javaTypes->lock.lock();
+  Typedef* res = javaTypes->map.lookup(name);
+  if (res == 0) {
+    res = internalConstructType(name);
+    javaTypes->map[name] = res;
+  }
+  // fixme
+//  javaTypes->lock.unlock();
+  return res;
+}
+
+Signdef* JavaAOTCompiler::constructSign(const UTF8* name) {
+	// fixme
+  //javaSignatures->lock.lock();
+  Signdef* res = javaSignatures->map.lookup(name);
+  if (res == 0) {
+    std::vector<Typedef*> buf;
+    uint32 len = (uint32)name->size;
+    uint32 pos = 1;
+    uint32 pred = 0;
+
+    while (pos < len) {
+      pred = pos;
+      bool end = analyseIntern(name, pos, 0, pos);
+      if (end) break;
+      else {
+        buf.push_back(constructType(name->extract(hashUTF8, pred, pos)));
+      }
+    }
+
+    if (pos == len) {
+      typeError(name, 0);
+    }
+
+    analyseIntern(name, pos, 0, pred);
+
+    if (pred != len) {
+      typeError(name, 0);
+    }
+
+    Typedef* ret = constructType(name->extract(hashUTF8, pos, pred));
+
+    res = new Signdef(name, this, buf, ret);
+
+    javaSignatures->map[name] = res;
+  }
+  // fixme
+  // javaSignatures->lock.unlock();
+  return res;
+}
+
 
 void JavaAOTCompiler::compileClassLoader(JnjvmBootstrapLoader* loader) {
   JavaJITCompiler* jitCompiler = (JavaJITCompiler*)loader->getCompiler();
@@ -2445,7 +2659,7 @@ void JavaAOTCompiler::compileClassLoader(JnjvmBootstrapLoader* loader) {
 
   // Emit the stub for the main signature.
   Signdef* mainSignature =
-    loader->constructSign(loader->asciizConstructUTF8("([Ljava/lang/String;)V"));
+    constructSign(asciizConstructUTF8("([Ljava/lang/String;)V"));
   getSignatureInfo(mainSignature)->getStaticBuf();
 
   // Emit the class map.
@@ -2474,7 +2688,7 @@ void JavaAOTCompiler::generateClassBytes(JnjvmBootstrapLoader* loader) {
       const char* name = zi->first;
       std::string str(name, strlen(name) - strlen(".class"));
       ClassBytes* bytes = Reader::openZip(loader, archive, name);
-      getClassBytes(loader->asciizConstructUTF8(str.c_str()), bytes);
+      getClassBytes(asciizConstructUTF8(str.c_str()), bytes);
     }
   }
 }

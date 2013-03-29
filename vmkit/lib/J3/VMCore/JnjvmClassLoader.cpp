@@ -303,63 +303,63 @@ UserClass* JnjvmBootstrapLoader::internalLoad(const UTF8* name,
   return (UserClass*)cl;
 }
 
-UserClass* JnjvmClassLoader::internalLoad(const UTF8* name, bool doResolve,
-                                          JavaString* strName) {
-  JavaObject* obj = 0;
-  llvm_gcroot(strName, 0);
-  llvm_gcroot(obj, 0);
-  
-  UserCommonClass* cl = lookupClass(name);
-  
-  if (!cl) {
-    UserClass* forCtp = loadClass;
-    if (strName == NULL) {
-      strName = JavaString::internalToJava(name, isolate);
-    }
-    obj = loadClassMethod->invokeJavaObjectVirtual(isolate, forCtp, javaLoader,
-                                                   &strName);
-    cl = JavaObjectClass::getClass(((JavaObjectClass*)obj));
-  }
-  
-  if (cl && doResolve && cl->isClass()) {
-    cl->asClass()->resolveClass();
-  }
-
-  return (UserClass*)cl;
-}
-
-UserClass* JnjvmClassLoader::loadName(const UTF8* name, bool doResolve,
-                                      bool doThrow, JavaString* strName) {
-  
-  llvm_gcroot(strName, 0);
-
-  UserClass* cl = internalLoad(name, doResolve, strName);
-
-  if (!cl && doThrow) {
-    Jnjvm* vm = JavaThread::get()->getJVM();
-    if (name->equals(bootstrapLoader->NoClassDefFoundError)) {
-      fprintf(stderr, "Unable to load NoClassDefFoundError");
-      abort();
-    }
-    if (TheCompiler->isStaticCompiling()) {
-      fprintf(stderr, "Could not find %s, needed for static compiling\n",
-              UTF8Buffer(name).cString());
-      abort();
-    }
-    vm->noClassDefFoundError(name);
-  }
-
-  if (cl && cl->classLoader != this) {
-    classes->lock.lock();
-    ClassMap::iterator End = classes->map.end();
-    ClassMap::iterator I = classes->map.find(cl->name);
-    if (I == End)
-      classes->map.insert(std::make_pair(cl->name, cl));
-    classes->lock.unlock();
-  }
-
-  return cl;
-}
+//UserClass* JnjvmClassLoader::internalLoad(const UTF8* name, bool doResolve,
+//                                          JavaString* strName) {
+//  JavaObject* obj = 0;
+//  llvm_gcroot(strName, 0);
+//  llvm_gcroot(obj, 0);
+//
+//  UserCommonClass* cl = lookupClass(name);
+//
+//  if (!cl) {
+//    UserClass* forCtp = loadClass;
+//    if (strName == NULL) {
+//      strName = JavaString::internalToJava(name, isolate);
+//    }
+//    obj = loadClassMethod->invokeJavaObjectVirtual(isolate, forCtp, javaLoader,
+//                                                   &strName);
+//    cl = JavaObjectClass::getClass(((JavaObjectClass*)obj));
+//  }
+//
+//  if (cl && doResolve && cl->isClass()) {
+//    cl->asClass()->resolveClass();
+//  }
+//
+//  return (UserClass*)cl;
+//}
+//
+//UserClass* JnjvmClassLoader::loadName(const UTF8* name, bool doResolve,
+//                                      bool doThrow, JavaString* strName) {
+//
+//  llvm_gcroot(strName, 0);
+//
+//  UserClass* cl = internalLoad(name, doResolve, strName);
+//
+//  if (!cl && doThrow) {
+//    Jnjvm* vm = JavaThread::get()->getJVM();
+//    if (name->equals(bootstrapLoader->NoClassDefFoundError)) {
+//      fprintf(stderr, "Unable to load NoClassDefFoundError");
+//      abort();
+//    }
+//    if (TheCompiler->isStaticCompiling()) {
+//      fprintf(stderr, "Could not find %s, needed for static compiling\n",
+//              UTF8Buffer(name).cString());
+//      abort();
+//    }
+//    vm->noClassDefFoundError(name);
+//  }
+//
+//  if (cl && cl->classLoader != this) {
+//    classes->lock.lock();
+//    ClassMap::iterator End = classes->map.end();
+//    ClassMap::iterator I = classes->map.find(cl->name);
+//    if (I == End)
+//      classes->map.insert(std::make_pair(cl->name, cl));
+//    classes->lock.unlock();
+//  }
+//
+//  return cl;
+//}
 
 
 const UTF8* JnjvmClassLoader::lookupComponentName(const UTF8* name,
@@ -836,14 +836,14 @@ JnjvmClassLoader::getJnjvmLoaderFromJavaObject(JavaObject* loader, Jnjvm* vm) {
   return JCL;
 }
 
-const UTF8* JnjvmClassLoader::asciizConstructUTF8(const char* asciiz) {
-  return hashUTF8->lookupOrCreateAsciiz(asciiz);
-}
-
-const UTF8* JnjvmClassLoader::readerConstructUTF8(const uint16* buf,
-                                                  uint32 size) {
-  return hashUTF8->lookupOrCreateReader(buf, size);
-}
+//const UTF8* JnjvmClassLoader::asciizConstructUTF8(const char* asciiz) {
+//  return hashUTF8->lookupOrCreateAsciiz(asciiz);
+//}
+//
+//const UTF8* JnjvmClassLoader::readerConstructUTF8(const uint16* buf,
+//                                                  uint32 size) {
+//  return hashUTF8->lookupOrCreateReader(buf, size);
+//}
 
 JnjvmClassLoader::~JnjvmClassLoader() {
 

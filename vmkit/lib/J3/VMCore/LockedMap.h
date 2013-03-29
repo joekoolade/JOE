@@ -35,8 +35,8 @@ class JavaString;
 class JnjvmClassLoader;
 class Signdef;
 class Typedef;
-class UserCommonClass;
-class UserClassArray;
+class CommonClass;
+class ClassArray;
 
 struct ltarray16 {
   bool operator()(const ArrayUInt16 *const s1, const ArrayUInt16 *const s2) const;
@@ -108,24 +108,24 @@ public:
 };
 
 
-class ClassMap : public mvm::PermanentObject {
+class ClassMap {
 public:
   ClassMap() {}
-  ClassMap(mvm::MvmDenseMap<const mvm::UTF8*, UserCommonClass*>* precompiled) : map(*precompiled) {}
+  ClassMap(mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*>* precompiled) : map(*precompiled) {}
 
   mvm::LockRecursive lock;
-  mvm::MvmDenseMap<const mvm::UTF8*, UserCommonClass*> map;
-  typedef mvm::MvmDenseMap<const mvm::UTF8*, UserCommonClass*>::iterator iterator;
+  mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*> map;
+  typedef mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*>::iterator iterator;
 };
 
-class TypeMap : public mvm::PermanentObject {
+class TypeMap {
 public:
   mvm::LockNormal lock;
   mvm::MvmDenseMap<const mvm::UTF8*, Typedef*> map;
   typedef mvm::MvmDenseMap<const mvm::UTF8*, Typedef*>::iterator iterator;
 };
 
-class SignMap : public mvm::PermanentObject {
+class SignMap {
 public:
   mvm::LockNormal lock;
   mvm::MvmDenseMap<const mvm::UTF8*, Signdef*> map;

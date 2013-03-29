@@ -19,7 +19,7 @@ namespace j3 {
 class classBytes;
 class JnjvmBootstrapLoader;
 
-struct ZipFile : public mvm::PermanentObject {
+struct ZipFile {
   char* filename;
   int ucsize;
   int csize;
@@ -30,12 +30,8 @@ struct ZipFile : public mvm::PermanentObject {
   int compressionMethod;
 };
 
-
-
-class ZipArchive : public mvm::PermanentObject {
+class ZipArchive {
   
-  mvm::BumpPtrAllocator& allocator;
-
   struct ltstr
   {
     bool operator()(const char* s1, const char* s2) const
@@ -63,14 +59,12 @@ public:
   ~ZipArchive() {
     for (table_iterator I = filetable.begin(), E = filetable.end(); I != E; 
          ++I) {
-      allocator.Deallocate((void*)I->first);
       I->second->~ZipFile();
-      allocator.Deallocate((void*)I->second);
     }
   }
 
   int getOfscd() { return ofscd; }
-  ZipArchive(ClassBytes* bytes, mvm::BumpPtrAllocator& allocator);
+  ZipArchive(ClassBytes* bytes);
   ZipFile* getFile(const char* filename);
   int readFile(ClassBytes* array, const ZipFile* file);
 
