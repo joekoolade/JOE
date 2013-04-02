@@ -15,16 +15,6 @@
 #include <stdarg.h>
 #include <sys/time.h>
 
-#include "mvm/Allocator.h"
-#include "mvm/MethodInfo.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
-
-#include "JavaAccess.h"
-#include "JavaObject.h"
-#include "JnjvmClassLoader.h"
-#include "JnjvmConfig.h"
-
 #include <cassert>
 #include <set>
 #include <cstdarg>
@@ -46,7 +36,7 @@ class JavaVirtualTable;
 class Reader;
 class Signdef;
 class Typedef;
-
+class JavaClassLoader;
 
 /// JavaState - List of states a Java class can have. A class is ready to be
 /// used (i.e allocating instances of the class, calling methods of the class
@@ -171,6 +161,7 @@ public:
 //
 //===----------------------------------------------------------------------===//
  
+  const static int NR_ISOLATES = 1;
   /// delegatees - The java/lang/Class delegatee.
   ///
   JavaObject* delegatee[NR_ISOLATES];
@@ -192,10 +183,6 @@ public:
   ///
   Class * super;
    
-  /// classLoader - The Jnjvm class loader that loaded the class.
-  ///
-  JnjvmClassLoader* classLoader;
-  
   /// virtualVT - The virtual table of instances of this class.
   ///
   JavaVirtualTable* virtualVT;
@@ -219,26 +206,26 @@ public:
   
   /// isArray - Is the class an array class?
   ///
-  bool isArray() const {
-    return j3::isArray(access);
+  inline bool isArray() const {
+    return (access & 0x20000);
   }
   
   /// isPrimitive - Is the class a primitive class?
   ///
-  bool isPrimitive() const {
-    return j3::isPrimitive(access);
+  inline bool isPrimitive() const {
+    return (access & 0x40000);
   }
   
   /// isInterface - Is the class an interface?
   ///
-  bool isInterface() const {
-    return j3::isInterface(access);
+  inline bool isInterface() const {
+    return (access & 0x0200);
   }
   
   /// isClass - Is the class a real, instantiable class?
   ///
-  bool isClass() const {
-    return j3::isClass(access);
+  inline bool isClass() const {
+    return (access & 0x10000);
   }
 
   /// asClass - Returns the class as a user-defined class
@@ -304,16 +291,16 @@ public:
   /// getClassDelegatee - Return the java/lang/Class representation of this
   /// class.
   ///
-  JavaObject* getClassDelegatee(Jnjvm* vm, JavaObject* pd = NULL);
+  JavaObject* getClassDelegatee(JavaObject* pd = NULL);
   
   /// getClassDelegateePtr - Return a pointer on the java/lang/Class
   /// representation of this class. Used for JNI.
   ///
-  JavaObject* const* getClassDelegateePtr(Jnjvm* vm, JavaObject* pd = NULL);
+  JavaObject* const* getClassDelegateePtr(JavaObject* pd = NULL);
   
   /// CommonClass - Create a class with th given name.
   ///
-  CommonClass(JnjvmClassLoader* loader, const UTF8* name);
+  CommonClass(const UTF8* name);
   
   /// ~CommonClass - Free memory used by this class, and remove it from
   /// metadata.
@@ -329,7 +316,7 @@ public:
   /// toPrimitive - Returns the primitive class which represents
   /// this class, ie void for java/lang/Void.
   ///
-  ClassPrimitive* toPrimitive(Jnjvm* vm) const;
+  ClassPrimitive* toPrimitive() const;
  
   /// getInternal - Return the class.
   ///
@@ -357,7 +344,7 @@ public:
   /// resolvedImplClass - Return the internal representation of the
   /// java.lang.Class object. The class must be resolved.
   //
-  static CommonClass* resolvedImplClass(Jnjvm* vm, JavaObject* delegatee,
+  static CommonClass* resolvedImplClass(JavaObject* delegatee,
                                             bool doClinit);
 };
 
@@ -375,12 +362,12 @@ public:
   /// ClassPrimitive - Constructs a primitive class. Only called at boot
   /// time.
   ///
-  ClassPrimitive(JnjvmClassLoader* loader, const UTF8* name, uint32 nb);
+  ClassPrimitive(const UTF8* name, uint32 nb);
 
   /// byteIdToPrimitive - Get the primitive class from its byte representation,
   /// ie int for I.
   ///
-  static ClassPrimitive* byteIdToPrimitive(char id, Classpath* upcalls);
+  static ClassPrimitive* byteIdToPrimitive(char id);
   
 };
 
@@ -584,10 +571,6 @@ public:
     return staticSize;
   }
   
-  /// doNew - Allocates a Java object whose class is this class.
-  ///
-  JavaObject* doNew(Jnjvm* vm);
-  
   /// tracer - Tracer function of instances of Class.
   ///
   void tracer(word_t closure);
@@ -601,11 +584,11 @@ public:
   
   /// allocateStaticInstance - Allocate the static instance of this class.
   ///
-  void* allocateStaticInstance(Jnjvm* vm);
+  void* allocateStaticInstance();
   
   /// Class - Create a class in the given virtual machine and with the given
   /// name.
-  Class(JnjvmClassLoader* loader, const UTF8* name, ClassBytes* bytes);
+  Class(const UTF8* name, ClassBytes* bytes);
   
   /// readParents - Reads the parents, i.e. super and interfaces, of the class.
   ///
@@ -656,7 +639,7 @@ public:
   /// initialiseClass - If the class has not been initialized yet,
   /// initialize it.
   ///
-  void initialiseClass(Jnjvm* vm);
+  void initialiseClass();
   
   /// acquire - Acquire this class lock.
   ///
@@ -801,11 +784,11 @@ public:
 
   /// doNew - Allocate a new array in the given vm.
   ///
-  JavaObject* doNew(sint32 n, Jnjvm* vm);
+  JavaObject* doNew(sint32 n);
 
   /// ClassArray - Construct a Java array class with the given name.
   ///
-  ClassArray(JnjvmClassLoader* loader, const UTF8* name,
+  ClassArray(const UTF8* name,
              CommonClass* baseClass);
   
   /// SuperArray - The super of class arrays. Namely java/lang/Object.
@@ -821,6 +804,16 @@ public:
   ///
   static void initialiseVT(Class* javaLangObject);
   
+};
+
+class FrameInfo {
+public:
+  void* Metadata;
+  word_t ReturnAddress;
+  uint16_t SourceIndex;
+  uint16_t FrameSize;
+  uint16_t NumLiveOffsets;
+  int16_t LiveOffsets[1];
 };
 
 /// JavaMethod - This class represents Java methods.
@@ -902,19 +895,19 @@ public:
 
   /// lookupLineNumber - Find the line number based on the given frame info.
   ///
-  uint16 lookupLineNumber(mvm::FrameInfo* FI);
+  uint16 lookupLineNumber(FrameInfo* FI);
   
   /// lookupCtpIndex - Lookup the constant pool index pointed by the opcode
   /// related to the given frame info.
   ///
-  uint16 lookupCtpIndex(mvm::FrameInfo* FI);
+  uint16 lookupCtpIndex(FrameInfo* FI);
   
   /// getSignature - Get the signature of thes method, resolving it if
   /// necessary.
   ///
   Signdef* getSignature() {
     if(!_signature)
-      _signature = constructSign(type);
+      _signature = JavaClassLoader::constructSign(type);
     return _signature;
   }
   
@@ -926,7 +919,7 @@ public:
   /// there is no other function in the class with the same name.
   ///
   void jniConsFromMeth(char* buf) const {
-    jniConsFromMeth(buf, classDef->name, name, type, isSynthetic(access));
+    jniConsFromMeth(buf, classDef->name, name, type, access & 0x1000);
   }
 
   /// jniConsFromMethOverloaded - Construct the JNI name of this method
@@ -934,7 +927,7 @@ public:
   ///
   void jniConsFromMethOverloaded(char* buf) const {
     jniConsFromMethOverloaded(buf, classDef->name, name, type,
-                              isSynthetic(access));
+    		access & 0x1000);
   }
   
   /// jniConsFromMeth - Construct the non-overloaded JNI name with
@@ -953,17 +946,17 @@ public:
   /// getParameterTypes - Get the java.lang.Class of the parameters of
   /// the method, with the given class loader.
   ///
-  ArrayObject* getParameterTypes(JnjvmClassLoader* loader);
+  ArrayObject* getParameterTypes();
 
   /// getExceptionTypes - Get the java.lang.Class of the exceptions of the
   /// method, with the given class loader.
   ///
-  ArrayObject* getExceptionTypes(JnjvmClassLoader* loader);
+  ArrayObject* getExceptionTypes();
 
   /// getReturnType - Get the java.lang.Class of the result of the method,
   /// with the given class loader.
   ///
-  JavaObject* getReturnType(JnjvmClassLoader* loader);
+  JavaObject* getReturnType();
   
 
 //===----------------------------------------------------------------------===//
@@ -973,106 +966,106 @@ public:
 //===----------------------------------------------------------------------===//
   
   /// This class of methods takes a variable argument list.
-  uint32 invokeIntSpecialAP(Jnjvm* vm, Class*, JavaObject* obj, va_list ap)
+  uint32 invokeIntSpecialAP(Class*, JavaObject* obj, va_list ap)
     __attribute__ ((noinline));
-  float invokeFloatSpecialAP(Jnjvm* vm, Class*, JavaObject* obj, va_list ap)
+  float invokeFloatSpecialAP(Class*, JavaObject* obj, va_list ap)
     __attribute__ ((noinline));
-  double invokeDoubleSpecialAP(Jnjvm* vm, Class*, JavaObject* obj,
+  double invokeDoubleSpecialAP(Class*, JavaObject* obj,
                                va_list ap) __attribute__ ((noinline));
-  sint64 invokeLongSpecialAP(Jnjvm* vm, Class*, JavaObject* obj, va_list ap)
+  sint64 invokeLongSpecialAP(Class*, JavaObject* obj, va_list ap)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectSpecialAP(Jnjvm* vm, Class*, JavaObject* obj,
+  JavaObject* invokeJavaObjectSpecialAP(Class*, JavaObject* obj,
                                         va_list ap) __attribute__ ((noinline));
   
-  uint32 invokeIntVirtualAP(Jnjvm* vm, Class*, JavaObject* obj, va_list ap)
+  uint32 invokeIntVirtualAP(Class*, JavaObject* obj, va_list ap)
     __attribute__ ((noinline));
-  float invokeFloatVirtualAP(Jnjvm* vm, Class*, JavaObject* obj, va_list ap)
+  float invokeFloatVirtualAP(Class*, JavaObject* obj, va_list ap)
     __attribute__ ((noinline));
-  double invokeDoubleVirtualAP(Jnjvm* vm, Class*, JavaObject* obj,
+  double invokeDoubleVirtualAP(Class*, JavaObject* obj,
                                va_list ap) __attribute__ ((noinline));
-  sint64 invokeLongVirtualAP(Jnjvm* vm, Class*, JavaObject* obj, va_list ap)
+  sint64 invokeLongVirtualAP(Class*, JavaObject* obj, va_list ap)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectVirtualAP(Jnjvm* vm, Class*, JavaObject* obj,
+  JavaObject* invokeJavaObjectVirtualAP(Class*, JavaObject* obj,
                                         va_list ap) __attribute__ ((noinline));
   
-  uint32 invokeIntStaticAP(Jnjvm* vm, Class*, va_list ap)
+  uint32 invokeIntStaticAP(Class*, va_list ap)
     __attribute__ ((noinline));
-  float invokeFloatStaticAP(Jnjvm* vm, Class*, va_list ap)
+  float invokeFloatStaticAP(Class*, va_list ap)
     __attribute__ ((noinline));
-  double invokeDoubleStaticAP(Jnjvm* vm, Class*, va_list ap)
+  double invokeDoubleStaticAP(Class*, va_list ap)
     __attribute__ ((noinline));
-  sint64 invokeLongStaticAP(Jnjvm* vm, Class*, va_list ap)
+  sint64 invokeLongStaticAP(Class*, va_list ap)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectStaticAP(Jnjvm* vm, Class*, va_list ap)
+  JavaObject* invokeJavaObjectStaticAP(Class*, va_list ap)
     __attribute__ ((noinline));
 
   /// This class of methods takes a buffer which contain the arguments of the
   /// call.
-  uint32 invokeIntSpecialBuf(Jnjvm* vm, Class*, JavaObject* obj, void* buf)
+  uint32 invokeIntSpecialBuf(Class*, JavaObject* obj, void* buf)
     __attribute__ ((noinline));
-  float invokeFloatSpecialBuf(Jnjvm* vm, Class*, JavaObject* obj, void* buf)
+  float invokeFloatSpecialBuf(Class*, JavaObject* obj, void* buf)
     __attribute__ ((noinline));
-  double invokeDoubleSpecialBuf(Jnjvm* vm, Class*, JavaObject* obj,
+  double invokeDoubleSpecialBuf(Class*, JavaObject* obj,
                                 void* buf) __attribute__ ((noinline));
-  sint64 invokeLongSpecialBuf(Jnjvm* vm, Class*, JavaObject* obj, void* buf)
+  sint64 invokeLongSpecialBuf(Class*, JavaObject* obj, void* buf)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectSpecialBuf(Jnjvm* vm, Class*, JavaObject* obj,
+  JavaObject* invokeJavaObjectSpecialBuf(Class*, JavaObject* obj,
                                          void* buf) __attribute__ ((noinline));
   
-  uint32 invokeIntVirtualBuf(Jnjvm* vm, Class*, JavaObject* obj, void* buf)
+  uint32 invokeIntVirtualBuf(Class*, JavaObject* obj, void* buf)
     __attribute__ ((noinline));
-  float invokeFloatVirtualBuf(Jnjvm* vm, Class*, JavaObject* obj, void* buf)
+  float invokeFloatVirtualBuf(Class*, JavaObject* obj, void* buf)
     __attribute__ ((noinline));
-  double invokeDoubleVirtualBuf(Jnjvm* vm, Class*, JavaObject* obj,
+  double invokeDoubleVirtualBuf(Class*, JavaObject* obj,
                                 void* buf) __attribute__ ((noinline));
-  sint64 invokeLongVirtualBuf(Jnjvm* vm, Class*, JavaObject* obj, void* buf)
+  sint64 invokeLongVirtualBuf(Class*, JavaObject* obj, void* buf)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectVirtualBuf(Jnjvm* vm, Class*, JavaObject* obj,
+  JavaObject* invokeJavaObjectVirtualBuf(Class*, JavaObject* obj,
                                          void* buf) __attribute__ ((noinline));
   
-  uint32 invokeIntStaticBuf(Jnjvm* vm, Class*, void* buf)
+  uint32 invokeIntStaticBuf(Class*, void* buf)
     __attribute__ ((noinline));
-  float invokeFloatStaticBuf(Jnjvm* vm, Class*, void* buf)
+  float invokeFloatStaticBuf(Class*, void* buf)
     __attribute__ ((noinline));
-  double invokeDoubleStaticBuf(Jnjvm* vm, Class*, void* buf)
+  double invokeDoubleStaticBuf(Class*, void* buf)
     __attribute__ ((noinline));
-  sint64 invokeLongStaticBuf(Jnjvm* vm, Class*, void* buf)
+  sint64 invokeLongStaticBuf(Class*, void* buf)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectStaticBuf(Jnjvm* vm, Class*, void* buf)
+  JavaObject* invokeJavaObjectStaticBuf(Class*, void* buf)
     __attribute__ ((noinline));
 
   /// This class of methods is variadic.
-  uint32 invokeIntSpecial(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  uint32 invokeIntSpecial(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  float invokeFloatSpecial(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  float invokeFloatSpecial(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  double invokeDoubleSpecial(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  double invokeDoubleSpecial(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  sint64 invokeLongSpecial(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  sint64 invokeLongSpecial(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectSpecial(Jnjvm* vm, Class*, JavaObject* obj,
+  JavaObject* invokeJavaObjectSpecial(Class*, JavaObject* obj,
                                       ...) __attribute__ ((noinline));
   
-  uint32 invokeIntVirtual(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  uint32 invokeIntVirtual(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  float invokeFloatVirtual(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  float invokeFloatVirtual(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  double invokeDoubleVirtual(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  double invokeDoubleVirtual(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  sint64 invokeLongVirtual(Jnjvm* vm, Class*, JavaObject* obj, ...)
+  sint64 invokeLongVirtual(Class*, JavaObject* obj, ...)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectVirtual(Jnjvm* vm, Class*, JavaObject* obj,
+  JavaObject* invokeJavaObjectVirtual(Class*, JavaObject* obj,
                                       ...) __attribute__ ((noinline));
   
-  uint32 invokeIntStatic(Jnjvm* vm, Class*, ...)
+  uint32 invokeIntStatic(Class*, ...)
     __attribute__ ((noinline));
-  float invokeFloatStatic(Jnjvm* vm, Class*, ...)
+  float invokeFloatStatic(Class*, ...)
     __attribute__ ((noinline));
-  double invokeDoubleStatic(Jnjvm* vm, Class*, ...)
+  double invokeDoubleStatic(Class*, ...)
     __attribute__ ((noinline));
-  sint64 invokeLongStatic(Jnjvm* vm, Class*, ...)
+  sint64 invokeLongStatic(Class*, ...)
     __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectStatic(Jnjvm* vm, Class*, ...)
+  JavaObject* invokeJavaObjectStatic(Class*, ...)
     __attribute__ ((noinline));
   
   #define JNI_NAME_PRE "Java_"
@@ -1144,14 +1137,14 @@ public:
   ///
   Typedef* getSignature() {
     if(!_signature)
-      _signature = constructType(type);
+      _signature = JavaClassLoader::constructType(type);
     return _signature;
   }
 
   /// InitStaticField - Init the value of the field in the given object. This is
   /// used for static fields which have a default value.
   ///
-  void InitStaticField(Jnjvm* vm);
+  void InitStaticField();
 
   /// lookupAttribut - Look up the attribut in the field's list of attributs.
   ///
@@ -1163,7 +1156,6 @@ public:
   }
 
   JavaObject** getInstanceObjectFieldPtr(JavaObject* obj) {
-    llvm_gcroot(obj, 0);
     return (JavaObject**)((uint64)obj + ptrOffset);
   }
 
@@ -1227,7 +1219,6 @@ public:
   void setStaticObjectField(JavaObject* val);
 
   JavaObject* getInstanceObjectField(JavaObject* obj) {
-    llvm_gcroot(obj, 0);
     assert(classDef->isResolved());
     void* ptr = (void*)((uint64)obj + ptrOffset);
     return ((JavaObject**)ptr)[0];

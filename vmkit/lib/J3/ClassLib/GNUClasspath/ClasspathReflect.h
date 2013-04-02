@@ -10,8 +10,6 @@
 #ifndef JNJVM_CLASSPATH_REFLECT_H
 #define JNJVM_CLASSPATH_REFLECT_H
 
-#include "MvmGC.h"
-
 #include "JavaClass.h"
 #include "JavaObject.h"
 #include "JavaThread.h"
@@ -24,42 +22,27 @@ class JavaObjectClass : public JavaObject {
 private:
   JavaObject* signers;
   JavaObject* pd;
-  UserCommonClass* vmdata;
+  CommonClass* vmdata;
   JavaObject* constructor;
 
 public:
   
-  static UserCommonClass* getClass(JavaObjectClass* cl) {
-    llvm_gcroot(cl, 0);
+  static CommonClass* getClass(JavaObjectClass* cl) {
     return cl->vmdata;
   }
 
-  static void setClass(JavaObjectClass* cl, UserCommonClass* vmdata) {
-    llvm_gcroot(cl, 0);
+  static void setClass(JavaObjectClass* cl, CommonClass* vmdata) {
     cl->vmdata = vmdata;
   }
 
   static void setProtectionDomain(JavaObjectClass* cl, JavaObject* pd) {
-    llvm_gcroot(cl, 0);
-    llvm_gcroot(pd, 0);
-    mvm::Collector::objectReferenceWriteBarrier(
-        (gc*)cl, (gc**)&(cl->pd), (gc*)pd);
   }
   
   static JavaObject* getProtectionDomain(JavaObjectClass* cl) {
-    llvm_gcroot(cl, 0);
     return cl->pd;
   }
 
   static void staticTracer(JavaObjectClass* obj, word_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->pd, closure);
-    mvm::Collector::markAndTrace(obj, &obj->signers, closure);
-    mvm::Collector::markAndTrace(obj, &obj->constructor, closure);
-    if (obj->vmdata) {
-      JavaObject** Obj = obj->vmdata->classLoader->getJavaClassLoaderPtr();
-      if (*Obj) mvm::Collector::markAndTraceRoot(Obj, closure);
-    }
-  }
 };
 
 class JavaObjectField : public JavaObject {
@@ -72,19 +55,17 @@ private:
 public:
 
   static void staticTracer(JavaObjectField* obj, word_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->name, closure);
-    mvm::Collector::markAndTrace(obj, &obj->declaringClass, closure);
   }
 
   static JavaField* getInternalField(JavaObjectField* self) {
     llvm_gcroot(self, 0);
-    UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
+    CommonClass* cls = JavaObjectClass::getClass(self->declaringClass);
     return &(cls->asClass()->virtualFields[self->slot]);
   }
 
   static UserClass* getClass(JavaObjectField* self) {
     llvm_gcroot(self, 0);
-    UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
+    CommonClass* cls = JavaObjectClass::getClass(self->declaringClass);
     return cls->asClass();
   }
 
@@ -108,7 +89,7 @@ public:
   
   static UserClass* getClass(JavaObjectMethod* self) {
     llvm_gcroot(self, 0);
-    UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
+    CommonClass* cls = JavaObjectClass::getClass(self->declaringClass);
     return cls->asClass();
   }
 
@@ -128,8 +109,7 @@ public:
   static JavaMethod* getInternalMethod(JavaObjectConstructor* self);
   
   static UserClass* getClass(JavaObjectConstructor* self) {
-    llvm_gcroot(self, 0);
-    UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
+    CommonClass* cls = JavaObjectClass::getClass(self->declaringClass);
     return cls->asClass();
   }
 

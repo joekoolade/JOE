@@ -10,7 +10,6 @@
 #ifndef JNJVM_JAVA_CONSTANT_POOL_H
 #define JNJVM_JAVA_CONSTANT_POOL_H
 
-#include "mvm/Allocator.h"
 #include "types.h"
 
 #include "UTF8.h"
@@ -29,7 +28,7 @@ class Typedef;
 /// JavaConstantPool - This class represents a Java constant pool, a place where
 /// a Java class makes external references such as classes and methods and
 /// stores constants such as integers or UTF8s.
-class JavaConstantPool : public mvm::PermanentObject {
+class JavaConstantPool {
 public:
   
   /// classDef - The owning class of this constant pool.
@@ -54,11 +53,6 @@ public:
   ///
   void**  ctpRes;
   
-  /// operator new - Redefine the operator to allocate the arrays of a
-  /// constant pool inline.
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator,
-                     uint32 ctpSize);
-
   /// CtpReaderClass - Reads a class entry.
   static uint32 CtpReaderClass(JavaConstantPool* ctp, Reader& reader,
                                uint32 index);

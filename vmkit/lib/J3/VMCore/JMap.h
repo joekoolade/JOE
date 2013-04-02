@@ -23,16 +23,13 @@
 
 #include "types.h"
 
-#include "mvm/Allocator.h"
-#include "mvm/MvmDenseMap.h"
-#include "mvm/Threads/Locks.h"
+#include "DenseMap.h"
 #include "UTF8.h"
 
 namespace j3 {
 
 class ArrayUInt16;
 class JavaString;
-class JnjvmClassLoader;
 class Signdef;
 class Typedef;
 class CommonClass;
@@ -42,62 +39,44 @@ struct ltarray16 {
   bool operator()(const ArrayUInt16 *const s1, const ArrayUInt16 *const s2) const;
 };
 
-class StringMap : public mvm::PermanentObject {
+class StringMap {
 public:
   typedef std::map<const ArrayUInt16 *const, JavaString*, ltarray16>::iterator iterator;
-  typedef JavaString* (*funcCreate)(const ArrayUInt16 *const& V, Jnjvm* vm);
+  typedef JavaString* (*funcCreate)(const ArrayUInt16 *const& V);
 
-  mvm::LockNormal lock;
   std::map<const ArrayUInt16 *const, JavaString*, ltarray16,
            std::allocator<std::pair<const ArrayUInt16 *const, JavaString*> > > map;
   
-  inline JavaString* lookupOrCreate(const ArrayUInt16 *const array, Jnjvm* vm, funcCreate func) {
+  inline JavaString* lookupOrCreate(const ArrayUInt16 *const array, funcCreate func) {
     JavaString* res = 0;
-    llvm_gcroot(res, 0);
-    llvm_gcroot(array, 0);
-    lock.lock();
     iterator End = map.end();
     iterator I = map.find(array);
     if (I == End) {
-      res = func(array, vm);
+      res = func(array);
       map.insert(std::make_pair(array, res));
-      lock.unlock();
       return res;
     } else {
-      lock.unlock();
       return ((JavaString*)(I->second));
     }
   }
   
   inline void remove(const ArrayUInt16 *const array) {
-    llvm_gcroot(array, 0);
-    lock.lock();
     map.erase(array);
-    lock.unlock();
   }
 
   inline JavaString* lookup(const ArrayUInt16 *const array) {
-    llvm_gcroot(array, 0);
-    lock.lock();
     iterator End = map.end();
     iterator I = map.find(array);
-    lock.unlock();
     return I != End ? ((JavaString*)(I->second)) : 0; 
   }
 
   inline void hash(const ArrayUInt16 *const array, JavaString* str) {
-    llvm_gcroot(array, 0);
-    llvm_gcroot(str, 0);
-    lock.lock();
-    map.insert(std::make_pair(array, str));
-    lock.unlock();
+   map.insert(std::make_pair(array, str));
   }
 
   inline void removeUnlocked(const ArrayUInt16 *const array, JavaString* str) {
-    llvm_gcroot(str, 0);
-    llvm_gcroot(array, 0);
-    iterator End = map.end();
-    iterator I = map.find(array);
+   iterator End = map.end();
+   iterator I = map.find(array);
 
     if (I != End && I->second == str) map.erase(I); 
   }
@@ -113,21 +92,18 @@ public:
   ClassMap() {}
   ClassMap(mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*>* precompiled) : map(*precompiled) {}
 
-  mvm::LockRecursive lock;
   mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*> map;
   typedef mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*>::iterator iterator;
 };
 
 class TypeMap {
 public:
-  mvm::LockNormal lock;
   mvm::MvmDenseMap<const mvm::UTF8*, Typedef*> map;
   typedef mvm::MvmDenseMap<const mvm::UTF8*, Typedef*>::iterator iterator;
 };
 
 class SignMap {
 public:
-  mvm::LockNormal lock;
   mvm::MvmDenseMap<const mvm::UTF8*, Signdef*> map;
   typedef mvm::MvmDenseMap<const mvm::UTF8*, Signdef*>::iterator iterator;
 };

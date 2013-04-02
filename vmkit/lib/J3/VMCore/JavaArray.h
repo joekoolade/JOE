@@ -14,8 +14,6 @@
 #ifndef JNJVM_JAVA_ARRAY_H
 #define JNJVM_JAVA_ARRAY_H
 
-#include "mvm/Allocator.h"
-
 #include "types.h"
 
 #include "JavaObject.h"
@@ -27,7 +25,6 @@ namespace j3 {
 class ClassArray;
 class CommonClass;
 class JavaObject;
-class Jnjvm;
 
 /// TJavaArray - Template class to be instantiated by real arrays. All arrays
 ///  have a constant size and an array of element. When JnJVM allocates an

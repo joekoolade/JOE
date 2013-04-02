@@ -12,8 +12,6 @@
 
 #include "mvm/Allocator.h"
 
-#include "JnjvmConfig.h"
-
 #define UPCALL_CLASS(vm, name)                                                 \
   vm->loadName(vm->asciizConstructUTF8(name), true, false, NULL)
 

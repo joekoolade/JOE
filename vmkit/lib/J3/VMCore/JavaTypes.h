@@ -11,16 +11,12 @@
 #define JNJVM_JAVA_TYPES_H
 
 #include "types.h"
-
-#include "mvm/Allocator.h"
-
-#include "JnjvmClassLoader.h"
+#include <vector>
 
 namespace j3 {
 
-class UserCommonClass;
-class JnjvmClassLoader;
-class UserClassPrimitive;
+class CommonClass;
+class ClassPrimitive;
 
 #define VOID_ID 0
 #define BOOL_ID 1
@@ -55,7 +51,7 @@ static const char I_SEP = '/';
 /// which has not been loaded yet. Typedefs are hashed on the name of the class.
 /// Hashing is for memory purposes, not for comparison.
 ///
-class Typedef : public mvm::PermanentObject {
+class Typedef {
 public:
   
   /// keyName - The name of the Typedef. It is the representation of a class
@@ -66,10 +62,10 @@ public:
   /// assocClass - Given the loaded, try to load the class represented by this
   /// Typedef.
   ///
-  virtual UserCommonClass* assocClass(JnjvmClassLoader* loader) const = 0;
+  virtual CommonClass* assocClass() const = 0;
   
-  virtual UserCommonClass* findAssocClass(JnjvmClassLoader* loader) const {
-    return assocClass(loader);
+  virtual CommonClass* findAssocClass() const {
+    return assocClass();
   }
 
   /// trace - Does this type need to be traced by the GC?
@@ -149,7 +145,7 @@ public:
 
 class PrimitiveTypedef : public Typedef {
 private:
-  UserClassPrimitive* prim;
+  ClassPrimitive* prim;
   bool unsign;
   char charId;
   
@@ -175,11 +171,11 @@ public:
     return unsign;
   }
 
-  virtual UserCommonClass* assocClass(JnjvmClassLoader* loader) const {
-    return (UserCommonClass*)prim;
+  virtual CommonClass* assocClass() const {
+    return (CommonClass*)prim;
   }
 
-  PrimitiveTypedef(const UTF8* name, UserClassPrimitive* cl, bool u, char i) {
+  PrimitiveTypedef(const UTF8* name, ClassPrimitive* cl, bool u, char i) {
     keyName = name;
     prim = cl;
     unsign = u;
@@ -231,8 +227,8 @@ public:
     return true;
   }
 
-  virtual UserCommonClass* assocClass(JnjvmClassLoader* loader) const;
-  virtual UserCommonClass* findAssocClass(JnjvmClassLoader* loader) const;
+  virtual CommonClass* assocClass() const;
+  virtual CommonClass* findAssocClass() const;
 
   ArrayTypedef(const UTF8* name) {
     keyName = name;
@@ -255,8 +251,8 @@ public:
     return true;
   }
   
-  virtual UserCommonClass* assocClass(JnjvmClassLoader* loader) const;
-  virtual UserCommonClass* findAssocClass(JnjvmClassLoader* loader) const;
+  virtual CommonClass* assocClass() const;
+  virtual CommonClass* findAssocClass() const;
 
   ObjectTypedef(const UTF8*name, UTF8Map* map);
   
@@ -274,7 +270,7 @@ public:
 /// Java signature. Signdefs are hashed for memory purposes, not equality
 /// purposes.
 ///
-class Signdef : public mvm::PermanentObject {
+class Signdef {
 private:
   
   /// _staticCallBuf - A dynamically generated method which calls a static Java
@@ -330,8 +326,7 @@ public:
 
   /// Signdef - Create a new Signdef.
   ///
-  Signdef(const UTF8* name, JnjvmClassLoader* loader,
-          std::vector<Typedef*>& args, Typedef* ret);
+  Signdef(const UTF8* name, std::vector<Typedef*>& args, Typedef* ret);
   
   /// operator new - Redefines the new operator of this class to allocate
   /// the arguments in the object itself.

@@ -7,23 +7,18 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define JNJVM_LOAD 0
-
 #include "debug.h"
 #include "types.h"
 
-#include "ClasspathReflect.h"
 #include "JavaArray.h"
 #include "JavaClass.h"
 #include "JavaCompiler.h"
 #include "JavaConstantPool.h"
 #include "JavaObject.h"
-#include "JavaThread.h"
 #include "JavaTypes.h"
-#include "JavaUpcalls.h"
-#include "Jnjvm.h"
-#include "LockedMap.h"
+#include "JMap.h"
 #include "Reader.h"
+#include "UTF8.h"
 
 #include <cstring>
 
@@ -39,11 +34,6 @@ const UTF8* Attribut::sourceFileAttribut = 0;
 
 Class* ClassArray::SuperArray;
 Class** ClassArray::InterfacesArray;
-
-extern "C" void JavaObjectTracer(JavaObject*);
-extern "C" void ArrayObjectTracer(JavaObject*);
-extern "C" void RegularObjectTracer(JavaObject*);
-extern "C" void ReferenceObjectTracer(JavaObject*);
 
 Attribut::Attribut(const UTF8* name, uint32 length,
                    uint32 offset) {
@@ -87,51 +77,38 @@ Class::~Class() {
   for (uint32 i = 0; i < nbAttributs; ++i) {
     Attribut* cur = &(attributs[i]);
     cur->~Attribut();
-    classLoader->allocator.Deallocate(cur);
   }
   
   for (uint32 i = 0; i < nbStaticFields; ++i) {
     JavaField* cur = &(staticFields[i]);
     cur->~JavaField();
-    classLoader->allocator.Deallocate(cur);
   }
   
   for (uint32 i = 0; i < nbVirtualFields; ++i) {
     JavaField* cur = &(virtualFields[i]);
     cur->~JavaField();
-    classLoader->allocator.Deallocate(cur);
   }
   
   for (uint32 i = 0; i < nbVirtualMethods; ++i) {
     JavaMethod* cur = &(virtualMethods[i]);
     cur->~JavaMethod();
-    classLoader->allocator.Deallocate(cur);
   }
   
   for (uint32 i = 0; i < nbStaticMethods; ++i) {
     JavaMethod* cur = &(staticMethods[i]);
     cur->~JavaMethod();
-    classLoader->allocator.Deallocate(cur);
   }
  
   if (ctpInfo) {
     ctpInfo->~JavaConstantPool();
-    classLoader->allocator.Deallocate(ctpInfo);
   }
 
-  classLoader->allocator.Deallocate(IsolateInfo);
-  
-  // Currently, only regular classes have a heap allocated virtualVT.
-  // Array classes have a C++ allocated virtualVT and primitive classes
-  // do not have a virtualVT.
-  classLoader->allocator.Deallocate(virtualVT);
 }
 
 JavaField::~JavaField() {
   for (uint32 i = 0; i < nbAttributs; ++i) {
     Attribut* cur = &(attributs[i]);
     cur->~Attribut();
-    classDef->classLoader->allocator.Deallocate(cur);
   }
 }
 
@@ -139,11 +116,12 @@ JavaMethod::~JavaMethod() {
   for (uint32 i = 0; i < nbAttributs; ++i) {
     Attribut* cur = &(attributs[i]);
     cur->~Attribut();
-    classDef->classLoader->allocator.Deallocate(cur);
   }
 }
 
-UserClassPrimitive* CommonClass::toPrimitive(Jnjvm* vm) const {
+ClassPrimitive* CommonClass::toPrimitive() const {
+	// fixme
+#if 0
   if (this == vm->upcalls->voidClass) {
     return vm->upcalls->OfVoid;
   } else if (this == vm->upcalls->intClass) {
@@ -165,11 +143,15 @@ UserClassPrimitive* CommonClass::toPrimitive(Jnjvm* vm) const {
   } else {
     return 0;
   }
+#endif
+  return 0;
 }
 
 
-UserClassPrimitive* 
-ClassPrimitive::byteIdToPrimitive(char id, Classpath* upcalls) {
+ClassPrimitive*
+ClassPrimitive::byteIdToPrimitive(char id) {
+	// fixme
+#if 0
   switch (id) {
     case I_FLOAT :
       return upcalls->OfFloat;
@@ -190,13 +172,12 @@ ClassPrimitive::byteIdToPrimitive(char id, Classpath* upcalls) {
     case I_VOID :
       return upcalls->OfVoid;
     default :
+#endif
       return 0;
-  }
 }
 
-CommonClass::CommonClass(JnjvmClassLoader* loader, const UTF8* n) {
+CommonClass::CommonClass(const UTF8* n) {
   name = n;
-  classLoader = loader;
   nbInterfaces = 0;
   interfaces = 0;
   access = 0;
@@ -204,18 +185,18 @@ CommonClass::CommonClass(JnjvmClassLoader* loader, const UTF8* n) {
   memset(delegatee, 0, sizeof(JavaObject*) * NR_ISOLATES);
 }
 
-ClassPrimitive::ClassPrimitive(JnjvmClassLoader* loader, const UTF8* n,
+ClassPrimitive::ClassPrimitive(const UTF8* n,
                                uint32 nb) : 
-  CommonClass(loader, n) {
+  CommonClass(n) {
  
   uint32 size = JavaVirtualTable::getBaseSize();
-  virtualVT = new(loader->allocator, size) JavaVirtualTable(this);
+  virtualVT = new JavaVirtualTable(this);
   access = ACC_ABSTRACT | ACC_FINAL | ACC_PUBLIC | JNJVM_PRIMITIVE;
   logSize = nb;
 }
 
-Class::Class(JnjvmClassLoader* loader, const UTF8* n, ClassBytes* B) : 
-    CommonClass(loader, n) {
+Class::Class(const UTF8* n, ClassBytes* B) :
+    CommonClass(n) {
   virtualVT = 0;
   bytes = B;
   super = 0;
@@ -237,42 +218,27 @@ Class::Class(JnjvmClassLoader* loader, const UTF8* n, ClassBytes* B) :
   memset(IsolateInfo, 0, sizeof(TaskClassMirror) * NR_ISOLATES);
 }
 
-ClassArray::ClassArray(JnjvmClassLoader* loader, const UTF8* n,
-                       UserCommonClass* base) : CommonClass(loader, n) {
+ClassArray::ClassArray(const UTF8* n,
+                       CommonClass* base) : CommonClass(n) {
   _baseClass = base;
   super = ClassArray::SuperArray;
   interfaces = ClassArray::InterfacesArray;
   nbInterfaces = 2;
   
   uint32 size = JavaVirtualTable::getBaseSize();
-  virtualVT = new(loader->allocator, size) JavaVirtualTable(this);
+  virtualVT = new JavaVirtualTable(this);
   
   access = ACC_FINAL | ACC_ABSTRACT | JNJVM_ARRAY | base->getAccess();
   access &= ~ACC_INTERFACE;
 }
 
-JavaObject* UserClassArray::doNew(sint32 n, Jnjvm* vm) {
-  JavaObject* res = NULL;
-  llvm_gcroot(res, 0);
-  if (n < 0) {
-    vm->negativeArraySizeException(n);
-  } else if (n > JavaArray::MaxArraySize) {
-    vm->outOfMemoryError();
-  }
-  UserCommonClass* cl = baseClass();
-  uint32 logSize = cl->isPrimitive() ? 
-    cl->asPrimitiveClass()->logSize : (sizeof(JavaObject*) == 8 ? 3 : 2);
-  VirtualTable* VT = virtualVT;
-  uint32 size = sizeof(JavaObject) + sizeof(ssize_t) + (n << logSize);
-  res = (JavaObject*)gc::operator new(size, VT);
-  JavaArray::setSize(res, n);
-  return res;
-}
-
 void* JavaMethod::compiledPtr(Class* customizeFor) {
-  if ((isCustomizable && customizeFor != NULL) || code == 0) {
+  // fixme
+#if 0
+	if ((isCustomizable && customizeFor != NULL) || code == 0) {
     return classDef->classLoader->getCompiler()->materializeFunction(this, customizeFor);
   }
+#endif
   return code;
 }
 
@@ -285,10 +251,13 @@ void JavaVirtualTable::setNativeTracer(word_t ptr, const char* name) {
 }
 
 void JavaVirtualTable::setNativeDestructor(word_t ptr, const char* name) {
+// fixme
+#if 0
 	if (!cl->classLoader->getCompiler()->isStaticCompiling()) {
 	  destructor = ptr;
   	operatorDelete = ptr;
 	}
+#endif
 }
 
 JavaMethod* Class::lookupInterfaceMethodDontThrow(const UTF8* name,
@@ -311,7 +280,8 @@ JavaMethod* Class::lookupSpecialMethodDontThrow(const UTF8* name,
                                                 const UTF8* type,
                                                 Class* current) {
   JavaMethod* meth = lookupMethodDontThrow(name, type, false, true, NULL);
-
+// fixme
+#if 0
   if (meth &&
       isSuper(current->access) &&
       current != meth->classDef &&
@@ -319,6 +289,7 @@ JavaMethod* Class::lookupSpecialMethodDontThrow(const UTF8* name,
       !name->equals(classLoader->bootstrapLoader->initName)) {
     meth = current->super->lookupMethodDontThrow(name, type, false, true, NULL);
   }
+#endif
 
   return meth;
 }
@@ -369,18 +340,22 @@ JavaMethod* Class::lookupMethod(const UTF8* name, const UTF8* type,
                                       Class** methodCl) {
   JavaMethod* res = lookupMethodDontThrow(name, type, isStatic, recurse,
                                           methodCl);
+  // fixme
+#if 0
   if (!res) {
     JavaThread::get()->getJVM()->noSuchMethodError(this, name);
   }
+#endif
   return res;
 }
 
 JavaMethod* Class::lookupInterfaceMethod(const UTF8* name, const UTF8* type) {
   JavaMethod* res = lookupInterfaceMethodDontThrow(name, type);
 
-  if (!res) {
-    JavaThread::get()->getJVM()->noSuchMethodError(this, name);
-  }
+// fixme
+//  if (!res) {
+//    JavaThread::get()->getJVM()->noSuchMethodError(this, name);
+//  }
   return res;
 }
 
@@ -431,27 +406,14 @@ JavaField* Class::lookupField(const UTF8* name, const UTF8* type,
   
   JavaField* res = lookupFieldDontThrow(name, type, isStatic, recurse,
                                         definingClass);
-  if (!res) {
-    JavaThread::get()->getJVM()->noSuchFieldError(this, name);
-  }
+  // fixme
+//  if (!res) {
+//    JavaThread::get()->getJVM()->noSuchFieldError(this, name);
+//  }
   return res;
 }
 
-JavaObject* UserClass::doNew(Jnjvm* vm) {
-  JavaObject* res = NULL;
-  llvm_gcroot(res, 0);
-  assert(this && "No class when allocating.");
-  assert((this->isInitializing() || 
-          classLoader->getCompiler()->isStaticCompiling() ||
-          this == classLoader->bootstrapLoader->upcalls->newClass)
-         && "Uninitialized class when allocating.");
-  assert(getVirtualVT() && "No VT\n");
-  res = (JavaObject*)gc::operator new(getVirtualSize(), getVirtualVT());
-
-  return res;
-}
-
-bool UserCommonClass::inheritName(const uint16* buf, uint32 len) {
+bool CommonClass::inheritName(const uint16* buf, uint32 len) {
   if (getName()->equals(buf, len)) {
     return true;
   } else  if (isPrimitive()) {
@@ -466,17 +428,17 @@ bool UserCommonClass::inheritName(const uint16* buf, uint32 len) {
   return false;
 }
 
-bool UserCommonClass::isOfTypeName(const UTF8* Tname) {
+bool CommonClass::isOfTypeName(const UTF8* Tname) {
   if (inheritName(Tname->elements, Tname->size)) {
     return true;
   } else if (isArray()) {
-    UserCommonClass* curS = this;
+    CommonClass* curS = this;
     uint32 prof = 0;
     uint32 len = Tname->size;
     bool res = true;
     
     while (res && Tname->elements[prof] == I_TAB) {
-      UserCommonClass* cl = ((UserClassArray*)curS)->baseClass();
+      CommonClass* cl = ((ClassArray*)curS)->baseClass();
       ++prof;
       if (cl->isClass()) cl->asClass()->resolveClass();
       res = curS->isArray() && cl && (prof < len);
@@ -490,7 +452,7 @@ bool UserCommonClass::isOfTypeName(const UTF8* Tname) {
   }
 }
 
-bool UserCommonClass::isAssignableFrom(UserCommonClass* cl) {
+bool CommonClass::isAssignableFrom(CommonClass* cl) {
   assert(virtualVT && cl->virtualVT);
   return virtualVT->isSubtypeOf(cl->virtualVT);
 }
@@ -572,7 +534,6 @@ void JavaField::InitStaticField(JavaObject* val) {
   void* obj = classDef->getStaticInstance();
   assert(isReference());
   JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-  mvm::Collector::objectReferenceNonHeapWriteBarrier((gc**)ptr, (gc*)val);
 }
 
 void JavaField::InitStaticField(double val) {
@@ -585,7 +546,7 @@ void JavaField::InitStaticField(float val) {
   ((float*)((uint64)obj + ptrOffset))[0] = val;
 }
 
-void JavaField::InitStaticField(Jnjvm* vm) {
+void JavaField::InitStaticField() {
   const Typedef* type = getSignature();
   Attribut* attribut = lookupAttribut(Attribut::constantAttribut);
 
@@ -596,7 +557,9 @@ void JavaField::InitStaticField(Jnjvm* vm) {
     JavaConstantPool * ctpInfo = classDef->ctpInfo;
     uint16 idx = reader.readU2();
     if (type->isPrimitive()) {
-      UserCommonClass* cl = type->assocClass(vm->bootstrapLoader);
+// fixme
+#if 0
+    	CommonClass* cl = type->assocClass(vm->bootstrapLoader);
       if (cl == vm->upcalls->OfLong) {
         InitStaticField((uint64)ctpInfo->LongAt(idx));
       } else if (cl == vm->upcalls->OfDouble) {
@@ -606,6 +569,7 @@ void JavaField::InitStaticField(Jnjvm* vm) {
       } else {
         InitStaticField((uint64)ctpInfo->IntegerAt(idx));
       }
+#endif
     } else if (type->isReference()) {
       const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[idx]);
       InitStaticField((JavaObject*)ctpInfo->resolveString(utf8, idx));
@@ -618,9 +582,11 @@ void JavaField::InitStaticField(Jnjvm* vm) {
   } 
 }
 
-void* UserClass::allocateStaticInstance(Jnjvm* vm) {
-  void* val = classLoader->allocator.Allocate(getStaticSize(),
-                                              "Static instance");
+void* Class::allocateStaticInstance() {
+// fixme
+//  void* val = classLoader->allocator.Allocate(getStaticSize(),
+//                                              "Static instance");
+  void* val = new void*[getStaticSize()];
   setStaticInstance(val);
   return val;
 }
@@ -650,19 +616,21 @@ void Class::readParents(Reader& reader) {
   uint16 superEntry = reader.readU2();
   if (superEntry) {
     const UTF8* superUTF8 = ctpInfo->resolveClassName(superEntry);
-    super = classLoader->loadName(superUTF8, false, true, NULL);
+    // fixme
+    // super = classLoader->loadName(superUTF8, false, true, NULL);
   }
 
   uint16 nbI = reader.readU2();
-
-  interfaces = (Class**)
-    classLoader->allocator.Allocate(nbI * sizeof(Class*), "Interfaces");
+// fixme
+//  interfaces = (Class**)
+//    classLoader->allocator.Allocate(nbI * sizeof(Class*), "Interfaces");
   
   // Do not set nbInterfaces yet, we may be interrupted by the GC
   // in anon-cooperative environment.
   for (int i = 0; i < nbI; i++) {
     const UTF8* name = ctpInfo->resolveClassName(reader.readU2());
-    interfaces[i] = classLoader->loadName(name, false, true, NULL);
+    // fixme
+    //interfaces[i] = classLoader->loadName(name, false, true, NULL);
   }
   nbInterfaces = nbI;
 
@@ -697,7 +665,7 @@ void internalLoadExceptions(JavaMethod& meth) {
   }
 }
 
-void UserClass::loadExceptions() {
+void Class::loadExceptions() {
   for (uint32 i = 0; i < nbVirtualMethods; ++i)
     internalLoadExceptions(virtualMethods[i]);
   
@@ -708,7 +676,7 @@ void UserClass::loadExceptions() {
 Attribut* Class::readAttributs(Reader& reader, uint16& size) {
   uint16 nba = reader.readU2();
  
-  Attribut* attributs = new(classLoader->allocator, "Attributs") Attribut[nba];
+  Attribut* attributs = new Attribut[nba];
 
   for (int i = 0; i < nba; i++) {
     const UTF8* attName = ctpInfo->UTF8At(reader.readU2());
@@ -726,7 +694,7 @@ Attribut* Class::readAttributs(Reader& reader, uint16& size) {
 
 void Class::readFields(Reader& reader) {
   uint16 nbFields = reader.readU2();
-  virtualFields = new (classLoader->allocator, "Fields") JavaField[nbFields];
+  virtualFields = new JavaField[nbFields];
   staticFields = virtualFields + nbFields;
   for (int i = 0; i < nbFields; i++) {
     uint16 access = reader.readU2();
@@ -775,27 +743,27 @@ void Class::makeVT() {
   
   for (uint32 i = 0; i < nbVirtualMethods; ++i) {
     JavaMethod& meth = virtualMethods[i];
-    if (meth.name->equals(classLoader->bootstrapLoader->finalize) &&
-        meth.type->equals(classLoader->bootstrapLoader->clinitType)) {
-      meth.offset = 0;
-    } else {
-      JavaMethod* parent = super? 
-        super->lookupMethodDontThrow(meth.name, meth.type, false, true, 0) :
-        0;
-
-      uint64_t offset = 0;
-      if (!parent) {
-        offset = virtualTableSize++;
-        meth.offset = offset;
-      } else {
-        offset = parent->offset;
-        meth.offset = parent->offset;
-      }
-    }
+    // fixme
+//    if (meth.name->equals(classLoader->bootstrapLoader->finalize) &&
+//        meth.type->equals(classLoader->bootstrapLoader->clinitType)) {
+//      meth.offset = 0;
+//    } else {
+//      JavaMethod* parent = super?
+//        super->lookupMethodDontThrow(meth.name, meth.type, false, true, 0) :
+//        0;
+//
+//      uint64_t offset = 0;
+//      if (!parent) {
+//        offset = virtualTableSize++;
+//        meth.offset = offset;
+//      } else {
+//        offset = parent->offset;
+//        meth.offset = parent->offset;
+//      }
+//    }
   }
 
-  mvm::BumpPtrAllocator& allocator = classLoader->allocator;
-  virtualVT = new(allocator, virtualTableSize) JavaVirtualTable(this);
+  virtualVT = new JavaVirtualTable(this);
 }
 
 static void computeMirandaMethods(Class* current,
@@ -823,8 +791,7 @@ void Class::readMethods(Reader& reader) {
     virtualMethods = (JavaMethod*)
       allocator.Allocate(nbMethods * sizeof(JavaMethod));
   } else {
-    virtualMethods =
-      new(classLoader->allocator, "Methods") JavaMethod[nbMethods];
+    virtualMethods = new JavaMethod[nbMethods];
   }
   staticMethods = virtualMethods + nbMethods;
   for (int i = 0; i < nbMethods; i++) {
@@ -850,8 +817,7 @@ void Class::readMethods(Reader& reader) {
     computeMirandaMethods(this, this, mirandaMethods);
     uint32 size = mirandaMethods.size();
     nbMethods += size;
-    JavaMethod* realMethods =
-      new(classLoader->allocator, "Methods") JavaMethod[nbMethods];
+    JavaMethod* realMethods = new JavaMethod[nbMethods];
     memcpy(realMethods + size, virtualMethods,
            sizeof(JavaMethod) * (nbMethods - size));
     nbVirtualMethods += size;
@@ -879,13 +845,13 @@ void Class::readClass() {
   Reader reader(bytes);
   uint32 magic;
   magic = reader.readU4();
-  assert(magic == Jnjvm::Magic && "I've created a class but magic is no good!");
+  // fixme
+  // assert(magic == Jnjvm::Magic && "I've created a class but magic is no good!");
 
   /* uint16 minor = */ reader.readU2();
   /* uint16 major = */ reader.readU2();
   uint32 ctpSize = reader.readU2();
-  ctpInfo = new(classLoader->allocator, ctpSize) JavaConstantPool(this, reader,
-                                                                  ctpSize);
+  ctpInfo = new JavaConstantPool(this, reader, ctpSize);
   access |= reader.readU2();
   
   if (!isPublic(access)) access |= ACC_PRIVATE;
@@ -894,7 +860,8 @@ void Class::readClass() {
     ctpInfo->resolveClassName(reader.readU2());
   
   if (!(thisClassName->equals(name))) {
-    JavaThread::get()->getJVM()->noClassDefFoundError(this, thisClassName);
+    // fixme
+	//  JavaThread::get()->getJVM()->noClassDefFoundError(this, thisClassName);
   }
 
   readParents(reader);
@@ -903,7 +870,7 @@ void Class::readClass() {
   attributs = readAttributs(reader, nbAttributs);
 }
 
-void UserClass::resolveParents() {
+void Class::resolveParents() {
   if (super != NULL) {
     super->resolveClass();
   }
@@ -917,12 +884,13 @@ void Class::resolveClass() {
   resolveParents();
   loadExceptions();
   // Do a compare and swap in case another thread initialized the class.
-  __sync_val_compare_and_swap(
-      &(getCurrentTaskClassMirror().status), loaded, resolved);
+  // fixme
+//  __sync_val_compare_and_swap(
+//      &(getCurrentTaskClassMirror().status), loaded, resolved);
   assert(isResolved() || isErroneous());
 }
 
-void UserClass::resolveInnerOuterClasses() {
+void Class::resolveInnerOuterClasses() {
   if (!innerOuterResolved) {
     Attribut* attribut = lookupAttribut(Attribut::innerClassesAttribut);
     if (attribut != 0) {
@@ -933,18 +901,19 @@ void UserClass::resolveInnerOuterClasses() {
         uint16 outer = reader.readU2();
         uint16 innerName = reader.readU2();
         uint16 accessFlags = reader.readU2();
-        UserClass* clInner = 0;
-        UserClass* clOuter = 0;
-        if (inner) clInner = (UserClass*)ctpInfo->loadClass(inner);
-        if (outer) clOuter = (UserClass*)ctpInfo->loadClass(outer);
+        Class* clInner = 0;
+        Class* clOuter = 0;
+        if (inner) clInner = (Class*)ctpInfo->loadClass(inner);
+        if (outer) clOuter = (Class*)ctpInfo->loadClass(outer);
 
         if (clInner == this) {
           outerClass = clOuter;
         } else if (clOuter == this) {
           if (!innerClasses) {
-            innerClasses = (Class**)
-              classLoader->allocator.Allocate(nbi * sizeof(Class*),
-                                              "Inner classes");
+// fixme
+        	  //            innerClasses = (Class**)
+//              classLoader->allocator.Allocate(nbi * sizeof(Class*),
+//                                              "Inner classes");
           }
           clInner->setInnerAccess(accessFlags);
           if (!innerName) isAnonymous = true;
@@ -956,27 +925,27 @@ void UserClass::resolveInnerOuterClasses() {
   }
 }
 
-static JavaObject* getClassType(Jnjvm* vm, JnjvmClassLoader* loader,
-                                Typedef* type) {
-  UserCommonClass* res = type->assocClass(loader);
-  assert(res && "No associated class");
-  return res->getClassDelegatee(vm);
+static JavaObject* getClassType(Typedef* type) {
+// fixme
+	//  CommonClass* res = type->assocClass(loader);
+//  assert(res && "No associated class");
+//  return res->getClassDelegatee(vm);
+	return 0;
 }
 
-ArrayObject* JavaMethod::getParameterTypes(JnjvmClassLoader* loader) {
+ArrayObject* JavaMethod::getParameterTypes() {
   
   ArrayObject* res = NULL;
   JavaObject* delegatee = NULL;
-  llvm_gcroot(res, 0);
-  llvm_gcroot(delegatee, 0);
   
-  Jnjvm* vm = JavaThread::get()->getJVM();
   Signdef* sign = getSignature();
   Typedef* const* arguments = sign->getArgumentsType();
-  res = (ArrayObject*)vm->upcalls->classArrayClass->doNew(sign->nbArguments,vm);
+  // fixme
+  //res = (ArrayObject*)vm->upcalls->classArrayClass->doNew(sign->nbArguments,vm);
 
   for (uint32 index = 0; index < sign->nbArguments; ++index) {
-    delegatee = getClassType(vm, loader, arguments[index]);
+    //fixme
+	  delegatee = 0; //getClassTypeArguments[index]);
     ArrayObject::setElement(res, delegatee, index);
   }
 
@@ -984,35 +953,34 @@ ArrayObject* JavaMethod::getParameterTypes(JnjvmClassLoader* loader) {
 
 }
 
-JavaObject* JavaMethod::getReturnType(JnjvmClassLoader* loader) {
-  Jnjvm* vm = JavaThread::get()->getJVM();
+JavaObject* JavaMethod::getReturnType() {
+  // Jnjvm* vm = JavaThread::get()->getJVM();
   Typedef* ret = getSignature()->getReturnType();
-  return getClassType(vm, loader, ret);
+  return getClassType(ret);
 }
 
-ArrayObject* JavaMethod::getExceptionTypes(JnjvmClassLoader* loader) {
+ArrayObject* JavaMethod::getExceptionTypes() {
   
   ArrayObject* res = NULL;
   JavaObject* delegatee = NULL;
-  llvm_gcroot(res, 0);
-  llvm_gcroot(delegatee, 0);
   
   Attribut* exceptionAtt = lookupAttribut(Attribut::exceptionsAttribut);
-  Jnjvm* vm = JavaThread::get()->getJVM();
   if (exceptionAtt == 0) {
-    return (ArrayObject*)vm->upcalls->classArrayClass->doNew(0, vm);
+    // fixme
+	  return 0; // (ArrayObject*)vm->upcalls->classArrayClass->doNew(0, vm);
   } else {
-    UserConstantPool* ctp = classDef->getConstantPool();
+    ConstantPool* ctp = classDef->getConstantPool();
     Reader reader(exceptionAtt, classDef->bytes);
     uint16 nbe = reader.readU2();
-    res = (ArrayObject*)vm->upcalls->classArrayClass->doNew(nbe, vm);
+    // fixme
+    //res = (ArrayObject*)vm->upcalls->classArrayClass->doNew(nbe, vm);
 
     for (uint16 i = 0; i < nbe; ++i) {
       uint16 idx = reader.readU2();
-      UserCommonClass* cl = ctp->loadClass(idx);
+      CommonClass* cl = ctp->loadClass(idx);
       assert(cl->asClass() && "Wrong exception type");
       cl->asClass()->resolveClass();
-      delegatee = cl->getClassDelegatee(vm);
+      delegatee = cl->getClassDelegatee();
       ArrayObject::setElement(res, delegatee, i);
     }
     return res;
@@ -1021,28 +989,19 @@ ArrayObject* JavaMethod::getExceptionTypes(JnjvmClassLoader* loader) {
 
 
 JavaObject* CommonClass::setDelegatee(JavaObject* val) {
-  llvm_gcroot(val, 0);
   JavaObject** obj = &(delegatee[0]);
-  classLoader->lock.lock();
-  if (*obj == NULL) {
-    mvm::Collector::objectReferenceNonHeapWriteBarrier((gc**)obj, (gc*)val);
-  }
-  classLoader->lock.unlock();
   return getDelegatee();
 }
 
 
-UserCommonClass* UserCommonClass::resolvedImplClass(Jnjvm* vm,
-                                                    JavaObject* clazz,
+CommonClass* CommonClass::resolvedImplClass(JavaObject* clazz,
                                                     bool doClinit) {
 
-  llvm_gcroot(clazz, 0);
-
-  UserCommonClass* cl = JavaObjectClass::getClass((JavaObjectClass*)clazz);
+  CommonClass* cl = JavaObjectClass::getClass((JavaObjectClass*)clazz);
   assert(cl && "No class in Class object");
   if (cl->isClass()) {
     cl->asClass()->resolveClass();
-    if (doClinit) cl->asClass()->initialiseClass(vm);
+    if (doClinit) cl->asClass()->initialiseClass();
   }
   return cl;
 }
@@ -1232,7 +1191,7 @@ void JavaMethod::jniConsFromMethOverloaded(char* buf, const UTF8* jniConsClName,
 }
 
 
-bool UserClass::isNativeOverloaded(JavaMethod* meth) {  
+bool Class::isNativeOverloaded(JavaMethod* meth) {
   for (uint32 i = 0; i < nbVirtualMethods; ++i) {
     JavaMethod& cur = virtualMethods[i];
     if (&cur != meth && isNative(cur.access) && cur.name->equals(meth->name))
@@ -1250,10 +1209,9 @@ bool UserClass::isNativeOverloaded(JavaMethod* meth) {
 
 
 ArrayUInt16* JavaMethod::toString() const { 
-  Jnjvm* vm = JavaThread::get()->getJVM();
   uint32 size = classDef->name->size + name->size + type->size + 1;
-  ArrayUInt16* res = (ArrayUInt16*)vm->upcalls->ArrayOfChar->doNew(size, vm);
-  llvm_gcroot(res, 0);
+  // fixme
+  ArrayUInt16* res = 0; // (ArrayUInt16*)vm->upcalls->ArrayOfChar->doNew(size, vm);
 
   uint32 i = 0;
  
@@ -1283,7 +1241,7 @@ ArrayUInt16* JavaMethod::toString() const {
 }
 
 
-bool UserClass::needsInitialisationCheck() {
+bool Class::needsInitialisationCheck() {
   
   if (isReady()) return false;
 
@@ -1292,10 +1250,11 @@ bool UserClass::needsInitialisationCheck() {
 
   if (nbStaticFields) return true;
 
-  JavaMethod* meth = 
-    lookupMethodDontThrow(classLoader->bootstrapLoader->clinitName,
-                          classLoader->bootstrapLoader->clinitType, 
-                          true, false, 0);
+  JavaMethod* meth = 0;
+  // fixme
+//    lookupMethodDontThrow(classLoader->bootstrapLoader->clinitName,
+//                          classLoader->bootstrapLoader->clinitType,
+//                          true, false, 0);
   
   if (meth) return true;
 
@@ -1307,12 +1266,11 @@ bool UserClass::needsInitialisationCheck() {
 void ClassArray::initialiseVT(Class* javaLangObject) {
 
   ClassArray::SuperArray = javaLangObject;
-  JnjvmClassLoader* JCL = javaLangObject->classLoader;
-  Classpath* upcalls = JCL->bootstrapLoader->upcalls;
   
   assert(javaLangObject->virtualVT->init && 
          "Initializing array VT before JavaObjectVT");
-  
+// fixme
+#if 0
   // Load and resolve interfaces of array classes. We resolve them now
   // so that the secondary type list of array VTs can reference them.
   ClassArray::InterfacesArray[0] = 
@@ -1353,13 +1311,14 @@ void ClassArray::initialiseVT(Class* javaLangObject) {
     COPY(upcalls->ArrayOfLong)
 
 #undef COPY
- 
+#endif
 }
 
 JavaVirtualTable::JavaVirtualTable(Class* C) {
    
   if (C->super) {
-
+// fixme
+#if 0
     Class* referenceClass = 
         C->classLoader->bootstrapLoader->upcalls->newReference;
     if (referenceClass != NULL && C->super->isAssignableFrom(referenceClass)) {
@@ -1373,7 +1332,7 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
     if (!isAbstract(C->access)) {
       IMT = new (C->classLoader->allocator, "IMT") InterfaceMethodTable();
     }
-    
+#endif
     // Set the class of this VT.
     cl = C;
     
@@ -1401,10 +1360,11 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
       outOfDepth = 1;
     }
 
-    mvm::BumpPtrAllocator& allocator = C->classLoader->allocator;
-    secondaryTypes = (JavaVirtualTable**)
-      allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
-                         "Secondary types");  
+    secondaryTypes = new JavaVirtualTable*[nbSecondaryTypes];
+
+//     (JavaVirtualTable**)
+//      allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
+//                         "Secondary types");
     
     if (outOfDepth) {
       secondaryTypes[0] = this;
@@ -1434,7 +1394,7 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
 
   } else {
     // Set the tracer, destructor and delete.
-    tracer = (word_t)JavaObjectTracer;
+    // tracer = (word_t)JavaObjectTracer;
     operatorDelete = 0;
     
     // Set the class of this VT.
@@ -1453,7 +1413,8 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
   
   if (C->baseClass()->isClass())
     C->baseClass()->asClass()->resolveClass();
-
+  // fixme
+  #if 0
   if (!C->baseClass()->isPrimitive()) {
     baseClassVT = C->baseClass()->virtualVT;
 
@@ -1462,17 +1423,14 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
     memcpy(this->getFirstJavaMethod(),
            C->super->virtualVT->getFirstJavaMethod(),
            size * sizeof(word_t));
-    tracer = (word_t)ArrayObjectTracer;
+    // tracer = (word_t)ArrayObjectTracer;
     
     // Set the class of this VT.
     cl = C;
 
     // Set depth and display for fast dynamic type checking.
-    JnjvmClassLoader* JCL = cl->classLoader;
-    Classpath* upcalls = JCL->bootstrapLoader->upcalls;
-    
     if (upcalls->ArrayOfObject) {
-      UserCommonClass* base = C->baseClass();
+      CommonClass* base = C->baseClass();
       uint32 dim = 1;
       while (base->isArray()) {
         base = base->asArrayClass()->baseClass();
@@ -1649,6 +1607,7 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
     // java.lang.Object[]. The initialiseVT function will update the current
     // array to point to java.lang.Object[]'s secondary list.
   }
+#endif
 }
 
 
@@ -1693,7 +1652,7 @@ void AnnotationReader::readElementValue() {
   }
 }
 
-uint16 JavaMethod::lookupLineNumber(mvm::FrameInfo* info) {
+uint16 JavaMethod::lookupLineNumber(FrameInfo* info) {
   Attribut* codeAtt = lookupAttribut(Attribut::codeAttribut);      
   if (codeAtt == NULL) return 0;
   Reader reader(codeAtt, classDef->bytes);
@@ -1723,7 +1682,7 @@ uint16 JavaMethod::lookupLineNumber(mvm::FrameInfo* info) {
   return 0;
 }
 
-uint16 JavaMethod::lookupCtpIndex(mvm::FrameInfo* FI) {
+uint16 JavaMethod::lookupCtpIndex(FrameInfo* FI) {
   Attribut* codeAtt = lookupAttribut(Attribut::codeAttribut);
   Reader reader(codeAtt, classDef->bytes);
   reader.cursor = reader.cursor + 2 + 2 + 4 + FI->SourceIndex + 1;
@@ -1732,31 +1691,15 @@ uint16 JavaMethod::lookupCtpIndex(mvm::FrameInfo* FI) {
 
 
 void Class::acquire() {
-  JavaObject* delegatee = NULL;
-  llvm_gcroot(delegatee, 0);
-  delegatee = getClassDelegatee(JavaThread::get()->getJVM());
-  JavaObject::acquire(delegatee);
 }
   
 void Class::release() {
-  JavaObject* delegatee = NULL;
-  llvm_gcroot(delegatee, 0);
-  delegatee = getClassDelegatee(JavaThread::get()->getJVM());
-  JavaObject::release(delegatee);
 }
 
 void Class::waitClass() {
-  JavaObject* delegatee = NULL;
-  llvm_gcroot(delegatee, 0);
-  delegatee = getClassDelegatee(JavaThread::get()->getJVM());
-  JavaObject::wait(delegatee);
 }
   
 void Class::broadcastClass() {
-  JavaObject* delegatee = NULL;
-  llvm_gcroot(delegatee, 0);
-  delegatee = getClassDelegatee(JavaThread::get()->getJVM());
-  JavaObject::notifyAll(delegatee);
 }
 
 void JavaField::setInstanceObjectField(JavaObject* obj, JavaObject* val) {
@@ -1765,7 +1708,8 @@ void JavaField::setInstanceObjectField(JavaObject* obj, JavaObject* val) {
   if (val != NULL) assert(val->getVirtualTable());
   assert(classDef->isResolved());
   JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-  mvm::Collector::objectReferenceWriteBarrier((gc*)obj, (gc**)ptr, (gc*)val);
+  //fixme
+ //  mvm::Collector::objectReferenceWriteBarrier((gc*)obj, (gc**)ptr, (gc*)val);
 }
 
 void JavaField::setStaticObjectField(JavaObject* val) {
@@ -1773,5 +1717,6 @@ void JavaField::setStaticObjectField(JavaObject* val) {
   if (val != NULL) assert(val->getVirtualTable());
   assert(classDef->isResolved());
   JavaObject** ptr = (JavaObject**)((uint64)classDef->getStaticInstance() + ptrOffset);
-  mvm::Collector::objectReferenceNonHeapWriteBarrier((gc**)ptr, (gc*)val);
+  // fixme
+  //mvm::Collector::objectReferenceNonHeapWriteBarrier((gc**)ptr, (gc*)val);
 }

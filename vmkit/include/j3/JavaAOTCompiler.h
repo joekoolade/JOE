@@ -126,15 +126,6 @@ private:
 
   llvm::Constant* CreateConstantFromObjectArray(const ArrayObject* val);
 
-  /// javaTypes - Tables of Typedef defined by this class loader.
-  ///
-  TypeMap* javaTypes;
-
-  /// javaSignatures - Tables of Signdef defined by this class loader.
-  ///
-  SignMap* javaSignatures;
-
-
   std::map<CommonClass*, llvm::GlobalVariable*> nativeClasses;
   std::map<ClassBytes*, llvm::GlobalVariable*> classBytes;
   std::map<const ClassArray*, llvm::GlobalVariable*> arrayClasses;
@@ -190,9 +181,6 @@ private:
     utf8_iterator;
 
   bool isCompiling(const CommonClass* cl) const;
-  /// hashUTF8 - Tables of UTF8s defined by this class loader.
-  ///
-  UTF8Map* hashUTF8;
   Class* loadClass;
 
 public:
@@ -248,47 +236,8 @@ public:
   void generateMain(const char* name, bool jit);
   const char *getHostTriple();
   void mainCompilerStart();
-
 private:
-  /// classes - The classes this class loader has loaded.
-  ///
-  ClassMap* classes;
-  /// primitiveMap - Map of primitive classes, hashed by id.
-  std::map<const char, ClassPrimitive*> primitiveMap;
 
-  ClassPrimitive* getPrimitiveClass(char id);
-
-  /// internalConstructType - Hashes a Typedef, an internal representation of
-  /// a class still not loaded.
-  ///
-  Typedef* internalConstructType(const UTF8 * name);
-
-  /// constructType - Hashes a Typedef, an internal representation of a class
-  /// still not loaded.
-  ///
-  Typedef* constructType(const UTF8 * name);
-
-  /// constructSign - Hashes a Signdef, a method signature.
-  ///
-  Signdef* constructSign(const UTF8 * name);
-  /// asciizConstructUTF8 - Hashes an UTF8 created from the given asciiz.
-  ///
-  const UTF8* asciizConstructUTF8(const char* asciiz);
-
-  /// readerConstructUTF8 - Hashes an UTF8 created from the given Unicode
-  /// buffer.
-  ///
-  const UTF8* readerConstructUTF8(const uint16* buf, uint32 size);
-
-  /// internalLoad - Load the class with the given name.
-  ///
-  virtual Class* internalLoad(const UTF8* utf8, bool doResolve,
-                                  JavaString* strName);
-
-  /// lookupClass - Finds the class of the given name in the class loader's
-  /// table.
-  ///
-  CommonClass* lookupClass(const UTF8* utf8);
   void extractFiles(ClassBytes* bytes,
                     std::vector<Class*>& classes);
   void compileAllStubs(Signdef* sign);

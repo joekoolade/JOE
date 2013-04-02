@@ -11,7 +11,7 @@
 
 #include "JavaArray.h"
 #include "JavaString.h"
-#include "LockedMap.h"
+#include "JMap.h"
 
 namespace j3 {
 
@@ -27,8 +27,6 @@ bool ltarray16::operator()(const ArrayUInt16* s1, const ArrayUInt16* s2) const {
 
 void StringMap::insert(JavaString* str) {
   const ArrayUInt16* array = NULL;
-  llvm_gcroot(str, 0);
-  llvm_gcroot(array, 0);
   array = JavaString::getValue(str);
   StringMap::iterator it = map.insert(std::make_pair(array, str)).first;
   assert(map.find(array)->second == str);

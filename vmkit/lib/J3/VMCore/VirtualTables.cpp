@@ -30,7 +30,7 @@
 #include "JavaUpcalls.h"
 #include "Jnjvm.h"
 #include "JnjvmClassLoader.h"
-#include "LockedMap.h"
+#include "JMap.h"
 #include "ReferenceQueue.h"
 #include "VMStaticInstance.h"
 #include "Zip.h"

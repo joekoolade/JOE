@@ -10,15 +10,10 @@
 #ifndef JNJVM_JAVA_OBJECT_H
 #define JNJVM_JAVA_OBJECT_H
 
-#include "mvm/Allocator.h"
 #include "mvm/UTF8.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/Thread.h"
 
 #include "types.h"
 #include <sys/time.h>
-
-#include "JnjvmConfig.h"
 
 union jvalue;
 extern "C" void EmptyDestructor();
@@ -27,12 +22,13 @@ namespace j3 {
 
 class JavaObject;
 class JavaThread;
-class Jnjvm;
 class Typedef;
-class UserCommonClass;
-class JavaVirtualTable;
+class CommonClass;
+class Class;
+class ClassArray;
+class ClassPrimitive;
 
-class InterfaceMethodTable : public mvm::PermanentObject {
+class InterfaceMethodTable {
 public:
 	static const uint32_t NumIndexes = 29;
 	word_t contents[NumIndexes];
@@ -104,15 +100,6 @@ public:
   word_t waitMs;
   word_t waitMsNs;
   word_t virtualMethods[1];
-
-  /// operator new - Allocates a JavaVirtualTable with the given size. The
-  /// size must contain the additional information for type checking, as well
-  /// as the function pointers.
-  ///
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator,
-                     uint32 nbMethods) {
-    return allocator.Allocate(sizeof(word_t) * (nbMethods), "Virtual table");
-  }
 
   /// JavaVirtualTable - Create JavaVirtualTable objects for classes, array
   /// classes and primitive classes.
@@ -277,7 +264,7 @@ public:
 
   /// getClass - Returns the class of this object.
   ///
-  static UserCommonClass* getClass(const JavaObject* self) {
+  static CommonClass* getClass(const JavaObject* self) {
 //    llvm_gcroot(self, 0);
 //    return self->getVirtualTable()->cl;
 	  return NULL;
@@ -285,7 +272,7 @@ public:
   
   /// instanceOf - Is this object's class of type the given class?
   ///
-  static bool instanceOf(JavaObject* self, UserCommonClass* cl);
+  static bool instanceOf(JavaObject* self, CommonClass* cl);
 
   /// wait - Java wait. Makes the current thread waiting on a monitor.
   ///
@@ -338,7 +325,7 @@ public:
   /// decapsulePrimitive - Based on the signature argument, decapsule
   /// obj as a primitive and put it in the buffer.
   ///
-  static void decapsulePrimitive(JavaObject* self, Jnjvm* vm, jvalue* buf,
+  static void decapsulePrimitive(JavaObject* self, jvalue* buf,
                                  const Typedef* signature);
 
   static uint16_t hashCodeGenerator;
