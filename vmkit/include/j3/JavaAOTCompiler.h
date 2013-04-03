@@ -140,7 +140,8 @@ private:
   std::map<const JavaObject*, llvm::Constant*> finalObjects;
   std::map<const llvm::Constant*, JavaObject*> reverseFinalObjects;
   std::vector<std::pair<JavaMethod*, Class*> > toCompile;
-  
+  std::vector<Class*> classes;
+
   typedef std::map<const JavaObject*, llvm::Constant*>::iterator
     final_object_iterator;
   
@@ -238,11 +239,11 @@ public:
   void mainCompilerStart();
 private:
 
-  void extractFiles(ClassBytes* bytes,
-                    std::vector<Class*>& classes);
+  void extractFiles(ClassBytes* bytes);
   void compileAllStubs(Signdef* sign);
-  Class* loadName(const UTF8* name, bool doResolve,
-                      bool doThrow, JavaString* strName);
+  Class* loadName(const UTF8* name, uint8_t* data);
+  Class* internalLoad(const UTF8* name, bool doResolve, JavaString* strName);
+  CommonClass* lookupClass(const UTF8* utf8);
   llvm::Function* getMethodOrStub(JavaMethod* meth, Class* customizeFor);
 };
 

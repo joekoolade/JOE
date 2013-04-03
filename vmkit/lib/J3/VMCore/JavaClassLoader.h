@@ -10,11 +10,6 @@
 #ifndef JAVACLASSLOADER_H_
 #define JAVACLASSLOADER_H_
 
-#include "UTF8.h"
-#include "JMap.h"
-#include "JavaTypes.h"
-#include "JavaCompiler.h"
-
 namespace j3 {
 
 class Signdef;
@@ -22,6 +17,7 @@ class Typedef;
 class Class;
 class ClassBytes;
 class JavaCompiler;
+class UTF8Map;
 
 class JavaClassLoader {
 private:

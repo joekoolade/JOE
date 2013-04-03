@@ -28,7 +28,7 @@ class Class;
 class CommonClass;
 class JavaMethod;
 class JavaVirtualTable;
-class JnjvmClassLoader;
+class JavaClassLoader;
 class Signdef;
 
 class JavaCompiler {

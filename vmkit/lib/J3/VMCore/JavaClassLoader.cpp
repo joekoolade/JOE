@@ -10,9 +10,14 @@
 #include "JavaClassLoader.h"
 
 #include <vector>
+#include <stdio.h>
 
 using namespace j3;
-using mvm::UTF8;
+
+UTF8Map JavaClassLoader::hashUTF8 = new UTF8Map();
+ClassMap JavaClassLoader::classes = new ClassMap();
+TypeMap JavaClassLoader::javaTypes = new TypeMap();
+SignMap JavaClassLoader::javaSignatures = new SignMap();
 
 static void typeError(const UTF8* name, short int l) {
   if (l != 0) {

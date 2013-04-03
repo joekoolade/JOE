@@ -37,19 +37,20 @@ class Reader;
 class Signdef;
 class Typedef;
 class JavaClassLoader;
+class UTF8;
 
 /// JavaState - List of states a Java class can have. A class is ready to be
 /// used (i.e allocating instances of the class, calling methods of the class
 /// and accessing static fields of the class) when it is in the ready state.
 ///
-#define loaded 0       /// The .class file has been found.
-#define resolving 1    /// The .class file is being resolved.
-#define resolved 2     /// The class has been resolved.
-#define vmjc 3         /// The class is defined in a shared library.
-#define inClinit 4     /// The class is cliniting.
-#define ready 5        /// The class is ready to be used.
-#define erroneous 6    /// The class is in an erroneous state.
-
+//#define loaded 0       /// The .class file has been found.
+//#define resolving 1    /// The .class file is being resolved.
+//#define resolved 2     /// The class has been resolved.
+//#define vmjc 3         /// The class is defined in a shared library.
+//#define inClinit 4     /// The class is cliniting.
+//#define ready 5        /// The class is ready to be used.
+//#define erroneous 6    /// The class is in an erroneous state.
+//
 
 class AnnotationReader {
 public:
@@ -124,24 +125,6 @@ public:
   ///
   static const UTF8* sourceFileAttribut;
   
-};
-
-/// TaskClassMirror - The isolate specific class information: the initialization
-/// state and the static instance. In a non-isolate environment, there is only
-/// one instance of a TaskClassMirror per Class.
-class TaskClassMirror {
-public:
-  
-  /// status - The state.
-  ///
-  uint8 status;
-
-  /// initialized - Is the class initialized?
-  bool initialized;
-
-  /// staticInstance - Memory that holds the static variables of the class.
-  ///
-  void* staticInstance;
 };
 
 /// CommonClass - This class is the root class of all Java classes. It is
@@ -387,11 +370,6 @@ public:
   ///
   uint32 alignment;
 
-  /// IsolateInfo - Per isolate informations for static instances and
-  /// initialization state.
-  ///
-  TaskClassMirror IsolateInfo[NR_ISOLATES];
-   
   /// virtualFields - List of all the virtual fields defined in this class.
   /// This does not contain non-redefined super fields.
   JavaField* virtualFields;
@@ -423,10 +401,6 @@ public:
   /// nbStaticMethods - The number of static methods.
   ///
   uint16 nbStaticMethods;
-  
-  /// ownerClass - Who is initializing this class.
-  ///
-  mvm::Thread* ownerClass;
   
   /// bytes - The .class file of this class.
   ///
@@ -464,6 +438,9 @@ public:
   ///
   bool innerOuterResolved;
   
+  // Are all classes in the constant pool resolved?
+  bool resolved;
+
   /// isAnonymous - Is the class an anonymous class?
   ///
   bool isAnonymous;
@@ -476,6 +453,11 @@ public:
   ///
   uint32 staticSize;
 
+  static const int ACC_PUBLIC    = 0x0001;
+  static const int ACC_FINAL     = 0x0010;
+  static const int ACC_SUPER     = 0x0020;
+  static const int ACC_INTERFACE = 0x0200;
+  static const int ACC_ABSTRACT  = 0x0400;
   /// getVirtualSize - Get the virtual size of instances of this class.
   ///
   uint32 getVirtualSize() const { return virtualSize; }
@@ -484,18 +466,6 @@ public:
   ///
   JavaVirtualTable* getVirtualVT() const { return virtualVT; }
 
-  /// getOwnerClass - Get the thread that is currently initializing the class.
-  ///
-  mvm::Thread* getOwnerClass() const {
-    return ownerClass;
-  }
-
-  /// setOwnerClass - Set the thread that is currently initializing the class.
-  ///
-  void setOwnerClass(mvm::Thread* th) {
-    ownerClass = th;
-  }
- 
   /// getOuterClass - Get the class that contains the definition of this class.
   ///
   Class* getOuterClass() const {
@@ -658,13 +628,6 @@ public:
   ///
   void broadcastClass();
   
-  /// getCurrentTaskClassMirror - Get the class task mirror of the executing
-  /// isolate.
-  ///
-  TaskClassMirror& getCurrentTaskClassMirror() {
-    return IsolateInfo[0];
-  }
-  
   /// isReadyForCompilation - Can this class be inlined when JITing?
   ///
   bool isReadyForCompilation() {
@@ -674,77 +637,17 @@ public:
   /// setResolved - Set the status of the class as resolved.
   ///
   void setResolved() {
-    getCurrentTaskClassMirror().status = resolved;
-  }
-  
-  /// setErroneous - Set the class as erroneous.
-  ///
-  void setErroneous() {
-    getCurrentTaskClassMirror().status = erroneous;
-  }
-  
-  /// setIsResolving - The class file is being resolved.
-  ///
-  void setIsResolving() {
-    getCurrentTaskClassMirror().status = resolving;
-  }
-  
-  /// getStaticInstance - Get the memory that holds static variables.
-  ///
-  void* getStaticInstance() {
-    return getCurrentTaskClassMirror().staticInstance;
-  }
-  
-  /// setStaticInstance - Set the memory that holds static variables.
-  ///
-  void setStaticInstance(void* val) {
-    assert(getCurrentTaskClassMirror().staticInstance == NULL);
-    getCurrentTaskClassMirror().staticInstance = val;
-  }
-  
-  /// getInitializationState - Get the state of the class.
-  ///
-  uint8 getInitializationState() {
-    return getCurrentTaskClassMirror().status;
-  }
-
-  /// setInitializationState - Set the state of the class.
-  ///
-  void setInitializationState(uint8 st) {
-    TaskClassMirror& TCM = getCurrentTaskClassMirror();
-    TCM.status = st;
-    if (st == ready) TCM.initialized = true;
+    resolved = true;
   }
   
   /// isReady - Has this class been initialized?
   ///
   bool isReady() {
-    return getCurrentTaskClassMirror().status == ready;
+    return true;
   }
   
-  /// isInitializing - Is the class currently being initialized?
-  ///
-  bool isInitializing() {
-    return getCurrentTaskClassMirror().status >= inClinit;
-  }
-  
-  /// isResolved - Has this class been resolved?
-  ///
   bool isResolved() {
-    uint8 stat = getCurrentTaskClassMirror().status;
-    return (stat >= resolved && stat != erroneous);
-  }
-  
-  /// isErroneous - Is the class in an erroneous state.
-  ///
-  bool isErroneous() {
-    return getCurrentTaskClassMirror().status == erroneous;
-  }
-
-  /// isResolving - Is the class currently being resolved?
-  ///
-  bool isResolving() {
-    return getCurrentTaskClassMirror().status == resolving;
+    return resolved;
   }
 
   /// isNativeOverloaded - Is the method overloaded with a native function?
@@ -1150,83 +1053,6 @@ public:
   ///
   Attribut* lookupAttribut(const UTF8* key);
 
-  JavaObject** getStaticObjectFieldPtr() {
-    assert(classDef->getStaticInstance());
-    return (JavaObject**)((uint64)classDef->getStaticInstance() + ptrOffset);
-  }
-
-  JavaObject** getInstanceObjectFieldPtr(JavaObject* obj) {
-    return (JavaObject**)((uint64)obj + ptrOffset);
-  }
-
-  /// getStatic*Field - Get a static field.
-  ///
-  #define GETSTATICFIELD(TYPE, TYPE_NAME)                                   \
-  TYPE getStatic##TYPE_NAME##Field() {                                      \
-    assert(classDef->isResolved());                                         \
-    void* ptr = (void*)((uint64)classDef->getStaticInstance() + ptrOffset); \
-    return ((TYPE*)ptr)[0];                                                 \
-  }
-
-  /// setStatic*Field - Set a field of an object.
-  ///
-  #define SETSTATICFIELD(TYPE, TYPE_NAME)                                   \
-  void setStatic##TYPE_NAME##Field(TYPE val) {                              \
-    assert(classDef->isResolved());                                         \
-    void* ptr = (void*)((uint64)classDef->getStaticInstance() + ptrOffset); \
-    ((TYPE*)ptr)[0] = val;                                                  \
-  }
-
-  /// getInstance*Field - Get an instance field.
-  ///
-  #define GETINSTANCEFIELD(TYPE, TYPE_NAME)                                 \
-  TYPE getInstance##TYPE_NAME##Field(JavaObject* obj) {                     \
-    llvm_gcroot(obj, 0);                                                    \
-    assert(classDef->isResolved());                                         \
-    void* ptr = (void*)((uint64)obj + ptrOffset);                           \
-    return ((TYPE*)ptr)[0];                                                 \
-  }                                                                         \
-
-  /// setInstance*Field - Set an instance field.
-  ///
-  #define SETINSTANCEFIELD(TYPE, TYPE_NAME)                                 \
-  void setInstance##TYPE_NAME##Field(JavaObject* obj, TYPE val) {           \
-    llvm_gcroot(obj, 0);                                                    \
-    assert(classDef->isResolved());                                         \
-    void* ptr = (void*)((uint64)obj + ptrOffset);                           \
-    ((TYPE*)ptr)[0] = val;                                                  \
-  }
-
-  #define MK_ASSESSORS(TYPE, TYPE_NAME)                                     \
-    GETSTATICFIELD(TYPE, TYPE_NAME)                                         \
-    SETSTATICFIELD(TYPE, TYPE_NAME)                                         \
-    GETINSTANCEFIELD(TYPE, TYPE_NAME)                                       \
-    SETINSTANCEFIELD(TYPE, TYPE_NAME)                                       \
-
-  MK_ASSESSORS(float, Float);
-  MK_ASSESSORS(double, Double);
-  MK_ASSESSORS(uint8, Int8);
-  MK_ASSESSORS(uint16, Int16);
-  MK_ASSESSORS(uint32, Int32);
-  MK_ASSESSORS(sint64, Long);
-
-  JavaObject* getStaticObjectField() {
-    assert(classDef->isResolved());
-    void* ptr = (void*)((uint64)classDef->getStaticInstance() + ptrOffset);
-    return ((JavaObject**)ptr)[0];
-  }
-
-  void setStaticObjectField(JavaObject* val);
-
-  JavaObject* getInstanceObjectField(JavaObject* obj) {
-    assert(classDef->isResolved());
-    void* ptr = (void*)((uint64)obj + ptrOffset);
-    return ((JavaObject**)ptr)[0];
-  }
-
-  // This can't be inlined because of a linker bug.
-  void setInstanceObjectField(JavaObject* obj, JavaObject* val);
-  
   bool isReference() {
     uint16 val = type->elements[0];
     return (val == '[' || val == 'L');

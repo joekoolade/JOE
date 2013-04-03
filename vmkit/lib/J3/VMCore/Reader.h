@@ -17,19 +17,17 @@
 
 namespace j3 {
 
-class JnjvmBootstrapLoader;
-class JnjvmClassLoader;
 class ZipArchive;
-
 
 class ClassBytes {
  public:
   ClassBytes(int l) {
     size = l;
+    elements = new uint8_t[size];
   }
 
   uint32_t size;
-  uint8_t elements[1];
+  uint8_t *elements;
 };
 
 class Reader {

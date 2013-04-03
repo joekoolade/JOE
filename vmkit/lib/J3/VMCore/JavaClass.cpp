@@ -182,7 +182,6 @@ CommonClass::CommonClass(const UTF8* n) {
   interfaces = 0;
   access = 0;
   super = 0;
-  memset(delegatee, 0, sizeof(JavaObject*) * NR_ISOLATES);
 }
 
 ClassPrimitive::ClassPrimitive(const UTF8* n,
@@ -191,7 +190,7 @@ ClassPrimitive::ClassPrimitive(const UTF8* n,
  
   uint32 size = JavaVirtualTable::getBaseSize();
   virtualVT = new JavaVirtualTable(this);
-  access = ACC_ABSTRACT | ACC_FINAL | ACC_PUBLIC | JNJVM_PRIMITIVE;
+  access = ACC_ABSTRACT | ACC_FINAL | ACC_PUBLIC; // | JNJVM_PRIMITIVE;
   logSize = nb;
 }
 
@@ -212,10 +211,8 @@ Class::Class(const UTF8* n, ClassBytes* B) :
   staticMethods = 0;
   virtualFields = 0;
   staticFields = 0;
-  ownerClass = 0;
   innerAccess = 0;
   access = JNJVM_CLASS;
-  memset(IsolateInfo, 0, sizeof(TaskClassMirror) * NR_ISOLATES);
 }
 
 ClassArray::ClassArray(const UTF8* n,
@@ -477,73 +474,73 @@ bool JavaVirtualTable::isSubtypeOf(JavaVirtualTable* otherVT) {
 
 void JavaField::InitNullStaticField() {
   
-  Typedef* type = getSignature();
-  void* obj = classDef->getStaticInstance();
-  if (!type->isPrimitive()) {
-    ((JavaObject**)((uint64)obj + ptrOffset))[0] = NULL;
-    return;
-  }
-
-  PrimitiveTypedef* prim = (PrimitiveTypedef*)type;
-  if (prim->isLong()) {
-    ((sint64*)((uint64)obj + ptrOffset))[0] = 0;
-  } else if (prim->isInt()) {
-    ((sint32*)((uint64)obj + ptrOffset))[0] = 0;
-  } else if (prim->isChar()) {
-    ((uint16*)((uint64)obj + ptrOffset))[0] = 0;
-  } else if (prim->isShort()) {
-    ((sint16*)((uint64)obj + ptrOffset))[0] = 0;
-  } else if (prim->isByte()) {
-    ((sint8*)((uint64)obj + ptrOffset))[0] = 0;
-  } else if (prim->isBool()) {
-    ((uint8*)((uint64)obj + ptrOffset))[0] = 0;
-  } else if (prim->isDouble()) {
-    ((double*)((uint64)obj + ptrOffset))[0] = 0.0;
-  } else if (prim->isFloat()) {
-    ((float*)((uint64)obj + ptrOffset))[0] = 0.0;
-  } else {
-    abort();
-  }
+//  Typedef* type = getSignature();
+//  void* obj = classDef->getStaticInstance();
+//  if (!type->isPrimitive()) {
+//    ((JavaObject**)((uint64)obj + ptrOffset))[0] = NULL;
+//    return;
+//  }
+//
+//  PrimitiveTypedef* prim = (PrimitiveTypedef*)type;
+//  if (prim->isLong()) {
+//    ((sint64*)((uint64)obj + ptrOffset))[0] = 0;
+//  } else if (prim->isInt()) {
+//    ((sint32*)((uint64)obj + ptrOffset))[0] = 0;
+//  } else if (prim->isChar()) {
+//    ((uint16*)((uint64)obj + ptrOffset))[0] = 0;
+//  } else if (prim->isShort()) {
+//    ((sint16*)((uint64)obj + ptrOffset))[0] = 0;
+//  } else if (prim->isByte()) {
+//    ((sint8*)((uint64)obj + ptrOffset))[0] = 0;
+//  } else if (prim->isBool()) {
+//    ((uint8*)((uint64)obj + ptrOffset))[0] = 0;
+//  } else if (prim->isDouble()) {
+//    ((double*)((uint64)obj + ptrOffset))[0] = 0.0;
+//  } else if (prim->isFloat()) {
+//    ((float*)((uint64)obj + ptrOffset))[0] = 0.0;
+//  } else {
+//    abort();
+//  }
 }
 
 void JavaField::InitStaticField(uint64 val) { 
-  Typedef* type = getSignature();
-  void* obj = classDef->getStaticInstance();
-  assert(type->isPrimitive() && "Non primitive field");
-  PrimitiveTypedef* prim = (PrimitiveTypedef*)type;
-  if (prim->isLong()) {
-    ((sint64*)((uint64)obj + ptrOffset))[0] = val;
-  } else if (prim->isInt()) {
-    ((sint32*)((uint64)obj + ptrOffset))[0] = (sint32)val;
-  } else if (prim->isChar()) {
-    ((uint16*)((uint64)obj + ptrOffset))[0] = (uint16)val;
-  } else if (prim->isShort()) {
-    ((sint16*)((uint64)obj + ptrOffset))[0] = (sint16)val;
-  } else if (prim->isByte()) {
-    ((sint8*)((uint64)obj + ptrOffset))[0] = (sint8)val;
-  } else if (prim->isBool()) {
-    ((uint8*)((uint64)obj + ptrOffset))[0] = (uint8)val;
-  } else {
-    // Should never be here.
-    abort();
-  }
+//  Typedef* type = getSignature();
+//  void* obj = classDef->getStaticInstance();
+//  assert(type->isPrimitive() && "Non primitive field");
+//  PrimitiveTypedef* prim = (PrimitiveTypedef*)type;
+//  if (prim->isLong()) {
+//    ((sint64*)((uint64)obj + ptrOffset))[0] = val;
+//  } else if (prim->isInt()) {
+//    ((sint32*)((uint64)obj + ptrOffset))[0] = (sint32)val;
+//  } else if (prim->isChar()) {
+//    ((uint16*)((uint64)obj + ptrOffset))[0] = (uint16)val;
+//  } else if (prim->isShort()) {
+//    ((sint16*)((uint64)obj + ptrOffset))[0] = (sint16)val;
+//  } else if (prim->isByte()) {
+//    ((sint8*)((uint64)obj + ptrOffset))[0] = (sint8)val;
+//  } else if (prim->isBool()) {
+//    ((uint8*)((uint64)obj + ptrOffset))[0] = (uint8)val;
+//  } else {
+//    // Should never be here.
+//    abort();
+//  }
 }
 
 void JavaField::InitStaticField(JavaObject* val) {
-  llvm_gcroot(val, 0);
-  void* obj = classDef->getStaticInstance();
-  assert(isReference());
-  JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
+//  llvm_gcroot(val, 0);
+//  void* obj = classDef->getStaticInstance();
+//  assert(isReference());
+//  JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
 }
 
 void JavaField::InitStaticField(double val) {
-  void* obj = classDef->getStaticInstance();
-  ((double*)((uint64)obj + ptrOffset))[0] = val;
+//  void* obj = classDef->getStaticInstance();
+//  ((double*)((uint64)obj + ptrOffset))[0] = val;
 }
 
 void JavaField::InitStaticField(float val) {
-  void* obj = classDef->getStaticInstance();
-  ((float*)((uint64)obj + ptrOffset))[0] = val;
+//  void* obj = classDef->getStaticInstance();
+//  ((float*)((uint64)obj + ptrOffset))[0] = val;
 }
 
 void JavaField::InitStaticField() {
@@ -587,7 +584,7 @@ void* Class::allocateStaticInstance() {
 //  void* val = classLoader->allocator.Allocate(getStaticSize(),
 //                                              "Static instance");
   void* val = new void*[getStaticSize()];
-  setStaticInstance(val);
+//  setStaticInstance(val);
   return val;
 }
 
