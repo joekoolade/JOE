@@ -10,10 +10,10 @@
 #ifndef J3_AOT_COMPILER_H
 #define J3_AOT_COMPILER_H
 
-#include "mvm/MvmDenseMap.h"
+#include "MvmDenseMap.h"
 #include "j3/JavaLLVMCompiler.h"
 #include "UTF8.h"
-#include "LockedMap.h"
+#include "JMap.h"
 
 // for stderr
 #include <cstdio>
@@ -33,8 +33,6 @@ class ClassBytes;
 class ClassMap;
 class Classpath;
 class CommonClass;
-
-using mvm::UTF8;
 
 class JavaAOTCompiler : public JavaLLVMCompiler {
 
@@ -242,7 +240,7 @@ private:
   void extractFiles(ClassBytes* bytes);
   void compileAllStubs(Signdef* sign);
   Class* loadName(const UTF8* name, uint8_t* data);
-  Class* internalLoad(const UTF8* name, bool doResolve, JavaString* strName);
+  Class* internalLoad(const UTF8* name, uint8_t *data);
   CommonClass* lookupClass(const UTF8* utf8);
   llvm::Function* getMethodOrStub(JavaMethod* meth, Class* customizeFor);
 };

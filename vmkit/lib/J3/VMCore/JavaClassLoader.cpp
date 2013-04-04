@@ -88,6 +88,15 @@ ClassPrimitive* JavaClassLoader::getPrimitiveClass(char id) {
   return primitiveMap[id];
 }
 
+const UTF8* JavaClassLoader::asciizConstructUTF8(const char* asciiz) {
+    return hashUTF8->lookupOrCreateAsciiz(asciiz);
+}
+
+const UTF8* JavaClassLoader::readerConstructUTF8(const uint16* buf,
+        uint32 size) {
+    return hashUTF8->lookupOrCreateReader(buf, size);
+}
+
 Typedef* JavaClassLoader::internalConstructType(const UTF8* name) {
   short int cur = name->elements[0];
   Typedef* res = 0;

@@ -100,7 +100,8 @@ static CommonClass* loadBaseClass(const UTF8* name, uint32 start, uint32 len);
 ///
 static Class* constructClass(const UTF8* name, ClassBytes* bytes);
 
-
+static const UTF8* JavaClassLoader::asciizConstructUTF8(const char* asciiz);
+static const UTF8* JavaClassLoader::readerConstructUTF8(const uint16* buf, uint32 size);
 };
 
 

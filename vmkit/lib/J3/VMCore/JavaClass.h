@@ -144,11 +144,6 @@ public:
 //
 //===----------------------------------------------------------------------===//
  
-  const static int NR_ISOLATES = 1;
-  /// delegatees - The java/lang/Class delegatee.
-  ///
-  JavaObject* delegatee[NR_ISOLATES];
-
   /// access - {public, private, protected}.
   ///
   uint32 access;
@@ -271,16 +266,6 @@ public:
   ///
   bool isAssignableFrom(CommonClass* cl);
 
-  /// getClassDelegatee - Return the java/lang/Class representation of this
-  /// class.
-  ///
-  JavaObject* getClassDelegatee(JavaObject* pd = NULL);
-  
-  /// getClassDelegateePtr - Return a pointer on the java/lang/Class
-  /// representation of this class. Used for JNI.
-  ///
-  JavaObject* const* getClassDelegateePtr(JavaObject* pd = NULL);
-  
   /// CommonClass - Create a class with th given name.
   ///
   CommonClass(const UTF8* name);
@@ -307,23 +292,6 @@ public:
     return this;
   }
  
-  /// setDelegatee - Set the java/lang/Class object of this class.
-  ///
-  JavaObject* setDelegatee(JavaObject* val);
-
-  /// getDelegatee - Get the java/lang/Class object representing this class.
-  ///
-  JavaObject* getDelegatee() const {
-    return delegatee[0];
-  }
-  
-  /// getDelegatee - Get a pointer on the java/lang/Class object
-  /// representing this class.
-  ///
-  JavaObject* const* getDelegateePtr() const {
-    return delegatee;
-  }
-
   /// resolvedImplClass - Return the internal representation of the
   /// java.lang.Class object. The class must be resolved.
   //

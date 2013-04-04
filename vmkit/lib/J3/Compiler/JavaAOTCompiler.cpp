@@ -18,7 +18,6 @@
 #include "llvm/Target/TargetData.h"
 
 #include "UTF8.h"
-#include "mvm/Threads/Thread.h"
 
 #include "j3/J3Intrinsics.h"
 #include "j3/JavaAOTCompiler.h"
@@ -30,9 +29,8 @@
 #include "JavaThread.h"
 #include "JavaTypes.h"
 #include "JavaUpcalls.h"
-#include "Jnjvm.h"
+#include "JavaClassLoader.h"
 #include "Reader.h"
-#include "VMStaticInstance.h"
 #include "Zip.h"
 
 #include <cstdio>
@@ -47,7 +45,6 @@
 
 using namespace j3;
 using namespace llvm;
-using mvm::UTF8;
 
 const char* JavaAOTCompiler::dirSeparator = "/";
 const char* JavaAOTCompiler::envSeparator = ":";
@@ -78,15 +75,6 @@ Value* JavaAOTCompiler::addCallback(Class* cl, uint16 index, Signdef* sign,
 			PointerType::getUnqual(type));
 
 	return func;
-}
-
-const UTF8* JavaAOTCompiler::asciizConstructUTF8(const char* asciiz) {
-	return hashUTF8->lookupOrCreateAsciiz(asciiz);
-}
-
-const UTF8* JavaAOTCompiler::readerConstructUTF8(const uint16* buf,
-		uint32 size) {
-	return hashUTF8->lookupOrCreateReader(buf, size);
 }
 
 CommonClass* JavaAOTCompiler::lookupClass(const UTF8* utf8) {
