@@ -12,6 +12,7 @@
 
 #include "JavaArray.h"
 #include "JavaClass.h"
+#include "JavaClassLoader.h"
 #include "JavaCompiler.h"
 #include "JavaConstantPool.h"
 #include "JavaObject.h"
@@ -190,7 +191,7 @@ ClassPrimitive::ClassPrimitive(const UTF8* n,
  
   uint32 size = JavaVirtualTable::getBaseSize();
   virtualVT = new JavaVirtualTable(this);
-  access = ACC_ABSTRACT | ACC_FINAL | ACC_PUBLIC; // | JNJVM_PRIMITIVE;
+  access = ACC_ABSTRACT | ACC_FINAL | ACC_PUBLIC;
   logSize = nb;
 }
 
@@ -212,11 +213,10 @@ Class::Class(const UTF8* n, ClassBytes* B) :
   virtualFields = 0;
   staticFields = 0;
   innerAccess = 0;
-  access = JNJVM_CLASS;
+  access = 0;
 }
 
-ClassArray::ClassArray(const UTF8* n,
-                       CommonClass* base) : CommonClass(n) {
+ClassArray::ClassArray(const UTF8* n, CommonClass* base) : CommonClass(n) {
   _baseClass = base;
   super = ClassArray::SuperArray;
   interfaces = ClassArray::InterfacesArray;
@@ -225,7 +225,7 @@ ClassArray::ClassArray(const UTF8* n,
   uint32 size = JavaVirtualTable::getBaseSize();
   virtualVT = new JavaVirtualTable(this);
   
-  access = ACC_FINAL | ACC_ABSTRACT | JNJVM_ARRAY | base->getAccess();
+  access = ACC_FINAL | ACC_ABSTRACT | base->getAccess();
   access &= ~ACC_INTERFACE;
 }
 
@@ -526,13 +526,6 @@ void JavaField::InitStaticField(uint64 val) {
 //  }
 }
 
-void JavaField::InitStaticField(JavaObject* val) {
-//  llvm_gcroot(val, 0);
-//  void* obj = classDef->getStaticInstance();
-//  assert(isReference());
-//  JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-}
-
 void JavaField::InitStaticField(double val) {
 //  void* obj = classDef->getStaticInstance();
 //  ((double*)((uint64)obj + ptrOffset))[0] = val;
@@ -569,7 +562,8 @@ void JavaField::InitStaticField() {
 #endif
     } else if (type->isReference()) {
       const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[idx]);
-      InitStaticField((JavaObject*)ctpInfo->resolveString(utf8, idx));
+      //fixme
+//      InitStaticField((JavaObject*)ctpInfo->resolveString(utf8, idx));
     } else {
       fprintf(stderr, "I haven't verified your class file and it's malformed:"
                       " unknown constant %s!\n",
@@ -783,13 +777,7 @@ static void computeMirandaMethods(Class* current,
 
 void Class::readMethods(Reader& reader) {
   uint16 nbMethods = reader.readU2();
-  mvm::ThreadAllocator allocator;
-  if (isAbstract(access)) {
-    virtualMethods = (JavaMethod*)
-      allocator.Allocate(nbMethods * sizeof(JavaMethod));
-  } else {
-    virtualMethods = new JavaMethod[nbMethods];
-  }
+  virtualMethods = new JavaMethod[nbMethods];
   staticMethods = virtualMethods + nbMethods;
   for (int i = 0; i < nbMethods; i++) {
     uint16 access = reader.readU2();
@@ -833,8 +821,6 @@ void Class::readMethods(Reader& reader) {
 
 void Class::readClass() {
 
-  assert(getInitializationState() == loaded && "Wrong init state");
-  
   PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "; ", 0);
   PRINT_DEBUG(JNJVM_LOAD, 0, LIGHT_GREEN, "reading ", 0);
   PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "%s\n", mvm::PrintBuffer(this).cString());
@@ -851,7 +837,7 @@ void Class::readClass() {
   ctpInfo = new JavaConstantPool(this, reader, ctpSize);
   access |= reader.readU2();
   
-  if (!isPublic(access)) access |= ACC_PRIVATE;
+  if (!isPublic(access)) access |=ACC_PRIVATE;
 
   const UTF8* thisClassName = 
     ctpInfo->resolveClassName(reader.readU2());
@@ -877,14 +863,9 @@ void Class::resolveParents() {
 }
 
 void Class::resolveClass() {
-  if (isResolved() || isErroneous()) return;
+  if (isResolved()) return;
   resolveParents();
   loadExceptions();
-  // Do a compare and swap in case another thread initialized the class.
-  // fixme
-//  __sync_val_compare_and_swap(
-//      &(getCurrentTaskClassMirror().status), loaded, resolved);
-  assert(isResolved() || isErroneous());
 }
 
 void Class::resolveInnerOuterClasses() {
@@ -930,6 +911,13 @@ static JavaObject* getClassType(Typedef* type) {
 	return 0;
 }
 
+Signdef* JavaMethod::getSignature() {
+  if(!_signature)
+    _signature = JavaClassLoader::constructSign(type);
+  return _signature;
+}
+
+
 ArrayObject* JavaMethod::getParameterTypes() {
   
   ArrayObject* res = NULL;
@@ -943,17 +931,11 @@ ArrayObject* JavaMethod::getParameterTypes() {
   for (uint32 index = 0; index < sign->nbArguments; ++index) {
     //fixme
 	  delegatee = 0; //getClassTypeArguments[index]);
-    ArrayObject::setElement(res, delegatee, index);
+    // ArrayObject::setElement(res, delegatee, index);
   }
 
   return res;
 
-}
-
-JavaObject* JavaMethod::getReturnType() {
-  // Jnjvm* vm = JavaThread::get()->getJVM();
-  Typedef* ret = getSignature()->getReturnType();
-  return getClassType(ret);
 }
 
 ArrayObject* JavaMethod::getExceptionTypes() {
@@ -966,7 +948,7 @@ ArrayObject* JavaMethod::getExceptionTypes() {
     // fixme
 	  return 0; // (ArrayObject*)vm->upcalls->classArrayClass->doNew(0, vm);
   } else {
-    ConstantPool* ctp = classDef->getConstantPool();
+    JavaConstantPool* ctp = classDef->getConstantPool();
     Reader reader(exceptionAtt, classDef->bytes);
     uint16 nbe = reader.readU2();
     // fixme
@@ -977,30 +959,13 @@ ArrayObject* JavaMethod::getExceptionTypes() {
       CommonClass* cl = ctp->loadClass(idx);
       assert(cl->asClass() && "Wrong exception type");
       cl->asClass()->resolveClass();
-      delegatee = cl->getClassDelegatee();
-      ArrayObject::setElement(res, delegatee, i);
     }
     return res;
   }
 }
 
-
-JavaObject* CommonClass::setDelegatee(JavaObject* val) {
-  JavaObject** obj = &(delegatee[0]);
-  return getDelegatee();
-}
-
-
-CommonClass* CommonClass::resolvedImplClass(JavaObject* clazz,
-                                                    bool doClinit) {
-
-  CommonClass* cl = JavaObjectClass::getClass((JavaObjectClass*)clazz);
-  assert(cl && "No class in Class object");
-  if (cl->isClass()) {
-    cl->asClass()->resolveClass();
-    if (doClinit) cl->asClass()->initialiseClass();
-  }
-  return cl;
+inline bool CommonClass::isSecondaryClass() {
+  return virtualVT->offset == JavaVirtualTable::getCacheIndex();
 }
 
 
@@ -1254,8 +1219,6 @@ bool Class::needsInitialisationCheck() {
 //                          true, false, 0);
   
   if (meth) return true;
-
-  setInitializationState(ready);
   return false;
 }
 
@@ -1699,21 +1662,45 @@ void Class::waitClass() {
 void Class::broadcastClass() {
 }
 
-void JavaField::setInstanceObjectField(JavaObject* obj, JavaObject* val) {
-  llvm_gcroot(obj, 0);
-  llvm_gcroot(val, 0);
-  if (val != NULL) assert(val->getVirtualTable());
-  assert(classDef->isResolved());
-  JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-  //fixme
- //  mvm::Collector::objectReferenceWriteBarrier((gc*)obj, (gc**)ptr, (gc*)val);
+Typedef* JavaField::getSignature() {
+  if(!_signature)
+    _signature = JavaClassLoader::constructType(type);
+  return _signature;
 }
 
-void JavaField::setStaticObjectField(JavaObject* val) {
-  llvm_gcroot(val, 0);
-  if (val != NULL) assert(val->getVirtualTable());
-  assert(classDef->isResolved());
-  JavaObject** ptr = (JavaObject**)((uint64)classDef->getStaticInstance() + ptrOffset);
-  // fixme
-  //mvm::Collector::objectReferenceNonHeapWriteBarrier((gc**)ptr, (gc*)val);
+bool JavaField::isReference() {
+  uint16 val = type->elements[0];
+  return (val == '[' || val == 'L');
+}
+
+bool JavaField::isDouble() {
+  return (type->elements[0] == 'D');
+}
+
+bool JavaField::isLong() {
+  return (type->elements[0] == 'J');
+}
+
+bool JavaField::isInt() {
+  return (type->elements[0] == 'I');
+}
+
+bool JavaField::isFloat() {
+  return (type->elements[0] == 'F');
+}
+
+bool JavaField::isShort() {
+  return (type->elements[0] == 'S');
+}
+
+bool JavaField::isChar() {
+  return (type->elements[0] == 'C');
+}
+
+bool JavaField::isByte() {
+  return (type->elements[0] == 'B');
+}
+
+bool JavaField::isBoolean() {
+  return (type->elements[0] == 'Z');
 }

@@ -16,15 +16,12 @@
 
 #include "types.h"
 
-#include "JavaObject.h"
-
 #include "UTF8.h"
 
 namespace j3 {
 
 class ClassArray;
 class CommonClass;
-class JavaObject;
 
 /// TJavaArray - Template class to be instantiated by real arrays. All arrays
 ///  have a constant size and an array of element. When JnJVM allocates an
@@ -32,7 +29,7 @@ class JavaObject;
 ///  array. Hence instantiation of TJavaArrays have a layout of 
 ///  {JavaObject, size, [0 * T]}.
 template <class T>
-class TJavaArray : public JavaObject {
+class TJavaArray {
 public:
   /// size - The (constant) size of the array.
   ssize_t size;
@@ -44,36 +41,31 @@ public:
 
 public:
   static int32_t getSize(const TJavaArray* self) {
-    llvm_gcroot(self, 0);
     return self->size;
   }
   
   static T getElement(const TJavaArray* self, uint32_t i) {
-    llvm_gcroot(self, 0);
     assert(i < self->size);
     return self->elements[i];
   }
 
   static void setElement(TJavaArray* self, T value, uint32_t i) {
-    llvm_gcroot(self, 0);
     assert(i < self->size);
     self->elements[i] = value;
   }
 
   static const T* getElements(const TJavaArray* self) {
-    llvm_gcroot(self, 0);
     return self->elements;
   }
 
   static T* getElements(TJavaArray* self) {
-    llvm_gcroot(self, 0);
     return self->elements;
   }
 
   friend class JavaArray;
 };
 
-class ArrayObject : public JavaObject {
+class ArrayObject {
 public:
   /// size - The (constant) size of the array.
   ssize_t size;
@@ -81,24 +73,21 @@ public:
   /// elements - Elements of this array. The size here is different than the
   /// actual size of the Java array. This is to facilitate Java array accesses
   /// in JnJVM code. The size should be set to zero, but this is invalid C99.
-  JavaObject* elements[1];
+  ArrayObject* elements[1];
 
 public:
   static int32_t getSize(const ArrayObject* self) {
-    llvm_gcroot(self, 0);
     return self->size;
   }
   
-  static JavaObject* getElement(const ArrayObject* self, uint32_t i) {
-    llvm_gcroot(self, 0);
+  static ArrayObject* getElement(const ArrayObject* self, uint32_t i) {
     assert(i < self->size);
     return self->elements[i];
   }
 
-  static void setElement(ArrayObject* self, JavaObject* value, uint32_t i);
+  static void setElement(ArrayObject* self, ArrayObject* value, uint32_t i);
 
-  static JavaObject** getElements(ArrayObject* self) {
-    llvm_gcroot(self, 0);
+  static ArrayObject** getElements(ArrayObject* self) {
     return self->elements;
   }
 };
@@ -139,23 +128,19 @@ public:
   static const unsigned int T_INT;
   static const unsigned int T_LONG;
 
-  static void setSize(JavaObject* array, int size) {
-    llvm_gcroot(array, 0);
+  static void setSize(ArrayObject* array, int size) {
     ((ArrayUInt8*)array)->size = size;
   }
 
-  static sint32 getSize(const JavaObject* array) {
-    llvm_gcroot(array, 0);
+  static sint32 getSize(const ArrayObject* array) {
     return ((const ArrayUInt8*)array)->size;
   }
 
-  static const unsigned char* getElements(const JavaObject* array) {
-    llvm_gcroot(array, 0);
+  static const unsigned char* getElements(const ArrayObject* array) {
     return ((const ArrayUInt8*)array)->elements;
   }
 
-  static unsigned char* getElements(JavaObject* array) {
-    llvm_gcroot(array, 0);
+  static unsigned char* getElements(ArrayObject* array) {
     return ((ArrayUInt8*)array)->elements;
   }
 };

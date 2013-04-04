@@ -15,13 +15,6 @@
 #include <string>
 #include <dlfcn.h>
 
-#include "mvm/GC/GC.h"
-#include "mvm/Allocator.h"
-
-namespace mvm {
-  class UTF8;
-}
-
 namespace j3 {
 
 class Class;
@@ -30,12 +23,11 @@ class JavaMethod;
 class JavaVirtualTable;
 class JavaClassLoader;
 class Signdef;
+class UTF8;
 
 class JavaCompiler {
 public:
   
-  mvm::BumpPtrAllocator allocator;
-
   virtual JavaCompiler* Create(const std::string&) {
     return this;
   }
@@ -106,8 +98,8 @@ public:
     return dlsym(handle, symbol);
   }
 
-  static const mvm::UTF8* InlinePragma;
-  static const mvm::UTF8* NoInlinePragma;
+  static const UTF8* InlinePragma;
+  static const UTF8* NoInlinePragma;
 
   virtual CommonClass* getUniqueBaseClass(CommonClass* cl) {
     return 0;

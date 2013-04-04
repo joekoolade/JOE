@@ -45,9 +45,6 @@
 
 #include "j3/JavaAOTCompiler.h"
 
-#include "VMCore/JnjvmClassLoader.h"
-#include "VMCore/Jnjvm.h"
-
 #include <iostream>
 #include <fstream>
 #include <memory>

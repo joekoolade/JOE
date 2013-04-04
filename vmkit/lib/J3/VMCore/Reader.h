@@ -51,13 +51,33 @@ public:
     max = min + nbb;
   }
 
-  static double readDouble(int first, int second) {
-    return mvm::System::ReadDouble(first, second);
-   }
+	static double readDouble(int first, int second) {
+		int values[2];
+		double res[1];
+#if ARCH_PPC
+		values[0] = second;
+		values[1] = first;
+#else
+		values[0] = first;
+		values[1] = second;
+#endif
+		memcpy(res, values, 8);
+		return res[0];
+	}
 
 
   static sint64 readLong(int first, int second) {
-    return mvm::System::ReadLong(first, second);
+	    int values[2];
+	    int64_t res[1];
+	#if ARCH_PPC
+	    values[0] = second;
+	    values[1] = first;
+	#else
+	    values[0] = first;
+	    values[1] = second;
+	#endif
+	    memcpy(res, values, 8);
+	    return res[0];
   }
 
   static const int SeekSet;

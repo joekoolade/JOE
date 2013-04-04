@@ -13,8 +13,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef JNJVM_LOCKED_MAP_H
-#define JNJVM_LOCKED_MAP_H
+#ifndef JMAP_H
+#define JMAP_H
 
 
 #include <map>
@@ -23,7 +23,7 @@
 
 #include "types.h"
 
-#include "DenseMap.h"
+#include "MvmDenseMap.h"
 #include "UTF8.h"
 
 namespace j3 {
@@ -90,22 +90,22 @@ public:
 class ClassMap {
 public:
   ClassMap() {}
-  ClassMap(mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*>* precompiled) : map(*precompiled) {}
+  ClassMap(MvmDenseMap<const UTF8*, CommonClass*>* precompiled) : map(*precompiled) {}
 
-  mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*> map;
-  typedef mvm::MvmDenseMap<const mvm::UTF8*, CommonClass*>::iterator iterator;
+  MvmDenseMap<const UTF8*, CommonClass*> map;
+  typedef MvmDenseMap<const UTF8*, CommonClass*>::iterator iterator;
 };
 
 class TypeMap {
 public:
-  mvm::MvmDenseMap<const mvm::UTF8*, Typedef*> map;
-  typedef mvm::MvmDenseMap<const mvm::UTF8*, Typedef*>::iterator iterator;
+  MvmDenseMap<const UTF8*, Typedef*> map;
+  typedef MvmDenseMap<const UTF8*, Typedef*>::iterator iterator;
 };
 
 class SignMap {
 public:
-  mvm::MvmDenseMap<const mvm::UTF8*, Signdef*> map;
-  typedef mvm::MvmDenseMap<const mvm::UTF8*, Signdef*>::iterator iterator;
+  MvmDenseMap<const UTF8*, Signdef*> map;
+  typedef MvmDenseMap<const UTF8*, Signdef*>::iterator iterator;
 };
 
 } // end namespace j3

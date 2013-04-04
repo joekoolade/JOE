@@ -18,6 +18,7 @@
 #include "llvm/Support/MathExtras.h"
 #include "llvm/Support/PointerLikeTypeTraits.h"
 #include "llvm/Support/type_traits.h"
+#include "MvmDenseMap.h"
 #include <algorithm>
 #include <iterator>
 #include <new>
@@ -30,10 +31,10 @@ namespace j3 {
 
 template<typename T>
 struct MvmDenseMapInfo {
-  //static inline T getEmptyKey();
-  //static inline T getTombstoneKey();
-  //static unsigned getHashValue(const T &Val);
-  //static bool isEqual(const T &LHS, const T &RHS);
+  static inline T getEmptyKey();
+  static inline T getTombstoneKey();
+  static unsigned getHashValue(const T &Val);
+  static bool isEqual(const T &LHS, const T &RHS);
 };
 
 template<typename KeyT, typename ValueT,

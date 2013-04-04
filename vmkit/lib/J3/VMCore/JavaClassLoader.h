@@ -10,14 +10,24 @@
 #ifndef JAVACLASSLOADER_H_
 #define JAVACLASSLOADER_H_
 
+#include <map>
+
 namespace j3 {
 
 class Signdef;
 class Typedef;
 class Class;
+class ClassMap;
 class ClassBytes;
+class ClassArray;
+class CommonClass;
+class ClassPrimitive;
 class JavaCompiler;
 class UTF8Map;
+class TypeMap;
+class SignMap;
+class JavaString;
+class UTF8;
 
 class JavaClassLoader {
 private:
@@ -68,12 +78,13 @@ static const UTF8* asciizConstructUTF8(const char* asciiz);
 /// readerConstructUTF8 - Hashes an UTF8 created from the given Unicode
 /// buffer.
 ///
-static const UTF8* readerConstructUTF8(const uint16* buf, uint32 size);
+static const UTF8* readerConstructUTF8(const uint16_t* buf, uint32_t size);
 
 /// internalLoad - Load the class with the given name.
 ///
-static Class* internalLoad(const UTF8* utf8, bool doResolve,
-                                JavaString* strName);
+static Class* internalLoad(const UTF8* utf8, bool doResolve, JavaString* strName);
+
+static Class* loadName(const UTF8* name);
 
 /// lookupClass - Finds the class of the given name in the class loader's
 /// table.
@@ -100,9 +111,11 @@ static CommonClass* loadBaseClass(const UTF8* name, uint32 start, uint32 len);
 ///
 static Class* constructClass(const UTF8* name, ClassBytes* bytes);
 
-static const UTF8* JavaClassLoader::asciizConstructUTF8(const char* asciiz);
-static const UTF8* JavaClassLoader::readerConstructUTF8(const uint16* buf, uint32 size);
+static const UTF8* lookupOrCreateReader(const uint16 *, uint32);
+static const UTF8* lookupOrCreateAsciiz(const char *buf);
+
 };
+}
 
 
 #endif /* JAVACLASSLOADER_H_ */

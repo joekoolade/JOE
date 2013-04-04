@@ -21,10 +21,8 @@
 
 #include "JavaConstantPool.h"
 #include "JavaString.h"
-#include "JavaThread.h"
 #include "JavaTypes.h"
 #include "JavaUpcalls.h"
-#include "Jnjvm.h"
 #include "Reader.h"
 
 #include "j3/JavaLLVMCompiler.h"

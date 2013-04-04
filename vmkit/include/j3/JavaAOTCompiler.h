@@ -10,22 +10,24 @@
 #ifndef J3_AOT_COMPILER_H
 #define J3_AOT_COMPILER_H
 
-#include "MvmDenseMap.h"
-#include "j3/JavaLLVMCompiler.h"
-#include "UTF8.h"
-#include "JMap.h"
+// for native_class_iterator
+#include <map>
+
+//#include "MvmDenseMap.h"
+//#include "MvmDenseSet.h"
+//#include "j3/JavaLLVMCompiler.h"
+//#include "UTF8.h"
+//#include "JMap.h"
 
 // for stderr
 #include <cstdio>
-// for native_class_iterator
-#include <map>
 
 namespace j3 {
 
 class ArrayObject;
 class Attribut;
 class ClassBytes;
-class JnjvmBootstrapLoader;
+class JavaCompiler;
 class ZipArchive;
 class Class;
 class ClassArray;
@@ -52,7 +54,7 @@ public:
   }
   
   virtual void* materializeFunction(JavaMethod* meth, Class* customizeFor) {
-    fprintf(stderr, "Can not materiale a function in AOT mode.");
+    fprintf(stderr, "Can not material a function in AOT mode.");
     abort();
   }
 
@@ -111,8 +113,8 @@ private:
   llvm::Constant* CreateConstantFromJavaObject(JavaObject* obj);
   llvm::Constant* CreateConstantFromClassBytes(ClassBytes* bytes);
   llvm::Constant* CreateConstantFromJavaConstantPool(JavaConstantPool* ctp);
-  llvm::Constant* CreateConstantFromClassMap(const mvm::MvmDenseMap<const UTF8*, CommonClass*>& map);
-  llvm::Constant* CreateConstantFromUTF8Map(const mvm::MvmDenseSet<mvm::UTF8MapKey, const UTF8*>& set);
+  llvm::Constant* CreateConstantFromClassMap(const MvmDenseMap<const UTF8*, CommonClass*>& map);
+  llvm::Constant* CreateConstantFromUTF8Map(const MvmDenseSet<UTF8MapKey, const UTF8*>& set);
   void AddInitializerToClass(llvm::GlobalVariable* varGV, CommonClass* classDef);
   llvm::Constant* getUTF8(const UTF8* val);
   
@@ -230,16 +232,16 @@ public:
   
   void compileFile(const char* name);
   void compileClass(Class* cl);
-  void compileClassLoader(JnjvmBootstrapLoader* loader);
-  void generateClassBytes(JnjvmBootstrapLoader* loader);
+  void compileClassLoader();
+  void generateClassBytes();
   void generateMain(const char* name, bool jit);
   const char *getHostTriple();
   void mainCompilerStart();
+  Class* loadName(const UTF8* name, uint8_t* data);
 private:
 
   void extractFiles(ClassBytes* bytes);
   void compileAllStubs(Signdef* sign);
-  Class* loadName(const UTF8* name, uint8_t* data);
   Class* internalLoad(const UTF8* name, uint8_t *data);
   CommonClass* lookupClass(const UTF8* utf8);
   llvm::Function* getMethodOrStub(JavaMethod* meth, Class* customizeFor);

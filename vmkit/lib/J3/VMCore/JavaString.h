@@ -12,15 +12,13 @@
 
 #include "types.h"
 
-#include "JavaObject.h"
 #include "UTF8.h"
 
 namespace j3 {
 
 class ArrayUInt16;
-class Jnjvm;
 
-class JavaString : public JavaObject {
+class JavaString {
  private:
   const ArrayUInt16* value;
  public:
@@ -37,27 +35,23 @@ class JavaString : public JavaObject {
 #endif
 
   static void setValue(JavaString* self, const ArrayUInt16* array) {
-    llvm_gcroot(self, 0);
-    llvm_gcroot(array, 0);
   }
   static const ArrayUInt16* getValue(const JavaString* self) {
-    llvm_gcroot(self, 0);
     return self->value;
   }
   
-  static JavaString* stringDup(const ArrayUInt16 *const & array, Jnjvm* vm);
+  static JavaString* stringDup(const ArrayUInt16 *const & array);
 
   /// internalToJava - Creates a copy of the UTF8 at its given offset and size
   /// with all its '.' replaced by '/'. The JVM bytecode reference classes in
   /// packages with the '.' as the separating character. The JVM language uses
   /// the '/' character. Returns a Java String.
   ///
-  static JavaString* internalToJava(const UTF8* utf8, Jnjvm* vm);
+  static JavaString* internalToJava(const UTF8* utf8);
 
   static void stringDestructor(JavaString*);
   static char* strToAsciiz(JavaString* self);
-  static char* strToAsciiz(JavaString* self, mvm::ThreadAllocator* allocator);
-  static const ArrayUInt16* strToArray(JavaString* self, Jnjvm* vm);
+  static const ArrayUInt16* strToArray(JavaString* self);
 
   /// javaToInternal - Replaces all '/' into '.'.
   static const UTF8* javaToInternal(const JavaString* self, UTF8Map* map);

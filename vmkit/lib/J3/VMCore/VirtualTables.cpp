@@ -21,18 +21,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "ClasspathReflect.h"
 #include "JavaArray.h"
 #include "JavaClass.h"
 #include "JavaObject.h"
 #include "JavaString.h"
-#include "JavaThread.h"
-#include "JavaUpcalls.h"
-#include "Jnjvm.h"
-#include "JnjvmClassLoader.h"
 #include "JMap.h"
-#include "ReferenceQueue.h"
-#include "VMStaticInstance.h"
 #include "Zip.h"
 
 using namespace j3;

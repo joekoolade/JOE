@@ -7,17 +7,25 @@
  * Copyright, (C) 2013 Joe Kulig
  */
 
+#include "types.h"
+#include "MvmDenseSet.h"
 #include "JavaClassLoader.h"
+#include "JavaClass.h"
+#include "JavaCompiler.h"
+#include "UTF8.h"
+#include "JavaTypes.h"
+#include "JMap.h"
 
 #include <vector>
 #include <stdio.h>
+#include <cassert>
 
 using namespace j3;
 
-UTF8Map JavaClassLoader::hashUTF8 = new UTF8Map();
-ClassMap JavaClassLoader::classes = new ClassMap();
-TypeMap JavaClassLoader::javaTypes = new TypeMap();
-SignMap JavaClassLoader::javaSignatures = new SignMap();
+UTF8Map* JavaClassLoader::hashUTF8 = new UTF8Map();
+ClassMap* JavaClassLoader::classes = new ClassMap();
+TypeMap* JavaClassLoader::javaTypes = new TypeMap();
+SignMap* JavaClassLoader::javaSignatures = new SignMap();
 
 static void typeError(const UTF8* name, short int l) {
   if (l != 0) {
@@ -195,8 +203,6 @@ Class* JavaClassLoader::constructClass(const UTF8* name,
       res->makeVT();
       getCompiler()->resolveVirtualClass(res);
       getCompiler()->resolveStaticClass(res);
-      assert(res->getDelegatee() == NULL);
-      assert(res->getStaticInstance() == NULL);
       assert(classes->map.lookup(internalName) == NULL);
       classes->map[internalName] = res;
   }
@@ -207,19 +213,28 @@ Class* JavaClassLoader::constructClass(const UTF8* name,
   return res;
 }
 
-ClassArray* JavaClassLoader::constructArray(const UTF8* name,
-                                                 CommonClass* baseClass) {
+ClassArray* JavaClassLoader::constructArray(const UTF8* name, CommonClass* baseClass) {
   assert(baseClass && "constructing an array class without a base class");
   ClassArray* res = 0;
   res = (ClassArray*) classes->map.lookup(name);
   if (res == NULL) {
     const UTF8* internalName = readerConstructUTF8(name->elements, name->size);
-    res = new ClassArray(this, internalName,
-                                                       baseClass);
+    res = new ClassArray(internalName, baseClass);
     classes->map.insert(std::make_pair(internalName, res));
   }
   return res;
 }
 
+const UTF8* JavaClassLoader::lookupOrCreateAsciiz(const char *buf) {
+	return hashUTF8->lookupOrCreateAsciiz(buf);
+}
 
+const UTF8* JavaClassLoader::lookupOrCreateReader(const uint16 *buf, uint32 n) {
+	return hashUTF8->lookupOrCreateReader(buf, n);
+}
+
+Class* JavaClassLoader::loadName(const UTF8* name) {
+	// fixme; add loadName(utf8*) in JavaCompiler
+	return 0;
+}
 

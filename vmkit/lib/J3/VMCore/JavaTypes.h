@@ -314,7 +314,6 @@ public:
 
   /// initialLoader - The loader that first loaded this signdef.
   ///
-  JnjvmClassLoader* initialLoader;
 
   /// keyName - The Java name of the signature, e.g. "()V".
   ///
@@ -327,16 +326,6 @@ public:
   /// Signdef - Create a new Signdef.
   ///
   Signdef(const UTF8* name, std::vector<Typedef*>& args, Typedef* ret);
-  
-  /// operator new - Redefines the new operator of this class to allocate
-  /// the arguments in the object itself.
-  ///
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator,
-                     sint32 size) {
-    return allocator.Allocate(sizeof(Signdef) + size * sizeof(Typedef),
-                              "Signdef");
-  }
-
   
 //===----------------------------------------------------------------------===//
 //

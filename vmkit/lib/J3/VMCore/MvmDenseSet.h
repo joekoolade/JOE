@@ -27,6 +27,8 @@
 #include <cstddef>
 #include <cstring>
 
+#include "MvmDenseMap.h"
+
 namespace j3 {
 
 template<typename ValueT,

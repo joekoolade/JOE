@@ -7,37 +7,38 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef JNJVM_JAVA_CLASS_H
-#define JNJVM_JAVA_CLASS_H
-
+#ifndef JAVA_CLASS_H
+#define JAVA_CLASS_H
 
 #include "types.h"
+#include "JavaAccess.h"
+
 #include <stdarg.h>
 #include <sys/time.h>
 
 #include <cassert>
+
 #include <set>
-#include <cstdarg>
 
 namespace j3 {
 
 class ArrayObject;
 class ArrayUInt8;
 class ArrayUInt16;
-class Class;
-class ClassArray;
 class ClassBytes;
 class JavaArray;
 class JavaConstantPool;
 class JavaField;
 class JavaMethod;
-class JavaObject;
 class JavaVirtualTable;
 class Reader;
-class Signdef;
 class Typedef;
+class Signdef;
 class JavaClassLoader;
 class UTF8;
+class Class;
+class ClassPrimitive;
+class CommonClass;
 
 /// JavaState - List of states a Java class can have. A class is ready to be
 /// used (i.e allocating instances of the class, calling methods of the class
@@ -172,9 +173,7 @@ public:
 //
 //===----------------------------------------------------------------------===//
 
-  bool isSecondaryClass() {
-    return virtualVT->offset == JavaVirtualTable::getCacheIndex();
-  }
+  bool isSecondaryClass();
 
   // Assessor methods.
   uint32 getAccess() const      { return access & 0xFFFF; }
@@ -292,11 +291,6 @@ public:
     return this;
   }
  
-  /// resolvedImplClass - Return the internal representation of the
-  /// java.lang.Class object. The class must be resolved.
-  //
-  static CommonClass* resolvedImplClass(JavaObject* delegatee,
-                                            bool doClinit);
 };
 
 /// ClassPrimitive - This class represents internal classes for primitive
@@ -421,11 +415,6 @@ public:
   ///
   uint32 staticSize;
 
-  static const int ACC_PUBLIC    = 0x0001;
-  static const int ACC_FINAL     = 0x0010;
-  static const int ACC_SUPER     = 0x0020;
-  static const int ACC_INTERFACE = 0x0200;
-  static const int ACC_ABSTRACT  = 0x0400;
   /// getVirtualSize - Get the virtual size of instances of this class.
   ///
   uint32 getVirtualSize() const { return virtualSize; }
@@ -618,6 +607,13 @@ public:
     return resolved;
   }
 
+  // fixme
+  // move to java types
+  bool isStatic(int);
+  bool isAbstract(int);
+  bool isPublic(int);
+  bool isNative(int);
+
   /// isNativeOverloaded - Is the method overloaded with a native function?
   ///
   bool isNativeOverloaded(JavaMethod* meth);
@@ -652,10 +648,6 @@ public:
   CommonClass* baseClass() const {
     return _baseClass;
   }
-
-  /// doNew - Allocate a new array in the given vm.
-  ///
-  JavaObject* doNew(sint32 n);
 
   /// ClassArray - Construct a Java array class with the given name.
   ///
@@ -776,11 +768,7 @@ public:
   /// getSignature - Get the signature of thes method, resolving it if
   /// necessary.
   ///
-  Signdef* getSignature() {
-    if(!_signature)
-      _signature = JavaClassLoader::constructSign(type);
-    return _signature;
-  }
+  Signdef* getSignature();
   
   /// toString - Return an array of chars, suitable for creating a string.
   ///
@@ -824,120 +812,12 @@ public:
   ///
   ArrayObject* getExceptionTypes();
 
-  /// getReturnType - Get the java.lang.Class of the result of the method,
-  /// with the given class loader.
-  ///
-  JavaObject* getReturnType();
-  
-
 //===----------------------------------------------------------------------===//
 //
 // Upcalls from JnJVM code to Java code. 
 //
 //===----------------------------------------------------------------------===//
   
-  /// This class of methods takes a variable argument list.
-  uint32 invokeIntSpecialAP(Class*, JavaObject* obj, va_list ap)
-    __attribute__ ((noinline));
-  float invokeFloatSpecialAP(Class*, JavaObject* obj, va_list ap)
-    __attribute__ ((noinline));
-  double invokeDoubleSpecialAP(Class*, JavaObject* obj,
-                               va_list ap) __attribute__ ((noinline));
-  sint64 invokeLongSpecialAP(Class*, JavaObject* obj, va_list ap)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectSpecialAP(Class*, JavaObject* obj,
-                                        va_list ap) __attribute__ ((noinline));
-  
-  uint32 invokeIntVirtualAP(Class*, JavaObject* obj, va_list ap)
-    __attribute__ ((noinline));
-  float invokeFloatVirtualAP(Class*, JavaObject* obj, va_list ap)
-    __attribute__ ((noinline));
-  double invokeDoubleVirtualAP(Class*, JavaObject* obj,
-                               va_list ap) __attribute__ ((noinline));
-  sint64 invokeLongVirtualAP(Class*, JavaObject* obj, va_list ap)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectVirtualAP(Class*, JavaObject* obj,
-                                        va_list ap) __attribute__ ((noinline));
-  
-  uint32 invokeIntStaticAP(Class*, va_list ap)
-    __attribute__ ((noinline));
-  float invokeFloatStaticAP(Class*, va_list ap)
-    __attribute__ ((noinline));
-  double invokeDoubleStaticAP(Class*, va_list ap)
-    __attribute__ ((noinline));
-  sint64 invokeLongStaticAP(Class*, va_list ap)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectStaticAP(Class*, va_list ap)
-    __attribute__ ((noinline));
-
-  /// This class of methods takes a buffer which contain the arguments of the
-  /// call.
-  uint32 invokeIntSpecialBuf(Class*, JavaObject* obj, void* buf)
-    __attribute__ ((noinline));
-  float invokeFloatSpecialBuf(Class*, JavaObject* obj, void* buf)
-    __attribute__ ((noinline));
-  double invokeDoubleSpecialBuf(Class*, JavaObject* obj,
-                                void* buf) __attribute__ ((noinline));
-  sint64 invokeLongSpecialBuf(Class*, JavaObject* obj, void* buf)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectSpecialBuf(Class*, JavaObject* obj,
-                                         void* buf) __attribute__ ((noinline));
-  
-  uint32 invokeIntVirtualBuf(Class*, JavaObject* obj, void* buf)
-    __attribute__ ((noinline));
-  float invokeFloatVirtualBuf(Class*, JavaObject* obj, void* buf)
-    __attribute__ ((noinline));
-  double invokeDoubleVirtualBuf(Class*, JavaObject* obj,
-                                void* buf) __attribute__ ((noinline));
-  sint64 invokeLongVirtualBuf(Class*, JavaObject* obj, void* buf)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectVirtualBuf(Class*, JavaObject* obj,
-                                         void* buf) __attribute__ ((noinline));
-  
-  uint32 invokeIntStaticBuf(Class*, void* buf)
-    __attribute__ ((noinline));
-  float invokeFloatStaticBuf(Class*, void* buf)
-    __attribute__ ((noinline));
-  double invokeDoubleStaticBuf(Class*, void* buf)
-    __attribute__ ((noinline));
-  sint64 invokeLongStaticBuf(Class*, void* buf)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectStaticBuf(Class*, void* buf)
-    __attribute__ ((noinline));
-
-  /// This class of methods is variadic.
-  uint32 invokeIntSpecial(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  float invokeFloatSpecial(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  double invokeDoubleSpecial(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  sint64 invokeLongSpecial(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectSpecial(Class*, JavaObject* obj,
-                                      ...) __attribute__ ((noinline));
-  
-  uint32 invokeIntVirtual(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  float invokeFloatVirtual(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  double invokeDoubleVirtual(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  sint64 invokeLongVirtual(Class*, JavaObject* obj, ...)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectVirtual(Class*, JavaObject* obj,
-                                      ...) __attribute__ ((noinline));
-  
-  uint32 invokeIntStatic(Class*, ...)
-    __attribute__ ((noinline));
-  float invokeFloatStatic(Class*, ...)
-    __attribute__ ((noinline));
-  double invokeDoubleStatic(Class*, ...)
-    __attribute__ ((noinline));
-  sint64 invokeLongStatic(Class*, ...)
-    __attribute__ ((noinline));
-  JavaObject* invokeJavaObjectStatic(Class*, ...)
-    __attribute__ ((noinline));
   
   #define JNI_NAME_PRE "Java_"
   #define JNI_NAME_PRE_LEN 5
@@ -955,7 +835,6 @@ private:
   /// InitField - Set an initial value to the field.
   ///
   void InitStaticField(uint64 val);
-  void InitStaticField(JavaObject* val);
   void InitStaticField(double val);
   void InitStaticField(float val);
   void InitNullStaticField();
@@ -1006,11 +885,7 @@ public:
   /// getSignature - Get the signature of this field, resolving it if
   /// necessary.
   ///
-  Typedef* getSignature() {
-    if(!_signature)
-      _signature = JavaClassLoader::constructType(type);
-    return _signature;
-  }
+  Typedef* getSignature();
 
   /// InitStaticField - Init the value of the field in the given object. This is
   /// used for static fields which have a default value.
@@ -1021,42 +896,15 @@ public:
   ///
   Attribut* lookupAttribut(const UTF8* key);
 
-  bool isReference() {
-    uint16 val = type->elements[0];
-    return (val == '[' || val == 'L');
-  }
-  
-  bool isDouble() {
-    return (type->elements[0] == 'D');
-  }
-
-  bool isLong() {
-    return (type->elements[0] == 'J');
-  }
-
-  bool isInt() {
-    return (type->elements[0] == 'I');
-  }
-
-  bool isFloat() {
-    return (type->elements[0] == 'F');
-  }
-
-  bool isShort() {
-    return (type->elements[0] == 'S');
-  }
-
-  bool isChar() {
-    return (type->elements[0] == 'C');
-  }
-
-  bool isByte() {
-    return (type->elements[0] == 'B');
-  }
-
-  bool isBoolean() {
-    return (type->elements[0] == 'Z');
-  }
+  bool isReference();
+  bool isDouble();
+  bool isLong();
+  bool isInt();
+  bool isFloat();
+  bool isShort();
+  bool isChar();
+  bool isByte();
+  bool isBoolean();
 
 };
 

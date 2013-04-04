@@ -26,10 +26,9 @@
 #include "JavaArray.h"
 #include "JavaConstantPool.h"
 #include "JavaString.h"
-#include "JavaThread.h"
 #include "JavaTypes.h"
-#include "JavaUpcalls.h"
 #include "JavaClassLoader.h"
+#include "JavaClass.h"
 #include "Reader.h"
 #include "Zip.h"
 

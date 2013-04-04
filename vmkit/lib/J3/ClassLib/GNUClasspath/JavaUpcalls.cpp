@@ -14,7 +14,6 @@
 #include "JavaString.h"
 #include "JavaThread.h"
 #include "JavaUpcalls.h"
-#include "Jnjvm.h"
 #include "ReferenceQueue.h"
 
 #define COMPILE_METHODS(cl) \

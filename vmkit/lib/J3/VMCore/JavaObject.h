@@ -10,13 +10,15 @@
 #ifndef JNJVM_JAVA_OBJECT_H
 #define JNJVM_JAVA_OBJECT_H
 
-#include "mvm/UTF8.h"
+#include "UTF8.h"
 
 #include "types.h"
 #include <sys/time.h>
 
 union jvalue;
 extern "C" void EmptyDestructor();
+
+typedef uint32_t word_t;
 
 namespace j3 {
 
@@ -33,7 +35,7 @@ public:
 	static const uint32_t NumIndexes = 29;
 	word_t contents[NumIndexes];
 
-  static uint32_t getIndex(const mvm::UTF8* name, const mvm::UTF8* type) {
+  static uint32_t getIndex(const UTF8* name, const UTF8* type) {
     return (name->hash() + type->hash()) % NumIndexes;
   }
 };
@@ -244,94 +246,6 @@ public:
  }
 
  static void emptyTracer(void*) {}
-};
-
-
-/// JavaObject - This class represents a Java object.
-///
-class JavaObject {
-private:
-  JavaVirtualTable *virtualTable;
-  /// waitIntern - internal wait on a monitor
-  ///
-  static void waitIntern(JavaObject* self, struct timeval *info, bool timed);
-  
-public:
-
-  JavaVirtualTable* getVirtualTable() {
-	  return virtualTable;
-  }
-
-  /// getClass - Returns the class of this object.
-  ///
-  static CommonClass* getClass(const JavaObject* self) {
-//    llvm_gcroot(self, 0);
-//    return self->getVirtualTable()->cl;
-	  return NULL;
-  }
-  
-  /// instanceOf - Is this object's class of type the given class?
-  ///
-  static bool instanceOf(JavaObject* self, CommonClass* cl);
-
-  /// wait - Java wait. Makes the current thread waiting on a monitor.
-  ///
-  static void wait(JavaObject* self);
-
-  /// timedWait - Java timed wait. Makes the current thread waiting on a
-  /// monitor for the given amount of time.
-  ///
-  static void timedWait(JavaObject* self, struct timeval &info);
-  
-  /// wait - Wait for specified ms and ns.  Wrapper for either wait() or
-  /// timedWait, depending on duration specified.
-  static void wait(JavaObject* self, int64_t ms, int32_t ns);
-
-  /// notify - Java notify. Notifies a thread from the availability of the
-  /// monitor.
-  ///
-  static void notify(JavaObject* self);
-  
-  /// notifyAll - Java notifyAll. Notifies all threads from the availability of
-  /// the monitor.
-  ///
-  static void notifyAll(JavaObject* self);
-
-  /// clone - Java clone. Creates a copy of this object.
-  ///
-  static JavaObject* clone(JavaObject* other);
- 
-  /// overflowThinLock - Notify that the thin lock has overflowed.
-  ///
-  static void overflowThinLock(JavaObject* self);
-
-  /// acquire - Acquire the lock on this object.
-  static void acquire(JavaObject* self);
-
-  /// release - Release the lock on this object
-  static void release(JavaObject* self);
-
-  /// owner - Returns true if the current thread is the owner of this object's
-  /// lock.
-  static bool owner(JavaObject* self);
-
-#ifdef SIGSEGV_THROW_NULL
-  #define verifyNull(obj) {}
-#else
-  #define verifyNull(obj) \
-    if (obj == NULL) JavaThread::get()->getJVM()->nullPointerException();
-#endif
-  
-  /// decapsulePrimitive - Based on the signature argument, decapsule
-  /// obj as a primitive and put it in the buffer.
-  ///
-  static void decapsulePrimitive(JavaObject* self, jvalue* buf,
-                                 const Typedef* signature);
-
-  static uint16_t hashCodeGenerator;
-
-  /// hashCode - Return the hash code of this object.
-  static uint32_t hashCode(JavaObject* self);
 };
 
 

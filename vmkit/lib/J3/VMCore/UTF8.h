@@ -11,6 +11,7 @@
 #define _JNJVM_UTF8_H_
 
 #include "types.h"
+#include <map>
 #include "MvmDenseMap.h"
 #include "MvmDenseSet.h"
 
@@ -133,6 +134,7 @@ public:
   const UTF8* lookupAsciiz(const char* asciiz);
   const UTF8* lookupReader(const uint16* buf, uint32 size);
 
+  UTF8Map() {}
   UTF8Map(MvmDenseSet<UTF8MapKey, const UTF8*>* m)
       : map(*m) {}
 

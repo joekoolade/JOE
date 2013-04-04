@@ -141,8 +141,7 @@ public:
     signature_info_iterator E = signature_infos.end();
     signature_info_iterator I = signature_infos.find(sign);
     if (I == E) {
-      LLVMSignatureInfo* signInfo =
-        new(allocator, "LLVMSignatureInfo") LLVMSignatureInfo(sign, this);
+      LLVMSignatureInfo* signInfo = new LLVMSignatureInfo(sign, this);
       signature_infos.insert(std::make_pair(sign, signInfo));
       return signInfo;
     } else {
@@ -154,8 +153,7 @@ public:
     field_info_iterator E = field_infos.end();
     field_info_iterator I = field_infos.find(field);
     if (I == E) {
-      LLVMFieldInfo* fieldInfo =
-        new(allocator, "LLVMFieldInfo") LLVMFieldInfo(field, this);
+      LLVMFieldInfo* fieldInfo = new LLVMFieldInfo(field, this);
       field_infos.insert(std::make_pair(field, fieldInfo));
       return fieldInfo;
     } else {
@@ -167,8 +165,7 @@ public:
     class_info_iterator E = class_infos.end();
     class_info_iterator I = class_infos.find(klass);
     if (I == E) {
-      LLVMClassInfo* classInfo =
-        new(allocator, "LLVMClassInfo") LLVMClassInfo(klass, this);
+      LLVMClassInfo* classInfo = new LLVMClassInfo(klass, this);
       class_infos.insert(std::make_pair(klass, classInfo));
       return classInfo;
     } else {
@@ -180,8 +177,7 @@ public:
     method_info_iterator E = method_infos.end();
     method_info_iterator I = method_infos.find(method);
     if (I == E) {
-      LLVMMethodInfo* methodInfo =
-        new(allocator, "LLVMMethodInfo") LLVMMethodInfo(method, this);
+      LLVMMethodInfo* methodInfo = new LLVMMethodInfo(method, this);
       method_infos.insert(std::make_pair(method, methodInfo));
       return methodInfo;
     } else {

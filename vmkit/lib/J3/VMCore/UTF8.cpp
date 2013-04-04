@@ -7,10 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/Allocator.h"
-#include "mvm/UTF8.h"
+#include "UTF8.h"
 
-namespace mvm {
+namespace j3 {
 
 extern "C" const UTF8 TombstoneKey(-1);
 extern "C" const UTF8 EmptyKey(-1);
@@ -18,8 +17,7 @@ extern "C" const UTF8 EmptyKey(-1);
 
 const UTF8* UTF8::extract(UTF8Map* map, uint32 start, uint32 end) const {
   uint32 len = end - start;
-  ThreadAllocator allocator;
-  uint16* buf = (uint16*)allocator.Allocate(sizeof(uint16) * len);
+  uint16* buf = new uint16_t[len];
 
   for (uint32 i = 0; i < len; i++) {
     buf[i] = elements[i + start];
@@ -42,9 +40,7 @@ uint32 UTF8::readerHasher(const uint16* buf, sint32 size) {
 
 const UTF8* UTF8Map::lookupOrCreateAsciiz(const char* asciiz) {
   sint32 size = strlen(asciiz);
-  ThreadAllocator tempAllocator;
-  uint16_t* data = reinterpret_cast<uint16_t*>(
-      tempAllocator.Allocate(size * sizeof(uint16_t)));
+  uint16_t* data = new uint16_t[size];
   for (int i = 0; i < size; i++) {
     data[i] = asciiz[i];
   }
@@ -55,27 +51,23 @@ const UTF8* UTF8Map::lookupOrCreateAsciiz(const char* asciiz) {
 const UTF8* UTF8Map::lookupOrCreateReader(const uint16* buf, uint32 len) {
   sint32 size = (sint32)len;
   UTF8MapKey key(buf, size);
-  lock.lock();
 
   const UTF8* res = map.lookup(key);
   if (res == NULL) {
-    UTF8* tmp = new(allocator, size) UTF8(size);
+    UTF8* tmp = new UTF8(size);
     memcpy(tmp->elements, buf, len * sizeof(uint16));
     res = (const UTF8*)tmp;
     key.data = res->elements;
     map[key] = res;
   }
   
-  lock.unlock();
   return res;
 }
 
 
 const UTF8* UTF8Map::lookupAsciiz(const char* asciiz) {
   sint32 size = strlen(asciiz);
-  ThreadAllocator tempAllocator;
-  uint16_t* data = reinterpret_cast<uint16_t*>(
-      tempAllocator.Allocate(size * sizeof(uint16_t)));
+  uint16_t* data = new uint16_t[size];
   for (int i = 0; i < size; i++) {
     data[i] = asciiz[i];
   }
@@ -86,9 +78,7 @@ const UTF8* UTF8Map::lookupAsciiz(const char* asciiz) {
 const UTF8* UTF8Map::lookupReader(const uint16* buf, uint32 len) {
   sint32 size = (sint32)len;
   UTF8MapKey key(buf, size);
-  lock.lock();
-  const UTF8* res = map.lookup(key);
-  lock.unlock();
+   const UTF8* res = map.lookup(key);
   return res;
 }
 
