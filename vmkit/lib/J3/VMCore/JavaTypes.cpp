@@ -14,21 +14,7 @@
 #include "JavaCompiler.h"
 #include "JavaTypes.h"
 
-CommonClass* ArrayTypedef::assocClass() const {
-  return constructArray(keyName);
-}
-
-CommonClass* ObjectTypedef::assocClass() const {
-  return loadName(pseudoAssocClassName, false, true, NULL);
-}
-
-CommonClass* ObjectTypedef::findAssocClass() const {
-  return lookupClassOrArray(pseudoAssocClassName);
-}
-
-CommonClass* ArrayTypedef::findAssocClass() const {
-  return lookupClassOrArray(keyName);
-}
+using namespace j3;
 
 Signdef::Signdef(const UTF8* name, std::vector<Typedef*>& args, Typedef* ret) {
   
@@ -55,7 +41,6 @@ ObjectTypedef::ObjectTypedef(const UTF8* name, UTF8Map* map) {
 
 word_t Signdef::staticCallBuf() {
   if (!_staticCallBuf) {
-    mvm::ThreadAllocator allocator;
     char* buf = new char[(keyName->size << 1) + 1 + 11];
     nativeName(buf, "static_buf");
     bool unused = false;
