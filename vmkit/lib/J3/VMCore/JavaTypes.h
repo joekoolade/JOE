@@ -334,69 +334,6 @@ public:
 //
 //===----------------------------------------------------------------------===//
 
-  word_t getStaticCallBuf() {
-    if(!_staticCallBuf) return staticCallBuf();
-    return _staticCallBuf;
-  }
-
-  word_t getVirtualCallBuf() {
-    if(!_virtualCallBuf) return virtualCallBuf();
-    return _virtualCallBuf;
-  }
-  
-  word_t getStaticCallAP() {
-    if (!_staticCallAP) return staticCallAP();
-    return _staticCallAP;
-  }
-
-  word_t getVirtualCallAP() {
-    if (!_virtualCallAP) return virtualCallAP();
-    return _virtualCallAP;
-  }
-  
-  word_t getVirtualCallStub() {
-    if (!_virtualCallStub) return virtualCallStub();
-    return _virtualCallStub;
-  }
-  
-  word_t getSpecialCallStub() {
-    if (!_specialCallStub) return specialCallStub();
-    return _specialCallStub;
-  }
-  
-  word_t getStaticCallStub() {
-    if (!_staticCallStub) return staticCallStub();
-    return _staticCallStub;
-  }
-  
-  void setStaticCallBuf(void* code) {
-    _staticCallBuf = (word_t)code;
-  }
-
-  void setVirtualCallBuf(void* code) {
-    _virtualCallBuf = (word_t)code;
-  }
-  
-  void setStaticCallAP(void* code) {
-    _staticCallAP = (word_t)code;
-  }
-
-  void setVirtualCallAP(void* code) {
-    _virtualCallAP = (word_t)code;
-  }
-  
-  void setVirtualCallStub(void* code) {
-    _virtualCallStub = (word_t)code;
-  }
-  
-  void setSpecialCallStub(void* code) {
-    _specialCallStub = (word_t)code;
-  }
-  
-  void setStaticCallStub(void* code) {
-    _staticCallStub = (word_t)code;
-  }
-
 //===----------------------------------------------------------------------===//
 //
 // End of inlined methods of getting dynamically generated functions.

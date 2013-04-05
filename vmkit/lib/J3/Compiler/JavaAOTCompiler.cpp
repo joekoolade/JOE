@@ -29,8 +29,10 @@
 #include "JavaTypes.h"
 #include "JavaClassLoader.h"
 #include "JavaClass.h"
+#include "JavaObject.h"
 #include "Reader.h"
 #include "Zip.h"
+#include "JMap.h"
 
 #include <cstdio>
 // for stat, S_IFMT and S_IFDIR
@@ -41,6 +43,7 @@
 #include <limits.h>
 // for realpath()
 #include <stdlib.h>
+#include <iostream>
 
 using namespace j3;
 using namespace llvm;
@@ -53,35 +56,12 @@ bool JavaAOTCompiler::isCompiling(const CommonClass* cl) const {
 	return true;
 }
 
-Value* JavaAOTCompiler::addCallback(Class* cl, uint16 index, Signdef* sign,
-		bool stat, BasicBlock* insert) {
-
-	JavaConstantPool* ctpInfo = cl->ctpInfo;
-	Signdef* signature = 0;
-	const UTF8* name = 0;
-	const UTF8* methCl = 0;
-	ctpInfo->nameOfStaticOrSpecialMethod(index, methCl, name, signature);
-
-	fprintf(stderr, "Warning: emitting a callback from %s (%s.%s)\n",
-			UTF8Buffer(cl->name).cString(), UTF8Buffer(methCl).cString(),
-			UTF8Buffer(name).cString());
-
-	LLVMSignatureInfo* LSI = getSignatureInfo(sign);
-
-	FunctionType* type = stat ? LSI->getStaticType() : LSI->getVirtualType();
-
-	Value* func = ConstantExpr::getBitCast(Callback,
-			PointerType::getUnqual(type));
-
-	return func;
-}
-
 CommonClass* JavaAOTCompiler::lookupClass(const UTF8* utf8) {
-	CommonClass* cl = classes->map.lookup(utf8);
+	CommonClass* cl = JavaClassLoader::classes->map.lookup(utf8);
 	return cl;
 }
 
-Class* JavaAOTCompiler::internalLoad(const UTF8* name, uint8_t* data) {
+Class* JavaAOTCompiler::internalLoad(const UTF8* name, ClassBytes* data) {
 	CommonClass* cl = lookupClass(name);
 	if(!cl){
 		cl = new Class(name, data);
@@ -90,7 +70,7 @@ Class* JavaAOTCompiler::internalLoad(const UTF8* name, uint8_t* data) {
 	return (Class*) cl;
 }
 
-Class* JavaAOTCompiler::loadName(const UTF8* name, uint8_t* data) {
+Class* JavaAOTCompiler::loadName(const UTF8* name, ClassBytes* data) {
 
 	Class* cl = internalLoad(name, data);
 	if (!cl) {
@@ -99,10 +79,10 @@ Class* JavaAOTCompiler::loadName(const UTF8* name, uint8_t* data) {
 		abort();
 	}
 	if (cl) {
-		ClassMap::iterator End = classes->map.end();
-		ClassMap::iterator I = classes->map.find(cl->name);
+		ClassMap::iterator End = JavaClassLoader::classes->map.end();
+		ClassMap::iterator I = JavaClassLoader::classes->map.find(cl->name);
 		if (I == End)
-			classes->map.insert(std::make_pair(cl->name, cl));
+			JavaClassLoader::classes->map.insert(std::make_pair(cl->name, cl));
 	}
 
 	return cl;
@@ -328,13 +308,12 @@ Constant* JavaAOTCompiler::getMethodInClass(JavaMethod* meth) {
 }
 
 Constant* JavaAOTCompiler::getString(JavaString* str) {
-	assert(!useCooperativeGC());
 	string_iterator SI = strings.find(str);
 	if (SI != strings.end()) {
 		return SI->second;
 	} else {
 		assert(str && "No string given");
-		LLVMClassInfo* LCI = getClassInfo(JavaObject::getClass(str)->asClass());
+		LLVMClassInfo* LCI = 0; //getClassInfo(JavaObject::getClass(str)->asClass());
 		llvm::Type* Ty = LCI->getVirtualType();
 		Module& Mod = *getLLVMModule();
 
@@ -351,8 +330,7 @@ Constant* JavaAOTCompiler::getString(JavaString* str) {
 	}
 }
 
-Constant* JavaAOTCompiler::getClassBytes(const UTF8* className,
-		ClassBytes* bytes) {
+Constant* JavaAOTCompiler::getClassBytes(const UTF8* className, ClassBytes* bytes) {
 	class_bytes_iterator CI = classBytes.find(bytes);
 	if (CI != classBytes.end()) {
 		return CI->second;
@@ -412,54 +390,55 @@ JavaObject* JavaAOTCompiler::getFinalObject(llvm::Value* obj) {
 	return 0;
 }
 
-Constant* JavaAOTCompiler::HandleMagic(JavaObject* obj, CommonClass* objCl) {
+//Constant* JavaAOTCompiler::HandleMagic(CommonClass* objCl) {
+//
+//	static const UTF8* AddressArray = asciizConstructUTF8(
+//			"org/vmmagic/unboxed/AddressArray");
+//	static const UTF8* WordArray = asciizConstructUTF8(
+//			"org/vmmagic/unboxed/WordArray");
+//	static const UTF8* ExtentArray = asciizConstructUTF8(
+//			"org/vmmagic/unboxed/ExtentArray");
+//	static const UTF8* ObjectReferenceArray = asciizConstructUTF8(
+//			"org/vmmagic/unboxed/ObjectReferenceArray");
+//	static const UTF8* OffsetArray = asciizConstructUTF8(
+//			"org/vmmagic/unboxed/OffsetArray");
+//	const UTF8* name = objCl->name;
+//
+//	if (name->equals(AddressArray) || name->equals(WordArray)
+//			|| name->equals(ExtentArray) || name->equals(ObjectReferenceArray)
+//			|| name->equals(OffsetArray)) {
+//
+//		word_t* realObj = (word_t*) obj;
+//		word_t size = realObj[0];
+//
+//		ArrayType* ATy = ArrayType::get(JavaIntrinsics.JavaObjectType,
+//				size + 1);
+//
+//		std::vector<Constant*> Vals;
+//		for (uint32 i = 0; i < size + 1; ++i) {
+//			Constant* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
+//					uint64_t(realObj[i]));
+//			CI = ConstantExpr::getIntToPtr(CI, JavaIntrinsics.JavaObjectType);
+//			Vals.push_back(CI);
+//		}
+//
+//		Constant* CA = ConstantArray::get(ATy, Vals);
+//
+//		GlobalVariable* varGV = new GlobalVariable(*getLLVMModule(),
+//				CA->getType(), false, GlobalValue::InternalLinkage, CA, "");
+//
+//		return ConstantExpr::getBitCast(varGV, JavaIntrinsics.JavaObjectType);
+//
+//	} else {
+//		Constant* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
+//				uint64_t(obj));
+//		CI = ConstantExpr::getIntToPtr(CI, JavaIntrinsics.JavaObjectType);
+//		return CI;
+//	}
+//}
 
-	static const UTF8* AddressArray = asciizConstructUTF8(
-			"org/vmmagic/unboxed/AddressArray");
-	static const UTF8* WordArray = asciizConstructUTF8(
-			"org/vmmagic/unboxed/WordArray");
-	static const UTF8* ExtentArray = asciizConstructUTF8(
-			"org/vmmagic/unboxed/ExtentArray");
-	static const UTF8* ObjectReferenceArray = asciizConstructUTF8(
-			"org/vmmagic/unboxed/ObjectReferenceArray");
-	static const UTF8* OffsetArray = asciizConstructUTF8(
-			"org/vmmagic/unboxed/OffsetArray");
-	const UTF8* name = objCl->name;
-
-	if (name->equals(AddressArray) || name->equals(WordArray)
-			|| name->equals(ExtentArray) || name->equals(ObjectReferenceArray)
-			|| name->equals(OffsetArray)) {
-
-		word_t* realObj = (word_t*) obj;
-		word_t size = realObj[0];
-
-		ArrayType* ATy = ArrayType::get(JavaIntrinsics.JavaObjectType,
-				size + 1);
-
-		std::vector<Constant*> Vals;
-		for (uint32 i = 0; i < size + 1; ++i) {
-			Constant* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
-					uint64_t(realObj[i]));
-			CI = ConstantExpr::getIntToPtr(CI, JavaIntrinsics.JavaObjectType);
-			Vals.push_back(CI);
-		}
-
-		Constant* CA = ConstantArray::get(ATy, Vals);
-
-		GlobalVariable* varGV = new GlobalVariable(*getLLVMModule(),
-				CA->getType(), false, GlobalValue::InternalLinkage, CA, "");
-
-		return ConstantExpr::getBitCast(varGV, JavaIntrinsics.JavaObjectType);
-
-	} else {
-		Constant* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
-				uint64_t(obj));
-		CI = ConstantExpr::getIntToPtr(CI, JavaIntrinsics.JavaObjectType);
-		return CI;
-	}
-}
-
-Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
+/*
+Constant* JavaAOTCompiler::getFinalObject(CommonClass* objCl) {
 	assert(!useCooperativeGC());
 	llvm::GlobalVariable* varGV = 0;
 	final_object_iterator End = finalObjects.end();
@@ -533,6 +512,7 @@ Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
 		return I->second;
 	}
 }
+*/
 
 Constant* JavaAOTCompiler::CreateConstantFromStaticInstance(Class* cl) {
 	LLVMClassInfo* LCI = getClassInfo(cl);
@@ -550,58 +530,60 @@ Constant* JavaAOTCompiler::CreateConstantFromStaticInstance(Class* cl) {
 		Attribut* attribut = field.lookupAttribut(Attribut::constantAttribut);
 
 		if (attribut == NULL) {
-			if ((cl->getStaticInstance() != NULL) && !useCooperativeGC()) {
-				if (type->isPrimitive()) {
-					const PrimitiveTypedef* prim =
-							(const PrimitiveTypedef*) type;
-					if (prim->isBool() || prim->isByte()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt8Ty(getLLVMContext()),
-								field.getStaticInt8Field());
-						Elts.push_back(CI);
-					} else if (prim->isShort() || prim->isChar()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt16Ty(getLLVMContext()),
-								field.getStaticInt16Field());
-						Elts.push_back(CI);
-					} else if (prim->isInt()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt32Ty(getLLVMContext()),
-								field.getStaticInt32Field());
-						Elts.push_back(CI);
-					} else if (prim->isLong()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt64Ty(getLLVMContext()),
-								field.getStaticLongField());
-						Elts.push_back(CI);
-					} else if (prim->isFloat()) {
-						Constant* CF = ConstantFP::get(
-								Type::getFloatTy(getLLVMContext()),
-								field.getStaticFloatField());
-						Elts.push_back(CF);
-					} else if (prim->isDouble()) {
-						Constant* CF = ConstantFP::get(
-								Type::getDoubleTy(getLLVMContext()),
-								field.getStaticDoubleField());
-						Elts.push_back(CF);
-					} else {
-						abort();
-					}
-				} else {
-					JavaObject* val = field.getStaticObjectField();
-					if (val) {
-						JnjvmClassLoader* JCL = cl->classLoader;
-						CommonClass* FieldCl = field.getSignature()->assocClass(
-								JCL);
-						Constant* CO = getFinalObject(val, FieldCl);
-						Elts.push_back(CO);
-					} else {
-						Elts.push_back(Constant::getNullValue(Ty));
-					}
-				}
-			} else {
-				Elts.push_back(Constant::getNullValue(Ty));
-			}
+			std::cerr << "NULL attribute!";
+			abort();
+//			if ((cl->getStaticInstance() != NULL) && !useCooperativeGC()) {
+//				if (type->isPrimitive()) {
+//					const PrimitiveTypedef* prim =
+//							(const PrimitiveTypedef*) type;
+//					if (prim->isBool() || prim->isByte()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt8Ty(getLLVMContext()),
+//								field.getStaticInt8Field());
+//						Elts.push_back(CI);
+//					} else if (prim->isShort() || prim->isChar()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt16Ty(getLLVMContext()),
+//								field.getStaticInt16Field());
+//						Elts.push_back(CI);
+//					} else if (prim->isInt()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt32Ty(getLLVMContext()),
+//								field.getStaticInt32Field());
+//						Elts.push_back(CI);
+//					} else if (prim->isLong()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt64Ty(getLLVMContext()),
+//								field.getStaticLongField());
+//						Elts.push_back(CI);
+//					} else if (prim->isFloat()) {
+//						Constant* CF = ConstantFP::get(
+//								Type::getFloatTy(getLLVMContext()),
+//								field.getStaticFloatField());
+//						Elts.push_back(CF);
+//					} else if (prim->isDouble()) {
+//						Constant* CF = ConstantFP::get(
+//								Type::getDoubleTy(getLLVMContext()),
+//								field.getStaticDoubleField());
+//						Elts.push_back(CF);
+//					} else {
+//						abort();
+//					}
+//				} else {
+//					JavaObject* val = field.getStaticObjectField();
+//					if (val) {
+//						JnjvmClassLoader* JCL = cl->classLoader;
+//						CommonClass* FieldCl = field.getSignature()->assocClass(
+//								JCL);
+//						Constant* CO = getFinalObject(val, FieldCl);
+//						Elts.push_back(CO);
+//					} else {
+//						Elts.push_back(Constant::getNullValue(Ty));
+//					}
+//				}
+//			} else {
+//				Elts.push_back(Constant::getNullValue(Ty));
+//			}
 		} else {
 			Reader reader(attribut, cl->bytes);
 			JavaConstantPool * ctpInfo = cl->ctpInfo;
@@ -729,124 +711,124 @@ Constant* JavaAOTCompiler::CreateConstantForBaseObject(CommonClass* cl) {
 	return ConstantStruct::get(STy, Elmts);
 }
 
-Constant* JavaAOTCompiler::CreateConstantFromJavaObject(JavaObject* obj) {
-	assert(!useCooperativeGC());
-	CommonClass* cl = JavaObject::getClass(obj);
-
-	if (cl->isArray()) {
-		Classpath* upcalls = cl->classLoader->bootstrapLoader->upcalls;
-		CommonClass* subClass = cl->asArrayClass()->baseClass();
-		if (subClass->isPrimitive()) {
-			if (subClass == upcalls->OfBool) {
-				return CreateConstantFromIntArray<ArrayUInt8>((ArrayUInt8*) obj,
-						Type::getInt8Ty(getLLVMContext()));
-			} else if (subClass == upcalls->OfByte) {
-				return CreateConstantFromIntArray<ArraySInt8>((ArraySInt8*) obj,
-						Type::getInt8Ty(getLLVMContext()));
-			} else if (subClass == upcalls->OfShort) {
-				return CreateConstantFromIntArray<ArraySInt16>(
-						(ArraySInt16*) obj, Type::getInt16Ty(getLLVMContext()));
-			} else if (subClass == upcalls->OfChar) {
-				return CreateConstantFromIntArray<ArrayUInt16>(
-						(ArrayUInt16*) obj, Type::getInt16Ty(getLLVMContext()));
-			} else if (subClass == upcalls->OfInt) {
-				return CreateConstantFromIntArray<ArraySInt32>(
-						(ArraySInt32*) obj, Type::getInt32Ty(getLLVMContext()));
-			} else if (subClass == upcalls->OfFloat) {
-				return CreateConstantFromFPArray<ArrayFloat>((ArrayFloat*) obj,
-						Type::getFloatTy(getLLVMContext()));
-			} else if (subClass == upcalls->OfLong) {
-				return CreateConstantFromIntArray<ArrayLong>((ArrayLong*) obj,
-						Type::getInt64Ty(getLLVMContext()));
-			} else if (subClass == upcalls->OfDouble) {
-				return CreateConstantFromFPArray<ArrayDouble>(
-						(ArrayDouble*) obj, Type::getDoubleTy(getLLVMContext()));
-			} else {
-				abort();
-			}
-		} else {
-			return CreateConstantFromObjectArray((ArrayObject*) obj);
-		}
-	} else {
-
-		std::vector<Constant*> Elmts;
-
-		// JavaObject
-		Constant* CurConstant = CreateConstantForBaseObject(
-				JavaObject::getClass(obj));
-
-		for (uint32 j = 1; j <= cl->virtualVT->depth; ++j) {
-			std::vector<Constant*> TempElts;
-			Elmts.push_back(CurConstant);
-			TempElts.push_back(CurConstant);
-			Class* curCl = cl->virtualVT->display[j]->cl->asClass();
-			LLVMClassInfo* LCI = getClassInfo(curCl);
-			StructType* STy = dyn_cast<StructType>(
-					LCI->getVirtualType()->getContainedType(0));
-
-			for (uint32 i = 0; i < curCl->nbVirtualFields; ++i) {
-				JavaField& field = curCl->virtualFields[i];
-				const Typedef* type = field.getSignature();
-				if (type->isPrimitive()) {
-					const PrimitiveTypedef* prim =
-							(const PrimitiveTypedef*) type;
-					if (prim->isBool() || prim->isByte()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt8Ty(getLLVMContext()),
-								field.getInstanceInt8Field(obj));
-						TempElts.push_back(CI);
-					} else if (prim->isShort() || prim->isChar()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt16Ty(getLLVMContext()),
-								field.getInstanceInt16Field(obj));
-						TempElts.push_back(CI);
-					} else if (prim->isInt()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt32Ty(getLLVMContext()),
-								field.getInstanceInt32Field(obj));
-						TempElts.push_back(CI);
-					} else if (prim->isLong()) {
-						ConstantInt* CI = ConstantInt::get(
-								Type::getInt64Ty(getLLVMContext()),
-								field.getInstanceLongField(obj));
-						TempElts.push_back(CI);
-					} else if (prim->isFloat()) {
-						Constant* CF = ConstantFP::get(
-								Type::getFloatTy(getLLVMContext()),
-								field.getInstanceFloatField(obj));
-						TempElts.push_back(CF);
-					} else if (prim->isDouble()) {
-						Constant* CF = ConstantFP::get(
-								Type::getDoubleTy(getLLVMContext()),
-								field.getInstanceDoubleField(obj));
-						TempElts.push_back(CF);
-					} else {
-						abort();
-					}
-				} else {
-					JavaObject* val = field.getInstanceObjectField(obj);
-					if (val) {
-						JnjvmClassLoader* JCL = cl->classLoader;
-						CommonClass* FieldCl = field.getSignature()->assocClass(
-								JCL);
-						Constant* C = getFinalObject(val, FieldCl);
-						TempElts.push_back(C);
-					} else {
-						llvm::Type* Ty = JavaIntrinsics.JavaObjectType;
-						TempElts.push_back(Constant::getNullValue(Ty));
-					}
-				}
-			}
-			CurConstant = ConstantStruct::get(STy, TempElts);
-		}
-
-		return CurConstant;
-	}
-}
+//Constant* JavaAOTCompiler::CreateConstantFromJavaObject(JavaObject* obj) {
+//	assert(!useCooperativeGC());
+//	CommonClass* cl = JavaObject::getClass(obj);
+//
+//	if (cl->isArray()) {
+//		Classpath* upcalls = cl->classLoader->bootstrapLoader->upcalls;
+//		CommonClass* subClass = cl->asArrayClass()->baseClass();
+//		if (subClass->isPrimitive()) {
+//			if (subClass == upcalls->OfBool) {
+//				return CreateConstantFromIntArray<ArrayUInt8>((ArrayUInt8*) obj,
+//						Type::getInt8Ty(getLLVMContext()));
+//			} else if (subClass == upcalls->OfByte) {
+//				return CreateConstantFromIntArray<ArraySInt8>((ArraySInt8*) obj,
+//						Type::getInt8Ty(getLLVMContext()));
+//			} else if (subClass == upcalls->OfShort) {
+//				return CreateConstantFromIntArray<ArraySInt16>(
+//						(ArraySInt16*) obj, Type::getInt16Ty(getLLVMContext()));
+//			} else if (subClass == upcalls->OfChar) {
+//				return CreateConstantFromIntArray<ArrayUInt16>(
+//						(ArrayUInt16*) obj, Type::getInt16Ty(getLLVMContext()));
+//			} else if (subClass == upcalls->OfInt) {
+//				return CreateConstantFromIntArray<ArraySInt32>(
+//						(ArraySInt32*) obj, Type::getInt32Ty(getLLVMContext()));
+//			} else if (subClass == upcalls->OfFloat) {
+//				return CreateConstantFromFPArray<ArrayFloat>((ArrayFloat*) obj,
+//						Type::getFloatTy(getLLVMContext()));
+//			} else if (subClass == upcalls->OfLong) {
+//				return CreateConstantFromIntArray<ArrayLong>((ArrayLong*) obj,
+//						Type::getInt64Ty(getLLVMContext()));
+//			} else if (subClass == upcalls->OfDouble) {
+//				return CreateConstantFromFPArray<ArrayDouble>(
+//						(ArrayDouble*) obj, Type::getDoubleTy(getLLVMContext()));
+//			} else {
+//				abort();
+//			}
+//		} else {
+//			return CreateConstantFromObjectArray((ArrayObject*) obj);
+//		}
+//	} else {
+//
+//		std::vector<Constant*> Elmts;
+//
+//		// JavaObject
+//		Constant* CurConstant = CreateConstantForBaseObject(
+//				JavaObject::getClass(obj));
+//
+//		for (uint32 j = 1; j <= cl->virtualVT->depth; ++j) {
+//			std::vector<Constant*> TempElts;
+//			Elmts.push_back(CurConstant);
+//			TempElts.push_back(CurConstant);
+//			Class* curCl = cl->virtualVT->display[j]->cl->asClass();
+//			LLVMClassInfo* LCI = getClassInfo(curCl);
+//			StructType* STy = dyn_cast<StructType>(
+//					LCI->getVirtualType()->getContainedType(0));
+//
+//			for (uint32 i = 0; i < curCl->nbVirtualFields; ++i) {
+//				JavaField& field = curCl->virtualFields[i];
+//				const Typedef* type = field.getSignature();
+//				if (type->isPrimitive()) {
+//					const PrimitiveTypedef* prim =
+//							(const PrimitiveTypedef*) type;
+//					if (prim->isBool() || prim->isByte()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt8Ty(getLLVMContext()),
+//								field.getInstanceInt8Field(obj));
+//						TempElts.push_back(CI);
+//					} else if (prim->isShort() || prim->isChar()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt16Ty(getLLVMContext()),
+//								field.getInstanceInt16Field(obj));
+//						TempElts.push_back(CI);
+//					} else if (prim->isInt()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt32Ty(getLLVMContext()),
+//								field.getInstanceInt32Field(obj));
+//						TempElts.push_back(CI);
+//					} else if (prim->isLong()) {
+//						ConstantInt* CI = ConstantInt::get(
+//								Type::getInt64Ty(getLLVMContext()),
+//								field.getInstanceLongField(obj));
+//						TempElts.push_back(CI);
+//					} else if (prim->isFloat()) {
+//						Constant* CF = ConstantFP::get(
+//								Type::getFloatTy(getLLVMContext()),
+//								field.getInstanceFloatField(obj));
+//						TempElts.push_back(CF);
+//					} else if (prim->isDouble()) {
+//						Constant* CF = ConstantFP::get(
+//								Type::getDoubleTy(getLLVMContext()),
+//								field.getInstanceDoubleField(obj));
+//						TempElts.push_back(CF);
+//					} else {
+//						abort();
+//					}
+//				} else {
+//					JavaObject* val = field.getInstanceObjectField(obj);
+//					if (val) {
+//						JnjvmClassLoader* JCL = cl->classLoader;
+//						CommonClass* FieldCl = field.getSignature()->assocClass(
+//								JCL);
+//						Constant* C = getFinalObject(val, FieldCl);
+//						TempElts.push_back(C);
+//					} else {
+//						llvm::Type* Ty = JavaIntrinsics.JavaObjectType;
+//						TempElts.push_back(Constant::getNullValue(Ty));
+//					}
+//				}
+//			}
+//			CurConstant = ConstantStruct::get(STy, TempElts);
+//		}
+//
+//		return CurConstant;
+//	}
+//}
 
 Constant* JavaAOTCompiler::CreateConstantFromJavaString(JavaString* str) {
 	assert(!useCooperativeGC());
-	Class* cl = JavaObject::getClass(str)->asClass();
+	Class* cl = 0; // JavaObject::getClass(str)->asClass();
 	LLVMClassInfo* LCI = getClassInfo(cl);
 	StructType* STy = dyn_cast<StructType>(
 			LCI->getVirtualType()->getContainedType(0));
@@ -1141,7 +1123,7 @@ Constant* JavaAOTCompiler::CreateConstantFromClassArray(ClassArray* cl) {
 }
 
 Constant* JavaAOTCompiler::CreateConstantFromClassMap(
-		const mvm::MvmDenseMap<const UTF8*, CommonClass*>& map) {
+		const MvmDenseMap<const UTF8*, CommonClass*>& map) {
 	StructType* STy = dyn_cast<StructType>(
 			JavaIntrinsics.J3DenseMapType->getContainedType(0));
 	Module& Mod = *getLLVMModule();
@@ -1158,14 +1140,14 @@ Constant* JavaAOTCompiler::CreateConstantFromClassMap(
 				map.NumBuckets * 2);
 
 		for (uint32 i = 0; i < map.NumBuckets; ++i) {
-			mvm::MvmPair<const UTF8*, CommonClass*> pair = map.Buckets[i];
-			if (pair.first == &mvm::TombstoneKey) {
+			MvmPair<const UTF8*, CommonClass*> pair = map.Buckets[i];
+			if (pair.first == &TombstoneKey) {
 				TempElts.push_back(
 						ConstantExpr::getCast(Instruction::BitCast,
 								UTF8TombstoneGV, JavaIntrinsics.ptrType));
 				TempElts.push_back(
 						Constant::getNullValue(JavaIntrinsics.ptrType));
-			} else if (pair.first == &mvm::EmptyKey) {
+			} else if (pair.first == &EmptyKey) {
 				TempElts.push_back(
 						ConstantExpr::getCast(Instruction::BitCast, UTF8EmptyGV,
 								JavaIntrinsics.ptrType));
@@ -1206,7 +1188,7 @@ Constant* JavaAOTCompiler::CreateConstantFromClassMap(
 }
 
 Constant* JavaAOTCompiler::CreateConstantFromUTF8Map(
-		const mvm::MvmDenseSet<mvm::UTF8MapKey, const UTF8*>& set) {
+		const MvmDenseSet<UTF8MapKey, const UTF8*>& set) {
 	StructType* STy = dyn_cast<StructType>(
 			JavaIntrinsics.J3DenseMapType->getContainedType(0));
 	Module& Mod = *getLLVMModule();
@@ -1223,11 +1205,11 @@ Constant* JavaAOTCompiler::CreateConstantFromUTF8Map(
 
 		for (uint32 i = 0; i < set.NumBuckets; ++i) {
 			const UTF8* utf8 = set.Buckets[i];
-			if (utf8 == &mvm::EmptyKey) {
+			if (utf8 == &EmptyKey) {
 				TempElts.push_back(
 						ConstantExpr::getCast(Instruction::BitCast, UTF8EmptyGV,
 								JavaIntrinsics.ptrType));
-			} else if (utf8 == &mvm::TombstoneKey) {
+			} else if (utf8 == &TombstoneKey) {
 				TempElts.push_back(
 						ConstantExpr::getCast(Instruction::BitCast,
 								UTF8TombstoneGV, JavaIntrinsics.ptrType));
@@ -1289,9 +1271,9 @@ Constant* JavaAOTCompiler::CreateConstantFromClass(Class* cl) {
 	StructType* TCMTy = dyn_cast<StructType>(ATy->getContainedType(0));
 	assert(TCMTy && "Malformed type");
 
-	TempElts.push_back(
-			ConstantInt::get(Type::getInt8Ty(getLLVMContext()),
-					cl->getInitializationState()));
+//	TempElts.push_back(
+//			ConstantInt::get(Type::getInt8Ty(getLLVMContext()),
+//					cl->getInitializationState()));
 	TempElts.push_back(
 			ConstantInt::get(Type::getInt1Ty(getLLVMContext()),
 					cl->isReady() ? 1 : 0));
@@ -1554,7 +1536,8 @@ Constant* JavaAOTCompiler::CreateConstantFromIntArray(const T* val, Type* Ty) {
 	StructType* STy = StructType::get(getLLVMModule()->getContext(), Elemts);
 
 	std::vector<Constant*> Cts;
-	Cts.push_back(CreateConstantForBaseObject(JavaObject::getClass(val)));
+	// fixme
+	// Cts.push_back(CreateConstantForBaseObject(JavaObject::getClass(val)));
 	Cts.push_back(
 			ConstantInt::get(JavaIntrinsics.pointerSizeType, T::getSize(val)));
 
@@ -1581,7 +1564,8 @@ Constant* JavaAOTCompiler::CreateConstantFromFPArray(const T* val, Type* Ty) {
 	StructType* STy = StructType::get(getLLVMModule()->getContext(), Elemts);
 
 	std::vector<Constant*> Cts;
-	Cts.push_back(CreateConstantForBaseObject(JavaObject::getClass(val)));
+	// fixme
+	// Cts.push_back(CreateConstantForBaseObject(JavaObject::getClass(val)));
 	Cts.push_back(
 			ConstantInt::get(JavaIntrinsics.pointerSizeType, T::getSize(val)));
 
@@ -1609,7 +1593,8 @@ Constant* JavaAOTCompiler::CreateConstantFromObjectArray(
 	StructType* STy = StructType::get(getLLVMModule()->getContext(), Elemts);
 
 	std::vector<Constant*> Cts;
-	Cts.push_back(CreateConstantForBaseObject(JavaObject::getClass(val)));
+	// fixme
+	//Cts.push_back(CreateConstantForBaseObject(JavaObject::getClass(val)));
 	Cts.push_back(
 			ConstantInt::get(JavaIntrinsics.pointerSizeType,
 					ArrayObject::getSize(val)));
@@ -1617,9 +1602,10 @@ Constant* JavaAOTCompiler::CreateConstantFromObjectArray(
 	std::vector<Constant*> Vals;
 	for (sint32 i = 0; i < ArrayObject::getSize(val); ++i) {
 		if (ArrayObject::getElement(val, i)) {
-			Vals.push_back(
-					getFinalObject(ArrayObject::getElement(val, i),
-							JavaObject::getClass(val)->asArrayClass()->baseClass()));
+			// fixme
+			//			Vals.push_back(
+//					getFinalObject(ArrayObject::getElement(val, i),
+//							JavaObject::getClass(val)->asArrayClass()->baseClass()));
 		} else {
 			Vals.push_back(
 					Constant::getNullValue(JavaIntrinsics.JavaObjectType));
@@ -1762,30 +1748,32 @@ Constant* JavaAOTCompiler::CreateConstantFromVT(JavaVirtualTable* VT) {
 
 	// Tracer
 	Function* Tracer = 0;
-	if (classDef->isArray()) {
-		if (classDef->asArrayClass()->baseClass()->isPrimitive()) {
-			Tracer = JavaObjectTracer;
-		} else {
-			Tracer = ArrayObjectTracer;
-		}
-	} else if (classDef->isClass()) {
-		if (classDef->isAssignableFrom(
-				classDef->classLoader->bootstrapLoader->upcalls->newReference)) {
-			Tracer = ReferenceObjectTracer;
-		} else {
-			Tracer = RegularObjectTracer;
-		}
-	}
+	// fixme
+//	if (classDef->isArray()) {
+//		if (classDef->asArrayClass()->baseClass()->isPrimitive()) {
+//			Tracer = JavaObjectTracer;
+//		} else {
+//			Tracer = ArrayObjectTracer;
+//		}
+//	} else if (classDef->isClass()) {
+//		if (classDef->isAssignableFrom(
+//				classDef->classLoader->bootstrapLoader->upcalls->newReference)) {
+//			Tracer = ReferenceObjectTracer;
+//		} else {
+//			Tracer = RegularObjectTracer;
+//		}
+//	}
 
-	Elemts.push_back(
-			(Tracer) ?
-					ConstantExpr::getCast(Instruction::BitCast, Tracer, PTy) :
-					N);
+//	Elemts.push_back(
+//			(Tracer) ?
+//					ConstantExpr::getCast(Instruction::BitCast, Tracer, PTy) :
+//					N);
 
-	for (uint32_t i = 0; i < VirtualTable::numberOfSpecializedTracers(); i++) {
-		// Push null for now.
-		Elemts.push_back(N);
-	}
+	// fixme
+//	for (uint32_t i = 0; i < VirtualTable::numberOfSpecializedTracers(); i++) {
+//		// Push null for now.
+//		Elemts.push_back(N);
+//	}
 
 	// Class
 	Elemts.push_back(
@@ -2176,8 +2164,8 @@ void JavaAOTCompiler::makeVT(Class* cl) {
 		((void**) VT)[meth.offset] = &meth;
 	}
 
-	if (!cl->super)
-		VT->destructor = reinterpret_cast<word_t>(EmptyDestructor);
+//	if (!cl->super)
+//		VT->destructor = reinterpret_cast<word_t>(EmptyDestructor);
 }
 
 void JavaAOTCompiler::makeIMT(Class* cl) {
@@ -2213,7 +2201,7 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 void JavaAOTCompiler::extractFiles(ClassBytes* bytes) {
 	ZipArchive archive(bytes);
 
-	char* realName = new char[4096]; // (char*)allocator.Allocate(4096, "temp");
+	char* realName = new char[4096];
 	for (ZipArchive::table_iterator i = archive.filetable.begin(), e =
 			archive.filetable.end(); i != e; ++i) {
 		ZipFile* file = i->second;
@@ -2223,11 +2211,11 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes) {
 		if (size > 6 && !strcmp(&(name[size - 6]), ".class")) {
 			memcpy(realName, name, size);
 			realName[size - 6] = 0;
-			const UTF8* utf8 = asciizConstructUTF8(realName);
-			Class* cl = loadName(utf8, file->getData());
+			const UTF8* utf8 = JavaClassLoader::asciizConstructUTF8(realName);
+			ClassBytes *zippedClass = new ClassBytes(file->ucsize);
+			archive.readFile(zippedClass, file);
+			Class* cl = loadName(utf8, zippedClass);
 			assert(cl && "Class not created");
-			if (cl == ClassArray::SuperArray)
-				compileRT = true;
 			classes.push_back(cl);
 		} else if (size > 4
 				&& (!strcmp(&name[size - 4], ".jar")
@@ -2245,14 +2233,14 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes) {
 static const char* name;
 
 extern "C" void UnreachableMagicMMTk() {
-	UNREACHABLE();
+	std::cerr << "UREACHABLE!";
 }
 
 void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 	ClassBytes* bytes = NULL;
 	if (str != 0) {
 		unsigned int len = strlen(str);
-		char* buf = new char[len + 1]; // (char*)threadAllocator.Allocate((len + 1) * sizeof(char));
+		char* buf = new char[len + 1];
 		const char* cur = str;
 		int top = 0;
 		char c = 1;
@@ -2263,7 +2251,7 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 			if (top != 0) {
 				memcpy(buf, cur, top);
 				buf[top] = 0;
-				char* rp = new char[PATH_MAX]; // (char*)threadAllocator.Allocate(PATH_MAX);
+				char* rp = new char[PATH_MAX];
 				memset(rp, 0, PATH_MAX);
 				rp = realpath(buf, rp);
 				if (rp && rp[PATH_MAX - 1] == 0 && strlen(rp) != 0) {
@@ -2271,7 +2259,7 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 					stat(rp, &st);
 					if ((st.st_mode & S_IFMT) == S_IFDIR) {
 						unsigned int len = strlen(rp);
-						char* temp = new char[len + 2]; // (char*)allocator.Allocate(len + 2, "Boot classpath");
+						char* temp = new char[len + 2];
 						memcpy(temp, rp, len);
 						temp[len] = dirSeparator[0];
 						temp[len + 1] = 0;
@@ -2341,7 +2329,6 @@ void JavaAOTCompiler::mainCompilerStart() {
 				classes.end(); i != e; ++i) {
 			Class* cl = *i;
 			cl->resolveClass();
-			cl->setOwnerClass(JavaThread::get());
 
 			for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {
 				if (!isAbstract(cl->virtualMethods[i].access)) {
@@ -2355,7 +2342,6 @@ void JavaAOTCompiler::mainCompilerStart() {
 		}
 
 		if (!clinits->empty()) {
-//      vm->loadBootstrap();
 
 			// First, if we have the magic classes available, make sure we
 			// compile them so that we can call them directly and let
@@ -2404,7 +2390,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 //              }
 						}
 					} else {
-						const UTF8* name = asciizConstructUTF8(i->c_str());
+						const UTF8* name = JavaClassLoader::asciizConstructUTF8(i->c_str());
 						CommonClass* cls = lookupClass(name);
 						if (cls && cls->isClass()) {
 							cl = cls->asClass();
@@ -2423,22 +2409,13 @@ void JavaAOTCompiler::mainCompilerStart() {
 //       bootstrapLoader->setCompiler(M);
 		}
 
-#if 0
-		// Set the thread as the owner of the classes, so that it knows it
-		// has to compile them.
-		for (std::vector<Class*>::iterator i = classes.begin(), e = classes.end();
-				i != e; ++i) {
-			(*i)->setOwnerClass(JavaThread::get());
-		}
-
 		// Finally, compile all classes.
 		for (std::vector<Class*>::iterator i = classes.begin(), e = classes.end();
 				i != e; ++i) {
-			M->compileClass(*i);
+			compileClass(*i);
 		}
-#endif
 	} else {
-		char* realName = new char[size + 1]; // (char*)allocator.Allocate(size + 1);
+		char* realName = new char[size + 1];
 		if (size > 6 && !strcmp(&name[size - 6], ".class")) {
 			memcpy(realName, name, size - 6);
 			realName[size - 6] = 0;
@@ -2446,8 +2423,9 @@ void JavaAOTCompiler::mainCompilerStart() {
 			memcpy(realName, name, size + 1);
 		}
 
-		const UTF8* utf8 = asciizConstructUTF8(realName);
-		Class* cl = loadName(utf8, true, true, NULL);
+		const UTF8* utf8 = JavaClassLoader::asciizConstructUTF8(realName);
+		ClassBytes* bytes = Reader::openFile(name);
+		Class* cl = loadName(utf8, bytes);
 #if 0
 		if (!clinits->empty()) {
 			vm->loadBootstrap();
@@ -2458,13 +2436,13 @@ void JavaAOTCompiler::mainCompilerStart() {
 #endif
 		cl->resolveInnerOuterClasses();
 		for (uint32 i = 0; i < cl->nbInnerClasses; ++i) {
-			cl->innerClasses[i]->setOwnerClass(JavaThread::get());
 			compileClass(cl->innerClasses[i]);
 		}
 		compileClass(cl);
 	}
 
 	if (compileRT) {
+		// fixme
 		// Make sure that if we compile RT, the native classes are emitted.
 //    getNativeClass(bootstrapLoader->upcalls->OfVoid);
 //    getNativeClass(bootstrapLoader->upcalls->OfBool);
@@ -2491,140 +2469,19 @@ void JavaAOTCompiler::compileFile(const char* n) {
 	mainCompilerStart();
 }
 
-void JavaAOTCompiler::compileClassLoader(JnjvmBootstrapLoader* loader) {
-	JavaJITCompiler* jitCompiler = (JavaJITCompiler*) loader->getCompiler();
-	loader->setCompiler(this);
-	compileRT = true;
-	precompile = true;
-	addJavaPasses();
-
-	// Make sure that the native classes are emitted.
-	getNativeClass(loader->upcalls->OfVoid);
-	getNativeClass(loader->upcalls->OfBool);
-	getNativeClass(loader->upcalls->OfByte);
-	getNativeClass(loader->upcalls->OfChar);
-	getNativeClass(loader->upcalls->OfShort);
-	getNativeClass(loader->upcalls->OfInt);
-	getNativeClass(loader->upcalls->OfFloat);
-	getNativeClass(loader->upcalls->OfLong);
-	getNativeClass(loader->upcalls->OfDouble);
-
-	// First set all classes to resolved.
-	for (ClassMap::iterator i = loader->getClasses()->map.begin(), e =
-			loader->getClasses()->map.end(); i != e; ++i) {
-		if (i->second->isClass()) {
-			if (i->second->asClass()->isResolved()) {
-				i->second->asClass()->setResolved();
-			} else {
-				i->second->asClass()->resolveClass();
-			}
-		}
-	}
-
-	for (method_info_iterator I = jitCompiler->method_infos.begin(), E =
-			jitCompiler->method_infos.end(); I != E; I++) {
-		if (!isAbstract(I->first->access)) {
-			LLVMMethodInfo* LMI = I->second;
-			if (LMI->methodFunction) {
-				parseFunction(I->first, NULL);
-			}
-			for (std::map<Class*, Function*>::iterator CI =
-					LMI->customizedVersions.begin(), CE =
-					LMI->customizedVersions.end(); CI != CE; CI++) {
-				parseFunction(I->first, CI->first);
-			}
-		}
-	}
-
-	while (!toCompile.empty()) {
-		JavaMethod* meth = toCompile.back().first;
-		Class* customizeFor = toCompile.back().second;
-		// parseFunction may introduce new functions to compile, so
-		// pop toCompile before calling parseFunction.
-		toCompile.pop_back();
-		parseFunction(meth, customizeFor);
-	}
-
-	// Make sure classes and arrays already referenced in constant pools
-	// are loaded.
-	for (ClassMap::iterator i = loader->getClasses()->map.begin(), e =
-			loader->getClasses()->map.end(); i != e; ++i) {
-		if (i->second->isClass()) {
-			getResolvedConstantPool(i->second->asClass()->ctpInfo);
-		}
-	}
-
-	// Add all class and VT initializers.
-	for (ClassMap::iterator i = loader->getClasses()->map.begin(), e =
-			loader->getClasses()->map.end(); i != e; ++i) {
-		AddInitializerToClass(getNativeClass(i->second), i->second);
-		JavaVirtualTable* VT = i->second->virtualVT;
-		GlobalVariable* gv = dyn_cast<GlobalVariable>(
-				getVirtualTable(VT)->getOperand(0));
-		gv->setInitializer(CreateConstantFromVT(VT));
-	}
-
-	assert(toCompile.size() == 0);
-
-	// Add used stubs to the image.
-	for (SignMap::iterator i = loader->javaSignatures->map.begin(), e =
-			loader->javaSignatures->map.end(); i != e; i++) {
-		Signdef* signature = i->second;
-		LLVMSignatureInfo* LSI = getSignatureInfo(signature);
-		if (signature->_staticCallBuf != 0) {
-			LSI->getStaticBuf();
-		}
-		if (signature->_virtualCallBuf != 0) {
-			LSI->getVirtualBuf();
-		}
-		if (signature->_staticCallAP != 0) {
-			LSI->getStaticAP();
-		}
-		if (signature->_virtualCallAP != 0) {
-			LSI->getVirtualAP();
-		}
-		if (signature->_virtualCallStub != 0) {
-			LSI->getVirtualStub();
-		}
-		if (signature->_specialCallStub != 0) {
-			LSI->getSpecialStub();
-		}
-		if (signature->_staticCallStub != 0) {
-			LSI->getStaticStub();
-		}
-	}
-
-	// Emit the stub for the main signature.
-	Signdef* mainSignature = constructSign(
-			asciizConstructUTF8("([Ljava/lang/String;)V"));
-	getSignatureInfo(mainSignature)->getStaticBuf();
-
-	// Emit the class map.
-	CreateConstantFromClassMap(loader->classes->map);
-
-	// Emit the UTF8 map.
-	CreateConstantFromUTF8Map(loader->hashUTF8->map);
-
-	// Check that we have compiled everything.
-	for (Module::iterator I = TheModule->begin(), E = TheModule->end(); I != E;
-			I++) {
-		assert(!I->hasExternalWeakLinkage());
-	}
-}
-
-void JavaAOTCompiler::generateClassBytes(JnjvmBootstrapLoader* loader) {
+void JavaAOTCompiler::generateClassBytes() {
 	emitClassBytes = true;
 	// Add the bootstrap classes to the image.
-	for (std::vector<ZipArchive*>::iterator i = loader->bootArchives.begin(),
-			e = loader->bootArchives.end(); i != e; ++i) {
+	for (std::vector<ZipArchive*>::iterator i = bootArchives.begin(),
+			e = bootArchives.end(); i != e; ++i) {
 		ZipArchive* archive = *i;
 		for (ZipArchive::table_iterator zi = archive->filetable.begin(), ze =
 				archive->filetable.end(); zi != ze; zi++) {
 			// Remove the '.class'.
 			const char* name = zi->first;
 			std::string str(name, strlen(name) - strlen(".class"));
-			ClassBytes* bytes = Reader::openZip(loader, archive, name);
-			getClassBytes(asciizConstructUTF8(str.c_str()), bytes);
+			ClassBytes* bytes = Reader::openZip(archive, name);
+			getClassBytes(JavaClassLoader::asciizConstructUTF8(str.c_str()), bytes);
 		}
 	}
 }
@@ -2633,9 +2490,9 @@ void JavaAOTCompiler::generateClassBytes(JnjvmBootstrapLoader* loader) {
 /// TODO: Once LLVM supports va_arg, enable AP.
 ///
 void JavaAOTCompiler::compileAllStubs(Signdef* sign) {
-	sign->getStaticCallBuf();
+//	sign->getStaticCallBuf();
 	// getStaticCallAP();
-	sign->getVirtualCallBuf();
+//	sign->getVirtualCallBuf();
 	// getVirtualCallAP();
 }
 
@@ -2685,28 +2542,3 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
 
 }
 
-// TODO: clean up to have a better interface with the fake GC.
-#include <set>
-extern std::set<gc*> __InternalSet__;
-
-CommonClass* JavaAOTCompiler::getUniqueBaseClass(CommonClass* cl) {
-	std::set<gc*>::iterator I = __InternalSet__.begin();
-	std::set<gc*>::iterator E = __InternalSet__.end();
-	CommonClass* currentClass = 0;
-
-	for (; I != E; ++I) {
-		JavaObject* obj = (JavaObject*) (*I);
-		if (!VMClassLoader::isVMClassLoader(obj)
-				&& !VMStaticInstance::isVMStaticInstance(obj)
-				&& JavaObject::instanceOf(obj, cl)) {
-			if (currentClass != NULL) {
-				if (JavaObject::getClass(obj) != currentClass) {
-					return 0;
-				}
-			} else {
-				currentClass = JavaObject::getClass(obj);
-			}
-		}
-	}
-	return currentClass;
-}

@@ -38,10 +38,6 @@ private:
 	/// javaSignatures - Tables of Signdef defined by this class loader.
 	///
 	static SignMap* javaSignatures;
-	///
-	/// classes - The classes this class loader has loaded.
-	///
-	static ClassMap* classes;
 	/// primitiveMap - Map of primitive classes, hashed by id.
 	static std::map<const char, ClassPrimitive*> primitiveMap;
 	/// hashUTF8 - Tables of UTF8s defined by this class loader.
@@ -49,6 +45,11 @@ private:
 	static UTF8Map* hashUTF8;
 	static JavaCompiler* compiler;
 public:
+	///
+	/// classes - The classes this class loader has loaded.
+	///
+	static ClassMap* classes;
+
 	static JavaCompiler* getCompiler() {
 		return compiler;
 	}
@@ -114,6 +115,15 @@ static Class* constructClass(const UTF8* name, ClassBytes* bytes);
 static const UTF8* lookupOrCreateReader(const uint16 *, uint32);
 static const UTF8* lookupOrCreateAsciiz(const char *buf);
 
+static const ClassPrimitive* OfByte;
+static const ClassPrimitive* OfChar;
+static const ClassPrimitive* OfInt;
+static const ClassPrimitive* OfShort;
+static const ClassPrimitive* OfBool;
+static const ClassPrimitive* OfLong;
+static const ClassPrimitive* OfFloat;
+static const ClassPrimitive* OfDouble;
+static const ClassPrimitive* OfVoid;
 };
 }
 

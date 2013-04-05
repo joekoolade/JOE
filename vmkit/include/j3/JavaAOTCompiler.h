@@ -15,8 +15,8 @@
 
 //#include "MvmDenseMap.h"
 //#include "MvmDenseSet.h"
-//#include "j3/JavaLLVMCompiler.h"
-//#include "UTF8.h"
+#include "j3/JavaLLVMCompiler.h"
+#include "UTF8.h"
 //#include "JMap.h"
 
 // for stderr
@@ -237,12 +237,12 @@ public:
   void generateMain(const char* name, bool jit);
   const char *getHostTriple();
   void mainCompilerStart();
-  Class* loadName(const UTF8* name, uint8_t* data);
+  Class* loadName(const UTF8* name, ClassBytes* data);
 private:
 
   void extractFiles(ClassBytes* bytes);
   void compileAllStubs(Signdef* sign);
-  Class* internalLoad(const UTF8* name, uint8_t *data);
+  Class* internalLoad(const UTF8* name, ClassBytes* data);
   CommonClass* lookupClass(const UTF8* utf8);
   llvm::Function* getMethodOrStub(JavaMethod* meth, Class* customizeFor);
 };

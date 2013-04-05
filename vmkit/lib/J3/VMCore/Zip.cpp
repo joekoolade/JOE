@@ -144,10 +144,8 @@ void ZipArchive::addFiles() {
         (reader.max - temp) < ptr->filenameLength)
       return;
 
-    ptr->filename = new char[ptr->filenameLength + 1]; // (char*)allocator.Allocate(ptr->filenameLength + 1,
-                                              // "Zip file name");
-    memcpy(ptr->filename, bytes->elements + temp,
-           ptr->filenameLength);
+    ptr->filename = new char[ptr->filenameLength + 1];
+    memcpy(ptr->filename, bytes->elements + temp, ptr->filenameLength);
     ptr->filename[ptr->filenameLength] = 0;
 
     if (ptr->filename[ptr->filenameLength - 1] != PATH_SEPARATOR) {
