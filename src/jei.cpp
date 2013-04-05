@@ -37,12 +37,6 @@
 #include "llvm/Target/TargetData.h"
 #include "llvm/Target/TargetMachine.h"
 
-
-#include "Mvm/MMTk/MvmGC.h"
-#include "mvm/JIT.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
-
 #include "j3/JavaAOTCompiler.h"
 
 #include <iostream>

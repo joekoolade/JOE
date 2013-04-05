@@ -242,7 +242,7 @@ public:
 // }
 
  bool hasDestructor() {
-   return destructor != reinterpret_cast<word_t>(EmptyDestructor);
+   return false;
  }
 
  static void emptyTracer(void*) {}

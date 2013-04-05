@@ -22,7 +22,6 @@
 #include "JavaConstantPool.h"
 #include "JavaString.h"
 #include "JavaTypes.h"
-#include "JavaUpcalls.h"
 #include "Reader.h"
 
 #include "j3/JavaLLVMCompiler.h"
@@ -71,20 +70,20 @@ Type* LLVMClassInfo::getVirtualType() {
     
     // TODO: put that elsewhere.
     // The class is resolved if it was precompiled.
-    if ((!classDef->isResolved() || Compiler->isStaticCompiling())
-        && Compiler == classDef->classLoader->getCompiler()) { 
-      for (uint32 i = 0; i < classDef->nbVirtualFields; ++i) {
-        JavaField& field = classDef->virtualFields[i];
-        field.ptrOffset = sl->getElementOffset(i + 1);
-        field.num = i + 1;
-      }
-    
-      classDef->virtualSize = (uint32)size;
-      classDef->alignment = sl->getAlignment();
-   
-      Compiler->makeVT(classDef);
-      Compiler->makeIMT(classDef);
-    }
+//    if ((!classDef->isResolved() || Compiler->isStaticCompiling())
+//        && Compiler == classDef->classLoader->getCompiler()) {
+//      for (uint32 i = 0; i < classDef->nbVirtualFields; ++i) {
+//        JavaField& field = classDef->virtualFields[i];
+//        field.ptrOffset = sl->getElementOffset(i + 1);
+//        field.num = i + 1;
+//      }
+//
+//      classDef->virtualSize = (uint32)size;
+//      classDef->alignment = sl->getAlignment();
+//
+//      Compiler->makeVT(classDef);
+//      Compiler->makeIMT(classDef);
+//    }
   }
 
   return virtualType;
@@ -111,16 +110,14 @@ Type* LLVMClassInfo::getStaticType() {
     const StructLayout* sl = targetData->getStructLayout(structType);
     
     // TODO: put that elsewhere.
-    if (Compiler == classDef->classLoader->getCompiler()) { 
-      for (uint32 i = 0; i < classDef->nbStaticFields; ++i) {
-        JavaField& field = classDef->staticFields[i];
-        field.num = i;
-        field.ptrOffset = sl->getElementOffset(i);
-      }
-    
-      uint64 size = targetData->getTypeAllocSize(structType);
-      cl->staticSize = size;
-    }
+  for (uint32 i = 0; i < classDef->nbStaticFields; ++i) {
+	JavaField& field = classDef->staticFields[i];
+	field.num = i;
+	field.ptrOffset = sl->getElementOffset(i);
+  }
+
+  uint64 size = targetData->getTypeAllocSize(structType);
+  cl->staticSize = size;
   }
   return staticType;
 }
@@ -134,12 +131,11 @@ Value* LLVMClassInfo::getVirtualSize() {
   return virtualSizeConstant;
 }
 
-namespace llvm {
-  extern bool JITEmitDebugInfo;
-}
+//namespace llvm {
+//  extern bool JITEmitDebugInfo;
+//}
 
-static char* GetMethodName(mvm::ThreadAllocator& allocator,
-                           JavaMethod* methodDef,
+static char* GetMethodName(JavaMethod* methodDef,
                            Class* customizeFor) {
   const UTF8* jniConsClName = methodDef->classDef->name;
   const UTF8* jniConsName = methodDef->name;
@@ -148,8 +144,7 @@ static char* GetMethodName(mvm::ThreadAllocator& allocator,
   sint32 mnlen = jniConsName->size;
   sint32 mtlen = jniConsType->size;
 
-  char* buf = (char*)allocator.Allocate(
-      3 + JNI_NAME_PRE_LEN + 1 + ((mnlen + clen + mtlen) << 3));
+  char* buf = new char[3 + JNI_NAME_PRE_LEN + 1 + ((mnlen + clen + mtlen) << 3)];
   
   methodDef->jniConsFromMethOverloaded(buf + 1);
   memcpy(buf, "JnJVM", 5);
@@ -178,10 +173,8 @@ Function* LLVMMethodInfo::getMethod(Class* customizeFor) {
   }
 
   if (result == NULL) {
-    if (Compiler->emitFunctionName() || JITEmitDebugInfo) {
-      mvm::ThreadAllocator allocator;
-      char* buf = GetMethodName(
-          allocator, methodDef, customizing ? customizeFor : NULL);
+    if (Compiler->emitFunctionName()) {
+      char* buf = GetMethodName(methodDef, customizing ? customizeFor : NULL);
       result = Function::Create(getFunctionType(), 
                                 GlobalValue::ExternalWeakLinkage, buf,
                                 Compiler->getLLVMModule());
@@ -213,9 +206,8 @@ Function* LLVMMethodInfo::getMethod(Class* customizeFor) {
 
 void LLVMMethodInfo::setCustomizedVersion(Class* cl, llvm::Function* F) {
   assert(customizedVersions.size() == 0);
-  mvm::ThreadAllocator allocator;
-  if (Compiler->emitFunctionName() || JITEmitDebugInfo) {
-    char* buf = GetMethodName(allocator, methodDef, cl);
+  if (Compiler->emitFunctionName()) {
+    char* buf = GetMethodName(methodDef, cl);
     F->setName(buf);
   }
   methodFunction = NULL;
@@ -265,7 +257,7 @@ Constant* LLVMFieldInfo::getOffset() {
 llvm::FunctionType* LLVMSignatureInfo::getVirtualType() {
  if (!virtualType) {
     // Lock here because we are called by arbitrary code
-    mvm::MvmModule::protectIR();
+
     std::vector<llvm::Type*> llvmArgs;
     uint32 size = signature->nbArguments;
     Typedef* const* arguments = signature->getArgumentsType();
@@ -281,7 +273,7 @@ llvm::FunctionType* LLVMSignatureInfo::getVirtualType() {
     LLVMAssessorInfo& LAI =
       Compiler->getTypedefInfo(signature->getReturnType());
     virtualType = FunctionType::get(LAI.llvmType, llvmArgs, false);
-    mvm::MvmModule::unprotectIR();
+
   }
   return virtualType;
 }
@@ -289,7 +281,7 @@ llvm::FunctionType* LLVMSignatureInfo::getVirtualType() {
 llvm::FunctionType* LLVMSignatureInfo::getStaticType() {
  if (!staticType) {
     // Lock here because we are called by arbitrary code
-    mvm::MvmModule::protectIR();
+
     std::vector<llvm::Type*> llvmArgs;
     uint32 size = signature->nbArguments;
     Typedef* const* arguments = signature->getArgumentsType();
@@ -303,7 +295,7 @@ llvm::FunctionType* LLVMSignatureInfo::getStaticType() {
     LLVMAssessorInfo& LAI =
       Compiler->getTypedefInfo(signature->getReturnType());
     staticType = FunctionType::get(LAI.llvmType, llvmArgs, false);
-    mvm::MvmModule::unprotectIR();
+
   }
   return staticType;
 }
@@ -311,7 +303,7 @@ llvm::FunctionType* LLVMSignatureInfo::getStaticType() {
 llvm::FunctionType* LLVMSignatureInfo::getNativeType() {
   if (!nativeType) {
     // Lock here because we are called by arbitrary code
-    mvm::MvmModule::protectIR();
+
     std::vector<llvm::Type*> llvmArgs;
     uint32 size = signature->nbArguments;
     Typedef* const* arguments = signature->getArgumentsType();
@@ -339,14 +331,14 @@ llvm::FunctionType* LLVMSignatureInfo::getNativeType() {
       LAI.llvmType == Compiler->getIntrinsics()->JavaObjectType ?
         LAI.llvmTypePtr : LAI.llvmType;
     nativeType = FunctionType::get(RetType, llvmArgs, false);
-    mvm::MvmModule::unprotectIR();
+
   }
   return nativeType;
 }
 
 llvm::FunctionType* LLVMSignatureInfo::getNativeStubType() {
   // Lock here because we are called by arbitrary code
-  mvm::MvmModule::protectIR();
+
   std::vector<llvm::Type*> llvmArgs;
   uint32 size = signature->nbArguments;
   Typedef* const* arguments = signature->getArgumentsType();
@@ -375,7 +367,7 @@ llvm::FunctionType* LLVMSignatureInfo::getNativeStubType() {
     LAI.llvmType == Compiler->getIntrinsics()->JavaObjectType ?
       LAI.llvmTypePtr : LAI.llvmType;
   FunctionType* FTy = FunctionType::get(RetType, llvmArgs, false);
-  mvm::MvmModule::unprotectIR();
+
   return FTy;
 }
 
@@ -716,7 +708,6 @@ PointerType* LLVMSignatureInfo::getNativePtrType() {
 FunctionType* LLVMSignatureInfo::getVirtualBufType() {
   if (!virtualBufType) {
     // Lock here because we are called by arbitrary code
-    mvm::MvmModule::protectIR();
     std::vector<llvm::Type*> Args;
     Args.push_back(Compiler->getIntrinsics()->ResolvedConstantPoolType); // ctp
     Args.push_back(getVirtualPtrType());
@@ -725,7 +716,6 @@ FunctionType* LLVMSignatureInfo::getVirtualBufType() {
     LLVMAssessorInfo& LAI =
       Compiler->getTypedefInfo(signature->getReturnType());
     virtualBufType = FunctionType::get(LAI.llvmType, Args, false);
-    mvm::MvmModule::unprotectIR();
   }
   return virtualBufType;
 }
@@ -733,7 +723,6 @@ FunctionType* LLVMSignatureInfo::getVirtualBufType() {
 FunctionType* LLVMSignatureInfo::getStaticBufType() {
   if (!staticBufType) {
     // Lock here because we are called by arbitrary code
-    mvm::MvmModule::protectIR();
     std::vector<llvm::Type*> Args;
     Args.push_back(Compiler->getIntrinsics()->ResolvedConstantPoolType); // ctp
     Args.push_back(getStaticPtrType());
@@ -741,7 +730,6 @@ FunctionType* LLVMSignatureInfo::getStaticBufType() {
     LLVMAssessorInfo& LAI =
       Compiler->getTypedefInfo(signature->getReturnType());
     staticBufType = FunctionType::get(LAI.llvmType, Args, false);
-    mvm::MvmModule::unprotectIR();
   }
   return staticBufType;
 }
@@ -749,84 +737,80 @@ FunctionType* LLVMSignatureInfo::getStaticBufType() {
 Function* LLVMSignatureInfo::getVirtualBuf() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on virtualBufFunction to have an address.
-  mvm::MvmModule::protectIR();
   if (!virtualBufFunction) {
     virtualBufFunction = createFunctionCallBuf(true);
     signature->setVirtualCallBuf(Compiler->GenerateStub(virtualBufFunction));
   }
-  mvm::MvmModule::unprotectIR();
   return virtualBufFunction;
 }
 
 Function* LLVMSignatureInfo::getVirtualAP() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on virtualAPFunction to have an address.
-  mvm::MvmModule::protectIR();
   if (!virtualAPFunction) {
     virtualAPFunction = createFunctionCallAP(true);
     signature->setVirtualCallAP(Compiler->GenerateStub(virtualAPFunction));
   }
-  mvm::MvmModule::unprotectIR();
   return virtualAPFunction;
 }
 
 Function* LLVMSignatureInfo::getStaticBuf() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on staticBufFunction to have an address.
-  mvm::MvmModule::protectIR();
+
   if (!staticBufFunction) {
     staticBufFunction = createFunctionCallBuf(false);
     signature->setStaticCallBuf(Compiler->GenerateStub(staticBufFunction));
   }
-  mvm::MvmModule::unprotectIR();
+
   return staticBufFunction;
 }
 
 Function* LLVMSignatureInfo::getStaticAP() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on staticAPFunction to have an address.
-  mvm::MvmModule::protectIR();
+
   if (!staticAPFunction) {
     staticAPFunction = createFunctionCallAP(false);
     signature->setStaticCallAP(Compiler->GenerateStub(staticAPFunction));
   }
-  mvm::MvmModule::unprotectIR();
+
   return staticAPFunction;
 }
 
 Function* LLVMSignatureInfo::getStaticStub() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on staticStubFunction to have an address.
-  mvm::MvmModule::protectIR();
+
   if (!staticStubFunction) {
     staticStubFunction = createFunctionStub(false, false);
     signature->setStaticCallStub(Compiler->GenerateStub(staticStubFunction));
   }
-  mvm::MvmModule::unprotectIR();
+
   return staticStubFunction;
 }
 
 Function* LLVMSignatureInfo::getSpecialStub() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on specialStubFunction to have an address.
-  mvm::MvmModule::protectIR();
+
   if (!specialStubFunction) {
     specialStubFunction = createFunctionStub(true, false);
     signature->setSpecialCallStub(Compiler->GenerateStub(specialStubFunction));
   }
-  mvm::MvmModule::unprotectIR();
+
   return specialStubFunction;
 }
 
 Function* LLVMSignatureInfo::getVirtualStub() {
   // Lock here because we are called by arbitrary code. Also put that here
   // because we are waiting on virtualStubFunction to have an address.
-  mvm::MvmModule::protectIR();
+
   if (!virtualStubFunction) {
     virtualStubFunction = createFunctionStub(false, true);
     signature->setVirtualCallStub(Compiler->GenerateStub(virtualStubFunction));
   }
-  mvm::MvmModule::unprotectIR();
+
   return virtualStubFunction;
 }
 

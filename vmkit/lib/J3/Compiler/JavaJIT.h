@@ -28,7 +28,6 @@
 #include "j3/JavaLLVMCompiler.h"
 
 #include "JavaClass.h"
-#include "JavaUpcalls.h"
 
 namespace j3 {
 
@@ -79,7 +78,6 @@ public:
           Class* customized) {
     compilingMethod = meth;
     compilingClass = meth->classDef;
-    upcalls = compilingClass->classLoader->bootstrapLoader->upcalls;
     TheCompiler = C;
     intrinsics = TheCompiler->getIntrinsics();
     llvmFunction = func;
@@ -125,9 +123,6 @@ private:
 
   /// customizeFor - The class we're currently customizing this method for.
   Class* customizeFor;
-
-  /// upcalls - Upcalls used tp type the stack and locals.
-  Classpath* upcalls;
 
   /// llvmFunction - The LLVM representation of the method.
   llvm::Function* llvmFunction;
@@ -477,12 +472,12 @@ private:
   /// constant pool already links to the class, the class is emitted directly.
   /// Otherwise the JIT installs a resolver which will be called at runtime.
   llvm::Value* getResolvedCommonClass(uint16 index, bool doThrow,
-                                      UserCommonClass** alreadyResolved);
+                                      CommonClass** alreadyResolved);
   
   /// getResolvedCommonClass - Similar to getResolvedCommonClass, but the type
   /// of the returned value is Class.
   llvm::Value* getResolvedClass(uint16 index, bool clinit, bool doThrow,
-                                UserClass** alreadyResolved);
+                                Class** alreadyResolved);
   
   /// getConstantPoolAt - Return the value at the given index of the constant
   /// pool. The generated code invokes the resolver if the constant pool

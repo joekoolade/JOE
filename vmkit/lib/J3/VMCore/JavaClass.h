@@ -39,6 +39,7 @@ class UTF8;
 class Class;
 class ClassPrimitive;
 class CommonClass;
+class ClassArray;
 
 /// JavaState - List of states a Java class can have. A class is ready to be
 /// used (i.e allocating instances of the class, calling methods of the class

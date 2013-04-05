@@ -17,6 +17,7 @@
 namespace j3 {
 
 class ArrayUInt16;
+class JavaVirtualTable;
 
 class JavaString {
  private:

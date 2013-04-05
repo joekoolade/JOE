@@ -34,18 +34,14 @@ JavaLLVMCompiler::JavaLLVMCompiler(const std::string& str) :
   
 void JavaLLVMCompiler::resolveVirtualClass(Class* cl) {
   // Lock here because we may be called by a class resolver
-  mvm::MvmModule::protectIR();
   LLVMClassInfo* LCI = (LLVMClassInfo*)getClassInfo(cl);
   LCI->getVirtualType();
-  mvm::MvmModule::unprotectIR();
 }
 
 void JavaLLVMCompiler::resolveStaticClass(Class* cl) {
   // Lock here because we may be called by a class initializer
-  mvm::MvmModule::protectIR();
   LLVMClassInfo* LCI = (LLVMClassInfo*)getClassInfo(cl);
   LCI->getStaticType();
-  mvm::MvmModule::unprotectIR();
 }
 
 Function* JavaLLVMCompiler::getMethod(JavaMethod* meth, Class* customizeFor) {
@@ -58,7 +54,6 @@ Function* JavaLLVMCompiler::parseFunction(JavaMethod* meth, Class* customizeFor)
   Function* func = LMI->getMethod(customizeFor);
   
   // We are jitting. Take the lock.
-  mvm::MvmModule::protectIR();
   if (func->getLinkage() == GlobalValue::ExternalWeakLinkage) {
     JavaJIT jit(this, meth, func, customizeFor);
     if (isNative(meth->access)) {
@@ -81,7 +76,6 @@ Function* JavaLLVMCompiler::parseFunction(JavaMethod* meth, Class* customizeFor)
       }
     }
   }
-  mvm::MvmModule::unprotectIR();
 
   return func;
 }

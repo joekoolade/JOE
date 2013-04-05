@@ -24,6 +24,7 @@ class JavaString;
 class Reader;
 class Signdef;
 class Typedef;
+class UTF8;
 
 /// JavaConstantPool - This class represents a Java constant pool, a place where
 /// a Java class makes external references such as classes and methods and

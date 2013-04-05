@@ -10,13 +10,13 @@ LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 # LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
 VMKIT_INC:=-I$(TOP)/vmkit/include 
 MVM_INC:=-I$(TOP)/vmkit/lib/Mvm/GCMmap2 -I$(TOP)/vmkit/lib/Mvm/Allocator -I$(TOP)/vmkit/lib
-J3_INC:=-I$(TOP)/vmkit/lib/J3
-INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(MVM_INC) $(J3_INC)
+J3_INC:=-I$(TOP)/vmkit/lib/J3 -I$(TOP)/vmkit/lib/J3/VMCore
+INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(J3_INC)
 
 LLVM_LIBDIR =
 LLVM_LIBS=-lLLVM-3.1.dll
-VMKIT_LIBS = -lJ3 -lClasspath -lJ3 -lJ3Compiler -lAllocator -lMvm -lMvmCompiler -lGCMmap2 -lCommonThread 
-VMKIT_LIBDIR = -L$(TOP)/vmkit/Release+Debug/lib
+VMKIT_LIBS = -lCompiler -lVMCore -lCompiler 
+VMKIT_LIBDIR = -L$(TOP)/vmkit/Debug+Asserts/lib
 
 LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS) 
 LIBS += -lz
