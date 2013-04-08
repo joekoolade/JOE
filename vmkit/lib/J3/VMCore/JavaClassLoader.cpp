@@ -27,6 +27,16 @@ ClassMap* JavaClassLoader::classes = new ClassMap();
 TypeMap* JavaClassLoader::javaTypes = new TypeMap();
 SignMap* JavaClassLoader::javaSignatures = new SignMap();
 
+ClassPrimitive* JavaClassLoader::OfByte = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("byte"), 0);
+ClassPrimitive* JavaClassLoader::OfChar = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("char"), 1);
+ClassPrimitive* JavaClassLoader::OfInt = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("int"), 2);
+ClassPrimitive* JavaClassLoader::OfShort = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("short"), 1);
+ClassPrimitive* JavaClassLoader::OfBool = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("boolean"), 0);
+ClassPrimitive* JavaClassLoader::OfLong = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("long"), 3);
+ClassPrimitive* JavaClassLoader::OfFloat = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("float"), 2);
+ClassPrimitive* JavaClassLoader::OfDouble = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("double"), 3);
+ClassPrimitive* JavaClassLoader::OfVoid = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("void"), 0);
+
 static void typeError(const UTF8* name, short int l) {
   if (l != 0) {
     fprintf(stderr, "wrong type %d in %s", l, UTF8Buffer(name).cString());
