@@ -219,6 +219,7 @@ Class* JavaClassLoader::constructClass(const UTF8* name,
   if (res->super == NULL) {
     // java.lang.Object just got created, initialise VTs of arrays.
     ClassArray::initialiseVT(res);
+    OfObject = res;
   }
   return res;
 }
@@ -245,6 +246,6 @@ const UTF8* JavaClassLoader::lookupOrCreateReader(const uint16 *buf, uint32 n) {
 
 Class* JavaClassLoader::loadName(const UTF8* name) {
 	// fixme; add loadName(utf8*) in JavaCompiler
-	return 0;
+	return (Class*) classes->map.lookup(name);;
 }
 

@@ -28,6 +28,7 @@
 #include "j3/JavaLLVMCompiler.h"
 
 #include "JavaClass.h"
+#include "JavaClassLoader.h"
 
 namespace j3 {
 
@@ -131,7 +132,7 @@ private:
   llvm::LLVMContext* llvmContext;
   
   /// intrinsics - The LLVM intrinsics where lives the compiling LLVM function.
-  J3Intrinsics* intrinsics;
+//  J3Intrinsics* intrinsics;
 
   /// TheCompiler - The LLVM Java compiler.
   ///
@@ -273,36 +274,36 @@ private:
       val = new llvm::ZExtInst(val, llvm::Type::getInt32Ty(*llvmContext), "", currentBlock);
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(upcalls->OfInt, currentBytecode));
+      stack.push_back(MetaInfo(JavaClassLoader::OfInt, currentBytecode));
     } else if (type == llvm::Type::getInt8Ty(*llvmContext) ||
                type == llvm::Type::getInt16Ty(*llvmContext)) {
       val = new llvm::SExtInst(val, llvm::Type::getInt32Ty(*llvmContext), "",
                                currentBlock);
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(upcalls->OfInt, currentBytecode));
+      stack.push_back(MetaInfo(JavaClassLoader::OfInt, currentBytecode));
     } else if (type == llvm::Type::getInt32Ty(*llvmContext)) {
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(upcalls->OfInt, currentBytecode));
+      stack.push_back(MetaInfo(JavaClassLoader::OfInt, currentBytecode));
     } else if (type == llvm::Type::getInt64Ty(*llvmContext)) {
       new llvm::StoreInst(val, longStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(upcalls->OfLong, currentBytecode));
+      stack.push_back(MetaInfo(JavaClassLoader::OfLong, currentBytecode));
     } else if (type == llvm::Type::getFloatTy(*llvmContext)) {
       new llvm::StoreInst(val, floatStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(upcalls->OfFloat, currentBytecode));
+      stack.push_back(MetaInfo(JavaClassLoader::OfFloat, currentBytecode));
     } else if (type == llvm::Type::getDoubleTy(*llvmContext)) {
       new llvm::StoreInst(val, doubleStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(upcalls->OfDouble, currentBytecode));
+      stack.push_back(MetaInfo(JavaClassLoader::OfDouble, currentBytecode));
     } else {
       assert(type == intrinsics->JavaObjectType && "Can't handle this type");
       llvm::Instruction* V = new 
         llvm::StoreInst(val, objectStack[currentStackIndex++], false,
                         currentBlock);
-      stack.push_back(MetaInfo(cl ? cl : upcalls->OfObject, currentBytecode));
+      stack.push_back(MetaInfo(cl ? cl : JavaClassLoader::OfObject, currentBytecode));
       addHighLevelType(V, topTypeInfo());
       if (llvm::Instruction* I = llvm::dyn_cast<llvm::Instruction>(val)) {
         addHighLevelType(I, topTypeInfo());
@@ -332,16 +333,16 @@ private:
   /// top - Return the value on top of the stack.
   llvm::Value* top() {
     CommonClass* cl = stack.back().type;
-    if (cl == upcalls->OfInt) {
+    if (cl == JavaClassLoader::OfInt) {
       return new llvm::LoadInst(intStack[currentStackIndex - 1], "", false,
                                 currentBlock);
-    } else if (cl == upcalls->OfFloat) {
+    } else if (cl == JavaClassLoader::OfFloat) {
       return new llvm::LoadInst(floatStack[currentStackIndex - 1], "", false,
                                 currentBlock);
-    } else if (cl == upcalls->OfDouble) {
+    } else if (cl == JavaClassLoader::OfDouble) {
       return new llvm::LoadInst(doubleStack[currentStackIndex - 1], "", false,
                                 currentBlock);
-    } else if (cl == upcalls->OfLong) {
+    } else if (cl == JavaClassLoader::OfLong) {
       return new llvm::LoadInst(longStack[currentStackIndex - 1], "", false,
                                 currentBlock);
     } else {

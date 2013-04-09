@@ -49,7 +49,7 @@
 #include <dlfcn.h>
 #include <sys/mman.h>
 
-using namespace mvm;
+using namespace j3;
 using namespace llvm;
 
 namespace mvm {

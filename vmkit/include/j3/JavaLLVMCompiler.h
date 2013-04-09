@@ -11,7 +11,7 @@
 #define J3_LLVM_COMPILER_H
 
 #include "j3/JavaCompiler.h"
-#include "j3/J3Intrinsics.h"
+#include "j3/JIntrinsics.h"
 #include "j3/LLVMInfo.h"
 
 #include "llvm/ADT/DenseMap.h"
@@ -50,7 +50,7 @@ class JavaLLVMCompiler : public JavaCompiler {
 protected:
   llvm::Module* TheModule;
   llvm::DIBuilder* DebugFactory;  
-  J3Intrinsics JavaIntrinsics;
+  JIntrinsics JavaIntrinsics;
   const llvm::TargetData* TheTargetData;
 
 private:  
@@ -101,10 +101,6 @@ public:
   
   llvm::LLVMContext& getLLVMContext() {
     return TheModule->getContext();
-  }
-
-  J3Intrinsics* getIntrinsics() {
-    return &JavaIntrinsics;
   }
 
   bool hasExceptionsEnabled() {

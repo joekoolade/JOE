@@ -124,6 +124,7 @@ static ClassPrimitive* OfLong;
 static ClassPrimitive* OfFloat;
 static ClassPrimitive* OfDouble;
 static ClassPrimitive* OfVoid;
+static Class* OfObject;
 };
 }
 
