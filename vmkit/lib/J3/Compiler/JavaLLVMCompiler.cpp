@@ -14,7 +14,7 @@
 #include "llvm/Analysis/LoopPass.h"
 #include "llvm/Target/TargetData.h"
 
-#include "mvm/JIT.h"
+#include "j3/JIT.h"
 
 #include "JavaClass.h"
 #include "JavaJIT.h"
@@ -58,12 +58,12 @@ Function* JavaLLVMCompiler::parseFunction(JavaMethod* meth, Class* customizeFor)
     JavaJIT jit(this, meth, func, customizeFor);
     if (isNative(meth->access)) {
       jit.nativeCompile();
-      mvm::MvmModule::runPasses(func, JavaNativeFunctionPasses);
-      mvm::MvmModule::runPasses(func, J3FunctionPasses);
+      JeiModule::runPasses(func, JavaNativeFunctionPasses);
+      JeiModule::runPasses(func, J3FunctionPasses);
     } else {
       jit.javaCompile();
-      mvm::MvmModule::runPasses(func, JavaFunctionPasses);
-      mvm::MvmModule::runPasses(func, J3FunctionPasses);
+      JeiModule::runPasses(func, JavaFunctionPasses);
+      JeiModule::runPasses(func, J3FunctionPasses);
     }
     func->setLinkage(GlobalValue::ExternalLinkage);
     if (!LMI->isCustomizable && jit.isCustomizable) {
@@ -118,5 +118,5 @@ void JavaLLVMCompiler::addJavaPasses() {
   // Moving objects disable many optimizations.
   JavaFunctionPasses = new FunctionPassManager(TheModule);
   JavaFunctionPasses->add(new TargetData(TheModule));
-  mvm::MvmModule::addCommandLinePasses(JavaFunctionPasses);
+  JeiModule::addCommandLinePasses(JavaFunctionPasses);
 }

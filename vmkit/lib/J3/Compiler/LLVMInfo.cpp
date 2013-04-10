@@ -17,7 +17,7 @@
 #include "llvm/Target/TargetData.h"
 
 
-#include "mvm/JIT.h"
+#include "j3/JIT.h"
 
 #include "JavaConstantPool.h"
 #include "JavaString.h"
@@ -377,7 +377,7 @@ Function* LLVMSignatureInfo::createFunctionCallBuf(bool virt) {
   std::vector<Value*> Args;
 
   LLVMContext& context = Compiler->getLLVMModule()->getContext();
-  J3Intrinsics& Intrinsics = *Compiler->getIntrinsics();
+  JIntrinsics& Intrinsics = *Compiler->getIntrinsics();
   Function* res = 0;
   FunctionType* FTy = virt ? getVirtualBufType() : getStaticBufType();
   if (virt) {
@@ -389,10 +389,9 @@ Function* LLVMSignatureInfo::createFunctionCallBuf(bool virt) {
     return res;
   }
   if (Compiler->isStaticCompiling()) {
-    mvm::ThreadAllocator allocator;
     const char* type = virt ? "virtual_buf" : "static_buf";
-    char* buf = (char*)allocator.Allocate(
-        (signature->keyName->size << 1) + 1 + 11);
+    char* buf = new char[(signature->keyName->size << 1) + 1 + 11];
+
     signature->nativeName(buf, type);
     res = Function::Create(
         FTy, GlobalValue::ExternalLinkage, buf, Compiler->getLLVMModule());
@@ -478,7 +477,7 @@ Function* LLVMSignatureInfo::createFunctionCallAP(bool virt) {
   
   std::vector<Value*> Args;
   
-  J3Intrinsics& Intrinsics = *Compiler->getIntrinsics();
+  JIntrinsics& Intrinsics = *Compiler->getIntrinsics();
   Function* res = NULL;
   FunctionType* FTy = virt ? getVirtualBufType() : getStaticBufType();
   if (virt) {
@@ -490,10 +489,9 @@ Function* LLVMSignatureInfo::createFunctionCallAP(bool virt) {
     return res;
   }
   if (Compiler->isStaticCompiling()) {
-    mvm::ThreadAllocator allocator;
     const char* type = virt ? "virtual_ap" : "static_ap";
-    char* buf = (char*)allocator.Allocate(
-        (signature->keyName->size << 1) + 1 + 11);
+    char* buf = new char[(signature->keyName->size << 1) + 1 + 11];
+
     signature->nativeName(buf, type);
     res = Function::Create(
         FTy, GlobalValue::ExternalLinkage, buf, Compiler->getLLVMModule());
@@ -551,7 +549,6 @@ Function* LLVMSignatureInfo::createFunctionCallAP(bool virt) {
     ReturnInst::Create(context, currentBlock);
   }
   
-  res->setGC("vmkit");
   res->addFnAttr(Attribute::NoInline);
   res->addFnAttr(Attribute::NoUnwind);
   
@@ -569,7 +566,7 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
   std::vector<Value*> FunctionArgs;
   std::vector<Value*> TempArgs;
   
-  J3Intrinsics& Intrinsics = *Compiler->getIntrinsics();
+  JIntrinsics& Intrinsics = *Compiler->getIntrinsics();
   Function* stub = NULL;
   FunctionType* FTy = (virt || special)? getVirtualType() : getStaticType();
   if (virt) {
@@ -583,10 +580,8 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
     return stub;
   }
   if (Compiler->isStaticCompiling()) {
-    mvm::ThreadAllocator allocator;
     const char* type = virt ? "virtual_stub" : special ? "special_stub" : "static_stub";
-    char* buf = (char*)allocator.Allocate(
-        (signature->keyName->size << 1) + 1 + 11);
+    char* buf =  new char[(signature->keyName->size << 1) + 1 + 11];
     signature->nativeName(buf, type);
     stub = Function::Create(
         FTy, GlobalValue::ExternalLinkage, buf, Compiler->getLLVMModule());
@@ -669,7 +664,6 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
     ReturnInst::Create(context, currentBlock);
   }
   
-  stub->setGC("vmkit");
   stub->addFnAttr(Attribute::NoInline);
   stub->addFnAttr(Attribute::NoUnwind);
   

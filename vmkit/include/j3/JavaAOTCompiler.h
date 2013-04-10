@@ -63,8 +63,6 @@ public:
     return NULL;
   }
   
-  virtual llvm::Value* addCallback(Class* cl, uint16 index, Signdef* sign,
-                                   bool stat, llvm::BasicBlock* insert);
   virtual llvm::Function* getMethod(JavaMethod* meth, Class* customizeFor);
   
   virtual void makeVT(Class* cl);

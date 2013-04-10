@@ -40,6 +40,7 @@ class JavaVirtualTable;
 class Jnjvm;
 class Typedef;
 class Signdef;
+class JIntrinsics;
 
 class JavaLLVMCompiler : public JavaCompiler {
   friend class JavaAOTCompiler;
@@ -101,6 +102,10 @@ public:
   
   llvm::LLVMContext& getLLVMContext() {
     return TheModule->getContext();
+  }
+
+  JIntrinsics* getIntrinsics() {
+    return &JavaIntrinsics;
   }
 
   bool hasExceptionsEnabled() {
