@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MVM_JIT_H
-#define MVM_JIT_H
+#ifndef JIT_H
+#define JIT_H
 
 #include <cfloat>
 #include <cmath>
@@ -17,9 +17,6 @@
 #include "types.h"
 
 #include "llvm/Target/TargetMachine.h"
-
-#include "mvm/MethodInfo.h"
-#include "mvm/GC/GC.h"
 
 namespace llvm {
   class Constant;
@@ -38,7 +35,7 @@ namespace llvm {
   class Type;
 }
 
-namespace mvm {
+namespace j3 {
 
 class LockRecursive;
 
@@ -169,29 +166,18 @@ public:
 };
 
 
-class MvmModule {
+class JeiModule {
 public:
-   static mvm::LockRecursive protectEngine;
-
    static void runPasses(llvm::Function* func, llvm::FunctionPassManager*);
    static void initialise(int argc, char** argv);
 
-   static Frames* addToVM(VirtualMachine* VM,
-                          llvm::GCFunctionInfo* GFI,
-                          llvm::JIT* jit,
-                          mvm::BumpPtrAllocator& allocator,
-                          void* meta);
-
    static int disassemble(unsigned int* addr);
   
-   static void protectIR();
-   static void unprotectIR();
-
    static void addCommandLinePasses(llvm::FunctionPassManager* PM);
 
    static const char* getHostTriple();
 };
 
-} // end namespace mvm
+} // end namespace j3
 
-#endif // MVM_JIT_H
+#endif // JIT_H

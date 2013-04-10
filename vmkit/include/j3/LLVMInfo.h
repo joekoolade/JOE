@@ -10,6 +10,8 @@
 #ifndef J3_LLVM_INFO_H
 #define J3_LLVM_INFO_H
 
+#include <map>
+
 namespace llvm {
   class Constant;
   class Function;

@@ -14,7 +14,7 @@
 
 namespace j3 {
 
-class J3Intrinsics : public mvm::BaseIntrinsics {
+class JIntrinsics : public BaseIntrinsics {
 
 public:
   void init(llvm::Module* M);
