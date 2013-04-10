@@ -19,7 +19,7 @@
 
 #include "UTF8.h"
 
-#include "j3/J3Intrinsics.h"
+#include "j3/JIntrinsics.h"
 #include "j3/JavaAOTCompiler.h"
 #include "j3/JavaJITCompiler.h"
 

@@ -24,7 +24,7 @@
 #include "llvm/Analysis/DIBuilder.h"
 #include <llvm/Support/CFG.h>
 
-#include "mvm/JIT.h"
+#include "j3/JIT.h"
 
 #include "debug.h"
 #include "JavaArray.h"
@@ -33,14 +33,13 @@
 #include "JavaObject.h"
 #include "JavaJIT.h"
 #include "JavaString.h"
-#include "JavaThread.h"
 #include "JavaTypes.h"
 #include "JavaUpcalls.h"
 #include "Jnjvm.h"
 #include "Reader.h"
 
 #include "j3/JavaLLVMCompiler.h"
-#include "j3/J3Intrinsics.h"
+#include "j3/JIntrinsics.h"
 
 using namespace j3;
 using namespace llvm;
@@ -67,7 +66,8 @@ bool JavaJIT::needsInitialisationCheck(Class* cl) {
 
   if (!cl->needsInitialisationCheck()) {
     if (!cl->isReady()) {
-      cl->setInitializationState(ready);
+    	// fixme
+      // cl->setInitializationState(ready);
     }
     return false;
   }
@@ -152,7 +152,7 @@ void JavaJIT::invokeVirtual(uint16 index) {
     JavaObject* source = TheCompiler->getFinalObject(obj);
     if (source) {
       canBeDirect = true;
-      CommonClass* sourceClass = JavaObject::getClass(source);
+      CommonClass* sourceClass = (CommonClass *)source; // JavaObject::getClass(source);
       Class* lookup = sourceClass->isArray() ? sourceClass->super :
                                                sourceClass->asClass();
       meth = lookup->lookupMethodDontThrow(name, signature->keyName, false,
@@ -256,8 +256,9 @@ void JavaJIT::invokeVirtual(uint16 index) {
 
   if (retType != Type::getVoidTy(*llvmContext)) {
     if (retType == intrinsics->JavaObjectType) {
-      JnjvmClassLoader* JCL = compilingClass->classLoader;
-      push(val, false, signature->getReturnType()->findAssocClass(JCL));
+    	// fixme
+      // JnjvmClassLoader* JCL = compilingClass->classLoader;
+      // push(val, false, signature->getReturnType()->findAssocClass(JCL));
     } else {
       push(val, retTypedef->isUnsigned());
       if (retType == Type::getDoubleTy(*llvmContext) || retType == Type::getInt64Ty(*llvmContext)) {

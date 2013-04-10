@@ -217,9 +217,7 @@ public:
     return meth == NULL;
   }
 
-  virtual llvm::Value* addCallback(Class* cl, uint16 index, Signdef* sign,
-                                   bool stat, llvm::BasicBlock* insert) = 0;
-  
+
   virtual void staticCallBuf(Signdef* sign) {
     getSignatureInfo(sign)->getStaticBuf();
   }

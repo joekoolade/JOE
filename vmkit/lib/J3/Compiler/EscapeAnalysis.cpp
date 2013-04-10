@@ -218,7 +218,7 @@ bool EscapeAnalysis::processMalloc(Instruction* I, Value* Size, Value* VT,
         // we don't end up with tons of allocations on the stack.
         BasicBlock* BB = CurLoop->getLoopPreheader();
         assert(BB && "No Preheader!");
-        DEBUG(errs() << "Escape analysis hoisting to " << BB->getNameStr());
+        DEBUG(errs() << "Escape analysis hoisting to " << BB->getName().str());
         DEBUG(errs() << ": ");
         DEBUG(errs() << *Alloc);
         Alloc->removeFromParent();
@@ -229,7 +229,7 @@ bool EscapeAnalysis::processMalloc(Instruction* I, Value* Size, Value* VT,
                                       Alloc);
       BitCastInst* BI = new BitCastInst(AI, Alloc->getType(), "", Alloc);
       DEBUG(errs() << "escape");
-      DEBUG(errs() << Alloc->getParent()->getParent()->getNameStr() << "\n");
+      DEBUG(errs() << Alloc->getParent()->getParent()->getName().str() << "\n");
       Alloc->replaceAllUsesWith(BI);
       // If it's an invoke, replace the invoke with a direct branch.
       if (InvokeInst *CI = dyn_cast<InvokeInst>(Alloc)) {
@@ -243,7 +243,7 @@ bool EscapeAnalysis::processMalloc(Instruction* I, Value* Size, Value* VT,
 }
 }
 
-namespace mvm {
+namespace j3 {
 FunctionPass* createEscapeAnalysisPass() {
   return new EscapeAnalysis();
 }

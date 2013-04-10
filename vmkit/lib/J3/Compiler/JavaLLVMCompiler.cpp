@@ -97,12 +97,9 @@ JavaLLVMCompiler::~JavaLLVMCompiler() {
   delete Context;
 }
 
-namespace mvm {
-  llvm::LoopPass* createLoopSafePointsPass();
-}
-
 namespace j3 {
   llvm::FunctionPass* createLowerConstantCallsPass(JavaLLVMCompiler* I);
+  llvm::LoopPass* createLoopSafePointsPass();
 }
 
 void JavaLLVMCompiler::addJavaPasses() {
@@ -112,7 +109,7 @@ void JavaLLVMCompiler::addJavaPasses() {
   J3FunctionPasses->add(createLowerConstantCallsPass(this));
   
   if (cooperativeGC)
-    J3FunctionPasses->add(mvm::createLoopSafePointsPass());
+    J3FunctionPasses->add(createLoopSafePointsPass());
 
   // Add other passes after the loop pass, because safepoints may move objects.
   // Moving objects disable many optimizations.

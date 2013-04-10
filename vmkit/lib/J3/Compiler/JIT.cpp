@@ -35,16 +35,8 @@
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
-#include <../lib/ExecutionEngine/JIT/JIT.h>
 
-#include "mvm/JIT.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/ObjectLocks.h"
-#include "mvm/Threads/Thread.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/GC/GC.h"
-#include "MutatorThread.h"
-#include "MvmGC.h"
+#include "j3/JIT.h"
 
 #include <dlfcn.h>
 #include <sys/mman.h>
@@ -52,20 +44,23 @@
 using namespace j3;
 using namespace llvm;
 
-namespace mvm {
-  namespace llvm_runtime {
-    #include "LLVMRuntime.inc"
-  }
-  void linkVmkitGC();
-}
+//namespace mvm {
+//  namespace llvm_runtime {
+//    #include "LLVMRuntime.inc"
+//  }
+//  void linkVmkitGC();
+//}
 
-const char* MvmModule::getHostTriple() {
+const char* JeiModule::getHostTriple() {
 #ifdef LLVM_HOSTTRIPLE
   return LLVM_HOSTTRIPLE;
 #else
   return LLVM_DEFAULT_TARGET_TRIPLE;
 #endif
 }
+
+const int kWordSize = sizeof(word_t);
+const int kWordSizeLog2 = kWordSize == 4 ? 2 : 3;
 
 cl::opt<bool>
 StandardCompileOpts("std-compile-opts", 
@@ -81,9 +76,8 @@ DisableOptimizations("disable-opt",
 static llvm::cl::list<const llvm::PassInfo*, bool, llvm::PassNameParser>
 PassList(llvm::cl::desc("Optimizations available:"));
 
-void MvmModule::initialise(int argc, char** argv) {
-  linkVmkitGC(); 
-  llvm_start_multithreaded();
+void JeiModule::initialise(int argc, char** argv) {
+  // llvm_start_multithreaded();
 
   // Initialize passes
   PassRegistry &Registry = *PassRegistry::getPassRegistry();
@@ -98,10 +92,9 @@ void MvmModule::initialise(int argc, char** argv) {
   initializeTarget(Registry);
   InitializeNativeTarget(); 
   
-  NoFramePointerElim = true;
+  // NoFramePointerElim = true;
   DisablePrettyStackTrace = true;
 
-  ThreadAllocator allocator;
   static const char* kPrefix = "-X:llvm:";
   static const int kPrefixLength = strlen(kPrefix);
   int count = 0;
@@ -114,8 +107,7 @@ void MvmModule::initialise(int argc, char** argv) {
     i++;
   }
 
-  const char** llvm_argv = reinterpret_cast<const char**>(
-      allocator.Allocate((count + 3) * sizeof(char**)));
+  const char** llvm_argv = reinterpret_cast<const char**>(new const char*[(count + 3)]);
   int arrayIndex = 0;
   llvm_argv[arrayIndex++] = argv[0];
 
@@ -138,7 +130,7 @@ void MvmModule::initialise(int argc, char** argv) {
 }
 
 
-void MvmModule::runPasses(llvm::Function* func,
+void JeiModule::runPasses(llvm::Function* func,
                           llvm::FunctionPassManager* pm) {
   pm->run(*func);
 }
@@ -190,11 +182,11 @@ static void AddStandardCompilePasses(FunctionPassManager* PM) {
   addPass(PM, createCFGSimplificationPass());     // Merge & remove BBs
 }
 
-namespace mvm {
+namespace j3 {
   llvm::FunctionPass* createInlineMallocPass();
 }
 
-void MvmModule::addCommandLinePasses(FunctionPassManager* PM) {
+void JeiModule::addCommandLinePasses(FunctionPassManager* PM) {
   addPass(PM, createVerifierPass());        // Verify that input is correct
 
   addPass(PM, createCFGSimplificationPass()); // Clean up disgusting code
@@ -241,25 +233,13 @@ void MvmModule::addCommandLinePasses(FunctionPassManager* PM) {
   PM->doInitialization();
 }
 
-LockRecursive MvmModule::protectEngine;
-
-// We protect the creation of IR with the protectEngine. Note that
-// codegen'ing a function may also create IR objects.
-void MvmModule::protectIR() {
-  protectEngine.lock();
-}
-
-void MvmModule::unprotectIR() {
-  protectEngine.unlock();
-}
-
 extern "C" void MMTk_InlineMethods(llvm::Module* module);
 
 void BaseIntrinsics::init(llvm::Module* module) {
 
   LLVMContext& Context = module->getContext();
 
-  MMTk_InlineMethods(module);
+  // MMTk_InlineMethods(module);
   // fixme
   // llvm_runtime::makeLLVMModuleContents(module);
 
@@ -309,16 +289,12 @@ void BaseIntrinsics::init(llvm::Module* module) {
   constantDoubleMinusInfinity = ConstantFP::get(Type::getDoubleTy(Context), MinDouble);
   constantDoubleMinusZero = ConstantFP::get(Type::getDoubleTy(Context), -0.0);
   constantFloatMinusZero = ConstantFP::get(Type::getFloatTy(Context), -0.0f);
-  constantThreadIDMask = ConstantInt::get(pointerSizeType, mvm::System::GetThreadIDMask());
-  constantStackOverflowMask = 
-    ConstantInt::get(pointerSizeType, Thread::StackOverflowMask);
-  constantFatMask = ConstantInt::get(pointerSizeType, ThinLock::FatMask);
+  // constantThreadIDMask = ConstantInt::get(pointerSizeType, mvm::System::GetThreadIDMask());
   constantPtrOne = ConstantInt::get(pointerSizeType, 1);
   constantPtrZero = ConstantInt::get(pointerSizeType, 0);
 
   constantPtrNull = Constant::getNullValue(ptrType); 
-  constantPtrLogSize = 
-    ConstantInt::get(Type::getInt32Ty(Context), kWordSizeLog2);
+  constantPtrLogSize = ConstantInt::get(Type::getInt32Ty(Context), kWordSizeLog2);
   arrayPtrType = PointerType::getUnqual(ArrayType::get(Type::getInt8Ty(Context), 0));
   
   printFloatLLVM = module->getFunction("printFloat");
@@ -380,53 +356,4 @@ void BaseIntrinsics::init(llvm::Module* module) {
   ArrayWriteBarrierFunction->setGC("vmkit");
   FieldWriteBarrierFunction->setGC("vmkit");
   NonHeapWriteBarrierFunction->setGC("vmkit");
-}
-
-
-Frames* MvmModule::addToVM(VirtualMachine* VM, GCFunctionInfo* FI, JIT* jit, BumpPtrAllocator& allocator, void* meta) {
-  JITCodeEmitter* JCE = jit->getCodeEmitter();
-  int NumDescriptors = 0;
-  for (GCFunctionInfo::iterator J = FI->begin(), JE = FI->end(); J != JE; ++J) {
-    NumDescriptors++;
-  }
-  // Currently, all frames have the same number of stack offsets.
-  size_t LiveCount = FI->live_size(FI->begin());
-
-  Frames* frames = new (allocator, NumDescriptors, LiveCount) Frames();
-  frames->NumDescriptors = NumDescriptors;
-  FrameIterator iterator(*frames);
-
-  GCFunctionInfo::iterator I = FI->begin();
-  while (iterator.hasNext()) {
-    // Manually do the iteration, because NumLiveOffsets has not been set
-    // on the frames yet.
-    FrameInfo* frame = iterator.currentFrame;
-    iterator.advance(LiveCount);
-
-    frame->NumLiveOffsets = LiveCount;
-    frame->FrameSize = FI->getFrameSize();
-    frame->Metadata = meta;
-    frame->SourceIndex = I->Loc.getLine();
-    frame->ReturnAddress = JCE->getLabelAddress(I->Label);
-    int i = 0;
-    for (llvm::GCFunctionInfo::live_iterator KI = FI->live_begin(I),
-         KE = FI->live_end(I); KI != KE; ++KI) {
-      frame->LiveOffsets[i++] = KI->StackOffset;
-    }
-    VM->FunctionsCache.addFrameInfo(frame->ReturnAddress, frame);
-    I++;
-  }
-#ifdef DEBUG
-  {
-    FrameIterator iterator(*frames);
-    while (iterator.hasNext()) {
-      FrameInfo* frame = iterator.next();
-      FrameInfo* other;
-      other = VM->IPToFrameInfo(frame->ReturnAddress);
-      assert(frame->ReturnAddress == other->ReturnAddress);
-    }
-  }
-#endif
-
-  return frames;
 }

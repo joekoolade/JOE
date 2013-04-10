@@ -19,11 +19,11 @@
 #include "llvm/Target/TargetData.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 
-#include "mvm/JIT.h"
+#include "j3/JIT.h"
 
 using namespace llvm;
 
-namespace mvm {
+namespace j3 {
 
   class InlineMalloc : public FunctionPass {
   public:
