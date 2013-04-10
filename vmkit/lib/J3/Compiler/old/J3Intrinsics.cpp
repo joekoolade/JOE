@@ -36,7 +36,7 @@ void J3Intrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
   // fixme
-  // j3::llvm_runtime::makeLLVMModuleContents(module);
+  j3::llvm_runtime::makeLLVMModuleContents(module);
   
   LLVMContext& Context = module->getContext();
   VTType = PointerType::getUnqual(ArrayType::get(
