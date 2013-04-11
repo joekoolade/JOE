@@ -34,8 +34,6 @@
 #include "JavaJIT.h"
 #include "JavaString.h"
 #include "JavaTypes.h"
-#include "JavaUpcalls.h"
-#include "Jnjvm.h"
 #include "Reader.h"
 
 #include "j3/JavaLLVMCompiler.h"
@@ -373,9 +371,7 @@ llvm::Function* JavaJIT::nativeCompile(word_t natPtr) {
   sint32 mnlen = jniConsName->size;
   sint32 mtlen = jniConsType->size;
 
-  mvm::ThreadAllocator allocator;
-  char* functionName = (char*)allocator.Allocate(
-      3 + JNI_NAME_PRE_LEN + ((mnlen + clen + mtlen) << 3));
+  char* functionName = new char[3 + JNI_NAME_PRE_LEN + ((mnlen + clen + mtlen) << 3)];
   
   if (!natPtr) {
     natPtr = compilingClass->classLoader->nativeLookup(compilingMethod, j3,
@@ -2615,10 +2611,3 @@ void JavaJIT::finishExceptions() {
     }
   }
 }
-
-
-#ifdef USE_OPENJDK
-#include "JavaJITOpenJDK.inc"
-#else
-#include "JavaJITClasspath.inc"
-#endif
