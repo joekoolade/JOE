@@ -374,7 +374,7 @@ llvm::Function* JavaJIT::nativeCompile(word_t natPtr) {
   char* functionName = new char[3 + JNI_NAME_PRE_LEN + ((mnlen + clen + mtlen) << 3)];
   
   if (!natPtr) {
-    natPtr = compilingClass->classLoader->nativeLookup(compilingMethod, j3,
+    natPtr = compilingClass->nativeLookup(compilingMethod, j3,
                                                        functionName);
   }
   
