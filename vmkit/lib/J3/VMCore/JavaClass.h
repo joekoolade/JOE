@@ -486,7 +486,7 @@ public:
   JavaMethod* getStaticMethods() const  { return staticMethods; }
   JavaMethod* getVirtualMethods() const { return virtualMethods; }
 
-  
+
   /// setInnerAccess - Set the access flags of this inner class.
   ///
   void setInnerAccess(uint16 access) {
@@ -892,6 +892,13 @@ public:
   /// used for static fields which have a default value.
   ///
   void InitStaticField();
+
+  sint8 getStaticInt8Field();
+  sint16 getStaticInt16Field();
+  sint32 getStaticInt32Field();
+  sint64 getStaticLongField();
+  float getStaticFloatField();
+  double getStaticDoubleField();
 
   /// lookupAttribut - Look up the attribut in the field's list of attributs.
   ///

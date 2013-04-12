@@ -109,6 +109,12 @@ public:
   // The number of handlers in that method.
   uint32_t nbHandlers;
 
+  static const uint32_t GCBits = 8;
+  static const uint32_t HashBits = 8;
+  static const uint64_t GCBitMask = ((1 << GCBits) - 1);
+
+  static const uint64_t NonLockBits = HashBits + GCBits;
+  static const uint64_t NonLockBitsMask = ((1LL << NonLockBits) - 1LL);
 private:
   /// Whether the method overrides 'this'.
   bool overridesThis;

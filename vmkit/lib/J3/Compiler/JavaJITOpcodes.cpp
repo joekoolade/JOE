@@ -20,7 +20,7 @@
 #include <llvm/Module.h>
 #include <llvm/Type.h>
 
-#include "mvm/JIT.h"
+#include "j3/JIT.h"
 
 #include "debug.h"
 
@@ -29,12 +29,10 @@
 #include "JavaConstantPool.h"
 #include "JavaObject.h"
 #include "JavaJIT.h"
-#include "JavaThread.h"
 #include "JavaTypes.h"
-#include "Jnjvm.h"
 #include "Reader.h"
 
-#include "j3/J3Intrinsics.h"
+#include "j3/JIntrinsics.h"
 
 #include "j3/OpcodeNames.def"
 
@@ -136,7 +134,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         assert(isa<PHINode>(I) && "Handler marlformed");
         // If it's a handler, put the exception object in the stack.
         new StoreInst(I, objectStack[0], "", currentBlock);
-        stack.push_back(MetaInfo(upcalls->OfObject, NOP));
+        stack.push_back(MetaInfo(JavaClassLoader::OfObject, NOP));
         currentStackIndex = 1;
       } else {
         stack = opinfo->stack;
@@ -2065,15 +2063,13 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         Constant* sizeElement = 0;
         Value* TheVT = 0;
         Value* valCl = 0;
-        UserClassArray* dcl = 0;
+        ClassArray* dcl = 0;
 
         if (bytecode == NEWARRAY) {
           uint8 id = reader.readU1();
           i += 1;
           uint8 charId = arrayType(compilingMethod, id);
-          JnjvmBootstrapLoader* loader = 
-            compilingClass->classLoader->bootstrapLoader;
-          dcl = loader->getArrayClass(id);
+          dcl = JavaClassLoader::getArrayClass(id);
           valCl = TheCompiler->getNativeClass(dcl);
 
           LLVMAssessorInfo& LAI = TheCompiler->AssessorInfo[charId];
@@ -2094,10 +2090,9 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
             compilingClass->ctpInfo->getMethodClassIfLoaded(index); 
 
           if (cl && (!cl->isClass() || cl->asClass()->isResolved())) {
-            JnjvmClassLoader* JCL = cl->classLoader;
-            const UTF8* arrayName = JCL->constructArrayName(1, cl->name);
+            const UTF8* arrayName = JavaClassLoader::constructArrayName(1, cl->name);
           
-            dcl = JCL->constructArray(arrayName);
+            dcl = JavaClassLoader::constructArray(arrayName);
             valCl = TheCompiler->getNativeClass(dcl);
             
             // If we're static compiling and the class is not a class we
@@ -2169,9 +2164,9 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         arg1 = new IntToPtrInst(arg1, intrinsics->ptrType, "", currentBlock);
         new StoreInst(arg1, GEP, currentBlock);
        
-        addHighLevelType(res, dcl ? dcl : upcalls->ArrayOfObject);
+        addHighLevelType(res, dcl ? dcl : JavaClassLoader::ArrayOfObject);
         res = new BitCastInst(res, intrinsics->JavaObjectType, "", currentBlock);
-        push(res, false, dcl ? dcl : upcalls->ArrayOfObject);
+        push(res, false, dcl ? dcl : JavaClassLoader::ArrayOfObject);
 
         break;
       }
@@ -2205,7 +2200,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
 
         uint16 index = reader.readU2();
         i += 2;
-        UserCommonClass* cl = 0;
+        CommonClass* cl = 0;
         Value* clVar = getResolvedCommonClass(index, true, &cl);
         Value* obj = top();
         Value* args[2] = { obj, clVar };
@@ -2308,7 +2303,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         uint8 dim = reader.readU1();
         i += 1;
         
-        UserCommonClass* dcl = 0; 
+        CommonClass* dcl = 0;
         Value* valCl = getResolvedCommonClass(index, true, &dcl);
         Value** args = (Value**)allocator.Allocate(sizeof(Value*) * (dim + 2));
         args[0] = valCl;
@@ -2322,7 +2317,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
           Args.push_back(args[v]);
         }
         push(invoke(intrinsics->MultiCallNewFunction, Args, "", currentBlock),
-             false, dcl ? dcl : upcalls->ArrayOfObject);
+             false, dcl ? dcl : JavaClassLoader::ArrayOfObject);
         break;
       }
 

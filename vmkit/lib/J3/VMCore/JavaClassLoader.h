@@ -54,6 +54,10 @@ public:
 		return compiler;
 	}
 
+	static ClassArray* getArrayClass(int) {
+	    return NULL;
+	}
+
 	static void setCompiler(JavaCompiler *newCompiler) {
 		compiler = newCompiler;
 	}
@@ -75,6 +79,8 @@ static Typedef* internalConstructType(const UTF8 * name);
 
 /// asciizConstructUTF8 - Hashes an UTF8 created from the given asciiz.
 static const UTF8* asciizConstructUTF8(const char* asciiz);
+
+static JavaString** UTF8ToStr(const UTF8* utf8);
 
 /// readerConstructUTF8 - Hashes an UTF8 created from the given Unicode
 /// buffer.
@@ -104,6 +110,7 @@ static CommonClass* lookupClassOrArray(const UTF8* utf8);
 ///
 static ClassArray* constructArray(const UTF8* name);
 static ClassArray* constructArray(const UTF8* name, CommonClass* base);
+static const UTF8* constructArrayName(int, const UTF8*);
 
 static CommonClass* loadBaseClass(const UTF8* name, uint32 start, uint32 len);
 
@@ -115,6 +122,41 @@ static Class* constructClass(const UTF8* name, ClassBytes* bytes);
 static const UTF8* lookupOrCreateReader(const uint16 *, uint32);
 static const UTF8* lookupOrCreateAsciiz(const char *buf);
 
+static UTF8* floatToRawIntBits;
+static UTF8* intBitsToFloat;
+static UTF8* doubleToRawLongBits;
+static UTF8* longBitsToDouble;
+static UTF8* initName;
+static UTF8* clinitName;
+static UTF8* sqrt;
+static UTF8* sin;
+static UTF8* cos;
+static UTF8* tan;
+static UTF8* asin;
+static UTF8* acos;
+static UTF8* atan;
+static UTF8* atan2;
+static UTF8* exp;
+static UTF8* log;
+static UTF8* pow;
+static UTF8* ceil;
+static UTF8* floor;
+static UTF8* rint;
+static UTF8* cbrt;
+static UTF8* cosh;
+static UTF8* expm1;
+static UTF8* hypot;
+static UTF8* log10;
+static UTF8* log1p;
+static UTF8* sinh;
+static UTF8* tanh;
+static UTF8* abs;
+
+static UTF8* stackWalkerName;
+static UTF8* mathName;
+static UTF8* VMFloatName;
+static UTF8* VMDoubleName;
+
 static ClassPrimitive* OfByte;
 static ClassPrimitive* OfChar;
 static ClassPrimitive* OfInt;
@@ -125,6 +167,9 @@ static ClassPrimitive* OfFloat;
 static ClassPrimitive* OfDouble;
 static ClassPrimitive* OfVoid;
 static Class* OfObject;
+static ClassArray* ArrayOfObject;
+static Class* newString;
+static Class* newClass;
 };
 }
 
