@@ -170,6 +170,7 @@ static Class* OfObject;
 static ClassArray* ArrayOfObject;
 static Class* newString;
 static Class* newClass;
+static Class* newThrowable;
 };
 }
 

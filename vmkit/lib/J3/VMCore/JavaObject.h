@@ -30,6 +30,9 @@ class Class;
 class ClassArray;
 class ClassPrimitive;
 
+class JavaObject {
+
+};
 class InterfaceMethodTable {
 public:
 	static const uint32_t NumIndexes = 29;

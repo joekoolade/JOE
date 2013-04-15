@@ -39,6 +39,7 @@ class UTF8;
 class Class;
 class ClassPrimitive;
 class CommonClass;
+class JavaObject;
 class ClassArray;
 
 /// JavaState - List of states a Java class can have. A class is ready to be
@@ -899,6 +900,7 @@ public:
   sint64 getStaticLongField();
   float getStaticFloatField();
   double getStaticDoubleField();
+  JavaObject* getStaticObjectField();
 
   /// lookupAttribut - Look up the attribut in the field's list of attributs.
   ///
