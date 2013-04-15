@@ -718,15 +718,16 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         Value* obj = pop();
         Value* ptr = verifyAndComputePtr(obj, index,
                                          intrinsics->JavaArrayObjectType, false);
-        if (mvm::Collector::needsWriteBarrier()) {
-          ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
-          val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
-          obj = new BitCastInst(obj, intrinsics->ptrType, "", currentBlock);
-          Value* args[3] = { obj, ptr, val };
-          CallInst::Create(intrinsics->ArrayWriteBarrierFunction, args, "", currentBlock);
-        } else {
+        // fixme
+//        if (mvm::Collector::needsWriteBarrier()) {
+//          ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
+//          val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
+//          obj = new BitCastInst(obj, intrinsics->ptrType, "", currentBlock);
+//          Value* args[3] = { obj, ptr, val };
+//          CallInst::Create(intrinsics->ArrayWriteBarrierFunction, args, "", currentBlock);
+//        } else {
           new StoreInst(val, ptr, false, currentBlock);
-        }
+ //       }
         break;
       }
 
@@ -2304,7 +2305,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         
         CommonClass* dcl = 0;
         Value* valCl = getResolvedCommonClass(index, true, &dcl);
-        Value** args = (Value**)allocator.Allocate(sizeof(Value*) * (dim + 2));
+        Value** args = new Value*[dim + 2];
         args[0] = valCl;
         args[1] = ConstantInt::get(Type::getInt32Ty(*llvmContext), dim);
 
@@ -2316,7 +2317,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
           Args.push_back(args[v]);
         }
         push(invoke(intrinsics->MultiCallNewFunction, Args, "", currentBlock),
-             false, dcl ? dcl : JavaClassLoader::ArrayOfObject);
+             false, (CommonClass*)(dcl ? dcl : JavaClassLoader::ArrayOfObject));
         break;
       }
 

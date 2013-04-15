@@ -20,6 +20,7 @@
 #include "JMap.h"
 #include "Reader.h"
 #include "UTF8.h"
+#include "JavaAccess.h"
 
 #include <cstring>
 
@@ -964,7 +965,7 @@ ArrayObject* JavaMethod::getExceptionTypes() {
   }
 }
 
-inline bool CommonClass::isSecondaryClass() {
+bool CommonClass::isSecondaryClass() {
   return virtualVT->offset == JavaVirtualTable::getCacheIndex();
 }
 
@@ -1703,4 +1704,32 @@ bool JavaField::isByte() {
 
 bool JavaField::isBoolean() {
   return (type->elements[0] == 'Z');
+}
+
+sint8 JavaField::getStaticInt8Field() {
+	return 0;
+}
+
+sint16 JavaField::getStaticInt16Field() {
+	return 0;
+}
+
+sint32 JavaField::getStaticInt32Field() {
+	return 0;
+}
+
+sint64 JavaField::getStaticLongField() {
+	return 0;
+}
+
+float JavaField::getStaticFloatField() {
+	return 0.0;
+}
+
+double JavaField::getStaticDoubleField() {
+	return 0.0;
+}
+
+JavaObject* JavaField::getStaticObjectField() {
+	return NULL;
 }

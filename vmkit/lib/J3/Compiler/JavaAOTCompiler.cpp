@@ -51,6 +51,8 @@ using namespace llvm;
 const char* JavaAOTCompiler::dirSeparator = "/";
 const char* JavaAOTCompiler::envSeparator = ":";
 const unsigned int JavaAOTCompiler::Magic = 0xcafebabe;
+const UTF8* JavaCompiler::InlinePragma;
+const UTF8* JavaCompiler::NoInlinePragma;
 
 bool JavaAOTCompiler::isCompiling(const CommonClass* cl) const {
 	return true;
@@ -2542,3 +2544,12 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
 
 }
 
+// fixme: implement
+CommonClass* JavaAOTCompiler::getUniqueBaseClass(CommonClass* cl) {
+	return NULL;
+}
+
+// fixme: implement
+llvm::Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* cl) {
+	return NULL;
+}

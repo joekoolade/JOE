@@ -56,3 +56,20 @@ void Signdef::nativeName(char* ptr, const char* ext) const {
   assert(ext && "I need an extension");
   memcpy(ptr, ext, strlen(ext) + 1);
 }
+
+CommonClass* ArrayTypedef::assocClass() const {
+	return NULL;
+}
+
+CommonClass* ArrayTypedef::findAssocClass() const {
+	return NULL;
+}
+
+CommonClass* ObjectTypedef::assocClass() const {
+	return NULL;
+}
+
+CommonClass* ObjectTypedef::findAssocClass() const {
+	return NULL;
+}
+

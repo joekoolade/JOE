@@ -15,7 +15,7 @@ INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(J3_INC)
 
 LLVM_LIBDIR =
 LLVM_LIBS=-lLLVM-3.1.dll
-VMKIT_LIBS = -lCompiler -lVMCore -lCompiler 
+VMKIT_LIBS = -lCompiler -lVMCore -lCompiler -LVMCore
 VMKIT_LIBDIR = -L$(TOP)/vmkit/Debug+Asserts/lib
 
 LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS) 

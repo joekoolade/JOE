@@ -10,3 +10,5 @@ llvm/
 *.orig
 *.bak
 *.d.*
+*.exe
+Classpath.h

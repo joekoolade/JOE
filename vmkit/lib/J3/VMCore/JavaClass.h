@@ -611,10 +611,10 @@ public:
 
   // fixme
   // move to java types
-  bool isStatic(int);
-  bool isAbstract(int);
-  bool isPublic(int);
-  bool isNative(int);
+//  bool isStatic(int);
+//  bool isAbstract(int);
+//  bool isPublic(int);
+//  bool isNative(int);
 
   /// isNativeOverloaded - Is the method overloaded with a native function?
   ///

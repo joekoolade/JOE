@@ -36,6 +36,49 @@ ClassPrimitive* JavaClassLoader::OfLong = new ClassPrimitive(JavaClassLoader::as
 ClassPrimitive* JavaClassLoader::OfFloat = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("float"), 2);
 ClassPrimitive* JavaClassLoader::OfDouble = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("double"), 3);
 ClassPrimitive* JavaClassLoader::OfVoid = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("void"), 0);
+Class* JavaClassLoader::OfObject;
+JavaCompiler* JavaClassLoader::compiler;
+ClassArray* JavaClassLoader::ArrayOfObject;
+Class* JavaClassLoader::newString;
+Class* JavaClassLoader::newClass;
+Class* JavaClassLoader::newThrowable;
+
+UTF8* JavaClassLoader::floatToRawIntBits;
+UTF8* JavaClassLoader::intBitsToFloat;
+UTF8* JavaClassLoader::doubleToRawLongBits;
+UTF8* JavaClassLoader::longBitsToDouble;
+UTF8* JavaClassLoader::initName;
+UTF8* JavaClassLoader::clinitName;
+UTF8* JavaClassLoader::sqrt;
+UTF8* JavaClassLoader::sin;
+UTF8* JavaClassLoader::cos;
+UTF8* JavaClassLoader::tan;
+UTF8* JavaClassLoader::asin;
+UTF8* JavaClassLoader::acos;
+UTF8* JavaClassLoader::atan;
+UTF8* JavaClassLoader::atan2;
+UTF8* JavaClassLoader::exp;
+UTF8* JavaClassLoader::log;
+UTF8* JavaClassLoader::pow;
+UTF8* JavaClassLoader::ceil;
+UTF8* JavaClassLoader::floor;
+UTF8* JavaClassLoader::rint;
+UTF8* JavaClassLoader::cbrt;
+UTF8* JavaClassLoader::cosh;
+UTF8* JavaClassLoader::expm1;
+UTF8* JavaClassLoader::hypot;
+UTF8* JavaClassLoader::log10;
+UTF8* JavaClassLoader::log1p;
+UTF8* JavaClassLoader::sinh;
+UTF8* JavaClassLoader::tanh;
+UTF8* JavaClassLoader::abs;
+
+UTF8* JavaClassLoader::stackWalkerName;
+UTF8* JavaClassLoader::mathName;
+UTF8* JavaClassLoader::VMFloatName;
+UTF8* JavaClassLoader::VMDoubleName;
+
+std::map<const char, ClassPrimitive*> JavaClassLoader::primitiveMap;
 
 static void typeError(const UTF8* name, short int l) {
   if (l != 0) {
@@ -185,6 +228,21 @@ Signdef* JavaClassLoader::constructSign(const UTF8* name) {
   return res;
 }
 
+// fixme: implement
+CommonClass* JavaClassLoader::loadBaseClass(const UTF8* name, uint32 start, uint32 len) {
+	return NULL;
+}
+
+// fixme: implement
+CommonClass* JavaClassLoader::lookupClass(const UTF8* name) {
+	return NULL;
+}
+
+// fixme: implement
+CommonClass* JavaClassLoader::lookupClassOrArray(const UTF8* utf8) {
+	return NULL;
+}
+
 ClassArray* JavaClassLoader::constructArray(const UTF8* name) {
   ClassArray* res = (ClassArray*)lookupClass(name);
   if (res) return res;
@@ -249,3 +307,12 @@ Class* JavaClassLoader::loadName(const UTF8* name) {
 	return (Class*) classes->map.lookup(name);;
 }
 
+// fixme: implement
+JavaString** JavaClassLoader::UTF8ToStr(const UTF8* utf8) {
+	return NULL;
+}
+
+// fixme: implement
+const UTF8* JavaClassLoader::constructArrayName(int, const UTF8*) {
+	return NULL;
+}

@@ -108,7 +108,7 @@ bool LoopSafePoints::runOnLoop(Loop* L, LPPassManager& LPM) {
 }
 
 
-namespace mvm {
+namespace j3 {
 
 LoopPass* createLoopSafePointsPass() {
   return new LoopSafePoints();

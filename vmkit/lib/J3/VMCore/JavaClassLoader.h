@@ -40,6 +40,7 @@ private:
 	static SignMap* javaSignatures;
 	/// primitiveMap - Map of primitive classes, hashed by id.
 	static std::map<const char, ClassPrimitive*> primitiveMap;
+
 	/// hashUTF8 - Tables of UTF8s defined by this class loader.
 	///
 	static UTF8Map* hashUTF8;
