@@ -2538,8 +2538,7 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
 			GlobalValue::ExternalLinkage,
 			jit ? "StartJnjvmWithJIT" : "StartJnjvmWithoutJIT", TheModule);
 
-	Value* res = CallInst::Create(CalledFunc, ArrayRef<Value*>(Args, 3), "",
-			currentBlock);
+	Value* res = CallInst::Create(CalledFunc, ArrayRef<Value*>(Args, 3), "", currentBlock);
 	ReturnInst::Create(getLLVMContext(), res, currentBlock);
 
 }
