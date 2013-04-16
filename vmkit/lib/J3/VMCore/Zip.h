@@ -12,8 +12,6 @@
 
 #include <map>
 
-#include "mvm/Allocator.h"
-
 namespace j3 {
 
 class classBytes;

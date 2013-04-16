@@ -8,6 +8,8 @@
 #ifndef JAVAVIRTUALTABLE_H_
 #define JAVAVIRTUALTABLE_H_
 
+#include "j3/System.h"
+
 extern "C" void EmptyDestructor();
 
 class VirtualTable {

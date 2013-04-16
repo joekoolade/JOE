@@ -20,10 +20,10 @@
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 
+#include "JavaVirtualTable.h"
+
 #include <cstddef>
 #include <map>
-
-#include "mvm/GC/GC.h"
 
 using namespace llvm;
 

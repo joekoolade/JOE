@@ -2381,7 +2381,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 			for (std::vector<std::string>::iterator i = clinits->begin(), e =
 					clinits->end(); i != e; ++i) {
 				Class* cl = NULL;
-				TRY{
+//				TRY{
 					if (i->at(i->length() - 1) == '*') {
 						for (std::vector<Class*>::iterator ii = classes.begin(),
 								ee = classes.end(); ii != ee; ++ii) {
@@ -2402,11 +2402,11 @@ void JavaAOTCompiler::mainCompilerStart() {
 									i->c_str());
 						}
 					}
-				}CATCH {
-					fprintf(stderr, "Error when initializing %s\n",
-							UTF8Buffer(cl->name).cString());
-					abort();
-				}END_CATCH;
+//				}CATCH {
+//					fprintf(stderr, "Error when initializing %s\n",
+//							UTF8Buffer(cl->name).cString());
+//					abort();
+//				}END_CATCH;
 			}
 //       bootstrapLoader->setCompiler(M);
 		}

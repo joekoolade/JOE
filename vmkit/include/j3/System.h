@@ -53,7 +53,7 @@ typedef uint64_t word_t;
 typedef uint32_t word_t;
 #endif
 
-namespace mvm {
+namespace j3 {
 
 const int kWordSize = sizeof(word_t);
 const int kWordSizeLog2 = kWordSize == 4 ? 2 : 3;
@@ -199,9 +199,9 @@ public:
 
   static uint8_t* GetLastBytePtr(word_t ptr) {
 #if ARCH_PPC
-  return ((uint8_t*)ptr) + 2 * mvm::kWordSize - 1;
+  return ((uint8_t*)ptr) + 2 * j3::kWordSize - 1;
 #else
-  return ((uint8_t*)ptr) + mvm::kWordSize;
+  return ((uint8_t*)ptr) + j3::kWordSize;
 #endif
   }
 
