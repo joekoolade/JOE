@@ -99,7 +99,7 @@ WithClinit("with-clinit", cl::desc("Classes to clinit"), cl::ZeroOrMore,
            cl::CommaSeparated);
 
 int main(int argc, char **argv) {
-    llvm_shutdown_obj X;  // Call llvm_shutdown() on exit.
+    printf("Starting JEI");
     cl::ParseCommandLineOptions(argc, argv, "jei .class -> .ll compiler\n");
     sys::PrintStackTraceOnErrorSignal();
 
