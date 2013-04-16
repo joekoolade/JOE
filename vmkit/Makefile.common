@@ -22,7 +22,7 @@ endif
 include $(LLVM_OBJ_ROOT)/Makefile.llvm.common
 
 CXX.Flags += -I$(LLVM_SRC_ROOT)/lib/Mvm/MMTk -fno-exceptions -Wno-variadic-macros -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti
-CXX.Flags += -D__WORDSIZE=32 -U__STRICT_ANSI__
+CXX.Flags += -g -D__WORDSIZE=32 -U__STRICT_ANSI__
 
 # GNU Classpath flags
 CLASSPATH_FLAGS =

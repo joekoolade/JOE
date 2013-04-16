@@ -21,9 +21,9 @@ VMKIT_LIBDIR = -L$(TOP)/vmkit/Debug+Asserts/lib
 LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS) 
 LIBS += -lz
 
-LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
+LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags) -g
 MUST_DEFINE:=-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=32
-CXXFLAGS += -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)
+CXXFLAGS += -g -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)
 
 all: test
 
@@ -37,7 +37,7 @@ test: $(OBJS)
 	$(CXX) -o test  -lz $^
 
 clean:
-	rm *.o
+	rm *.o *.exe
 	
 include $(SRCS:.cpp=.d)
 	

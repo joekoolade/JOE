@@ -8,7 +8,7 @@
 ##===----------------------------------------------------------------------===##
 LEVEL = ../..
 
-DIRS = LLVMRuntime VMCore ClassLib Compiler
+DIRS = VMCore Compiler
 
 include $(LEVEL)/Makefile.config
 include $(LEVEL)/Makefile.common
