@@ -1975,8 +1975,13 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 		JavaLLVMCompiler(ModuleID) {
 
 	std::string Error;
-	const Target* TheTarget(
-			TargetRegistry::lookupTarget("i686-pc-cygwin", Error));
+
+	TargetRegistry::printRegisteredTargetsForVersion();
+	const Target* TheTarget(TargetRegistry::lookupTarget("i686-pc-cygwin", Error));
+	if(TheTarget == NULL) {
+		printf("Target not found!\n");
+		exit(-1);
+	}
 	StringRef triple = StringRef("i686-pc-cygwin");
 	StringRef cpu = StringRef("x86");
 	StringRef features = StringRef("");

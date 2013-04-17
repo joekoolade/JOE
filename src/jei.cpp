@@ -36,6 +36,7 @@
 #include "llvm/Support/Signals.h"
 #include "llvm/Target/TargetData.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm-c/Target.h"
 
 #include "j3/JavaAOTCompiler.h"
 
@@ -110,6 +111,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    LLVMInitializeX86Target();
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
     if (DisableExceptions)
