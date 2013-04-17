@@ -63,7 +63,10 @@ public:
 
   UTF8(sint32 n) {
     size = n;
-    elements = new uint16_t[n];
+    if(n >= 0)
+    	elements = new uint16_t[n];
+    else
+    	elements = NULL;
   }
 };
 
