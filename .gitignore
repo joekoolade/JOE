@@ -12,3 +12,4 @@ llvm/
 *.d.*
 *.exe
 Classpath.h
+*.stackdump
