@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    LLVMInitializeX86Target();
+    LLVMInitializeX86TargetInfo();
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
     if (DisableExceptions)
