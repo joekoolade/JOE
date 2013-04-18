@@ -339,9 +339,7 @@ void BaseIntrinsics::init(llvm::Module* module) {
   unconditionalSafePoint = module->getFunction("unconditionalSafePoint");
   conditionalSafePoint = module->getFunction("conditionalSafePoint");
   AllocateUnresolvedFunction = module->getFunction("gcmallocUnresolved");
-  assert(AllocateUnresolvedFunction && "No allocateUnresolved function");
   AddFinalizationCandidate = module->getFunction("addFinalizationCandidate");
-  assert(AddFinalizationCandidate && "No addFinalizationCandidate function");
 
   ArrayWriteBarrierFunction = module->getFunction("arrayWriteBarrier");
   FieldWriteBarrierFunction = module->getFunction("fieldWriteBarrier");
@@ -351,9 +349,4 @@ void BaseIntrinsics::init(llvm::Module* module) {
   SetjmpFunction = module->getFunction("_setjmp");
   RegisterSetjmpFunction = module->getFunction("registerSetjmp");
   UnregisterSetjmpFunction = module->getFunction("unregisterSetjmp");
-
-  AllocateFunction->setGC("vmkit");
-  ArrayWriteBarrierFunction->setGC("vmkit");
-  FieldWriteBarrierFunction->setGC("vmkit");
-  NonHeapWriteBarrierFunction->setGC("vmkit");
 }

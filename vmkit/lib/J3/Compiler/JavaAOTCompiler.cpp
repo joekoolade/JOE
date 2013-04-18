@@ -13,6 +13,7 @@
 #include "llvm/LLVMContext.h"
 #include "llvm/Module.h"
 #include "llvm/PassManager.h"
+#include "llvm/Support/CodeGen.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Target/TargetData.h"
@@ -1984,35 +1985,37 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 		exit(-1);
 	}
 	StringRef triple = StringRef("i686-pc-cygwin");
-	string cpu="x86";
-	string features = "";
-	string relocModel = "pic";
-	string codeModel = "default";
+	StringRef cpu="x86";
+	StringRef features = "";
+	Reloc::Model relocModel = Reloc::PIC_;
+	CodeModel::Model codeModel = CodeModel::Default;
 	CodeGenOpt::Level optLevel = CodeGenOpt::Default;
 	TargetOptions Options;
-	  Options.LessPreciseFPMADOption = false;
-	  Options.PrintMachineCode = false;
-	  Options.NoFramePointerElim = false;
-	  Options.NoFramePointerElimNonLeaf = false;
-	  Options.NoExcessFPPrecision = false;
-	  Options.UnsafeFPMath = false;
-	  Options.NoInfsFPMath = false;
-	  Options.NoNaNsFPMath = false;
-	  Options.HonorSignDependentRoundingFPMathOption = false;
-	  Options.UseSoftFloat = false;
+	Options.LessPreciseFPMADOption = false;
+	Options.PrintMachineCode = false;
+	Options.NoFramePointerElim = false;
+	Options.NoFramePointerElimNonLeaf = false;
+	Options.NoExcessFPPrecision = false;
+	Options.UnsafeFPMath = false;
+	Options.NoInfsFPMath = false;
+	Options.NoNaNsFPMath = false;
+	Options.HonorSignDependentRoundingFPMathOption = false;
+	Options.UseSoftFloat = false;
 //	  if (FloatABIForCalls != FloatABI::Default)
-	    Options.FloatABIType = FloatABI::Default;
-	  Options.NoZerosInBSS = false;
-	  Options.GuaranteedTailCallOpt = false;
-	  Options.DisableTailCalls = DisableTailCalls;
-	  Options.StackAlignmentOverride = 0;
-	  Options.RealignStack = true;
-	  Options.DisableJumpTables = false;
-	  Options.TrapFuncName = "";
-	  Options.PositionIndependentExecutable = true;
-	  Options.EnableSegmentedStacks = SegmentedStacks;
+	Options.FloatABIType = FloatABI::Default;
+	Options.NoZerosInBSS = false;
+	Options.GuaranteedTailCallOpt = false;
+	Options.DisableTailCalls = false;
+	Options.StackAlignmentOverride = 0;
+	Options.RealignStack = true;
+	Options.DisableJumpTables = false;
+	Options.TrapFuncName = "";
+	Options.PositionIndependentExecutable = true;
+	Options.EnableSegmentedStacks = false;
 
-	const TargetMachine *TM = TheTarget->createTargetMachine(theTriple.getTriple(), cpu, features, Options, relocModel, codeModel, optLevel);
+	const TargetMachine *TM = TheTarget->createTargetMachine(
+			theTriple.getTriple(), cpu, features, Options, relocModel,
+			codeModel, optLevel);
 	TheTargetData = TM->getTargetData();
 	TheModule->setDataLayout(TheTargetData->getStringRepresentation());
 	TheModule->setTargetTriple(TM->getTargetTriple());

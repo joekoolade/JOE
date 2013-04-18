@@ -100,7 +100,7 @@ WithClinit("with-clinit", cl::desc("Classes to clinit"), cl::ZeroOrMore,
            cl::CommaSeparated);
 
 int main(int argc, char **argv) {
-    printf("Starting JEI");
+    printf("Starting JEI\n");
     cl::ParseCommandLineOptions(argc, argv, "jei .class -> .ll compiler\n");
     sys::PrintStackTraceOnErrorSignal();
 
@@ -112,6 +112,10 @@ int main(int argc, char **argv) {
     }
 
     LLVMInitializeX86TargetInfo();
+    LLVMInitializeX86Target();
+    LLVMInitializeX86TargetMC();
+    LLVMInitializeX86AsmParser();
+    LLVMInitializeX86AsmPrinter();
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
     if (DisableExceptions)
