@@ -4,7 +4,7 @@
 .cproject
 .project
 ews/
-llvm/
+llvm*/
 .git/
 .dir
 *.orig
