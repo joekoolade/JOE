@@ -1976,19 +1976,43 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 
 	std::string Error;
 
+	Triple theTriple("i686-pc-cygwin");
 	TargetRegistry::printRegisteredTargetsForVersion();
-	const Target* TheTarget(TargetRegistry::lookupTarget("i686-pc-cygwin", Error));
+	const Target* TheTarget(TargetRegistry::lookupTarget(theTriple.getTriple(), Error));
 	if(TheTarget == NULL) {
 		printf("Target not found!\n");
 		exit(-1);
 	}
 	StringRef triple = StringRef("i686-pc-cygwin");
-	StringRef cpu = StringRef("x86");
-	StringRef features = StringRef("");
-	const TargetOptions& options = TargetOptions();
+	string cpu="x86";
+	string features = "";
+	string relocModel = "pic";
+	string codeModel = "default";
+	CodeGenOpt::Level optLevel = CodeGenOpt::Default;
+	TargetOptions Options;
+	  Options.LessPreciseFPMADOption = false;
+	  Options.PrintMachineCode = false;
+	  Options.NoFramePointerElim = false;
+	  Options.NoFramePointerElimNonLeaf = false;
+	  Options.NoExcessFPPrecision = false;
+	  Options.UnsafeFPMath = false;
+	  Options.NoInfsFPMath = false;
+	  Options.NoNaNsFPMath = false;
+	  Options.HonorSignDependentRoundingFPMathOption = false;
+	  Options.UseSoftFloat = false;
+//	  if (FloatABIForCalls != FloatABI::Default)
+	    Options.FloatABIType = FloatABI::Default;
+	  Options.NoZerosInBSS = false;
+	  Options.GuaranteedTailCallOpt = false;
+	  Options.DisableTailCalls = DisableTailCalls;
+	  Options.StackAlignmentOverride = 0;
+	  Options.RealignStack = true;
+	  Options.DisableJumpTables = false;
+	  Options.TrapFuncName = "";
+	  Options.PositionIndependentExecutable = true;
+	  Options.EnableSegmentedStacks = SegmentedStacks;
 
-	const TargetMachine *TM = TheTarget->createTargetMachine(triple, cpu,
-			features, options);
+	const TargetMachine *TM = TheTarget->createTargetMachine(theTriple.getTriple(), cpu, features, Options, relocModel, codeModel, optLevel);
 	TheTargetData = TM->getTargetData();
 	TheModule->setDataLayout(TheTargetData->getStringRepresentation());
 	TheModule->setTargetTriple(TM->getTargetTriple());
