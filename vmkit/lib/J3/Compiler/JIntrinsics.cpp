@@ -11,6 +11,7 @@
 #include "llvm/DerivedTypes.h"
 #include "llvm/LLVMContext.h"
 #include "llvm/Module.h"
+#include "llvm/Type.h";
 
 #include "j3/JIT.h"
 
@@ -33,6 +34,53 @@ using namespace llvm;
 //  }
 //}
 
+void JIntrinsics::createJavaClass() {
+	StructType *javaClassType = StructType::create(Context, "JavaClass");
+	// Temporary for now
+	/*
+	 * 	+0	access
+	 * 	+4	super
+	 * 	+8	field count
+	 * 	+12	interface count
+	 * 	+16	method count
+	 * 	+20	static field count
+	 * 	+24	static method count
+	 * 	+28 attribute count
+	 * 	+32 methods array *
+	 * 	+36 interface array *
+	 * 	+40 attributes array *
+	 * 	+44 static field 0
+	 * 	+(n-1) static field n-1
+	 * 	+ 0 static method 0 *
+	 * 	+ (n-1) static method n-1 *
+	 */
+	std::vector<Type*> fields;
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(Context));
+}
+void JIntrinsics::createJavaObjectType() {
+	// All java objects have:
+	// +0		Hashcode
+	// +4		Lock
+	// +8		JavaClass *
+	// +12		instance fields
+	// %JavaObject = type { i32, i32, %JavaClass*, i32, [0 x i32] }
+	StructType *javaObjectType = StructType::create(Context, "JavaObject");
+	std::vector<Type*> javaObjectFields;
+	javaObjectFields.push_back(IntegerType::getInt32Ty(Context));
+	javaObjectFields.push_back(IntegerType::getInt32Ty(Context));
+	JavaObjectType = PointerType::getUnqual(javaObjectType);
+}
+void JIntrinsics::initTypes() {
+	createJavaClass();
+	createJavaObjectType();
+}
 void JIntrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
@@ -40,6 +88,7 @@ void JIntrinsics::init(llvm::Module* module) {
   // j3::llvm_runtime::makeLLVMModuleContents(module);
   
   LLVMContext& Context = module->getContext();
+  initTypes();
   VTType = PointerType::getUnqual(ArrayType::get(
         PointerType::getUnqual(FunctionType::get(Type::getInt32Ty(Context), true)), 0));
 

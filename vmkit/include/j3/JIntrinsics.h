@@ -15,7 +15,7 @@
 namespace j3 {
 
 class JIntrinsics : public BaseIntrinsics {
-
+	llvm::LLVMContext& Context;
 public:
   void init(llvm::Module* M);
 
@@ -149,6 +149,11 @@ public:
   llvm::Function* ArrayStoreExceptionFunction;
   llvm::Function* ArithmeticExceptionFunction;
   llvm::Function* ThrowExceptionFromJITFunction;
+
+private:
+  void createJavaClass();
+  void createJavaObjectType();
+  void initTypes();
 };
 
 }
