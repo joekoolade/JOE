@@ -27,12 +27,13 @@ CXXFLAGS += -g -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)
 
 all: test
 
-jei: jei.o
+jei: jei.o $(VMKIT_LIBDIR)/libCompiler.a $(VMKIT_LIBDIR)/libVMCore.a
 	$(CXX) $(LDFLAGS) -o jei jei.o $(LIBS)
 
 vmjc: vmjc.o
 	$(CXX) $(LDFLAGS) -o vmjc vmjc.o $(LIBS) 
-	
+
+$(VMKIT_LIBDIR)/libCompiler.a $(VMKIT_LIBDIR)/libVMCore.a:
 test: $(OBJS)
 	$(CXX) -o test  -lz $^
 
