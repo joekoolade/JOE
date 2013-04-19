@@ -13,6 +13,7 @@ BYTECODE_LIBRARY = 0
 LLVMCC_OPTION = "clang"
 ENABLE_BUILT_CLANG = 0
 LLVMCC_EMITIR_FLAG = "-emit-llvm"
+REQUIRES_EH = 1
 
 ifeq ($(BUILD_FRAMETABLE), 1)
   BUILT_SOURCES = FrametablesSymbols.inc FrametablesExterns.inc
@@ -21,7 +22,7 @@ endif
 # Include LLVM's Master Makefile.
 include $(LLVM_OBJ_ROOT)/Makefile.llvm.common
 
-CXX.Flags += -I$(LLVM_SRC_ROOT)/lib/Mvm/MMTk -fno-exceptions -Wno-variadic-macros -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti
+CXX.Flags += -I$(LLVM_SRC_ROOT)/lib/Mvm/MMTk -fexceptions -Wno-variadic-macros -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti
 CXX.Flags += -g -D__WORDSIZE=32 -U__STRICT_ANSI__
 
 # GNU Classpath flags
