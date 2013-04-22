@@ -47,8 +47,9 @@ class JavaLLVMCompiler : public JavaCompiler {
   friend class LLVMClassInfo;
   friend class LLVMMethodInfo;
   friend class LLVMSignatureInfo;
+  friend class JavaIntrinsics;
 
-protected:
+public:
   llvm::Module* TheModule;
   llvm::DIBuilder* DebugFactory;  
   JIntrinsics JavaIntrinsics;
