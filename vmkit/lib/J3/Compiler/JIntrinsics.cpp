@@ -35,7 +35,7 @@ using namespace llvm;
 //}
 
 void JIntrinsics::createJavaClass() {
-	StructType *javaClassType = StructType::create(Context, "JavaClass");
+	StructType *javaClassType = StructType::create(*Context, "JavaClass");
 	// Temporary for now
 	/*
 	 * 	+0	access
@@ -55,14 +55,14 @@ void JIntrinsics::createJavaClass() {
 	 * 	+ (n-1) static method n-1 *
 	 */
 	std::vector<Type*> fields;
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
-	fields.push_back(IntegerType::getInt32Ty(Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
+	fields.push_back(IntegerType::getInt32Ty(*Context));
 }
 void JIntrinsics::createJavaObjectType() {
 	// All java objects have:
@@ -71,10 +71,10 @@ void JIntrinsics::createJavaObjectType() {
 	// +8		JavaClass *
 	// +12		instance fields
 	// %JavaObject = type { i32, i32, %JavaClass*, i32, [0 x i32] }
-	StructType *javaObjectType = StructType::create(Context, "JavaObject");
+	StructType *javaObjectType = StructType::create(*Context, "JavaObject");
 	std::vector<Type*> javaObjectFields;
-	javaObjectFields.push_back(IntegerType::getInt32Ty(Context));
-	javaObjectFields.push_back(IntegerType::getInt32Ty(Context));
+	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
+	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
 	JavaObjectType = PointerType::getUnqual(javaObjectType);
 }
 void JIntrinsics::initTypes() {
@@ -87,10 +87,10 @@ void JIntrinsics::init(llvm::Module* module) {
   // fixme
   // j3::llvm_runtime::makeLLVMModuleContents(module);
   
-  LLVMContext& Context = module->getContext();
+  Context = &module->getContext();
   initTypes();
   VTType = PointerType::getUnqual(ArrayType::get(
-        PointerType::getUnqual(FunctionType::get(Type::getInt32Ty(Context), true)), 0));
+        PointerType::getUnqual(FunctionType::get(Type::getInt32Ty(*Context), true)), 0));
 
   ResolvedConstantPoolType = ptrPtrType;
  
@@ -153,9 +153,9 @@ void JIntrinsics::init(llvm::Module* module) {
   
   JavaObjectNullConstant =
     Constant::getNullValue(JIntrinsics::JavaObjectType);
-  MaxArraySizeConstant = ConstantInt::get(Type::getInt32Ty(Context),
+  MaxArraySizeConstant = ConstantInt::get(Type::getInt32Ty(*Context),
                                           JavaArray::MaxArraySize);
-  JavaArraySizeConstant = ConstantInt::get(Type::getInt32Ty(Context),
+  JavaArraySizeConstant = ConstantInt::get(Type::getInt32Ty(*Context),
                                           /*&sizeof(JavaObject)*/ 8 + sizeof(ssize_t));
   
   
@@ -165,44 +165,44 @@ void JIntrinsics::init(llvm::Module* module) {
   JavaObjectVTOffsetConstant = constantZero;
 
   OffsetClassInVTConstant =
-    ConstantInt::get(Type::getInt32Ty(Context),
+    ConstantInt::get(Type::getInt32Ty(*Context),
                      JavaVirtualTable::getClassIndex());
   OffsetDepthInVTConstant =
-    ConstantInt::get(Type::getInt32Ty(Context),
+    ConstantInt::get(Type::getInt32Ty(*Context),
                      JavaVirtualTable::getDepthIndex());
   OffsetDisplayInVTConstant =
-    ConstantInt::get(Type::getInt32Ty(Context),
+    ConstantInt::get(Type::getInt32Ty(*Context),
                      JavaVirtualTable::getDisplayIndex());
   OffsetBaseClassVTInVTConstant =
-    ConstantInt::get(Type::getInt32Ty(Context),
+    ConstantInt::get(Type::getInt32Ty(*Context),
                      JavaVirtualTable::getBaseClassIndex());
   OffsetIMTInVTConstant =
-    ConstantInt::get(Type::getInt32Ty(Context),
+    ConstantInt::get(Type::getInt32Ty(*Context),
                      JavaVirtualTable::getIMTIndex());
   
   OffsetAccessInCommonClassConstant = constantOne;
-  IsArrayConstant = ConstantInt::get(Type::getInt16Ty(Context),
+  IsArrayConstant = ConstantInt::get(Type::getInt16Ty(*Context),
                                      JNJVM_ARRAY);
   
-  IsPrimitiveConstant = ConstantInt::get(Type::getInt16Ty(Context),
+  IsPrimitiveConstant = ConstantInt::get(Type::getInt16Ty(*Context),
                                          JNJVM_PRIMITIVE);
  
   OffsetBaseClassInArrayClassConstant = constantOne;
   OffsetLogSizeInPrimitiveClassConstant = constantOne;
 
   OffsetObjectSizeInClassConstant = constantOne;
-  OffsetVTInClassConstant = ConstantInt::get(Type::getInt32Ty(Context), 7);
+  OffsetVTInClassConstant = ConstantInt::get(Type::getInt32Ty(*Context), 7);
   OffsetTaskClassMirrorInClassConstant = constantThree;
   OffsetStaticInstanceInTaskClassMirrorConstant = constantThree;
   OffsetStatusInTaskClassMirrorConstant = constantZero;
   OffsetInitializedInTaskClassMirrorConstant = constantOne;
   
-  OffsetIsolateIDInThreadConstant =         ConstantInt::get(Type::getInt32Ty(Context), 1);
-  OffsetVMInThreadConstant =                ConstantInt::get(Type::getInt32Ty(Context), 2);
-  OffsetDoYieldInThreadConstant =           ConstantInt::get(Type::getInt32Ty(Context), 4);
-	OffsetThreadInMutatorThreadConstant =     ConstantInt::get(Type::getInt32Ty(Context), 0);
-  OffsetJNIInJavaThreadConstant =           ConstantInt::get(Type::getInt32Ty(Context), 1);
-  OffsetJavaExceptionInJavaThreadConstant = ConstantInt::get(Type::getInt32Ty(Context), 2);
+  OffsetIsolateIDInThreadConstant =         ConstantInt::get(Type::getInt32Ty(*Context), 1);
+  OffsetVMInThreadConstant =                ConstantInt::get(Type::getInt32Ty(*Context), 2);
+  OffsetDoYieldInThreadConstant =           ConstantInt::get(Type::getInt32Ty(*Context), 4);
+	OffsetThreadInMutatorThreadConstant =     ConstantInt::get(Type::getInt32Ty(*Context), 0);
+  OffsetJNIInJavaThreadConstant =           ConstantInt::get(Type::getInt32Ty(*Context), 1);
+  OffsetJavaExceptionInJavaThreadConstant = ConstantInt::get(Type::getInt32Ty(*Context), 2);
   
 
   InterfaceLookupFunction = module->getFunction("j3InterfaceLookup");

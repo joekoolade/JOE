@@ -15,9 +15,10 @@
 namespace j3 {
 
 class JIntrinsics : public BaseIntrinsics {
-	llvm::LLVMContext& Context;
 public:
   void init(llvm::Module* M);
+
+  llvm::LLVMContext* Context;
 
   llvm::Type* JavaArrayUInt8Type;
   llvm::Type* JavaArraySInt8Type;
@@ -120,7 +121,7 @@ public:
   llvm::Constant* OffsetDoYieldInThreadConstant;
   llvm::Constant* OffsetIsolateIDInThreadConstant;
   llvm::Constant* OffsetVMInThreadConstant;
-	llvm::Constant* OffsetThreadInMutatorThreadConstant;
+  llvm::Constant* OffsetThreadInMutatorThreadConstant;
   llvm::Constant* OffsetJNIInJavaThreadConstant;
   llvm::Constant* OffsetJavaExceptionInJavaThreadConstant;
   
