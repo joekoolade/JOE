@@ -11,7 +11,7 @@
 #include "llvm/DerivedTypes.h"
 #include "llvm/LLVMContext.h"
 #include "llvm/Module.h"
-#include "llvm/Type.h";
+#include "llvm/Type.h"
 
 #include "j3/JIT.h"
 
@@ -23,6 +23,8 @@
 
 #include "j3/JIntrinsics.h"
 #include "j3/LLVMInfo.h"
+
+#include <vector>
 
 using namespace j3;
 using namespace llvm;
@@ -113,7 +115,7 @@ void JIntrinsics::createJavaArray() {
 	StructType *javaArray = StructType::create(*Context, "JavaArray");
 	std::vector<Type*> javaArrayFields;
 	javaArrayFields.push_back(javaObject);
-	javaArrayFields.push_pack(Type::getInt32Ty(*Context));
+	javaArrayFields.push_back(Type::getInt32Ty(*Context));
 	javaArray->setBody(javaArrayFields, false);
 	JavaArrayType = PointerType::getUnqual(javaArray);
 }
@@ -154,12 +156,6 @@ void JIntrinsics::init(llvm::Module* module) {
 
   ResolvedConstantPoolType = ptrPtrType;
  
-  
-  ClassBytesType =
-    PointerType::getUnqual(module->getTypeByName("ClassBytes"));
-  JavaConstantPoolType =
-    PointerType::getUnqual(module->getTypeByName("JavaConstantPool"));
-  
   JavaArrayUInt8Type =
     PointerType::getUnqual(module->getTypeByName("ArrayUInt8"));
   JavaArraySInt8Type =

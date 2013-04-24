@@ -164,101 +164,6 @@ GlobalVariable* JavaAOTCompiler::getNativeClass(CommonClass* classDef) {
 	return 0;
 }
 
-Constant* JavaAOTCompiler::CreateConstantFromJavaConstantPool(
-		JavaConstantPool* ctp) {
-	StructType* STy = dyn_cast<StructType>(
-			JavaIntrinsics.JavaConstantPoolType->getContainedType(0));
-	Module& Mod = *getLLVMModule();
-
-	std::vector<Constant*> Elemts;
-
-	// Class
-	Elemts.push_back(getNativeClass(ctp->classDef));
-
-	// ctpSize
-	Elemts.push_back(
-			ConstantInt::get(Type::getInt32Ty(getLLVMContext()), ctp->ctpSize));
-
-	// ctpType
-	ArrayType* ATy = ArrayType::get(Type::getInt8Ty(getLLVMContext()),
-			ctp->ctpSize);
-	std::vector<Constant*> Vals;
-	for (uint32 i = 0; i < ctp->ctpSize; ++i) {
-		Vals.push_back(
-				ConstantInt::get(Type::getInt8Ty(getLLVMContext()),
-						ctp->ctpType[i]));
-	}
-
-	Constant* Array = ConstantArray::get(ATy, Vals);
-	GlobalVariable* varGV = new GlobalVariable(Mod, Array->getType(), false,
-			GlobalValue::InternalLinkage, Array, "");
-
-	Array = ConstantExpr::getBitCast(varGV,
-			PointerType::getUnqual(Type::getInt8Ty(getLLVMContext())));
-	Elemts.push_back(Array);
-
-	// ctpDef
-	ATy = ArrayType::get(Type::getInt32Ty(getLLVMContext()), ctp->ctpSize);
-	Vals.clear();
-	for (uint32 i = 0; i < ctp->ctpSize; ++i) {
-		Vals.push_back(
-				ConstantInt::get(Type::getInt32Ty(getLLVMContext()),
-						ctp->ctpDef[i]));
-	}
-
-	Array = ConstantArray::get(ATy, Vals);
-	varGV = new GlobalVariable(Mod, Array->getType(), false,
-			GlobalValue::InternalLinkage, Array, "");
-
-	Array = ConstantExpr::getBitCast(varGV,
-			PointerType::getUnqual(Type::getInt32Ty(getLLVMContext())));
-
-	Elemts.push_back(Array);
-
-	// ctpRes
-	Elemts.push_back(getResolvedConstantPool(ctp));
-
-	return ConstantStruct::get(STy, Elemts);
-}
-
-Constant* JavaAOTCompiler::getResolvedConstantPool(JavaConstantPool* ctp) {
-	resolved_constant_pool_iterator End = resolvedConstantPools.end();
-	resolved_constant_pool_iterator I = resolvedConstantPools.find(ctp);
-	if (I == End) {
-		Module& Mod = *getLLVMModule();
-
-		ArrayType* ATy = ArrayType::get(JavaIntrinsics.ptrType, ctp->ctpSize);
-		std::vector<Constant*> Vals;
-		for (uint32 i = 0; i < ctp->ctpSize; ++i) {
-			if (ctp->typeAt(i) == JavaConstantPool::ConstantUTF8) {
-				Vals.push_back(
-						ConstantExpr::getBitCast(getUTF8(ctp->UTF8At(i)),
-								JavaIntrinsics.ptrType));
-			} else if (ctp->typeAt(i) == JavaConstantPool::ConstantClass
-					&& (ctp->isClassLoaded(i) != NULL)) {
-				Vals.push_back(
-						ConstantExpr::getBitCast(
-								getNativeClass(ctp->isClassLoaded(i)),
-								JavaIntrinsics.ptrType));
-			} else {
-				Vals.push_back(Constant::getNullValue(JavaIntrinsics.ptrType));
-			}
-		}
-
-		Constant* Array = ConstantArray::get(ATy, Vals);
-		GlobalVariable* varGV = new GlobalVariable(Mod, Array->getType(), false,
-				GlobalValue::InternalLinkage, Array, "");
-
-		Array = ConstantExpr::getBitCast(varGV,
-				JavaIntrinsics.ResolvedConstantPoolType);
-
-		resolvedConstantPools.insert(std::make_pair(ctp, Array));
-		return Array;
-	} else {
-		return I->second;
-	}
-}
-
 Constant* JavaAOTCompiler::getNativeFunction(JavaMethod* meth, void* ptr) {
 	llvm::Constant* varGV = 0;
 	native_function_iterator End = nativeFunctions.end();
@@ -1401,16 +1306,6 @@ Constant* JavaAOTCompiler::CreateConstantFromClass(Class* cl) {
 
 	// ownerClass
 	ClassElts.push_back(Constant::getNullValue(JavaIntrinsics.ptrType));
-
-	// bytes
-	if (precompile) {
-		ClassElts.push_back(
-				ConstantExpr::getBitCast(getClassBytes(cl->name, cl->bytes),
-						JavaIntrinsics.ClassBytesType));
-	} else {
-		ClassElts.push_back(
-				Constant::getNullValue(JavaIntrinsics.ClassBytesType));
-	}
 
 	// ctpInfo
 	Constant* ctpInfo = CreateConstantFromJavaConstantPool(cl->ctpInfo);

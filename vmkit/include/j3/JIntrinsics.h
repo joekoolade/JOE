@@ -10,6 +10,7 @@
 #ifndef J3_INTRINSICS_H
 #define J3_INTRINSICS_H
 
+#include "llvm/Type.h"
 #include "JIT.h"
 
 namespace j3 {
@@ -37,7 +38,6 @@ public:
   llvm::Type* JavaClassType;
   llvm::Type* JavaClassArrayType;
   llvm::Type* JavaClassPrimitiveType;
-  llvm::Type* ClassBytesType;
   llvm::Type* JavaConstantPoolType;
   llvm::Type* ResolvedConstantPoolType;
   llvm::Type* UTF8Type;
@@ -151,14 +151,15 @@ public:
   llvm::Function* ThrowExceptionFromJITFunction;
 
 private:
-  StructType *javaObject;
-  StructType *javaClass;
+  llvm::StructType *javaObject;
+  llvm::StructType *javaClass;
 
   void createJavaClass();
   void createJavaObjectType();
   void createVirtualTable();
   void createJavaArray();
   void createJavaClassPrimitive();
+  void createJavaClassArray();
   void initTypes();
 };
 

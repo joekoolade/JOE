@@ -1685,43 +1685,6 @@ void JavaJIT::invokeStatic(uint16 index) {
   }
 }
 
-Value* JavaJIT::getConstantPoolAt(uint32 index, Function* resolver,
-                                  Type* returnType,
-                                  Value* additionalArg, bool doThrow) {
-
-// This makes unswitch loop very unhappy time-wise, but makes GVN happy
-// number-wise. IMO, it's better to have this than Unswitch.
-  JavaConstantPool* ctp = compilingClass->ctpInfo;
-  Value* CTP = TheCompiler->getResolvedConstantPool(ctp);
-  Value* Cl = TheCompiler->getNativeClass(compilingClass);
-
-  std::vector<Value*> Args;
-  Args.push_back(resolver);
-  Args.push_back(CTP);
-  Args.push_back(Cl);
-  Args.push_back(ConstantInt::get(Type::getInt32Ty(*llvmContext), index));
-  if (additionalArg) Args.push_back(additionalArg);
-
-  Value* res = 0;
-  if (doThrow) {
-    res = invoke(intrinsics->GetConstantPoolAtFunction, Args, "",
-                 currentBlock);
-  } else {
-    res = CallInst::Create(intrinsics->GetConstantPoolAtFunction, Args,
-                           "", currentBlock);
-  }
-  
-  Type* realType = 
-    intrinsics->GetConstantPoolAtFunction->getReturnType();
-  if (returnType == Type::getInt32Ty(*llvmContext)) {
-    return new PtrToIntInst(res, Type::getInt32Ty(*llvmContext), "", currentBlock);
-  } else if (returnType != realType) {
-    return new BitCastInst(res, returnType, "", currentBlock);
-  } 
-  
-  return res;
-}
-
 Value* JavaJIT::getResolvedCommonClass(uint16 index, bool doThrow,
                                        CommonClass** alreadyResolved) {
     
@@ -1743,8 +1706,7 @@ Value* JavaJIT::getResolvedCommonClass(uint16 index, bool doThrow,
                              currentBlock);
     }
   } else {
-    node = getConstantPoolAt(index, intrinsics->ClassLookupFunction,
-                             intrinsics->JavaClassType, 0, doThrow);
+      assert("Class not resolved!");
   }
   
   return node;
@@ -1762,8 +1724,7 @@ Value* JavaJIT::getResolvedClass(uint16 index, bool clinit, bool doThrow,
     node = TheCompiler->getNativeClass(cl);
     needsInit = needsInitialisationCheck(cl);
   } else {
-    node = getConstantPoolAt(index, intrinsics->ClassLookupFunction,
-                             intrinsics->JavaClassType, 0, doThrow);
+      assert("Class not resolved!");
   }
  
 
@@ -1869,7 +1830,7 @@ Value* JavaJIT::ldResolved(uint16 index, bool stat, Value* object,
     returnType = Type::getInt32Ty(*llvmContext);
   }
 
-  Value* ptr = getConstantPoolAt(index, func, returnType, 0, true);
+  Value* ptr = 0; // getConstantPoolAt(index, func, returnType, 0, true);
   if (!stat) {
     object = new LoadInst(
         object, "", false, currentBlock);
@@ -2120,8 +2081,7 @@ void JavaJIT::invokeInterface(uint16 index) {
   if (meth) {
     Meth = TheCompiler->getMethodInClass(meth);
   } else {
-    Meth = getConstantPoolAt(index, intrinsics->InterfaceLookupFunction,
-                             intrinsics->JavaMethodType, 0, true);
+      assert("Class not resolved!");
   }
 
   uint32_t tableIndex = InterfaceMethodTable::getIndex(name, signature->keyName);
