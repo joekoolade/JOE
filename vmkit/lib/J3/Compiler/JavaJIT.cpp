@@ -1738,13 +1738,13 @@ Value* JavaJIT::getResolvedCommonClass(uint16 index, bool doThrow,
         node->getType() != intrinsics->JavaClassArrayType) {
       node = new LoadInst(node, "", currentBlock);
     }
-    if (node->getType() != intrinsics->JavaCommonClassType) {
-      node = new BitCastInst(node, intrinsics->JavaCommonClassType, "",
+    if (node->getType() != intrinsics->JavaClassType) {
+      node = new BitCastInst(node, intrinsics->JavaClassType, "",
                              currentBlock);
     }
   } else {
     node = getConstantPoolAt(index, intrinsics->ClassLookupFunction,
-                             intrinsics->JavaCommonClassType, 0, doThrow);
+                             intrinsics->JavaClassType, 0, doThrow);
   }
   
   return node;

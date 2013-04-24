@@ -54,7 +54,7 @@ void JavaJITListener::NotifyFunctionEmitted(const Function &F,
 
 Constant* JavaJITCompiler::getNativeClass(CommonClass* classDef) {
   Type* Ty = classDef->isClass() ? JavaIntrinsics.JavaClassType :
-                                               JavaIntrinsics.JavaCommonClassType;
+                                               JavaIntrinsics.JavaClassType;
   
   ConstantInt* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                      uint64_t(classDef));

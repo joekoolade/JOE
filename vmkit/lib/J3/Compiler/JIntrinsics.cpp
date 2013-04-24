@@ -35,7 +35,7 @@ using namespace llvm;
 //}
 
 void JIntrinsics::createJavaClass() {
-	StructType *javaClassType = StructType::create(*Context, "JavaClass");
+	javaClass = StructType::create(*Context, "JavaClass");
 	// Temporary for now
 	/*
 	 * 	+0	access
@@ -49,20 +49,39 @@ void JIntrinsics::createJavaClass() {
 	 * 	+32 methods array *
 	 * 	+36 interface array *
 	 * 	+40 attributes array *
-	 * 	+44 static field 0
-	 * 	+(n-1) static field n-1
-	 * 	+ 0 static method 0 *
-	 * 	+ (n-1) static method n-1 *
+	 * 	+44 static field array *
+	 * 	+48 static method *
 	 */
-	std::vector<Type*> fields;
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
-	fields.push_back(IntegerType::getInt32Ty(*Context));
+	std::vector<Type*> javaClassFields;
+	// access field
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// super
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// field count
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// interface count
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// method count
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// static field count
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// static method count
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// attribute count
+	javaClassFields.push_back(IntegerType::getInt32Ty(*Context));
+	// method array pointer
+	javaClassFields.push_back(VTType);
+	// interface array pointer
+	javaClassFields.push_back(VTType);
+	// attributes array pointer
+	javaClassFields.push_back(VTType);
+	// static field array pointer
+	javaClassFields.push_back(VTType);
+	// static method array pointer
+	javaClassFields.push_back(VTType);
+	javaClass->setBody(javaClassFields, false);
+	JavaClassType = PointerType::getUnqual(javaClass);
+
 }
 void JIntrinsics::createJavaObjectType() {
 	// All java objects have:
@@ -71,43 +90,71 @@ void JIntrinsics::createJavaObjectType() {
 	// +8		JavaClass *
 	// +12		instance fields
 	// %JavaObject = type { i32, i32, %JavaClass*, i32, [0 x i32] }
-	StructType *javaObjectType = StructType::create(*Context, "JavaObject");
+	javaObject = StructType::create(*Context, "JavaObject");
 	std::vector<Type*> javaObjectFields;
 	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
 	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
-	JavaObjectType = PointerType::getUnqual(javaObjectType);
+	javaObject->setBody(javaObjectFields, false);
+	JavaObjectType = PointerType::getUnqual(javaObject);
+}
+
+void JIntrinsics::createVirtualTable() {
+	// Virtual table is type { [ 0 x i32 (...)* ] }
+	// function returning an integer
+	FunctionType *func = FunctionType::get(Type::getInt32Ty(*Context), true);
+	// pointer to a function
+	PointerType *funcPtr = PointerType::getUnqual(func);
+	// An aray of function pointers
+	VTType = PointerType::getUnqual(ArrayType::get(funcPtr, 0));
+}
+
+void JIntrinsics::createJavaArray() {
+	// type { %JavaObject, i32 }
+	StructType *javaArray = StructType::create(*Context, "JavaArray");
+	std::vector<Type*> javaArrayFields;
+	javaArrayFields.push_back(javaObject);
+	javaArrayFields.push_pack(Type::getInt32Ty(*Context));
+	javaArray->setBody(javaArrayFields, false);
+	JavaArrayType = PointerType::getUnqual(javaArray);
+}
+
+void JIntrinsics::createJavaClassPrimitive() {
+	// type { JavaClass, i32 }
+	StructType *javaClassPrim = StructType::create(*Context, "JavaClassPrimitive");
+	std::vector<Type*> javaClassPrimFields;
+	javaClassPrimFields.push_back(javaClass);
+	// log2 size of the primitive
+	javaClassPrimFields.push_back(Type::getInt32Ty(*Context));
+	javaClassPrim->setBody(javaClassPrimFields, false);
+	JavaClassPrimitiveType = PointerType::getUnqual(javaClassPrim);
+}
+
+void JIntrinsics::createJavaClassArray() {
+	// type { JavaClass, JavaClass * }
+	StructType* javaClassArray = StructType::create(*Context, "JavaClassArray");
+	std::vector<Type*> javaClassArrayFields;
+	javaClassArrayFields.push_back(javaClass);
+	javaClassArrayFields.push_back(JavaClassType);
+	javaClassArray->setBody(javaClassArrayFields, false);
+	JavaClassArrayType = PointerType::getUnqual(javaClassArray);
+
 }
 void JIntrinsics::initTypes() {
+	createVirtualTable();
 	createJavaClass();
 	createJavaObjectType();
+	createJavaArray();
+	createJavaClassPrimitive();
 }
 void JIntrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
-  // fixme
-  // j3::llvm_runtime::makeLLVMModuleContents(module);
-  
   Context = &module->getContext();
   initTypes();
-  VTType = PointerType::getUnqual(ArrayType::get(
-        PointerType::getUnqual(FunctionType::get(Type::getInt32Ty(*Context), true)), 0));
 
   ResolvedConstantPoolType = ptrPtrType;
  
-  JavaObjectType = 
-    PointerType::getUnqual(module->getTypeByName("JavaObject"));
-
-  JavaArrayType =
-    PointerType::getUnqual(module->getTypeByName("JavaArray"));
   
-  JavaCommonClassType =
-    PointerType::getUnqual(module->getTypeByName("JavaCommonClass"));
-  JavaClassPrimitiveType =
-    PointerType::getUnqual(module->getTypeByName("JavaClassPrimitive"));
-  JavaClassArrayType =
-    PointerType::getUnqual(module->getTypeByName("JavaClassArray"));
-  JavaClassType =
-    PointerType::getUnqual(module->getTypeByName("JavaClass"));
   ClassBytesType =
     PointerType::getUnqual(module->getTypeByName("ClassBytes"));
   JavaConstantPoolType =

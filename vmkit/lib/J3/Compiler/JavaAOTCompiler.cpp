@@ -106,9 +106,13 @@ void JavaAOTCompiler::AddInitializerToClass(GlobalVariable* varGV,
 	}
 }
 
+/**
+ * Checks if class has a global variable assigned to it. If not then one will be
+ * assigend to it.
+ */
 GlobalVariable* JavaAOTCompiler::getNativeClass(CommonClass* classDef) {
 
-	if (classDef->isClass() || isCompiling(classDef) || assumeCompiled) {
+	if (classDef->isClass()) {
 
 		native_class_iterator End = nativeClasses.end();
 		native_class_iterator I = nativeClasses.find(classDef);
@@ -368,7 +372,7 @@ Constant* JavaAOTCompiler::getJavaClassPtr(CommonClass* cl) {
 	getJavaClass(cl);
 
 	Constant* Cl = getNativeClass(cl);
-	Cl = ConstantExpr::getBitCast(Cl, JavaIntrinsics.JavaCommonClassType);
+	Cl = ConstantExpr::getBitCast(Cl, JavaIntrinsics.JavaClassType);
 
 	Constant* GEP[2] = { getIntrinsics()->constantZero,
 			getIntrinsics()->constantZero };
@@ -884,7 +888,7 @@ Constant* JavaAOTCompiler::CreateConstantFromAttribut(Attribut& attribut) {
 
 Constant* JavaAOTCompiler::CreateConstantFromCommonClass(CommonClass* cl) {
 	StructType* STy = dyn_cast<StructType>(
-			JavaIntrinsics.JavaCommonClassType->getContainedType(0));
+			JavaIntrinsics.JavaClassType->getContainedType(0));
 	Module& Mod = *getLLVMModule();
 
 	llvm::Type* TempTy = NULL;
@@ -1117,7 +1121,7 @@ Constant* JavaAOTCompiler::CreateConstantFromClassArray(ClassArray* cl) {
 
 	// baseClass
 	Constant* Cl = getNativeClass(cl->baseClass());
-	if (Cl->getType() != JavaIntrinsics.JavaCommonClassType)
+	if (Cl->getType() != JavaIntrinsics.JavaClassType)
 		Cl = ConstantExpr::getGetElementPtr(Cl, ClGEPs, 2);
 
 	ClassElts.push_back(Cl);
@@ -2105,7 +2109,7 @@ void JavaAOTCompiler::CreateStaticInitializer() {
 
 	std::vector<llvm::Type*> llvmArgs;
 	llvmArgs.push_back(JavaIntrinsics.ptrType); // class loader
-	llvmArgs.push_back(JavaIntrinsics.JavaCommonClassType); // cl
+	llvmArgs.push_back(JavaIntrinsics.JavaClassType); // cl
 	FunctionType* FTy = FunctionType::get(Type::getVoidTy(getLLVMContext()),
 			llvmArgs, false);
 
@@ -2162,7 +2166,7 @@ void JavaAOTCompiler::CreateStaticInitializer() {
 		if (isCompiling(i->first)) {
 			Args[0] = loader;
 			Args[1] = ConstantExpr::getBitCast(i->second,
-					JavaIntrinsics.JavaCommonClassType);
+					JavaIntrinsics.JavaClassType);
 			CallInst::Create(AddClass, ArrayRef<Value*>(Args, 2), "",
 					currentBlock);
 		}

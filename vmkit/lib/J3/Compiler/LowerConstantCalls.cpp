@@ -195,7 +195,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
 
           Value* clPtr = GetElementPtrInst::Create(VT, args3, "", CI);
           Value* cl = new LoadInst(clPtr, "", CI);
-          cl = new BitCastInst(cl, intrinsics->JavaCommonClassType, "", CI);
+          cl = new BitCastInst(cl, intrinsics->JavaClassType, "", CI);
 
           CI->replaceAllUsesWith(cl);
           CI->eraseFromParent();

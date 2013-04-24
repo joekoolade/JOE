@@ -124,6 +124,7 @@ private:
 
   llvm::Constant* CreateConstantFromObjectArray(const ArrayObject* val);
 
+  // A map of classes and their global variable
   std::map<CommonClass*, llvm::GlobalVariable*> nativeClasses;
   std::map<ClassBytes*, llvm::GlobalVariable*> classBytes;
   std::map<const ClassArray*, llvm::GlobalVariable*> arrayClasses;

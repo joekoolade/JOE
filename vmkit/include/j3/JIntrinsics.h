@@ -34,7 +34,6 @@ public:
   llvm::Type* VTType;
   llvm::Type* JavaObjectType;
   llvm::Type* JavaArrayType;
-  llvm::Type* JavaCommonClassType;
   llvm::Type* JavaClassType;
   llvm::Type* JavaClassArrayType;
   llvm::Type* JavaClassPrimitiveType;
@@ -152,8 +151,14 @@ public:
   llvm::Function* ThrowExceptionFromJITFunction;
 
 private:
+  StructType *javaObject;
+  StructType *javaClass;
+
   void createJavaClass();
   void createJavaObjectType();
+  void createVirtualTable();
+  void createJavaArray();
+  void createJavaClassPrimitive();
   void initTypes();
 };
 
