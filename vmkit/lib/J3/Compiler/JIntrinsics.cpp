@@ -91,11 +91,12 @@ void JIntrinsics::createJavaObjectType() {
 	// +4		Lock
 	// +8		JavaClass *
 	// +12		instance fields
-	// %JavaObject = type { i32, i32, %JavaClass*, i32, [0 x i32] }
+	// %JavaObject = type { i32, i32, %JavaClass* }
 	javaObject = StructType::create(*Context, "JavaObject");
 	std::vector<Type*> javaObjectFields;
 	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
 	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
+	javaObjectFields.push_back(JavaClassType);
 	javaObject->setBody(javaObjectFields, false);
 	JavaObjectType = PointerType::getUnqual(javaObject);
 }
@@ -141,13 +142,145 @@ void JIntrinsics::createJavaClassArray() {
 	JavaClassArrayType = PointerType::getUnqual(javaClassArray);
 
 }
+
+void JIntrinsics::createArrayUInt8() {
+	// type { JavaObject, i32, [ 0 x i8 ] }
+	StructType* javaUint8Array = StructType::create(*Context, "ArrayUInt8");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt8Ty(*Context), 0);
+	fields.push_back(array);
+	javaUint8Array->setBody(fields, false);
+	JavaArrayUInt8Type = PointerType::getUnqual(javaUint8Array);
+}
+
+void JIntrinsics::createArraySInt8() {
+	// type { JavaObject, i32, [ 0 x i8 ] }
+	StructType* type = StructType::create(*Context, "ArraySInt8");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt8Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArraySInt8Type = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArrayUInt16() {
+	// type { JavaObject, i32, [ 0 x i16 ] }
+	StructType* type = StructType::create(*Context, "ArrayUInt16");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt16Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArrayUInt16Type = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArraySInt16() {
+	// type { JavaObject, i32, [ 0 x i16 ] }
+	StructType* type = StructType::create(*Context, "ArraySInt16");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt16Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArraySInt16Type = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArrayUInt32() {
+	// type { JavaObject, i32, [ 0 x i32 ] }
+	StructType* type = StructType::create(*Context, "ArrayUInt32");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt32Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArrayUInt32Type = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArraySInt32() {
+	// type { JavaObject, i32, [ 0 x i32 ] }
+	StructType* type = StructType::create(*Context, "ArraySInt32");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt32Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArraySInt32Type = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArrayLong() {
+	// type { JavaObject, i32, [ 0 x i64 ] }
+	StructType* type = StructType::create(*Context, "ArrayLong");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt64Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArrayLongType = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArrayFloat() {
+	// type { JavaObject, i32, [ 0 x float ] }
+	StructType* type = StructType::create(*Context, "ArrayFloat");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getFloatTy(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArrayFloatType = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArrayDouble() {
+	// type { JavaObject, i32, [ 0 x double ] }
+	StructType* type = StructType::create(*Context, "ArrayDouble");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getDoubleTy(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArrayDoubleType = PointerType::getUnqual(type);
+}
+
+void JIntrinsics::createArrayObject() {
+	// type { JavaObject, i32, [ 0 x double ] }
+	StructType* type = StructType::create(*Context, "ArrayObject");
+	std::vector<Type*> fields;
+	fields.push_back(javaObject);
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(JavaObjectType, 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	JavaArrayObjectType = PointerType::getUnqual(type);
+}
+
 void JIntrinsics::initTypes() {
 	createVirtualTable();
 	createJavaClass();
 	createJavaObjectType();
 	createJavaArray();
 	createJavaClassPrimitive();
+	createArrayUInt8();
+	createArraySInt8();
+	createArrayUInt16();
+	createArraySInt16();
+	createArrayUInt32();
+	createArraySInt32();
+	createArrayLong();
+	createArrayFloat();
+	createArrayDouble();
+	createArrayObject();
 }
+
 void JIntrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
@@ -156,26 +289,6 @@ void JIntrinsics::init(llvm::Module* module) {
 
   ResolvedConstantPoolType = ptrPtrType;
  
-  JavaArrayUInt8Type =
-    PointerType::getUnqual(module->getTypeByName("ArrayUInt8"));
-  JavaArraySInt8Type =
-    PointerType::getUnqual(module->getTypeByName("ArraySInt8"));
-  JavaArrayUInt16Type =
-    PointerType::getUnqual(module->getTypeByName("ArrayUInt16"));
-  JavaArraySInt16Type =
-    PointerType::getUnqual(module->getTypeByName("ArraySInt16"));
-  JavaArrayUInt32Type =
-    PointerType::getUnqual(module->getTypeByName("ArrayUInt32"));
-  JavaArraySInt32Type =
-    PointerType::getUnqual(module->getTypeByName("ArraySInt32"));
-  JavaArrayLongType =
-    PointerType::getUnqual(module->getTypeByName("ArrayLong"));
-  JavaArrayFloatType =
-    PointerType::getUnqual(module->getTypeByName("ArrayFloat"));
-  JavaArrayDoubleType =
-    PointerType::getUnqual(module->getTypeByName("ArrayDouble"));
-  JavaArrayObjectType =
-    PointerType::getUnqual(module->getTypeByName("ArrayObject"));
 
   JavaFieldType =
     PointerType::getUnqual(module->getTypeByName("JavaField"));
@@ -185,14 +298,6 @@ void JIntrinsics::init(llvm::Module* module) {
     PointerType::getUnqual(module->getTypeByName("UTF8"));
   AttributType =
     PointerType::getUnqual(module->getTypeByName("Attribut"));
-  JavaThreadType =
-    PointerType::getUnqual(module->getTypeByName("JavaThread"));
-  MutatorThreadType =
-    PointerType::getUnqual(module->getTypeByName("MutatorThread"));
-  
-  J3DenseMapType =
-    PointerType::getUnqual(module->getTypeByName("J3DenseMap"));
-  
   
   JavaObjectNullConstant =
     Constant::getNullValue(JIntrinsics::JavaObjectType);

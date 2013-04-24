@@ -160,6 +160,16 @@ private:
   void createJavaArray();
   void createJavaClassPrimitive();
   void createJavaClassArray();
+  void createArrayUInt8();
+  void createArraySInt8();
+  void createArrayUInt16();
+  void createArraySInt16();
+  void createArrayUInt32();
+  void createArraySInt32();
+  void createArrayLong();
+  void createArrayFloat();
+  void createArrayDouble();
+  void createArrayObject();
   void initTypes();
 };
 
