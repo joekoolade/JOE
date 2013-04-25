@@ -265,22 +265,65 @@ void JIntrinsics::createArrayObject() {
 
 void JIntrinsics::createJavaField() {
     // type { i8*, i16, %UTF8*, %UTF8*, %Attribut*, i16, %JavaClass*, i32, i16 }
+	StructType* type = StructType::create(*Context, "JavaField");
+	std::vector<Type*> fields;
+	fields.push_back(Type::getInt8PtrTy(*Context));
+	fields.push_back(Type::getInt16Ty(*Context));
+	fields.push_back(UTF8Type);
+	fields.push_back(UTF8Type);
+	fields.push_back(AttributType);
+	fields.push_back(Type::getInt16Ty(*Context));
+	fields.push_back(JavaClassType);
+	fields.push_back(Type::getInt32Ty(*Context));
+	fields.push_back(Type::getInt16Ty(*Context));
+	type->setBody(fields, false);
+	JavaFieldType = PointerType::getUnqual(type);
 }
 
 void JIntrinsics::createJavaMethod() {
     // type { i8*, i16, %Attribut*, i16, %JavaClass*, %UTF8*, %UTF8*, i8, i8*, i32 }
+	StructType* type = StructType::create(*Context, "JavaField");
+	std::vector<Type*> fields;
+	fields.push_back(Type::getInt8PtrTy(*Context));
+	fields.push_back(Type::getInt16Ty(*Context));
+	fields.push_back(AttributType);
+	fields.push_back(Type::getInt16Ty(*Context));
+	fields.push_back(JavaClassType);
+	fields.push_back(UTF8Type);
+	fields.push_back(UTF8Type);
+	fields.push_back(Type::getInt8Ty(*Context));
+	fields.push_back(Type::getInt16PtrTy(*Context));
+	fields.push_back(Type::getInt32Ty(*Context));
+	type->setBody(fields, false);
+	JavaMethodType = PointerType::getUnqual(type);
 }
 
 void JIntrinsics::createUTF8() {
-    // type { i8*, [0 x i16] }
+    // type { i32, [0 x i16] }
+	StructType* type = StructType::create(*Context, "UTF8");
+	std::vector<Type*> fields;
+	fields.push_back(Type::getInt32Ty(*Context));
+	ArrayType* array = ArrayType::get(Type::getInt16Ty(*Context), 0);
+	fields.push_back(array);
+	type->setBody(fields, false);
+	UTF8Type = PointerType::getUnqual(type);
 }
 
 void JIntrinsics::createAttribute() {
     // type { %UTF8*, i32, i32 }
+	StructType* type = StructType::create(*Context, "Attribut");
+	std::vector<Type*> fields;
+	fields.push_back(UTF8Type);
+	fields.push_back(Type::getInt32Ty(*Context));
+	fields.push_back(Type::getInt32Ty(*Context));
+	type->setBody(fields, false);
+	AttributType = PointerType::getUnqual(type);
+
 }
 
 void JIntrinsics::initTypes() {
 	createVirtualTable();
+	createUTF8();
 	createJavaClass();
 	createJavaObjectType();
 	createJavaArray();
@@ -295,10 +338,9 @@ void JIntrinsics::initTypes() {
 	createArrayFloat();
 	createArrayDouble();
 	createArrayObject();
+	createAttribute();
 	createJavaField();
 	createJavaMethod();
-	createUTF8();
-	createAttribute();
 }
 
 void JIntrinsics::init(llvm::Module* module) {
@@ -308,24 +350,10 @@ void JIntrinsics::init(llvm::Module* module) {
   initTypes();
 
   ResolvedConstantPoolType = ptrPtrType;
- 
 
-  JavaFieldType =
-    PointerType::getUnqual(module->getTypeByName("JavaField"));
-  JavaMethodType =
-    PointerType::getUnqual(module->getTypeByName("JavaMethod"));
-  UTF8Type =
-    PointerType::getUnqual(module->getTypeByName("UTF8"));
-  AttributType =
-    PointerType::getUnqual(module->getTypeByName("Attribut"));
-  
-  JavaObjectNullConstant =
-    Constant::getNullValue(JIntrinsics::JavaObjectType);
-  MaxArraySizeConstant = ConstantInt::get(Type::getInt32Ty(*Context),
-                                          JavaArray::MaxArraySize);
-  JavaArraySizeConstant = ConstantInt::get(Type::getInt32Ty(*Context),
-                                          /*&sizeof(JavaObject)*/ 8 + sizeof(ssize_t));
-  
+  JavaObjectNullConstant = Constant::getNullValue(JIntrinsics::JavaObjectType);
+  MaxArraySizeConstant = ConstantInt::get(Type::getInt32Ty(*Context), JavaArray::MaxArraySize);
+  JavaArraySizeConstant = ConstantInt::get(Type::getInt32Ty(*Context), 12 + sizeof(ssize_t));
   
   JavaArrayElementsOffsetConstant = constantTwo;
   JavaArraySizeOffsetConstant = constantOne;
