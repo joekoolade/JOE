@@ -263,6 +263,22 @@ void JIntrinsics::createArrayObject() {
 	JavaArrayObjectType = PointerType::getUnqual(type);
 }
 
+void JIntrinsics::createJavaField() {
+    // type { i8*, i16, %UTF8*, %UTF8*, %Attribut*, i16, %JavaClass*, i32, i16 }
+}
+
+void JIntrinsics::createJavaMethod() {
+    // type { i8*, i16, %Attribut*, i16, %JavaClass*, %UTF8*, %UTF8*, i8, i8*, i32 }
+}
+
+void JIntrinsics::createUTF8() {
+    // type { i8*, [0 x i16] }
+}
+
+void JIntrinsics::createAttribute() {
+    // type { %UTF8*, i32, i32 }
+}
+
 void JIntrinsics::initTypes() {
 	createVirtualTable();
 	createJavaClass();
@@ -279,6 +295,10 @@ void JIntrinsics::initTypes() {
 	createArrayFloat();
 	createArrayDouble();
 	createArrayObject();
+	createJavaField();
+	createJavaMethod();
+	createUTF8();
+	createAttribute();
 }
 
 void JIntrinsics::init(llvm::Module* module) {

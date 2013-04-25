@@ -170,6 +170,10 @@ private:
   void createArrayFloat();
   void createArrayDouble();
   void createArrayObject();
+  void createJavaField();
+  void createJavaMethod();
+  void createUTF8();
+  void createAttribute();
   void initTypes();
 };
 
