@@ -401,79 +401,79 @@ void JIntrinsics::init(llvm::Module* module) {
   OffsetJavaExceptionInJavaThreadConstant = ConstantInt::get(Type::getInt32Ty(*Context), 2);
   
 
-  InterfaceLookupFunction = module->getFunction("j3InterfaceLookup");
-  MultiCallNewFunction = module->getFunction("j3MultiCallNew");
-  ForceLoadedCheckFunction = module->getFunction("forceLoadedCheck");
-  InitialisationCheckFunction = module->getFunction("initialisationCheck");
-  ForceInitialisationCheckFunction = 
-    module->getFunction("forceInitialisationCheck");
-  InitialiseClassFunction = module->getFunction("j3RuntimeInitialiseClass");
-  
-  GetConstantPoolAtFunction = module->getFunction("getConstantPoolAt");
-  ArrayLengthFunction = module->getFunction("arrayLength");
-  GetVTFunction = module->getFunction("getVT");
-  GetIMTFunction = module->getFunction("getIMT");
-  GetClassFunction = module->getFunction("getClass");
-  ClassLookupFunction = module->getFunction("j3ClassLookup");
-  GetVTFromClassFunction = module->getFunction("getVTFromClass");
-  GetVTFromClassArrayFunction = module->getFunction("getVTFromClassArray");
-  GetVTFromCommonClassFunction = module->getFunction("getVTFromCommonClass");
-  GetBaseClassVTFromVTFunction = module->getFunction("getBaseClassVTFromVT");
-  GetObjectSizeFromClassFunction = 
-    module->getFunction("getObjectSizeFromClass");
- 
-  GetClassDelegateeFunction = module->getFunction("getClassDelegatee");
-  RuntimeDelegateeFunction = module->getFunction("j3RuntimeDelegatee");
-  IsAssignableFromFunction = module->getFunction("isAssignableFrom");
-  IsSecondaryClassFunction = module->getFunction("isSecondaryClass");
-  GetDepthFunction = module->getFunction("getDepth");
-  GetStaticInstanceFunction = module->getFunction("getStaticInstance");
-  GetDisplayFunction = module->getFunction("getDisplay");
-  GetVTInDisplayFunction = module->getFunction("getVTInDisplay");
-  AquireObjectFunction = module->getFunction("j3JavaObjectAquire");
-  ReleaseObjectFunction = module->getFunction("j3JavaObjectRelease");
-
-  VirtualFieldLookupFunction = module->getFunction("j3VirtualFieldLookup");
-  StaticFieldLookupFunction = module->getFunction("j3StaticFieldLookup");
-  StringLookupFunction = module->getFunction("j3StringLookup");
-  StartJNIFunction = module->getFunction("j3StartJNI");
-  EndJNIFunction = module->getFunction("j3EndJNI");
-  
-  ResolveVirtualStubFunction = module->getFunction("j3ResolveVirtualStub");
-  ResolveStaticStubFunction = module->getFunction("j3ResolveStaticStub");
-  ResolveSpecialStubFunction = module->getFunction("j3ResolveSpecialStub");
-  ResolveInterfaceFunction = module->getFunction("j3ResolveInterface");
-  
-  NullPointerExceptionFunction =
-    module->getFunction("j3NullPointerException");
-  ClassCastExceptionFunction = module->getFunction("j3ClassCastException");
-  IndexOutOfBoundsExceptionFunction = 
-    module->getFunction("j3IndexOutOfBoundsException");
-  NegativeArraySizeExceptionFunction = 
-    module->getFunction("j3NegativeArraySizeException");
-  OutOfMemoryErrorFunction = module->getFunction("j3OutOfMemoryError");
-  StackOverflowErrorFunction = module->getFunction("j3StackOverflowError");
-  ArrayStoreExceptionFunction = module->getFunction("j3ArrayStoreException");
-  ArithmeticExceptionFunction = module->getFunction("j3ArithmeticException");
-
-  PrintExecutionFunction = module->getFunction("j3PrintExecution");
-  PrintMethodStartFunction = module->getFunction("j3PrintMethodStart");
-  PrintMethodEndFunction = module->getFunction("j3PrintMethodEnd");
-
-  ThrowExceptionFunction = module->getFunction("j3ThrowException");
-
-  GetArrayClassFunction = module->getFunction("j3GetArrayClass");
- 
-  GetFinalInt8FieldFunction = module->getFunction("getFinalInt8Field");
-  GetFinalInt16FieldFunction = module->getFunction("getFinalInt16Field");
-  GetFinalInt32FieldFunction = module->getFunction("getFinalInt32Field");
-  GetFinalLongFieldFunction = module->getFunction("getFinalLongField");
-  GetFinalFloatFieldFunction = module->getFunction("getFinalFloatField");
-  GetFinalDoubleFieldFunction = module->getFunction("getFinalDoubleField");
-
-  VirtualLookupFunction = module->getFunction("j3VirtualTableLookup");
-
-  GetLockFunction = module->getFunction("getLock");
-  ThrowExceptionFromJITFunction =
-    module->getFunction("j3ThrowExceptionFromJIT"); 
+//  InterfaceLookupFunction = module->getFunction("j3InterfaceLookup");
+//  MultiCallNewFunction = module->getFunction("j3MultiCallNew");
+//  ForceLoadedCheckFunction = module->getFunction("forceLoadedCheck");
+//  InitialisationCheckFunction = module->getFunction("initialisationCheck");
+//  ForceInitialisationCheckFunction =
+//    module->getFunction("forceInitialisationCheck");
+//  InitialiseClassFunction = module->getFunction("j3RuntimeInitialiseClass");
+//
+//  GetConstantPoolAtFunction = module->getFunction("getConstantPoolAt");
+//  ArrayLengthFunction = module->getFunction("arrayLength");
+//  GetVTFunction = module->getFunction("getVT");
+//  GetIMTFunction = module->getFunction("getIMT");
+//  GetClassFunction = module->getFunction("getClass");
+//  ClassLookupFunction = module->getFunction("j3ClassLookup");
+//  GetVTFromClassFunction = module->getFunction("getVTFromClass");
+//  GetVTFromClassArrayFunction = module->getFunction("getVTFromClassArray");
+//  GetVTFromCommonClassFunction = module->getFunction("getVTFromCommonClass");
+//  GetBaseClassVTFromVTFunction = module->getFunction("getBaseClassVTFromVT");
+//  GetObjectSizeFromClassFunction =
+//    module->getFunction("getObjectSizeFromClass");
+//
+//  GetClassDelegateeFunction = module->getFunction("getClassDelegatee");
+//  RuntimeDelegateeFunction = module->getFunction("j3RuntimeDelegatee");
+//  IsAssignableFromFunction = module->getFunction("isAssignableFrom");
+//  IsSecondaryClassFunction = module->getFunction("isSecondaryClass");
+//  GetDepthFunction = module->getFunction("getDepth");
+//  GetStaticInstanceFunction = module->getFunction("getStaticInstance");
+//  GetDisplayFunction = module->getFunction("getDisplay");
+//  GetVTInDisplayFunction = module->getFunction("getVTInDisplay");
+//  AquireObjectFunction = module->getFunction("j3JavaObjectAquire");
+//  ReleaseObjectFunction = module->getFunction("j3JavaObjectRelease");
+//
+//  VirtualFieldLookupFunction = module->getFunction("j3VirtualFieldLookup");
+//  StaticFieldLookupFunction = module->getFunction("j3StaticFieldLookup");
+//  StringLookupFunction = module->getFunction("j3StringLookup");
+//  StartJNIFunction = module->getFunction("j3StartJNI");
+//  EndJNIFunction = module->getFunction("j3EndJNI");
+//
+//  ResolveVirtualStubFunction = module->getFunction("j3ResolveVirtualStub");
+//  ResolveStaticStubFunction = module->getFunction("j3ResolveStaticStub");
+//  ResolveSpecialStubFunction = module->getFunction("j3ResolveSpecialStub");
+//  ResolveInterfaceFunction = module->getFunction("j3ResolveInterface");
+//
+//  NullPointerExceptionFunction =
+//    module->getFunction("j3NullPointerException");
+//  ClassCastExceptionFunction = module->getFunction("j3ClassCastException");
+//  IndexOutOfBoundsExceptionFunction =
+//    module->getFunction("j3IndexOutOfBoundsException");
+//  NegativeArraySizeExceptionFunction =
+//    module->getFunction("j3NegativeArraySizeException");
+//  OutOfMemoryErrorFunction = module->getFunction("j3OutOfMemoryError");
+//  StackOverflowErrorFunction = module->getFunction("j3StackOverflowError");
+//  ArrayStoreExceptionFunction = module->getFunction("j3ArrayStoreException");
+//  ArithmeticExceptionFunction = module->getFunction("j3ArithmeticException");
+//
+//  PrintExecutionFunction = module->getFunction("j3PrintExecution");
+//  PrintMethodStartFunction = module->getFunction("j3PrintMethodStart");
+//  PrintMethodEndFunction = module->getFunction("j3PrintMethodEnd");
+//
+//  ThrowExceptionFunction = module->getFunction("j3ThrowException");
+//
+//  GetArrayClassFunction = module->getFunction("j3GetArrayClass");
+//
+//  GetFinalInt8FieldFunction = module->getFunction("getFinalInt8Field");
+//  GetFinalInt16FieldFunction = module->getFunction("getFinalInt16Field");
+//  GetFinalInt32FieldFunction = module->getFunction("getFinalInt32Field");
+//  GetFinalLongFieldFunction = module->getFunction("getFinalLongField");
+//  GetFinalFloatFieldFunction = module->getFunction("getFinalFloatField");
+//  GetFinalDoubleFieldFunction = module->getFunction("getFinalDoubleField");
+//
+//  VirtualLookupFunction = module->getFunction("j3VirtualTableLookup");
+//
+//  GetLockFunction = module->getFunction("getLock");
+//  ThrowExceptionFromJITFunction =
+//    module->getFunction("j3ThrowExceptionFromJIT");
 }

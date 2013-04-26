@@ -108,8 +108,8 @@ void JavaLLVMCompiler::addJavaPasses() {
   J3FunctionPasses = new FunctionPassManager(TheModule);
   J3FunctionPasses->add(createLowerConstantCallsPass(this));
   
-  if (cooperativeGC)
-    J3FunctionPasses->add(createLoopSafePointsPass());
+//  if (cooperativeGC)
+//    J3FunctionPasses->add(createLoopSafePointsPass());
 
   // Add other passes after the loop pass, because safepoints may move objects.
   // Moving objects disable many optimizations.

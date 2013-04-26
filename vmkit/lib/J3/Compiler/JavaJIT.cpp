@@ -1293,11 +1293,11 @@ void JavaJIT::loadConstant(uint16 index) {
         push(val, false, JavaClassLoader::newString);
       } else {
         // Lookup the constant pool cache
-        Type* Ty = PointerType::getUnqual(intrinsics->JavaObjectType);
-        Value* val = getConstantPoolAt(index, intrinsics->StringLookupFunction,
-                                       Ty, 0, false);
-        val = new LoadInst(val, "", currentBlock);
-        push(val, false, JavaClassLoader::newString);
+//        Type* Ty = PointerType::getUnqual(intrinsics->JavaObjectType);
+//        Value* val = getConstantPoolAt(index, intrinsics->StringLookupFunction,
+//                                       Ty, 0, false);
+//        val = new LoadInst(val, "", currentBlock);
+//        push(val, false, JavaClassLoader::newString);
       }
     }
   } else if (type == JavaConstantPool::ConstantLong) {

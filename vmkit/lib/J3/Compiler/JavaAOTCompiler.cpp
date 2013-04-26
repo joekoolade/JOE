@@ -184,7 +184,9 @@ Constant* JavaAOTCompiler::getNativeFunction(JavaMethod* meth, void* ptr) {
 		return I->second;
 	}
 }
-
+Constant* JavaAOTCompiler::getResolvedConstantPool(JavaConstantPool* ctp) {
+    return NULL;
+}
 Constant* JavaAOTCompiler::getMethodInClass(JavaMethod* meth) {
 	Class* cl = meth->classDef;
 	Constant* MOffset = 0;
@@ -1308,10 +1310,10 @@ Constant* JavaAOTCompiler::CreateConstantFromClass(Class* cl) {
 	ClassElts.push_back(Constant::getNullValue(JavaIntrinsics.ptrType));
 
 	// ctpInfo
-	Constant* ctpInfo = CreateConstantFromJavaConstantPool(cl->ctpInfo);
-	Constant* varGV = new GlobalVariable(*getLLVMModule(), ctpInfo->getType(),
-			false, GlobalValue::InternalLinkage, ctpInfo, "");
-	ClassElts.push_back(varGV);
+//	Constant* ctpInfo = CreateConstantFromJavaConstantPool(cl->ctpInfo);
+//	Constant* varGV = new GlobalVariable(*getLLVMModule(), ctpInfo->getType(),
+//			false, GlobalValue::InternalLinkage, ctpInfo, "");
+//	ClassElts.push_back(varGV);
 
 	// attributs
 	if (cl->nbAttributs) {
