@@ -425,6 +425,8 @@ public:
   ///
   JavaVirtualTable* getVirtualVT() const { return virtualVT; }
 
+  const static unsigned int Magic;
+
   /// getOuterClass - Get the class that contains the definition of this class.
   ///
   Class* getOuterClass() const {

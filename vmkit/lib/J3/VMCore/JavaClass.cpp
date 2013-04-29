@@ -22,9 +22,12 @@
 #include "UTF8.h"
 #include "JavaAccess.h"
 
+#include <string>
 #include <cstring>
 
 using namespace j3;
+
+const unsigned int Class::Magic = 0xcafebabe;
 
 //const UTF8* Attribut::annotationsAttribut = 0;
 //const UTF8* Attribut::codeAttribut = 0;
@@ -829,23 +832,23 @@ void Class::readClass() {
   Reader reader(bytes);
   uint32 magic;
   magic = reader.readU4();
-  // fixme
-  // assert(magic == Jnjvm::Magic && "I've created a class but magic is no good!");
+  assert(magic == Class::Magic && "I've created a class but magic is no good!");
 
-  /* uint16 minor = */ reader.readU2();
-  /* uint16 major = */ reader.readU2();
+  uint16 minor =  reader.readU2();
+  uint16 major =  reader.readU2();
   uint32 ctpSize = reader.readU2();
   ctpInfo = new JavaConstantPool(this, reader, ctpSize);
   access |= reader.readU2();
   
-  if (!isPublic(access)) access |=ACC_PRIVATE;
+  if (!isPublic(access)) access |= ACC_PRIVATE;
 
   const UTF8* thisClassName = 
     ctpInfo->resolveClassName(reader.readU2());
   
   if (!(thisClassName->equals(name))) {
-    // fixme
-	//  JavaThread::get()->getJVM()->noClassDefFoundError(this, thisClassName);
+	  std::string msg("No class definition found! ");
+	  msg.append(UTF8Buffer(name).cString());
+ 	  assert(msg.c_str());
   }
 
   readParents(reader);

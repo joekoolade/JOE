@@ -51,7 +51,6 @@ using namespace llvm;
 
 const char* JavaAOTCompiler::dirSeparator = "/";
 const char* JavaAOTCompiler::envSeparator = ":";
-const unsigned int JavaAOTCompiler::Magic = 0xcafebabe;
 const UTF8* JavaCompiler::InlinePragma;
 const UTF8* JavaCompiler::NoInlinePragma;
 
@@ -65,12 +64,13 @@ CommonClass* JavaAOTCompiler::lookupClass(const UTF8* utf8) {
 }
 
 Class* JavaAOTCompiler::internalLoad(const UTF8* name, ClassBytes* data) {
-	CommonClass* cl = lookupClass(name);
+	Class* cl = (Class *)lookupClass(name);
 	if(!cl){
 		cl = new Class(name, data);
 	}
-
-	return (Class*) cl;
+	// Populate the class
+	cl->readClass();
+	return cl;
 }
 
 Class* JavaAOTCompiler::loadName(const UTF8* name, ClassBytes* data) {
@@ -2245,8 +2245,8 @@ void JavaAOTCompiler::mainCompilerStart() {
 #endif
 
 	if (size > 4
-			&& (!strcmp(&name[size - 4], ".jar")
-					|| !strcmp(&name[size - 4], ".zip"))) {
+		&& (!strcmp(&name[size - 4], ".jar")
+		|| !strcmp(&name[size - 4], ".zip"))) {
 
 		ClassBytes* bytes = Reader::openFile(name);
 
