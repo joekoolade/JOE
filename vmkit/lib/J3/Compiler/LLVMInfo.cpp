@@ -809,13 +809,18 @@ Function* LLVMSignatureInfo::getVirtualStub() {
 }
 
 void JavaLLVMCompiler::initialiseAssessorInfo() {
+    LLVMAssessorInfo assessor;
+    assessor = AssessorInfo[I_VOID];
+    assessor.llvmType = Type::getVoidTy(getLLVMContext());
+    assessor.llvmTypePtr = 0;
+    assessor.logSizeInBytesConstant = 0;
+
   AssessorInfo[I_VOID].llvmType = Type::getVoidTy(getLLVMContext());
   AssessorInfo[I_VOID].llvmTypePtr = 0;
   AssessorInfo[I_VOID].logSizeInBytesConstant = 0;
   
   AssessorInfo[I_BOOL].llvmType = Type::getInt8Ty(getLLVMContext());
-  AssessorInfo[I_BOOL].llvmTypePtr =
-    PointerType::getUnqual(Type::getInt8Ty(getLLVMContext()));
+  AssessorInfo[I_BOOL].llvmTypePtr = PointerType::getUnqual(Type::getInt8Ty(getLLVMContext()));
   AssessorInfo[I_BOOL].logSizeInBytesConstant = 0;
   
   AssessorInfo[I_BYTE].llvmType = Type::getInt8Ty(getLLVMContext());

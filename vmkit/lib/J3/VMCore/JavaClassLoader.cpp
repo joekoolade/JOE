@@ -73,6 +73,14 @@ UTF8* JavaClassLoader::sinh;
 UTF8* JavaClassLoader::tanh;
 UTF8* JavaClassLoader::abs;
 
+const UTF8* Attribut::annotationsAttribut = JavaClassLoader::asciizConstructUTF8("RuntimeVisibleAnnotations");
+const UTF8* Attribut::codeAttribut = JavaClassLoader::asciizConstructUTF8("Code");
+const UTF8* Attribut::exceptionsAttribut = JavaClassLoader::asciizConstructUTF8("Exceptions");
+const UTF8* Attribut::constantAttribut = JavaClassLoader::asciizConstructUTF8("ConstantValue");
+const UTF8* Attribut::lineNumberTableAttribut = JavaClassLoader::asciizConstructUTF8("LineNumberTable");
+const UTF8* Attribut::innerClassesAttribut = JavaClassLoader::asciizConstructUTF8("InnerClasses");
+const UTF8* Attribut::sourceFileAttribut = JavaClassLoader::asciizConstructUTF8("SourceFile");
+
 UTF8* JavaClassLoader::stackWalkerName;
 UTF8* JavaClassLoader::mathName;
 UTF8* JavaClassLoader::VMFloatName;
