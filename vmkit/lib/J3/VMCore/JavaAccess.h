@@ -34,9 +34,9 @@ namespace j3 {
 #define ACC_SYNTHETIC    0x1000
 #define ACC_ENUM         0x4000
 
-#define JNJVM_CLASS      0x10000
-#define JNJVM_ARRAY      0x20000
-#define JNJVM_PRIMITIVE  0x40000
+#define VM_CLASS      0x10000
+#define VM_ARRAY      0x20000
+#define VM_PRIMITIVE  0x40000
 
 #define MK_VERIFIER(name, flag)                   \
   inline bool name(unsigned int param) {          \
@@ -61,9 +61,9 @@ inline bool isVirtual(unsigned int param) {
     return !(ACC_STATIC & param);
 }
 
-MK_VERIFIER(isClass,      JNJVM_CLASS)
-MK_VERIFIER(isPrimitive,  JNJVM_PRIMITIVE)
-MK_VERIFIER(isArray,      JNJVM_ARRAY)
+MK_VERIFIER(isClass,      VM_CLASS)
+MK_VERIFIER(isPrimitive,  VM_PRIMITIVE)
+MK_VERIFIER(isArray,      VM_ARRAY)
 
 
 #undef MK_VERIFIER

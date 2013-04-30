@@ -1926,7 +1926,7 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 	generateStubs = true;
 	assumeCompiled = false;
 	compileRT = false;
-	precompile = false;
+	precompile = true;
 	emitClassBytes = false;
 
 	std::vector<llvm::Type*> llvmArgs;

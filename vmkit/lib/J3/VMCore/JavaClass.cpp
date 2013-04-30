@@ -839,6 +839,7 @@ void Class::readClass() {
   uint32 ctpSize = reader.readU2();
   ctpInfo = new JavaConstantPool(this, reader, ctpSize);
   access |= reader.readU2();
+  access |= VM_CLASS;
   
   if (!isPublic(access)) access |= ACC_PRIVATE;
 
