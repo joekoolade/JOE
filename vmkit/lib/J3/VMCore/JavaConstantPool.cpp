@@ -160,6 +160,9 @@ JavaConstantPool::JavaConstantPool(Class* cl, Reader& reader, uint32 size) {
   ctpType  = new uint8[size];
   ctpDef   = new sint32[size];
   ctpRes   = new void*[size];
+  std::memset(ctpType, 0, sizeof(uint8)*size);
+  std::memset(ctpDef, 0, sizeof(sint32)*size);
+  std::memset(ctpRes, 0, sizeof(void *)*size);
 
   uint32 cur = 1;
   while (cur < ctpSize) {
