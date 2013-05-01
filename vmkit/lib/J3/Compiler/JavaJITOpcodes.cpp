@@ -11,6 +11,7 @@
 #define JNJVM_COMPILE 0
 #define JNJVM_EXECUTE 0
 
+#include <cassert>
 #include <cstring>
 
 #include <llvm/Constants.h>

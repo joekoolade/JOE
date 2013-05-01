@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <cassert>
+
 #include "JavaArray.h"
 #include "JavaClass.h"
 #include "JavaString.h"

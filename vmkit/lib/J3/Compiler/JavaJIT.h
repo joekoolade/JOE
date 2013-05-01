@@ -10,6 +10,8 @@
 #ifndef JNJVM_JAVA_JIT_H
 #define JNJVM_JAVA_JIT_H
 
+#include <cassert>
+
 #include <vector>
 #include <map>
 

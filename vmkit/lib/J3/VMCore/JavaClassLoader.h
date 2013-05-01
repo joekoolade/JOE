@@ -38,8 +38,6 @@ private:
 	/// javaSignatures - Tables of Signdef defined by this class loader.
 	///
 	static SignMap* javaSignatures;
-	/// primitiveMap - Map of primitive classes, hashed by id.
-	static std::map<const char, ClassPrimitive*> primitiveMap;
 
 	/// hashUTF8 - Tables of UTF8s defined by this class loader.
 	///
@@ -51,6 +49,10 @@ public:
 	///
 	static ClassMap* classes;
 
+	/// primitiveMap - Map of primitive classes, hashed by id.
+	static std::map<const char, ClassPrimitive*> primitiveMap;
+
+	static void init();
 	static JavaCompiler* getCompiler() {
 		return compiler;
 	}

@@ -44,6 +44,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <assert.h>
 
 using namespace j3;
 using namespace llvm;

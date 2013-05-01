@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <cassert>
 
 #include "llvm/BasicBlock.h"
 #include "llvm/Constants.h"
@@ -517,16 +518,11 @@ Constant* JavaAOTCompiler::CreateConstantFromStaticInstance(Class* cl) {
 									(uint64) ctpInfo->IntegerAt(idx)));
 				}
 			} else if (type->isReference()) {
-				if (useCooperativeGC()) {
-					Elts.push_back(JavaIntrinsics.JavaObjectNullConstant);
-				} else {
-					const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[idx]);
-					JavaString* obj = ctpInfo->resolveString(utf8, idx);
-					Constant* C = getString(obj);
-					C = ConstantExpr::getBitCast(C,
-							JavaIntrinsics.JavaObjectType);
-					Elts.push_back(C);
-				}
+				const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[idx]);
+				JavaString* obj = ctpInfo->resolveString(utf8, idx);
+				Constant* C = getString(obj);
+				C = ConstantExpr::getBitCast(C, JavaIntrinsics.JavaObjectType);
+				Elts.push_back(C);
 			} else {
 				fprintf(stderr, "Implement me");
 				abort();
@@ -609,7 +605,6 @@ Constant* JavaAOTCompiler::getVirtualTable(JavaVirtualTable* VT) {
 }
 
 Constant* JavaAOTCompiler::CreateConstantForBaseObject(CommonClass* cl) {
-	assert(!useCooperativeGC());
 	StructType* STy = dyn_cast<StructType>(
 			JavaIntrinsics.JavaObjectType->getContainedType(0));
 
@@ -741,7 +736,6 @@ Constant* JavaAOTCompiler::CreateConstantForBaseObject(CommonClass* cl) {
 //}
 
 Constant* JavaAOTCompiler::CreateConstantFromJavaString(JavaString* str) {
-	assert(!useCooperativeGC());
 	Class* cl = 0; // JavaObject::getClass(str)->asClass();
 	LLVMClassInfo* LCI = getClassInfo(cl);
 	StructType* STy = dyn_cast<StructType>(
@@ -1429,7 +1423,6 @@ Constant* JavaAOTCompiler::CreateConstantFromClassBytes(ClassBytes* bytes) {
 
 template<typename T>
 Constant* JavaAOTCompiler::CreateConstantFromIntArray(const T* val, Type* Ty) {
-	assert(!useCooperativeGC());
 	std::vector<Type*> Elemts;
 	ArrayType* ATy = ArrayType::get(Ty, T::getSize(val));
 	Elemts.push_back(JavaIntrinsics.JavaObjectType->getContainedType(0));
@@ -1457,8 +1450,7 @@ Constant* JavaAOTCompiler::CreateConstantFromIntArray(const T* val, Type* Ty) {
 
 template<typename T>
 Constant* JavaAOTCompiler::CreateConstantFromFPArray(const T* val, Type* Ty) {
-	assert(!useCooperativeGC());
-	std::vector<Type*> Elemts;
+		std::vector<Type*> Elemts;
 	ArrayType* ATy = ArrayType::get(Ty, T::getSize(val));
 	Elemts.push_back(JavaIntrinsics.JavaObjectType->getContainedType(0));
 	Elemts.push_back(JavaIntrinsics.pointerSizeType);
@@ -1485,7 +1477,6 @@ Constant* JavaAOTCompiler::CreateConstantFromFPArray(const T* val, Type* Ty) {
 
 Constant* JavaAOTCompiler::CreateConstantFromObjectArray(
 		const ArrayObject* val) {
-	assert(!useCooperativeGC());
 	std::vector<Type*> Elemts;
 	llvm::Type* Ty = JavaIntrinsics.JavaObjectType;
 	ArrayType* ATy = ArrayType::get(Ty, ArrayObject::getSize(val));
@@ -1878,6 +1869,7 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 
 	std::string Error;
 
+	bootClasspathEnv = NULL;
 	Triple theTriple("i686-pc-cygwin");
 	TargetRegistry::printRegisteredTargetsForVersion();
 	const Target* TheTarget(TargetRegistry::lookupTarget(theTriple.getTriple(), Error));
@@ -1920,6 +1912,7 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 	TheTargetData = TM->getTargetData();
 	TheModule->setDataLayout(TheTargetData->getStringRepresentation());
 	TheModule->setTargetTriple(TM->getTargetTriple());
+	JavaClassLoader::init();
 	JavaIntrinsics.init(TheModule);
 	initialiseAssessorInfo();
 

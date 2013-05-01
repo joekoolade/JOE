@@ -11,6 +11,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 
 #define DEBUG 1
 #include "debug.h"
@@ -23,7 +24,7 @@
 #include "JavaClassLoader.h"
 #include "JavaTypes.h"
 #include "Reader.h"
- 
+
 using namespace j3;
 
 const uint32 JavaConstantPool::ConstantUTF8 = 1;
@@ -212,7 +213,7 @@ const UTF8* JavaConstantPool::UTF8At(uint32 entry) {
     ctpRes[entry] = const_cast<UTF8*>(utf8);
   
     char *str = (new UTF8Buffer(utf8))->cString();
-    fprintf(stderr, "[%5d] <utf8>\t\t\"%s\"\n", entry, str);
+    fprintf(stderr, "[%5d] <utf8>\t\t%s\n", entry, str);
 
   }
   return (const UTF8*)ctpRes[entry];
@@ -498,6 +499,7 @@ JavaField* JavaConstantPool::lookupField(uint32 index, bool stat) {
           ctpRes[index] = (void*)field->ptrOffset;
         } else if (lookup->isReady()) {
         	// fixme
+        	assert("implement me");
 //          void* S = field->classDef->getStaticInstance();
 //          ctpRes[index] = (void*)((uint64)S + field->ptrOffset);
         }

@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <cassert>
+
 #include "llvm/BasicBlock.h"
 #include "llvm/CallingConv.h"
 #include "llvm/Constants.h"
@@ -604,27 +606,12 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
   for (Function::arg_iterator arg = stub->arg_begin();
        arg != stub->arg_end(); ++arg) {
     Value* temp = arg;
-    if (Compiler->useCooperativeGC() &&
-        arg->getType() == Intrinsics.JavaObjectType) {
-      temp = new AllocaInst(Intrinsics.JavaObjectType, "", currentBlock);
-      new StoreInst(arg, temp, "", currentBlock);
-      Value* GCArgs[2] = {
-        new BitCastInst(temp, Intrinsics.ptrPtrType, "", currentBlock),
-        Intrinsics.constantPtrNull
-      };
-        
-      CallInst::Create(Intrinsics.llvm_gc_gcroot, GCArgs, "", currentBlock);
-    }
     
     TempArgs.push_back(temp);
   }
 
   if (virt) {
-    if (Compiler->useCooperativeGC()) {
-      Args.push_back(new LoadInst(TempArgs[0], "", false, currentBlock));
-    } else {
       Args.push_back(TempArgs[0]);
-    }
   }
 
   Value* val = CallInst::Create(virt ? Intrinsics.ResolveVirtualStubFunction :
@@ -646,10 +633,6 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
   for (Function::arg_iterator arg = stub->arg_begin();
        arg != stub->arg_end(); ++arg, ++i) {
     Value* temp = arg;
-    if (Compiler->useCooperativeGC() &&
-        arg->getType() == Intrinsics.JavaObjectType) {
-      temp = new LoadInst(TempArgs[i], "", false, currentBlock);
-    }
     FunctionArgs.push_back(temp);
   }
   Value* res = CallInst::Create(Func, FunctionArgs, "", currentBlock);

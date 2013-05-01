@@ -7,6 +7,8 @@
  * Copyright, (C) 2013 Joe Kulig
  */
 
+#include <cassert>
+
 #include "types.h"
 #include "MvmDenseSet.h"
 #include "JavaClassLoader.h"
@@ -18,7 +20,6 @@
 
 #include <vector>
 #include <stdio.h>
-#include <cassert>
 
 using namespace j3;
 
@@ -36,6 +37,7 @@ ClassPrimitive* JavaClassLoader::OfLong = new ClassPrimitive(JavaClassLoader::as
 ClassPrimitive* JavaClassLoader::OfFloat = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("float"), 2);
 ClassPrimitive* JavaClassLoader::OfDouble = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("double"), 3);
 ClassPrimitive* JavaClassLoader::OfVoid = new ClassPrimitive(JavaClassLoader::asciizConstructUTF8("void"), 0);
+
 Class* JavaClassLoader::OfObject;
 JavaCompiler* JavaClassLoader::compiler;
 ClassArray* JavaClassLoader::ArrayOfObject;
@@ -87,6 +89,18 @@ UTF8* JavaClassLoader::VMFloatName;
 UTF8* JavaClassLoader::VMDoubleName;
 
 std::map<const char, ClassPrimitive*> JavaClassLoader::primitiveMap;
+
+void JavaClassLoader::init() {
+	JavaClassLoader::primitiveMap[I_VOID] = JavaClassLoader::OfVoid;
+	JavaClassLoader::primitiveMap[I_BOOL] = JavaClassLoader::OfBool;
+	JavaClassLoader::primitiveMap[I_BYTE] = JavaClassLoader::OfByte;
+	JavaClassLoader::primitiveMap[I_CHAR] = JavaClassLoader::OfChar;
+	JavaClassLoader::primitiveMap[I_SHORT] = JavaClassLoader::OfShort;
+	JavaClassLoader::primitiveMap[I_INT] = JavaClassLoader::OfInt;
+	JavaClassLoader::primitiveMap[I_FLOAT] = JavaClassLoader::OfFloat;
+	JavaClassLoader::primitiveMap[I_LONG] = JavaClassLoader::OfLong;
+	JavaClassLoader::primitiveMap[I_DOUBLE] = JavaClassLoader::OfDouble;
+}
 
 static void typeError(const UTF8* name, short int l) {
   if (l != 0) {
@@ -184,8 +198,7 @@ Typedef* JavaClassLoader::internalConstructType(const UTF8* name) {
       bool unsign = false;
 //      bool unsign = (cl == bootstrapLoader->upcalls->OfChar ||
 //                     cl == bootstrapLoader->upcalls->OfBool);
-      res = new PrimitiveTypedef(name, cl,
-                                                                unsign, cur);
+      res = new PrimitiveTypedef(name, cl, unsign, cur);
   }
   return res;
 }
@@ -238,16 +251,19 @@ Signdef* JavaClassLoader::constructSign(const UTF8* name) {
 
 // fixme: implement
 CommonClass* JavaClassLoader::loadBaseClass(const UTF8* name, uint32 start, uint32 len) {
+	assert("implement me");
 	return NULL;
 }
 
 // fixme: implement
 CommonClass* JavaClassLoader::lookupClass(const UTF8* name) {
+	assert("implement me");
 	return NULL;
 }
 
 // fixme: implement
 CommonClass* JavaClassLoader::lookupClassOrArray(const UTF8* utf8) {
+	assert("implement me");
 	return NULL;
 }
 
@@ -317,10 +333,12 @@ Class* JavaClassLoader::loadName(const UTF8* name) {
 
 // fixme: implement
 JavaString** JavaClassLoader::UTF8ToStr(const UTF8* utf8) {
+	assert("implement me");
 	return NULL;
 }
 
 // fixme: implement
 const UTF8* JavaClassLoader::constructArrayName(int, const UTF8*) {
+	assert("implement me");
 	return NULL;
 }

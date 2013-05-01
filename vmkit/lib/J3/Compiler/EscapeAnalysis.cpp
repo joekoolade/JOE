@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <cassert>
 
 #include "llvm/Constants.h"
 #include "llvm/Function.h"

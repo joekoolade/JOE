@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <cassert>
+
 #include "llvm/Constants.h"
 #include "llvm/GlobalVariable.h"
 #include "llvm/Pass.h"

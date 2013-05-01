@@ -12,6 +12,7 @@
 #define JNJVM_COMPILE 0
 #define JNJVM_EXECUTE 0
 
+#include <cassert>
 #include <cstring>
 
 #include <llvm/Constants.h>
@@ -481,16 +482,17 @@ llvm::Function* JavaJIT::nativeCompile(word_t natPtr) {
         this->thisObject = temp;
       }
       
-      if (TheCompiler->useCooperativeGC()) {
-        Value* GCArgs[2] = { 
-          new BitCastInst(temp, intrinsics->ptrPtrType, "",
-                          func->begin()->getTerminator()),
-          intrinsics->constantPtrNull
-        };
-        
-        CallInst::Create(intrinsics->llvm_gc_gcroot, GCArgs, "",
-                         func->begin()->getTerminator());
-      }
+      // fixme
+//      if (TheCompiler->useCooperativeGC()) {
+//        Value* GCArgs[2] = {
+//          new BitCastInst(temp, intrinsics->ptrPtrType, "",
+//                          func->begin()->getTerminator()),
+//          intrinsics->constantPtrNull
+//        };
+//
+//        CallInst::Create(intrinsics->llvm_gc_gcroot, GCArgs, "",
+//                         func->begin()->getTerminator());
+//      }
       
       new StoreInst(i, temp, false, currentBlock);
       node->addIncoming(temp, currentBlock);
@@ -506,24 +508,13 @@ llvm::Function* JavaJIT::nativeCompile(word_t natPtr) {
   
   
   Instruction* ResultObject = 0;
-  if (returnType == intrinsics->JavaObjectType) {
-    ResultObject = new AllocaInst(intrinsics->JavaObjectType, "",
-                                  func->begin()->begin());
-    
-    if (TheCompiler->useCooperativeGC()) {
-      
-      Value* GCArgs[2] = { 
-        new BitCastInst(ResultObject, intrinsics->ptrPtrType, "", currentBlock),
-        intrinsics->constantPtrNull
-      };
-      
-      CallInst::Create(intrinsics->llvm_gc_gcroot, GCArgs, "",
-                       currentBlock);
-    } else {
-      new StoreInst(intrinsics->JavaObjectNullConstant, ResultObject, "",
-                    currentBlock);
-    }
-  }
+	if (returnType == intrinsics->JavaObjectType) {
+		ResultObject = new AllocaInst(intrinsics->JavaObjectType, "",
+				func->begin()->begin());
+
+		new StoreInst(intrinsics->JavaObjectNullConstant, ResultObject, "",
+				currentBlock);
+	}
   
   Value* nativeFunc = TheCompiler->getNativeFunction(compilingMethod, (void*)natPtr);
   if (TheCompiler->isStaticCompiling()) {
@@ -822,9 +813,6 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
       objectLocals.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
                                           firstInstruction));
 
-      // The GCStrategy will already initialize the value.
-      if (!TheCompiler->useCooperativeGC())
-        new StoreInst(Constant::getNullValue(intrinsics->JavaObjectType), objectLocals.back(), false, firstInstruction);
     }
     for (int i = 0; i < maxStack; i++) {
       objectStack.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
@@ -849,9 +837,6 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
       new StoreInst(Constant::getNullValue(Type::getFloatTy(*llvmContext)), floatLocals.back(), false, firstBB);
       objectLocals.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
                                             firstBB));
-      // The GCStrategy will already initialize the value.
-      if (!TheCompiler->useCooperativeGC())
-        new StoreInst(Constant::getNullValue(intrinsics->JavaObjectType), objectLocals.back(), false, firstBB);
     }
 
     for (int i = 0; i < maxStack; i++) {
@@ -939,10 +924,6 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
   removeUnusedLocals(floatStack);
   removeUnusedLocals(longStack);
 
-  removeUnusedObjects(objectLocals, intrinsics, TheCompiler->useCooperativeGC());
-  removeUnusedObjects(objectStack, intrinsics, TheCompiler->useCooperativeGC());
-
-
   delete[] opcodeInfos;
   return endNode;
 }
@@ -989,16 +970,6 @@ llvm::Function* JavaJIT::javaCompile() {
   }
 
   Instruction* returnValue = NULL;
-  if (returnType == intrinsics->JavaObjectType &&
-      TheCompiler->useCooperativeGC()) {
-    returnValue = new AllocaInst(intrinsics->JavaObjectType, "",
-                                 currentBlock);
-    Instruction* cast = 
-        new BitCastInst(returnValue, intrinsics->ptrPtrType, "", currentBlock);
-    Value* GCArgs[2] = { cast, intrinsics->constantPtrNull };
-        
-    CallInst::Create(intrinsics->llvm_gc_gcroot, GCArgs, "", currentBlock);
-  }
 
   for (int i = 0; i < maxLocals; i++) {
     intLocals.push_back(new AllocaInst(Type::getInt32Ty(*llvmContext), "", currentBlock));
@@ -1011,9 +982,6 @@ llvm::Function* JavaJIT::javaCompile() {
     new StoreInst(Constant::getNullValue(Type::getFloatTy(*llvmContext)), floatLocals.back(), false, currentBlock);
     objectLocals.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
                                           currentBlock));
-    // The GCStrategy will already initialize the value.
-    if (!TheCompiler->useCooperativeGC())
-      new StoreInst(Constant::getNullValue(intrinsics->JavaObjectType), objectLocals.back(), false, currentBlock);
   }
   
   for (int i = 0; i < maxStack; i++) {
@@ -1101,21 +1069,22 @@ llvm::Function* JavaJIT::javaCompile() {
     beginSynchronize();
   }
   
-  if (TheCompiler->useCooperativeGC()) {
-    Value* YieldPtr = getDoYieldPtr(getMutatorThreadPtr());
-
-    Value* Yield = new LoadInst(YieldPtr, "", currentBlock);
-
-    BasicBlock* continueBlock = createBasicBlock("After safe point");
-    BasicBlock* yieldBlock = createBasicBlock("In safe point");
-    BranchInst::Create(yieldBlock, continueBlock, Yield, currentBlock);
-
-    currentBlock = yieldBlock;
-    CallInst::Create(intrinsics->conditionalSafePoint, "", currentBlock);
-    BranchInst::Create(continueBlock, currentBlock);
-
-    currentBlock = continueBlock;
-  }
+  // fixme
+//  if (TheCompiler->useCooperativeGC()) {
+//    Value* YieldPtr = getDoYieldPtr(getMutatorThreadPtr());
+//
+//    Value* Yield = new LoadInst(YieldPtr, "", currentBlock);
+//
+//    BasicBlock* continueBlock = createBasicBlock("After safe point");
+//    BasicBlock* yieldBlock = createBasicBlock("In safe point");
+//    BranchInst::Create(yieldBlock, continueBlock, Yield, currentBlock);
+//
+//    currentBlock = yieldBlock;
+//    CallInst::Create(intrinsics->conditionalSafePoint, "", currentBlock);
+//    BranchInst::Create(continueBlock, currentBlock);
+//
+//    currentBlock = continueBlock;
+//  }
   
   if (TheCompiler->hasExceptionsEnabled()) {
     // Variables have been allocated and the lock has been taken. Do the stack
@@ -1227,9 +1196,6 @@ llvm::Function* JavaJIT::javaCompile() {
   removeUnusedLocals(floatStack);
   removeUnusedLocals(longStack);
   
-  removeUnusedObjects(objectLocals, intrinsics, TheCompiler->useCooperativeGC());
-  removeUnusedObjects(objectStack, intrinsics, TheCompiler->useCooperativeGC());
- 
   delete[] opcodeInfos;
 
   PRINT_DEBUG(JNJVM_COMPILE, 1, COLOR_NORMAL, "--> end compiling %s.%s\n",
@@ -1280,26 +1246,10 @@ void JavaJIT::loadConstant(uint16 index) {
   uint8 type = ctpInfo->typeAt(index);
   
   if (type == JavaConstantPool::ConstantString) {
-    if (TheCompiler->isStaticCompiling() && !TheCompiler->useCooperativeGC()) {
       const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[index]);
       JavaString* str = *(JavaClassLoader::UTF8ToStr(utf8));
       Value* val = TheCompiler->getString(str);
       push(val, false, JavaClassLoader::newString);
-    } else {
-      JavaString** str = (JavaString**)ctpInfo->ctpRes[index];
-      if ((str != NULL) && !TheCompiler->isStaticCompiling()) {
-        Value* val = TheCompiler->getStringPtr(str);
-        val = new LoadInst(val, "", currentBlock);
-        push(val, false, JavaClassLoader::newString);
-      } else {
-        // Lookup the constant pool cache
-//        Type* Ty = PointerType::getUnqual(intrinsics->JavaObjectType);
-//        Value* val = getConstantPoolAt(index, intrinsics->StringLookupFunction,
-//                                       Ty, 0, false);
-//        val = new LoadInst(val, "", currentBlock);
-//        push(val, false, JavaClassLoader::newString);
-      }
-    }
   } else if (type == JavaConstantPool::ConstantLong) {
     push(ConstantInt::get(Type::getInt64Ty(*llvmContext), ctpInfo->LongAt(index)),
          false);
@@ -1940,19 +1890,12 @@ void JavaJIT::getStaticField(uint16 index) {
           abort();
         }
       } else {
-        if (TheCompiler->isStaticCompiling() && !TheCompiler->useCooperativeGC()) {
           JavaObject* val = field->getStaticObjectField();
           Value* V = TheCompiler->getFinalObject(val, sign->assocClass());
           // fixme
 //          CommonClass* cl = mvm::Collector::begOf(val) ?
 //              JavaObject::getClass(val) : NULL;
 //          push(V, false, cl);
-        } else {
-          // Do not call getFinalObject, as the object may move in-between two
-          // loads of this static.
-          Value* V = new LoadInst(ptr, "", currentBlock);
-          push(V, false, sign->findAssocClass());
-        } 
       }
     }
   }

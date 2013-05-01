@@ -14,6 +14,8 @@
 #ifndef JNJVM_JAVA_ARRAY_H
 #define JNJVM_JAVA_ARRAY_H
 
+#include <cassert>
+
 #include "types.h"
 
 #include "UTF8.h"
