@@ -184,10 +184,9 @@ Function* LLVMMethodInfo::getMethod(Class* customizeFor) {
                                 "", Compiler->getLLVMModule());
     }
    
-    result->setGC("vmkit");
-    if (Compiler->useCooperativeGC()) { 
-      result->addFnAttr(Attribute::NoInline);
-    }
+//    if (Compiler->useCooperativeGC()) {
+//      result->addFnAttr(Attribute::NoInline);
+//    }
     result->addFnAttr(Attribute::NoUnwind);
     
     Compiler->functions.insert(std::make_pair(result, methodDef));

@@ -2119,7 +2119,7 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 	for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {
 		JavaMethod& meth = cl->virtualMethods[i];
 		if (!isAbstract(meth.access))
-			parseFunction(&meth, NULL);
+			parseFunction(&meth, cl);
 		if (generateStubs)
 			compileAllStubs(meth.getSignature());
 	}
