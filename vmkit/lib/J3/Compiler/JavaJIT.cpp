@@ -1086,28 +1086,28 @@ llvm::Function* JavaJIT::javaCompile() {
 //    currentBlock = continueBlock;
 //  }
   
-  if (TheCompiler->hasExceptionsEnabled()) {
-    // Variables have been allocated and the lock has been taken. Do the stack
-    // check now: if there is an exception, we will go to the lock release code.
-    currentExceptionBlock = opcodeInfos[0].exceptionBlock;
-    Value* FrameAddr = CallInst::Create(intrinsics->llvm_frameaddress,
-                                       	intrinsics->constantZero, "", currentBlock);
-    FrameAddr = new PtrToIntInst(FrameAddr, intrinsics->pointerSizeType, "",
-                                 currentBlock);
-    Value* stackCheck = 
-      BinaryOperator::CreateAnd(FrameAddr, intrinsics->constantStackOverflowMask,
-                                "", currentBlock);
-
-    stackCheck = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, stackCheck,
-                              intrinsics->constantPtrZero, "");
-    BasicBlock* stackOverflow = createBasicBlock("stack overflow");
-    BasicBlock* noStackOverflow = createBasicBlock("no stack overflow");
-    BranchInst::Create(stackOverflow, noStackOverflow, stackCheck,
-                       currentBlock);
-    currentBlock = stackOverflow;
-    throwRuntimeException(intrinsics->StackOverflowErrorFunction, 0, 0);
-    currentBlock = noStackOverflow;
-  }
+//  if (TheCompiler->hasExceptionsEnabled()) {
+//    // Variables have been allocated and the lock has been taken. Do the stack
+//    // check now: if there is an exception, we will go to the lock release code.
+//    currentExceptionBlock = opcodeInfos[0].exceptionBlock;
+//    Value* FrameAddr = CallInst::Create(intrinsics->llvm_frameaddress,
+//                                       	intrinsics->constantZero, "", currentBlock);
+//    FrameAddr = new PtrToIntInst(FrameAddr, intrinsics->pointerSizeType, "",
+//                                 currentBlock);
+//    Value* stackCheck =
+//      BinaryOperator::CreateAnd(FrameAddr, intrinsics->constantStackOverflowMask,
+//                                "", currentBlock);
+//
+//    stackCheck = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, stackCheck,
+//                              intrinsics->constantPtrZero, "");
+//    BasicBlock* stackOverflow = createBasicBlock("stack overflow");
+//    BasicBlock* noStackOverflow = createBasicBlock("no stack overflow");
+//    BranchInst::Create(stackOverflow, noStackOverflow, stackCheck,
+//                       currentBlock);
+//    currentBlock = stackOverflow;
+//    throwRuntimeException(intrinsics->StackOverflowErrorFunction, 0, 0);
+//    currentBlock = noStackOverflow;
+//  }
 
   reader.cursor = start;
   compileOpcodes(reader, codeLen);
