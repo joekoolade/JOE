@@ -10,6 +10,8 @@
 #include <llvm/CallingConv.h>
 #include <llvm/Constants.h>
 #include <llvm/DerivedTypes.h>
+#include <llvm/Function.h>
+#include <llvm/GlobalValue.h>
 #include <llvm/Instructions.h>
 #include <llvm/LinkAllPasses.h>
 #include <llvm/LLVMContext.h>
@@ -40,6 +42,7 @@
 
 #include <dlfcn.h>
 #include <sys/mman.h>
+#include <vector>
 
 using namespace j3;
 using namespace llvm;
@@ -333,7 +336,11 @@ void BaseIntrinsics::init(llvm::Module* module) {
 
   llvm_memcpy_i32 = module->getFunction("llvm.memcpy.i32");
   llvm_memset_i32 = module->getFunction("llvm.memset.i32");
-  llvm_frameaddress = module->getFunction("llvm.frameaddress");
+  // Set up function declaration for llvm.frameaddress
+  std::vector<Type*> params;
+  params.push_back(Type::getInt32Ty(Context));
+  FunctionType* func = FunctionType::get(Type::getInt8PtrTy(Context, 0), params, false);
+  llvm_frameaddress = Function::Create(func, GlobalValue::ExternalLinkage, "llvm.frameaddress", module); // module->getFunction("llvm.frameaddress");
   llvm_gc_gcroot = module->getFunction("llvm.gcroot");
 
   unconditionalSafePoint = module->getFunction("unconditionalSafePoint");
