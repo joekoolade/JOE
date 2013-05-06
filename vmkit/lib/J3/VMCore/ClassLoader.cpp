@@ -23,83 +23,57 @@
 
 using namespace j3;
 
-UTF8Map* ClassLoader::hashUTF8 = new UTF8Map();
-ClassMap* ClassLoader::classes = new ClassMap();
-TypeMap* ClassLoader::javaTypes = new TypeMap();
-SignMap* ClassLoader::javaSignatures = new SignMap();
-
-ClassPrimitive* ClassLoader::OfByte = new ClassPrimitive(ClassLoader::asciizConstructUTF8("byte"), 0);
-ClassPrimitive* ClassLoader::OfChar = new ClassPrimitive(ClassLoader::asciizConstructUTF8("char"), 1);
-ClassPrimitive* ClassLoader::OfInt = new ClassPrimitive(ClassLoader::asciizConstructUTF8("int"), 2);
-ClassPrimitive* ClassLoader::OfShort = new ClassPrimitive(ClassLoader::asciizConstructUTF8("short"), 1);
-ClassPrimitive* ClassLoader::OfBool = new ClassPrimitive(ClassLoader::asciizConstructUTF8("boolean"), 0);
-ClassPrimitive* ClassLoader::OfLong = new ClassPrimitive(ClassLoader::asciizConstructUTF8("long"), 3);
-ClassPrimitive* ClassLoader::OfFloat = new ClassPrimitive(ClassLoader::asciizConstructUTF8("float"), 2);
-ClassPrimitive* ClassLoader::OfDouble = new ClassPrimitive(ClassLoader::asciizConstructUTF8("double"), 3);
-ClassPrimitive* ClassLoader::OfVoid = new ClassPrimitive(ClassLoader::asciizConstructUTF8("void"), 0);
-
-Class* ClassLoader::OfObject;
-JavaCompiler* ClassLoader::compiler;
-ClassArray* ClassLoader::ArrayOfObject;
-Class* ClassLoader::newString;
-Class* ClassLoader::newClass;
-Class* ClassLoader::newThrowable;
-
-UTF8* ClassLoader::floatToRawIntBits;
-UTF8* ClassLoader::intBitsToFloat;
-UTF8* ClassLoader::doubleToRawLongBits;
-UTF8* ClassLoader::longBitsToDouble;
-UTF8* ClassLoader::initName;
-UTF8* ClassLoader::clinitName;
-UTF8* ClassLoader::sqrt;
-UTF8* ClassLoader::sin;
-UTF8* ClassLoader::cos;
-UTF8* ClassLoader::tan;
-UTF8* ClassLoader::asin;
-UTF8* ClassLoader::acos;
-UTF8* ClassLoader::atan;
-UTF8* ClassLoader::atan2;
-UTF8* ClassLoader::exp;
-UTF8* ClassLoader::log;
-UTF8* ClassLoader::pow;
-UTF8* ClassLoader::ceil;
-UTF8* ClassLoader::floor;
-UTF8* ClassLoader::rint;
-UTF8* ClassLoader::cbrt;
-UTF8* ClassLoader::cosh;
-UTF8* ClassLoader::expm1;
-UTF8* ClassLoader::hypot;
-UTF8* ClassLoader::log10;
-UTF8* ClassLoader::log1p;
-UTF8* ClassLoader::sinh;
-UTF8* ClassLoader::tanh;
-UTF8* ClassLoader::abs;
-
-const UTF8* Attribut::annotationsAttribut = ClassLoader::asciizConstructUTF8("RuntimeVisibleAnnotations");
-const UTF8* Attribut::codeAttribut = ClassLoader::asciizConstructUTF8("Code");
-const UTF8* Attribut::exceptionsAttribut = ClassLoader::asciizConstructUTF8("Exceptions");
-const UTF8* Attribut::constantAttribut = ClassLoader::asciizConstructUTF8("ConstantValue");
-const UTF8* Attribut::lineNumberTableAttribut = ClassLoader::asciizConstructUTF8("LineNumberTable");
-const UTF8* Attribut::innerClassesAttribut = ClassLoader::asciizConstructUTF8("InnerClasses");
-const UTF8* Attribut::sourceFileAttribut = ClassLoader::asciizConstructUTF8("SourceFile");
-
 UTF8* ClassLoader::stackWalkerName;
 UTF8* ClassLoader::mathName;
 UTF8* ClassLoader::VMFloatName;
 UTF8* ClassLoader::VMDoubleName;
 
-std::map<const char, ClassPrimitive*> ClassLoader::primitiveMap;
-
 void ClassLoader::init() {
-	ClassLoader::primitiveMap[I_VOID] = ClassLoader::OfVoid;
-	ClassLoader::primitiveMap[I_BOOL] = ClassLoader::OfBool;
-	ClassLoader::primitiveMap[I_BYTE] = ClassLoader::OfByte;
-	ClassLoader::primitiveMap[I_CHAR] = ClassLoader::OfChar;
-	ClassLoader::primitiveMap[I_SHORT] = ClassLoader::OfShort;
-	ClassLoader::primitiveMap[I_INT] = ClassLoader::OfInt;
-	ClassLoader::primitiveMap[I_FLOAT] = ClassLoader::OfFloat;
-	ClassLoader::primitiveMap[I_LONG] = ClassLoader::OfLong;
-	ClassLoader::primitiveMap[I_DOUBLE] = ClassLoader::OfDouble;
+	primitiveMap[I_VOID] = OfVoid;
+	primitiveMap[I_BOOL] = OfBool;
+	primitiveMap[I_BYTE] = OfByte;
+	primitiveMap[I_CHAR] = OfChar;
+	primitiveMap[I_SHORT] = OfShort;
+	primitiveMap[I_INT] = OfInt;
+	primitiveMap[I_FLOAT] = OfFloat;
+	primitiveMap[I_LONG] = OfLong;
+	primitiveMap[I_DOUBLE] = OfDouble;
+}
+
+ClassLoader::ClassLoader() {
+	hashUTF8 = new UTF8Map();
+	classes = new ClassMap();
+	javaTypes = new TypeMap();
+	javaSignatures = new SignMap();
+
+	OfByte = new ClassPrimitive(asciizConstructUTF8("byte"), 0);
+	OfChar = new ClassPrimitive(asciizConstructUTF8("char"), 1);
+	OfInt = new ClassPrimitive(asciizConstructUTF8("int"), 2);
+	OfShort = new ClassPrimitive(asciizConstructUTF8("short"), 1);
+	OfBool = new ClassPrimitive(asciizConstructUTF8("boolean"), 0);
+	OfLong = new ClassPrimitive(asciizConstructUTF8("long"), 3);
+	OfFloat = new ClassPrimitive(asciizConstructUTF8("float"), 2);
+	OfDouble = new ClassPrimitive(asciizConstructUTF8("double"), 3);
+	OfVoid = new ClassPrimitive(asciizConstructUTF8("void"), 0);
+
+	Attribut::annotationsAttribut = asciizConstructUTF8("RuntimeVisibleAnnotations");
+	Attribut::codeAttribut = asciizConstructUTF8("Code");
+	Attribut::exceptionsAttribut = asciizConstructUTF8("Exceptions");
+	Attribut::constantAttribut = asciizConstructUTF8("ConstantValue");
+	Attribut::lineNumberTableAttribut = asciizConstructUTF8("LineNumberTable");
+	Attribut::innerClassesAttribut = asciizConstructUTF8("InnerClasses");
+	Attribut::sourceFileAttribut = asciizConstructUTF8("SourceFile");
+
+
+	primitiveMap[I_VOID] = OfVoid;
+	primitiveMap[I_BOOL] = OfBool;
+	primitiveMap[I_BYTE] = OfByte;
+	primitiveMap[I_CHAR] = OfChar;
+	primitiveMap[I_SHORT] = OfShort;
+	primitiveMap[I_INT] = OfInt;
+	primitiveMap[I_FLOAT] = OfFloat;
+	primitiveMap[I_LONG] = OfLong;
+	primitiveMap[I_DOUBLE] = OfDouble;
 }
 
 static void typeError(const UTF8* name, short int l) {
