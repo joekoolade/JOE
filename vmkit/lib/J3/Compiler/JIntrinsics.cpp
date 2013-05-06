@@ -377,11 +377,9 @@ void JIntrinsics::init(llvm::Module* module) {
                      JavaVirtualTable::getIMTIndex());
   
   OffsetAccessInCommonClassConstant = constantOne;
-  IsArrayConstant = ConstantInt::get(Type::getInt16Ty(*Context),
-                                     JNJVM_ARRAY);
+  IsArrayConstant = ConstantInt::get(Type::getInt16Ty(*Context), VM_ARRAY);
   
-  IsPrimitiveConstant = ConstantInt::get(Type::getInt16Ty(*Context),
-                                         JNJVM_PRIMITIVE);
+  IsPrimitiveConstant = ConstantInt::get(Type::getInt16Ty(*Context), VM_PRIMITIVE);
  
   OffsetBaseClassInArrayClassConstant = constantOne;
   OffsetLogSizeInPrimitiveClassConstant = constantOne;

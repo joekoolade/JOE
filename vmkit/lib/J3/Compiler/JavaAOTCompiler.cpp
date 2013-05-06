@@ -69,12 +69,13 @@ Class* JavaAOTCompiler::internalLoad(const UTF8* name, ClassBytes* data) {
 	if(!cl){
 		cl = new Class(name, data);
 	}
-	// Populate the class
+	// fixme
+//	// Populate the class
 	cl->readClass();
-	ClassMap::iterator End = ClassLoader::classes->map.end();
-	ClassMap::iterator found = classes->map.find(cl->name);
-	if(found == End)
-		classes->map.insert(std::make_pair(cl->name, cl));
+//	ClassMap::iterator End = ClassLoader::classes->map.end();
+//	ClassMap::iterator found = classes->map.find(cl->name);
+//	if(found == End)
+//		classes->map.insert(std::make_pair(cl->name, cl));
 	return cl;
 }
 
