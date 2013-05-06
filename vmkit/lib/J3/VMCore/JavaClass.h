@@ -34,7 +34,7 @@ class JavaVirtualTable;
 class Reader;
 class Typedef;
 class Signdef;
-class JavaClassLoader;
+class ClassLoader;
 class UTF8;
 class Class;
 class ClassPrimitive;

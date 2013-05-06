@@ -39,6 +39,7 @@
 #include "llvm-c/Target.h"
 
 #include "j3/JavaAOTCompiler.h"
+#include "ClassLoader.h"
 
 #include <iostream>
 #include <fstream>
@@ -118,6 +119,7 @@ int main(int argc, char **argv) {
     LLVMInitializeX86AsmParser();
     LLVMInitializeX86AsmPrinter();
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
+    ClassLoader::setCompiler(Comp);
 
     if (DisableExceptions)
         Comp->disableExceptions();
@@ -125,8 +127,7 @@ int main(int argc, char **argv) {
         Comp->generateStubs = false;
     if (AssumeCompiled)
         Comp->assumeCompiled = true;
-    if (DisableCooperativeGC)
-        Comp->disableCooperativeGC();
+    Comp->disableCooperativeGC();
 
 //    for (std::vector<std::string>::iterator i = Properties.begin(), e =
 //            Properties.end(); i != e; ++i) {

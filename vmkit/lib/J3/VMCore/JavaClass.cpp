@@ -14,7 +14,7 @@
 
 #include "JavaArray.h"
 #include "JavaClass.h"
-#include "JavaClassLoader.h"
+#include "ClassLoader.h"
 #include "JavaCompiler.h"
 #include "JavaConstantPool.h"
 #include "JavaObject.h"
@@ -920,7 +920,7 @@ static JavaObject* getClassType(Typedef* type) {
 
 Signdef* JavaMethod::getSignature() {
   if(!_signature)
-    _signature = JavaClassLoader::constructSign(type);
+    _signature = ClassLoader::constructSign(type);
   return _signature;
 }
 
@@ -1671,7 +1671,7 @@ void Class::broadcastClass() {
 
 Typedef* JavaField::getSignature() {
   if(!_signature)
-    _signature = JavaClassLoader::constructType(type);
+    _signature = ClassLoader::constructType(type);
   return _signature;
 }
 

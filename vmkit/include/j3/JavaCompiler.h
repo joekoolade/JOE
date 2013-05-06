@@ -21,7 +21,7 @@ class Class;
 class CommonClass;
 class JavaMethod;
 class JavaVirtualTable;
-class JavaClassLoader;
+class ClassLoader;
 class Signdef;
 class UTF8;
 

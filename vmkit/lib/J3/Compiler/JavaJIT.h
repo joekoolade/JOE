@@ -30,7 +30,7 @@
 #include "j3/JavaLLVMCompiler.h"
 
 #include "JavaClass.h"
-#include "JavaClassLoader.h"
+#include "ClassLoader.h"
 
 namespace j3 {
 
@@ -282,36 +282,36 @@ private:
       val = new llvm::ZExtInst(val, llvm::Type::getInt32Ty(*llvmContext), "", currentBlock);
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(JavaClassLoader::OfInt, currentBytecode));
+      stack.push_back(MetaInfo(ClassLoader::OfInt, currentBytecode));
     } else if (type == llvm::Type::getInt8Ty(*llvmContext) ||
                type == llvm::Type::getInt16Ty(*llvmContext)) {
       val = new llvm::SExtInst(val, llvm::Type::getInt32Ty(*llvmContext), "",
                                currentBlock);
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(JavaClassLoader::OfInt, currentBytecode));
+      stack.push_back(MetaInfo(ClassLoader::OfInt, currentBytecode));
     } else if (type == llvm::Type::getInt32Ty(*llvmContext)) {
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(JavaClassLoader::OfInt, currentBytecode));
+      stack.push_back(MetaInfo(ClassLoader::OfInt, currentBytecode));
     } else if (type == llvm::Type::getInt64Ty(*llvmContext)) {
       new llvm::StoreInst(val, longStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(JavaClassLoader::OfLong, currentBytecode));
+      stack.push_back(MetaInfo(ClassLoader::OfLong, currentBytecode));
     } else if (type == llvm::Type::getFloatTy(*llvmContext)) {
       new llvm::StoreInst(val, floatStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(JavaClassLoader::OfFloat, currentBytecode));
+      stack.push_back(MetaInfo(ClassLoader::OfFloat, currentBytecode));
     } else if (type == llvm::Type::getDoubleTy(*llvmContext)) {
       new llvm::StoreInst(val, doubleStack[currentStackIndex++], false,
                           currentBlock);
-      stack.push_back(MetaInfo(JavaClassLoader::OfDouble, currentBytecode));
+      stack.push_back(MetaInfo(ClassLoader::OfDouble, currentBytecode));
     } else {
       assert(type == intrinsics->JavaObjectType && "Can't handle this type");
       llvm::Instruction* V = new 
         llvm::StoreInst(val, objectStack[currentStackIndex++], false,
                         currentBlock);
-      stack.push_back(MetaInfo(cl ? cl : JavaClassLoader::OfObject, currentBytecode));
+      stack.push_back(MetaInfo(cl ? cl : ClassLoader::OfObject, currentBytecode));
       addHighLevelType(V, topTypeInfo());
       if (llvm::Instruction* I = llvm::dyn_cast<llvm::Instruction>(val)) {
         addHighLevelType(I, topTypeInfo());
@@ -341,16 +341,16 @@ private:
   /// top - Return the value on top of the stack.
   llvm::Value* top() {
     CommonClass* cl = stack.back().type;
-    if (cl == JavaClassLoader::OfInt) {
+    if (cl == ClassLoader::OfInt) {
       return new llvm::LoadInst(intStack[currentStackIndex - 1], "", false,
                                 currentBlock);
-    } else if (cl == JavaClassLoader::OfFloat) {
+    } else if (cl == ClassLoader::OfFloat) {
       return new llvm::LoadInst(floatStack[currentStackIndex - 1], "", false,
                                 currentBlock);
-    } else if (cl == JavaClassLoader::OfDouble) {
+    } else if (cl == ClassLoader::OfDouble) {
       return new llvm::LoadInst(doubleStack[currentStackIndex - 1], "", false,
                                 currentBlock);
-    } else if (cl == JavaClassLoader::OfLong) {
+    } else if (cl == ClassLoader::OfLong) {
       return new llvm::LoadInst(longStack[currentStackIndex - 1], "", false,
                                 currentBlock);
     } else {

@@ -21,7 +21,7 @@
 #include "JavaClass.h"
 #include "JavaCompiler.h"
 #include "JavaConstantPool.h"
-#include "JavaClassLoader.h"
+#include "ClassLoader.h"
 #include "JavaTypes.h"
 #include "Reader.h"
 
@@ -209,7 +209,7 @@ const UTF8* JavaConstantPool::UTF8At(uint32 entry) {
       ++n;
     }
   
-    const UTF8* utf8 = JavaClassLoader::lookupOrCreateReader(buf, n);
+    const UTF8* utf8 = ClassLoader::lookupOrCreateReader(buf, n);
     ctpRes[entry] = const_cast<UTF8*>(utf8);
   
     char *str = (new UTF8Buffer(utf8))->cString();
@@ -265,7 +265,7 @@ CommonClass* JavaConstantPool::isClassLoaded(uint32 entry) {
   CommonClass* res = (CommonClass*)ctpRes[entry];
   if (res == NULL) {
     const UTF8* name = UTF8At(ctpDef[entry]);
-    res = JavaClassLoader::lookupClassOrArray(name);
+    res = ClassLoader::lookupClassOrArray(name);
     ctpRes[entry] = res;
   }
   return res;
@@ -282,9 +282,9 @@ CommonClass* JavaConstantPool::loadClass(uint32 index, bool resolve) {
   if (!temp) {
     const UTF8* name = UTF8At(ctpDef[index]);
     if (name->elements[0] == I_TAB) {
-      temp = JavaClassLoader::constructArray(name);
+      temp = ClassLoader::constructArray(name);
     } else {
-      temp = JavaClassLoader::loadName(name);
+      temp = ClassLoader::getCompiler()->loadName(name);
     }
     ctpRes[index] = temp;
   } else if (resolve && temp->isClass()) {
@@ -296,7 +296,7 @@ CommonClass* JavaConstantPool::loadClass(uint32 index, bool resolve) {
 CommonClass* JavaConstantPool::getMethodClassIfLoaded(uint32 index) {
   CommonClass* temp = isClassLoaded(index);
 
-  if (JavaClassLoader::getCompiler()->isStaticCompiling()) {
+  if (ClassLoader::getCompiler()->isStaticCompiling()) {
     if (temp == NULL) {
       temp = loadClass(index, true);
     } else if (temp->isClass()) {
@@ -317,7 +317,7 @@ Typedef* JavaConstantPool::resolveNameAndType(uint32 index) {
     }
     sint32 entry = ctpDef[index];
     const UTF8* type = UTF8At(entry & 0xFFFF);
-    Typedef* sign = JavaClassLoader::constructType(type);
+    Typedef* sign = ClassLoader::constructType(type);
     ctpRes[index] = sign;
     return sign;
   }
@@ -334,7 +334,7 @@ Signdef* JavaConstantPool::resolveNameAndSign(uint32 index) {
     }
     sint32 entry = ctpDef[index];
     const UTF8* type = UTF8At(entry & 0xFFFF);
-    Signdef* sign = JavaClassLoader::constructSign(type);
+    Signdef* sign = ClassLoader::constructSign(type);
     ctpRes[index] = sign;
     return sign;
   }
@@ -499,7 +499,7 @@ JavaField* JavaConstantPool::lookupField(uint32 index, bool stat) {
           ctpRes[index] = (void*)field->ptrOffset;
         } else if (lookup->isReady()) {
         	// fixme
-        	assert("implement me");
+        	assert(0 && "implement me");
 //          void* S = field->classDef->getStaticInstance();
 //          ctpRes[index] = (void*)((uint64)S + field->ptrOffset);
         }

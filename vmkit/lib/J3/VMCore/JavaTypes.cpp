@@ -59,22 +59,22 @@ void Signdef::nativeName(char* ptr, const char* ext) const {
 }
 
 CommonClass* ArrayTypedef::assocClass() const {
-	assert("fix me");
+	assert(0 && "fix me");
 	return NULL;
 }
 
 CommonClass* ArrayTypedef::findAssocClass() const {
-	assert("fix me");
+	assert(0 && "fix me");
 	return NULL;
 }
 
 CommonClass* ObjectTypedef::assocClass() const {
-	assert("fix me");
+	assert(0 && "fix me");
 	return NULL;
 }
 
 CommonClass* ObjectTypedef::findAssocClass() const {
-	assert("fix me");
+	assert(0 && "fix me");
 	return NULL;
 }
 

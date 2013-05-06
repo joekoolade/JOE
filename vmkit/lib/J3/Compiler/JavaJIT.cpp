@@ -817,7 +817,7 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
     for (int i = 0; i < maxStack; i++) {
       objectStack.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
                                            firstInstruction));
-      addHighLevelType(objectStack.back(), JavaClassLoader::OfObject);
+      addHighLevelType(objectStack.back(), ClassLoader::OfObject);
       intStack.push_back(new AllocaInst(Type::getInt32Ty(*llvmContext), "", firstInstruction));
       doubleStack.push_back(new AllocaInst(Type::getDoubleTy(*llvmContext), "",
                                            firstInstruction));
@@ -842,7 +842,7 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
     for (int i = 0; i < maxStack; i++) {
       objectStack.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
                                            firstBB));
-      addHighLevelType(objectStack.back(), JavaClassLoader::OfObject);
+      addHighLevelType(objectStack.back(), ClassLoader::OfObject);
       intStack.push_back(new AllocaInst(Type::getInt32Ty(*llvmContext), "", firstBB));
       doubleStack.push_back(new AllocaInst(Type::getDoubleTy(*llvmContext), "", firstBB));
       longStack.push_back(new AllocaInst(Type::getInt64Ty(*llvmContext), "", firstBB));
@@ -987,7 +987,7 @@ llvm::Function* JavaJIT::javaCompile() {
   for (int i = 0; i < maxStack; i++) {
     objectStack.push_back(new AllocaInst(intrinsics->JavaObjectType, "",
                                          currentBlock));
-    addHighLevelType(objectStack.back(), JavaClassLoader::OfObject);
+    addHighLevelType(objectStack.back(), ClassLoader::OfObject);
     intStack.push_back(new AllocaInst(Type::getInt32Ty(*llvmContext), "", currentBlock));
     doubleStack.push_back(new AllocaInst(Type::getDoubleTy(*llvmContext), "", currentBlock));
     longStack.push_back(new AllocaInst(Type::getInt64Ty(*llvmContext), "", currentBlock));
@@ -1247,9 +1247,9 @@ void JavaJIT::loadConstant(uint16 index) {
   
   if (type == JavaConstantPool::ConstantString) {
       const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[index]);
-      JavaString* str = *(JavaClassLoader::UTF8ToStr(utf8));
+      JavaString* str = *(ClassLoader::UTF8ToStr(utf8));
       Value* val = TheCompiler->getString(str);
-      push(val, false, JavaClassLoader::newString);
+      push(val, false, ClassLoader::newString);
   } else if (type == JavaConstantPool::ConstantLong) {
     push(ConstantInt::get(Type::getInt64Ty(*llvmContext), ctpInfo->LongAt(index)),
          false);
@@ -1268,7 +1268,7 @@ void JavaJIT::loadConstant(uint16 index) {
 
     res = CallInst::Create(intrinsics->GetClassDelegateeFunction, res, "",
                            currentBlock);
-    push(res, false, JavaClassLoader::newClass);
+    push(res, false, ClassLoader::newClass);
   } else {
     fprintf(stderr, "I haven't verified your class file and it's malformed:"
                     " unknown ldc %d in %s.%s!\n", type,
@@ -1371,7 +1371,7 @@ Value* JavaJIT::getTarget(Signdef* signature) {
 
 Instruction* JavaJIT::lowerMathOps(const UTF8* name, 
                                    std::vector<Value*>& args) {
-  if (name->equals(JavaClassLoader::abs)) {
+  if (name->equals(ClassLoader::abs)) {
     const Type* Ty = args[0]->getType();
     if (Ty == Type::getInt32Ty(*llvmContext)) {
       Constant* const_int32_9 = intrinsics->constantZero;
@@ -1404,70 +1404,70 @@ Instruction* JavaJIT::lowerMathOps(const UTF8* name,
       return llvm::CallInst::Create(intrinsics->func_llvm_fabs_f64, args[0],
                                     "tmp1", currentBlock);
     }
-  } else if (name->equals(JavaClassLoader::sqrt)) {
+  } else if (name->equals(ClassLoader::sqrt)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_sqrt_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::sin)) {
+  } else if (name->equals(ClassLoader::sin)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_sin_f64, args[0], 
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::cos)) {
+  } else if (name->equals(ClassLoader::cos)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_cos_f64, args[0], 
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::tan)) {
+  } else if (name->equals(ClassLoader::tan)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_tan_f64, args[0], 
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::asin)) {
+  } else if (name->equals(ClassLoader::asin)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_asin_f64, args[0], 
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::acos)) {
+  } else if (name->equals(ClassLoader::acos)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_acos_f64, args[0], 
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::atan)) {
+  } else if (name->equals(ClassLoader::atan)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_atan_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::atan2)) {
+  } else if (name->equals(ClassLoader::atan2)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_atan2_f64, 
                                   args, "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::exp)) {
+  } else if (name->equals(ClassLoader::exp)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_exp_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::log)) {
+  } else if (name->equals(ClassLoader::log)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_log_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::pow)) {
+  } else if (name->equals(ClassLoader::pow)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_pow_f64, args,
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::ceil)) {
+  } else if (name->equals(ClassLoader::ceil)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_ceil_f64, args[0], "tmp1",
                                   currentBlock);
-  } else if (name->equals(JavaClassLoader::floor)) {
+  } else if (name->equals(ClassLoader::floor)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_floor_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::rint)) {
+  } else if (name->equals(ClassLoader::rint)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_rint_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::cbrt)) {
+  } else if (name->equals(ClassLoader::cbrt)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_cbrt_f64, args[0], "tmp1",
                                   currentBlock);
-  } else if (name->equals(JavaClassLoader::cosh)) {
+  } else if (name->equals(ClassLoader::cosh)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_cosh_f64, args[0], "tmp1",
                                   currentBlock);
-  } else if (name->equals(JavaClassLoader::expm1)) {
+  } else if (name->equals(ClassLoader::expm1)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_expm1_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::hypot)) {
+  } else if (name->equals(ClassLoader::hypot)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_hypot_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::log10)) {
+  } else if (name->equals(ClassLoader::log10)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_log10_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::log1p)) {
+  } else if (name->equals(ClassLoader::log1p)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_log1p_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::sinh)) {
+  } else if (name->equals(ClassLoader::sinh)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_sinh_f64, args[0],
                                   "tmp1", currentBlock);
-  } else if (name->equals(JavaClassLoader::tanh)) {
+  } else if (name->equals(ClassLoader::tanh)) {
     return llvm::CallInst::Create(intrinsics->func_llvm_tanh_f64, args[0],
                                   "tmp1", currentBlock);
   }
@@ -1478,9 +1478,9 @@ Instruction* JavaJIT::lowerMathOps(const UTF8* name,
 
 Instruction* JavaJIT::lowerFloatOps(const UTF8* name, 
                                     std::vector<Value*>& args) {
-  if (name->equals(JavaClassLoader::floatToRawIntBits)) {
+  if (name->equals(ClassLoader::floatToRawIntBits)) {
     return new BitCastInst(args[0], Type::getInt32Ty(*llvmContext), "", currentBlock);
-  } else if (name->equals(JavaClassLoader::intBitsToFloat)) {
+  } else if (name->equals(ClassLoader::intBitsToFloat)) {
     return new BitCastInst(args[0], Type::getFloatTy(*llvmContext), "", currentBlock);
   }
   return NULL;
@@ -1488,9 +1488,9 @@ Instruction* JavaJIT::lowerFloatOps(const UTF8* name,
 
 Instruction* JavaJIT::lowerDoubleOps(const UTF8* name, 
                                     std::vector<Value*>& args) {
-  if (name->equals(JavaClassLoader::doubleToRawLongBits)) {
+  if (name->equals(ClassLoader::doubleToRawLongBits)) {
     return new BitCastInst(args[0], Type::getInt64Ty(*llvmContext), "", currentBlock);
-  } else if (name->equals(JavaClassLoader::longBitsToDouble)) {
+  } else if (name->equals(ClassLoader::longBitsToDouble)) {
     return new BitCastInst(args[0], Type::getDoubleTy(*llvmContext), "", currentBlock);
   }
   return NULL;
@@ -1538,7 +1538,7 @@ void JavaJIT::invokeSpecial(uint16 index) {
     isThisReference(stackSize() - signature->getNumberOfSlots() - 1);
 
   Value* func = 0;
-  func = TheCompiler->getMethod(meth, NULL);
+  func = TheCompiler->getMethod(meth, compilingClass);
 
   std::vector<Value*> args;
   FunctionType::param_iterator it  = virtualType->param_end();
@@ -1582,7 +1582,7 @@ void JavaJIT::invokeStatic(uint16 index) {
   ctpInfo->markAsStaticCall(index);
   llvm::Instruction* val = 0;
   
-  if (className->equals(JavaClassLoader::stackWalkerName)) {
+  if (className->equals(ClassLoader::stackWalkerName)) {
     callsStackWalker = true;
   }
 
@@ -1605,11 +1605,11 @@ void JavaJIT::invokeStatic(uint16 index) {
   FunctionType::param_iterator it  = staticType->param_end();
   makeArgs(it, index, args, signature->nbArguments);
 
-  if (className->equals(JavaClassLoader::mathName)) {
+  if (className->equals(ClassLoader::mathName)) {
     val = lowerMathOps(name, args);
-  } else if (className->equals(JavaClassLoader::VMFloatName)) {
+  } else if (className->equals(ClassLoader::VMFloatName)) {
     val = lowerFloatOps(name, args);
-  } else if (className->equals(JavaClassLoader::VMDoubleName)) {
+  } else if (className->equals(ClassLoader::VMDoubleName)) {
     val = lowerDoubleOps(name, args);
   }
     
@@ -1656,7 +1656,7 @@ Value* JavaJIT::getResolvedCommonClass(uint16 index, bool doThrow,
                              currentBlock);
     }
   } else {
-      assert("Class not resolved!");
+      assert(0 && "Class not resolved!");
   }
   
   return node;
@@ -1674,7 +1674,7 @@ Value* JavaJIT::getResolvedClass(uint16 index, bool clinit, bool doThrow,
     node = TheCompiler->getNativeClass(cl);
     needsInit = needsInitialisationCheck(cl);
   } else {
-      assert("Class not resolved!");
+      assert(0 && "Class not resolved!");
   }
  
 
@@ -1720,9 +1720,9 @@ void JavaJIT::invokeNew(uint16 index) {
                            intrinsics->AllocateUnresolvedFunction,
                            Size, VT, "", currentBlock);
 
-  addHighLevelType(val, cl ? cl : JavaClassLoader::OfObject);
+  addHighLevelType(val, cl ? cl : ClassLoader::OfObject);
   Instruction* res = new BitCastInst(val, intrinsics->JavaObjectType, "", currentBlock);
-  push(res, false, cl ? cl : JavaClassLoader::OfObject);
+  push(res, false, cl ? cl : ClassLoader::OfObject);
 
   // Make sure to add the object to the finalization list after it has been
   // pushed.
@@ -1856,7 +1856,7 @@ void JavaJIT::getStaticField(uint16 index) {
   Value* ptr = ldResolved(index, true, NULL, LAI.llvmTypePtr);
   
   bool final = false;
-  if (!compilingMethod->name->equals(JavaClassLoader::clinitName)) {
+  if (!compilingMethod->name->equals(ClassLoader::clinitName)) {
     JavaField* field = compilingClass->ctpInfo->lookupField(index, true);
     if (field && field->classDef->isReady()) final = isFinal(field->access);
     if (final) {
@@ -1961,7 +1961,7 @@ void JavaJIT::getVirtualField(uint16 index) {
   bool final = false;
   
   // In init methods, the fields have not been set yet.
-  if (!compilingMethod->name->equals(JavaClassLoader::initName)) {
+  if (!compilingMethod->name->equals(ClassLoader::initName)) {
     JavaField* field = compilingClass->ctpInfo->lookupField(index, false);
     if (field) {
       final = isFinal(field->access) && sign->isPrimitive();
@@ -2024,7 +2024,7 @@ void JavaJIT::invokeInterface(uint16 index) {
   if (meth) {
     Meth = TheCompiler->getMethodInClass(meth);
   } else {
-      assert("Class not resolved!");
+      assert(0 && "Class not resolved!");
   }
 
   uint32_t tableIndex = InterfaceMethodTable::getIndex(name, signature->keyName);
@@ -2319,7 +2319,7 @@ unsigned JavaJIT::readExceptionTable(Reader& reader, uint32 codeLen) {
       assert(cl && "exception class has not been loaded");
       ex->catchClass = cl;
     } else {
-      ex->catchClass = JavaClassLoader::newThrowable;
+      ex->catchClass = ClassLoader::newThrowable;
     }
     
     ex->tester = createBasicBlock("testException");

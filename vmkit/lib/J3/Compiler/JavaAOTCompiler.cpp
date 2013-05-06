@@ -29,7 +29,7 @@
 #include "JavaConstantPool.h"
 #include "JavaString.h"
 #include "JavaTypes.h"
-#include "JavaClassLoader.h"
+#include "ClassLoader.h"
 #include "JavaClass.h"
 #include "JavaObject.h"
 #include "Reader.h"
@@ -60,7 +60,7 @@ bool JavaAOTCompiler::isCompiling(const CommonClass* cl) const {
 }
 
 CommonClass* JavaAOTCompiler::lookupClass(const UTF8* utf8) {
-	CommonClass* cl = JavaClassLoader::classes->map.lookup(utf8);
+	CommonClass* cl = ClassLoader::classes->map.lookup(utf8);
 	return cl;
 }
 
@@ -71,6 +71,10 @@ Class* JavaAOTCompiler::internalLoad(const UTF8* name, ClassBytes* data) {
 	}
 	// Populate the class
 	cl->readClass();
+	ClassMap::iterator End = ClassLoader::classes->map.end();
+	ClassMap::iterator found = classes->map.find(cl->name);
+	if(found == End)
+		classes->map.insert(std::make_pair(cl->name, cl));
 	return cl;
 }
 
@@ -83,10 +87,10 @@ Class* JavaAOTCompiler::loadName(const UTF8* name, ClassBytes* data) {
 		abort();
 	}
 	if (cl) {
-		ClassMap::iterator End = JavaClassLoader::classes->map.end();
-		ClassMap::iterator I = JavaClassLoader::classes->map.find(cl->name);
+		ClassMap::iterator End = ClassLoader::classes->map.end();
+		ClassMap::iterator I = ClassLoader::classes->map.find(cl->name);
 		if (I == End)
-			JavaClassLoader::classes->map.insert(std::make_pair(cl->name, cl));
+			ClassLoader::classes->map.insert(std::make_pair(cl->name, cl));
 	}
 
 	return cl;
@@ -1912,7 +1916,7 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 	TheTargetData = TM->getTargetData();
 	TheModule->setDataLayout(TheTargetData->getStringRepresentation());
 	TheModule->setTargetTriple(TM->getTargetTriple());
-	JavaClassLoader::init();
+	ClassLoader::init();
 	JavaIntrinsics.init(TheModule);
 	initialiseAssessorInfo();
 
@@ -2139,7 +2143,7 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes) {
 		if (size > 6 && !strcmp(&(name[size - 6]), ".class")) {
 			memcpy(realName, name, size);
 			realName[size - 6] = 0;
-			const UTF8* utf8 = JavaClassLoader::asciizConstructUTF8(realName);
+			const UTF8* utf8 = ClassLoader::asciizConstructUTF8(realName);
 			ClassBytes *zippedClass = new ClassBytes(file->ucsize);
 			archive.readFile(zippedClass, file);
 			Class* cl = loadName(utf8, zippedClass);
@@ -2318,7 +2322,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 //              }
 						}
 					} else {
-						const UTF8* name = JavaClassLoader::asciizConstructUTF8(i->c_str());
+						const UTF8* name = ClassLoader::asciizConstructUTF8(i->c_str());
 						CommonClass* cls = lookupClass(name);
 						if (cls && cls->isClass()) {
 							cl = cls->asClass();
@@ -2351,7 +2355,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 			memcpy(realName, name, size + 1);
 		}
 
-		const UTF8* utf8 = JavaClassLoader::asciizConstructUTF8(realName);
+		const UTF8* utf8 = ClassLoader::asciizConstructUTF8(realName);
 		ClassBytes* bytes = Reader::openFile(name);
 		Class* cl = loadName(utf8, bytes);
 #if 0
@@ -2409,7 +2413,7 @@ void JavaAOTCompiler::generateClassBytes() {
 			const char* name = zi->first;
 			std::string str(name, strlen(name) - strlen(".class"));
 			ClassBytes* bytes = Reader::openZip(archive, name);
-			getClassBytes(JavaClassLoader::asciizConstructUTF8(str.c_str()), bytes);
+			getClassBytes(ClassLoader::asciizConstructUTF8(str.c_str()), bytes);
 		}
 	}
 }

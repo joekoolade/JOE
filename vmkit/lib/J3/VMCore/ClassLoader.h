@@ -1,5 +1,5 @@
 /*
- * JavaClassLoader.h
+ * ClassLoader.h
  *
  *  Created on: Apr 1, 2013
  *      Author: Joe Kulig
@@ -7,8 +7,8 @@
  * Copyright, (C) 2013 Joe Kulig
  */
 
-#ifndef JAVACLASSLOADER_H_
-#define JAVACLASSLOADER_H_
+#ifndef CLASSLOADER_H_
+#define CLASSLOADER_H_
 
 #include <map>
 
@@ -29,7 +29,7 @@ class SignMap;
 class JavaString;
 class UTF8;
 
-class JavaClassLoader {
+class ClassLoader {
 private:
 	/// javaTypes - Tables of Typedef defined by this class loader.
 	///
@@ -95,6 +95,8 @@ static const UTF8* readerConstructUTF8(const uint16_t* buf, uint32_t size);
 static Class* internalLoad(const UTF8* utf8, bool doResolve, JavaString* strName);
 
 static Class* loadName(const UTF8* name);
+
+static const UTF8* lookupComponentName(const UTF8* name, UTF8* holder, bool& prim);
 
 /// lookupClass - Finds the class of the given name in the class loader's
 /// table.
@@ -178,4 +180,4 @@ static Class* newThrowable;
 }
 
 
-#endif /* JAVACLASSLOADER_H_ */
+#endif /* CLASSLOADER_H_ */
