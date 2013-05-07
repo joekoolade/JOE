@@ -13,3 +13,4 @@ llvm*/
 *.exe
 Classpath.h
 *.stackdump
+/vmkit-0.30
