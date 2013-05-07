@@ -31,14 +31,6 @@ using namespace j3;
 
 const unsigned int Class::Magic = 0xcafebabe;
 
-//const UTF8* Attribut::annotationsAttribut = 0;
-//const UTF8* Attribut::codeAttribut = 0;
-//const UTF8* Attribut::exceptionsAttribut = 0;
-//const UTF8* Attribut::constantAttribut = 0;
-//const UTF8* Attribut::lineNumberTableAttribut = 0;
-//const UTF8* Attribut::innerClassesAttribut = 0;
-//const UTF8* Attribut::sourceFileAttribut = 0;
-//
 Class* ClassArray::SuperArray;
 Class** ClassArray::InterfacesArray;
 
@@ -920,7 +912,7 @@ static JavaObject* getClassType(Typedef* type) {
 
 Signdef* JavaMethod::getSignature() {
   if(!_signature)
-    _signature = ClassLoader::constructSign(type);
+    _signature = classDef->classLoader->constructSign(type);
   return _signature;
 }
 
@@ -1671,7 +1663,7 @@ void Class::broadcastClass() {
 
 Typedef* JavaField::getSignature() {
   if(!_signature)
-    _signature = ClassLoader::constructType(type);
+    _signature = classDef->classLoader->constructType(type);
   return _signature;
 }
 

@@ -168,6 +168,8 @@ public:
   ///
   JavaVirtualTable* virtualVT;
   
+  // Class loader for this class
+  ClassLoader* classLoader;
 
 //===----------------------------------------------------------------------===//
 //

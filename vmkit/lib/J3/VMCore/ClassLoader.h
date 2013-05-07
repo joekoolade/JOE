@@ -55,7 +55,7 @@ public:
 	void init();
 	ClassLoader();
 
-	JavaCompiler* getCompiler() {
+	JavaCompiler* getCompiler() const {
 		return compiler;
 	}
 

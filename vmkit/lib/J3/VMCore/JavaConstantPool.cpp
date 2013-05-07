@@ -209,7 +209,7 @@ const UTF8* JavaConstantPool::UTF8At(uint32 entry) {
       ++n;
     }
   
-    const UTF8* utf8 = ClassLoader::lookupOrCreateReader(buf, n);
+    const UTF8* utf8 = classDef->classLoader->lookupOrCreateReader(buf, n);
     ctpRes[entry] = const_cast<UTF8*>(utf8);
   
     char *str = (new UTF8Buffer(utf8))->cString();
@@ -265,7 +265,7 @@ CommonClass* JavaConstantPool::isClassLoaded(uint32 entry) {
   CommonClass* res = (CommonClass*)ctpRes[entry];
   if (res == NULL) {
     const UTF8* name = UTF8At(ctpDef[entry]);
-    res = ClassLoader::lookupClassOrArray(name);
+    res = classDef->classLoader->lookupClassOrArray(name);
     ctpRes[entry] = res;
   }
   return res;
@@ -282,9 +282,9 @@ CommonClass* JavaConstantPool::loadClass(uint32 index, bool resolve) {
   if (!temp) {
     const UTF8* name = UTF8At(ctpDef[index]);
     if (name->elements[0] == I_TAB) {
-      temp = ClassLoader::constructArray(name);
+      temp = classDef->classLoader->constructArray(name);
     } else {
-      temp = ClassLoader::loadName(name);
+      temp = classDef->classLoader->loadName(name);
     }
     ctpRes[index] = temp;
   } else if (resolve && temp->isClass()) {
@@ -296,7 +296,7 @@ CommonClass* JavaConstantPool::loadClass(uint32 index, bool resolve) {
 CommonClass* JavaConstantPool::getMethodClassIfLoaded(uint32 index) {
   CommonClass* temp = isClassLoaded(index);
 
-  if (ClassLoader::getCompiler()->isStaticCompiling()) {
+  if (classDef->classLoader->getCompiler()->isStaticCompiling()) {
     if (temp == NULL) {
       temp = loadClass(index, true);
     } else if (temp->isClass()) {
@@ -317,7 +317,7 @@ Typedef* JavaConstantPool::resolveNameAndType(uint32 index) {
     }
     sint32 entry = ctpDef[index];
     const UTF8* type = UTF8At(entry & 0xFFFF);
-    Typedef* sign = ClassLoader::constructType(type);
+    Typedef* sign = classDef->classLoader->constructType(type);
     ctpRes[index] = sign;
     return sign;
   }
@@ -334,7 +334,7 @@ Signdef* JavaConstantPool::resolveNameAndSign(uint32 index) {
     }
     sint32 entry = ctpDef[index];
     const UTF8* type = UTF8At(entry & 0xFFFF);
-    Signdef* sign = ClassLoader::constructSign(type);
+    Signdef* sign = classDef->classLoader->constructSign(type);
     ctpRes[index] = sign;
     return sign;
   }

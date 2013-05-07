@@ -23,11 +23,6 @@
 
 using namespace j3;
 
-UTF8* ClassLoader::stackWalkerName;
-UTF8* ClassLoader::mathName;
-UTF8* ClassLoader::VMFloatName;
-UTF8* ClassLoader::VMDoubleName;
-
 void ClassLoader::init() {
 	primitiveMap[I_VOID] = OfVoid;
 	primitiveMap[I_BOOL] = OfBool;
@@ -63,7 +58,6 @@ ClassLoader::ClassLoader() {
 	Attribut::lineNumberTableAttribut = asciizConstructUTF8("LineNumberTable");
 	Attribut::innerClassesAttribut = asciizConstructUTF8("InnerClasses");
 	Attribut::sourceFileAttribut = asciizConstructUTF8("SourceFile");
-
 
 	primitiveMap[I_VOID] = OfVoid;
 	primitiveMap[I_BOOL] = OfBool;

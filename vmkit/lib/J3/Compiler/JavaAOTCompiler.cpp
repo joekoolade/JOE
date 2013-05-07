@@ -2131,7 +2131,7 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 	}
 }
 
-void JavaAOTCompiler::extractFiles(ClassBytes* bytes) {
+void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader) {
 	ZipArchive archive(bytes);
 
 	char* realName = new char[4096];
@@ -2144,7 +2144,7 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes) {
 		if (size > 6 && !strcmp(&(name[size - 6]), ".class")) {
 			memcpy(realName, name, size);
 			realName[size - 6] = 0;
-			const UTF8* utf8 = ClassLoader::asciizConstructUTF8(realName);
+			const UTF8* utf8 = loader->asciizConstructUTF8(realName);
 			ClassBytes *zippedClass = new ClassBytes(file->ucsize);
 			archive.readFile(zippedClass, file);
 			Class* cl = loadName(utf8, zippedClass);
@@ -2216,6 +2216,7 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 
 void JavaAOTCompiler::mainCompilerStart() {
 
+    // setup bootstrap loader
 	addJavaPasses();
 
 	analyseClasspathEnv(bootClasspathEnv);

@@ -1247,7 +1247,7 @@ void JavaJIT::loadConstant(uint16 index) {
   
   if (type == JavaConstantPool::ConstantString) {
       const UTF8* utf8 = ctpInfo->UTF8At(ctpInfo->ctpDef[index]);
-      JavaString* str = *(ClassLoader::UTF8ToStr(utf8));
+      JavaString* str = *(compilingClass->classLoader->UTF8ToStr(utf8));
       Value* val = TheCompiler->getString(str);
       push(val, false, ClassLoader::newString);
   } else if (type == JavaConstantPool::ConstantLong) {
