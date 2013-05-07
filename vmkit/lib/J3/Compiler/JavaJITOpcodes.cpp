@@ -134,7 +134,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         assert(isa<PHINode>(I) && "Handler marlformed");
         // If it's a handler, put the exception object in the stack.
         new StoreInst(I, objectStack[0], "", currentBlock);
-        stack.push_back(MetaInfo(ClassLoader::OfObject, NOP));
+        stack.push_back(MetaInfo(compilingClass->classLoader->OfObject, NOP));
         currentStackIndex = 1;
       } else {
         stack = opinfo->stack;
@@ -2070,7 +2070,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
           uint8 id = reader.readU1();
           i += 1;
           uint8 charId = arrayType(compilingMethod, id);
-          dcl = ClassLoader::getArrayClass(id);
+          dcl = compilingClass->classLoader->getArrayClass(id);
           valCl = TheCompiler->getNativeClass(dcl);
 
           LLVMAssessorInfo& LAI = TheCompiler->AssessorInfo[charId];
@@ -2091,9 +2091,9 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
             compilingClass->ctpInfo->getMethodClassIfLoaded(index); 
 
           if (cl && (!cl->isClass() || cl->asClass()->isResolved())) {
-            const UTF8* arrayName = ClassLoader::constructArrayName(1, cl->name);
+            const UTF8* arrayName = compilingClass->classLoader->constructArrayName(1, cl->name);
           
-            dcl = ClassLoader::constructArray(arrayName);
+            dcl = compilingClass->classLoader->constructArray(arrayName);
             valCl = TheCompiler->getNativeClass(dcl);
             
             // If we're static compiling and the class is not a class we
@@ -2165,9 +2165,9 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         arg1 = new IntToPtrInst(arg1, intrinsics->ptrType, "", currentBlock);
         new StoreInst(arg1, GEP, currentBlock);
        
-        addHighLevelType(res, dcl ? dcl : ClassLoader::ArrayOfObject);
+        addHighLevelType(res, dcl ? dcl : compilingClass->classLoader->ArrayOfObject);
         res = new BitCastInst(res, intrinsics->JavaObjectType, "", currentBlock);
-        push(res, false, dcl ? dcl : ClassLoader::ArrayOfObject);
+        push(res, false, dcl ? dcl : compilingClass->classLoader->ArrayOfObject);
 
         break;
       }
@@ -2318,7 +2318,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
           Args.push_back(args[v]);
         }
         push(invoke(intrinsics->MultiCallNewFunction, Args, "", currentBlock),
-             false, (CommonClass*)(dcl ? dcl : ClassLoader::ArrayOfObject));
+             false, (CommonClass*)(dcl ? dcl : compilingClass->classLoader->ArrayOfObject));
         break;
       }
 

@@ -34,6 +34,7 @@ class ClassArray;
 class ClassBytes;
 class ClassMap;
 class Classpath;
+class ClassLoader;
 class CommonClass;
 
 class JavaAOTCompiler : public JavaLLVMCompiler {
@@ -232,14 +233,14 @@ public:
   void compileFile(const char* name);
   void compileClass(Class* cl);
   void compileClassLoader();
-  void generateClassBytes();
+  void generateClassBytes(ClassLoader *);
   void generateMain(const char* name, bool jit);
   const char *getHostTriple();
   void mainCompilerStart();
-  Class* loadName(const UTF8* name, ClassBytes* data);
+//  Class* loadName(const UTF8* name, ClassBytes* data);
 private:
 
-  void extractFiles(ClassBytes* bytes);
+  void extractFiles(ClassBytes* bytes, ClassLoader *loader);
   void compileAllStubs(Signdef* sign);
   Class* internalLoad(const UTF8* name, ClassBytes* data);
   CommonClass* lookupClass(const UTF8* utf8);

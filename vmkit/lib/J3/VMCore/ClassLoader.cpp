@@ -312,8 +312,7 @@ ClassArray* ClassLoader::constructArray(const UTF8* name) {
   return res;
 }
 
-Class* ClassLoader::constructClass(const UTF8* name,
-                                            ClassBytes* bytes) {
+Class* ClassLoader::constructClass(const UTF8* name, ClassBytes* bytes) {
   Class* res = NULL;
   res = (Class*) classes->map.lookup(name);
   if (res == NULL) {
@@ -354,9 +353,23 @@ const UTF8* ClassLoader::lookupOrCreateReader(const uint16 *buf, uint32 n) {
 	return hashUTF8->lookupOrCreateReader(buf, n);
 }
 
-Class* ClassLoader::loadName(const UTF8* name) {
-	// fixme; add loadName(utf8*) in JavaCompiler
-	return (Class*) classes->map.lookup(name);;
+Class* ClassLoader::loadName(const UTF8* name, ClassBytes* bytes) {
+}
+
+Class* ClassLoader::internalLoad(const UTF8* utf8, bool doResolve, JavaString* strName) {
+	assert(0 && "Implement me!");
+}
+
+/// loadName - Loads the class of the given name.
+Class* ClassLoader::loadName(const UTF8* name, bool doResolve, JavaString* strName) {
+	Class* cl = internalLoad(name, doResolve, strName);
+	if(cl) {
+	    ClassMap::iterator End = classes->map.end();
+	    ClassMap::iterator I = classes->map.find(cl->name);
+	    if (I == End)
+	      classes->map.insert(std::make_pair(cl->name, cl));
+	}
+	return cl;
 }
 
 // fixme: implement

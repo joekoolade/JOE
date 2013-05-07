@@ -59,44 +59,6 @@ bool JavaAOTCompiler::isCompiling(const CommonClass* cl) const {
 	return true;
 }
 
-CommonClass* JavaAOTCompiler::lookupClass(const UTF8* utf8) {
-	CommonClass* cl = ClassLoader::classes->map.lookup(utf8);
-	return cl;
-}
-
-Class* JavaAOTCompiler::internalLoad(const UTF8* name, ClassBytes* data) {
-	Class* cl = (Class *)lookupClass(name);
-	if(!cl){
-		cl = new Class(name, data);
-	}
-	// fixme
-//	// Populate the class
-	cl->readClass();
-//	ClassMap::iterator End = ClassLoader::classes->map.end();
-//	ClassMap::iterator found = classes->map.find(cl->name);
-//	if(found == End)
-//		classes->map.insert(std::make_pair(cl->name, cl));
-	return cl;
-}
-
-Class* JavaAOTCompiler::loadName(const UTF8* name, ClassBytes* data) {
-
-	Class* cl = internalLoad(name, data);
-	if (!cl) {
-		fprintf(stderr, "Could not find %s, needed for static compiling\n",
-				UTF8Buffer(name).cString());
-		abort();
-	}
-	if (cl) {
-		ClassMap::iterator End = ClassLoader::classes->map.end();
-		ClassMap::iterator I = ClassLoader::classes->map.find(cl->name);
-		if (I == End)
-			ClassLoader::classes->map.insert(std::make_pair(cl->name, cl));
-	}
-
-	return cl;
-}
-
 void JavaAOTCompiler::AddInitializerToClass(GlobalVariable* varGV,
 		CommonClass* classDef) {
 	if (classDef->isClass() && isCompiling(classDef)) {
@@ -1917,7 +1879,6 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 	TheTargetData = TM->getTargetData();
 	TheModule->setDataLayout(TheTargetData->getStringRepresentation());
 	TheModule->setTargetTriple(TM->getTargetTriple());
-	ClassLoader::init();
 	JavaIntrinsics.init(TheModule);
 	initialiseAssessorInfo();
 
@@ -2147,7 +2108,7 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader) {
 			const UTF8* utf8 = loader->asciizConstructUTF8(realName);
 			ClassBytes *zippedClass = new ClassBytes(file->ucsize);
 			archive.readFile(zippedClass, file);
-			Class* cl = loadName(utf8, zippedClass);
+			Class* cl = loader->loadName(utf8, zippedClass);
 			assert(cl && "Class not created");
 			classes.push_back(cl);
 		} else if (size > 4
@@ -2158,7 +2119,7 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader) {
 			if (!ok)
 				return;
 
-			extractFiles(res);
+			extractFiles(res, loader);
 		}
 	}
 }
@@ -2217,6 +2178,8 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 void JavaAOTCompiler::mainCompilerStart() {
 
     // setup bootstrap loader
+	ClassLoader* loader = new ClassLoader();
+
 	addJavaPasses();
 
 	analyseClasspathEnv(bootClasspathEnv);
@@ -2226,6 +2189,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 					|| !strcmp(&name[size - 4], ".zip"))) {
 		analyseClasspathEnv(name);
 	}
+
 
 #if 0
 	JavaJITCompiler* Comp = NULL;
@@ -2255,7 +2219,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 			return;
 		}
 
-		extractFiles(bytes);
+		extractFiles(bytes, loader);
 
 		// First resolve everyone so that there can not be unknown references in
 		// constant pools.
@@ -2324,8 +2288,8 @@ void JavaAOTCompiler::mainCompilerStart() {
 //              }
 						}
 					} else {
-						const UTF8* name = ClassLoader::asciizConstructUTF8(i->c_str());
-						CommonClass* cls = lookupClass(name);
+						const UTF8* name = loader->asciizConstructUTF8(i->c_str());
+						CommonClass* cls = loader->lookupClass(name);
 						if (cls && cls->isClass()) {
 							cl = cls->asClass();
 							// cl->initialiseClass(vm);
@@ -2340,7 +2304,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 //					abort();
 //				}END_CATCH;
 			}
-//       bootstrapLoader->setCompiler(M);
+			loader->setCompiler(this);
 		}
 
 		// Finally, compile all classes.
@@ -2357,9 +2321,9 @@ void JavaAOTCompiler::mainCompilerStart() {
 			memcpy(realName, name, size + 1);
 		}
 
-		const UTF8* utf8 = ClassLoader::asciizConstructUTF8(realName);
+		const UTF8* utf8 = loader->asciizConstructUTF8(realName);
 		ClassBytes* bytes = Reader::openFile(name);
-		Class* cl = loadName(utf8, bytes);
+		Class* cl = loader->constructClass(utf8, bytes);
 #if 0
 		if (!clinits->empty()) {
 			vm->loadBootstrap();
@@ -2403,7 +2367,7 @@ void JavaAOTCompiler::compileFile(const char* n) {
 	mainCompilerStart();
 }
 
-void JavaAOTCompiler::generateClassBytes() {
+void JavaAOTCompiler::generateClassBytes(ClassLoader* loader) {
 	emitClassBytes = true;
 	// Add the bootstrap classes to the image.
 	for (std::vector<ZipArchive*>::iterator i = bootArchives.begin(),
@@ -2415,7 +2379,7 @@ void JavaAOTCompiler::generateClassBytes() {
 			const char* name = zi->first;
 			std::string str(name, strlen(name) - strlen(".class"));
 			ClassBytes* bytes = Reader::openZip(archive, name);
-			getClassBytes(ClassLoader::asciizConstructUTF8(str.c_str()), bytes);
+			getClassBytes(loader->asciizConstructUTF8(str.c_str()), bytes);
 		}
 	}
 }
@@ -2475,12 +2439,10 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
 
 }
 
-// fixme: implement
 CommonClass* JavaAOTCompiler::getUniqueBaseClass(CommonClass* cl) {
-	return NULL;
+	assert(0 && "Implement me");
 }
 
-// fixme: implement
-llvm::Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* cl) {
-	return NULL;
+Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
+	assert(0 && "Implement me");
 }

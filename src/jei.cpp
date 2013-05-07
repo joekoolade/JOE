@@ -119,7 +119,6 @@ int main(int argc, char **argv) {
     LLVMInitializeX86AsmParser();
     LLVMInitializeX86AsmPrinter();
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
-    ClassLoader::setCompiler(Comp);
 
     if (DisableExceptions)
         Comp->disableExceptions();

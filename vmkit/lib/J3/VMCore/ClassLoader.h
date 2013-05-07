@@ -96,7 +96,11 @@ const UTF8* readerConstructUTF8(const uint16_t* buf, uint32_t size);
 ///
 Class* internalLoad(const UTF8* utf8, bool doResolve, JavaString* strName);
 
-Class* loadName(const UTF8* name);
+Class* loadName(const UTF8* name, ClassBytes* data);
+
+/// loadName - Loads the class of the given name.
+///
+Class* loadName(const UTF8* name, bool doResolve, JavaString* strName);
 
 const UTF8* lookupComponentName(const UTF8* name, UTF8* holder, bool& prim);
 
