@@ -52,7 +52,7 @@ uint32 JavaConstantPool::CtpReaderClass(JavaConstantPool* ctp, Reader& reader,
                                    uint32 index) {
   uint16 entry = reader.readU2();
   ctp->ctpDef[index] = entry;
-  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "; [%5d] <class>\t\tutf8 is at %d\n", index,
+  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "[%5d] <class>\t\tutf8 is at %d\n", index,
               entry);
   return 1;
 }
@@ -61,7 +61,7 @@ uint32 JavaConstantPool::CtpReaderInteger(JavaConstantPool* ctp, Reader& reader,
                                      uint32 index) {
   uint32 val = reader.readU4();
   ctp->ctpDef[index] = val;
-  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "; [%5d] <class>\tinteger: %d\n", index,
+  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "[%5d] <class>\tinteger: %d\n", index,
               val);
   return 1;
 }
@@ -70,7 +70,7 @@ uint32 JavaConstantPool::CtpReaderFloat(JavaConstantPool* ctp, Reader& reader,
                                    uint32 index) { 
   uint32 val = reader.readU4();
   ctp->ctpDef[index] = val;
-  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "; [%5d] <class>\tfloat: %d\n", index,
+  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "[%5d] <class>\tfloat: %d\n", index,
               val);
   return 1;
 }
@@ -88,7 +88,7 @@ uint32 JavaConstantPool::CtpReaderNameAndType(JavaConstantPool* ctp, Reader& rea
   uint32 entry = reader.readU4();
   ctp->ctpDef[index] = entry;
   PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, 
-              "; [%5d] <name/type>\tname is at %d, type is at %d\n", index,
+              "[%5d] <name/type>\tname is at %d, type is at %d\n", index,
               (entry >> 16), (entry & 0xffff));
   return 1;
 }
@@ -99,7 +99,7 @@ uint32 JavaConstantPool::CtpReaderFieldref(JavaConstantPool* ctp,
   uint32 entry = reader.readU4();
   ctp->ctpDef[index] = entry;
   PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, 
-              "; [%5d] <fieldref>\tclass is at %d, name/type is at %d\n", index,
+              "[%5d] <fieldref>\tclass is at %d, name/type is at %d\n", index,
               (entry >> 16), (entry & 0xffff));
   return 1;
 }
@@ -108,7 +108,7 @@ uint32 JavaConstantPool::CtpReaderString(JavaConstantPool* ctp, Reader& reader,
                                          uint32 index) {
   uint16 entry = reader.readU2();
   ctp->ctpDef[index] = entry;
-  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "; [%5d] <string>\tutf8 is at %d\n",
+  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "[%5d] <string>\tutf8 is at %d\n",
               index, entry);
   return 1;
 }
@@ -119,7 +119,7 @@ uint32 JavaConstantPool::CtpReaderMethodref(JavaConstantPool* ctp,
   uint32 entry = reader.readU4();
   ctp->ctpDef[index] = entry;
   PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, 
-              "; [%5d] <methodref>\tclass is at %d, name/type is at %d\n",
+              "[%5d] <methodref>\tclass is at %d, name/type is at %d\n",
               index, (entry >> 16), (entry & 0xffff));
   return 1;
 }
@@ -130,7 +130,7 @@ uint32 JavaConstantPool::CtpReaderInterfaceMethodref(JavaConstantPool* ctp,
   uint32 entry = reader.readU4();
   ctp->ctpDef[index] = entry;
   PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, 
-        "; [%5d] <Interface xmethodref>\tclass is at %d, name/type is at %d\n",
+        "[%5d] <Interface xmethodref>\tclass is at %d, name/type is at %d\n",
         index, (entry >> 16), (entry & 0xffff));
   return 1;
 }
@@ -139,7 +139,7 @@ uint32 JavaConstantPool::CtpReaderLong(JavaConstantPool* ctp, Reader& reader,
                                        uint32 index) {
   ctp->ctpDef[index + 1] = reader.readU4();
   ctp->ctpDef[index] = reader.readU4();
-  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "; [%5d] <long>%d %d\n", index,
+  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "[%5d] <long>%d %d\n", index,
 		  ctp->ctpDef[index], ctp->ctpDef[index + 1]);
   return 2;
 }
@@ -148,7 +148,7 @@ uint32 JavaConstantPool::CtpReaderDouble(JavaConstantPool* ctp, Reader& reader,
                                          uint32 index) {
   ctp->ctpDef[index + 1] = reader.readU4();
   ctp->ctpDef[index] = reader.readU4();
-  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "; [%5d] <double>%d %d\n", index,
+  PRINT_DEBUG(JNJVM_LOAD, 3, COLOR_NORMAL, "[%5d] <double>%d %d\n", index,
               ctp->ctpDef[index], ctp->ctpDef[index + 1]);
   return 2;
 }
