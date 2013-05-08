@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define DEBUG 0
-#define JNJVM_COMPILE 0
+#define DEBUG 1
+#define JNJVM_COMPILE 2
 #define JNJVM_EXECUTE 0
 
 #include <cassert>
