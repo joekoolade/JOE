@@ -183,17 +183,17 @@ ClassPrimitive::byteIdToPrimitive(char id) {
       return 0;
 }
 
-CommonClass::CommonClass(const UTF8* n) {
+CommonClass::CommonClass(ClassLoader* loader, const UTF8* n) {
   name = n;
+  classLoader = loader;
   nbInterfaces = 0;
   interfaces = 0;
   access = 0;
   super = 0;
 }
 
-ClassPrimitive::ClassPrimitive(const UTF8* n,
-                               uint32 nb) : 
-  CommonClass(n) {
+ClassPrimitive::ClassPrimitive(ClassLoader* loader, const UTF8* n, uint32 nb) :
+  CommonClass(loader, n) {
  
   uint32 size = JavaVirtualTable::getBaseSize();
   virtualVT = new JavaVirtualTable(this);
@@ -201,8 +201,8 @@ ClassPrimitive::ClassPrimitive(const UTF8* n,
   logSize = nb;
 }
 
-Class::Class(const UTF8* n, ClassBytes* B) :
-    CommonClass(n) {
+Class::Class(ClassLoader* loader, const UTF8* n, ClassBytes* B) :
+    CommonClass(loader, n) {
   virtualVT = 0;
   bytes = B;
   super = 0;
@@ -222,7 +222,7 @@ Class::Class(const UTF8* n, ClassBytes* B) :
   access = 0;
 }
 
-ClassArray::ClassArray(const UTF8* n, CommonClass* base) : CommonClass(n) {
+ClassArray::ClassArray(ClassLoader* loader, const UTF8* n, CommonClass* base) : CommonClass(loader, n) {
   _baseClass = base;
   super = ClassArray::SuperArray;
   interfaces = ClassArray::InterfacesArray;

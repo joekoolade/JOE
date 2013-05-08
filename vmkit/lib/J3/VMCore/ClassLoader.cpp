@@ -41,15 +41,15 @@ ClassLoader::ClassLoader() {
 	javaTypes = new TypeMap();
 	javaSignatures = new SignMap();
 
-	OfByte = new ClassPrimitive(asciizConstructUTF8("byte"), 0);
-	OfChar = new ClassPrimitive(asciizConstructUTF8("char"), 1);
-	OfInt = new ClassPrimitive(asciizConstructUTF8("int"), 2);
-	OfShort = new ClassPrimitive(asciizConstructUTF8("short"), 1);
-	OfBool = new ClassPrimitive(asciizConstructUTF8("boolean"), 0);
-	OfLong = new ClassPrimitive(asciizConstructUTF8("long"), 3);
-	OfFloat = new ClassPrimitive(asciizConstructUTF8("float"), 2);
-	OfDouble = new ClassPrimitive(asciizConstructUTF8("double"), 3);
-	OfVoid = new ClassPrimitive(asciizConstructUTF8("void"), 0);
+	OfByte = new ClassPrimitive(this, asciizConstructUTF8("byte"), 0);
+	OfChar = new ClassPrimitive(this, asciizConstructUTF8("char"), 1);
+	OfInt = new ClassPrimitive(this, asciizConstructUTF8("int"), 2);
+	OfShort = new ClassPrimitive(this, asciizConstructUTF8("short"), 1);
+	OfBool = new ClassPrimitive(this, asciizConstructUTF8("boolean"), 0);
+	OfLong = new ClassPrimitive(this, asciizConstructUTF8("long"), 3);
+	OfFloat = new ClassPrimitive(this, asciizConstructUTF8("float"), 2);
+	OfDouble = new ClassPrimitive(this, asciizConstructUTF8("double"), 3);
+	OfVoid = new ClassPrimitive(this, asciizConstructUTF8("void"), 0);
 
 	Attribut::annotationsAttribut = asciizConstructUTF8("RuntimeVisibleAnnotations");
 	Attribut::codeAttribut = asciizConstructUTF8("Code");
@@ -317,7 +317,7 @@ Class* ClassLoader::constructClass(const UTF8* name, ClassBytes* bytes) {
   res = (Class*) classes->map.lookup(name);
   if (res == NULL) {
       const UTF8* internalName = readerConstructUTF8(name->elements, name->size);
-      res = new Class(internalName, bytes);
+      res = new Class(this, internalName, bytes);
       res->readClass();
       res->makeVT();
       getCompiler()->resolveVirtualClass(res);
@@ -339,7 +339,7 @@ ClassArray* ClassLoader::constructArray(const UTF8* name, CommonClass* baseClass
   res = (ClassArray*) classes->map.lookup(name);
   if (res == NULL) {
     const UTF8* internalName = readerConstructUTF8(name->elements, name->size);
-    res = new ClassArray(internalName, baseClass);
+    res = new ClassArray(this, internalName, baseClass);
     classes->map.insert(std::make_pair(internalName, res));
   }
   return res;

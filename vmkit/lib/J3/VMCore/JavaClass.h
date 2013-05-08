@@ -271,7 +271,7 @@ public:
 
   /// CommonClass - Create a class with th given name.
   ///
-  CommonClass(const UTF8* name);
+  CommonClass(ClassLoader*, const UTF8* name);
   
   /// ~CommonClass - Free memory used by this class, and remove it from
   /// metadata.
@@ -311,7 +311,7 @@ public:
   /// ClassPrimitive - Constructs a primitive class. Only called at boot
   /// time.
   ///
-  ClassPrimitive(const UTF8* name, uint32 nb);
+  ClassPrimitive(ClassLoader*, const UTF8* name, uint32 nb);
 
   /// byteIdToPrimitive - Get the primitive class from its byte representation,
   /// ie int for I.
@@ -521,7 +521,7 @@ public:
   
   /// Class - Create a class in the given virtual machine and with the given
   /// name.
-  Class(const UTF8* name, ClassBytes* bytes);
+  Class(ClassLoader*, const UTF8* name, ClassBytes* bytes);
   
   /// readParents - Reads the parents, i.e. super and interfaces, of the class.
   ///
@@ -657,8 +657,7 @@ public:
 
   /// ClassArray - Construct a Java array class with the given name.
   ///
-  ClassArray(const UTF8* name,
-             CommonClass* baseClass);
+  ClassArray(ClassLoader*, const UTF8* name, CommonClass* baseClass);
   
   /// SuperArray - The super of class arrays. Namely java/lang/Object.
   ///
