@@ -239,7 +239,8 @@ public:
   void mainCompilerStart();
 //  Class* loadName(const UTF8* name, ClassBytes* data);
 private:
-
+  void extractBootClasses();
+  void extractFiles(ClassBytes*, ClassLoader*, std::vector<std::string>);
   void extractFiles(ClassBytes* bytes, ClassLoader *loader);
   void compileAllStubs(Signdef* sign);
   Class* internalLoad(const UTF8* name, ClassBytes* data);

@@ -2092,6 +2092,14 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 	}
 }
 
+void JavaAOTCompiler::extractBootClasses() {
+
+}
+
+void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader, std::vector<std::string> filter) {
+
+}
+
 void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader) {
 	ZipArchive archive(bytes);
 
