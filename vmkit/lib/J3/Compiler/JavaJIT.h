@@ -278,7 +278,7 @@ private:
   /// push - Push a new value in the stack.
   void push(llvm::Value* val, bool unsign, CommonClass* cl = 0) {
     llvm::Type* type = val->getType();
-    ClassLoader* loader = cl->classLoader;
+    ClassLoader* loader = compilingClass->classLoader;
     if (unsign) {
       val = new llvm::ZExtInst(val, llvm::Type::getInt32Ty(*llvmContext), "", currentBlock);
       new llvm::StoreInst(val, intStack[currentStackIndex++], false,
