@@ -1233,10 +1233,14 @@ bool Class::needsInitialisationCheck() {
 void ClassArray::initialiseVT(Class* javaLangObject) {
 
   ClassArray::SuperArray = javaLangObject;
+  ClassLoader* loader = javaLangObject->classLoader;
   
-  assert(javaLangObject->virtualVT->init && 
-         "Initializing array VT before JavaObjectVT");
+//  assert(javaLangObject->virtualVT->init &&
+//         "Initializing array VT before JavaObjectVT");
+
 // fixme
+// Need to have base classes loaded and resolved. This is the place to
+// to do it.
 #if 0
   // Load and resolve interfaces of array classes. We resolve them now
   // so that the secondary type list of array VTs can reference them.
