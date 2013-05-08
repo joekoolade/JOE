@@ -35,7 +35,8 @@ void ClassLoader::init() {
 	primitiveMap[I_DOUBLE] = OfDouble;
 }
 
-ClassLoader::ClassLoader() {
+ClassLoader::ClassLoader(JavaCompiler* compiler) {
+    this->compiler = compiler;
 	hashUTF8 = new UTF8Map();
 	classes = new ClassMap();
 	javaTypes = new TypeMap();

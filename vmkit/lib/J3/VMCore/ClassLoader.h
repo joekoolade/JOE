@@ -53,7 +53,7 @@ public:
 	std::map<const char, ClassPrimitive*> primitiveMap;
 
 	void init();
-	ClassLoader();
+	ClassLoader(JavaCompiler*);
 
 	JavaCompiler* getCompiler() const {
 		return compiler;

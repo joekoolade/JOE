@@ -2178,7 +2178,7 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 void JavaAOTCompiler::mainCompilerStart() {
 
     // setup bootstrap loader
-	ClassLoader* loader = new ClassLoader();
+	ClassLoader* loader = new ClassLoader(this);
 
 	addJavaPasses();
 
