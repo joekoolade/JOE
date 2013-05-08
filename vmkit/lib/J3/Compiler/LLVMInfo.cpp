@@ -92,36 +92,37 @@ Type* LLVMClassInfo::getVirtualType() {
 }
 
 Type* LLVMClassInfo::getStaticType() {
-  
-  if (!staticType) {
-    Class* cl = (Class*)classDef;
-    std::vector<llvm::Type*> fields;
-    
-    LLVMContext& context = Compiler->getLLVMModule()->getContext();
 
-    for (uint32 i = 0; i < classDef->nbStaticFields; ++i) {
-      JavaField& field = classDef->staticFields[i];
-      Typedef* type = field.getSignature();
-      LLVMAssessorInfo& LAI = Compiler->getTypedefInfo(type);
-      fields.push_back(LAI.llvmType);
-    }
-  
-    StructType* structType = StructType::get(context, fields, false);
-    staticType = PointerType::getUnqual(structType);
-    const TargetData* targetData = Compiler->TheTargetData;
-    const StructLayout* sl = targetData->getStructLayout(structType);
-    
-    // TODO: put that elsewhere.
-  for (uint32 i = 0; i < classDef->nbStaticFields; ++i) {
-	JavaField& field = classDef->staticFields[i];
-	field.num = i;
-	field.ptrOffset = sl->getElementOffset(i);
-  }
+	if (!staticType) {
+		Class* cl = (Class*) classDef;
+		std::vector<llvm::Type*> fields;
 
-  uint64 size = targetData->getTypeAllocSize(structType);
-  cl->staticSize = size;
-  }
-  return staticType;
+		LLVMContext& context = Compiler->getLLVMModule()->getContext();
+
+		uint32 i = 0;
+		for (; i < classDef->nbStaticFields; ++i) {
+			JavaField& field = classDef->staticFields[i];
+			Typedef* type = field.getSignature();
+			LLVMAssessorInfo& LAI = Compiler->getTypedefInfo(type);
+			fields.push_back(LAI.llvmType);
+		}
+
+		StructType* structType = StructType::get(context, fields, false);
+		staticType = PointerType::getUnqual(structType);
+		const TargetData* targetData = Compiler->TheTargetData;
+		const StructLayout* sl = targetData->getStructLayout(structType);
+
+		// TODO: put that elsewhere.
+		for (i = 0; i < classDef->nbStaticFields; ++i) {
+			JavaField& field = classDef->staticFields[i];
+			field.num = i;
+			field.ptrOffset = sl->getElementOffset(i);
+		}
+
+		uint64 size = targetData->getTypeAllocSize(structType);
+		cl->staticSize = size;
+	}
+	return staticType;
 }
 
 
