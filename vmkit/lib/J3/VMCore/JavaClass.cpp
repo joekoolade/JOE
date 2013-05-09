@@ -609,18 +609,18 @@ void JavaField::initialise(Class* cl, const UTF8* N, const UTF8* T, uint16 A) {
   access = A;
 }
 
-void Class::readParents(Reader& reader) {
+void Class::readSuper(Reader& reader) {
   uint16 superEntry = reader.readU2();
   if (superEntry) {
     const UTF8* superUTF8 = ctpInfo->resolveClassName(superEntry);
     // fixme
     // super = classLoader->loadName(superUTF8, false, true, NULL);
   }
+}
 
+void Class::readInterfaces(Reader& reader) {
   uint16 nbI = reader.readU2();
-// fixme
-//  interfaces = (Class**)
-//    classLoader->allocator.Allocate(nbI * sizeof(Class*), "Interfaces");
+  interfaces = new Class*[nbI];
   
   // Do not set nbInterfaces yet, we may be interrupted by the GC
   // in anon-cooperative environment.
@@ -802,27 +802,27 @@ void Class::readMethods(Reader& reader) {
     }
     meth->attributs = readAttributs(reader, meth->nbAttributs);
   }
-
-  if (isAbstract(access)) {
-    std::vector<JavaMethod*> mirandaMethods;
-    computeMirandaMethods(this, this, mirandaMethods);
-    uint32 size = mirandaMethods.size();
-    nbMethods += size;
-    JavaMethod* realMethods = new JavaMethod[nbMethods];
-    memcpy(realMethods + size, virtualMethods,
-           sizeof(JavaMethod) * (nbMethods - size));
-    nbVirtualMethods += size;
-    staticMethods = realMethods + nbVirtualMethods;
-    if (size != 0) {
-      int j = 0;
-      for (std::vector<JavaMethod*>::iterator i = mirandaMethods.begin(),
-           e = mirandaMethods.end(); i != e; i++) {
-        JavaMethod* cur = *i;
-        realMethods[j++].initialise(this, cur->name, cur->type, cur->access);
-      }
-    }
-    virtualMethods = realMethods;
-  }
+// No need to process interface methods
+//  if (isAbstract(access)) {
+//    std::vector<JavaMethod*> mirandaMethods;
+//    computeMirandaMethods(this, this, mirandaMethods);
+//    uint32 size = mirandaMethods.size();
+//    nbMethods += size;
+//    JavaMethod* realMethods = new JavaMethod[nbMethods];
+//    memcpy(realMethods + size, virtualMethods,
+//           sizeof(JavaMethod) * (nbMethods - size));
+//    nbVirtualMethods += size;
+//    staticMethods = realMethods + nbVirtualMethods;
+//    if (size != 0) {
+//      int j = 0;
+//      for (std::vector<JavaMethod*>::iterator i = mirandaMethods.begin(),
+//           e = mirandaMethods.end(); i != e; i++) {
+//        JavaMethod* cur = *i;
+//        realMethods[j++].initialise(this, cur->name, cur->type, cur->access);
+//      }
+//    }
+//    virtualMethods = realMethods;
+//  }
 }
 
 void Class::readClass() {
@@ -854,7 +854,8 @@ void Class::readClass() {
  	  assert(msg.c_str());
   }
 
-  readParents(reader);
+  readSuper(reader);
+  readInterfaces(reader);
   readFields(reader);
   readMethods(reader);
   attributs = readAttributs(reader, nbAttributs);

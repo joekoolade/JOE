@@ -523,9 +523,12 @@ public:
   /// name.
   Class(ClassLoader*, const UTF8* name, ClassBytes* bytes);
   
-  /// readParents - Reads the parents, i.e. super and interfaces, of the class.
+  /// readParents - Reads the super of the class.
   ///
-  void readParents(Reader& reader);
+  void readSuper(Reader& reader);
+
+  // Reads the interfaces of the class
+  void readInterfaces(Reader&);
 
   /// loadExceptions - Loads and resolves the exception classes used in catch 
   /// clauses of methods defined in this class.

@@ -355,6 +355,14 @@ const UTF8* ClassLoader::lookupOrCreateReader(const uint16 *buf, uint32 n) {
 }
 
 Class* ClassLoader::loadName(const UTF8* name, ClassBytes* bytes) {
+	Class* cl = constructClass(name, bytes);
+	if(cl) {
+	    ClassMap::iterator End = classes->map.end();
+	    ClassMap::iterator I = classes->map.find(cl->name);
+	    if (I == End)
+	      classes->map.insert(std::make_pair(cl->name, cl));
+	}
+	return cl;
 }
 
 Class* ClassLoader::internalLoad(const UTF8* utf8, bool doResolve, JavaString* strName) {
