@@ -141,6 +141,7 @@ private:
   std::map<const llvm::Constant*, JavaObject*> reverseFinalObjects;
   std::vector<std::pair<JavaMethod*, Class*> > toCompile;
   std::vector<Class*> classes;
+  ClassLoader* loader;
 
   typedef std::map<const JavaObject*, llvm::Constant*>::iterator
     final_object_iterator;
@@ -237,10 +238,9 @@ public:
   void generateMain(const char* name, bool jit);
   const char *getHostTriple();
   void mainCompilerStart();
-//  Class* loadName(const UTF8* name, ClassBytes* data);
 private:
   void extractBootClasses();
-  void extractFiles(ClassBytes*, ClassLoader*, std::vector<std::string>);
+  void extractFiles(ClassBytes*, std::vector<std::string>);
   void extractFiles(ClassBytes* bytes, ClassLoader *loader);
   void compileAllStubs(Signdef* sign);
   Class* internalLoad(const UTF8* name, ClassBytes* data);

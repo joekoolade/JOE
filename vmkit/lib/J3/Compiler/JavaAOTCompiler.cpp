@@ -46,6 +46,7 @@
 // for realpath()
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
 
 using namespace j3;
 using namespace llvm;
@@ -2093,11 +2094,56 @@ void JavaAOTCompiler::compileClass(Class* cl) {
 }
 
 void JavaAOTCompiler::extractBootClasses() {
+    // setup bootstrap loader
+	loader = new ClassLoader(this);
 
+	// open up the boot classes zip/jar
+	ClassBytes* bytes = Reader::openFile("glibj.jar");
+	if(!bytes) {
+		fprintf(stderr, "Cannot file the boot classes files!\n");
+		exit(-1);
+	}
+
+	std::vector<std::string> filter;
+	filter.push_back("java/lang/");
+	extractFiles(bytes, filter);
+	std::cout << "Finished extracting boot classes!\n";
 }
 
-void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader, std::vector<std::string> filter) {
+void JavaAOTCompiler::extractFiles(ClassBytes* bytes, std::vector<std::string> filter) {
+	ZipArchive archive(bytes);
+	char* realName = new char[4096];
+	ZipArchive::table_iterator i = archive.filetable.begin();
+	ZipArchive::table_iterator e = archive.filetable.end();
+	std::string* name;
+	for(; i != e; ++i) {
+		ZipFile* file = i->second;
+		name = new std::string(file->filename);
+		// Match file name to filter
+		std::vector<std::string>::iterator f = filter.begin();
+		std::vector<std::string>::iterator lf = filter.end();
+		for(; f != lf; f++) {
+			std::string filterExp = *f;
+			if(name->find(filterExp) == 0) {
+				goto loadClass;
+			}
+		}
+		continue;
+loadClass:
+		std::cout << "Loading class [" + *name + "]\n";
+		if(name->size() > 6 && name->find(".class") < name->size()) {
+			memcpy(realName, name->data(), name->size());
+			const UTF8* utf8 = loader->asciizConstructUTF8(realName);
+			ClassBytes *zippedClass = new ClassBytes(file->ucsize);
+			archive.readFile(zippedClass, file);
+			Class* cl = loader->loadName(utf8, zippedClass);
+			assert(cl && "Class not created");
+			classes.push_back(cl);
 
+		} else {
+			assert(0 && "Not a class file!");
+		}
+	}
 }
 
 void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader) {
@@ -2185,8 +2231,6 @@ void JavaAOTCompiler::analyseClasspathEnv(const char* str) {
 
 void JavaAOTCompiler::mainCompilerStart() {
 
-    // setup bootstrap loader
-	ClassLoader* loader = new ClassLoader(this);
 
 	addJavaPasses();
 
@@ -2198,7 +2242,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 		analyseClasspathEnv(name);
 	}
 
-
+	extractBootClasses();
 #if 0
 	JavaJITCompiler* Comp = NULL;
 	if (!clinits->empty()) {
@@ -2227,7 +2271,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 			return;
 		}
 
-		extractFiles(bytes, loader);
+//		extractFiles(bytes, loader);
 
 		// First resolve everyone so that there can not be unknown references in
 		// constant pools.
