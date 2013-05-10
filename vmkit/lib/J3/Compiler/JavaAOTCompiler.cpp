@@ -2149,7 +2149,7 @@ loadClass:
 void JavaAOTCompiler::extractFiles(ClassBytes* bytes, ClassLoader* loader) {
 	ZipArchive archive(bytes);
 
-	loader->setArchive(archive);
+	loader->setArchive(&archive);
 	char* realName = new char[4096];
 	for (ZipArchive::table_iterator i = archive.filetable.begin(), e =
 			archive.filetable.end(); i != e; ++i) {
