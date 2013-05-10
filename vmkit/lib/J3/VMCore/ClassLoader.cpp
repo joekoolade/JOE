@@ -17,6 +17,7 @@
 #include "UTF8.h"
 #include "JavaTypes.h"
 #include "JMap.h"
+#include "Reader.h"
 
 #include <vector>
 #include <stdio.h>
@@ -354,6 +355,10 @@ const UTF8* ClassLoader::lookupOrCreateReader(const uint16 *buf, uint32 n) {
 	return hashUTF8->lookupOrCreateReader(buf, n);
 }
 
+void ClassLoader::setArchive(ZipArchive *archive) {
+    lib = archive;
+}
+
 Class* ClassLoader::loadName(const UTF8* name, ClassBytes* bytes) {
 	Class* cl = constructClass(name, bytes);
 	if(cl) {
@@ -365,8 +370,35 @@ Class* ClassLoader::loadName(const UTF8* name, ClassBytes* bytes) {
 	return cl;
 }
 
+ClassBytes* ClassLoader::openName(const UTF8* utf8) {
+    // Convert to a character string
+    char* asciiz = new char[utf8->size + 1];
+    for (sint32 i = 0; i < utf8->size; ++i)
+      asciiz[i] = utf8->elements[i];
+    asciiz[utf8->size] = 0;
+
+    uint32 alen = utf8->size;
+
+    ClassBytes* data;
+    if(lib) {
+        char *buf = new char[alen+7];
+        sprintf(buf, "%s.class", asciiz);
+        data = Reader::openZip(lib, buf);
+        if(data != NULL) return data;
+    }
+
+    return NULL;
+}
+
 Class* ClassLoader::internalLoad(const UTF8* utf8, bool doResolve, JavaString* strName) {
-	assert(0 && "Implement me!");
+    ClassBytes* bytes = NULL;
+	CommonClass* cl = lookupClass(utf8);
+	if(!cl) {
+	    bytes = openName(utf8);
+	    if(bytes != NULL) {
+	        cl = constructClass(utf8, bytes);
+	    }
+	}
 }
 
 /// loadName - Loads the class of the given name.

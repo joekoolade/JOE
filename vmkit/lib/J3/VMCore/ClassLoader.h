@@ -28,6 +28,7 @@ class TypeMap;
 class SignMap;
 class JavaString;
 class UTF8;
+class ZipArchive;
 
 class ClassLoader {
 private:
@@ -43,6 +44,7 @@ private:
 	///
 	UTF8Map* hashUTF8;
 	JavaCompiler* compiler;
+	ZipArchive* lib;
 public:
 	///
 	/// classes - The classes this class loader has loaded.
@@ -81,6 +83,10 @@ ClassPrimitive* getPrimitiveClass(char id);
 /// a class still not loaded.
 ///
 Typedef* internalConstructType(const UTF8 * name);
+
+ClassBytes* openName(const UTF8* utf8);
+
+void setArchive(ZipArchive *);
 
 /// asciizConstructUTF8 - Hashes an UTF8 created from the given asciiz.
 const UTF8* asciizConstructUTF8(const char* asciiz);

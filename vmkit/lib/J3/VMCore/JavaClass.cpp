@@ -613,8 +613,7 @@ void Class::readSuper(Reader& reader) {
   uint16 superEntry = reader.readU2();
   if (superEntry) {
     const UTF8* superUTF8 = ctpInfo->resolveClassName(superEntry);
-    // fixme
-    // super = classLoader->loadName(superUTF8, false, true, NULL);
+    super = classLoader->loadName(superUTF8, false, NULL);
   }
 }
 
@@ -627,7 +626,7 @@ void Class::readInterfaces(Reader& reader) {
   for (int i = 0; i < nbI; i++) {
     const UTF8* name = ctpInfo->resolveClassName(reader.readU2());
     // fixme
-    //interfaces[i] = classLoader->loadName(name, false, true, NULL);
+    interfaces[i] = classLoader->loadName(name, true, NULL);
   }
   nbInterfaces = nbI;
 
@@ -896,10 +895,7 @@ void Class::resolveInnerOuterClasses() {
           outerClass = clOuter;
         } else if (clOuter == this) {
           if (!innerClasses) {
-// fixme
-        	  //            innerClasses = (Class**)
-//              classLoader->allocator.Allocate(nbi * sizeof(Class*),
-//                                              "Inner classes");
+        	  innerClasses = new Class*[nbi];
           }
           clInner->setInnerAccess(accessFlags);
           if (!innerName) isAnonymous = true;
@@ -1334,10 +1330,6 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
 
     secondaryTypes = new JavaVirtualTable*[nbSecondaryTypes];
 
-//     (JavaVirtualTable**)
-//      allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
-//                         "Secondary types");
-    
     if (outOfDepth) {
       secondaryTypes[0] = this;
     }
