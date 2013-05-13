@@ -1533,6 +1533,7 @@ void JavaJIT::invokeSpecial(uint16 index) {
   ctpInfo->nameOfStaticOrSpecialMethod(index, cl, name, signature);
   LLVMSignatureInfo* LSI = TheCompiler->getSignatureInfo(signature);
   FunctionType* virtualType = LSI->getVirtualType();
+  // fixme; returning 0 for <init>
   meth = ctpInfo->infoOfStaticOrSpecialMethod(index, ACC_VIRTUAL, signature);
   bool thisReference =
     isThisReference(stackSize() - signature->getNumberOfSlots() - 1);
