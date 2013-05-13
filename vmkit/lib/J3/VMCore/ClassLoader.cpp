@@ -20,6 +20,7 @@
 #include "Reader.h"
 
 #include <vector>
+#include <iostream>
 #include <stdio.h>
 
 using namespace j3;
@@ -360,6 +361,7 @@ void ClassLoader::setArchive(ZipArchive *archive) {
 }
 
 Class* ClassLoader::loadName(const UTF8* name, ClassBytes* bytes) {
+	std::cerr << "Load name: " << (new UTF8Buffer(name))->cString() << "\n";
 	Class* cl = constructClass(name, bytes);
 	if(cl) {
 	    ClassMap::iterator End = classes->map.end();
@@ -383,6 +385,7 @@ ClassBytes* ClassLoader::openName(const UTF8* utf8) {
     if(lib) {
         char *buf = new char[alen+7];
         sprintf(buf, "%s.class", asciiz);
+    	std::cerr << "Opening name: " << asciiz << "\n";
         data = Reader::openZip(lib, buf);
         if(data != NULL) return data;
     }

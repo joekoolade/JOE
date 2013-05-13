@@ -2107,11 +2107,12 @@ void JavaAOTCompiler::extractBootClasses() {
 	std::vector<std::string> filter;
 	filter.push_back("java/lang/");
 	extractFiles(bytes, filter);
-	std::cout << "Finished extracting boot classes!\n";
+	std::cerr << "Finished extracting boot classes!\n";
 }
 
 void JavaAOTCompiler::extractFiles(ClassBytes* bytes, std::vector<std::string> filter) {
 	ZipArchive archive(bytes);
+	loader->setArchive(&archive);
 	char* realName = new char[4096];
 	ZipArchive::table_iterator i = archive.filetable.begin();
 	ZipArchive::table_iterator e = archive.filetable.end();
@@ -2130,7 +2131,7 @@ void JavaAOTCompiler::extractFiles(ClassBytes* bytes, std::vector<std::string> f
 		}
 		continue;
 loadClass:
-		std::cout << "Loading class [" + *name + "]\n";
+		std::cerr << "Extracting file [" + *name + "]\n";
 		if(name->size() > 6 && name->find(".class") < name->size()) {
 			memcpy(realName, name->data(), name->size());
 			const UTF8* utf8 = loader->asciizConstructUTF8(realName);
