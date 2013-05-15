@@ -220,6 +220,8 @@ Class::Class(ClassLoader* loader, const UTF8* n, ClassBytes* B) :
   staticFields = 0;
   innerAccess = 0;
   access = 0;
+  resolved = false;
+  ready = false;
 }
 
 ClassArray::ClassArray(ClassLoader* loader, const UTF8* n, CommonClass* base) : CommonClass(loader, n) {
@@ -858,6 +860,7 @@ void Class::readClass() {
   readFields(reader);
   readMethods(reader);
   attributs = readAttributs(reader, nbAttributs);
+  resolved = true;
 }
 
 void Class::resolveParents() {
@@ -870,7 +873,7 @@ void Class::resolveParents() {
 }
 
 void Class::resolveClass() {
-  if (isResolved()) return;
+  if (resolved) return;
   resolveParents();
   loadExceptions();
 }

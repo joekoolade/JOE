@@ -407,6 +407,9 @@ public:
   // Are all classes in the constant pool resolved?
   bool resolved;
 
+  // Class has been initialized
+  bool ready;
+
   /// isAnonymous - Is the class an anonymous class?
   ///
   bool isAnonymous;
@@ -609,7 +612,7 @@ public:
   /// isReady - Has this class been initialized?
   ///
   bool isReady() {
-    return true;
+    return ready;
   }
   
   bool isResolved() {
