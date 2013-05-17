@@ -22,7 +22,9 @@ LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS)
 LIBS += -lz
 
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags) -g
-MUST_DEFINE:=-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=32
+MUST_DEFINE:=-D_DEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=32
+MUST_DEFINE += -Woverloaded-virtual -Wcast-qual -fexceptions -Wno-variadic-macros 
+MUST_DEFINE += -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti
 CXXFLAGS += -g -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)
 
 all: test
