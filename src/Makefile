@@ -4,24 +4,26 @@ OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
 TOP:=..
 SRCS:=$(OBJS:.o=.cpp)
 
-LLVM_BIN = /usr/bin
+LLVM_BIN = ~/local/bin
 LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 
-# LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
+LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
 VMKIT_INC:=-I$(TOP)/vmkit/include 
-MVM_INC:=-I$(TOP)/vmkit/lib/Mvm/GCMmap2 -I$(TOP)/vmkit/lib/Mvm/Allocator -I$(TOP)/vmkit/lib
 J3_INC:=-I$(TOP)/vmkit/lib/J3 -I$(TOP)/vmkit/lib/J3/VMCore
 INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(J3_INC)
 
-LLVM_LIBDIR =
-LLVM_LIBS=-lLLVM-3.1.dll
+LLVM_LIBDIR = -L$(shell $(LLVM_CONFIG) --libdir) 
+LLVM_LIBS=$(shell $(LLVM_CONFIG) --libs core analysis x86 linker vectorize  scalaropts \
+selectiondag  support tablegen target transformutils  debuginfo engine executionengine \
+ codegen core cppbackend cppbackendcodegen cppbackendinfo  instcombine instrumentation interpreter \
+ ipa ipo jit bitwriter)
 VMKIT_LIBS = -lCompiler -lVMCore -lCompiler -LVMCore
 VMKIT_LIBDIR = -L$(TOP)/vmkit/Debug+Asserts/lib
 
 LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS) 
 LIBS += -lz
 
-LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags) -g
+LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
 MUST_DEFINE:=-D_DEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=32
 MUST_DEFINE += -Woverloaded-virtual -Wcast-qual -fexceptions -Wno-variadic-macros 
 MUST_DEFINE += -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti
