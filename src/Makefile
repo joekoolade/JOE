@@ -4,7 +4,7 @@ OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
 TOP:=..
 SRCS:=$(OBJS:.o=.cpp)
 
-LLVM_BIN = ~/local/bin
+LLVM_BIN = /usr/bin
 LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 
 LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
@@ -13,7 +13,8 @@ J3_INC:=-I$(TOP)/vmkit/lib/J3 -I$(TOP)/vmkit/lib/J3/VMCore
 INCLUDES:= $(VMKIT_INC) $(LLVM_INC) $(J3_INC)
 
 LLVM_LIBDIR = -L$(shell $(LLVM_CONFIG) --libdir) 
-LLVM_LIBS=$(shell $(LLVM_CONFIG) --libs core analysis x86 linker vectorize  scalaropts \
+LLVM_LIBS=$(shell $(LLVM_CONFIG) --libs)
+# LLVM_LIBS=$(shell $(LLVM_CONFIG) --libs core analysis x86 linker vectorize  scalaropts \
 selectiondag  support tablegen target transformutils  debuginfo engine executionengine \
  codegen core cppbackend cppbackendcodegen cppbackendinfo  instcombine instrumentation interpreter \
  ipa ipo jit bitwriter)
