@@ -2302,7 +2302,7 @@ void JavaAOTCompiler::mainCompilerStart() {
 					classes.end(); ii != ee; ++ii) {
 				Class* cl = *ii;
 				static const std::string magic = "org/vmmagic";
-				static void* ptr = (void*) (word_t) UnreachableMagicMMTk;
+				static void* ptr = (void*) UnreachableMagicMMTk;
 				if (!strncmp(UTF8Buffer(cl->name).cString(), magic.c_str(),
 						magic.length() - 1)) {
 					for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {

@@ -18,7 +18,7 @@
 union jvalue;
 extern "C" void EmptyDestructor();
 
-typedef uint32_t word_t;
+typedef uint64_t word_t;
 
 namespace j3 {
 

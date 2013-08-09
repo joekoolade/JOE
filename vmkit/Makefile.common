@@ -21,6 +21,7 @@ endif
   
 # Include LLVM's Master Makefile.
 include $(LLVM_OBJ_ROOT)/Makefile.llvm.common
+include $(LLVM_OBJ_ROOT)/Makefile.llvm.config
 
 LLVM_INC_DIR=-I$(shell $(LLVM_CONFIG) --includedir)
 CXX.Flags += $(LLVM_INC_DIR) -fexceptions -Wno-variadic-macros -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti

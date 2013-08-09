@@ -101,8 +101,8 @@ void ZipFile::inflate() {
 	while(ret != Z_STREAM_END) {
 		strm.next_out = (Bytef *)outBuffer;
 		strm.avail_out = CHUNK;
-		TRACE_INFLATE cout << "out: " << strm.avail_out << " " << hex << (int)strm.next_out << " processed out: " << dec << processed_out
-				<< " in: " << hex << (int)strm.next_in << " " << dec << strm.avail_in << endl;
+		TRACE_INFLATE cout << "out: " << strm.avail_out << " " << hex << (unsigned long)strm.next_out << " processed out: " << dec << processed_out
+				<< " in: " << hex << (unsigned long)strm.next_in << " " << dec << strm.avail_in << endl;
 		ret = ::inflate(&strm, Z_SYNC_FLUSH);
 		switch(ret) {
 		case Z_NEED_DICT:

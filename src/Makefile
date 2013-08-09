@@ -4,7 +4,7 @@ OBJS:=ZipArchive.o ZipFile.o AttributeInfo.o ClassFile.o ConstantPool.o test.o \
 TOP:=..
 SRCS:=$(OBJS:.o=.cpp)
 
-LLVM_BIN = /usr/bin
+LLVM_BIN = /home/jkulig/local/bin
 LLVM_CONFIG = $(LLVM_BIN)/llvm-config
 
 LLVM_INC:=-I$(shell $(LLVM_CONFIG) --includedir)
@@ -25,7 +25,7 @@ LIBS = $(LLVM_LIBDIR) $(VMKIT_LIBDIR) $(VMKIT_LIBS) $(LLVM_LIBS)
 LIBS += -lz
 
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
-MUST_DEFINE:=-D_DEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=32
+MUST_DEFINE:=-D_DEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__WORDSIZE=64
 MUST_DEFINE += -Woverloaded-virtual -Wcast-qual -fexceptions -Wno-variadic-macros 
 MUST_DEFINE += -fno-omit-frame-pointer -fno-strict-aliasing -Wno-deprecated -ansi -fno-rtti
 CXXFLAGS += -g -DENABLE_THREADS -fno-rtti $(MUST_DEFINE) $(INCLUDES)

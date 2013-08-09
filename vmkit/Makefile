@@ -13,7 +13,7 @@ include $(LEVEL)/Makefile.config
 
 # Top-Level vmkit Build Stages:
 #
-DIRS := lib/Mvm/StaticGCPass lib/Mvm/StaticGCPrinter lib tools/vmjc mmtk tools/precompiler tools
+DIRS := lib/J3
 
 EXTRA_DIST=include
 
