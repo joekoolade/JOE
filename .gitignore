@@ -14,5 +14,6 @@ llvm*/
 Classpath.h
 *.stackdump
 /vmkit-0.30
+/vmkit-0.27
 *.dump
 .settings/
