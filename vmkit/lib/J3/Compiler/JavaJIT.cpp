@@ -1636,6 +1636,43 @@ void JavaJIT::invokeStatic(uint16 index) {
   }
 }
 
+Value* JavaJIT::getConstantPoolAt(uint32 index, Function* resolver,
+                                  Type* returnType,
+                                  Value* additionalArg, bool doThrow) {
+
+// This makes unswitch loop very unhappy time-wise, but makes GVN happy
+// number-wise. IMO, it's better to have this than Unswitch.
+  JavaConstantPool* ctp = compilingClass->ctpInfo;
+  Value* CTP = TheCompiler->getResolvedConstantPool(ctp);
+  Value* Cl = TheCompiler->getNativeClass(compilingClass);
+
+  std::vector<Value*> Args;
+  Args.push_back(resolver);
+  Args.push_back(CTP);
+  Args.push_back(Cl);
+  Args.push_back(ConstantInt::get(Type::getInt32Ty(*llvmContext), index));
+  if (additionalArg) Args.push_back(additionalArg);
+
+  Value* res = 0;
+  if (doThrow) {
+    res = invoke(intrinsics->GetConstantPoolAtFunction, Args, "",
+                 currentBlock);
+  } else {
+    res = CallInst::Create(intrinsics->GetConstantPoolAtFunction, Args,
+                           "", currentBlock);
+  }
+  
+  Type* realType = 
+    intrinsics->GetConstantPoolAtFunction->getReturnType();
+  if (returnType == Type::getInt32Ty(*llvmContext)) {
+    return new PtrToIntInst(res, Type::getInt32Ty(*llvmContext), "", currentBlock);
+  } else if (returnType != realType) {
+    return new BitCastInst(res, returnType, "", currentBlock);
+  } 
+  
+  return res;
+}
+
 Value* JavaJIT::getResolvedCommonClass(uint16 index, bool doThrow,
                                        CommonClass** alreadyResolved) {
     
@@ -1759,39 +1796,40 @@ Value* JavaJIT::ldResolved(uint16 index, bool stat, Value* object,
       if (!thisReference) JITVerifyNull(object);
       type = LCI->getVirtualType();
     }
-    
     Value* objectConvert = new BitCastInst(object, type, "", currentBlock);
 
     Value* args[2] = { intrinsics->constantZero, LFI->getOffset() };
     Value* ptr = llvm::GetElementPtrInst::Create(objectConvert, args, "",
                                                  currentBlock);
     return ptr;
-  }
-
-  Type* Pty = intrinsics->arrayPtrType;
-  Constant* zero = intrinsics->constantZero;
-    
-  Function* func = stat ? intrinsics->StaticFieldLookupFunction :
-                          intrinsics->VirtualFieldLookupFunction;
-    
-  Type* returnType = NULL;
-  if (stat) {
-    returnType = intrinsics->ptrType;
   } else {
-    returnType = Type::getInt32Ty(*llvmContext);
-  }
+     	assert("field is null or classDef is not resolved!");
+     }
 
-  Value* ptr = 0; // getConstantPoolAt(index, func, returnType, 0, true);
-  if (!stat) {
-    object = new LoadInst(
-        object, "", false, currentBlock);
-    if (!thisReference) JITVerifyNull(object);
-    Value* tmp = new BitCastInst(object, Pty, "", currentBlock);
-    Value* args[2] = { zero, ptr };
-    ptr = GetElementPtrInst::Create(tmp, args, "", currentBlock);
-  }
-    
-  return new BitCastInst(ptr, fieldTypePtr, "", currentBlock);
+//  Type* Pty = intrinsics->arrayPtrType;
+//  Constant* zero = intrinsics->constantZero;
+//
+//  Function* func = stat ? intrinsics->StaticFieldLookupFunction :
+//                          intrinsics->VirtualFieldLookupFunction;
+//
+//  Type* returnType = NULL;
+//  if (stat) {
+//    returnType = intrinsics->ptrType;
+//  } else {
+//    returnType = Type::getInt32Ty(*llvmContext);
+//  }
+//
+//  Value* ptr = getConstantPoolAt(index, func, returnType, 0, true);
+//  if (!stat) {
+//    object = new LoadInst(
+//        object, "", false, currentBlock);
+//    if (!thisReference) JITVerifyNull(object);
+//    Value* tmp = new BitCastInst(object, Pty, "", currentBlock);
+//    Value* args[2] = { zero, ptr };
+//    ptr = GetElementPtrInst::Create(tmp, args, "", currentBlock);
+//  }
+//
+//  return new BitCastInst(ptr, fieldTypePtr, "", currentBlock);
 }
 
 void JavaJIT::convertValue(Value*& val, Type* t1, BasicBlock* currentBlock,

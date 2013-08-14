@@ -500,8 +500,8 @@ JavaField* JavaConstantPool::lookupField(uint32 index, bool stat) {
         } else if (lookup->isReady()) {
         	// fixme
         	assert(0 && "implement me");
-//          void* S = field->classDef->getStaticInstance();
-//          ctpRes[index] = (void*)((uint64)S + field->ptrOffset);
+          void* S = field->classDef->getStaticInstance();
+          ctpRes[index] = (void*)((uint64)S + field->ptrOffset);
         }
       }
       return field;

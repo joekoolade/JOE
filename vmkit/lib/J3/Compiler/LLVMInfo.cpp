@@ -68,23 +68,23 @@ Type* LLVMClassInfo::getVirtualType() {
     }
     
     uint64 size = targetData->getTypeAllocSize(structType);
-    virtualSizeConstant = ConstantInt::get(Type::getInt32Ty(context), size);
-    
-    // TODO: put that elsewhere.
-    // The class is resolved if it was precompiled.
+		virtualSizeConstant = ConstantInt::get(Type::getInt32Ty(context), size);
+
+		// TODO: put that elsewhere.
+		// The class is resolved if it was precompiled.
 //    if ((!classDef->isResolved() || Compiler->isStaticCompiling())
 //        && Compiler == classDef->classLoader->getCompiler()) {
-//      for (uint32 i = 0; i < classDef->nbVirtualFields; ++i) {
-//        JavaField& field = classDef->virtualFields[i];
-//        field.ptrOffset = sl->getElementOffset(i + 1);
-//        field.num = i + 1;
-//      }
-//
-//      classDef->virtualSize = (uint32)size;
-//      classDef->alignment = sl->getAlignment();
-//
-//      Compiler->makeVT(classDef);
-//      Compiler->makeIMT(classDef);
+	for (uint32 i = 0; i < classDef->nbVirtualFields; ++i) {
+		JavaField& field = classDef->virtualFields[i];
+		field.ptrOffset = sl->getElementOffset(i + 1);
+		field.num = i + 1;
+	}
+
+	classDef->virtualSize = (uint32) size;
+	classDef->alignment = sl->getAlignment();
+
+	Compiler->makeVT(classDef);
+	Compiler->makeIMT(classDef);
 //    }
   }
 

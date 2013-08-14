@@ -177,6 +177,10 @@ public:
 //
 //===----------------------------------------------------------------------===//
 
+  void* getStaticInstance() {
+	  return 0;
+  }
+
   bool isSecondaryClass();
 
   // Assessor methods.
