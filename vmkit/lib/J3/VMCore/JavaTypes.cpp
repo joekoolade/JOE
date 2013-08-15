@@ -14,6 +14,7 @@
 #include "JavaClass.h"
 #include "JavaCompiler.h"
 #include "JavaTypes.h"
+#include "ClassLoader.h"
 
 using namespace j3;
 
@@ -58,23 +59,19 @@ void Signdef::nativeName(char* ptr, const char* ext) const {
   memcpy(ptr, ext, strlen(ext) + 1);
 }
 
-CommonClass* ArrayTypedef::assocClass() const {
-	assert(0 && "fix me");
-	return NULL;
+CommonClass* ArrayTypedef::assocClass(ClassLoader* loader) const {
+	return loader->constructArray(keyName);
 }
 
-CommonClass* ArrayTypedef::findAssocClass() const {
-	assert(0 && "fix me");
-	return NULL;
+CommonClass* ArrayTypedef::findAssocClass(ClassLoader* loader) const {
+	return loader->lookupClassOrArray(keyName);
 }
 
-CommonClass* ObjectTypedef::assocClass() const {
-	assert(0 && "fix me");
-	return NULL;
+CommonClass* ObjectTypedef::assocClass(ClassLoader* loader) const {
+	return loader->loadName(pseudoAssocClassName, false, NULL);
 }
 
-CommonClass* ObjectTypedef::findAssocClass() const {
-	assert(0 && "fix me");
-	return NULL;
+CommonClass* ObjectTypedef::findAssocClass(ClassLoader* loader) const {
+	return loader->lookupClassOrArray(pseudoAssocClassName);
 }
 

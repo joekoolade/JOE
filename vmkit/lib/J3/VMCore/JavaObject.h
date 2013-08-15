@@ -115,11 +115,11 @@ public:
 
 
   static uint32_t numberOfBaseFunctions() {
-    return 4;
+    return 0;
   }
 
   static uint32_t numberOfSpecializedTracers() {
-    return 1;
+    return 0;
   }
 
   /// getFirstJavaMethod - Get the byte offset of the first Java method
@@ -231,7 +231,7 @@ public:
  word_t specializedTracers[1];
 
  word_t* getFunctions() {
-   return &destructor;
+   return (word_t *)&cl;
  }
 
 // VirtualTable(word_t d, word_t o, word_t t) {

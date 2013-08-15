@@ -891,7 +891,7 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
       new StoreInst(*i, floatLocals[index], false, currentBlock);
     } else {
       Instruction* V = new StoreInst(*i, objectLocals[index], false, currentBlock);
-       addHighLevelType(V, cur->findAssocClass());
+       addHighLevelType(V, cur->findAssocClass(compilingClass->classLoader));
     }
   }
 
@@ -1035,7 +1035,7 @@ llvm::Function* JavaJIT::javaCompile() {
       new StoreInst(i, floatLocals[index], false, currentBlock);
     } else {
       Instruction* V = new StoreInst(i, objectLocals[index], false, currentBlock);
-      addHighLevelType(V, cur->findAssocClass());
+      addHighLevelType(V, cur->findAssocClass(compilingClass->classLoader));
     }
   }
 
@@ -1561,7 +1561,7 @@ void JavaJIT::invokeSpecial(uint16 index) {
   Type* retType = virtualType->getReturnType();
   if (retType != Type::getVoidTy(*llvmContext)) {
     if (retType == intrinsics->JavaObjectType) {
-      push(val, false, signature->getReturnType()->findAssocClass());
+      push(val, false, signature->getReturnType()->findAssocClass(compilingClass->classLoader));
     } else {
       push(val, signature->getReturnType()->isUnsigned());
       if (retType == Type::getDoubleTy(*llvmContext) ||
@@ -1625,7 +1625,7 @@ void JavaJIT::invokeStatic(uint16 index) {
   Type* retType = staticType->getReturnType();
   if (retType != Type::getVoidTy(*llvmContext)) {
     if (retType == intrinsics->JavaObjectType) {
-      push(val, false, signature->getReturnType()->findAssocClass());
+      push(val, false, signature->getReturnType()->findAssocClass(compilingClass->classLoader));
     } else {
       push(val, signature->getReturnType()->isUnsigned());
       if (retType == Type::getDoubleTy(*llvmContext) ||
@@ -1930,7 +1930,7 @@ void JavaJIT::getStaticField(uint16 index) {
         }
       } else {
           JavaObject* val = field->getStaticObjectField();
-          Value* V = TheCompiler->getFinalObject(val, sign->assocClass());
+          Value* V = TheCompiler->getFinalObject(val, sign->assocClass(compilingClass->classLoader));
           // fixme
 //          CommonClass* cl = mvm::Collector::begOf(val) ?
 //              JavaObject::getClass(val) : NULL;
@@ -1940,7 +1940,7 @@ void JavaJIT::getStaticField(uint16 index) {
   }
 
   if (!final) {
-    CommonClass* cl = sign->findAssocClass();
+    CommonClass* cl = sign->findAssocClass(compilingClass->classLoader);
     push(new LoadInst(ptr, "", currentBlock), sign->isUnsigned(), cl);
   }
   if (type == Type::getInt64Ty(*llvmContext) ||
@@ -1987,7 +1987,7 @@ void JavaJIT::setVirtualField(uint16 index) {
 
 void JavaJIT::getVirtualField(uint16 index) {
   Typedef* sign = compilingClass->ctpInfo->infoOfField(index);
-  CommonClass* cl = sign->findAssocClass();
+  CommonClass* cl = sign->findAssocClass(compilingClass->classLoader);
   
   LLVMAssessorInfo& LAI = TheCompiler->getTypedefInfo(sign);
   Type* type = LAI.llvmType;
@@ -1997,42 +1997,7 @@ void JavaJIT::getVirtualField(uint16 index) {
   
   Value* ptr = ldResolved(index, false, obj, LAI.llvmTypePtr, thisReference);
   
-  bool final = false;
-  
-  // In init methods, the fields have not been set yet.
-  if (!compilingMethod->name->equals(compilingClass->classLoader->initName)) {
-    JavaField* field = compilingClass->ctpInfo->lookupField(index, false);
-    if (field) {
-      final = isFinal(field->access) && sign->isPrimitive();
-    }
-    if (final) {
-      Function* F = 0;
-      assert(sign->isPrimitive());
-      const PrimitiveTypedef* prim = (PrimitiveTypedef*)sign;
-      if (prim->isInt()) {
-        F = intrinsics->GetFinalInt32FieldFunction;
-      } else if (prim->isByte()) {
-        F = intrinsics->GetFinalInt8FieldFunction;
-      } else if (prim->isBool()) {
-        F = intrinsics->GetFinalInt8FieldFunction;
-      } else if (prim->isShort()) {
-        F = intrinsics->GetFinalInt16FieldFunction;
-      } else if (prim->isChar()) {
-        F = intrinsics->GetFinalInt16FieldFunction;
-      } else if (prim->isLong()) {
-        F = intrinsics->GetFinalLongFieldFunction;
-      } else if (prim->isFloat()) {
-        F = intrinsics->GetFinalFloatFieldFunction;
-      } else if (prim->isDouble()) {
-        F = intrinsics->GetFinalDoubleFieldFunction;
-      } else {
-        abort();
-      }
-      push(CallInst::Create(F, ptr, "", currentBlock), sign->isUnsigned(), cl);
-    }
-  }
- 
-  if (!final) push(new LoadInst(ptr, "", currentBlock), sign->isUnsigned(), cl);
+  push(new LoadInst(ptr, "", currentBlock), sign->isUnsigned(), cl);
   if (type == Type::getInt64Ty(*llvmContext) ||
       type == Type::getDoubleTy(*llvmContext)) {
     push(intrinsics->constantZero, false);
@@ -2185,7 +2150,7 @@ void JavaJIT::invokeInterface(uint16 index) {
   Value* ret = invoke(node, args, "", currentBlock);
   if (retType != Type::getVoidTy(*llvmContext)) {
     if (ret->getType() == intrinsics->JavaObjectType) {
-      push(ret, false, signature->getReturnType()->findAssocClass());
+      push(ret, false, signature->getReturnType()->findAssocClass(compilingClass->classLoader));
     } else {
       push(ret, signature->getReturnType()->isUnsigned());
       if (retType == Type::getDoubleTy(*llvmContext) ||

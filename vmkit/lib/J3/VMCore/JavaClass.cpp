@@ -746,19 +746,18 @@ void Class::makeVT() {
 //        meth.type->equals(classLoader->bootstrapLoader->clinitType)) {
 //      meth.offset = 0;
 //    } else {
-//      JavaMethod* parent = super?
-//        super->lookupMethodDontThrow(meth.name, meth.type, false, true, 0) :
-//        0;
-//
-//      uint64_t offset = 0;
-//      if (!parent) {
-//        offset = virtualTableSize++;
-//        meth.offset = offset;
-//      } else {
-//        offset = parent->offset;
-//        meth.offset = parent->offset;
-//      }
-//    }
+      JavaMethod* parent = super?
+        super->lookupMethodDontThrow(meth.name, meth.type, false, true, 0) :
+        0;
+
+      uint64_t offset = 0;
+      if (!parent) {
+        offset = virtualTableSize++;
+        meth.offset = offset;
+      } else {
+        offset = parent->offset;
+        meth.offset = parent->offset;
+      }
   }
 
   virtualVT = new JavaVirtualTable(this);

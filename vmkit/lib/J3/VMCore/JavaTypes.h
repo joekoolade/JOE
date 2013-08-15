@@ -17,6 +17,7 @@ namespace j3 {
 
 class CommonClass;
 class ClassPrimitive;
+class ClassLoader;
 
 #define VOID_ID 0
 #define BOOL_ID 1
@@ -62,10 +63,10 @@ public:
   /// assocClass - Given the loaded, try to load the class represented by this
   /// Typedef.
   ///
-  virtual CommonClass* assocClass() const = 0;
+  virtual CommonClass* assocClass(ClassLoader* loader) const = 0;
   
-  virtual CommonClass* findAssocClass() const {
-    return assocClass();
+  virtual CommonClass* findAssocClass(ClassLoader* loader) const {
+    return assocClass(loader);
   }
 
   /// trace - Does this type need to be traced by the GC?
@@ -227,8 +228,8 @@ public:
     return true;
   }
 
-  virtual CommonClass* assocClass() const;
-  virtual CommonClass* findAssocClass() const;
+  virtual CommonClass* assocClass(ClassLoader* loader) const;
+  virtual CommonClass* findAssocClass(ClassLoader* loader) const;
 
   ArrayTypedef(const UTF8* name) {
     keyName = name;
@@ -251,8 +252,8 @@ public:
     return true;
   }
   
-  virtual CommonClass* assocClass() const;
-  virtual CommonClass* findAssocClass() const;
+  virtual CommonClass* assocClass(ClassLoader* loader) const;
+  virtual CommonClass* findAssocClass(ClassLoader* loader) const;
 
   ObjectTypedef(const UTF8*name, UTF8Map* map);
   
