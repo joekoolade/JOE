@@ -172,7 +172,7 @@ public:
     return unsign;
   }
 
-  virtual CommonClass* assocClass() const {
+  virtual CommonClass* assocClass(ClassLoader* loader) const {
     return (CommonClass*)prim;
   }
 

@@ -1807,9 +1807,9 @@ Constant* JavaAOTCompiler::CreateConstantFromVT(JavaVirtualTable* VT) {
 	}
 
 	// methods
-	for (uint32 i = JavaVirtualTable::getFirstJavaMethodIndex(); i < size;
-			++i) {
-		JavaMethod* meth = ((JavaMethod**) RealVT)[i];
+	word_t* realVT = VT->getVTMethods();
+	for (uint32 i = 0; i < size; ++i) {
+		JavaMethod* meth = (JavaMethod*)realVT[i];
 		// Primitive classes don't have methods--abstract or otherwise.
 		// (But we do have placeholders for j.l.Object methods in their VTs,
 		// so just emit NULL's here)
@@ -2044,19 +2044,22 @@ void JavaAOTCompiler::CreateStaticInitializer() {
 void JavaAOTCompiler::makeVT(Class* cl) {
 	JavaVirtualTable* VT = cl->virtualVT;
 
+	word_t* currVT = VT->getVTMethods();
 	if (cl->super) {
 		// Copy the super VT into the current VT.
-		uint32 size = cl->super->virtualTableSize
-				- JavaVirtualTable::getFirstJavaMethodIndex();
-		memcpy(VT->getFirstJavaMethod(),
-				cl->super->virtualVT->getFirstJavaMethod(),
-				size * sizeof(word_t));
+		word_t* srcVT = cl->super->virtualVT->getVTMethods();
+		for(int i=0; i<cl->super->virtualTableSize; i++) {
+			currVT[i] = srcVT[i];
+		}
 		VT->destructor = cl->super->virtualVT->destructor;
 	}
 
+	/*
+	 * Copy the classes methods into the current VT
+	 */
 	for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {
 		JavaMethod& meth = cl->virtualMethods[i];
-		((void**) VT)[meth.offset] = &meth;
+		currVT[meth.offset] = (word_t)&meth;
 	}
 
 //	if (!cl->super)

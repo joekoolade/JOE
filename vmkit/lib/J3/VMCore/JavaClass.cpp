@@ -734,7 +734,7 @@ void Class::fillIMT(std::set<JavaMethod*>* meths) {
 
 void Class::makeVT() {
   if (super == NULL) {
-    virtualTableSize = JavaVirtualTable::getFirstJavaMethodIndex();
+    virtualTableSize = JavaVirtualTable::getObjectVTSize();
   } else  {
     virtualTableSize = super->virtualTableSize;
   }
@@ -760,7 +760,7 @@ void Class::makeVT() {
       }
   }
 
-  virtualVT = new JavaVirtualTable(this);
+  virtualVT = new JavaVirtualTable(this, virtualTableSize);
 }
 
 static void computeMirandaMethods(Class* current,
@@ -1284,7 +1284,7 @@ void ClassArray::initialiseVT(Class* javaLangObject) {
 #endif
 }
 
-JavaVirtualTable::JavaVirtualTable(Class* C) {
+JavaVirtualTable::JavaVirtualTable(Class* C, int size) {
    
   if (C->super) {
 // fixme
@@ -1305,6 +1305,7 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
 #endif
     // Set the class of this VT.
     cl = C;
+    virtualMethods = new word_t[size];
     
     // Set depth and display for fast dynamic type checking.
     JavaVirtualTable* superVT = C->super->virtualVT; 

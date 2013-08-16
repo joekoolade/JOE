@@ -93,23 +93,12 @@ public:
   InterfaceMethodTable* IMT;
 
   /// Java methods for the virtual table functions.
-  word_t init;
-  word_t equals;
-  word_t hashCode;
-  word_t toString;
-  word_t clone;
-  word_t getClass;
-  word_t notify;
-  word_t notifyAll;
-  word_t waitIndefinitely;
-  word_t waitMs;
-  word_t waitMsNs;
-  word_t virtualMethods[1];
+  word_t* virtualMethods;
 
   /// JavaVirtualTable - Create JavaVirtualTable objects for classes, array
   /// classes and primitive classes.
   ///
-  JavaVirtualTable(Class* C);
+  JavaVirtualTable(Class* C, int);
   JavaVirtualTable(ClassArray* C);
   JavaVirtualTable(ClassPrimitive* C);
 
@@ -125,16 +114,24 @@ public:
   /// getFirstJavaMethod - Get the byte offset of the first Java method
   /// (<init>).
   ///
-  word_t* getFirstJavaMethod() {
-    return &init;
+//  word_t* getFirstJavaMethod() {
+//    return virtualMethods;
+//  }
+
+  word_t* getVTMethods() {
+	  return virtualMethods;
   }
   
   /// getFirstJavaMethodIndex - Get the word offset of the first Java method.
   ///
   static uint32_t getFirstJavaMethodIndex() {
-    return numberOfBaseFunctions() + 16;
+    return 0;
   }
    
+  static uint32_t getObjectVTSize() {
+    return 12;
+  }
+
   /// getBaseSize - Get the size of the java.lang.Object virtual table.
   ///
   static uint32_t getBaseSize() {
