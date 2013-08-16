@@ -17,3 +17,5 @@ Classpath.h
 /vmkit-0.27
 *.dump
 .settings/
+/vmkit-3.3
+/.gitignore~
