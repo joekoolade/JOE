@@ -87,16 +87,16 @@ void JIntrinsics::createJavaClass() {
 }
 void JIntrinsics::createJavaObjectType() {
 	// All java objects have:
-	// +0		Hashcode
-	// +4		Lock
-	// +8		JavaClass *
+	// +0		virtual table *
+	// +4		hashcode
+	// +8		Lock
 	// +12		instance fields
 	// %JavaObject = type { i32, i32, %JavaClass* }
 	javaObject = StructType::create(*Context, "JavaObject");
 	std::vector<Type*> javaObjectFields;
+	javaObjectFields.push_back(VTType);
 	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
 	javaObjectFields.push_back(IntegerType::getInt32Ty(*Context));
-	javaObjectFields.push_back(JavaClassType);
 	javaObject->setBody(javaObjectFields, false);
 	JavaObjectType = PointerType::getUnqual(javaObject);
 }
@@ -321,6 +321,21 @@ void JIntrinsics::createAttribute() {
 
 }
 
+void JIntrinsics::createAllocator() {
+	std::vector<Type*> args;
+	args.push_back(Type::getInt32Ty(*Context));
+	args.push_back(Type::getInt8PtrTy(*Context));
+	FunctionType* ftype = FunctionType::get(Type::getInt8PtrTy(*Context), args, false);
+	AllocateFunction = Function::Create(ftype, GlobalValue::ExternalLinkage, "gmalloc", module);
+}
+void JIntrinsics::createGetVTFromClass() {
+	std::vector<Type*> args;
+	args.push_back(JavaClassType);
+	FunctionType* ftype = FunctionType::get(VTType, args, false);
+	GetVTFromClassFunction = Function::Create(ftype, GlobalValue::ExternalLinkage, "getVTFromClass", module); // (external, no body)
+	GetVTFromClassFunction->setCallingConv(CallingConv::C);
+}
+
 void JIntrinsics::initTypes() {
 	createVirtualTable();
 	createUTF8();
@@ -341,11 +356,14 @@ void JIntrinsics::initTypes() {
 	createAttribute();
 	createJavaField();
 	createJavaMethod();
+	createGetVTFromClass();
+	createAllocator();
 }
 
 void JIntrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
+  this->module = module;
   Context = &module->getContext();
   initTypes();
 
@@ -407,18 +425,17 @@ void JIntrinsics::init(llvm::Module* module) {
 //    module->getFunction("forceInitialisationCheck");
 //  InitialiseClassFunction = module->getFunction("j3RuntimeInitialiseClass");
 //
-//  GetConstantPoolAtFunction = module->getFunction("getConstantPoolAt");
-//  ArrayLengthFunction = module->getFunction("arrayLength");
-//  GetVTFunction = module->getFunction("getVT");
-//  GetIMTFunction = module->getFunction("getIMT");
-//  GetClassFunction = module->getFunction("getClass");
-//  ClassLookupFunction = module->getFunction("j3ClassLookup");
-//  GetVTFromClassFunction = module->getFunction("getVTFromClass");
-//  GetVTFromClassArrayFunction = module->getFunction("getVTFromClassArray");
-//  GetVTFromCommonClassFunction = module->getFunction("getVTFromCommonClass");
-//  GetBaseClassVTFromVTFunction = module->getFunction("getBaseClassVTFromVT");
-//  GetObjectSizeFromClassFunction =
-//    module->getFunction("getObjectSizeFromClass");
+  GetConstantPoolAtFunction = module->getFunction("getConstantPoolAt");
+  ArrayLengthFunction = module->getFunction("arrayLength");
+  GetVTFunction = module->getFunction("getVT");
+  GetIMTFunction = module->getFunction("getIMT");
+  GetClassFunction = module->getFunction("getClass");
+  ClassLookupFunction = module->getFunction("j3ClassLookup");
+  GetVTFromClassFunction = module->getFunction("getVTFromClass");
+  GetVTFromClassArrayFunction = module->getFunction("getVTFromClassArray");
+  GetVTFromCommonClassFunction = module->getFunction("getVTFromCommonClass");
+  GetBaseClassVTFromVTFunction = module->getFunction("getBaseClassVTFromVT");
+  GetObjectSizeFromClassFunction = module->getFunction("getObjectSizeFromClass");
 //
 //  GetClassDelegateeFunction = module->getFunction("getClassDelegatee");
 //  RuntimeDelegateeFunction = module->getFunction("j3RuntimeDelegatee");

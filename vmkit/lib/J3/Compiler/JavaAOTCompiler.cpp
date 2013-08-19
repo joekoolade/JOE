@@ -1838,15 +1838,15 @@ JavaAOTCompiler::JavaAOTCompiler(const std::string& ModuleID) :
 	std::string Error;
 
 	bootClasspathEnv = NULL;
-	Triple theTriple("i686-pc-cygwin");
+	Triple theTriple("x86_64-linux-gnu");
 	TargetRegistry::printRegisteredTargetsForVersion();
 	const Target* TheTarget(TargetRegistry::lookupTarget(theTriple.getTriple(), Error));
 	if(TheTarget == NULL) {
 		printf("Target not found!\n");
 		exit(-1);
 	}
-	StringRef triple = StringRef("i686-pc-cygwin");
-	StringRef cpu="x86";
+	StringRef triple = StringRef("x86_64-linux-gnu");
+	StringRef cpu="x86-64";
 	StringRef features = "";
 	Reloc::Model relocModel = Reloc::PIC_;
 	CodeModel::Model codeModel = CodeModel::Default;
