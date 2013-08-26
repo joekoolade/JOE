@@ -1,0 +1,68 @@
+// program generated file, do not edit
+
+	// cost for each non-terminal
+	public char cost_stm;
+	public char cost_r;
+	public char cost_czr;
+	public char cost_rs;
+	public char cost_rz;
+	public char cost_rp;
+	public char cost_any;
+	public char cost_boolcmp;
+
+	// rule for each non-terminal
+	public int word0;
+	   // stm; word:0 offset:0, bits:7, 91 rules);
+	   // r; word:0 offset:7, bits:7, 125 rules);
+	   // czr; word:0 offset:14, bits:2, 2 rules);
+	   // rs; word:0 offset:16, bits:5, 17 rules);
+	   // rz; word:0 offset:21, bits:3, 5 rules);
+	   // rp; word:0 offset:24, bits:4, 15 rules);
+	   // any; word:0 offset:28, bits:3, 6 rules);
+	public int word1;
+	   // boolcmp; word:1 offset:0, bits:4, 8 rules);
+
+	public char getCost(int goalNT) {
+		switch(goalNT) {
+		case stm_NT:    return cost_stm;
+		case r_NT:    return cost_r;
+		case czr_NT:    return cost_czr;
+		case rs_NT:    return cost_rs;
+		case rz_NT:    return cost_rz;
+		case rp_NT:    return cost_rp;
+		case any_NT:    return cost_any;
+		default:       return cost_boolcmp;
+		}
+	}
+
+	public void initCost() {
+		cost_stm = 
+		cost_r = 
+		cost_czr = 
+		cost_rs = 
+		cost_rz = 
+		cost_rp = 
+		cost_any = 
+		cost_boolcmp = 
+		      0x7fff;
+		word0 = 0;
+		word1 = 0;
+
+	}
+
+	public int rule(int goalNT) {
+		int statement = 0;
+		switch(goalNT) {
+		case stm_NT:  statement= (word0 & 0x7F); break;// stm
+		case r_NT:  statement= ((word0 >>> 7) & 0x7F); break;// r
+		case czr_NT:  statement= ((word0 >>> 14) & 0x3); break;// czr
+		case rs_NT:  statement= ((word0 >>> 16) & 0x1F); break;// rs
+		case rz_NT:  statement= ((word0 >>> 21) & 0x7); break;// rz
+		case rp_NT:  statement= ((word0 >>> 24) & 0xF); break;// rp
+		case any_NT:  statement= ((word0 >>> 28) & 0x7); break;// any
+		default:     statement= (word1 & 0xF); break;// boolcmp
+		}
+		return BURS_STATE.decode[goalNT][statement];
+	}
+}
+

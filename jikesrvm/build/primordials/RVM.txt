@@ -1,0 +1,82 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+
+[Lorg/vmmagic/unboxed/Address;
+[Lorg/vmmagic/unboxed/ObjectReference;
+[Lorg/vmmagic/unboxed/Word;
+[Lorg/vmmagic/unboxed/Offset;
+[Lorg/vmmagic/unboxed/Extent;
+[Lorg/vmmagic/unboxed/AddressArray;
+[Lorg/vmmagic/unboxed/ObjectReferenceArray;
+
+[Lorg/jikesrvm/ArchitectureSpecific$CodeArray;
+
+[Lorg/jikesrvm/CommandLineArgs$Prefix;
+[Lorg/jikesrvm/CommandLineArgs$PrefixType;
+
+[Lorg/jikesrvm/classloader/RVMAnnotation;
+[Lorg/jikesrvm/classloader/RVMAnnotation$AnnotationMember;
+[Lorg/jikesrvm/classloader/RVMClass;
+[Lorg/jikesrvm/classloader/RVMField;
+[Lorg/jikesrvm/classloader/RVMMethod;
+[Lorg/jikesrvm/classloader/RVMType;
+[[Lorg/jikesrvm/classloader/RVMType;
+[Lorg/jikesrvm/classloader/InterfaceMethodSignature;
+[Lorg/jikesrvm/classloader/Atom;
+[[Lorg/jikesrvm/classloader/Atom;
+[Lorg/jikesrvm/classloader/MemberReference;
+[[Lorg/jikesrvm/classloader/MemberReference;
+[Lorg/jikesrvm/classloader/TypeReference;
+[[Lorg/jikesrvm/classloader/TypeReference;
+[Lorg/jikesrvm/classloader/InterfaceInvocation$IMTDict$Link;
+[Lorg/jikesrvm/classloader/SpecializedMethod;
+
+[Lorg/jikesrvm/compilers/baseline/BasicBlock;
+[Lorg/jikesrvm/compilers/baseline/UnusualMaps;
+[Lorg/jikesrvm/compilers/common/CompiledMethod;
+[[Lorg/jikesrvm/compilers/common/CompiledMethod;
+
+[Lorg/jikesrvm/runtime/DynamicLibrary;
+
+[Lorg/jikesrvm/scheduler/RVMThread;
+[Lorg/jikesrvm/scheduler/Monitor;
+[Lorg/jikesrvm/scheduler/NoYieldpointsMonitor;
+[[Lorg/jikesrvm/scheduler/RVMThread;
+[Lorg/jikesrvm/scheduler/RVMThread$BlockAdapter;
+[[Lorg/jikesrvm/scheduler/RVMThread$BlockAdapter;
+Lorg/jikesrvm/scheduler/ThinLock;
+Lorg/jikesrvm/scheduler/Lock;
+[Lorg/jikesrvm/scheduler/Lock;
+[[Lorg/jikesrvm/scheduler/Lock;
+
+[Lorg/jikesrvm/util/AbstractHashMapRVM$AbstractBucket;
+[Lorg/jikesrvm/util/AbstractHashSetRVM$AbstractBucket;
+
+[Lorg/jikesrvm/mm/mminterface/CollectorThread;
+[Lorg/jikesrvm/mm/mminterface/Selected$Mutator;
+
+[Lorg/jikesrvm/mm/mmtk/SynchronizedCounter;
+[Lorg/mmtk/utility/heap/FreeListPageResource;
+
+[Lorg/mmtk/plan/Phase;
+[Lorg/mmtk/policy/Space;
+[Lorg/mmtk/utility/statistics/Stats;
+[Lorg/mmtk/utility/statistics/Stats$Phase;
+[Lorg/mmtk/utility/statistics/Counter;
+[Lorg/mmtk/utility/statistics/Timer;
+[Lorg/mmtk/vm/ReferenceProcessor$Semantics;
+
+[Lorg/jikesrvm/scheduler/RVMThread$Waiting;
+
+[Lorg/vmmagic/pragma/Inline$When;
+Lsun/misc/Unsafe;

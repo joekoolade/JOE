@@ -1,0 +1,199 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+NAME
+# structure of SIZES: NUMDEFS NUMDEFUSES NUMUSES NUMVAR VARDORU NUMALT
+SIZES
+# structure of SIG: { "D/DU/U NAME TYPE [opt]" }
+SIG
+# structure of VARSIG: NAME TYPE [PLURAL]
+#                                use PLURAL if NAME"s" is not plural for NAME
+VARSIG
+
+#
+# PowerPC MIR instruction formats
+#
+# Base-offset load
+# Offset can be either RegisterOperand or IntConstantOperand
+MIR_Load
+1 0 4
+"D Result RegisterOperand" "U Address RegisterOperand" \
+"U Offset Operand" "U Location LocationOperand opt" \
+"U Guard Operand opt"
+
+
+# Base-offset load with update
+# Offset can be either RegisterOperand or IntConstantOperand
+MIR_LoadUpdate
+1 1 3
+"D Result RegisterOperand" "DU Address RegisterOperand" \
+"U Offset Operand" "U Location LocationOperand opt" \
+"U Guard Operand opt"
+
+
+# Base-offset store
+# Offset can be either RegisterOperand or IntConstantOperand
+MIR_Store
+0 0 5
+"U Value RegisterOperand" "U Address RegisterOperand" \
+"U Offset Operand" "U Location LocationOperand opt" \
+"U Guard Operand opt"
+
+
+# Base-offset store with update
+# Offset can be either RegisterOperand or IntConstantOperand
+MIR_StoreUpdate
+0 1 4
+"DU Address RegisterOperand" "U Value RegisterOperand" \
+"U Offset Operand" "U Location LocationOperand opt" \
+"U Guard Operand opt"
+
+
+# Base-offset cache operation
+MIR_CacheOp
+0 0 2
+"U Address RegisterOperand" "U Offset RegisterOperand"
+
+
+# Register move
+MIR_Move
+1 0 1
+"D Result RegisterOperand" "U Value RegisterOperand"
+
+
+# Trap
+# Value2 can be either RegisterOperand or IntConstantOperand
+MIR_Trap
+1 0 4
+"D GuardResult RegisterOperand opt" \
+"U Cond PowerPCTrapOperand" "U Value1 RegisterOperand" \
+"U Value2 Operand" "U TCode TrapCodeOperand"
+
+
+# Data int
+MIR_DataInt
+0 0 1
+"U Value IntConstantOperand"
+
+
+# Data label (branch target)
+MIR_DataLabel
+0 0 1
+"U Target BranchOperand"
+
+
+# Unconditional Branch
+# Target can be BranchOperand or null (implicit CTR or LR)
+MIR_Branch
+0 0 1
+"U Target BranchOperand opt"
+
+
+# Conditional Branch
+# Target can be BranchOperand or null (implicit CTR or LR)
+MIR_CondBranch
+0 0 4
+"U Value RegisterOperand" "U Cond PowerPCConditionOperand" \
+"U Target BranchOperand opt" "U BranchProfile BranchProfileOperand"
+
+
+# 2-target Conditional Branch
+# Targets must be BranchOperands
+MIR_CondBranch2
+0 0 7
+"U Value RegisterOperand" "U Cond1 PowerPCConditionOperand" \
+"U Target1 BranchOperand" "U BranchProfile1 BranchProfileOperand" "U Cond2 PowerPCConditionOperand" \
+"U Target2 BranchOperand" "U BranchProfile2 BranchProfileOperand"
+
+
+# Call (branch and link)
+# Target is usually null, but can be BranchOperand (intraprocedural target)
+MIR_Call
+2 0 2 1 U 0
+"D Result RegisterOperand" "D Result2 RegisterOperand" \
+"U Target BranchOperand opt" "U Method MethodOperand opt"
+"Param Operand"
+
+# Conditional Call (branch and link)
+# Target is usually null, but can be BranchOperand (intraprocedural target)
+MIR_CondCall
+2 0 3 1 U 0
+"D Result RegisterOperand" "D Result2 RegisterOperand" \
+"U Value RegisterOperand" "U Cond PowerPCConditionOperand" "U Target BranchOperand opt"
+"Param Operand"
+
+# Return
+MIR_Return
+0 0 2
+"U Val RegisterOperand" "U Val2 RegisterOperand"
+
+
+# Empty operation
+MIR_Empty
+0 0 0
+
+
+
+# Nullary operation
+MIR_Nullary
+1 0 0
+"D Result RegisterOperand"
+
+
+# Unary ALU operation
+# Value can be either RegisterOperand or IntConstantOperand
+MIR_Unary
+1 0 1
+"D Result RegisterOperand" "U Value Operand"
+
+
+# Binary ALU operation
+# Value2 can be either RegisterOperand or IntConstantOperand
+MIR_Binary
+1 0 2
+"D Result RegisterOperand" "U Value1 RegisterOperand" \
+"U Value2 Operand"
+
+
+# Binary condition operation
+# All three values are just bit indices in condition register
+MIR_Condition
+1 0 2
+"D ResultBit IntConstantOperand" "U Value1Bit IntConstantOperand" \
+"U Value2Bit IntConstantOperand"
+
+
+# Ternary ALU operation
+MIR_Ternary
+1 0 3
+"D Result RegisterOperand" "U Value1 RegisterOperand" \
+"U Value2 RegisterOperand" "U Value3 RegisterOperand"
+
+
+# backend support for tableswitch (index is a DU)
+MIR_LowTableSwitch
+0 1 0 2 U -1
+"DU Index RegisterOperand"
+"Target BranchOperand" "BranchProfile BranchProfileOperand"
+
+# Rotate-and-mask ALU operation
+# For PPC_RLWINM PPC_RLWIMI PPC_RLWNM
+# Very PowerPC-specific
+# Source (when present) has to be the same as Result
+# Shift can be either RegisterOperand or IntConstantOperand
+MIR_RotateAndMask
+1 0 5
+"D Result RegisterOperand" "U Source RegisterOperand opt" \
+"U Value RegisterOperand" "U Shift Operand" \
+"U MaskBegin IntConstantOperand" "U MaskEnd IntConstantOperand"
+
+
