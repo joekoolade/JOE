@@ -933,8 +933,8 @@ llvm::Function* JavaJIT::javaCompile() {
               UTF8Buffer(compilingClass->name).cString(),
               UTF8Buffer(compilingMethod->name).cString());
 
-//  DbgSubprogram = TheCompiler->getDebugFactory()->createFunction(
-//      DIDescriptor(), "", "", DIFile(), 0, DIType(), false, false);
+  DbgSubprogram = TheCompiler->getDebugFactory()->createFunction(
+      DIDescriptor(), "", "", DIFile(), 0, DIType(), false, false, 0);
 
   Attribut* codeAtt = compilingMethod->lookupAttribut(Attribut::codeAttribut);
   
@@ -2231,19 +2231,20 @@ Instruction* JavaJIT::invoke(Value *F, const char* Name,
 }
 
 void JavaJIT::throwException(Value* obj, bool checkNull) {
-  if (checkNull) JITVerifyNull(obj);
-  if (nbHandlers == 0) {
-    CallInst::Create(intrinsics->ThrowExceptionFunction, obj, "", currentBlock);
-    new UnreachableInst(*llvmContext, currentBlock);
-  } else {
-    Value* javaExceptionPtr = getJavaExceptionPtr(getJavaThreadPtr(getMutatorThreadPtr()));
-    new StoreInst(obj, javaExceptionPtr, currentBlock);
-
-    Instruction* insn = currentExceptionBlock->begin();
-    PHINode* node = dyn_cast<PHINode>(insn);
-    if (node) node->addIncoming(obj, currentBlock);
-    BranchInst::Create(currentExceptionBlock, currentBlock);
-  }
+	// fixme reimplement
+//  if (checkNull) JITVerifyNull(obj);
+//  if (nbHandlers == 0) {
+//    CallInst::Create(intrinsics->ThrowExceptionFunction, obj, "", currentBlock);
+//    new UnreachableInst(*llvmContext, currentBlock);
+//  } else {
+//    Value* javaExceptionPtr = getJavaExceptionPtr(getJavaThreadPtr(getMutatorThreadPtr()));
+//    new StoreInst(obj, javaExceptionPtr, currentBlock);
+//
+//    Instruction* insn = currentExceptionBlock->begin();
+//    PHINode* node = dyn_cast<PHINode>(insn);
+//    if (node) node->addIncoming(obj, currentBlock);
+//    BranchInst::Create(currentExceptionBlock, currentBlock);
+//  }
 }
 
 void JavaJIT::throwRuntimeException(llvm::Function* F, Value* arg1) {
@@ -2252,10 +2253,11 @@ void JavaJIT::throwRuntimeException(llvm::Function* F, Value* arg1) {
 }
 
 void JavaJIT::throwRuntimeException(llvm::Function* F, Value** args, uint32 nbArgs) {
-  Instruction* obj = CallInst::Create(F, ArrayRef<Value*>(args, nbArgs), "", currentBlock);
-  DebugLoc DL = CreateLocation();
-  obj->setDebugLoc(DL);
-  throwException(obj, false);
+	// fixme reimplement
+//  Instruction* obj = CallInst::Create(F, ArrayRef<Value*>(args, nbArgs), "", currentBlock);
+//  DebugLoc DL = CreateLocation();
+//  obj->setDebugLoc(DL);
+//  throwException(obj, false);
 }
 
 /// Handler - This class represents an exception handler. It is only needed

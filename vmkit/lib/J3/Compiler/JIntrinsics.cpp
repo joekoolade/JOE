@@ -459,8 +459,7 @@ void JIntrinsics::init(llvm::Module* module) {
 //  ResolveSpecialStubFunction = module->getFunction("j3ResolveSpecialStub");
 //  ResolveInterfaceFunction = module->getFunction("j3ResolveInterface");
 //
-//  NullPointerExceptionFunction =
-//    module->getFunction("j3NullPointerException");
+    NullPointerExceptionFunction = module->getFunction("j3NullPointerException");
 //  ClassCastExceptionFunction = module->getFunction("j3ClassCastException");
 //  IndexOutOfBoundsExceptionFunction =
 //    module->getFunction("j3IndexOutOfBoundsException");

@@ -31,7 +31,7 @@ JavaLLVMCompiler::JavaLLVMCompiler(const std::string& str) :
   DebugFactory(new DIBuilder(*TheModule)) {
 
   enabledException = true;
-  cooperativeGC = true;
+//  cooperativeGC = true;
 }
   
 void JavaLLVMCompiler::resolveVirtualClass(Class* cl) {
