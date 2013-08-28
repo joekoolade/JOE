@@ -4,7 +4,7 @@
 .cproject
 .project
 ews/
-llvm*/
+/llvm*
 .git/
 .dir
 *.orig
@@ -19,3 +19,5 @@ Classpath.h
 .settings/
 /vmkit-3.3
 /.gitignore~
+/soot*
+/jc*
