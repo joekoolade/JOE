@@ -1,0 +1,124 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="base-components">
+
+  <property name="jikesrvm.dir" location="${basedir}/../../"/>
+  <import file="${jikesrvm.dir}/build/base.xml"/>
+  <import file="${jikesrvm.dir}/build/tasks.xml"/>
+
+  <property file="${target.file}"/>
+
+  <macrodef name="setComponentsConfig">
+    <attribute name="key"/>
+    <attribute name="value"/>
+    <sequential>
+      <if>
+        <conditions>
+          <isset property="protect.config-files"/>
+        </conditions>
+        <sequential>
+          <echo><![CDATA[Edit the components configuration file ${components.file} and add the following lines(s):${line.separator}@{key}=@{value}]]></echo>
+        </sequential>
+      </if>
+      <if>
+        <conditions>
+          <not>
+            <isset property="protect.config-files"/>
+          </not>
+        </conditions>
+        <sequential>
+          <propertyfile file="${components.file}">
+            <entry key="@{key}" value="@{value}"/>
+          </propertyfile>
+        </sequential>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="writeComponentConstants">
+    <attribute name="name" default="${ant.project.name}"/>
+    <attribute name="dir"/>
+    <sequential>
+      <echo file="@{dir}/constants.properties"><![CDATA[
+@{name}.version=${@{name}.version}
+@{name}.description=${@{name}.description}
+]]></echo>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="ensureUptodate">
+    <attribute name="name"/>
+    <attribute name="dir"/>
+    <sequential>
+      <property file="@{dir}/constants.properties" prefix="ensure."/>
+      <condition property="ensure.valid" value="true" else="false">
+        <and>
+          <available file="@{dir}/constants.properties"/>
+          <equals arg1="${ensure.@{name}.version}" arg2="${@{name}.version}"/>
+        </and>
+      </condition>
+      <if>
+        <conditions>
+          <equals arg1="${ensure.valid}" arg2="false"/>
+        </conditions>
+        <sequential>
+          <echo message="@{name} does not exist or is of the wrong version. Rebuilding..."/>
+          <antcall target="build" inheritall="false" inheritrefs="false"/>
+        </sequential>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="cachedGet">
+    <attribute name="src"/>
+    <attribute name="dest"/>
+    <attribute name="key"/>
+    <sequential>
+      <if>
+        <conditions>
+          <and>
+            <isset property="components.cache.dir"/>
+            <not>
+              <available file="${components.cache.dir}/@{key}"/>
+            </not>
+          </and>
+        </conditions>
+        <sequential>
+          <echo message="Loading @{src} into cache..."/>
+          <get src="@{src}" dest="${components.cache.dir}/@{key}"/>
+        </sequential>
+      </if>
+      <if>
+        <conditions>
+          <isset property="components.cache.dir"/>
+        </conditions>
+        <sequential>
+          <echo message="Copying from cache to @{dest}..."/>
+          <copy file="${components.cache.dir}/@{key}" tofile="@{dest}"/>
+        </sequential>
+      </if>
+      <if>
+        <conditions>
+          <not>
+            <isset property="components.cache.dir"/>
+          </not>
+        </conditions>
+        <sequential>
+          <echo message="Downloading (no cache available)"/>
+          <get src="@{src}" dest="@{dest}"/>
+        </sequential>
+      </if>
+    </sequential>
+  </macrodef>
+
+</project>

@@ -1,0 +1,27 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+
+## This file defines the default values for config properties
+config.runtime.compiler=base
+config.bootimage.compiler=base
+config.include.aos=false
+config.include.gcspy=false
+config.include.gcspy-stub=false
+config.include.gcspy-client=false
+config.include.perfevent=false
+config.assertions=normal
+config.default-heapsize.initial=20
+config.default-heapsize.maximum=100
+config.bootimage.compiler.args=
+config.stress-gc-interval=0
+config.alignment-checking=false

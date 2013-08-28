@@ -1,0 +1,1993 @@
+%{
+/*
+ *  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License. You
+ *  may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  See the COPYRIGHT.txt file distributed with this work for information
+ *  regarding copyright ownership.
+ */
+//ir.brg
+
+/**
+ * Generate from ir.template and assembled rules files.
+ */
+%}
+%term GET_CAUGHT_EXCEPTION = 0
+%term SET_CAUGHT_EXCEPTION = 1
+%term NEW = 2
+%term NEW_UNRESOLVED = 3
+%term NEWARRAY = 4
+%term NEWARRAY_UNRESOLVED = 5
+%term ATHROW = 6
+%term CHECKCAST = 7
+%term CHECKCAST_NOTNULL = 8
+%term CHECKCAST_UNRESOLVED = 9
+%term MUST_IMPLEMENT_INTERFACE = 10
+%term INSTANCEOF = 11
+%term INSTANCEOF_NOTNULL = 12
+%term INSTANCEOF_UNRESOLVED = 13
+%term MONITORENTER = 14
+%term MONITOREXIT = 15
+%term NEWOBJMULTIARRAY = 16
+%term GETSTATIC = 17
+%term PUTSTATIC = 18
+%term GETFIELD = 19
+%term PUTFIELD = 20
+%term INT_ZERO_CHECK = 21
+%term LONG_ZERO_CHECK = 22
+%term BOUNDS_CHECK = 23
+%term OBJARRAY_STORE_CHECK = 24
+%term OBJARRAY_STORE_CHECK_NOTNULL = 25
+%term IG_PATCH_POINT = 26
+%term IG_CLASS_TEST = 27
+%term IG_METHOD_TEST = 28
+%term TABLESWITCH = 29
+%term LOOKUPSWITCH = 30
+%term INT_ALOAD = 31
+%term LONG_ALOAD = 32
+%term FLOAT_ALOAD = 33
+%term DOUBLE_ALOAD = 34
+%term REF_ALOAD = 35
+%term UBYTE_ALOAD = 36
+%term BYTE_ALOAD = 37
+%term USHORT_ALOAD = 38
+%term SHORT_ALOAD = 39
+%term INT_ASTORE = 40
+%term LONG_ASTORE = 41
+%term FLOAT_ASTORE = 42
+%term DOUBLE_ASTORE = 43
+%term REF_ASTORE = 44
+%term BYTE_ASTORE = 45
+%term SHORT_ASTORE = 46
+%term INT_IFCMP = 47
+%term INT_IFCMP2 = 48
+%term LONG_IFCMP = 49
+%term FLOAT_IFCMP = 50
+%term DOUBLE_IFCMP = 51
+%term REF_IFCMP = 52
+%term LABEL = 53
+%term BBEND = 54
+%term UNINT_BEGIN = 55
+%term UNINT_END = 56
+%term FENCE = 57
+%term READ_CEILING = 58
+%term WRITE_FLOOR = 59
+%term PHI = 60
+%term SPLIT = 61
+%term PI = 62
+%term NOP = 63
+%term INT_MOVE = 64
+%term LONG_MOVE = 65
+%term FLOAT_MOVE = 66
+%term DOUBLE_MOVE = 67
+%term REF_MOVE = 68
+%term GUARD_MOVE = 69
+%term INT_COND_MOVE = 70
+%term LONG_COND_MOVE = 71
+%term FLOAT_COND_MOVE = 72
+%term DOUBLE_COND_MOVE = 73
+%term REF_COND_MOVE = 74
+%term GUARD_COND_MOVE = 75
+%term GUARD_COMBINE = 76
+%term REF_ADD = 77
+%term INT_ADD = 78
+%term LONG_ADD = 79
+%term FLOAT_ADD = 80
+%term DOUBLE_ADD = 81
+%term REF_SUB = 82
+%term INT_SUB = 83
+%term LONG_SUB = 84
+%term FLOAT_SUB = 85
+%term DOUBLE_SUB = 86
+%term INT_MUL = 87
+%term LONG_MUL = 88
+%term FLOAT_MUL = 89
+%term DOUBLE_MUL = 90
+%term INT_DIV = 91
+%term LONG_DIV = 92
+%term FLOAT_DIV = 93
+%term DOUBLE_DIV = 94
+%term INT_REM = 95
+%term LONG_REM = 96
+%term FLOAT_REM = 97
+%term DOUBLE_REM = 98
+%term REF_NEG = 99
+%term INT_NEG = 100
+%term LONG_NEG = 101
+%term FLOAT_NEG = 102
+%term DOUBLE_NEG = 103
+%term FLOAT_SQRT = 104
+%term DOUBLE_SQRT = 105
+%term REF_SHL = 106
+%term INT_SHL = 107
+%term LONG_SHL = 108
+%term REF_SHR = 109
+%term INT_SHR = 110
+%term LONG_SHR = 111
+%term REF_USHR = 112
+%term INT_USHR = 113
+%term LONG_USHR = 114
+%term REF_AND = 115
+%term INT_AND = 116
+%term LONG_AND = 117
+%term REF_OR = 118
+%term INT_OR = 119
+%term LONG_OR = 120
+%term REF_XOR = 121
+%term INT_XOR = 122
+%term REF_NOT = 123
+%term INT_NOT = 124
+%term LONG_NOT = 125
+%term LONG_XOR = 126
+%term INT_2ADDRSigExt = 127
+%term INT_2ADDRZerExt = 128
+%term LONG_2ADDR = 129
+%term ADDR_2INT = 130
+%term ADDR_2LONG = 131
+%term INT_2LONG = 132
+%term INT_2FLOAT = 133
+%term INT_2DOUBLE = 134
+%term LONG_2INT = 135
+%term LONG_2FLOAT = 136
+%term LONG_2DOUBLE = 137
+%term FLOAT_2INT = 138
+%term FLOAT_2LONG = 139
+%term FLOAT_2DOUBLE = 140
+%term DOUBLE_2INT = 141
+%term DOUBLE_2LONG = 142
+%term DOUBLE_2FLOAT = 143
+%term INT_2BYTE = 144
+%term INT_2USHORT = 145
+%term INT_2SHORT = 146
+%term LONG_CMP = 147
+%term FLOAT_CMPL = 148
+%term FLOAT_CMPG = 149
+%term DOUBLE_CMPL = 150
+%term DOUBLE_CMPG = 151
+%term RETURN = 152
+%term NULL_CHECK = 153
+%term GOTO = 154
+%term BOOLEAN_NOT = 155
+%term BOOLEAN_CMP_INT = 156
+%term BOOLEAN_CMP_ADDR = 157
+%term BOOLEAN_CMP_LONG = 158
+%term BOOLEAN_CMP_FLOAT = 159
+%term BOOLEAN_CMP_DOUBLE = 160
+%term BYTE_LOAD = 161
+%term UBYTE_LOAD = 162
+%term SHORT_LOAD = 163
+%term USHORT_LOAD = 164
+%term REF_LOAD = 165
+%term REF_STORE = 166
+%term INT_LOAD = 167
+%term LONG_LOAD = 168
+%term FLOAT_LOAD = 169
+%term DOUBLE_LOAD = 170
+%term BYTE_STORE = 171
+%term SHORT_STORE = 172
+%term INT_STORE = 173
+%term LONG_STORE = 174
+%term FLOAT_STORE = 175
+%term DOUBLE_STORE = 176
+%term PREPARE_INT = 177
+%term PREPARE_ADDR = 178
+%term PREPARE_LONG = 179
+%term ATTEMPT_INT = 180
+%term ATTEMPT_ADDR = 181
+%term ATTEMPT_LONG = 182
+%term CALL = 183
+%term SYSCALL = 184
+%term YIELDPOINT_PROLOGUE = 185
+%term YIELDPOINT_EPILOGUE = 186
+%term YIELDPOINT_BACKEDGE = 187
+%term YIELDPOINT_OSR = 188
+%term OSR_BARRIER = 189
+%term IR_PROLOGUE = 190
+%term RESOLVE = 191
+%term RESOLVE_MEMBER = 192
+%term GET_TIME_BASE = 193
+%term INSTRUMENTED_EVENT_COUNTER = 194
+%term TRAP_IF = 195
+%term TRAP = 196
+%term FLOAT_AS_INT_BITS = 197
+%term INT_BITS_AS_FLOAT = 198
+%term DOUBLE_AS_LONG_BITS = 199
+%term LONG_BITS_AS_DOUBLE = 200
+%term ARRAYLENGTH = 201
+%term GET_OBJ_TIB = 202
+%term GET_CLASS_TIB = 203
+%term GET_TYPE_FROM_TIB = 204
+%term GET_SUPERCLASS_IDS_FROM_TIB = 205
+%term GET_DOES_IMPLEMENT_FROM_TIB = 206
+%term GET_ARRAY_ELEMENT_TIB_FROM_TIB = 207
+%term LOWTABLESWITCH = 208
+%term ADDRESS_CONSTANT = 209
+%term INT_CONSTANT = 210
+%term LONG_CONSTANT = 211
+%term REGISTER = 212
+%term OTHER_OPERAND = 213
+%term NULL = 214
+%term BRANCH_TARGET = 215
+%term DCBF = 216
+%term DCBST = 217
+%term DCBT = 218
+%term DCBTST = 219
+%term DCBZ = 220
+%term DCBZL = 221
+%term ICBI = 222
+%term CALL_SAVE_VOLATILE = 223
+%term MIR_START = 224
+%term MIR_LOWTABLESWITCH = 225
+%term PPC_DATA_INT = 226
+%term PPC_DATA_LABEL = 227
+%term PPC_ADD = 228
+%term PPC_ADDr = 229
+%term PPC_ADDC = 230
+%term PPC_ADDE = 231
+%term PPC_ADDZE = 232
+%term PPC_ADDME = 233
+%term PPC_ADDIC = 234
+%term PPC_ADDICr = 235
+%term PPC_SUBF = 236
+%term PPC_SUBFr = 237
+%term PPC_SUBFC = 238
+%term PPC_SUBFCr = 239
+%term PPC_SUBFIC = 240
+%term PPC_SUBFE = 241
+%term PPC_SUBFZE = 242
+%term PPC_SUBFME = 243
+%term PPC_AND = 244
+%term PPC_ANDr = 245
+%term PPC_ANDIr = 246
+%term PPC_ANDISr = 247
+%term PPC_NAND = 248
+%term PPC_NANDr = 249
+%term PPC_ANDC = 250
+%term PPC_ANDCr = 251
+%term PPC_OR = 252
+%term PPC_ORr = 253
+%term PPC_MOVE = 254
+%term PPC_ORI = 255
+%term PPC_ORIS = 256
+%term PPC_NOR = 257
+%term PPC_NORr = 258
+%term PPC_ORC = 259
+%term PPC_ORCr = 260
+%term PPC_XOR = 261
+%term PPC_XORr = 262
+%term PPC_XORI = 263
+%term PPC_XORIS = 264
+%term PPC_EQV = 265
+%term PPC_EQVr = 266
+%term PPC_NEG = 267
+%term PPC_NEGr = 268
+%term PPC_CNTLZW = 269
+%term PPC_EXTSB = 270
+%term PPC_EXTSBr = 271
+%term PPC_EXTSH = 272
+%term PPC_EXTSHr = 273
+%term PPC_SLW = 274
+%term PPC_SLWr = 275
+%term PPC_SLWI = 276
+%term PPC_SLWIr = 277
+%term PPC_SRW = 278
+%term PPC_SRWr = 279
+%term PPC_SRWI = 280
+%term PPC_SRWIr = 281
+%term PPC_SRAW = 282
+%term PPC_SRAWr = 283
+%term PPC_SRAWI = 284
+%term PPC_SRAWIr = 285
+%term PPC_RLWINM = 286
+%term PPC_RLWINMr = 287
+%term PPC_RLWIMI = 288
+%term PPC_RLWIMIr = 289
+%term PPC_RLWNM = 290
+%term PPC_RLWNMr = 291
+%term PPC_B = 292
+%term PPC_BL = 293
+%term PPC_BL_SYS = 294
+%term PPC_BLR = 295
+%term PPC_BCTR = 296
+%term PPC_BCTRL = 297
+%term PPC_BCTRL_SYS = 298
+%term PPC_BCLR = 299
+%term PPC_BLRL = 300
+%term PPC_BCLRL = 301
+%term PPC_BC = 302
+%term PPC_BCL = 303
+%term PPC_BCOND = 304
+%term PPC_BCOND2 = 305
+%term PPC_BCCTR = 306
+%term PPC_BCC = 307
+%term PPC_ADDI = 308
+%term PPC_ADDIS = 309
+%term PPC_LDI = 310
+%term PPC_LDIS = 311
+%term PPC_CMP = 312
+%term PPC_CMPI = 313
+%term PPC_CMPL = 314
+%term PPC_CMPLI = 315
+%term PPC_CRAND = 316
+%term PPC_CRANDC = 317
+%term PPC_CROR = 318
+%term PPC_CRORC = 319
+%term PPC_FMR = 320
+%term PPC_FRSP = 321
+%term PPC_FCTIW = 322
+%term PPC_FCTIWZ = 323
+%term PPC_FADD = 324
+%term PPC_FADDS = 325
+%term PPC_FSQRT = 326
+%term PPC_FSQRTS = 327
+%term PPC_FABS = 328
+%term PPC_FCMPO = 329
+%term PPC_FCMPU = 330
+%term PPC_FDIV = 331
+%term PPC_FDIVS = 332
+%term PPC_DIVW = 333
+%term PPC_DIVWU = 334
+%term PPC_FMUL = 335
+%term PPC_FMULS = 336
+%term PPC_FSEL = 337
+%term PPC_FMADD = 338
+%term PPC_FMADDS = 339
+%term PPC_FMSUB = 340
+%term PPC_FMSUBS = 341
+%term PPC_FNMADD = 342
+%term PPC_FNMADDS = 343
+%term PPC_FNMSUB = 344
+%term PPC_FNMSUBS = 345
+%term PPC_MULLI = 346
+%term PPC_MULLW = 347
+%term PPC_MULHW = 348
+%term PPC_MULHWU = 349
+%term PPC_FNEG = 350
+%term PPC_FSUB = 351
+%term PPC_FSUBS = 352
+%term PPC_LWZ = 353
+%term PPC_LWZU = 354
+%term PPC_LWZUX = 355
+%term PPC_LWZX = 356
+%term PPC_LWARX = 357
+%term PPC_LBZ = 358
+%term PPC_LBZUX = 359
+%term PPC_LBZX = 360
+%term PPC_LHA = 361
+%term PPC_LHAX = 362
+%term PPC_LHZ = 363
+%term PPC_LHZX = 364
+%term PPC_LFD = 365
+%term PPC_LFDX = 366
+%term PPC_LFS = 367
+%term PPC_LFSX = 368
+%term PPC_LMW = 369
+%term PPC_STW = 370
+%term PPC_STWX = 371
+%term PPC_STWCXr = 372
+%term PPC_STWU = 373
+%term PPC_STB = 374
+%term PPC_STBX = 375
+%term PPC_STH = 376
+%term PPC_STHX = 377
+%term PPC_STFD = 378
+%term PPC_STFDX = 379
+%term PPC_STFDU = 380
+%term PPC_STFS = 381
+%term PPC_STFSX = 382
+%term PPC_STFSU = 383
+%term PPC_STMW = 384
+%term PPC_TW = 385
+%term PPC_TWI = 386
+%term PPC_MFSPR = 387
+%term PPC_MTSPR = 388
+%term PPC_MFTB = 389
+%term PPC_MFTBU = 390
+%term PPC_SYNC = 391
+%term PPC_ISYNC = 392
+%term PPC_DCBF = 393
+%term PPC_DCBST = 394
+%term PPC_DCBT = 395
+%term PPC_DCBTST = 396
+%term PPC_DCBZ = 397
+%term PPC_DCBZL = 398
+%term PPC_ICBI = 399
+%term PPC64_EXTSW = 400
+%term PPC64_EXTSWr = 401
+%term PPC64_EXTZW = 402
+%term PPC64_RLDICL = 403
+%term PPC64_RLDICR = 404
+%term PPC64_SLD = 405
+%term PPC64_SLDr = 406
+%term PPC64_SLDI = 407
+%term PPC64_SRD = 408
+%term PPC64_SRDr = 409
+%term PPC64_SRAD = 410
+%term PPC64_SRADr = 411
+%term PPC64_SRADI = 412
+%term PPC64_SRADIr = 413
+%term PPC64_SRDI = 414
+%term PPC64_RLDIMI = 415
+%term PPC64_RLDIMIr = 416
+%term PPC64_CMP = 417
+%term PPC64_CMPI = 418
+%term PPC64_CMPL = 419
+%term PPC64_CMPLI = 420
+%term PPC64_FCFID = 421
+%term PPC64_FCTIDZ = 422
+%term PPC64_DIVD = 423
+%term PPC64_MULLD = 424
+%term PPC64_LD = 425
+%term PPC64_LDX = 426
+%term PPC64_STD = 427
+%term PPC64_STDX = 428
+%term PPC64_TD = 429
+%term PPC64_TDI = 430
+%term PPC_CNTLZAddr = 431
+%term PPC_SRAAddrI = 432
+%term PPC_SRAddrI = 433
+%term PPC64_LWA = 434
+%term PPC_LInt = 435
+%term PPC64_LWAX = 436
+%term PPC_LIntX = 437
+%term PPC_LIntUX = 438
+%term PPC_LAddr = 439
+%term PPC_LAddrX = 440
+%term PPC_LAddrU = 441
+%term PPC_LAddrUX = 442
+%term PPC_LAddrARX = 443
+%term PPC_STAddr = 444
+%term PPC_STAddrX = 445
+%term PPC_STAddrU = 446
+%term PPC_STAddrUX = 447
+%term PPC_STAddrCXr = 448
+%term PPC_TAddr = 449
+%term MIR_END = 450
+%%
+stm:	r		"" 0
+r:	REGISTER		"" 0
+r:	czr		"" 0
+r:	rs		"" 0
+r:	rz		"" 0
+rs:	rp		"" 0
+rz:	rp		"" 0
+any:	NULL		"" 0
+any:	r		"" 0
+any:	ADDRESS_CONSTANT		"" 0
+any:	INT_CONSTANT		"" 0
+any:	LONG_CONSTANT		"" 0
+any:	OTHER_OPERAND(any, any)		"" 0
+stm:	RESOLVE		"" 10
+stm:	IG_PATCH_POINT		"" 10
+stm:	UNINT_BEGIN		"" 10
+stm:	UNINT_END		"" 10
+stm:	YIELDPOINT_PROLOGUE		"" 10
+stm:	YIELDPOINT_EPILOGUE		"" 10
+stm:	YIELDPOINT_BACKEDGE		"" 10
+stm:	LOWTABLESWITCH(r)		"" 10
+stm:	NOP		"" 10
+r:	GUARD_MOVE		"" 11
+r:	GUARD_COMBINE		"" 11
+stm:	NULL_CHECK(r)		"" 11
+r:	GET_CAUGHT_EXCEPTION		"" 11
+stm:	SET_CAUGHT_EXCEPTION(r)		"" 11
+stm:	FENCE		"" 11
+stm:	WRITE_FLOOR		"" 11
+stm:	READ_CEILING		"" 11
+stm:	DCBF(r)		"" 11
+stm:	DCBST(r)		"" 11
+stm:	DCBT(r)		"" 11
+stm:	DCBTST(r)		"" 11
+stm:	DCBZ(r)		"" 11
+stm:	DCBZL(r)		"" 11
+stm:	ICBI(r)		"" 11
+stm:	TRAP		"" 10
+stm:	TRAP_IF(r,r)		"" 10
+stm:	TRAP_IF(r,INT_CONSTANT)		"" 10
+stm:	TRAP_IF(r,LONG_CONSTANT)		"" 10
+r:	BOOLEAN_NOT(r)		"" 11
+r:	BOOLEAN_CMP_INT(r,INT_CONSTANT)		"" 10
+r:	BOOLEAN_CMP_INT(r,r)		"" 10
+boolcmp:	BOOLEAN_CMP_INT(r,INT_CONSTANT)		"" 0
+boolcmp:	BOOLEAN_CMP_INT(r,r)		"" 0
+r:	BOOLEAN_CMP_ADDR(r,INT_CONSTANT)		"" 10
+r:	BOOLEAN_CMP_ADDR(r,r)		"" 10
+boolcmp:	BOOLEAN_CMP_ADDR(r,INT_CONSTANT)		"" 0
+boolcmp:	BOOLEAN_CMP_ADDR(r,r)		"" 0
+boolcmp:	BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 1 && BooleanCmp.getCond(P(p)).isEQUAL()?0:INFINITE)
+boolcmp:	BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 1 && BooleanCmp.getCond(P(p)).isNOT_EQUAL()?0:INFINITE)
+boolcmp:	BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 0 && BooleanCmp.getCond(P(p)).isNOT_EQUAL()?0:INFINITE)
+boolcmp: BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 0 && BooleanCmp.getCond(P(p)).isEQUAL()?0:INFINITE)
+r:	BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 1 && BooleanCmp.getCond(P(p)).isEQUAL()?10:INFINITE)
+r:	BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 1 && BooleanCmp.getCond(P(p)).isNOT_EQUAL()?10:INFINITE)
+r:	BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 0 && BooleanCmp.getCond(P(p)).isNOT_EQUAL()?10:INFINITE)
+r: BOOLEAN_CMP_INT(boolcmp, INT_CONSTANT)		"" (VR(p) == 0 && BooleanCmp.getCond(P(p)).isEQUAL()?10:INFINITE)
+r:	REF_ADD(r,INT_CONSTANT)		"" 11
+r:	REF_ADD(r,r)		"" 11
+r:	REF_ADD(r,REF_MOVE(INT_CONSTANT))		"" 20
+r:	REF_ADD(r,REF_MOVE(INT_CONSTANT))		"" (U16(IV(Move.getVal(PR(p))))?10:INFINITE)
+r:	REF_SUB(r,r)		"" 11
+r:	REF_SUB(INT_CONSTANT,r)		"" (SI16(IV(Binary.getVal1(P(p))))?11:INFINITE)
+r:	INT_MUL(r,INT_CONSTANT)		"" 11
+r:	INT_MUL(r,r)		"" 11
+r:	INT_DIV(r,r)		"" 20
+r:	INT_DIV(r,REF_MOVE(INT_CONSTANT))		"" 20
+r:	INT_REM(r,r)		"" 20
+r:	INT_REM(r,REF_MOVE(INT_CONSTANT))		"" 20
+r:	REF_NEG(r)		"" 11
+rz:	INT_SHL(r,INT_CONSTANT)		"" 10
+rz:	INT_SHL(r,r)		"" 20
+rz:	INT_SHL(INT_USHR(r,INT_CONSTANT),INT_CONSTANT)		"" 10
+rs:	INT_SHR(r,INT_CONSTANT)		"" 10
+rs:	INT_SHR(r,r)		"" 20
+rp:	INT_SHR(REF_AND(r,INT_CONSTANT),INT_CONSTANT)		"" (POSITIVE_MASK(IV(Binary.getVal2(PL(p))))?10:INFINITE)
+rp:	INT_USHR(r,INT_CONSTANT)		"" 10
+rz:	INT_USHR(r,r)		"" 20
+rp:	INT_USHR(REF_AND(r,INT_CONSTANT),INT_CONSTANT)		"" (POSITIVE_MASK(IV(Binary.getVal2(PL(p))))?10:INFINITE)
+rp:	INT_USHR(REF_AND(r,REF_MOVE(INT_CONSTANT)),INT_CONSTANT)		"" (POSITIVE_MASK(IV(Move.getVal(PLR(p))))?10:INFINITE)
+rp:	INT_USHR(INT_SHL(r,INT_CONSTANT),INT_CONSTANT)		"" 10
+r:	REF_AND(r,r)		"" 10
+czr:	REF_AND(r,INT_CONSTANT)		"" 11
+rp:	REF_AND(r,INT_CONSTANT)		"" (MASK(IV(Binary.getVal2(P(p))))?10:INFINITE)
+r:	REF_AND(REF_NOT(r),REF_NOT(r))		"" 10
+r:	REF_AND(r,REF_NOT(r))		"" 10
+rp:	REF_AND(INT_USHR(r,INT_CONSTANT),INT_CONSTANT)		"" (POSITIVE_MASK(IV(Binary.getVal2(P(p))))?10:INFINITE)
+rp:	REF_AND(INT_USHR(r,INT_CONSTANT),REF_MOVE(INT_CONSTANT))		"" (POSITIVE_MASK(IV(Move.getVal(PR(p))))?10:INFINITE)
+r:	REF_OR(r,r)		"" 10
+r:	REF_OR(r,INT_CONSTANT)		"" 10
+r:	REF_OR(REF_NOT(r),REF_NOT(r))		"" 10
+r:	REF_OR(r,REF_NOT(r))		"" 10
+r:	REF_XOR(r,r)		"" 10
+r:	REF_XOR(r,INT_CONSTANT)		"" 10
+r:	REF_NOT(r)		"" 10
+r:	REF_NOT(REF_OR(r,r))		"" 10
+r:	REF_NOT(REF_AND(r,r))		"" 10
+r:	REF_NOT(REF_XOR(r,r))		"" 10
+r:	FLOAT_ADD(r,r)		"" 10
+r:	DOUBLE_ADD(r,r)		"" 10
+r:	FLOAT_MUL(r,r)		"" 10
+r:	DOUBLE_MUL(r,r)		"" 10
+r:	FLOAT_SUB(r,r)		"" 10
+r:	DOUBLE_SUB(r,r)		"" 10
+r:	FLOAT_DIV(r,r)		"" 10
+r:	DOUBLE_DIV(r,r)		"" 10
+r:	FLOAT_NEG(r)		"" 10
+r:	DOUBLE_NEG(r)		"" 10
+r:	FLOAT_SQRT(r)		"" 10
+r:	DOUBLE_SQRT(r)		"" 10
+r: 	FLOAT_ADD(FLOAT_MUL(r, r), r)		"" (burs.ir.strictFP(P(p),PL(p))?INFINITE:10)
+r: 	DOUBLE_ADD(DOUBLE_MUL(r, r), r)		"" (burs.ir.strictFP(P(p),PL(p))?INFINITE:10)
+r:	FLOAT_ADD(r, FLOAT_MUL(r,r))		"" (burs.ir.strictFP(P(p),PR(p))?INFINITE:10)
+r:	DOUBLE_ADD(r, DOUBLE_MUL(r,r))		"" (burs.ir.strictFP(P(p),PR(p))?INFINITE:10)
+r: 	FLOAT_SUB(FLOAT_MUL(r, r), r)		"" (burs.ir.strictFP(P(p),PL(p))?INFINITE:10)
+r: 	DOUBLE_SUB(DOUBLE_MUL(r, r), r)		"" (burs.ir.strictFP(P(p),PL(p))?INFINITE:10)
+r: 	FLOAT_NEG(FLOAT_ADD(FLOAT_MUL(r, r), r))		"" (burs.ir.strictFP(P(p),PL(p),PLL(p))?INFINITE:10)
+r: 	DOUBLE_NEG(DOUBLE_ADD(DOUBLE_MUL(r, r), r))		"" (burs.ir.strictFP(P(p),PL(p),PLL(p))?INFINITE:10)
+r:	FLOAT_NEG(FLOAT_ADD(r, FLOAT_MUL(r,r)))		"" (burs.ir.strictFP(P(p),PL(p),PLR(p))?INFINITE:10)
+r:	DOUBLE_NEG(DOUBLE_ADD(r, DOUBLE_MUL(r,r)))		"" (burs.ir.strictFP(P(p),PL(p),PLR(p))?INFINITE:10)
+r: 	FLOAT_NEG(FLOAT_SUB(FLOAT_MUL(r, r), r))		"" (burs.ir.strictFP(P(p),PL(p),PLL(p))?INFINITE:10)
+r: 	DOUBLE_NEG(DOUBLE_SUB(DOUBLE_MUL(r, r), r))		"" (burs.ir.strictFP(P(p),PL(p),PLL(p))?INFINITE:10)
+rs:	INT_2BYTE(r)		"" 10
+rp:	INT_2USHORT(r)		"" 20
+rs:	INT_2SHORT(r)		"" 10
+r:	INT_2FLOAT(r)		"" 10
+r:	INT_2DOUBLE(r)		"" 10
+r:	FLOAT_2INT(r)		"" 10
+r:	FLOAT_2DOUBLE(r)		"" 10
+r:	DOUBLE_2INT(r)		"" 10
+r:	DOUBLE_2FLOAT(r)		"" 10
+r:	FLOAT_AS_INT_BITS(r)		"" 20
+r:	INT_BITS_AS_FLOAT(r)		"" 20
+r:	REF_MOVE(r)		"" 11
+rs:	REF_MOVE(INT_CONSTANT)		"" (SI16(IV(Move.getVal(P(p))))?11:INFINITE)
+rs:	REF_MOVE(INT_CONSTANT)		"" (U16(IV(Move.getVal(P(p))))?11:INFINITE)
+rs:	REF_MOVE(INT_CONSTANT)		"" 22
+r:	FLOAT_MOVE(r)		"" 10
+r:	DOUBLE_MOVE(r)		"" 10
+rs:	BYTE_LOAD(r,INT_CONSTANT)		"" 22
+rs:	BYTE_LOAD(r,r)		"" 22
+rp:	REF_AND(BYTE_LOAD(r,r),INT_CONSTANT)		"" (VR(p) == 0xff ? 10 : INFINITE)
+rp:	REF_AND(BYTE_LOAD(r,INT_CONSTANT),INT_CONSTANT)		"" (VR(p) == 0xff ? 10 : INFINITE)
+rp:	UBYTE_LOAD(r,INT_CONSTANT)		"" 11
+rp:	UBYTE_LOAD(r,r)		"" 11
+rs:	SHORT_LOAD(r,INT_CONSTANT)		"" 11
+rs:	SHORT_LOAD(r,r)		"" 11
+rp:	USHORT_LOAD(r,INT_CONSTANT)		"" 11
+rp:	USHORT_LOAD(r,r)		"" 11
+r:	FLOAT_LOAD(r,INT_CONSTANT)		"" 11
+r:      FLOAT_LOAD(r,REF_MOVE(ADDRESS_CONSTANT))		"" FITS(Move.getVal(PR(p)),32,22)
+r:	FLOAT_LOAD(r,r)		"" 11
+r:	DOUBLE_LOAD(r,INT_CONSTANT)		"" 11
+r:      DOUBLE_LOAD(r,REF_MOVE(ADDRESS_CONSTANT))		"" FITS(Move.getVal(PR(p)),32,22)
+r:	DOUBLE_LOAD(r,r)		"" 11
+rs:      INT_LOAD(r,INT_CONSTANT)		"" 11
+rs:      INT_LOAD(r,REF_MOVE(ADDRESS_CONSTANT))		"" FITS(Move.getVal(PR(p)),32,22)
+rs:      INT_LOAD(r,r)		"" 11
+rs:      INT_LOAD(REF_ADD(r,r),INT_CONSTANT)		"" isZERO(VR(p), 11)
+rs:      INT_LOAD(REF_ADD(r,INT_CONSTANT),INT_CONSTANT)		"" (SI16(VR(p)+VLR(p)) ? 14 : INFINITE)
+stm:	BYTE_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	BYTE_STORE(r,OTHER_OPERAND(r,r))		"" 11
+stm:	BYTE_STORE(INT_2BYTE(r),OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	BYTE_STORE(INT_2BYTE(r),OTHER_OPERAND(r,r))		"" 11
+stm:	SHORT_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	SHORT_STORE(r,OTHER_OPERAND(r,r))		"" 11
+stm:	SHORT_STORE(INT_2SHORT(r),OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	SHORT_STORE(INT_2SHORT(r),OTHER_OPERAND(r,r))		"" 11
+stm:	SHORT_STORE(INT_2USHORT(r),OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	SHORT_STORE(INT_2USHORT(r),OTHER_OPERAND(r,r))		"" 11
+stm:	INT_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	INT_STORE(r,OTHER_OPERAND(r,REF_MOVE(ADDRESS_CONSTANT)))		"" FITS(Move.getVal(PRR(p)),32,22)
+stm:	INT_STORE(r,OTHER_OPERAND(r,r))		"" 11
+stm:	INT_STORE(r,OTHER_OPERAND(REF_ADD(r,INT_CONSTANT),INT_CONSTANT))		"" (SI16(VRR(p)+VRLR(p))?14:INFINITE)
+stm:	FLOAT_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:      FLOAT_STORE(r,OTHER_OPERAND(r,REF_MOVE(ADDRESS_CONSTANT)))		"" FITS(Move.getVal(PRR(p)),32,22)
+stm:	FLOAT_STORE(r,OTHER_OPERAND(r,r))		"" 11
+stm:	DOUBLE_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:      DOUBLE_STORE(r,OTHER_OPERAND(r,REF_MOVE(ADDRESS_CONSTANT)))		"" FITS(Move.getVal(PRR(p)),32,22)
+stm:	DOUBLE_STORE(r,OTHER_OPERAND(r,r))		"" 11
+stm:	INT_IFCMP(r,r)		"" 20
+stm:	INT_IFCMP(r,INT_CONSTANT)		"" 20
+stm:	INT_IFCMP(INT_2BYTE(r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_2SHORT(r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_USHR(r,r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_SHL(r,r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_SHR(r,r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_USHR(r,INT_CONSTANT),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_SHL(r,INT_CONSTANT),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(INT_SHR(r,INT_CONSTANT),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(REF_AND(r,INT_CONSTANT),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:	INT_IFCMP(boolcmp, INT_CONSTANT)		"" (VR(p) == 0 && IfCmp.getCond(P(p)).isNOT_EQUAL()?20:INFINITE)
+stm:	INT_IFCMP(boolcmp, INT_CONSTANT)		"" (VR(p) == 0 && IfCmp.getCond(P(p)).isEQUAL()?20:INFINITE)
+stm:	INT_IFCMP(boolcmp, INT_CONSTANT)		"" (VR(p) == 1 && IfCmp.getCond(P(p)).isEQUAL()?20:INFINITE)
+stm:	INT_IFCMP(boolcmp, INT_CONSTANT)		"" (VR(p) == 1 && (IfCmp.getCond(P(p)).isNOT_EQUAL())?26:INFINITE)
+stm:	INT_IFCMP2(r,r)		"" 20
+stm:	INT_IFCMP2(r,INT_CONSTANT)		"" 20
+stm:   FLOAT_IFCMP(r,r)		"" 20
+stm:   DOUBLE_IFCMP(r,r)		"" 20
+stm:	FLOAT_CMPL(r,r)		"" 40
+stm:	FLOAT_CMPG(r,r)		"" 40
+stm:	DOUBLE_CMPL(r,r)		"" 40
+stm:	DOUBLE_CMPG(r,r)		"" 40
+stm:	GOTO		"" 11
+stm:	RETURN(NULL)		"" 10
+stm:	RETURN(r)		"" 10
+r:	CALL(r,any)		"" 10
+r:	CALL(BRANCH_TARGET,any)		"" 10
+r:	SYSCALL(r,any)		"" 10
+r:	GET_TIME_BASE		"" 11
+r:	OTHER_OPERAND(r,r)		"" 0
+r:  YIELDPOINT_OSR(any, any)		"" 11
+r:      PREPARE_INT(r, r)		"" 11
+r:      PREPARE_LONG(r, r)		"" 11
+r:      ATTEMPT_INT(r, r)		"" 11
+r:      ATTEMPT_LONG(r, r)		"" 11
+stm:	IR_PROLOGUE		"" 11
+r:      LONG_MUL(r,INT_CONSTANT)		"" 11
+r:      LONG_MUL(r,r)		"" 11
+r:      LONG_DIV(r,r)		"" 20
+r:      LONG_DIV(r,REF_MOVE(INT_CONSTANT))		"" 20
+r:      LONG_REM(r,r)		"" 20
+r:      LONG_REM(r,REF_MOVE(INT_CONSTANT))		"" 20
+r:      LONG_SHL(r,INT_CONSTANT)		"" 10
+r:      LONG_SHL(r,r)		"" 20
+r:      LONG_SHL(LONG_USHR(r,INT_CONSTANT),INT_CONSTANT)		"" ((VLR(p) <= VR(p)) ? 10 : INFINITE)
+r:      LONG_USHR(LONG_SHL(r,INT_CONSTANT),INT_CONSTANT)		"" ((VLR(p) <= VR(p)) ? 10 : INFINITE)
+r:      LONG_SHR(r,INT_CONSTANT)		"" 10
+r:      LONG_SHR(r,r)		"" 20
+r:      LONG_USHR(r,INT_CONSTANT)		"" 10
+r:      LONG_USHR(r,r)		"" 20
+rs:	INT_2LONG(r)		"" 11
+rs:	INT_2LONG(rs)		"" 10
+r:	LONG_2INT(r)		"" 10
+r:	FLOAT_2LONG(r)		"" 10
+r:	DOUBLE_2LONG(r)		"" 10
+r:	DOUBLE_AS_LONG_BITS(r)		"" 40
+r:	LONG_BITS_AS_DOUBLE(r)		"" 40
+r:	REF_MOVE(ADDRESS_CONSTANT)		"" 40
+r:	REF_MOVE(LONG_CONSTANT)		"" 40
+r:	LONG_CMP(r,r)		"" 40
+stm:      LONG_IFCMP(r,r)		"" 20
+stm:      LONG_IFCMP(r,INT_CONSTANT)		"" 20
+stm:      LONG_IFCMP(r,LONG_CONSTANT)		"" 20
+stm:    INT_IFCMP(ATTEMPT_INT(r,r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+stm:    INT_IFCMP(ATTEMPT_ADDR(r,r),INT_CONSTANT)		"" ((!IfCmp.getCond(P(p)).isUNSIGNED())&&ZERO(IfCmp.getVal2(P(p)))?20:INFINITE)
+rz:	INT_2ADDRZerExt(rz)		"" 10
+rz:	INT_2ADDRZerExt(r)		"" 11
+rz: INT_2ADDRZerExt(INT_LOAD(r,INT_CONSTANT))		"" 11
+rz: INT_2ADDRZerExt(INT_LOAD(r,r))		"" 11
+rz: INT_2ADDRZerExt(INT_LOAD(REF_ADD(r,INT_CONSTANT),INT_CONSTANT))		"" (SI16(VLR(p)+VLLR(p)) ? 14 : INFINITE)
+r:	LONG_LOAD(r,INT_CONSTANT)		"" 11
+r:	LONG_LOAD(r,REF_MOVE(ADDRESS_CONSTANT))		"" FITS(Move.getVal(PR(p)),32,22)
+r:	LONG_LOAD(r,r)		"" 11
+r:	LONG_LOAD(REF_ADD(r,r),INT_CONSTANT)		"" isZERO(VR(p), 11)
+r:	LONG_LOAD(REF_ADD(r,INT_CONSTANT),INT_CONSTANT)		"" (SI16(VR(p)+VLR(p)) ? 14 : INFINITE)
+stm:	LONG_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))		"" 11
+stm:	LONG_STORE(r,OTHER_OPERAND(r,REF_MOVE(ADDRESS_CONSTANT)))		"" FITS(Move.getVal(PRR(p)),32,22)
+stm:	LONG_STORE(r,OTHER_OPERAND(r,r))		"" 11
+stm:	LONG_STORE(r,OTHER_OPERAND(REF_ADD(r,INT_CONSTANT),INT_CONSTANT))		"" (SI16(VRR(p)+VRLR(p))?14:INFINITE)
+r:      PREPARE_ADDR(r, r)		"" 11
+r:      ATTEMPT_ADDR(r, r)		"" 11
+%%
+public static final byte[] action={0
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,NOFLAGS
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,NOFLAGS
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,NOFLAGS
+   ,EMIT_INSTRUCTION
+   ,NOFLAGS
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,NOFLAGS
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+   ,EMIT_INSTRUCTION
+};
+
+void code14(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code15(BURS_TreeNode p) {
+    EMIT(InlineGuard.mutate(P(p), IG_PATCH_POINT, null, null, null, InlineGuard.getTarget(P(p)), InlineGuard.getBranchProfile(P(p))));
+}
+void code16(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code17(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code18(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code19(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code20(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code21(BURS_TreeNode p) {
+    LOWTABLESWITCH(P(p));
+}
+void code23(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code24(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code25(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code26(BURS_TreeNode p) {
+    GET_EXCEPTION_OBJECT(P(p));
+}
+void code27(BURS_TreeNode p) {
+    SET_EXCEPTION_OBJECT(P(p));
+}
+void code28(BURS_TreeNode p) {
+    EMIT(MIR_Empty.mutate(P(p), PPC_SYNC));
+}
+void code29(BURS_TreeNode p) {
+    EMIT(MIR_Empty.mutate(P(p), PPC_SYNC));
+}
+void code30(BURS_TreeNode p) {
+    EMIT(MIR_Empty.mutate(P(p), PPC_ISYNC));
+}
+void code31(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_DCBF, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code32(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_DCBST, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code33(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_DCBT, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code34(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_DCBTST, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code35(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_DCBZ, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code36(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_DCBZL, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code37(BURS_TreeNode p) {
+    EMIT(MIR_CacheOp.mutate(P(p), PPC_ICBI, I(0), R(CacheOp.getRef(P(p)))));
+}
+void code38(BURS_TreeNode p) {
+    TRAP(P(p));
+}
+void code39(BURS_TreeNode p) {
+    TRAP_IF(P(p));
+}
+void code40(BURS_TreeNode p) {
+    TRAP_IF_IMM(P(p), false);
+}
+void code41(BURS_TreeNode p) {
+    TRAP_IF_IMM(P(p), true);
+}
+void code42(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_XORI, Unary.getResult(P(p)), R(Unary.getVal(P(p))), IC(1)));
+}
+void code43(BURS_TreeNode p) {
+    BOOLEAN_CMP_INT_IMM(BooleanCmp.getResult(P(p)), BooleanCmp.getCond(P(p)), R(BooleanCmp.getVal1(P(p))), IC(BooleanCmp.getVal2(P(p))));
+}
+void code44(BURS_TreeNode p) {
+    BOOLEAN_CMP_INT(BooleanCmp.getResult(P(p)), BooleanCmp.getCond(P(p)), R(BooleanCmp.getVal1(P(p))), R(BooleanCmp.getVal2(P(p))));
+}
+void code45(BURS_TreeNode p) {
+    PUSH_BOOLCMP(BooleanCmp.getCond(P(p)), BooleanCmp.getVal1(P(p)), BooleanCmp.getVal2(P(p)), false);
+}
+void code46(BURS_TreeNode p) {
+    PUSH_BOOLCMP(BooleanCmp.getCond(P(p)), BooleanCmp.getVal1(P(p)), BooleanCmp.getVal2(P(p)), false);
+}
+void code47(BURS_TreeNode p) {
+    BOOLEAN_CMP_ADDR_IMM(BooleanCmp.getResult(P(p)), BooleanCmp.getCond(P(p)), R(BooleanCmp.getVal1(P(p))), IC(BooleanCmp.getVal2(P(p))));
+}
+void code48(BURS_TreeNode p) {
+    BOOLEAN_CMP_ADDR(BooleanCmp.getResult(P(p)), BooleanCmp.getCond(P(p)), R(BooleanCmp.getVal1(P(p))), R(BooleanCmp.getVal2(P(p))));
+}
+void code49(BURS_TreeNode p) {
+    PUSH_BOOLCMP(BooleanCmp.getCond(P(p)), BooleanCmp.getVal1(P(p)), BooleanCmp.getVal2(P(p)), true);
+}
+void code50(BURS_TreeNode p) {
+    PUSH_BOOLCMP(BooleanCmp.getCond(P(p)), BooleanCmp.getVal1(P(p)), BooleanCmp.getVal2(P(p)), true);
+}
+void code52(BURS_TreeNode p) {
+    FLIP_BOOLCMP(); // invert condition
+}
+void code54(BURS_TreeNode p) {
+    FLIP_BOOLCMP(); // invert condition
+}
+void code55(BURS_TreeNode p) {
+    EMIT_PUSHED_BOOLCMP(BooleanCmp.getResult(P(p)));
+}
+void code56(BURS_TreeNode p) {
+    FLIP_BOOLCMP(); EMIT_PUSHED_BOOLCMP(BooleanCmp.getResult(P(p)));
+}
+void code57(BURS_TreeNode p) {
+    EMIT_PUSHED_BOOLCMP(BooleanCmp.getResult(P(p)));
+}
+void code58(BURS_TreeNode p) {
+    FLIP_BOOLCMP(); EMIT_PUSHED_BOOLCMP(BooleanCmp.getResult(P(p)));
+}
+void code59(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ADDI, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code60(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ADD, Binary.getResult(P(p)),                                        R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code61(BURS_TreeNode p) {
+    {                                                                                int val = IV(Move.getVal(PR(p)));                                         EMIT(MIR_Binary.create(PPC_ADDI, Move.getResult(PR(p)),                                              R(Binary.getVal1(P(p))), CAL16(val)));                 EMIT(MIR_Binary.mutate(P(p), PPC_ADDIS, Binary.getResult(P(p)),                                      Move.getResult(PR(p)).copyRO(), CAU16(val)));       }
+}
+void code62(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ADDIS, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), CAU16(IV(Move.getVal(PR(p))))));
+}
+void code63(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SUBF, Binary.getResult(P(p)),                                       R(Binary.getVal2(P(p))), Binary.getVal1(P(p))));
+}
+void code64(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SUBFIC, Binary.getResult(P(p)),                                     R(Binary.getVal2(P(p))), Binary.getVal1(P(p))));
+}
+void code65(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_MULLI, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code66(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_MULLW, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code67(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_DIVW, GuardedBinary.getResult(P(p)),                         R(GuardedBinary.getVal1(P(p))), GuardedBinary.getVal2(P(p))));
+}
+void code68(BURS_TreeNode p) {
+    INT_DIV_IMM(P(p), GuardedBinary.getResult(P(p)), R(GuardedBinary.getVal1(P(p))),                   Move.getResult(PR(p)), IC(Move.getVal(PR(p))));
+}
+void code69(BURS_TreeNode p) {
+    INT_REM(P(p), GuardedBinary.getResult(P(p)), R(GuardedBinary.getVal1(P(p))), R(GuardedBinary.getVal2(P(p))));
+}
+void code70(BURS_TreeNode p) {
+    INT_REM_IMM(P(p), GuardedBinary.getResult(P(p)), R(GuardedBinary.getVal1(P(p))), 	          Move.getResult(PR(p)), IC(Move.getVal(PR(p))));
+}
+void code71(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_NEG, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code72(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SLWI, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code73(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SLW, Binary.getResult(P(p)),                        R(Binary.getVal1(P(p))), R(Binary.getVal2(P(p)))));
+}
+void code74(BURS_TreeNode p) {
+    USHR_SHL(P(p), Binary.getResult(P(p)), R(Binary.getVal1(PL(p))), IC(Binary.getVal2(PL(p))),                     IC(Binary.getVal2(P(p))));
+}
+void code75(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SRAWI, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code76(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SRAW, Binary.getResult(P(p)),                        R(Binary.getVal1(P(p))), R(Binary.getVal2(P(p)))));
+}
+void code77(BURS_TreeNode p) {
+    AND_USHR(P(p), Binary.getResult(P(p)),                                           R(Binary.getVal1(PL(p))), IC(Binary.getVal2(PL(p))),                           IC(Binary.getVal2(P(p))));
+}
+void code78(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SRWI, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code79(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_SRW, Binary.getResult(P(p)),                        R(Binary.getVal1(P(p))), R(Binary.getVal2(P(p)))));
+}
+void code80(BURS_TreeNode p) {
+    AND_USHR(P(p), Binary.getResult(P(p)), R(Binary.getVal1(PL(p))), 	       IC(Binary.getVal2(PL(p))), IC(Binary.getVal2(P(p))));
+}
+void code81(BURS_TreeNode p) {
+    AND_USHR(P(p), Binary.getResult(P(p)), R(Binary.getVal1(PL(p))),                IC(Move.getVal(PLR(p))), IC(Binary.getVal2(P(p))));
+}
+void code82(BURS_TreeNode p) {
+    SHL_USHR(P(p), Binary.getResult(P(p)), R(Binary.getVal1(PL(p))), 	       IC(Binary.getVal2(PL(p))), IC(Binary.getVal2(P(p))));
+}
+void code83(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_AND, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code84(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ANDIr, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), IC(Binary.getVal2(P(p)))));
+}
+void code85(BURS_TreeNode p) {
+    {                                                                                int mask = IV(Binary.getVal2(P(p)));                                      EMIT(MIR_RotateAndMask.create(PPC_RLWINM, Binary.getResult(P(p)),                                           R(Binary.getVal1(P(p))), IC(0),                                                IC(MaskBegin(mask)), IC(MaskEnd(mask))));                        }
+}
+void code86(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_NOR, Binary.getResult(P(p)),                                        R(Unary.getVal(PL(p))), Unary.getVal(PR(p))));
+}
+void code87(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ANDC, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Unary.getVal(PR(p))));
+}
+void code88(BURS_TreeNode p) {
+    USHR_AND(P(p), Binary.getResult(P(p)), R(Binary.getVal1(PL(p))),                IC(Binary.getVal2(P(p))), IC(Binary.getVal2(PL(p))));
+}
+void code89(BURS_TreeNode p) {
+    USHR_AND(P(p), Binary.getResult(P(p)), R(Binary.getVal1(PL(p))),                IC(Move.getVal(PR(p))), IC(Binary.getVal2(PL(p))));
+}
+void code90(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_OR, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code91(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ORI, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code92(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_NAND, Binary.getResult(P(p)), R(Unary.getVal(PL(p))), Unary.getVal(PR(p))));
+}
+void code93(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_ORC, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Unary.getVal(PR(p))));
+}
+void code94(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_XOR, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code95(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_XORI, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code96(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_NOR, Unary.getResult(P(p)), R(Unary.getVal(P(p))), Unary.getVal(P(p))));
+}
+void code97(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_NOR, Unary.getResult(P(p)), R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p))));
+}
+void code98(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_NAND, Unary.getResult(P(p)), R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p))));
+}
+void code99(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_EQV, Unary.getResult(P(p)), R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p))));
+}
+void code100(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FADDS, Binary.getResult(P(p)),                        R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code101(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FADD, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code102(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FMULS, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code103(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FMUL, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code104(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FSUBS, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code105(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FSUB, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code106(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FDIVS, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code107(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_FDIV, Binary.getResult(P(p)),                                       R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code108(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_FNEG, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code109(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_FNEG, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code110(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_FSQRTS, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code111(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_FSQRT, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code112(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FMADDS, Binary.getResult(P(p)),             		        R(Binary.getVal1(PL(p))), R(Binary.getVal2(PL(p))),   		        R(Binary.getVal2(P(p)))));
+}
+void code113(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FMADD, Binary.getResult(P(p)),              		        R(Binary.getVal1(PL(p))), R(Binary.getVal2(PL(p))),   		        R(Binary.getVal2(P(p)))));
+}
+void code114(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FMADDS, Binary.getResult(P(p)),             			R(Binary.getVal1(PR(p))), R(Binary.getVal2(PR(p))),   			R(Binary.getVal1(P(p)))));
+}
+void code115(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FMADD, Binary.getResult(P(p)),              			R(Binary.getVal1(PR(p))), R(Binary.getVal2(PR(p))),   			R(Binary.getVal1(P(p)))));
+}
+void code116(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FMSUBS, Binary.getResult(P(p)),             		        R(Binary.getVal1(PL(p))), R(Binary.getVal2(PL(p))),   		        R(Binary.getVal2(P(p)))));
+}
+void code117(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FMSUB, Binary.getResult(P(p)),              		        R(Binary.getVal1(PL(p))), R(Binary.getVal2(PL(p))),   		        R(Binary.getVal2(P(p)))));
+}
+void code118(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FNMADDS, Unary.getResult(P(p)),             		        R(Binary.getVal1(PLL(p))), R(Binary.getVal2(PLL(p))), 		        R(Binary.getVal2(PL(p)))));
+}
+void code119(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FNMADD, Unary.getResult(P(p)),              		        R(Binary.getVal1(PLL(p))), R(Binary.getVal2(PLL(p))), 		        R(Binary.getVal2(PL(p)))));
+}
+void code120(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FNMADDS, Unary.getResult(P(p)),             			R(Binary.getVal1(PLR(p))), R(Binary.getVal2(PLR(p))), 			R(Binary.getVal1(PL(p)))));
+}
+void code121(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FNMADD, Unary.getResult(P(p)),             			R(Binary.getVal1(PLR(p))), R(Binary.getVal2(PLR(p))),			R(Binary.getVal1(PL(p)))));
+}
+void code122(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FNMSUBS, Unary.getResult(P(p)),             		        R(Binary.getVal1(PLL(p))), R(Binary.getVal2(PLL(p))), 		        R(Binary.getVal2(PL(p)))));
+}
+void code123(BURS_TreeNode p) {
+    EMIT(MIR_Ternary.mutate(P(p), PPC_FNMSUB, Unary.getResult(P(p)),              		        R(Binary.getVal1(PLL(p))), R(Binary.getVal2(PLL(p))), 		        R(Binary.getVal2(PL(p)))));
+}
+void code124(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_EXTSB, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code125(BURS_TreeNode p) {
+    EMIT(MIR_RotateAndMask.create(PPC_RLWINM, Unary.getResult(P(p)), null,                                      R(Unary.getVal(P(p))), IC(0), IC(16), IC(31)));
+}
+void code126(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_EXTSH, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code127(BURS_TreeNode p) {
+    INT_2DOUBLE(P(p), Unary.getResult(P(p)), R(Unary.getVal(P(p))));
+}
+void code128(BURS_TreeNode p) {
+    INT_2DOUBLE(P(p), Unary.getResult(P(p)), R(Unary.getVal(P(p))));
+}
+void code129(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+}
+void code130(BURS_TreeNode p) {
+    EMIT(MIR_Move.mutate(P(p), PPC_FMR, Unary.getResult(P(p)), R(Unary.getVal(P(p)))));
+}
+void code131(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansionLeave
+}
+void code132(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_FRSP, Unary.getResult(P(p)), Unary.getVal(P(p))));
+}
+void code133(BURS_TreeNode p) {
+    FPR2GPR_32(P(p));
+}
+void code134(BURS_TreeNode p) {
+    GPR2FPR_32(P(p));
+}
+void code135(BURS_TreeNode p) {
+    EMIT(MIR_Move.mutate(P(p), PPC_MOVE, Move.getResult(P(p)), R(Move.getVal(P(p)))));
+}
+void code136(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_LDI, Move.getResult(P(p)), Move.getVal(P(p))));
+}
+void code137(BURS_TreeNode p) {
+    EMIT(MIR_Unary.mutate(P(p), PPC_LDIS, Move.getResult(P(p)), SRI(IV(Move.getVal(P(p))), 16)));
+}
+void code138(BURS_TreeNode p) {
+    {                                                                                int one = IV(Move.getVal(P(p)));                                          EMIT(MIR_Unary.create(PPC_LDIS, Move.getResult(P(p)), CAU16(one)));           EMIT(MIR_Binary.mutate(P(p), PPC_ADDI, Move.getResult(P(p)).copyRO(),                                Move.getResult(P(p)).copyRO(), CAL16(one)));        }
+}
+void code139(BURS_TreeNode p) {
+    EMIT(MIR_Move.mutate(P(p), PPC_FMR, Move.getResult(P(p)), R(Move.getVal(P(p)))));
+}
+void code140(BURS_TreeNode p) {
+    EMIT(MIR_Move.mutate(P(p), PPC_FMR, Move.getResult(P(p)), R(Move.getVal(P(p)))));
+}
+void code141(BURS_TreeNode p) {
+    BYTE_LOAD(P(p), PPC_LBZ, Load.getResult(P(p)), R(Load.getAddress(P(p))), Load.getOffset(P(p)),           Load.getLocation(P(p)), Load.getGuard(P(p)));
+}
+void code142(BURS_TreeNode p) {
+    BYTE_LOAD(P(p), PPC_LBZX, Load.getResult(P(p)), R(Load.getAddress(P(p))), Load.getOffset(P(p)),           Load.getLocation(P(p)), Load.getGuard(P(p)));
+}
+void code143(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(PL(p), PPC_LBZX, Binary.getResult(P(p)), R(Load.getAddress(PL(p))),                      Load.getOffset(PL(p)), Load.getLocation(PL(p)),                      Load.getGuard(PL(p))));
+}
+void code144(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(PL(p), PPC_LBZ, Binary.getResult(P(p)), R(Load.getAddress(PL(p))),                      Load.getOffset(PL(p)), Load.getLocation(PL(p)),                      Load.getGuard(PL(p))));
+}
+void code145(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LBZ, Load.getResult(P(p)),                                 R(Load.getAddress(P(p))), Load.getOffset(P(p)),                      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code146(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LBZX, Load.getResult(P(p)),                                R(Load.getAddress(P(p))), Load.getOffset(P(p)), 	             Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code147(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LHA, Load.getResult(P(p)),                                 R(Load.getAddress(P(p))), Load.getOffset(P(p)),    	             Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code148(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LHAX, Load.getResult(P(p)),                                R(Load.getAddress(P(p))), Load.getOffset(P(p)),   	             Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code149(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LHZ, Load.getResult(P(p)),                                 R(Load.getAddress(P(p))), Load.getOffset(P(p)), 	             Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code150(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LHZX, Load.getResult(P(p)),                                R(Load.getAddress(P(p))), Load.getOffset(P(p)), 		     Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code151(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LFS, Load.getResult(P(p)),                                          R(Load.getAddress(P(p))), Load.getOffset(P(p)), 			      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code152(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PR(p)));                                         EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PR(p)),                                             R(Load.getAddress(P(p))), CAU16(val)));                EMIT(MIR_Load.mutate(P(p), PPC_LFS, Load.getResult(P(p)),                                          Move.getResult(PR(p)).copyRO(), CAL16(val),  			         Load.getLocation(P(p)),                                                       Load.getGuard(P(p))));                      }
+}
+void code153(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LFSX, Load.getResult(P(p)),                                         R(Load.getAddress(P(p))), Load.getOffset(P(p)), 			      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code154(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LFD, Load.getResult(P(p)),                                          R(Load.getAddress(P(p))), Load.getOffset(P(p)), 			      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code155(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PR(p)));                                         EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PR(p)),                                             R(Load.getAddress(P(p))), CAU16(val)));                EMIT(MIR_Load.mutate(P(p), PPC_LFD, Load.getResult(P(p)),                                          Move.getResult(PR(p)).copyRO(), CAL16(val),  				 Load.getLocation(P(p)),                                                       Load.getGuard(P(p))));                      }
+}
+void code156(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LFDX, Load.getResult(P(p)),                                         R(Load.getAddress(P(p))), Load.getOffset(P(p)), 			      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code157(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LInt, Load.getResult(P(p)),                                 R(Load.getAddress(P(p))), Load.getOffset(P(p)),                      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code158(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PR(p)));                                         EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PR(p)),                                             R(Load.getAddress(P(p))), CAU16(val)));                EMIT(MIR_Load.mutate(P(p), PPC_LInt, Load.getResult(P(p)),                                          Move.getResult(PR(p)).copyRO(), CAL16(val),                                            Load.getLocation(P(p)),                                                       Load.getGuard(P(p))));                      }
+}
+void code159(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LIntX, Load.getResult(P(p)),                                R(Load.getAddress(P(p))), Load.getOffset(P(p)),                      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code160(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LIntX, Load.getResult(P(p)),                                         R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)),                               Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code161(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LInt, Load.getResult(P(p)),                                          R(Binary.getVal1(PL(p))), IC(VR(p)+VLR(p)),                               Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code162(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STB, R(Store.getValue(P(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                                                        Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code163(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STBX, R(Store.getValue(P(p))),                                      R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code164(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STB, R(Unary.getVal(PL(p))),                                        R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code165(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STBX, R(Unary.getVal(PL(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code166(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STH, R(Store.getValue(P(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code167(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STHX, R(Store.getValue(P(p))),                                      R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code168(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STH, R(Unary.getVal(PL(p))),                                        R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code169(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STHX, R(Unary.getVal(PL(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code170(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STH, R(Unary.getVal(PL(p))),                                        R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code171(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STHX, R(Unary.getVal(PL(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code172(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STW, R(Store.getValue(P(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code173(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PRR(p)));                                        EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PRR(p)),                                            R(Store.getAddress(P(p))), CAU16(val)));               EMIT(MIR_Store.mutate(P(p), PPC_STW, R(Store.getValue(P(p))),                                       Move.getResult(PRR(p)).copyRO(), CAL16(val),				  Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));                    }
+}
+void code174(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STWX, R(Store.getValue(P(p))),                                      R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code175(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STW, R(Store.getValue(P(p))),                                       R(Binary.getVal1(PRL(p))),                                                    IC(VRR(p) + VRLR(p)), 			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code176(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STFS, R(Store.getValue(P(p))),                                      R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code177(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PRR(p)));                                        EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PRR(p)),                                            R(Store.getAddress(P(p))), CAU16(val)));               EMIT(MIR_Store.mutate(P(p), PPC_STFS, R(Store.getValue(P(p))),                                      Move.getResult(PRR(p)).copyRO(), CAL16(val),				  Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));                    }
+}
+void code178(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STFSX, R(Store.getValue(P(p))),                                     R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code179(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STFD, R(Store.getValue(P(p))),                                      R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code180(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PRR(p)));                                        EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PRR(p)),                                            R(Store.getAddress(P(p))), CAU16(val)));               EMIT(MIR_Store.mutate(P(p), PPC_STFD, R(Store.getValue(P(p))),                                      Move.getResult(PRR(p)).copyRO(), CAL16(val),				  Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));                    }
+}
+void code181(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STFDX, R(Store.getValue(P(p))),                                     R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code182(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)), IfCmp.getCond(P(p)), false);
+}
+void code183(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)), IfCmp.getCond(P(p)), true);
+}
+void code184(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_EXTSBr, Unary.getResult(PL(p)),                              Unary.getVal(PL(p)), IfCmp.getCond(P(p)));
+}
+void code185(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_EXTSHr, Unary.getResult(PL(p)),                              Unary.getVal(PL(p)), IfCmp.getCond(P(p)));
+}
+void code186(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_SRWr, Binary.getResult(PL(p)),                               R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code187(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_SLWr, Binary.getResult(PL(p)),                               R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code188(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_SRAWr, Binary.getResult(PL(p)),                              R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code189(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_SRWIr, Binary.getResult(PL(p)),                              R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code190(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_SLWIr, Binary.getResult(PL(p)),                              R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code191(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_SRAWIr, Binary.getResult(PL(p)),                             R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code192(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); CMP_ZERO(P(p), PPC_ANDIr, Binary.getResult(PL(p)),                              R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), IfCmp.getCond(P(p)));
+}
+void code193(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); EMIT_BOOLCMP_BRANCH(IfCmp.getTarget(P(p)), IfCmp.getBranchProfile(P(p)));
+}
+void code194(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); FLIP_BOOLCMP(); EMIT_BOOLCMP_BRANCH(IfCmp.getTarget(P(p)), IfCmp.getBranchProfile(P(p)));
+}
+void code195(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); EMIT_BOOLCMP_BRANCH(IfCmp.getTarget(P(p)), IfCmp.getBranchProfile(P(p)));
+}
+void code196(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); FLIP_BOOLCMP(); EMIT_BOOLCMP_BRANCH(IfCmp.getTarget(P(p)), IfCmp.getBranchProfile(P(p)));
+}
+void code197(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp2.getGuardResult(P(p)), new TrueGuardOperand()))); CMP2(P(p), R(IfCmp2.getVal1(P(p))), IfCmp2.getVal2(P(p)), IfCmp2.getCond1(P(p)), IfCmp2.getCond2(P(p)), false);
+}
+void code198(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp2.getGuardResult(P(p)), new TrueGuardOperand()))); CMP2(P(p), R(IfCmp2.getVal1(P(p))), IfCmp2.getVal2(P(p)), IfCmp2.getCond1(P(p)), IfCmp2.getCond2(P(p)), true);
+}
+void code199(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); DOUBLE_IFCMP(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)));
+}
+void code200(BURS_TreeNode p) {
+    EMIT(CPOS(P(p), Move.create(GUARD_MOVE, IfCmp.getGuardResult(P(p)), new TrueGuardOperand()))); DOUBLE_IFCMP(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)));
+}
+void code201(BURS_TreeNode p) {
+    EMIT (P(p)); //  Leave for ComplexLIR2MIRExpansion
+}
+void code202(BURS_TreeNode p) {
+    EMIT (P(p)); //  Leave for ComplexLIR2MIRExpansion
+}
+void code203(BURS_TreeNode p) {
+    EMIT (P(p)); //  Leave for ComplexLIR2MIRExpansion
+}
+void code204(BURS_TreeNode p) {
+    EMIT (P(p)); //  Leave for ComplexLIR2MIRExpansion
+}
+void code205(BURS_TreeNode p) {
+    EMIT(MIR_Branch.mutate(P(p), PPC_B, Goto.getTarget(P(p))));
+}
+void code206(BURS_TreeNode p) {
+    RETURN(P(p), null);
+}
+void code207(BURS_TreeNode p) {
+    RETURN(P(p), Return.getVal(P(p)));
+}
+void code208(BURS_TreeNode p) {
+    CALL(P(p));
+}
+void code209(BURS_TreeNode p) {
+    CALL(P(p));
+}
+void code210(BURS_TreeNode p) {
+    SYSCALL(P(p));
+}
+void code211(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+}
+void code213(BURS_TreeNode p) {
+    OSR(burs, P(p));
+}
+void code214(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LWARX, Prepare.getResult(P(p)),                                 R(Prepare.getAddress(P(p))), Prepare.getOffset(P(p)),                                         Prepare.getLocation(P(p)),                                                Prepare.getGuard(P(p))));
+}
+void code215(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LAddrARX, Prepare.getResult(P(p)),                                 R(Prepare.getAddress(P(p))), Prepare.getOffset(P(p)),                                         Prepare.getLocation(P(p)),                                                Prepare.getGuard(P(p))));
+}
+void code216(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+}
+void code217(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+}
+void code218(BURS_TreeNode p) {
+    EMIT(P(p));
+}
+void code219(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC_MULLI, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code220(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_MULLD, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code221(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_DIVD, GuardedBinary.getResult(P(p)),                         R(GuardedBinary.getVal1(P(p))), GuardedBinary.getVal2(P(p))));
+}
+void code222(BURS_TreeNode p) {
+    LONG_DIV_IMM(P(p), GuardedBinary.getResult(P(p)), R(GuardedBinary.getVal1(P(p))),                    Move.getResult(PR(p)), IC(Move.getVal(PR(p))));
+}
+void code223(BURS_TreeNode p) {
+    LONG_REM(P(p), GuardedBinary.getResult(P(p)), R(GuardedBinary.getVal1(P(p))), R(GuardedBinary.getVal2(P(p))));
+}
+void code224(BURS_TreeNode p) {
+    LONG_REM_IMM(P(p), GuardedBinary.getResult(P(p)), R(GuardedBinary.getVal1(P(p))),                    Move.getResult(PR(p)), IC(Move.getVal(PR(p))));
+}
+void code225(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_SLDI, Binary.getResult(P(p)),                                     R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code226(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_SLD, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code227(BURS_TreeNode p) {
+    EMIT(MIR_RotateAndMask.mutate(P(p), PPC64_RLDICR, Binary.getResult(P(p)), R(Binary.getVal1(PL(p))),                               IC(VR(p) - VLR(p)), IC(0), IC(63 - VR(p))));
+}
+void code228(BURS_TreeNode p) {
+    EMIT(MIR_RotateAndMask.mutate(P(p), PPC64_RLDICL, Binary.getResult(P(p)), R(Binary.getVal1(PL(p))),                               IC(64 - (VR(p) - VLR(p))), IC(VR(p)), IC(63)));
+}
+void code229(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_SRADI, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code230(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_SRAD, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code231(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_SRDI, Binary.getResult(P(p)), R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code232(BURS_TreeNode p) {
+    EMIT(MIR_Binary.mutate(P(p), PPC64_SRD, Binary.getResult(P(p)),                                      R(Binary.getVal1(P(p))), Binary.getVal2(P(p))));
+}
+void code233(BURS_TreeNode p) {
+    INT_2LONG(P(p), Unary.getResult(P(p)), R(Unary.getVal(P(p))));
+}
+void code234(BURS_TreeNode p) {
+    EMIT(MIR_Move.mutate(P(p), PPC_MOVE, Unary.getResult(P(p)), R(Unary.getVal(P(p)))));
+}
+void code235(BURS_TreeNode p) {
+    LONG_2INT(P(p), Unary.getResult(P(p)), R(Unary.getVal(P(p))));
+}
+void code236(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+}
+void code237(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansionLeave
+}
+void code238(BURS_TreeNode p) {
+    FPR2GPR_64(P(p));
+}
+void code239(BURS_TreeNode p) {
+    GPR2FPR_64(P(p));
+}
+void code240(BURS_TreeNode p) {
+    LONG_CONSTANT(P(p), Move.getResult(P(p)), AC(Move.getVal(P(p))));
+}
+void code241(BURS_TreeNode p) {
+    LONG_CONSTANT(P(p), Move.getResult(P(p)), LC(Move.getVal(P(p))));
+}
+void code242(BURS_TreeNode p) {
+    EMIT (P(p)); //  Leave for ComplexLIR2MIRExpansion
+}
+void code243(BURS_TreeNode p) {
+    CMP64(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)), IfCmp.getCond(P(p)), false);
+}
+void code244(BURS_TreeNode p) {
+    CMP64(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)), IfCmp.getCond(P(p)), true);
+}
+void code245(BURS_TreeNode p) {
+    CMP64(P(p), R(IfCmp.getVal1(P(p))), IfCmp.getVal2(P(p)), IfCmp.getCond(P(p)), true);
+}
+void code246(BURS_TreeNode p) {
+    {                                                                                ConditionOperand c = IfCmp.getCond(P(p)).flipCode();                      EMIT(MIR_Store.create(PPC_STWCXr, R(Attempt.getNewValue(PL(p))),                                   R(Attempt.getAddress(PL(p))), Attempt.getOffset(PL(p)),                                             Attempt.getLocation(PL(p)),                                                  Attempt.getGuard(PL(p))));                   EMIT(MIR_CondBranch.mutate(P(p), PPC_BCOND, CR(0),                                                       new PowerPCConditionOperand(c),                                           IfCmp.getTarget(P(p)),                                                       IfCmp.getBranchProfile(P(p))));                 }
+}
+void code247(BURS_TreeNode p) {
+    {                                                                                ConditionOperand c = IfCmp.getCond(P(p)).flipCode();                      EMIT(MIR_Store.create(PPC_STAddrCXr, R(Attempt.getNewValue(PL(p))),                                   R(Attempt.getAddress(PL(p))), Attempt.getOffset(PL(p)),                                             Attempt.getLocation(PL(p)),                                                  Attempt.getGuard(PL(p))));                   EMIT(MIR_CondBranch.mutate(P(p), PPC_BCOND, CR(0),                                                       new PowerPCConditionOperand(c),                                           IfCmp.getTarget(P(p)),                                                       IfCmp.getBranchProfile(P(p))));                 }
+}
+void code248(BURS_TreeNode p) {
+    EMIT(MIR_Move.mutate(P(p), PPC_MOVE, Unary.getResult(P(p)), R(Unary.getVal(P(p)))));
+}
+void code249(BURS_TreeNode p) {
+    INT_2ADDRZerExt(P(p), Unary.getResult(P(p)), R(Unary.getVal(P(p))));
+}
+void code250(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(PL(p), PPC_LWZ, Unary.getResult(P(p)),                                 R(Load.getAddress(PL(p))), Load.getOffset(PL(p)),                      Load.getLocation(PL(p)), Load.getGuard(PL(p))));
+}
+void code251(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(PL(p), PPC_LWZX, Unary.getResult(P(p)),                                R(Load.getAddress(PL(p))), Load.getOffset(PL(p)),                      Load.getLocation(PL(p)), Load.getGuard(PL(p))));
+}
+void code252(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(PL(p), PPC_LWZ, Unary.getResult(P(p)),                                          R(Binary.getVal1(PLL(p))), IC(VLR(p)+VLLR(p)),                               Load.getLocation(PL(p)), Load.getGuard(PL(p))));
+}
+void code253(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LAddr, Load.getResult(P(p)),                                 R(Load.getAddress(P(p))), Load.getOffset(P(p)), 	             Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code254(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PR(p)));                                         EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PR(p)),                                             R(Load.getAddress(P(p))), CAU16(val)));                EMIT(MIR_Load.mutate(P(p), PPC_LAddr, Load.getResult(P(p)),                                          Move.getResult(PR(p)).copyRO(), CAL16(val),  				 Load.getLocation(P(p)),                                                       Load.getGuard(P(p))));                      }
+}
+void code255(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LAddrX, Load.getResult(P(p)),                                R(Load.getAddress(P(p))), Load.getOffset(P(p)), 	             Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code256(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LAddrX, Load.getResult(P(p)),                                         R(Binary.getVal1(PL(p))), Binary.getVal2(PL(p)), 			      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code257(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LAddr, Load.getResult(P(p)),                                          R(Binary.getVal1(PL(p))), IC(VR(p)+VLR(p)), 			      Load.getLocation(P(p)), Load.getGuard(P(p))));
+}
+void code258(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STAddr, R(Store.getValue(P(p))),                                       R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code259(BURS_TreeNode p) {
+    {                                                                                Address val = AV(Move.getVal(PRR(p)));                                        EMIT(MIR_Binary.create(PPC_ADDIS, Move.getResult(PRR(p)),                                            R(Store.getAddress(P(p))), CAU16(val)));               EMIT(MIR_Store.mutate(P(p), PPC_STAddr, R(Store.getValue(P(p))),                                       Move.getResult(PRR(p)).copyRO(), CAL16(val),				  Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));                    }
+}
+void code260(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STAddrX, R(Store.getValue(P(p))),                                      R(Store.getAddress(P(p))),                                                    Store.getOffset(P(p)),                         			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code261(BURS_TreeNode p) {
+    EMIT(MIR_Store.mutate(P(p), PPC_STAddr, R(Store.getValue(P(p))),                                       R(Binary.getVal1(PRL(p))),                                                    IC(VRR(p) + VRLR(p)), 			       Store.getLocation(P(p)),                                                      Store.getGuard(P(p))));
+}
+void code262(BURS_TreeNode p) {
+    EMIT(MIR_Load.mutate(P(p), PPC_LAddrARX, Prepare.getResult(P(p)),                                 R(Prepare.getAddress(P(p))), Prepare.getOffset(P(p)),                                         Prepare.getLocation(P(p)),                                                Prepare.getGuard(P(p))));
+}
+void code263(BURS_TreeNode p) {
+    EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+}
+
+public void code(BURS_TreeNode p, int  n, int ruleno) {
+  switch(ruleno) {
+  case 14: code14(p); break;
+  case 15: code15(p); break;
+  case 16: code16(p); break;
+  case 17: code17(p); break;
+  case 18: code18(p); break;
+  case 19: code19(p); break;
+  case 20: code20(p); break;
+  case 21: code21(p); break;
+  case 23: code23(p); break;
+  case 24: code24(p); break;
+  case 25: code25(p); break;
+  case 26: code26(p); break;
+  case 27: code27(p); break;
+  case 28: code28(p); break;
+  case 29: code29(p); break;
+  case 30: code30(p); break;
+  case 31: code31(p); break;
+  case 32: code32(p); break;
+  case 33: code33(p); break;
+  case 34: code34(p); break;
+  case 35: code35(p); break;
+  case 36: code36(p); break;
+  case 37: code37(p); break;
+  case 38: code38(p); break;
+  case 39: code39(p); break;
+  case 40: code40(p); break;
+  case 41: code41(p); break;
+  case 42: code42(p); break;
+  case 43: code43(p); break;
+  case 44: code44(p); break;
+  case 45: code45(p); break;
+  case 46: code46(p); break;
+  case 47: code47(p); break;
+  case 48: code48(p); break;
+  case 49: code49(p); break;
+  case 50: code50(p); break;
+  case 52: code52(p); break;
+  case 54: code54(p); break;
+  case 55: code55(p); break;
+  case 56: code56(p); break;
+  case 57: code57(p); break;
+  case 58: code58(p); break;
+  case 59: code59(p); break;
+  case 60: code60(p); break;
+  case 61: code61(p); break;
+  case 62: code62(p); break;
+  case 63: code63(p); break;
+  case 64: code64(p); break;
+  case 65: code65(p); break;
+  case 66: code66(p); break;
+  case 67: code67(p); break;
+  case 68: code68(p); break;
+  case 69: code69(p); break;
+  case 70: code70(p); break;
+  case 71: code71(p); break;
+  case 72: code72(p); break;
+  case 73: code73(p); break;
+  case 74: code74(p); break;
+  case 75: code75(p); break;
+  case 76: code76(p); break;
+  case 77: code77(p); break;
+  case 78: code78(p); break;
+  case 79: code79(p); break;
+  case 80: code80(p); break;
+  case 81: code81(p); break;
+  case 82: code82(p); break;
+  case 83: code83(p); break;
+  case 84: code84(p); break;
+  case 85: code85(p); break;
+  case 86: code86(p); break;
+  case 87: code87(p); break;
+  case 88: code88(p); break;
+  case 89: code89(p); break;
+  case 90: code90(p); break;
+  case 91: code91(p); break;
+  case 92: code92(p); break;
+  case 93: code93(p); break;
+  case 94: code94(p); break;
+  case 95: code95(p); break;
+  case 96: code96(p); break;
+  case 97: code97(p); break;
+  case 98: code98(p); break;
+  case 99: code99(p); break;
+  case 100: code100(p); break;
+  case 101: code101(p); break;
+  case 102: code102(p); break;
+  case 103: code103(p); break;
+  case 104: code104(p); break;
+  case 105: code105(p); break;
+  case 106: code106(p); break;
+  case 107: code107(p); break;
+  case 108: code108(p); break;
+  case 109: code109(p); break;
+  case 110: code110(p); break;
+  case 111: code111(p); break;
+  case 112: code112(p); break;
+  case 113: code113(p); break;
+  case 114: code114(p); break;
+  case 115: code115(p); break;
+  case 116: code116(p); break;
+  case 117: code117(p); break;
+  case 118: code118(p); break;
+  case 119: code119(p); break;
+  case 120: code120(p); break;
+  case 121: code121(p); break;
+  case 122: code122(p); break;
+  case 123: code123(p); break;
+  case 124: code124(p); break;
+  case 125: code125(p); break;
+  case 126: code126(p); break;
+  case 127: code127(p); break;
+  case 128: code128(p); break;
+  case 129: code129(p); break;
+  case 130: code130(p); break;
+  case 131: code131(p); break;
+  case 132: code132(p); break;
+  case 133: code133(p); break;
+  case 134: code134(p); break;
+  case 135: code135(p); break;
+  case 136: code136(p); break;
+  case 137: code137(p); break;
+  case 138: code138(p); break;
+  case 139: code139(p); break;
+  case 140: code140(p); break;
+  case 141: code141(p); break;
+  case 142: code142(p); break;
+  case 143: code143(p); break;
+  case 144: code144(p); break;
+  case 145: code145(p); break;
+  case 146: code146(p); break;
+  case 147: code147(p); break;
+  case 148: code148(p); break;
+  case 149: code149(p); break;
+  case 150: code150(p); break;
+  case 151: code151(p); break;
+  case 152: code152(p); break;
+  case 153: code153(p); break;
+  case 154: code154(p); break;
+  case 155: code155(p); break;
+  case 156: code156(p); break;
+  case 157: code157(p); break;
+  case 158: code158(p); break;
+  case 159: code159(p); break;
+  case 160: code160(p); break;
+  case 161: code161(p); break;
+  case 162: code162(p); break;
+  case 163: code163(p); break;
+  case 164: code164(p); break;
+  case 165: code165(p); break;
+  case 166: code166(p); break;
+  case 167: code167(p); break;
+  case 168: code168(p); break;
+  case 169: code169(p); break;
+  case 170: code170(p); break;
+  case 171: code171(p); break;
+  case 172: code172(p); break;
+  case 173: code173(p); break;
+  case 174: code174(p); break;
+  case 175: code175(p); break;
+  case 176: code176(p); break;
+  case 177: code177(p); break;
+  case 178: code178(p); break;
+  case 179: code179(p); break;
+  case 180: code180(p); break;
+  case 181: code181(p); break;
+  case 182: code182(p); break;
+  case 183: code183(p); break;
+  case 184: code184(p); break;
+  case 185: code185(p); break;
+  case 186: code186(p); break;
+  case 187: code187(p); break;
+  case 188: code188(p); break;
+  case 189: code189(p); break;
+  case 190: code190(p); break;
+  case 191: code191(p); break;
+  case 192: code192(p); break;
+  case 193: code193(p); break;
+  case 194: code194(p); break;
+  case 195: code195(p); break;
+  case 196: code196(p); break;
+  case 197: code197(p); break;
+  case 198: code198(p); break;
+  case 199: code199(p); break;
+  case 200: code200(p); break;
+  case 201: code201(p); break;
+  case 202: code202(p); break;
+  case 203: code203(p); break;
+  case 204: code204(p); break;
+  case 205: code205(p); break;
+  case 206: code206(p); break;
+  case 207: code207(p); break;
+  case 208: code208(p); break;
+  case 209: code209(p); break;
+  case 210: code210(p); break;
+  case 211: code211(p); break;
+  case 213: code213(p); break;
+  case 214: code214(p); break;
+  case 215: code215(p); break;
+  case 216: code216(p); break;
+  case 217: code217(p); break;
+  case 218: code218(p); break;
+  case 219: code219(p); break;
+  case 220: code220(p); break;
+  case 221: code221(p); break;
+  case 222: code222(p); break;
+  case 223: code223(p); break;
+  case 224: code224(p); break;
+  case 225: code225(p); break;
+  case 226: code226(p); break;
+  case 227: code227(p); break;
+  case 228: code228(p); break;
+  case 229: code229(p); break;
+  case 230: code230(p); break;
+  case 231: code231(p); break;
+  case 232: code232(p); break;
+  case 233: code233(p); break;
+  case 234: code234(p); break;
+  case 235: code235(p); break;
+  case 236: code236(p); break;
+  case 237: code237(p); break;
+  case 238: code238(p); break;
+  case 239: code239(p); break;
+  case 240: code240(p); break;
+  case 241: code241(p); break;
+  case 242: code242(p); break;
+  case 243: code243(p); break;
+  case 244: code244(p); break;
+  case 245: code245(p); break;
+  case 246: code246(p); break;
+  case 247: code247(p); break;
+  case 248: code248(p); break;
+  case 249: code249(p); break;
+  case 250: code250(p); break;
+  case 251: code251(p); break;
+  case 252: code252(p); break;
+  case 253: code253(p); break;
+  case 254: code254(p); break;
+  case 255: code255(p); break;
+  case 256: code256(p); break;
+  case 257: code257(p); break;
+  case 258: code258(p); break;
+  case 259: code259(p); break;
+  case 260: code260(p); break;
+  case 261: code261(p); break;
+  case 262: code262(p); break;
+  case 263: code263(p); break;
+  default:
+    throw new OptimizingCompilerException("BURS","rule without emit code:",BURS_Debug.string[ruleno]);
+  }
+}
+}
