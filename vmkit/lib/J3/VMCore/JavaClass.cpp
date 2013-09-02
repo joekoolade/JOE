@@ -1373,6 +1373,7 @@ JavaVirtualTable::JavaVirtualTable(Class* C, int size) {
     depth = 0;
     display[0] = this;
     nbSecondaryTypes = 0;
+    virtualMethods = new word_t[size];
   }
 }
   

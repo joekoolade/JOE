@@ -16,6 +16,8 @@
 namespace j3 {
 
 class JIntrinsics : public BaseIntrinsics {
+private:
+  llvm::Module* module;
 public:
   void init(llvm::Module* M);
 
@@ -174,6 +176,8 @@ private:
   void createJavaMethod();
   void createUTF8();
   void createAttribute();
+  void createGetVTFromClass();
+  void createAllocator();
   void initTypes();
 };
 
