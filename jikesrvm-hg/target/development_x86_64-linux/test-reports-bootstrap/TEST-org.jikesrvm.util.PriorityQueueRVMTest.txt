@@ -1,7 +1,0 @@
-Testsuite: org.jikesrvm.util.PriorityQueueRVMTest
-Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0.05 sec
-
-Testcase: testInsertAndNumElements took 0.005 sec
-Testcase: testIsEmpty took 0 sec
-Testcase: testDeleteMin took 0.02 sec
-Testcase: testRootValue took 0 sec

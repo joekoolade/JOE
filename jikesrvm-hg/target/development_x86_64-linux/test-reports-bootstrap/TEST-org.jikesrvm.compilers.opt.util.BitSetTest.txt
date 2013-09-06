@@ -1,5 +1,0 @@
-Testsuite: org.jikesrvm.compilers.opt.util.BitSetTest
-Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.343 sec
-
-Testcase: testAddAndContains took 0.297 sec
-Testcase: testAddAll took 0.02 sec

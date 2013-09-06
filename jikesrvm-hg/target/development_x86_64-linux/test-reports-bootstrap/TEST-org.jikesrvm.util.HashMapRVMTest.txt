@@ -1,9 +1,0 @@
-Testsuite: org.jikesrvm.util.HashMapRVMTest
-Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0.1 sec
-
-Testcase: testGet took 0.029 sec
-Testcase: testPutAndSize took 0 sec
-Testcase: testRemove took 0 sec
-Testcase: testValueIterator took 0.024 sec
-Testcase: testKeyIterator took 0.001 sec
-Testcase: testEmptyMap took 0 sec

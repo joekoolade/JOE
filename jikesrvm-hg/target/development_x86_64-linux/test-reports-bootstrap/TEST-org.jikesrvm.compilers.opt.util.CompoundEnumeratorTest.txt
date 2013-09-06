@@ -1,4 +1,0 @@
-Testsuite: org.jikesrvm.compilers.opt.util.CompoundEnumeratorTest
-Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.028 sec
-
-Testcase: testHasMoreElementsAndNextElement took 0.006 sec
