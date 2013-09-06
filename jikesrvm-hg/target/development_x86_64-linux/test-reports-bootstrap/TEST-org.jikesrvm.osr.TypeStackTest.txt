@@ -1,0 +1,13 @@
+Testsuite: org.jikesrvm.osr.TypeStackTest
+Tests run: 10, Failures: 0, Errors: 0, Time elapsed: 0.065 sec
+
+Testcase: testSnapshot took 0.016 sec
+Testcase: testPop took 0.001 sec
+Testcase: testZeroElementsForPopInt took 0 sec
+Testcase: testPopInt took 0 sec
+Testcase: testMultipleElementsForPopInt took 0.001 sec
+Testcase: testPushAndPeek took 0 sec
+Testcase: testPeekingAnEmptyStack took 0 sec
+Testcase: testEmptyStack took 0.003 sec
+Testcase: testClearEmptyStack took 0 sec
+Testcase: testDepth took 0 sec

@@ -1,0 +1,5 @@
+Testsuite: org.jikesrvm.ExampleThatRequiresBootstrapVMTest
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.028 sec
+
+Testcase: testThatRequiresBootstrapVM took 0.001 sec
+Testcase: testWithNoRequirements took 0.001 sec

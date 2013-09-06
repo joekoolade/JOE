@@ -1,0 +1,5 @@
+Testsuite: org.jikesrvm.util.EmptyIteratorTest
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.027 sec
+
+Testcase: testHasNext took 0.003 sec
+Testcase: testNext took 0.001 sec

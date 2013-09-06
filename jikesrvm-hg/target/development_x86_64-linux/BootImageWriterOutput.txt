@@ -1,0 +1,644 @@
+BootImageCompiler: init (opt compiler)
+writing the lock field.
+writing the lock field.
+writing the lock field.
+writing the lock field.
+writing the lock field.
+
+Boot image space report:
+------------------------------------------------------------------------------------------
+TOTAL                                                                569255       51291766
+
+Compiled methods space report:
+------------------------------------------------------------------------------------------
+Compiled code space report
+
+  Baseline Compiler
+    Number of compiled methods =         286
+    Total size of code (bytes) =         193000
+    Total size of mapping data (bytes) = 103848
+  Optimizing Compiler
+    Number of compiled methods =         21566
+    Total size of code (bytes) =         16827736
+    Total size of mapping data (bytes) = 11636092
+------------------------------------------------------------------------------------------
+  Break down of code space usage by package (bytes):
+------------------------------------------------------------------------------------------
+com.ibm.tuningfork.tracegen.chunk                        22645
+com.ibm.tuningfork.tracegen.types                         5154
+gnu.classpath                                             8463
+gnu.java.io                                               1151
+gnu.java.lang                                            26389
+gnu.java.lang.reflect                                     8699
+gnu.java.net                                               171
+gnu.java.net.loader                                       1559
+gnu.java.net.protocol.file                               13577
+gnu.java.net.protocol.jar                                18657
+gnu.java.nio                                             60585
+gnu.java.nio.charset                                     71437
+gnu.java.security                                         9816
+gnu.java.security.action                                   928
+gnu.java.security.provider                               11516
+gnu.java.util                                            13752
+gnu.java.util.jar                                        20807
+gnu.java.util.regex                                     117387
+java.beans                                               13851
+java.io                                                 228466
+java.lang                                               487223
+java.lang.annotation                                      2106
+java.lang.ref                                             5064
+java.lang.reflect                                       200376
+java.net                                                 93538
+java.nio                                                 73354
+java.nio.channels                                          483
+java.nio.channels.spi                                      368
+java.nio.charset                                         35315
+java.nio.charset.spi                                       420
+java.security                                            68044
+java.util                                               637335
+java.util.jar                                            69193
+java.util.logging                                        68990
+java.util.regex                                          16459
+java.util.zip                                           141619
+org.jikesrvm                                            105687
+org.jikesrvm.adaptive                                     9710
+org.jikesrvm.adaptive.controller                         92504
+org.jikesrvm.adaptive.database                               6
+org.jikesrvm.adaptive.database.callgraph                 35473
+org.jikesrvm.adaptive.database.methodsamples             18623
+org.jikesrvm.adaptive.measurements                        8182
+org.jikesrvm.adaptive.measurements.instrumentation       33334
+org.jikesrvm.adaptive.measurements.listeners              2417
+org.jikesrvm.adaptive.measurements.organizers            18564
+org.jikesrvm.adaptive.recompilation                      14417
+org.jikesrvm.adaptive.recompilation.instrumentation      74923
+org.jikesrvm.adaptive.util                              162426
+org.jikesrvm.classloader                                444262
+org.jikesrvm.compilers.baseline                         163399
+org.jikesrvm.compilers.baseline.ia32                    508486
+org.jikesrvm.compilers.common                            49228
+org.jikesrvm.compilers.common.assembler                   1718
+org.jikesrvm.compilers.common.assembler.ia32           1502842
+org.jikesrvm.compilers.opt                              527264
+org.jikesrvm.compilers.opt.bc2ir                        420327
+org.jikesrvm.compilers.opt.bc2ir.ia32                    18682
+org.jikesrvm.compilers.opt.controlflow                  400404
+org.jikesrvm.compilers.opt.depgraph                      43497
+org.jikesrvm.compilers.opt.dfsolver                      38151
+org.jikesrvm.compilers.opt.driver                        81742
+org.jikesrvm.compilers.opt.driver.ia32                    5209
+org.jikesrvm.compilers.opt.escape                        81008
+org.jikesrvm.compilers.opt.hir2lir                      226551
+org.jikesrvm.compilers.opt.inlining                     139227
+org.jikesrvm.compilers.opt.instrsched                    12850
+org.jikesrvm.compilers.opt.ir                           677993
+org.jikesrvm.compilers.opt.ir.ia32                       37472
+org.jikesrvm.compilers.opt.ir.operand                   136419
+org.jikesrvm.compilers.opt.ir.operand.ia32                8115
+org.jikesrvm.compilers.opt.lir2mir                       73308
+org.jikesrvm.compilers.opt.lir2mir.ia32                1384706
+org.jikesrvm.compilers.opt.liveness                      61862
+org.jikesrvm.compilers.opt.mir2mc                         3041
+org.jikesrvm.compilers.opt.mir2mc.ia32                  850824
+org.jikesrvm.compilers.opt.regalloc                     167079
+org.jikesrvm.compilers.opt.regalloc.ia32                125484
+org.jikesrvm.compilers.opt.runtimesupport                55719
+org.jikesrvm.compilers.opt.runtimesupport.ia32            1185
+org.jikesrvm.compilers.opt.specialization                15328
+org.jikesrvm.compilers.opt.ssa                          486747
+org.jikesrvm.compilers.opt.util                          84936
+org.jikesrvm.ia32                                        78399
+org.jikesrvm.jni                                        127399
+org.jikesrvm.jni.ia32                                    73885
+org.jikesrvm.mm.mminterface                            2110600
+org.jikesrvm.mm.mmtk                                     93943
+org.jikesrvm.mm.mmtk.gcspy                                1482
+org.jikesrvm.objectmodel                                 24201
+org.jikesrvm.options                                     10260
+org.jikesrvm.osr                                        101992
+org.jikesrvm.osr.bytecodes                               24733
+org.jikesrvm.osr.ia32                                    36937
+org.jikesrvm.runtime                                    134135
+org.jikesrvm.scheduler                                  126376
+org.jikesrvm.tools.oth                                   47389
+org.jikesrvm.tuningfork                                  47764
+org.jikesrvm.util                                        53055
+org.mmtk.plan                                           101328
+org.mmtk.plan.generational                              345151
+org.mmtk.plan.generational.immix                        803787
+org.mmtk.policy                                          53256
+org.mmtk.policy.immix                                    65858
+org.mmtk.utility                                         41204
+org.mmtk.utility.alloc                                   26936
+org.mmtk.utility.deque                                   14464
+org.mmtk.utility.gcspy                                    4820
+org.mmtk.utility.gcspy.drivers                           27219
+org.mmtk.utility.heap                                    35946
+org.mmtk.utility.options                                 34429
+org.mmtk.utility.sanitychecker                           24437
+org.mmtk.utility.statistics                              70522
+org.mmtk.vm                                              11642
+org.mmtk.vm.gcspy                                         6684
+org.vmmagic.pragma                                        1064
+org.vmmagic.unboxed                                       1420
+org.vmutil.options                                       12148
+sun.misc                                                  2284
+------------------------------------------------------------------------------------------
+
+Boot image space usage by types:
+Type                                                               Count             Bytes
+------------------------------------------------------------------------------------------
+TOTAL                                                                569255       51291766
+[Lorg.jikesrvm.ia32.Code;                                             22236       17019306
+[I                                                                    86427       16145816
+[B                                                                    59778        4446232
+org.jikesrvm.util.ImmutableEntryHashMapRVM$Bucket                     76537        1530740
+org.jikesrvm.classloader.NormalMethod                                 22318        1339080
+org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod           21567        1207752
+org.jikesrvm.classloader.MethodReference                              28426        1023336
+[C                                                                    12634         998252
+org.jikesrvm.classloader.Atom                                         36677         733540
+org.jikesrvm.util.ImmutableEntryHashSetRVM$Bucket                     43430         694880
+[J                                                                       38         688712
+org.jikesrvm.util.HashMapRVM$Bucket                                   22881         457620
+[Ljava.lang.Object;                                                    4438         437904
+[Lorg.jikesrvm.classloader.RVMMethod;                                  6066         417624
+org.jikesrvm.classloader.RVMField                                      9141         402204
+org.jikesrvm.classloader.RVMClass                                      2019         363420
+org.jikesrvm.compilers.opt.runtimesupport.OptMachineCodeMap           17562         351240
+org.jikesrvm.compilers.opt.escape.MethodSummary                       21434         342944
+org.jikesrvm.classloader.FieldReference                               10245         327840
+java.lang.String                                                      12579         301896
+[Lorg.jikesrvm.util.AbstractHashMapRVM$AbstractBucket;                  552         200572
+[Lorg.jikesrvm.classloader.MemberReference;                              38         156104
+[Lorg.jikesrvm.classloader.Atom;                                         36         147888
+[Lorg.jikesrvm.classloader.TypeReference;                              6187         145096
+java.lang.Integer                                                     11997         143964
+[[I                                                                       4         117180
+[Lorg.jikesrvm.classloader.RVMField;                                   2796         112192
+[Lorg.jikesrvm.util.AbstractHashSetRVM$AbstractBucket;                  687         100920
+[Lorg.jikesrvm.ArchitectureSpecific$CodeArray;                          725          97592
+[Lorg.jikesrvm.compilers.common.CompiledMethod;                          24          90928
+org.jikesrvm.classloader.RVMAnnotation$AnnotationMember                4118          82360
+org.jikesrvm.classloader.TypeReference                                 2549          61176
+[S                                                                     2119          53532
+java.lang.Class                                                        2209          53016
+org.jikesrvm.classloader.AbstractMethod                                1278          51120
+org.jikesrvm.util.HashSetRVM$Bucket                                    2744          43904
+org.jikesrvm.classloader.RVMAnnotation                                 2134          42680
+[Lorg.jikesrvm.classloader.RVMAnnotation$AnnotationMember;             2134          42080
+[Lorg.jikesrvm.classloader.RVMClass;                                    955          22636
+org.jikesrvm.classloader.ExceptionHandlerMap                            868          20832
+org.jikesrvm.objectmodel.FieldLayoutPacked$LayoutContext               1028          20560
+org.jikesrvm.compilers.opt.FieldDatabase$FieldWriterInfo               1091          17456
+org.jikesrvm.compilers.opt.ir.Operator                                  418          16720
+[Lorg.jikesrvm.scheduler.RVMThread;                                       4          16432
+org.jikesrvm.compilers.baseline.BaselineCompiledMethod                  286          16016
+org.jikesrvm.classloader.RVMArray                                       176          15488
+[Lorg.jikesrvm.classloader.RVMType;                                       3          12324
+org.jikesrvm.compilers.opt.FieldDatabase$FieldDatabaseEntry             529          10580
+org.jikesrvm.util.HashSetRVM                                            556           8896
+org.jikesrvm.compilers.opt.inlining.InvalidationDatabase$MethodSet            554           8864
+org.jikesrvm.util.ImmutableEntryHashMapRVM                              544           8704
+[Lorg.jikesrvm.scheduler.Lock;                                            1           8204
+org.jikesrvm.classloader.NativeMethod                                   169           8112
+org.jikesrvm.compilers.baseline.ReferenceMaps                           286           8008
+[Lorg.jikesrvm.classloader.RVMAnnotation;                               322           6760
+[Lorg.vmmagic.unboxed.Address;                                           17           6532
+org.jikesrvm.classloader.InterfaceMethodSignature                       290           5800
+[Ljava.lang.String;                                                      20           5376
+[Lorg.mmtk.policy.Space;                                                  2           4200
+[Z                                                                        1           4108
+[Lorg.jikesrvm.scheduler.Monitor;                                         1           4108
+[Lorg.jikesrvm.scheduler.NoYieldpointsMonitor;                            1           4108
+java.lang.Long                                                          256           4096
+java.lang.Byte                                                          256           3072
+java.lang.Short                                                         256           3072
+java.lang.Character$UnicodeBlock                                        126           3024
+org.jikesrvm.compilers.opt.driver.OptimizationPlanAtomicElement             73           2920
+[[B                                                                       5           2144
+org.jikesrvm.util.ImmutableEntryHashSetRVM                              131           2096
+[D                                                                       33           1916
+[Lorg.jikesrvm.compilers.opt.ir.Operator;                                 4           1776
+com.ibm.tuningfork.tracegen.chunk.EventChunk                             64           1536
+org.jikesrvm.mm.mmtk.Lock                                                39           1248
+org.jikesrvm.CommandLineArgs$Prefix                                      52           1040
+[Ljava.lang.Byte;                                                         1           1036
+[Ljava.lang.Integer;                                                      1           1036
+[Ljava.lang.Long;                                                         1           1036
+[Ljava.lang.Short;                                                        1           1036
+org.jikesrvm.compilers.opt.OptOptions                                     3            840
+org.jikesrvm.scheduler.ThreadQueue                                       49            784
+org.jikesrvm.classloader.Primitive                                        9            648
+org.jikesrvm.runtime.BootRecord                                           1            600
+[Ljava.lang.annotation.ElementType;                                      34            592
+org.mmtk.plan.SimplePhase                                                27            540
+org.mmtk.utility.deque.SharedDeque                                       11            528
+[[Lorg.jikesrvm.scheduler.Lock;                                           1            524
+[Lorg.jikesrvm.compilers.opt.driver.OptimizationPlanElement;             15            520
+org.jikesrvm.CommandLineArgs$PrefixType                                  31            496
+org.mmtk.utility.statistics.Timer                                        12            480
+java.util.Locale                                                         19            456
+java.lang.reflect.Constructor                                            21            420
+[Lorg.mmtk.utility.statistics.Counter;                                    1            412
+org.mmtk.utility.heap.FreeListPageResource                                7            364
+org.jikesrvm.scheduler.RVMThread                                          1            360
+org.jikesrvm.classloader.UnboxedType                                      5            360
+[Lorg.jikesrvm.ia32.RegisterConstants$GPR;                               10            356
+gnu.java.util.regex.RESyntax                                             17            340
+java.lang.reflect.VMConstructor                                          21            336
+org.jikesrvm.compilers.opt.controlflow.BranchOptimizations               14            336
+org.mmtk.plan.ComplexPhase                                               12            288
+org.mmtk.utility.statistics.EventCounter                                  9            288
+org.mmtk.utility.heap.VMRequest                                          10            280
+org.jikesrvm.ia32.RegisterConstants$GPR                                  17            272
+java.util.jar.Attributes$Name                                            17            272
+[Lorg.mmtk.plan.Phase;                                                    1            268
+org.jikesrvm.ia32.RegisterConstants$MM                                   16            256
+org.jikesrvm.ia32.RegisterConstants$XMM                                  16            256
+org.mmtk.utility.gcspy.Color                                             16            256
+java.util.WeakHashMap                                                     5            220
+[Lorg.jikesrvm.CommandLineArgs$Prefix;                                    1            220
+org.mmtk.utility.GenericFreeList                                          9            216
+java.util.BitSet                                                         17            204
+java.lang.Object                                                         25            200
+[[D                                                                       5            196
+[Lorg.jikesrvm.ia32.RegisterConstants$XMM;                                4            196
+[Lorg.vmmagic.unboxed.Word;                                               5            188
+org.mmtk.utility.heap.MonotonePageResource                                3            180
+java.util.logging.Level                                                   9            180
+org.mmtk.policy.MarkSweepSpace                                            2            168
+[[Lorg.jikesrvm.classloader.MemberReference;                              1            164
+com.ibm.tuningfork.tracegen.types.EventType                               4            160
+java.util.HashMap                                                         4            160
+org.mmtk.utility.DoublyLinkedList                                         8            160
+[[Lorg.jikesrvm.classloader.Atom;                                         1            156
+[Lorg.jikesrvm.ia32.RegisterConstants$MM;                                 2            152
+org.jikesrvm.ArchitectureSpecific$Registers                               4            144
+org.jikesrvm.compilers.opt.driver.OptimizationPlanCompositeElement              9            144
+org.jikesrvm.scheduler.LightMonitor                                       5            140
+[Lorg.jikesrvm.CommandLineArgs$PrefixType;                                1            136
+org.jikesrvm.adaptive.util.AOSOptions                                     1            132
+[Lorg.jikesrvm.ia32.RegisterConstants$FPR;                                3            132
+org.jikesrvm.ia32.RegisterConstants$FPR                                   8            128
+java.lang.annotation.ElementType                                          8            128
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$AddressComparison             10            120
+[[C                                                                       1            120
+org.jikesrvm.compilers.opt.Simple                                         4            112
+org.jikesrvm.util.HashMapRVM                                              7            112
+org.mmtk.policy.LargeObjectSpace                                          2            112
+org.jikesrvm.scheduler.SpinLock                                           9            108
+org.jikesrvm.mm.mmtk.ReferenceProcessor                                   3            108
+org.mmtk.policy.ImmortalSpace                                             2            104
+java.util.ArrayList                                                       5            100
+[[Lorg.jikesrvm.compilers.common.CompiledMethod;                          1            100
+org.mmtk.policy.RawPageSpace                                              2             96
+org.mmtk.utility.Log                                                      4             96
+java.lang.Thread$State                                                    6             96
+[Lorg.mmtk.utility.heap.FreeListPageResource;                             1             92
+org.jikesrvm.compilers.opt.controlflow.EstimateBlockFrequencies              3             84
+org.mmtk.policy.immix.ImmixSpace                                          1             84
+org.jikesrvm.compilers.opt.Simplifier$DefUseEffect                        5             80
+org.mmtk.plan.ParallelCollectorGroup                                      2             80
+java.lang.ref.ReferenceQueue                                              5             80
+[Lorg.jikesrvm.ia32.RegisterConstants$FloatingPointMachineRegister;              4             80
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$CreateArray              6             72
+java.util.Vector                                                          3             72
+org.vmmagic.pragma.Inline$When                                            4             64
+com.ibm.tuningfork.tracegen.types.ScalarType                              4             64
+org.jikesrvm.tuningfork.TraceEngine$State                                 4             64
+org.mmtk.plan.Trace                                                       4             64
+org.mmtk.utility.statistics.SizeCounter                                   4             64
+org.mmtk.utility.options.NurseryZeroing                                   1             60
+org.mmtk.utility.statistics.Stats$Phase                                   3             60
+org.jikesrvm.compilers.opt.instrsched.OperatorClass                       2             56
+org.mmtk.utility.deque.ObjectReferenceDeque                               2             56
+org.jikesrvm.mm.mminterface.Selected$Plan                                 1             52
+org.mmtk.policy.CopySpace                                                 1             52
+org.mmtk.policy.immix.MutatorLocal                                        1             52
+org.jikesrvm.compilers.baseline.BuildBB$InstructionType                   3             48
+org.jikesrvm.compilers.baseline.ReferenceMaps$MergeOperation              3             48
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$AddressConstant              4             48
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeEntryPoint              3             48
+org.jikesrvm.compilers.common.assembler.ia32.Lister$Prefix                3             48
+org.jikesrvm.compilers.opt.LocalConstantProp                              3             48
+org.jikesrvm.compilers.opt.LocalCopyProp                                  3             48
+org.jikesrvm.compilers.opt.controlflow.BuildLST                           3             48
+org.jikesrvm.compilers.opt.inlining.InlineDecision$Code                   3             48
+org.jikesrvm.scheduler.RVMThread$Waiting                                  3             48
+org.jikesrvm.tuningfork.TraceEngine                                       1             48
+org.mmtk.utility.Treadmill                                                2             48
+org.mmtk.vm.ReferenceProcessor$Semantics                                  3             48
+java.lang.annotation.RetentionPolicy                                      3             48
+java.lang.Character$UnicodeBlock$NameType                                 3             48
+java.io.FileDescriptor                                                    4             48
+org.mmtk.utility.options.FixedNursery                                     1             44
+org.mmtk.utility.options.Threads                                          1             44
+java.util.logging.Logger                                                  1             44
+org.jikesrvm.compilers.opt.LocalCSE                                       2             40
+org.jikesrvm.compilers.opt.liveness.LiveAnalysis                          1             40
+org.jikesrvm.mm.mminterface.SpecializedScanMethod                         2             40
+org.jikesrvm.tuningfork.EventChunkQueue                                   2             40
+org.mmtk.policy.MarkSweepLocal                                            2             40
+org.mmtk.utility.options.BoundedNursery                                   1             40
+org.mmtk.utility.options.CycleTriggerThreshold                            1             40
+org.mmtk.utility.options.DebugAddress                                     1             40
+org.mmtk.utility.options.DefragFreeHeadroom                               1             40
+org.mmtk.utility.options.DefragFreeHeadroomFraction                       1             40
+org.mmtk.utility.options.DefragHeadroom                                   1             40
+org.mmtk.utility.options.DefragHeadroomFraction                           1             40
+org.mmtk.utility.options.DefragLineReuseRatio                             1             40
+org.mmtk.utility.options.DefragSimpleSpillThreshold                       1             40
+org.mmtk.utility.options.LineReuseRatio                                   1             40
+org.mmtk.utility.options.MarkSweepMarkBits                                1             40
+org.mmtk.utility.options.MetaDataLimit                                    1             40
+org.mmtk.utility.options.PerfEvents                                       1             40
+org.mmtk.utility.options.PretenureThresholdFraction                       1             40
+org.mmtk.utility.options.StressFactor                                     1             40
+org.mmtk.utility.options.Verbose                                          1             40
+java.util.Hashtable                                                       1             40
+org.jikesrvm.classloader.BootstrapClassLoader                             1             36
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetValueAtDisplacement              3             36
+org.jikesrvm.mm.mmtk.FinalizableProcessor                                 1             36
+org.mmtk.plan.ControllerCollectorContext                                  1             36
+org.mmtk.policy.CopyLocal                                                 1             36
+org.mmtk.policy.ImmortalLocal                                             1             36
+org.mmtk.utility.options.DefragStress                                     1             36
+org.mmtk.utility.options.EagerCompleteSweep                               1             36
+org.mmtk.utility.options.EagerMmapSpaces                                  1             36
+org.mmtk.utility.options.FullHeapSystemGC                                 1             36
+org.mmtk.utility.options.HarnessAll                                       1             36
+org.mmtk.utility.options.IgnoreSystemGC                                   1             36
+org.mmtk.utility.options.NoFinalizer                                      1             36
+org.mmtk.utility.options.NoReferenceTypes                                 1             36
+org.mmtk.utility.options.PrintPhaseStats                                  1             36
+org.mmtk.utility.options.ProtectOnRelease                                 1             36
+org.mmtk.utility.options.SanityCheck                                      1             36
+org.mmtk.utility.options.UseReturnBarrier                                 1             36
+org.mmtk.utility.options.UseShortStackScans                               1             36
+org.mmtk.utility.options.VariableSizeHeap                                 1             36
+org.mmtk.utility.options.VerboseTiming                                    1             36
+org.mmtk.utility.options.XmlStats                                         1             36
+java.nio.charset.CodingErrorAction                                        3             36
+java.io.BufferedInputStream                                               1             36
+gnu.java.nio.VMChannel$Kind                                               4             32
+org.jikesrvm.adaptive.measurements.listeners.CallDensityListener              1             32
+org.jikesrvm.compilers.baseline.BuildReferenceMaps$PrimitiveSize              2             32
+org.jikesrvm.compilers.common.HardwareTrapCompiledMethod                  1             32
+org.jikesrvm.compilers.opt.AdjustBranchProbabilities                      2             32
+org.jikesrvm.compilers.opt.bc2ir.ConvertBCtoHIR                           2             32
+org.jikesrvm.tuningfork.ChunkQueue$Node                                   2             32
+org.mmtk.policy.immix.Defrag                                              1             32
+org.mmtk.utility.sanitychecker.SanityChecker                              1             32
+org.mmtk.utility.sanitychecker.SanityDataTable                            1             32
+java.lang.Double                                                          2             32
+java.nio.charset.CoderResult                                              2             32
+[Lorg.jikesrvm.compilers.opt.Simplifier$DefUseEffect;                     1             32
+org.jikesrvm.compilers.opt.hir2lir.ExpandRuntimeServices                  1             28
+org.jikesrvm.compilers.opt.regalloc.LinearScan$IntervalAnalysis              1             28
+org.jikesrvm.mm.mmtk.MMTk_Events                                          1             28
+org.jikesrvm.tuningfork.Feedlet                                           1             28
+org.mmtk.utility.deque.AddressDeque                                       1             28
+java.util.Collections$SynchronizedMap                                     1             28
+java.security.ProtectionDomain                                            1             28
+[Lorg.vmmagic.pragma.Inline$When;                                         1             28
+org.jikesrvm.mm.mmtk.SynchronizedCounter                                  2             24
+com.ibm.tuningfork.tracegen.chunk.EventTypeChunk                          1             24
+com.ibm.tuningfork.tracegen.chunk.FeedletChunk                            1             24
+com.ibm.tuningfork.tracegen.chunk.PropertyTableChunk                      1             24
+java.lang.ThreadLocal                                                     2             24
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetRegister              2             24
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$SetRegister              2             24
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$SetValueAtDisplacement              2             24
+org.jikesrvm.compilers.opt.controlflow.MIRBranchOptimizations              1             24
+org.jikesrvm.compilers.opt.controlflow.StaticSplitting                    1             24
+org.jikesrvm.compilers.opt.ir.operand.LongConstantOperand                 1             24
+org.jikesrvm.compilers.opt.regalloc.LinearScan$LinearScanPhase              1             24
+org.jikesrvm.options.OptionSet                                            1             24
+org.mmtk.policy.LargeObjectLocal                                          2             24
+org.mmtk.utility.deque.AddressPairDeque                                   1             24
+org.mmtk.utility.sanitychecker.SanityTraceLocal                           1             24
+org.mmtk.utility.statistics.BooleanCounter                                1             24
+java.lang.ThreadDeath                                                     1             24
+java.lang.Boolean                                                         2             24
+java.lang.Float                                                           2             24
+java.lang.ThreadLocalMap$Entry                                            1             24
+java.util.LinkedList                                                      1             24
+java.util.zip.InflaterHuffmanTree                                         2             24
+[Ljava.lang.Character$UnicodeBlock$NameType;                              1             24
+[[Lorg.jikesrvm.classloader.RVMType;                                      1             24
+[[Lorg.jikesrvm.classloader.TypeReference;                                1             24
+[Lorg.jikesrvm.scheduler.RVMThread$BlockAdapter;                          1             24
+[Lorg.mmtk.utility.statistics.Stats$Phase;                                1             24
+[Lorg.mmtk.vm.ReferenceProcessor$Semantics;                               1             24
+[Lorg.jikesrvm.scheduler.RVMThread$Waiting;                               1             24
+[Lorg.jikesrvm.compilers.opt.inlining.InlineDecision$Code;                1             24
+[Lorg.jikesrvm.adaptive.measurements.listeners.MethodListener;              2             24
+[Lorg.jikesrvm.adaptive.measurements.listeners.ContextListener;              2             24
+[Lorg.jikesrvm.compilers.common.assembler.ia32.Lister$Prefix;              1             24
+com.ibm.tuningfork.tracegen.chunk.EventTypeSpaceChunk                     1             20
+com.ibm.tuningfork.tracegen.chunk.FeedHeaderChunk                         1             20
+org.jikesrvm.compilers.baseline.BaselineOptions                           1             20
+org.jikesrvm.compilers.opt.bc2ir.OsrPointConstructor                      1             20
+org.jikesrvm.compilers.opt.controlflow.LoopUnrolling                      1             20
+org.jikesrvm.compilers.opt.controlflow.TailRecursionElimination              1             20
+org.jikesrvm.compilers.opt.driver.OptimizationPlanner$10                  1             20
+org.jikesrvm.compilers.opt.driver.OptimizationPlanner$11                  1             20
+org.jikesrvm.compilers.opt.driver.OptimizationPlanner$2                   1             20
+org.jikesrvm.compilers.opt.driver.ia32.MIROptimizationPlanner$1              1             20
+org.jikesrvm.compilers.opt.driver.ia32.MIROptimizationPlanner$2              1             20
+org.jikesrvm.osr.EncodedOSRMap                                            1             20
+org.jikesrvm.util.LinkedListRVM                                           1             20
+org.mmtk.policy.immix.ChunkList                                           1             20
+org.mmtk.utility.deque.WriteBuffer                                        1             20
+java.io.PrintStream                                                       1             20
+[Ljava.lang.Class;                                                        1             20
+[Lorg.jikesrvm.classloader.SpecializedMethod;                             1             20
+java.lang.VMCommonLibrarySupport$GCLock                                   1             16
+org.jikesrvm.ArchitectureSpecificOpt$ConvertALUOperators                  1             16
+org.jikesrvm.Callbacks$CallbackList                                       1             16
+org.jikesrvm.adaptive.util.AOSLogging                                     1             16
+org.jikesrvm.compilers.opt.FieldAnalysis                                  1             16
+org.jikesrvm.compilers.opt.LocalCastOptimization                          1             16
+org.jikesrvm.compilers.opt.MutateSplits                                   1             16
+org.jikesrvm.compilers.opt.controlflow.CFGTransformations                 1             16
+org.jikesrvm.compilers.opt.controlflow.ReorderingPhase                    1             16
+org.jikesrvm.compilers.opt.controlflow.YieldPoints                        1             16
+org.jikesrvm.compilers.opt.driver.OptimizationPlanner$1                   1             16
+org.jikesrvm.compilers.opt.driver.OptimizationPlanner$3                   1             16
+org.jikesrvm.compilers.opt.escape.EscapeTransformations                   1             16
+org.jikesrvm.compilers.opt.escape.SimpleEscape                            1             16
+org.jikesrvm.compilers.opt.hir2lir.ConvertHIRtoLIR                        1             16
+org.jikesrvm.compilers.opt.inlining.InvalidationDatabase                  1             16
+org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand                  1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR$1                      1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR$ComplexOperators              1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR$DoBURS                 1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR$DoLiveness              1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR$NormalizeConstantsPhase              1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR$ReduceOperators              1             16
+org.jikesrvm.compilers.opt.lir2mir.ConvertLIRtoMIR                        1             16
+org.jikesrvm.compilers.opt.lir2mir.SplitBasicBlock                        1             16
+org.jikesrvm.compilers.opt.mir2mc.AssemblerDriver                         1             16
+org.jikesrvm.compilers.opt.mir2mc.ConvertMIRtoMC                          1             16
+org.jikesrvm.compilers.opt.mir2mc.FinalMIRExpansionDriver                 1             16
+org.jikesrvm.compilers.opt.regalloc.ExpandCallingConvention               1             16
+org.jikesrvm.compilers.opt.regalloc.LinearScan$RegisterRestrictionsPhase              1             16
+org.jikesrvm.compilers.opt.regalloc.LinearScan$SpillCode                  1             16
+org.jikesrvm.compilers.opt.regalloc.LinearScan$UpdateGCMaps1              1             16
+org.jikesrvm.compilers.opt.regalloc.LinearScan$UpdateGCMaps2              1             16
+org.jikesrvm.compilers.opt.regalloc.LinearScan$UpdateOSRMaps              1             16
+org.jikesrvm.compilers.opt.regalloc.LinearScan                            1             16
+org.jikesrvm.compilers.opt.regalloc.PrologueEpilogueCreator               1             16
+org.jikesrvm.compilers.opt.regalloc.RegisterAllocator$RegisterAllocPreparation              1             16
+org.jikesrvm.compilers.opt.regalloc.RegisterAllocator                     1             16
+org.jikesrvm.compilers.opt.regalloc.ia32.ExpandFPRStackConvention              1             16
+org.jikesrvm.compilers.opt.regalloc.ia32.MIRSplitRanges                   1             16
+org.jikesrvm.mm.mmtk.gcspy.ServerInterpreter                              1             16
+org.jikesrvm.osr.AdjustBCIndexes                                          1             16
+org.jikesrvm.tuningfork.ChunkQueue                                        1             16
+org.jikesrvm.util.BitVector                                               1             16
+org.jikesrvm.util.ImmutableEntryIdentityHashMapRVM                        1             16
+org.mmtk.utility.options.NurserySize                                      1             16
+org.mmtk.vm.Config                                                        1             16
+org.vmmagic.pragma.RuntimePure$ReturnValue                                1             16
+java.util.Collections$EmptyMap                                            1             16
+java.io.FileInputStream                                                   1             16
+java.nio.ByteOrder                                                        2             16
+java.security.AccessControlContext                                        1             16
+java.io.FileOutputStream                                                  1             16
+[Lorg.jikesrvm.compilers.opt.instrsched.OperatorClass;                    1             16
+org.jikesrvm.compilers.opt.FieldDatabase                                  1             12
+org.jikesrvm.compilers.opt.bc2ir.BC2IR$DummyStackSlot                     1             12
+org.jikesrvm.compilers.opt.inlining.ClassLoadingDependencyManager              1             12
+org.jikesrvm.compilers.opt.ir.GCIRMap                                     1             12
+org.jikesrvm.mm.mmtk.Statistics                                           1             12
+org.jikesrvm.objectmodel.FieldLayoutPacked                                1             12
+org.jikesrvm.osr.VariableMap                                              1             12
+org.jikesrvm.scheduler.BootThread                                         1             12
+org.mmtk.utility.sanitychecker.SanityLinearScan                           1             12
+[Ljava.lang.annotation.Annotation;                                        1             12
+[Ljava.lang.StackTraceElement;                                            1             12
+java.util.HashSet                                                         1             12
+java.util.Collections$EmptyList                                           1             12
+[Ljava.security.Principal;                                                1             12
+java.nio.charset.CoderResult$1                                            1             12
+java.nio.charset.CoderResult$2                                            1             12
+java.security.AllPermission                                               1             12
+[Lorg.jikesrvm.adaptive.measurements.listeners.NullListener;              1             12
+org.jikesrvm.ArchitectureSpecific$BaselineExceptionDeliverer              1              8
+org.jikesrvm.ArchitectureSpecificOpt$OptExceptionDeliverer                1              8
+org.jikesrvm.PrintContainer$WithSysWrite                                  1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$AddressComparison_isMax              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$AddressComparison_isZero              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Attempt32              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Attempt32_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Dsqrt                  1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$DynamicBridgeTo              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$FreeStackSlot              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Fsqrt                  1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetFramePointer              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetInlineDepth              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetObjectType              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetReturnAddressLocation              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$GetTimeBase              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeClassInitializer              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeMethodReturningDouble              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeMethodReturningFloat              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeMethodReturningInt              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeMethodReturningLong              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeMethodReturningObject              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$InvokeMethodReturningVoid              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$IsConstantParameter              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Load32                 1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Load32_Array              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Load32_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Load64                 1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Load64_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadByte               1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadByte_Array              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadByte_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadChar               1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadChar_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadShort              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadShort_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$LoadUnsignedByte_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$MFence                 1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Attempt32              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Attempt64              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Load32_MD              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store16              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store16_MD              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store32              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store32_MD              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store64              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store64_MD              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store8              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Magic_Store8_MD              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Nop                    1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Pause                  1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Prefetch               1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$ReturnToNewStack              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store16                1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store16_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store32                1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store32_Array              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store32_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store64                1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store64_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store8                 1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store8_Array              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$Store8_Offset              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordAnd                1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordLsh                1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordMinus              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordNot                1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordOr                 1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordPlus               1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordRsha               1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordRshl               1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordToLong              1              8
+org.jikesrvm.compilers.baseline.ia32.BaselineMagic$WordXor                1              8
+org.jikesrvm.compilers.opt.controlflow.DominatorOperator                  1              8
+org.jikesrvm.compilers.opt.dfsolver.DF_System$2                           1              8
+org.jikesrvm.compilers.opt.driver.OptimizingCompiler                      1              8
+org.jikesrvm.compilers.opt.ir.ia32.MachineSpecificIRIA$EM64T              1              8
+org.jikesrvm.compilers.opt.ir.ia32.MachineSpecificIRIA$IA32               1              8
+org.jikesrvm.compilers.opt.regalloc.LinearScan$IncreasingEndMappedIntervalSet$EndComparator              1              8
+org.jikesrvm.compilers.opt.regalloc.LinearScan$IncreasingStartIntervalSet$StartComparator              1              8
+org.jikesrvm.compilers.opt.regalloc.LinearScan$IncreasingStartMappedIntervalSet$StartComparator              1              8
+org.jikesrvm.compilers.opt.runtimesupport.CodePatchSyncRequestVisitor              1              8
+org.jikesrvm.compilers.opt.specialization.InvokeeThreadLocalContext              1              8
+org.jikesrvm.compilers.opt.ssa.IndexPropagationSystem$MeetOperator              1              8
+org.jikesrvm.ia32.MachineSpecificIA$EM64T                                 1              8
+org.jikesrvm.ia32.MachineSpecificIA$IA32                                  1              8
+org.jikesrvm.jni.ia32.JNIExceptionDeliverer                               1              8
+org.jikesrvm.mm.mminterface.Selected$Constraints                          1              8
+org.jikesrvm.mm.mmtk.ActivePlan                                           1              8
+org.jikesrvm.mm.mmtk.Assert                                               1              8
+org.jikesrvm.mm.mmtk.Barriers                                             1              8
+org.jikesrvm.mm.mmtk.Collection$1                                         1              8
+org.jikesrvm.mm.mmtk.Collection                                           1              8
+org.jikesrvm.mm.mmtk.Debug                                                1              8
+org.jikesrvm.mm.mmtk.Factory                                              1              8
+org.jikesrvm.mm.mmtk.Memory                                               1              8
+org.jikesrvm.mm.mmtk.ObjectModel                                          1              8
+org.jikesrvm.mm.mmtk.Scanning                                             1              8
+org.jikesrvm.mm.mmtk.Strings                                              1              8
+org.jikesrvm.mm.mmtk.TraceInterface                                       1              8
+org.jikesrvm.mm.mmtk.gcspy.Util                                           1              8
+org.jikesrvm.runtime.ReflectionBase$1                                     1              8
+org.jikesrvm.runtime.SysCallImpl                                          1              8
+org.jikesrvm.scheduler.RVMThread$AllButGCHardHandshakeVisitor              1              8
+org.jikesrvm.scheduler.RVMThread$GCBlockAdapter                           1              8
+org.jikesrvm.scheduler.RVMThread$HandshakeBlockAdapter                    1              8
+org.jikesrvm.scheduler.RVMThread$SuspendBlockAdapter                      1              8
+org.jikesrvm.util.EmptyEnumeration                                        1              8
+org.jikesrvm.util.EmptyIterator                                           1              8
+java.lang.String$CaseInsensitiveComparator                                1              8
+java.util.Collections$EmptySet                                            1              8
+gnu.java.nio.charset.US_ASCII$Decoder$1                                   1              8
+gnu.java.nio.charset.US_ASCII$Encoder$1                                   1              8
+gnu.java.nio.charset.ISO_8859_1$Decoder$1                                 1              8
+gnu.java.nio.charset.ISO_8859_1$Encoder$1                                 1              8
+sun.misc.Unsafe                                                           1              8

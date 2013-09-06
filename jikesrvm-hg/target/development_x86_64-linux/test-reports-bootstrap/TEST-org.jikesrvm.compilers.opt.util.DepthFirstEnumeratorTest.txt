@@ -1,0 +1,9 @@
+Testsuite: org.jikesrvm.compilers.opt.util.DepthFirstEnumeratorTest
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0.373 sec
+
+Testcase: testGraphWithOneNode took 0.324 sec
+Testcase: testThatExceptionIsThrownWhenNoElementsAreLeft took 0.001 sec
+Testcase: testThatMultipleNodesAreEnumerated took 0.002 sec
+Testcase: testThatEnumerationIsDepthFirst took 0.002 sec
+Testcase: testThatCirclesAreNotAProblem took 0.005 sec
+Testcase: testBiggerGraph took 0.007 sec

@@ -1,0 +1,7 @@
+Testsuite: org.jikesrvm.compilers.opt.util.QueueTest
+Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0.055 sec
+
+Testcase: testInsert took 0.028 sec
+Testcase: testRemove took 0 sec
+Testcase: testIsEmpty took 0 sec
+Testcase: testIterator took 0.001 sec

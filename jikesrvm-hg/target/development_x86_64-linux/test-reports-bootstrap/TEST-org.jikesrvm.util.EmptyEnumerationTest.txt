@@ -1,0 +1,5 @@
+Testsuite: org.jikesrvm.util.EmptyEnumerationTest
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.028 sec
+
+Testcase: testHasMoreElements took 0.004 sec
+Testcase: testNextElement took 0 sec

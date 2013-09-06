@@ -1,0 +1,10 @@
+Testsuite: org.jikesrvm.compilers.opt.util.StackTest
+Tests run: 7, Failures: 0, Errors: 0, Time elapsed: 0.034 sec
+
+Testcase: testPush took 0.005 sec
+Testcase: testPop took 0 sec
+Testcase: testPeek took 0 sec
+Testcase: testEmpty took 0 sec
+Testcase: testCompare took 0 sec
+Testcase: testCopy took 0 sec
+Testcase: testIterator took 0 sec

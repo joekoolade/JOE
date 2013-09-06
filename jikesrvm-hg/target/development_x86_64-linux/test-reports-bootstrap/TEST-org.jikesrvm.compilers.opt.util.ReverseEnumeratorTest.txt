@@ -1,0 +1,4 @@
+Testsuite: org.jikesrvm.compilers.opt.util.ReverseEnumeratorTest
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.027 sec
+
+Testcase: testNextElementAndHasMoreElements took 0.005 sec

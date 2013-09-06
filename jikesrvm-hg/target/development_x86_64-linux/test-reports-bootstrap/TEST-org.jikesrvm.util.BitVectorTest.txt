@@ -1,0 +1,17 @@
+Testsuite: org.jikesrvm.util.BitVectorTest
+Tests run: 14, Failures: 0, Errors: 0, Time elapsed: 0.087 sec
+
+Testcase: testSetAll took 0.004 sec
+Testcase: testSetAndGet took 0 sec
+Testcase: testClearAll took 0 sec
+Testcase: testClear took 0 sec
+Testcase: testNot took 0 sec
+Testcase: testAnd took 0 sec
+Testcase: testOr took 0 sec
+Testcase: testXor took 0 sec
+Testcase: testIntersectionEmpty took 0 sec
+Testcase: testCopyBits took 0 sec
+Testcase: testPopulationCount took 0 sec
+Testcase: testLength took 0 sec
+Testcase: testIsZero took 0 sec
+Testcase: testDup took 0 sec

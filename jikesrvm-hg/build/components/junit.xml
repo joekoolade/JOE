@@ -1,0 +1,53 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="junit" default="build" basedir=".">
+
+  <import file="base.xml"/>
+  <property file="${components.file}"/>
+
+  <property name="junit.version" value="4.10"/>
+  <property name="junit.description" value="jUnit"/>
+
+  <property name="junit.package.dir" value="${components.dir}/junit/${junit.version}"/>
+  <property name="junit.dir" location="${junit.package.dir}/junit${junit.version}"/>
+
+  <target name="init-junit-properties" depends="prepare-ant-tasks">
+    <condition property="junit.from-web" value="true">
+      <or>
+        <not>
+          <available file="${junit.dir}/constants.properties"/>
+        </not>
+        <isset property="junit.force-download"/>
+      </or>
+    </condition>
+  </target>
+
+  <target name="fetch" depends="init-junit-properties" if="junit.from-web">
+    <property name="junit.web-archive" value="junit${junit.version}.zip"/>
+    <mkdir dir="${junit.package.dir}"/>
+    <cachedGet key="${junit.web-archive}"
+         src="http://sourceforge.net/projects/junit/files/junit/${junit.version}/${junit.web-archive}/download?use_mirror=autoselect"
+         dest="${junit.package.dir}/${junit.web-archive}"/>
+    <unzip src="${junit.package.dir}/${junit.web-archive}" dest="${junit.package.dir}"/>
+    <writeComponentConstants dir="${junit.dir}"/>
+  </target>
+
+  <target name="build" depends="fetch">
+    <setComponentsConfig key="junit.jar" value="${junit.dir}/junit-${junit.version}.jar"/>
+  </target>
+
+  <target name="ensure" depends="prepare-ant-tasks">
+    <ensureUptodate name="junit" dir="${junit.dir}"/>
+  </target>
+
+</project>
