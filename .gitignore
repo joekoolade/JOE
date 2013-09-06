@@ -6,7 +6,6 @@
 .project
 ews/
 /llvm*
-.git/
 .dir
 *.orig
 *.bak
