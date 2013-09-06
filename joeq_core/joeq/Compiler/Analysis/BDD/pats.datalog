@@ -1,0 +1,56 @@
+
+### Domains
+
+.include "fielddomains.pa"
+
+.bddvarorder N0_F0_I0_M1_M0_V1xV0_T0_Z0_T1_H1_H0_VC1_VC0_HC1_HC0
+
+### Relations
+
+vP0 (v:V0, h:H0) input
+ccvP (vc:VC0, v:V0, hc:HC0, h:H0) output
+A (dest:V0, source:V1) input
+chP (cha:HC0, ha:H0, field:F0, chb:HC1, hb:H1) output
+S (base:V0, field:F0, src:V1) input
+L (base:V0, field:F0, dest:V1) input
+vT (var:V0, type:T0) input
+hT (heap:H0, type:T1) input
+aT (type:T0, type:T1) input
+vPfilter (v:V0, h:H0)
+actual (invoke:I0, num:Z0, actualparam:V1) input
+formal (method:M0, num:Z0, formalparam:V0) input
+Mret (method:M0, v:V1) input
+Mthr (method:M0, v:V1) input
+Iret (invoke:I0, v:V0) input
+Ithr (invoke:I0, v:V0) input
+IE0 (invoke:I0, target:M0) input
+IE (invoke:I0, target:M0) output
+mC (method:M0, context:VC0) input
+mV (method:M0, v:V0) input
+threadRuns (vc:VC0, v:V0, hc:HC0, h:H0) input
+eq (vc:VC0, hc:HC0) input
+
+sync (v:V0) input
+escaped (c:HC0, h:H0) printsize
+captured (c:HC0, h:H0) printsize
+neededSync (c:VC0, v:V0) printsize
+unneededSync (c:VC0, v:V0) printsize
+
+### Rules
+
+ccvP(c1,0,c2,0) :- mC(m,c1), mC(m,c), eq(c,c2).
+ccvP(c1,v,c2,h) :- vP0(v,h), mC(m,c1), mV(m,v), eq(c1,c2).
+ccvP(c1,v,c2,h) :- threadRuns(c1,v,c2,h).
+IE(i,m) :- IE0(i,m).
+vPfilter(v,h) :- vT(v,tv), aT(tv,th), hT(h,th).
+ccvP(vc2,v1,hc2,h) :- A(v1,v2), ccvP(vc2,v2,hc2,h), vPfilter(v1,h).
+chP(c1,h1,f,c2,h2) :- S(v1,f,v2), ccvP(vc1,v1,c1,h1), ccvP(vc1,v2,c2,h2).
+ccvP(vc1,v2,c2,h2) :- L(v1,f,v2), ccvP(vc1,v1,c1,h1), chP(c1,h1,f,c2,h2), vPfilter(v2,h2). split
+A(v1,v2) :- formal(m,z,v1), IE(i,m), actual(i,z,v2).
+A(v2,v1) :- Mret(m,v1), IE(i,m), Iret(i,v2).
+A(v2,v1) :- Mthr(m,v1), IE(i,m), Ithr(i,v2).
+
+escaped(c2,h) :- ccvP(c1,_,c2,h), !eq(c1,c2).
+neededSync(c,v) :- sync(v), ccvP(c,v,c1,h), escaped(c1,h).
+captured(c,h) :- !escaped(c,h), ccvP(c1,v,c,h), eq(c1,c).
+unneededSync(c,v) :- sync(v), !neededSync(c,v), mV(m,v), mC(m,c).

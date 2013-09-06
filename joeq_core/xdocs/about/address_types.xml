@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Address types</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Address types">
+<p>
+joeq uses special types to represent raw addresses.  The three types of addresses are:
+<ul>
+<li><a href="../xref/joeq/Memory/HeapAddress.html">HeapAddress</a> - represents an address in the heap</li>
+<li><a href="../xref/joeq/Memory/CodeAddress.html">CodeAddress</a> - represents an address in code</li>
+<li><a href="../xref/joeq/Memory/StackAddress.html">StackAddress</a> - represents an address on the stack</li>
+</ul>
+</p>
+<p>
+All three are subclasses of a single type, <a href="../xref/joeq/Memory/Address.html">Address</a>.
+</p>
+<p>
+You can obtain addresses via static methods in the above classes.
+<ul>
+<li><a href="../apidocs/joeq/Memory/HeapAddress.html#getNull()">HeapAddress.getNull()</a> - returns the "null" heap address</li>
+<li><a href="../apidocs/joeq/Memory/HeapAddress.html#addressOf(java.lang.Object)">HeapAddress.addressOf(Object)</a> - returns the heap address of the given object</li>
+<li><a href="../apidocs/joeq/Memory/StackAddress.html#getBasePointer()">StackAddress.getBasePointer()</a> - gets the base pointer in the current stack frame</li>
+<li><a href="../apidocs/joeq/Memory/StackAddress.html#getStackPointer()">StackAddress.getStackPointer()</a> - gets the stack pointer in the current stack frame</li>
+</ul>
+</p>
+<p>
+Furthermore, you can get addresses from other addresses.  The "<a href="../apidocs/joeq/Memory/Address.html#offset(int)">offset(int)</a>" method
+returns a new address that is an offset from the given address.  The "<a href="../apidocs/joeq/Memory/Address.html#peek()">peek()</a>"
+method dereferences the given address; that is, it returns the address that the given
+address points to.  There are other methods in <a href="../xref/joeq/Memory/Address.html">Address</a> for peeking of other data types,
+finding the difference between two addresses, etc.
+</p>
+<p>
+<strong>IMPORTANT POINT</strong>: Note that although the Address types are thought
+of as subclasses of java.lang.Object by the Java source compiler, they are NOT
+objects, and cannot be used as such.  Therefore, it is illegal to call any of the
+java.lang.Object methods, such as equals, toString, hashCode, etc. on Address types.
+Less obviously, it is illegal to perform "instanceof" operations on them, or even
+pass them as "Objects" under any circumstances.
+</p>
+<table border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse" width="100%" height="105" bordercolordark="#000000" bordercolorlight="#330099">
+        <tr>
+          <td width="50%">Operation</td>
+          <td width="50%">Corresponding Address method</td>
+        </tr>
+        <tr>
+          <td width="50%">void* a = *p;</td>
+          <td width="50%">Address a = p.peek();</td>
+
+        </tr>
+        <tr>
+          <td width="50%">byte b = *p;</td>
+          <td width="50%">byte b = p.peek1();</td>
+        </tr>
+        <tr>
+          <td width="50%">short s = *p;</td>
+
+          <td width="50%">short s = p.peek2();</td>
+        </tr>
+        <tr>
+          <td width="50%">int i = *p;</td>
+          <td width="50%">int i = p.peek4();</td>
+        </tr>
+        <tr>
+
+          <td width="50%">long l = *p;</td>
+          <td width="50%">long l = p.peek8();</td>
+        </tr>
+        <tr>
+          <td width="50%">*p1 = p2;</td>
+          <td width="50%">p1.poke(p2);</td>
+        </tr>
+
+        <tr>
+          <td width="50%">*p = b;</td>
+          <td width="50%">p.poke1(b);</td>
+        </tr>
+        <tr>
+          <td width="50%">*p = s;</td>
+          <td width="50%">p.poke2(s);</td>
+
+        </tr>
+        <tr>
+          <td width="50%">*p = i;</td>
+          <td width="50%">p.poke4(i);</td>
+        </tr>
+        <tr>
+          <td width="50%">*p = l;</td>
+
+          <td width="50%">p.poke8(l);</td>
+        </tr>
+        <tr>
+          <td width="50%">p + c</td>
+          <td width="50%">p.offset(c);</td>
+        </tr>
+        <tr>
+
+          <td width="50%">int i = p1 - p2;</td>
+          <td width="50%">int i = p1.difference(p2);</td>
+        </tr>
+        <tr>
+          <td width="50%">p.toString();</td>
+          <td width="50%">p.stringRep();</td>
+        </tr>
+
+    </table>
+    </section>
+    <section name="&quot;Unsafe&quot; class">
+<p>
+The <a href="../xref/joeq/Runtime/Unsafe.html">Unsafe</a> class has a very simple low level API consisting of a few essential operations:
+<ul>
+<li>floatToIntBits, intBitsToFloat, doubleToLongBits, longBitsToDouble - change data representations</li>
+<li>EAX, get/setThreadBlock, switch register state - read/write the CPU register state</li>
+<li>pushArg, invoke - push arguments and call an address in memory</li>
+</ul>
+</p>
+<p>
+Methods in the Unsafe class are implemented as native methods, which the compiler
+silently replaces with the corresponding low-level operations.
+</p>
+    </section>
+  </body>
+</document>

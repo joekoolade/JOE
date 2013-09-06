@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Synchronization</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Synchronization">
+<p>
+Synchronization (locks) use a featherweight locking mechanism similar
+to the approach described by Onodera and Kawachiya. Locks are expanded
+upon contention. They are (currently) never contracted.
+</p>
+<p>
+The implementation is contained in Run_Time/Monitor.java.
+</p>
+    </section>
+  </body>
+</document>

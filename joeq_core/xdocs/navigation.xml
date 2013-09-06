@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="joeq">
+  <title>joeq virtual machine and compiler infrastructure</title>
+  <organizationLogo href="http://sourceforge.net/sflogo.php?group_id=19634&amp;type=5" />
+  <body>
+    <links>
+      <item name="SourceForge.net Project Page"
+            href="http://sourceforge.net/projects/joeq" />
+      <item name="Hosted by SourceForge" 
+            href="http://sourceforge.net" />
+    </links>
+    <menu name="Documentation">
+      <item name="What is joeq?" href="/about/index.html" collapse="true">
+        <item name="Overview"
+              href="/about/index.html"/>
+        <item name="Bootstrapping"
+              href="/about/bootstrapping.html"/>
+        <item name="Address types"
+              href="/about/address_types.html"/>
+        <item name="Compilers"
+              href="/about/compiler.html"/>
+        <item name="Garbage collector"
+              href="/about/garbage_collector.html"/>
+        <item name="Scheduler"
+              href="/about/scheduler.html"/>
+        <item name="Synchronization"
+              href="/about/synchronization.html"/>
+        <item name="Related work"
+              href="/about/related_work.html"/>
+      </item>
+      <item name="News"
+            href="/news.html" />
+      <item name="API (Javadoc)"
+            href="/apidocs/index.html" />
+      <item name="Getting Started"
+            href="/getting_started.html"/>
+      <item name="Eclipse Instructions"
+            href="/eclipse_setup.html"/>
+      <item name="Build Instructions"
+            href="/compiling.html"/>
+      <item name="Project Members"
+            href="/team-list.html"/>
+      <item name="Project Status"
+            href="/project_status.html"/>
+      <item name="FAQ"
+            href="/faq.html"/>
+    </menu>
+    <menu name="Downloads">
+      <item name="joeq source code (20030812)"
+            href="http://prdownloads.sourceforge.net/joeq/joeq_source_20030812.tar.gz"/>
+    </menu>
+    <search/>
+  </body>
+</project>

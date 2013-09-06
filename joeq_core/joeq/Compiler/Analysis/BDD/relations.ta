@@ -1,0 +1,25 @@
+# relations format:
+# name ( fname1:fdname1 , fname2:fdname2 )
+#
+# Best order seems to be:  N0_F0_I0_M0_Z0_V1xV0_H0_T0_H1_T1
+#
+vP0 (v:V bdd=V0 , h:H bdd=H0 ) load
+vTc ( v:V bdd=V0 , type:T bdd=T0 ) save
+A ( dest:V bdd=V0 , source:V bdd=V1 ) load
+tP ( ta:T bdd=T0 , field:F bdd=F0 , tb:T bdd=T1 ) save
+S ( base:V bdd=V0 , field:F bdd=F0 , src:V bdd=V1 ) load
+L ( base:V bdd=V0 , field:F bdd=F0 , dest:V bdd=V1 ) load
+vT ( var:V bdd=V0 , type:T bdd=T0 ) load
+hT ( heap:H bdd=H0 , type:T bdd=T1 ) load
+aT ( type:T bdd=T0 , type:T bdd=T1 ) load
+vTfilter ( v:V bdd=V0 , t:T bdd=T0 )
+cha ( type:T bdd=T1 , name:N bdd=N0 , method:M bdd=M0 ) load
+actual ( invoke:I bdd=I0 , num:Z bdd=Z0 , actualparam:V bdd=V1 ) load
+formal ( method:M bdd=M0 , num:Z bdd=Z0 , formalparam:V bdd=V0 ) load
+Mret ( method:M bdd=M0 , v:V bdd=V1 ) load
+Mthr ( method:M bdd=M0 , v:V bdd=V1 ) load
+Iret ( invoke:I bdd=I0 , v:V bdd=V0 ) load
+Ithr ( invoke:I bdd=I0 , v:V bdd=V0 ) load
+mI ( method:M bdd=M0 , invoke:I bdd=I0 , name:N bdd=N0 ) load
+IE0 ( invoke:I , target:M bdd=M0 ) load
+IE ( invoke:I , target:M bdd=M0 ) save

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Scheduler</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Scheduler">
+<p>
+The scheduler uses lightweight user threads with an M-to-N scheduler; that
+is, there are M Java threads mapped across N native threads. Each native
+thread has its own queue of Java threads. The native threads are periodically
+preempted, and control changes to the next ready Java thread in the queue.
+Work is transferred from busy processors to idle processors via transfer
+queues.
+</p>
+<p>
+The files for the scheduler are contained in the Scheduler/ subdirectory.
+<ul>
+<li>jq_Thread - a Java thread, which runs on top of a jq_NativeThread.</li>
+<li>jq_NativeThread - a native OS thread.</li>
+<li>jq_RegisterState - register state for a jq_Thread.</li>
+<li>jq_ThreadQueue - jq_NativeThread-local thread queue.</li>
+<li>jq_SynchThreadQueue - synchronized thread queue, for transferring jq_Threads between jq_NativeThreads.</li>
+<li>jq_MainThread - the thread that invokes the main() method of the boot class.</li>
+<li>jq_InterrupterThread - thread that periodically interrupts another thread.
+This is used because there are no per-thread timing interrupts available in Windows.</li>
+</ul>
+</p>
+<p>
+The implementation is still very preliminary. Wait queues, sleeping,
+interrupting, etc. are not yet implemented.
+</p>
+    <h2>Thread switch mechanism</h2>
+<p>
+The system uses a small piece of assembly code to quickly switch between Java threads.
+The code is contained in native.cpp/set_current_context. Notice that it currently
+uses the stack of the Java thread to restore the registers and the program counter!
+Thus, we have to guarantee that the stack pointer is always valid whenever a thread
+switch can occur.
+</p>
+    <h2>Thread-local allocator</h2>
+<p>
+The system uses jq_NativeThread-local synchronization-free allocators for fast
+allocation. Thus, thread switches are disabled while in the allocator. (Note:
+the current implementation may cause an unfair bias towards allocation-heavy threads.
+A good solution may be to rewrite the return address in the allocator to call the
+scheduler after the allocation call has completed.)
+</p>
+    </section>
+  </body>
+</document>

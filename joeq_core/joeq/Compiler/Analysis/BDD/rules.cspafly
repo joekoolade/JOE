@@ -1,0 +1,18 @@
+vP(_,v,h) :- vP0(v,h).
+vPfilter(v,h) :- vT(v,tv), aT(tv,th), hT(h,th).
+vP(vc1,v1,h) :- A(vc1,v1,vc2,v2), vP(vc2,v2,h), vPfilter(v1,h).
+hP(h1,f,h2) :- vP(vc1,v1,h1), S(v1,f,v2), vP(vc1,v2,h2). split
+vP(vc1,v2,h2) :- vP(vc1,v1,h1), L(v1,f,v2), hP(h1,f,h2), vPfilter(v2,h2). split
+A(vc1,v1,vc2,v2) :- formal(m,z,v1), IE(vc2,i,vc1,m), actual(i,z,v2).
+A(vc2,v2,vc1,v1) :- Mret(m,v1), IE(vc2,i,vc1,m), Iret(i,v2).
+A(vc2,v2,vc1,v1) :- Mthr(m,v1), IE(vc2,i,vc1,m), Ithr(i,v2).
+
+IE(vc2,i,vc1,m2) :- mI(m1,i,n), actual(i,0,v), vP(vc2,v,h), hT(h,t), cha(t,n,m2), IEfilter(vc2,i,vc1,m2). split
+
+visited(c,m) :- IE(_,_,c,m).
+S(v1,f,v2) :- visited(_,m), mS(m,v1,f,v2).
+L(v1,f,v2) :- visited(_,m), mL(m,v1,f,v2).
+vP(c,v,h) :- visited(c,m), mvP(m,v,h).
+IE(c1,i,c2,m2) :- visited(c1,m), mIE(m,i,m2), IEfilter(c1,i,c2,m2). split
+
+visitedM(m) :- visited(c,m).

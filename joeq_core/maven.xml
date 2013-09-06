@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns:ant="jelly:ant" xmlns:maven="jelly:maven">
+
+<preGoal name="java:compile">
+   <ant:path
+       id="joeq.native.src.dir"
+       location="${basedir}/../joeq_native"/>
+   <ant:path
+       id="joeq.x86.src.dir"
+       location="${basedir}/../joeq_x86"/>
+   <maven:addPath
+       id="maven.compile.src.set"
+       refid="joeq.native.src.dir"/>
+   <maven:addPath
+       id="maven.compile.src.set"
+       refid="joeq.x86.src.dir"/>
+</preGoal>
+
+</project>

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Project Status</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Project Status">
+
+<p>
+This page contains the status of the various components of joeq.
+</p>
+
+<h3>Windows</h3>
+<p>Windows/x86 support is working.  Hardware exceptions and threading are functional.</p>
+
+<h3>Linux</h3>
+<p>Linux/x86 works with hardware exceptions and threading. There are still a few problems when using multiple native threads.</p>
+
+<h3>Java Class Loader</h3>
+<p>Class loader is almost complete.  It is thread-safe (I think?).  There are only a few things left to do: it doesn't parse Exception attributes yet, and it doesn't check for cycles in superinterfaces yet.</p>
+
+<h3>Bootstrapper</h3>
+<p>Bootstrapping is implemented. It currently uses a simple flow-insensitive analysis to discover the classes that it needs to include in the boot image. This leads to it including half of the Java class library on every compile. It supports reopening of zip/jar files automatically.</p>
+
+<h3>x86 Assembler</h3>
+<p>x86 assembler supports all regular and FP instructions (no MMX or SSE yet).  It supports just about all addressing modes.  Automatic backpatching support is only partially implemented.</p>
+
+<h3>Linker</h3>
+<p>Loading, parsing, and saving of ELF format is supported, but only saving has been tested. Only saving of Microsoft COFF format is supported.</p>
+
+<h3>x86 Baseline Compiler</h3>
+<p>x86 baseline compiler exists and seems to work OK.  It has not been rigorously tested.</p>
+
+<h3>Quad Compiler</h3>
+<p>Conversion to Quad format from bytecode is implemented and tested fairly well. There are a bunch of analyses and a few optimizations on Quads. No code generator yet, but there is a quad interpreter that works through reflection.</p>
+
+<h3>Bytecode Interpreter</h3>
+<p>Both a reflective interpreter and a direct interpreter have been implemented. The reflective interpreter has been tested to some degree; the direct interpreter has not been tested yet.</p>
+
+<h3>Simple Allocator</h3>
+<p>Simple allocator doesn't attempt to reclaim any memory.  It appears to work.</p>
+
+<h3>Scheduler</h3>
+<p>A simple M:N preemptive scheduler has been implemented. There is still a lot of missing functionality.</p>
+
+<h3>Class library</h3>
+<p>It successfully interfaces with the following class libraries: Sun 1.3 on Windows, Sun 1.4 on Windows, Sun 1.3 on Linux, IBM 1.3 on Linux.  Only a small subset of the native methods are actually implemented yet. (Most of file I/O, reflection, and math is done.)  Next step is to add support for the GNU Classpath library.</p>
+
+<h3>Exception Deliverer</h3>
+<p>Initial version of exception delivery by stack walking is implemented.</p>
+
+<h3>Hashcodes</h3>
+<p>Creating object hashcodes on demand is implemented.  It uses the object address; if a hashed object is later moved, it sets a bit in the header and stores the old address in an extra word before the object header.</p>
+
+<h3>Dynamic type checking</h3>
+<p>Dynamic type checking by a traversal of the inheritance graph is implemented.</p>
+
+<h3>Interface invocations</h3>
+<p>invokeinterface by doing a lookup every time is implemented.</p>
+
+    </section>
+  </body>
+</document>

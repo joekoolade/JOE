@@ -1,0 +1,14 @@
+vP(v,h) :- vP0(v,h).
+IE(i,m) :- IE0(i,m).
+vP(v1,h) :- A(v1,v2), vP(v2,h).
+hP(h1,f,h2) :- vP(v1,h1), S(v1,f,v2), vP(v2,h2). split
+vP(v2,h2) :- vP(v1,h1), L(v1,f,v2), hP(h1,f,h2). split
+A(v1,v2) :- formal(m,z,v1), IE(i,m), actual(i,z,v2).
+A(v2,v1) :- Mret(m,v1), IE(i,m), Iret(i,v2).
+A(v2,v1) :- Mthr(m,v1), IE(i,m), Ithr(i,v2).
+
+# uncomment these lines to discover call graph edges.
+# IE(i,m2) :- mI(m1,i,n), actual(i,0,v), vP(v,h), hT(h,t), cha(t,n,m2). split
+# S(v1,f,v2) :- IE(_,m), mS(m,v1,f,v2).
+# L(v1,f,v2) :- IE(_,m), mL(m,v1,f,v2).
+# vP(v,h) :- IE(_,m), mvP(m,v,h).

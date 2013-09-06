@@ -1,0 +1,7 @@
+mV0(m,v) :- mV(m,v).
+mC0(m,c) :- mC(m,c).
+mI0(m,i,n) :- mI(m,i,n).
+IE0(c1,i1,c2,m2) :- IE(c1,i1,c2,m2).
+
+mVc(m,c1,v,c2) :- mV0(m,v), mC0(m,c1), c1 = c2.
+mVc(m1,c1,v3,c3) :- IE0(c1,i1,c2,m2), mI0(m1,i1,_), mVc(m2,c2,v3,c3). split

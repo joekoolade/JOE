@@ -1,0 +1,6 @@
+mV0(m,v) :- mV(m,v).
+mC0(m,c) :- mC(m,c).
+vP0(cv,v,h) :- vP(cv,v,h).
+notmVc0(m,c0,v,cv) :- notmVc(m,c0,v,cv).
+
+escape(h,c0,m) :- mV0(m2,v), vP0(cv,v,h), mC0(m2,cv), notmVc0(m,c0,v,cv).

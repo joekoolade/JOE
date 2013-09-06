@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<faqs title="Frequently Asked Questions">
+
+  <part id="general">
+    <title>General questions about joeq</title>
+   
+    <faq id="advantages">
+      <question>
+        What are the advantages of using joeq for my research?
+      </question>
+      <answer>
+        <ol>
+        <li>It supports multiple compilers and multiple languages, so you can perform your research on a wider variety of programs.</li>
+        <li>It is implemented in Java, leading to fast (and comparatively painless) development.</li>
+        <li>It is easily portable to new systems.  (See #2, above.)</li>
+        <li>It is being actively worked on and improved.</li>
+        <li>It was designed by a single person, leading to a clean and uniform design.</li>
+        <li>It was designed specifically with compiler and virtual machine research in mind.</li>
+        <li>It is open source under the LGPL.</li>
+        </ol>
+      </answer>
+    </faq>
+    
+    <faq id="disadvantages">
+      <question>
+        What are the disadvantages of using joeq for my research?
+      </question>
+      <answer>
+        <ol>
+        <li>The system is only an alpha release, and therefore still very young and buggy.</li>
+        <li>The system is largely maintained by a single person, which hurts support.</li>
+        </ol>
+      </answer>
+    </faq>
+    
+    <faq id="involved">
+      <question>
+        Sounds great!  How can I get involved in joeq?
+      </question>
+      <answer>
+        <p>
+        You can start by downloading joeq and trying it out!
+        You should also look over the project documentation.
+        </p>
+        <p>
+        We are always looking for people to help out --- there's
+        plenty of work that needs to be done!  Check the Help
+        Wanted section of the SourceForge web site for more information.
+        </p>
+      </answer>
+    </faq>
+    
+  </part>
+  
+</faqs>

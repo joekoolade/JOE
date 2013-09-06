@@ -1,0 +1,37 @@
+vP ( vc:VC bdd=VC0, v:V bdd=V0, h:H bdd=H0 ) load
+#hP ( ha:H bdd=H0 , field:F bdd=F0 , hb:H bdd=H1 ) load
+actual ( invoke:I bdd=I0 , num:Z bdd=Z0 , actualparam:V bdd=V1 ) load
+formal ( method:M bdd=M0 , num:Z bdd=Z0 , formalparam:V bdd=V0 ) load
+Mret ( method:M bdd=M0 , v:V bdd=V1 ) load
+Mthr ( method:M bdd=M0 , v:V bdd=V1 ) load
+Iret ( invoke:I bdd=I0 , v:V bdd=V0 ) load
+Ithr ( invoke:I bdd=I0 , v:V bdd=V0 ) load
+#mI ( method:M bdd=M0 , invoke:I bdd=I0 , name:N bdd=N0 ) load
+IE ( ccaller:VC bdd=VC1, invoke:I, ccallee:VC bdd=VC0, target:M bdd=M0 ) load
+m2q ( method:M , quad:quad ) load
+ssa ( quad : quad bdd=quad0, opc : op bdd=op0 , dest : reg bdd=reg0 , constant : constant bdd=constant0 , member : member bdd=member0 , srcNum : varargs bdd=varargs0 , srcs : reg bdd=reg1 ) load
+vReg ( v:V bdd=V0 , method:M bdd=M0 , reg:reg bdd=reg0 ) load
+#iQuad ( invoke:I bdd=I0 , quad:quad bdd=quad0 ) load
+#fMember ( field:F bdd=F0 , member:member bdd=member0 ) load
+dd ( qc:VC bdd=VC1, quad:quad bdd=quad1, depc:VC bdd=VC2, dep:quad bdd=quad2 )
+slice ( qc:VC bdd=VC0, quad:quad bdd=quad0, depc:VC bdd=VC1, dep:quad bdd=quad1 ) save
+cislice( quad:quad bdd=quad0, dep:quad bdd=quad1 ) save
+ipEdgeV( srcc:VC, src:V , destc:VC, dest:V )
+ipEdgeMR( srcc:VC, srcm:M , srcr:reg , destc:VC, destM:M , destr:reg )
+sources(quad:quad, method:M, reg:reg)
+dests(quad:quad, method:M, reg:reg)
+sourcesV(quad:quad, v:V)
+destsV(quad:quad, v:V)
+getfield(op:op)
+putfield(op:op)
+getstatic(op:op)
+putstatic(op:op)
+aload(op:op)
+astore(op:op)
+aloadheap( vc:VC, quad:quad, h:H)
+astoreheap( vc:VC, quad:quad, h:H)
+getfieldheap( vc:VC, quad:quad, field:member, h:H)
+putfieldheap( vc:VC, quad:quad, field:member, h:H)
+need( vc:VC, quad:quad)
+needMR( vc:VC, method:M, R:reg)
+

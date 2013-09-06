@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Overview of joeq</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="What is joeq?">
+<p>
+joeq is, simply put, a collection of compilers, interpreters, and run time
+routines that are designed to interface with each other.  By putting together
+a Java compiler, a Java interpreter, and some Java run time routines, we have
+a complete Java virtual machine.  The design is modular and language
+independent, so for example, you could have multiple Java compilers, or even
+have Java and C++ code interact transparently.
+</p>
+<p>
+The current implementation of joeq includes a very simple Java compiler,
+interpreter, and run time, all written in 100% Java.  Implementing the system
+in Java makes it very efficient, portable, and maintainable.  The current
+implementation can correctly compile and bootstrap itself.
+</p>
+<p>
+joeq is designed to live up to its name
+<img border="0" src="../images/small_jyou.gif" width="16" height="18"/><img border="0" src="../images/small_kyuu.gif" width="16" height="18"/>,
+meaning advanced level).  The system is designed with an eye towards
+state-of-the-art program analysis, dynamic compilation and garbage collection
+techniques.
+</p>
+<p>
+joeq is used in the <a href="http://suif.stanford.edu/~courses/cs243/">CS243</a>
+"Advanced Compiling Techniques" at Stanford
+University to teach various topics in compilers.  It is also used by various
+members of the <a href="http://suif.stanford.edu">SUIF Research Group</a>
+at Stanford, as well as other people around the world.
+</p>
+    </section>
+
+    <section name="Motivation/History">
+<p>
+joeq is designed to be a framework for performing research in the areas of
+compilation, program analysis, online measurement, garbage collection, and
+other virtual machine and compiler technology.
+</p>
+<p>
+I started working on joeq in January 2001 in my part time because I needed
+an infrastructure on which to perform research, and none of the available
+systems were to my liking.  Most compilers are static, which makes
+investigating dynamic compilation and online measurement difficult.
+Existing open-source virtual machines were not geared toward doing any kind
+of serious program analysis and did not support multiple languages.  Finally,
+existing systems were written in C/C++; I find myself much more productive
+when writing code in Java.
+</p>
+    </section>
+
+  </body>
+</document>

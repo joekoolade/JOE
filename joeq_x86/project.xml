@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+
+  <extend>../joeq_native/project.xml</extend>
+
+  <id>joeq_x86</id>
+  <name>joeq_x86</name>
+  <package>joeq_x86</package>
+  
+  <description>
+    x86-specific code for joeq virtual machine.
+  </description>
+
+  <shortDescription>x86-specific code for joeq virtual machine.</shortDescription>
+
+  <siteDirectory>/home/groups/j/jo/joeq/htdocs/joeq_x86</siteDirectory>
+
+</project>

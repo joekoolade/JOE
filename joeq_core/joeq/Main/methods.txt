@@ -1,0 +1,27 @@
+java/lang/String/java/lang/Stringsubstring(intint)
+java/lang/String/java/lang/Stringsubstring(int)
+java/lang/StringBuffer/java/lang/StringtoString()
+java/util/StringTokenizer/java/lang/StringnextToken()" ).
+java/util/StringTokenizer/java/lang/ObjectnextElement()
+java/util/Locale/java/lang/StringtoLowerCase(java/lang/String)
+java/lang/String/java/lang/StringtoLowerCase()
+#java/lang/CharacterDataLatin1/chartoLowerCase(char)
+java/lang/String/java/lang/StringtoLowerCase(java/util/Locale)
+
+# take an argument and return a tainted result
+java/lang/String/void(java/lang/String)
+java/lang/String/void(java/lang/StringBuffer)
+java/lang/StringBuffer/void(java/lang/String)" ).
+java/util/StringTokenizer/void(java/lang/Stringjava/lang/String)
+java/util/StringTokenizer/void(java/lang/Stringjava/lang/Stringboolean)
+
+# various append incarnations
+java/lang/StringBuffer/java/lang/StringBufferappend(java/lang/String)
+java/lang/StringBuffer/java/lang/StringBufferappend(char)
+java/lang/StringBuffer/java/lang/StringBufferappend(int)
+java/lang/StringBuffer/java/lang/StringBufferappend(java/lang/Object)
+java/lang/StringBuffer/java/lang/StringBufferappend(float)
+java/lang/StringBuffer/java/lang/StringBufferappend(boolean)
+java/lang/StringBuffer/java/lang/StringBufferappend(char1intint)
+java/lang/StringBuffer/java/lang/StringBufferappend(java/lang/StringBuffer)
+java/lang/StringBuffer/java/lang/StringBufferappend(long)

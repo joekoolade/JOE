@@ -1,0 +1,17 @@
+/BBComparator.class
+/BitVectorFact.class
+/Fact.class
+/GenKillTransferFunction.class
+/IterativeSolver.class
+/LivenessAnalysis.class
+/PriorityQueueSolver.class
+/Problem$1.class
+/Problem$2.class
+/Problem.class
+/ReachingDefs$RDVisitor.class
+/ReachingDefs.class
+/Solver.class
+/SortedSetSolver.class
+/TransferFunction.class
+/UnionBitVectorFact.class
+/WorklistSolver.class

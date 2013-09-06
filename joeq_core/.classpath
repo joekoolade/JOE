@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry excluding="target/" kind="src" path=""/>
+	<classpathentry kind="lib" path="joeq/Support/java14.jar"/>
+	<classpathentry exported="true" sourcepath="/jwutil/main/src/java" kind="lib" path="joeq/Support/jwutil-1.0.jar"/>
+	<classpathentry exported="true" sourcepath="/JavaBDD" kind="lib" path="joeq/Support/javabdd-1.0b2.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

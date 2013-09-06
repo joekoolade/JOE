@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Setting up Eclipse</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Using joeq with Eclipse">
+
+<h3>Creating the Eclipse project</h3>
+
+<p>
+Select New Project from the File menu.<br/>
+<img src="images/eclipse1.png"/>
+</p>
+
+<p>
+Select "Checkout Projects from CVS".<br/>
+<img src="images/eclipse2.png"/>
+</p>
+
+<p>
+If you don't have a SourceForge account (and just want read-only anonymous source access) fill out the boxes like this, leaving the password field blank:<br/>
+<img src="images/eclipse3.png"/>
+</p>
+
+<p>
+If you DO have a SourceForge account and want read-write access to the repository,
+put your SourceForge username instead of "anonymous", fill in your password and change
+the connection type to "extssh".
+</p>
+
+<p>
+Select "Use an existing module", select "joeq_core", and click "Finish".<br/>
+<img src="images/eclipse4.png"/>
+</p>
+
+<p>
+Switch to the Java perspective, by clicking on the "Open Perspective" button.<br/>
+<img src="images/eclipse5.png"/>
+</p>
+
+<p>
+If you like, switch to Hierarchical Layout to make the package structure cleaner.
+<img src="images/eclipse6.png"/>
+</p>
+
+<h3>Bootstrapping joeq from within Eclipse</h3>
+
+<p>
+You can run the bootstrapper from within joeq.  First, check out the
+"joeq_native" and "joeq_x86" modules, just like you did above. (New
+Project->Checkout Projects from CVS->...)
+</p>
+
+<p>
+There is a premade Bootstrap.launch file in the joeq_native project.
+Assuming you have checked out the joeq_native project, the Bootstrap
+run target should automatically appear in the configurations section:<br/>
+<img src="images/eclipse7.png"/>
+</p>
+
+<p>
+<i>Note that this will take a LOT of memory to bootstrap from within Eclipse.
+768M at the minimum!</i>
+</p>
+
+<h3>Linking joeq from within Eclipse</h3>
+
+<p>
+First, you will need to install the Eclipse CDT (C Development Toolkit).
+You can install it through the Eclipse update manager by following the
+instructions <a href="http://download.eclipse.org/tools/cdt/releases/new">here</a>.
+<i>Be sure to restart Eclipse after installing CDT!</i>
+</p>
+
+<p>
+Check out the joeq_loader module, just as you did above.
+The Makefile is already set up to use gcc to compile and link the loader to the
+joeq object file.
+Note that the joeq_loader compilation will fail unless you have done the bootstrapping
+phase and the jq.obj file is in the joeq_core/ project directory.  You may need to
+refresh after bootstrapping to get this to work correctly.
+</p>
+
+<p>
+If you are having trouble with CDT on Windows, make sure that you have Cygwin
+and/or mingw installed, and <code>c:\cygwin\bin</code> is in your PATH environment
+variable.
+</p>
+
+<h3>Running joeq in native mode from within Eclipse</h3>
+
+<p>
+Just like for bootstrapping, there is a premade launch file for running the
+joeq executable.  It should 
+automatically appear in the configurations section:<br/>
+<img src="images/eclipse8.png"/>
+</p>
+
+<p>
+You may run into trouble where Eclipse says that the file joeq.exe is not binary.
+In that case, make sure that the .cdtproject file in the joeq_loader module contains:<br/>
+<code>
+&lt;extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/&gt;<br/>
+&lt;extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/&gt;<br/>
+</code>
+The ELF line is so that Eclipse can parse Linux binaries; the PE line is for Windows binaries.
+</p>
+
+    </section>
+  </body>
+</document>

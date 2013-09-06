@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Getting started with joeq</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Setting up your development environment">
+<p>
+So you want to use joeq?  This guide gives step-by-step instructions
+on how to set up the joeq development environment.  The instructions
+given here are by no means the only way to set up joeq; advanced
+users can, for example, use their own Java IDE or CVS client.
+</p>
+<h3>Essentials</h3>
+<p>
+First, make sure that your system meets the minimum specs for joeq.
+To successfully compile and use joeq, you'll need the following:
+</p>
+<ol>
+<li>
+A supported Java Development Kit installed.
+I try to keep joeq working with the latest versions of Java 1.3, 1.4,
+and 1.5 available from Sun, and also the latest versions of the IBM
+Developer Kits.  Other virtual machines have not been tested.
+</li>
+</ol>
+<p>
+In addition, if you want to bootstrap joeq, you will need the following:
+</p>
+<ol>
+<li>
+A machine with a supported CPU.  Currently, the x86 family (and clones)
+are the only supported CPU types.
+</li>
+<li>
+Enough RAM to complete the bootstrap phase (~512MB) and hard drive space
+for all of the joeq files (~100MB).
+</li>
+<li>
+Unless you want to port the C loader module to your OS, you will need to
+use an OS that is supported by the C loader. Currently, the C loader has
+been tested on Win32 and Linux.
+</li>
+<li>
+A C compiler (to compile the C loader module) and linker (to link the
+module to joeq). Most Linux systems have these by default. On Windows,
+you can use Microsoft Visual C++ or the mingw toolkit contained in
+cygwin.
+</li>
+</ol>
+<p>
+Also, these are not strictly necessary, but highly recommended:
+</p>
+<ol>
+<li>
+CVS and SSH, so that you can get the latest source tree. Download links and installation instructions are below.
+</li>
+<li>
+An account on SourceForge, so you can check in your modifications to the source tree.
+</li>
+<li>
+Eclipse, an open-source IDE, written in Java. It includes integrated CVS support, a
+source-level debugger, and other goodies. Installation instructions below.
+</li>
+<li>
+If you want to be able to bootstrap from inside of Eclipse, 1GB RAM
+(or more) is highly recommended.
+</li>
+<li>
+A decently fast machine (>1GHz), because compiling and bootstrapping joeq
+can take a long time.
+</li>
+</ol>
+<h3>"Hosted mode" versus "Native mode"</h3>
+<p>
+joeq supports two modes of operation: "hosted" and "native".  In hosted mode, joeq
+runs on top of another virtual machine.  Because joeq is written in Java, almost
+all of the code is VM-independent; it can run on any Java virtual machine that
+obeys the JVM specification.  If you are just interested in using joeq as a compiler
+infrastructure, then you will only need to use hosted mode.  Hosted mode relies
+on the resources of the underlying virtual machine for garbage collection,
+synchronization, thread scheduling, etc.
+</p>
+<p>
+In native mode, joeq runs on its own, without another virtual machine below it.
+In native mode, joeq uses its own runtime routines for allocation/garbage collection,
+thread scheduler, etc.  Thus, if you are interested in using or experimenting with
+the joeq runtime system, you will need to use native mode.
+</p>
+<p>
+Native mode requires a <i>bootstrapping phase</i>, whereby joeq is first run in
+hosted mode and an object file is dumped out, which is then linked to create a
+standalone executable.  The bootstrapping phase relies on the specifics of the
+internal implementation of the virtual machine used for bootstrapping.  Thus,
+only certain virtual machine versions are supported.
+</p>
+<p>
+I have tested joeq bootstrapping with the following versions:
+<ul>
+<li>
+Windows:
+<ul>
+<li>Sun J2SE 1.3.1_15</li>
+<li>Sun J2SE 1.4.2_06</li>
+<li>Sun J2SE 5.0 Update 1</li>
+</ul>
+</li>
+<li>
+Linux:
+<ul>
+<li>Sun J2SE 1.3.1_15</li>
+<li>Sun J2SE 1.4.2_06</li>
+<li>Sun J2SE 5.0 Update 1</li>
+</ul>
+</li>
+</ul>
+Other versions and virtual machines may or may not work.
+I will only guarantee that I will try to keep joeq working with the latest
+versions of the JVM available from Sun.  I will <u>not</u> attempt to support
+legacy versions.
+</p>
+
+<h4>Setting up Eclipse IDE with joeq</h4>
+<p>
+To set up the Eclipse IDE for use with joeq, follow the tutorial <a href="eclipse_setup.html">here</a>.
+</p>
+
+<h3>Windows-specific instructions</h3>
+<p>
+First, if you don't have the Sun JDK installed yet, download version
+1.4.2 from <a href="http://java.sun.com/j2se/1.4.2/download.html">here</a> and
+install it into the default directory. joeq uses Sun's JVM to
+bootstrap itself, and it also uses the Sun class libraries.
+</p>
+<p>
+If your machine is low on physical memory, you can also use version 1.3.1,
+available <a href="http://java.sun.com/j2se/1.3/download.html">here</a>.
+</p>
+<p>
+Note: other JVM's that do not use the Sun class libraries, like gcj, will
+probably not bootstrap correctly. They should run fine in hosted mode, however.
+</p>
+<h3>Installing Eclipse IDE on Win32</h3>
+<p>
+First, download the Eclipse IDE from <a href="http://download.eclipse.org/downloads/index.php">here</a>. The one I recommend downloading is
+listed as "Stable Build".  Install it by extracting the archive to the
+root directory of your drive and double-clicking on the eclipse.exe program in
+the extracted eclipse/ directory. It will say "Please wait, completing the
+install..." and then drop you into the Eclipse IDE.
+</p>
+    </section>
+  </body>
+</document>

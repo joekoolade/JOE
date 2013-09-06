@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+
+  <properties>
+    <title>Open Source Virtual Machine projects</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Open Source Virtual Machine projects">
+<table border="1" width="100%">
+  <tr>
+
+    <td>Project Name</td>
+    <td>Author</td>
+    <td>License</td>
+    <td>JDK Version</td>
+    <td>Platforms</td>
+    <td>Language</td>
+
+    <td>Threads</td>
+    <td>GC</td>
+    <td>JIT</td>
+  </tr>
+  <tr>
+    <td><a href="http://www.kaffe.org/"><b>Kaffe</b></a></td>
+    <td>Tim Wilkinson, et al.</td>
+
+    <td>GPL</td>
+    <td>1.2 (partly)</td>
+    <td>x86, sparc, m68k, arm, mips, alpha, ppc, parisc<br/>
+      Windows,<br/>
+      Unix variants, DOS</td>
+    <td>C</td>
+
+    <td>OS Threads</td>
+    <td>Conservative Mark/Sweep</td>
+    <td>Slow as hell</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p>Kaffe is a cleanroom, open source implementation of a Java
+      virtual machine and class libraries.</p>
+      <p>This is the oldest and by far the most complete clean room open source
+      Java virtual machine implementation.  However, the <a href="http://www.shudo.net/jit/perf/index.html">performance
+      leaves a lot to be desired</a>.</p></td>
+
+  </tr>
+  <tr>
+    <td><a href="http://latte.snu.ac.kr/"><b>LaTTe</b></a></td>
+    <td>MASS Lab, Seoul National University</td>
+    <td>BSD-like</td>
+    <td>1.1 (No AWT)</td>
+    <td>Sparc</td>
+
+    <td>C</td>
+    <td>OS Threads</td>
+    <td>Fast incremental</td>
+    <td>Adaptive</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p><em>LaTTe</em> is a virtual machine which is able to execute
+      Java bytecode. It includes a novel JIT compiler targeted to RISC machines
+      (specifically the UltraSPARC). The JIT compiler generates RISC code of
+      good quality through a clever mapping of Java stack operands to registers
+      with a negligible overhead. Additionally, the runtime components of LaTTe,
+      including thread synchronization, exception handling, and garbage
+      collection, have been optimized. As a result, the performance of LaTTe is
+      competitive with that of <a href="http://java.sun.com/products/jdk/1.2/">Sun's
+      JDK 1.2 production release</a> and <a href="http://java.sun.com/j2se/1.3/">JDK
+      1.3 release candidate client/server VMs (HotSpot)</a>.</p>
+      <p>Originally based on <a href="http://www.kaffe.org/"><b>Kaffe</b></a>,
+      this has come a long way.</p></td>
+
+  </tr>
+  <tr>
+    <td><b><a href="http://intel.com/research/mrl/orp/">Open Runtime Platform</a></b></td>
+    <td>Intel Research</td>
+    <td>?</td>
+    <td>?</td>
+    <td>x86 on Linux, Windows</td>
+
+    <td>C</td>
+    <td>?</td>
+    <td>Multiple</td>
+    <td>Multilevel</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p>ORP, Open Runtime Platform, implements advanced JIT and GC
+      interfaces. These interfaces allow the JIT, GC and remaining runtime
+      system to be developed in complete isolation and at independent rates. A
+      major benefit is that JIT and GC researchers are relieved of the
+      intractable task of developing a full system before they can innovate in
+      their area of expertise.</p>
+      <p>The basic system incorporates a fast code generating JIT as well as an
+      optimizing JIT. It also includes several GC algorithms, ranging from a
+      simple mark-sweep algorithm to an advanced train algorithm.</p></td>
+
+  </tr>
+  <tr>
+    <td><b><a href="http://www.blackdown.org/java-linux.html">Blackdown JDK for
+      Linux</a></b></td>
+    <td>Blackdown development team</td>
+    <td>Sun CSL</td>
+    <td>1.3</td>
+    <td>ppc, x86, s390, sparc, arm</td>
+
+    <td>C</td>
+    <td>Green / Native</td>
+    <td>Conservative Mark/Sweep</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p>Blackdown was the first group to port Java 1.0, 1.1, and
+      then 1.2 to Linux.</p>
+      <p>Basically an uninspiring reference implementation, but the only one for
+      Linux until fairly recently.</p></td>
+
+  </tr>
+  <tr>
+    <td><a href="http://kissme.sourceforge.net/"><b>kissme</b></a></td>
+    <td>John Leuner, et al.</td>
+    <td>GPL</td>
+    <td>1.2 (Classpath, No AWT)</td>
+    <td>x86, Linux</td>
+
+    <td>C, JIT is in Java</td>
+    <td>OS Threads</td>
+    <td>Conservative Mark/Sweep</td>
+    <td>None yet, plan to write in Java</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p><b>kissme</b> started its life as a Honours project by
+      Stephen Tjasink while he was studying at the University of Cape Town.
+      Initially the JVM was developed for a set-top box that came with a TV
+      Satellite Decoder. To fulfill this goal the JVM was designed to run on a
+      slow processor and with limited memory. One of unconventional aspects of
+      the project was the need to store class files in ROM. The JVM was modified
+      to be able to store the runtime class information on the ROM and then load
+      it again when booting.</p>
+      <p>When Stephen did his Masters degree the next year, he decided to extend
+      the VM to support <b>orthogonal persistence</b>. Persistent programming
+      languages allow the programmer to indicate which objects in memory should
+      be saved on secondary storage. The runtime (or a compiled in library) will
+      ensure that the data is saved automatically and transparently on disk.
+      When the program restarts it can retrieve this information transparently.</p>
+
+      <p>It uses Classpath libraries.  JIT work started in February 2000,
+      still not completed.</p></td>
+  </tr>
+  <tr>
+    <td><a href="http://sablevm.org/"><b>SableVM</b></a></td>
+    <td>Sable group at McGill</td>
+    <td>GPL</td>
+
+    <td>1.2 (Classpath)</td>
+    <td>x86, Linux</td>
+    <td>C</td>
+    <td>?</td>
+    <td>Precise copying collector</td>
+    <td>None</td>
+
+  </tr>
+  <tr>
+    <td colspan="9"><p>SableVM is an open-source virtual machine for Java, intended
+      as a research framework for efficient execution of Java bytecode. The
+      framework is essentially composed of an extensible bytecode interpreter
+      using state-of-the-art and innovative techniques.</p>
+      <p>Interpreter-only, just barely runs &quot;Hello, world!&quot;. However,
+      they have some interesting techniques for run time services (thin locks,
+      etc.)</p></td>
+  </tr>
+  <tr>
+    <td><a href="http://www.japhar.org/"><b>Japhar</b></a></td>
+
+    <td>Petter, et al.</td>
+    <td>LGPL</td>
+    <td>1.2 (Classpath)</td>
+    <td>x86, sparc, arm<br/>
+      Unix variants,<br/>
+      Win32, BeOS</td>
+
+    <td>C</td>
+    <td>?</td>
+    <td>? (None?)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p>Japhar is the <a href="http://www.hungry.com">Hungry
+      Programmers'</a> Java VM. It has been built from the ground up without
+      consulting Sun's sources.</p>
+      <p>Development seems to be slow.  Moving from version 0.08 to 0.09
+      took 18 months (?).</p></td>
+
+  </tr>
+  <tr>
+    <td><a href="http://www.complang.tuwien.ac.at/java/cacao/"><b>CACAO</b></a></td>
+    <td>Andreas Krall</td>
+    <td>?</td>
+    <td>1.0.2</td>
+    <td>Alpha</td>
+
+    <td>C</td>
+    <td>?</td>
+    <td>?</td>
+    <td>Simple</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p>CACAO is 64 bit just-in-time (JIT) compiler for Java. It
+      translates Java byte code on demand into native code for the ALPHA
+      processor.</p>
+      <p>This doesn't seem to be in development anymore.</p></td>
+
+  </tr>
+</table>
+</section>
+<section name="Open Source JIT compiler projects">
+<table border="1" width="100%">
+  <tr>
+    <td>Project Name</td>
+    <td>Author</td>
+    <td>License</td>
+
+    <td>VM</td>
+    <td>Platforms</td>
+    <td>Language</td>
+  </tr>
+  <tr>
+    <td><a href="http://www.openjit.org/"><b>OpenJIT</b></a></td>
+    <td>Tokyo Institute of Technology</td>
+
+    <td>BSD-like</td>
+    <td>Any</td>
+    <td>Sparc</td>
+    <td>Java</td>
+  </tr>
+  <tr>
+    <td colspan="6">The OpenJIT project is an ongoing Java (the programming
+      language) JIT compiler project as a collaborative effort between Tokyo
+      Institute of Technology and Fujitsu Laboratory, partly sponsored by the
+      Information Promotion Agency of Japan. OpenJIT is a &quot;reflective&quot;
+
+      JIT compiler in that not only it is almost entirely written in Java, but
+      also that it bootstraps and compiles itself during execution of the user
+      program, and compiler components coexist as first-class objects in user
+      heap space. Thus, users can tailor and customize the compilation of
+      classes at runtime for variety of purposes such as application-specific
+      optimization and partial evaluation, dynamic, compiler-assisted
+      environment adaptation of programs, debugging, language extension and
+      experimentation, and other types of advanced compiler-based research and
+      applications. OpenJIT even allows full dynamic update of itself by loading
+      the compiler classes on the fly from the network.</td>
+  </tr>
+  <tr>
+    <td><a href="http://sax.sax.de/~adlibit/"><b>TYA</b></a></td>
+    <td>Albrecht Kleine</td>
+    <td>GPL</td>
+    <td>Blackdown, BSD</td>
+
+    <td>x86</td>
+    <td>C</td>
+  </tr>
+  <tr>
+    <td colspan="6"><p>TYA is a JIT-compiler designed as an add-on to the Blackdown
+      and BSD ports of JDK 1.1 and JDK 1.2 for x86-Linux and FreeBSD. TYA is
+      ``100% unofficial'', in no way related to Sun.</p>
+      <p>Really, really slow JIT.</p></td>
+  </tr>
+  <tr>
+
+    <td><a href="http://www.shudo.net/jit/"><b>shuJIT</b></a></td>
+    <td>Kazuyuki Shudo</td>
+    <td>?</td>
+    <td>Linux, BSD</td>
+    <td>x86</td>
+    <td>C</td>
+
+  </tr>
+  <tr>
+    <td colspan="6"><p>ShuJIT is a Just In Time compiler (JIT) for Sun
+      Microsystems' Java Virtual Machine (JVM) (i.e. JDK, JRE) and Intel IA-32
+      (x86) processors. It works on Linux and FreeBSD.</p>
+      <p>Performance is <a href="http://www.shudo.net/jit/perf/index.html">average</a>. 
+      He has <a href="http://www.shudo.net/photo/0006-JavaGF/000605/index.html">my
+      photo</a> on his page, from Java Grande 2000.</p></td>
+  </tr>
+
+  <tr>
+    <td><a href="http://www.mozilla.org/projects/ef/"><b>ElectricalFire</b></a></td>
+    <td>Mozilla.org</td>
+    <td>Netscape PL</td>
+    <td>Mozilla</td>
+    <td>x86</td>
+
+    <td>C</td>
+  </tr>
+  <tr>
+    <td colspan="6"><p>ElectricalFire is a Java Virtual Machine that uses JIT (Just
+      In Time) compilation techniques to accelerate Java code execution. 
+      ElectricalFire was designed from the start to generate high-performance
+      machine code and to be portable to many different processor architectures.</p>
+      <p>It hasn't been updated in over a year.  This project is dead.</p>
+      <p>A team of programmers two months to get Sieve to compile correctly...</p></td>
+
+  </tr>
+  <tr>
+    <td><a href="http://citeseer.ist.psu.edu/cierniak96briki.html"><b>Briki</b></a></td>
+    <td></td>
+    <td></td>
+    <td>Kaffe</td>
+    <td></td>
+    <td></td>
+
+  </tr>
+  <tr>
+    <td colspan="6">Briki is a now defunct research project to implement an
+      optimizing JIT, which was based on Kaffe.</td>
+  </tr>
+</table>
+</section>
+<section name="Open Source VM extension projects">
+<table border="1" width="100%">
+  <tr>
+    <td></td>
+
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+
+  <tr>
+    <td colspan="9"></td>
+  </tr>
+  <tr>
+    <td><a href="http://www.cs.utah.edu/projects/flux/java/alta/index.html"><b>Alta</b></a></td>
+    <td>?</td>
+    <td>GPL</td>
+
+    <td>?</td>
+    <td>?</td>
+    <td>?</td>
+    <td>?</td>
+    <td>?</td>
+    <td>?</td>
+
+  </tr>
+  <tr>
+    <td colspan="9">The Alta Virtual Machine is a Java-compatible Virtual
+      Machine designed to provide <a href="http://www.cs.utah.edu/projects/flux/fluke/html/">nested
+      process services</a> to Java applications. Alta is based on <a href="http://www.kaffe.org">Kaffe</a>.</td>
+  </tr>
+  <tr>
+    <td><a href="http://www.dcc.unicamp.br/~oliva/guarana/"><b>GuaranÃ¡</b></a></td>
+
+    <td></td>
+    <td>GPL</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+
+  </tr>
+  <tr>
+    <td colspan="9">GuaranÃ¡ is a reflective architecture that aims at
+      simplicity, flexibility, security and reuse of meta-level code. It uses <a href="http://www.kaffe.org/">Kaffe</a>
+      as its base.</td>
+  </tr>
+  <tr>
+    <td><a href="http://kiev.forestro.com/"><b>Kiev</b></a></td>
+
+    <td></td>
+    <td>GPL</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+
+  </tr>
+  <tr>
+    <td colspan="9">Kiev is a compiler which extends and unite Java and Prolog.
+      A version of <a href="http://www.kaffe.org">Kaffe</a> is used as a virtual
+      machine to provide support for extended bytecode.</td>
+  </tr>
+  <tr>
+    <td><a href="http://www.dcs.gla.ac.uk/~susan/"><b>PJama</b></a></td>
+
+    <td>University of Glasgow and SunLabs</td>
+    <td>?</td>
+    <td>1.1.7</td>
+    <td>N/A</td>
+    <td>N/A</td>
+    <td>N/A</td>
+
+    <td>N/A</td>
+    <td>N/a</td>
+  </tr>
+  <tr>
+    <td colspan="9"><p>The PJama started in September 1995 with funding from <a href="http://www.sun.com/">Sun
+      Microsystems</a> for an investigation into the feasability of support for
+      orthogonal persistence in the programming language <a href="http://java.sun.com/">Java</a>.
+      A subsequent <a href="http://www.dcs.glasgow.ac.uk/pjava/pix5-fun.jpg">PJava
+      project</a> proposal for &quot;PJava: High Performance Orthogonally
+      Persistent Java Servers&quot;, highly-rated by the <a href="http://www.epsrc.ac.uk/default.htm">EPSRC
+      (Engineering and Physical Sciences Research Council)</a>, provides further
+      funding.</p>
+      <p>Based on the standard JDK 1.1.7 source code.</p>
+
+      <p>The project ended in September 2000.</p></td>
+  </tr>
+</table>
+</section>
+<section name="Other Related Open Source projects">
+<table border="1">
+  <tr>
+    <td><a href="http://gcc.gnu.org/java/"><b>gcj</b></a></td>
+    <td>RedHat</td>
+
+    <td>GPL</td>
+  </tr>
+  <tr>
+    <td colspan="3">GCJ is a portable, optimizing, ahead-of-time compiler for
+      the Java Programming Language. It can compile...
+      <ul>
+        <li>Java source code to native machine code,</li>
+        <li>Java source code to Java bytecode (class files),</li>
+        <li>and Java bytecode to native machine code.</li>
+      </ul>
+
+    </td>
+  </tr>
+  <tr>
+    <td><a href="http://oss.software.ibm.com/developerworks/opensource/jikes/project/"><b>Jikes</b></a></td>
+    <td>Dave Shields and Phillipe Charles</td>
+    <td>BSD-like</td>
+  </tr>
+
+  <tr>
+    <td colspan="3">Jikes is a compiler that translates Java source files as
+      defined in <a href="http://java.sun.com/docs/books/jls">The Java
+      Language Specification</a> into the bytecoded instruction set and binary
+      format defined in <a href="http://java.sun.com/docs/books/vmspec">The
+      Java Virtual Machine Specification</a>. Features include:
+      <ul>
+        <li>strict adherence to the language specification,</li>
+        <li>extremely fast compile speed,</li>
+        <li>built-in dependence analysis, allowing incremental compilation and
+          automatic makefile generation.</li>
+      </ul>
+
+    </td>
+  </tr>
+  <tr>
+    <td><a href="http://www.gnu.org/software/classpath/classpath.html"><b>GNU Classpath</b></a></td>
+    <td>???</td>
+    <td>GPL</td>
+  </tr>
+
+  <tr>
+    <td colspan="3">GNU Classpath is a set of essential libraries for supporting
+      the Java language. The goal is to provide a free replacement for Sun's
+      proprietary class libraries so that the GNU system can run programs
+      written in the Java language.</td>
+  </tr>
+  <tr>
+    <td><a href="http://sources.redhat.com/mauve/"><b>Mauve</b></a></td>
+    <td>???</td>
+    <td>GPL</td>
+
+  </tr>
+  <tr>
+    <td colspan="3">The Mauve Project is a collaborative effort to write a free
+      test suite for the Java class libraries.</td>
+  </tr>
+</table>
+<h4></h4>
+<h4>Non-open source stuff</h4>
+<ul>
+  <li><a href="http://www.borland.com/jbuilder/">Borland JBuilder JIT
+    compiler for Linux</a></li>
+
+  <li><a href="http://naturalbridge.com/">BulletTrain</a>
+    static compiler by NaturalBridge</li>
+  <li>IBM JDK</li>
+  <li>Official port for the <a href="http://www.freebsd.org/java/">Java for
+    FreeBSD</a></li>
+</ul>
+    </section>
+  </body>
+</document>

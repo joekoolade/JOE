@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Garbage collector</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Garbage collector">
+<p>
+Garbage collection is currently in development.  The currently implemented
+allocation strategy makes no attempt to free unused memory.
+</p>
+<p>
+If you have an interest in implementing garbage collection, please see the
+<a href="http://sourceforge.net/people/viewjob.php?group_id=19634&amp;job_id=2128">Help Wanted announcement</a>
+on SourceForge.
+</p>
+    </section>
+  </body>
+</document>

@@ -1,0 +1,17 @@
+/AssertionAnalysis.class
+/ClassHierarchy$ClassComparator.class
+/ClassHierarchy$ClassHieraryNode.class
+/ClassHierarchy.class
+/DeclarationDepth$DeclarationDepthComputation.class
+/DeclarationDepth.class
+/FindBadStores.class
+/FindCollectionImplementations$ClassAndMethod.class
+/FindCollectionImplementations.class
+/FindOwnership$SimpleOwnershipFinder$OwnershipLattice.class
+/FindOwnership$SimpleOwnershipFinder$OwnershipValue.class
+/FindOwnership$SimpleOwnershipFinder.class
+/FindOwnership.class
+/ReachabilityTracerApp$IPSSAReachabilityTracerApp.class
+/ReachabilityTracerApp$PAReachabilityTracerApp.class
+/ReachabilityTracerApp.class
+/ResultCorrelation.class

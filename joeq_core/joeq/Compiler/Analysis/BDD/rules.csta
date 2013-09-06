@@ -1,0 +1,12 @@
+vTc(_,v,t) :- vP0(v,h), hT(h,t).
+IE(vc2,i,vc1,m) :- IE0(i,m), IEfilter(vc2,i,vc1,m).
+vTfilter(v,t2) :- vT(v,t1), aT(t1,t2).
+vTc(vc1,v1,t) :- A(vc1,v1,vc2,v2), vTc(vc2,v2,t), vTfilter(v1,t).
+fT(f,t2) :- S(_,f,v2), vTc(_,v2,t2).
+vTc(vc1,v2,t2) :- L(_,f,v2), fT(f,t2), vTfilter(v2,t2).
+A(vc1,v1,vc2,v2) :- formal(m,z,v1), IE(vc2,i,vc1,m), actual(i,z,v2).
+A(vc2,v2,vc1,v1) :- Mret(m,v1), IE(vc2,i,vc1,m), Iret(i,v2).
+A(vc2,v2,vc1,v1) :- Mthr(m,v1), IE(vc2,i,vc1,m), Ithr(i,v2).
+
+# uncomment these lines to discover call graph edges.
+# IE(vc2,i,vc1,m2) :- mI(m1,i,n), actual(i,0,v), vTc(vc2,v,t), cha(t,n,m2), IEfilter(vc2,i,vc1,m2). split

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>References</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Other Java virtual machines written in Java">
+<p>
+<ul>
+<li>Jikes RVM (a.k.a. Jalapeño)</li>
+<li>Rivet system</li>
+<li>JavaInJava</li>
+</ul>
+</p>
+<p>
+A list of all known open source Java compilers/virtual machines is
+<a href="http://joeq.sourceforge.net/about/other_os_java.htm">here</a>.
+</p>
+    </section>
+  </body>
+</document>

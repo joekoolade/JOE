@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Bootstrapping joeq</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Bootstrapping Phase">
+
+<p>
+The joeq bootstrapping technique is detailed in the following paper:
+</p>
+<p>
+John Whaley.
+<a href="http://www.stanford.edu/~jwhaley/papers/reflection01.pdf">System
+Checkpointing Using Reflection and Program Analysis</a>.
+Proceedings of the Third International Conference on Metalevel Architectures
+and Separation of Crosscutting Concerns, REFLECTION 2001, Kyoto, Japan,
+September 25-28, 2001, pp 44-51.
+</p>
+<p>
+Here is an overview. joeq uses the Java 2 Reflection API to bootstrap itself.
+The basic bootstrapping technique is as follows:
+</p>
+<ol>
+<li>Load joeq into a 'host' Java virtual machine.
+joeq is completely written in Java, which means a Java virtual machine can
+load and execute the code.</li>
+<li>Install a special "address factory", which convert between objects in
+the host Jvm and their addresses in the output image.  When we try to get
+the address of a heretofore unknown object, it allocates space for it in
+the image and returns the new address.  See BootstrapHeapAddress.java.</li>
+<li>Identify the root set: the classes and class members (fields/methods)
+that are necessary for standalone execution.  This can either be supplied
+via a user-supplied list of classes, or the joeq compiler to perform an
+analysis to identify the root set automatically.  See Trimmer.java.</li>
+<li>Allocate space for the necessary static fields, use reflection to get
+their host Jvm values, and allocate space for those values in the output image.</li>
+<li>Compile every necessary method, allocating space for the result in
+the output image.</li>
+<li>Use reflection to find all objects reachable from the objects that
+have been allocated in the image.  These, too, are allocated in the image,
+and the process proceeds recursively.</li>
+<li>Finally, dump the objects in the image to an object file in COFF or
+ELF format.  The dumped objects are written in joeq's object layout.</li>
+<li>Link the file into an executable and go!</li>
+</ol>
+<p>
+The relevant source code is contained in Main/Bootstrapper.java and Bootstrap/BootImage.java.
+</p>
+    </section>
+
+    <section name="Remapping classes">
+<p>
+The technique described above will generate a precise copy of the relevant
+state of the host Jvm.  However, we don't always want an exact copy.  For
+example, file handles in the host Jvm cannot be used in the target Jvm.
+The target Jvm may use extra object fields that are not present in the host
+Jvm.  Or we may want to use a different class library implementation than
+the host Jvm.
+</p>
+<p>
+We handle the mapping of state from the host Jvm to the target Jvm by
+hijacking the reflection mechanism, using a class called ObjectTraverser,
+in Bootstrap/ObjectTraverser.java.  All accesses of host Jvm objects go
+through this class.  When, for example, we attempt to use reflection on
+a field that doesn't exist in the host Jvm, we hijack the reflective call
+and return our own value.  We can also replace references to objects: for
+example, all references to the host Jvm's system class loader are replaced
+by references to the target Jvm's class loader.  Different class libraries
+use different implementations of ObjectTraverser, for example,
+in ClassLib/Common/Interface.java.
+</p>
+<p>
+Furthermore, some objects require some state to be reinitialized upon
+re-execution; for example, files must be reopened.  This is handled in
+the mapValue method of the ObjectTraverser class.  When we use reflection
+on an object that requires some code to be executed, we add that code to
+a list in jq.on_vm_startup.  Code in that list is executed at program startup.
+</p>
+<p>
+<a href="http://www.stanford.edu/~jwhaley/papers/reflection01.pdf">System
+Checkpointing Using Reflection and Program Analysis</a>.
+</p>
+    </section>
+
+  </body>
+</document>

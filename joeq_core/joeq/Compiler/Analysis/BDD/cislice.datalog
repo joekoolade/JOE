@@ -1,0 +1,270 @@
+.include "fielddomains"
+
+.bddvarorder N0_F0_Z0_I0_M0xM1_T0_V1xV0_H1_T1_H0_member0xquad0_quad1_quad2_constant0_op0_reg1xreg0_varargs0
+
+vP (v:V0, h:H0) input
+hP (ha:H0, field:F0, hb:H1) input
+#actual ( invoke:I0, num:Z0, actualparam:V1) input
+#formal ( method:M0, num:Z0, formalparam:V0) input
+#Mret ( method:M0, v:V1) input
+Mthr (method:M0, v:V1) input
+#Iret ( invoke:I0, v:V0) input
+Ithr (invoke:I0, v:V0) input
+mI (method:M0, invoke:I0, name:N0) input
+IE (invoke:I0, target:M0) input
+m2q (method:M0, quad:quad0) input
+ssa (quad:quad0, opc:op0, dest:reg0, constant:constant0, member:member0, srcNum:varargs0, srcs:reg1) input
+vReg (v:V0, method:M0, reg:reg0) input
+iQuad (invoke:I0 , quad:quad0) input
+#fMember (field:F0, member:member0) input
+dd (quad:quad1, dep:quad2) output
+slice (quad:quad0, dep:quad1) output
+S (base:V0, field:F0, src:V1) input
+L (base:V0, field:F0, dest:V1) input
+ipEdgeV(src:V, dest:V)
+ipEdge(srcm:M, srcr:reg, destM:M, destr:reg)
+sources(quad:quad, method:M, reg:reg)
+dests(quad:quad, method:M, reg:reg)
+getfield(op:op) input
+putfield(op:op) input
+getstatic(op:op) input
+putstatic(op:op) input
+aload(op:op) input
+astore(op:op) input
+aloadheap(quad:quad, h:H)
+astoreheap(quad:quad, h:H)
+invoke(op:op) input
+
+
+#ssa ( quad : quad , opc : op , dest : reg , constant : constant , member : member , srcNum : varargs , srcs : reg ) input
+#ssa(quad,op,dest,constant,member,srcNum,srcs)
+
+# lsDepV use,def
+
+getfield("GETFIELD_A").
+getfield("GETFIELD_B").
+getfield("GETFIELD_C").
+getfield("GETFIELD_D").
+getfield("GETFIELD_F").
+getfield("GETFIELD_I").
+getfield("GETFIELD_L").
+getfield("GETFIELD_P").
+getfield("GETFIELD_S").
+getfield("GETFIELD_Z").
+getfield("GETFIELD_A%").
+getfield("GETFIELD_B%").
+getfield("GETFIELD_C%").
+getfield("GETFIELD_D%").
+getfield("GETFIELD_F%").
+getfield("GETFIELD_I%").
+getfield("GETFIELD_L%").
+getfield("GETFIELD_P%").
+getfield("GETFIELD_S%").
+getfield("GETFIELD_Z%").
+
+putfield("PUTFIELD_A").
+putfield("PUTFIELD_B").
+putfield("PUTFIELD_C").
+putfield("PUTFIELD_D").
+putfield("PUTFIELD_F").
+putfield("PUTFIELD_I").
+putfield("PUTFIELD_L").
+putfield("PUTFIELD_P").
+putfield("PUTFIELD_S").
+putfield("PUTFIELD_Z").
+putfield("PUTFIELD_A%").
+putfield("PUTFIELD_B%").
+putfield("PUTFIELD_C%").
+putfield("PUTFIELD_D%").
+putfield("PUTFIELD_F%").
+putfield("PUTFIELD_I%").
+putfield("PUTFIELD_L%").
+putfield("PUTFIELD_P%").
+putfield("PUTFIELD_S%").
+putfield("PUTFIELD_Z%").
+
+getstatic("GETSTATIC_A").
+getstatic("GETSTATIC_B").
+getstatic("GETSTATIC_C").
+getstatic("GETSTATIC_D").
+getstatic("GETSTATIC_F").
+getstatic("GETSTATIC_I").
+getstatic("GETSTATIC_L").
+getstatic("GETSTATIC_P").
+getstatic("GETSTATIC_S").
+getstatic("GETSTATIC_Z").
+getstatic("GETSTATIC_A%").
+getstatic("GETSTATIC_B%").
+getstatic("GETSTATIC_C%").
+getstatic("GETSTATIC_D%").
+getstatic("GETSTATIC_F%").
+getstatic("GETSTATIC_I%").
+getstatic("GETSTATIC_L%").
+getstatic("GETSTATIC_P%").
+getstatic("GETSTATIC_S%").
+getstatic("GETSTATIC_Z%").
+
+putstatic("PUTSTATIC_A").
+putstatic("PUTSTATIC_B").
+putstatic("PUTSTATIC_C").
+putstatic("PUTSTATIC_D").
+putstatic("PUTSTATIC_F").
+putstatic("PUTSTATIC_I").
+putstatic("PUTSTATIC_L").
+putstatic("PUTSTATIC_P").
+putstatic("PUTSTATIC_S").
+putstatic("PUTSTATIC_Z").
+putstatic("PUTSTATIC_A%").
+putstatic("PUTSTATIC_B%").
+putstatic("PUTSTATIC_C%").
+putstatic("PUTSTATIC_D%").
+putstatic("PUTSTATIC_F%").
+putstatic("PUTSTATIC_I%").
+putstatic("PUTSTATIC_L%").
+putstatic("PUTSTATIC_P%").
+putstatic("PUTSTATIC_S%").
+putstatic("PUTSTATIC_Z%").
+
+aload("ALOAD_A").
+aload("ALOAD_B").
+aload("ALOAD_C").
+aload("ALOAD_D").
+aload("ALOAD_F").
+aload("ALOAD_I").
+aload("ALOAD_L").
+aload("ALOAD_P").
+aload("ALOAD_S").
+
+astore("ASTORE_A").
+astore("ASTORE_B").
+astore("ASTORE_C").
+astore("ASTORE_D").
+astore("ASTORE_F").
+astore("ASTORE_I").
+astore("ASTORE_L").
+astore("ASTORE_P").
+astore("ASTORE_S").
+
+invoke("INVOKEINTERFACE_A").
+invoke("INVOKEINTERFACE_D").
+invoke("INVOKEINTERFACE_F").
+invoke("INVOKEINTERFACE_I").
+invoke("INVOKEINTERFACE_L").
+invoke("INVOKEINTERFACE_P").
+invoke("INVOKEINTERFACE_V").
+invoke("INVOKESPECIAL_A%").
+invoke("INVOKESPECIAL_D%").
+invoke("INVOKESPECIAL_F%").
+invoke("INVOKESPECIAL_I%").
+invoke("INVOKESPECIAL_L%").
+invoke("INVOKESPECIAL_P%").
+invoke("INVOKESPECIAL_V%").
+invoke("INVOKESTATIC_A").
+invoke("INVOKESTATIC_D").
+invoke("INVOKESTATIC_F").
+invoke("INVOKESTATIC_I").
+invoke("INVOKESTATIC_L").
+invoke("INVOKESTATIC_P").
+invoke("INVOKESTATIC_V").
+invoke("INVOKESTATIC_A%").
+invoke("INVOKESTATIC_D%").
+invoke("INVOKESTATIC_F%").
+invoke("INVOKESTATIC_I%").
+invoke("INVOKESTATIC_L%").
+invoke("INVOKESTATIC_P%").
+invoke("INVOKESTATIC_V%").
+invoke("INVOKEVIRTUAL_A").
+invoke("INVOKEVIRTUAL_D").
+invoke("INVOKEVIRTUAL_F").
+invoke("INVOKEVIRTUAL_I").
+invoke("INVOKEVIRTUAL_L").
+invoke("INVOKEVIRTUAL_P").
+invoke("INVOKEVIRTUAL_V").
+invoke("INVOKEVIRTUAL_A%").
+invoke("INVOKEVIRTUAL_D%").
+invoke("INVOKEVIRTUAL_F%").
+invoke("INVOKEVIRTUAL_I%").
+invoke("INVOKEVIRTUAL_L%").
+invoke("INVOKEVIRTUAL_P%").
+invoke("INVOKEVIRTUAL_V%").
+
+return(op:op) input
+return("RETURN_A").
+return("RETURN_D").
+return("RETURN_F").
+return("RETURN_I").
+return("RETURN_L").
+return("RETURN_P").
+return("RETURN_V").
+
+#invokeTarget(quad:quad0, method:M0)
+#invokeTarget(quad, method) :- ssa(quad,_,_,_,_,_,_), \
+#                              iQuad(invoke, quad), \
+#                              IE(invoke, method).
+#
+#mRetQuad(method:M0, quad:quad0)
+
+
+# def, use
+#ipEdgeV(def,use) :- IE(I,M), actual(I,n,def), formal(M,n,use).
+#ipEdgeV(def,use) :- IE(I,M), Iret(I,use), Mret(M,def).
+ipEdgeV(def,use) :- IE(I,M), Ithr(I,use), Mthr(M,def).
+ipEdge(defm,defr,usem,user) :- ipEdgeV(def,use), vReg(def,defm,defr), vReg(use,usem,user).
+
+# strip down ssa rep for convenience.
+sources(quad, method, reg) :- ssa(quad,_,_,_,_,_,reg), m2q(method, quad).
+dests(quad, method, reg) :- ssa(quad,_,reg,_,_,_,_), m2q(method, quad).
+
+# intraprocedural def-use pairs
+dd(def,use) :- sources(use, m, r), dests(def, m, r).
+
+# interprocedural (call/return) def-use pairs
+dd(def,use) :- dests(def,defm,defr), \
+               ipEdge(usem,user,defm,defr), \
+               sources(use,usem,user).
+
+# data dep through static load/stores
+#ssa(quad,op,dest,constant,member,srcNum,srcs)
+dd(def,use) :- putstatic(putstatic), \
+               ssa(def,putstatic,_,_,static,_,_), \
+               getstatic(getstatic), \
+               ssa(use,getstatic,_,_,static,_,_).
+
+# data dep through heap object
+dd(def,use) :- putfield(putfield), \
+               ssa(def,putfield,_,_,field,1,putbase), \
+               getfield(getfield), \
+               ssa(use,getfield,_,_,field,1,getbase), \
+               m2q(putm,def), \
+               vReg(putr,putm,putbase), \
+               vP(putr,heap), \
+               m2q(getm,use), \
+               vReg(getr,getm,getbase), \
+               vP(getr,heap).
+
+               
+
+astoreheap(def,heap) :- astore(astore), \
+                        ssa(def,astore,_,_,_,2,storebase), \
+                        m2q(storem,def), \
+                        vReg(storer,storem,storebase), \
+                        vP(storer,heap).
+
+aloadheap(use,heap) :- aload(aload), \
+                       ssa(use,aload,_,_,_,1,loadbase), \
+                       m2q(loadm,use), \
+                       vReg(loadr,loadm,loadbase), \
+                       vP(loadr,heap).                   
+                            
+dd(def,use) :- astoreheap(def,heap), aloadheap(use,heap).
+
+
+#slice(use,use1) :- dd(_,use), use = use1.
+#slice(def,def1) :- dd(def,_), def = def1.
+
+slice(def,use) :- dd(def,use).
+
+# choose one:
+slice(def,use) :- slice(def,int), dd(int,use).
+
+#slice(use,def) :- slice(def,int), slice(int,use).

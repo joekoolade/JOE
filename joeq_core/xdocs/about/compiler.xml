@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Compilers</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Compiler interface">
+<p>
+Compilation is handled through the joeq.Compiler.CompilerInterface interface. 
+All compilers implement this interface.
+</p>
+    </section>
+    <section name="Reference compiler">
+<p>
+The reference compiler was designed to be as easy to get correct as possible.
+It generates code in an incredibly brain dead fashion.  Each bytecode
+corresponds to a sequence of machine code instructions which correctly
+implements that bytecode.
+</p>
+<p>
+Despite its simplicity, it does implement one advanced feature: code
+backpatching.  This is to support dynamic loading and linking.  At code
+generation time, the compiler does not know field offsets, vtable offsets,
+or addresses for references to unloaded or unresolved classes.  When the
+compiler reaches one of these unknowns, it generates a call to a run time
+routine, which loads/resolves/initializes the class in question and
+backpatches the code to use the offset/address directly, then re-executes
+the newly patched code.
+</p>
+<p>
+The backpatch mechanism is also used to reroute calls to newly dynamically
+compiled methods.  When a call is made to an old copy of a method, a
+runtime routine backpatches the call to refer to the new copy.
+</p>
+<p>
+The reference compiler is contained in x86ReferenceCompiler.java.
+The backpatch mechanism is contained in x86ReferenceLinker.java.
+</p>
+    </section>
+    <section name="Quad compiler">
+<p>
+The Quad compiler is the primary compiler for advanced compilation and
+code analysis. Click <a href="http://suif.stanford.edu/~courses/cs243/joeq">here</a>
+to find much more information on the Quad representation.
+</p>
+    </section>
+  </body>
+</document>

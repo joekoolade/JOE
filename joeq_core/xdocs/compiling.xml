@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Build Instructions</title>
+    <author email="joewhaley@users.sourceforge.net">John Whaley</author> 
+  </properties>
+
+  <body>
+    <section name="Building joeq">
+
+<p>
+If you don't want to use Eclipse, you can do everything via the command line.
+I typically use Eclipse on Windows and emacs/shell on Linux.
+</p>
+
+    <h3>Getting the source code</h3>
+<p>
+The first step is to get the source code.  The best way is
+to use CVS to get the latest version from the repository.
+(Windows users will need to install <a href="http://www.cygwin.com">Cygwin</a> to run CVS.)
+</p>
+<code> cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/joeq co joeq_core</code><br/>
+<p>
+In addition, if you want to bootstrap joeq to run in native mode, you will also need to
+check out the following modules:
+</p>
+<code> cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/joeq co joeq_native</code><br/>
+<code> cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/joeq co joeq_x86</code><br/>
+<code> cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/joeq co joeq_loader</code><br/>
+    <h3>Building joeq with make</h3>
+<p>
+The easiest way to build joeq is with the Makefile.
+(Again, on Windows, you will need cygwin.)
+</p>
+<p>
+Make targets:
+<ul>
+<li>javac - compile joeq class files with javac.</li>
+<li>jikes - compile joeq class files with jikes.</li>
+<li>jar - make a jar file of joeq, to be used in hosted mode.</li>
+<li>bootstrap - bootstrap joeq into a native object file.</li>
+<li>javadoc - build the javadoc documentation.</li>
+<li>clean - clean all output files.</li>
+<li>veryclean - clean all files, including cached class list.</li>
+<li>update - perform a cvs update.</li>
+<li>commit - perform a cvs commit.</li>
+<li>wc - count lines of code and print the top 5 files.</li>
+</ul>
+</p>
+    <h3>Linking the joeq object file</h3>
+<p>
+Bootstrapping joeq will produce an object file in COFF format (for Windows)
+or ELF format (for Linux).
+You will need to link that object file with a loader module to use it.
+Windows users can use either gcc (part of Cygwin) or the Microsoft Visual C++ compiler.
+</p>
+<p>
+To build the executable version of joeq, just type "make" in the joeq_loader
+directory.  The Makefile assumes that the object file is in <code>../joeq_core/jq.obj</code>.
+You can set the <code>OBJECT</code> variable to override.  The Makefile will by default
+try to use gcc; to use Microsoft Visual C++, type "make msvc".
+</p>
+<p>
+The resulting executable is a standalone native version of joeq that can be used just
+like the Java executable.  Note that the classpaths are set during the bootstrapping
+phase, so joeq expects to be able to find the class libraries in the same place as
+when you were bootstrapping.
+</p>
+    </section>
+  </body>
+</document>
