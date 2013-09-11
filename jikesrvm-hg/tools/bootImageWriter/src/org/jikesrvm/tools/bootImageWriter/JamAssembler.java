@@ -47,4 +47,29 @@ public class JamAssembler extends Assembler {
 		}
 	}
 	
+	public void emitOUTB(int imm) {
+		
+	}
+	
+	public void emitOUTW(int imm) {
+		
+	}
+	
+	public void emitOUTL(int imm) {
+		
+	}
+	
+	public void emitOUTB() {
+		
+	}
+	
+	public void emitOUTW() {
+		
+	}
+	
+	public void emitOUTL() {
+		
+	}
+	
+	
 }

@@ -14,6 +14,9 @@ public class GenerateX86Startup {
 		// multiboot entry starts here
 		// set the stack pointer
 		// asm.emitMOV_Reg_Imm(GPR.ESP, stack.toInt());
+		// reset coprocessor
+		asm.emit
+		// ignore all PIC interrupts
 		// setup idt, gdt, ldt
 		// enable protected mode
 		// setup JTOC pointer
