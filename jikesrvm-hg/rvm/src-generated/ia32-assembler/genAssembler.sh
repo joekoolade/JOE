@@ -73,7 +73,7 @@ function emitBinaryReg() {
   /**
    * Generate a register-offset--register ${acronym}. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ${opStr}= ${code} srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ${opStr}= ${code} srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -115,7 +115,7 @@ function emitBinaryReg() {
   /**
    * Generate a register-index--register ${acronym}. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ${opStr}= $code srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ${opStr}= $code srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -203,7 +203,7 @@ EOF
   /**
    * Generate a register--register-offset ${acronym}. That is,
    * <PRE>
-   * dstReg ${opStr}= $code [srcIndex<<srcScale + srcDisp]
+   * dstReg ${opStr}= $code [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -245,7 +245,7 @@ EOF
   /**
    * Generate a register--register-offset ${acronym}. That is,
    * <PRE>
-   * dstReg ${opStr}= $code [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ${opStr}= $code [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -428,7 +428,7 @@ EOF
   /**
    * Generate a register-offset--immediate ${acronym}. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ${opStr}= ${code} imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ${opStr}= ${code} imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -527,7 +527,7 @@ EOF
   /**
    * Generate a register-index--immediate ${acronym}. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ${opStr}= ${code} imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ${opStr}= ${code} imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -689,7 +689,7 @@ function emitBinaryImmByte() {
   /**
    * Generate a register-index--immediate ${acronym}. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] ${opStr}= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] ${opStr}= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -712,7 +712,7 @@ function emitBinaryImmByte() {
   /**
    * Generate a register-offset--immediate ${acronym}. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ${opStr}= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ${opStr}= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -980,7 +980,7 @@ EOF
   /**
    * Generate a ${acronym} to register offset. That is,
    * <PRE>
-   * pc = [dstIndex<<dstScale + dstDisp]
+   * pc = [dstIndex&lt;&lt;dstScale + dstDisp]
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -1016,7 +1016,7 @@ EOF
   /**
    * Generate a ${acronym} to register offset. That is,
    * <PRE>
-   * pc = [dstBase + dstIndex<<dstScale + dstDisp]
+   * pc = [dstBase + dstIndex&lt;&lt;dstScale + dstDisp]
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -1152,7 +1152,7 @@ EOF
   /**
    * Generate a ${acronym} to register offset. That is,
    * <PRE>
-   * $opStr ${code} [index<<scale + disp]
+   * $opStr ${code} [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -1191,7 +1191,7 @@ EOF
   /**
    * Generate a ${acronym} to register offset. That is,
    * <PRE>
-   * $opStr ${code} [base + index<<scale + disp]
+   * $opStr ${code} [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -1306,7 +1306,7 @@ cat >> $FILENAME<<EOF
   /**
    * Generate a ${acronym} by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX $opStr [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX $opStr [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -1328,7 +1328,7 @@ cat >> $FILENAME<<EOF
   /**
    * Generate a ${acronym} by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX $opStr [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX $opStr [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -1441,7 +1441,7 @@ emitMoveImms() {
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] MOV = imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -1464,7 +1464,7 @@ emitMoveImms() {
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstIndex<<scale + dstDisp] MOV = imm
+   * [dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -1588,7 +1588,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a move ${desc} from register offset. That is,
    * <PRE>
-   * dstReg := (byte) [srcIndex<<srcScale + srcDisp] ($desc)
+   * dstReg := (byte) [srcIndex&lt;&lt;srcScale + srcDisp] ($desc)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -1628,7 +1628,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a move ${desc} by register indexed. That is,
    * <PRE>
-   * dstReg := (byte) [srcBase + srcIndex<<srcScale + srcDisp] ($desc)
+   * dstReg := (byte) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] ($desc)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -1708,7 +1708,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a move ${desc} from register offset. That is,
    * <PRE>
-   * dstReg := (word) [srcIndex<<srcScale + srcDisp] ($desc)
+   * dstReg := (word) [srcIndex&lt;&lt;srcScale + srcDisp] ($desc)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -1748,7 +1748,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a move ${desc} by register indexed. That is,
    * <PRE>
-   * dstReg := (word) [srcBase + srcIndex<<srcScale + srcDisp] ($desc)
+   * dstReg := (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] ($desc)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -1885,7 +1885,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a register-offset--immediate ${acronym}. That is,
    * <PRE>
-   * $descr of [dstIndex<<dstScale + dstDisp] by imm
+   * $descr of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -1938,7 +1938,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a register-index--immediate ${acronym}. That is,
    * <PRE>
-   * $descr of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * $descr of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -2028,7 +2028,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a register-offset--register ${acronym}. That is,
    * <PRE>
-   * $descr of [dstIndex<<dstScale + dstDisp] by srcReg
+   * $descr of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -2070,7 +2070,7 @@ cat >> $FILENAME <<EOF
   /**
    * Generate a register-displacement--register ${acronym}. That is,
    * <PRE>
-   * $descr of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * $descr of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -2213,7 +2213,7 @@ emitShiftDouble() {
   /**
    * Generate a register-index--register--immediate ${acronym}. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -2237,7 +2237,7 @@ emitShiftDouble() {
   /**
    * Generate a register-offset--register--immediate ${acronym}. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -2345,7 +2345,7 @@ emitShiftDouble() {
   /**
    * Generate a register-index--register--register ${acronym}. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -2369,7 +2369,7 @@ emitShiftDouble() {
   /**
    * Generate a register-index--register--register ${acronym}. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] ${opStr}= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -2482,7 +2482,7 @@ emitStackOp() {
   /**
    * Generate a register-index ${acronym}. That is,
    * <PRE>
-   * $op1 [base + index<<scale + disp], SP $op2 4
+   * $op1 [base + index&lt;&lt;scale + disp], SP $op2 4
    * </PRE>
    *
    * @param base the base register
@@ -2502,7 +2502,7 @@ emitStackOp() {
   /**
    * Generate a register-offset ${acronym}. That is,
    * <PRE>
-   * $op1 [index<<scale + disp], SP $op2 4
+   * $op1 [index&lt;&lt;scale + disp], SP $op2 4
    * </PRE>
    *
    * @param index the index register
@@ -2665,7 +2665,7 @@ emitSSE2Op() {
   /**
    * Generate a register--register-offset ${acronym}. That is,
    * <PRE>
-   * dstReg ${opStr}= $code [srcIndex<<srcScale + srcDisp]
+   * dstReg ${opStr}= $code [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -2714,7 +2714,7 @@ emitSSE2Op() {
    * @param srcScale the source scale
    * @param srcDisp the source displacement
    */
-  // dstReg ${opStr}= $code [srcBase + srcIndex<<scale + srcDisp]
+  // dstReg ${opStr}= $code [srcBase + srcIndex&lt;&lt;scale + srcDisp]
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2,3})
   public final void emit${acronym}_Reg_RegIdx${ext}($toRegType dstReg, GPR srcBase, GPR srcIndex, short srcScale, Offset srcDisp) {
     int miStart = mi;$prefix1Line
@@ -2796,7 +2796,7 @@ EOF
   /**
    * Generate a register-offset--register ${acronym}. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ${opStr}= ${code} srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ${opStr}= ${code} srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -2836,7 +2836,7 @@ EOF
   /**
    * Generate a register-index--register ${acronym}. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ${opStr}= $code srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ${opStr}= $code srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -3015,7 +3015,7 @@ emitFloatMemAcc() {
   /**
    * Perform ${op} on dstReg. That is,
    * <PRE>
-   * dstReg ${op}= (${size}) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ${op}= (${size}) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -3038,7 +3038,7 @@ emitFloatMemAcc() {
   /**
    * Perform ${op} on FP0. That is,
    * <PRE>
-   * dstReg ${op}= (${size}) [srcIndex<<srcScale + srcDisp]
+   * dstReg ${op}= (${size}) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -3190,7 +3190,7 @@ emitFloatMem() {
     if (lister != null) lister.RN(miStart, "${acronym}", reg);
   }
 
-  /** top of stack ${op} (${size:-double word}) [baseReg + idxReg<<scale + disp] */
+  /** top of stack ${op} (${size:-double word}) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emit${acronym}${pre}_RegIdx${ext}(${preArg}GPR baseReg, GPR idxReg, short scale, Offset disp${postArg}) {
     int miStart = mi;
@@ -3200,7 +3200,7 @@ emitFloatMem() {
     if (lister != null) lister.RXD(miStart, "${acronym}", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack ${op} (${size:-double word}) [idxReg<<scale + disp] */
+  /** top of stack ${op} (${size:-double word}) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emit${acronym}${pre}_RegOff${ext}(${preArg}GPR idxReg, short scale, Offset disp${postArg}) {
     int miStart = mi;

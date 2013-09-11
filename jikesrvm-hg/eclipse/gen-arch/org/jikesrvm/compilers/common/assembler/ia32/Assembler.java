@@ -1212,7 +1212,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
    *
    * <PRE>
    *     T0 = getPCThunk() or RIP less offset from start of method
-   *     T0 += [T0 + m<<2 + tableDisplacement]
+   *     T0 += [T0 + m&lt;&lt;2 + tableDisplacement]
    *     JMP T0
    * tableDisplacement:
    *     OFFSET 0 (case 0 target)
@@ -1384,7 +1384,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Conditionally move the source to the destination, i.e.
    * <PRE>
-   * if (cond) dst = [index2<<scale2 + disp2]
+   * if (cond) dst = [index2&lt;&lt;scale2 + disp2]
    * </PRE>
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={2,3})
@@ -1416,7 +1416,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Conditionally move the source to the destination, i.e.
    * <PRE>
-   * if (cond) dst = [base2 + index2<<scale2 + disp2]
+   * if (cond) dst = [base2 + index2&lt;&lt;scale2 + disp2]
    * </PRE>
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={2,3,4})
@@ -1980,7 +1980,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Compare and exchange 8 bytes
    * <PRE>
-   * cmpxchg8b [index2<<scale2 + disp2]
+   * cmpxchg8b [index2&lt;&lt;scale2 + disp2]
    * </PRE>
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
@@ -1996,7 +1996,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Compare and exchange 8 bytes
    * <PRE>
-   * cmpxchg8b [base + index2<<scale2 + disp2]
+   * cmpxchg8b [base + index2&lt;&lt;scale2 + disp2]
    * </PRE>
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
@@ -2307,7 +2307,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADC. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +CF=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +CF=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -2349,7 +2349,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -2434,7 +2434,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  [srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -2476,7 +2476,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -2539,7 +2539,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADC. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +CF=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +CF=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -2581,7 +2581,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -2666,7 +2666,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -2708,7 +2708,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -2771,7 +2771,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADC. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +CF=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +CF=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -2813,7 +2813,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -2898,7 +2898,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -2940,7 +2940,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -3003,7 +3003,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADC. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +CF=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +CF=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -3045,7 +3045,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -3130,7 +3130,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -3172,7 +3172,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADC. That is,
    * <PRE>
-   * dstReg +CF=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +CF=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -3277,7 +3277,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADC. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +CF=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +CF=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -3336,7 +3336,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -3459,7 +3459,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADC. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +CF=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -3518,7 +3518,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -3641,7 +3641,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADC. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +CF=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -3700,7 +3700,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +CF=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +CF=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -3807,7 +3807,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] +CF= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] +CF= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -3830,7 +3830,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADC. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +CF= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +CF= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -3911,7 +3911,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -3953,7 +3953,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -4038,7 +4038,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  [srcIndex<<srcScale + srcDisp]
+   * dstReg +=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4080,7 +4080,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4143,7 +4143,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -4185,7 +4185,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -4270,7 +4270,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg +=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4312,7 +4312,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4375,7 +4375,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -4417,7 +4417,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -4502,7 +4502,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg +=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4544,7 +4544,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4607,7 +4607,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ADD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] +=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] +=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -4649,7 +4649,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -4734,7 +4734,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg +=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4776,7 +4776,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADD. That is,
    * <PRE>
-   * dstReg +=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg +=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -4881,7 +4881,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADD. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -4940,7 +4940,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -5063,7 +5063,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADD. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -5122,7 +5122,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -5245,7 +5245,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADD. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] +=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] +=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -5304,7 +5304,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] +=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] +=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -5411,7 +5411,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ADD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] += (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] += (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -5434,7 +5434,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ADD. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] += (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] += (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -5515,7 +5515,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register AND. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -5557,7 +5557,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -5642,7 +5642,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  [srcIndex<<srcScale + srcDisp]
+   * dstReg &=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -5684,7 +5684,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg &=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -5747,7 +5747,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register AND. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -5789,7 +5789,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -5874,7 +5874,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -5916,7 +5916,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg &=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -5979,7 +5979,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register AND. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -6021,7 +6021,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -6106,7 +6106,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -6148,7 +6148,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg &=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -6211,7 +6211,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register AND. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -6253,7 +6253,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -6338,7 +6338,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -6380,7 +6380,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset AND. That is,
    * <PRE>
-   * dstReg &=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg &=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -6485,7 +6485,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate AND. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -6544,7 +6544,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -6667,7 +6667,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate AND. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -6726,7 +6726,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -6849,7 +6849,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate AND. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -6908,7 +6908,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -7015,7 +7015,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate AND. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] &= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] &= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -7038,7 +7038,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate AND. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -7119,7 +7119,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register CMP. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ==  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ==  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -7161,7 +7161,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -7246,7 +7246,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  [srcIndex<<srcScale + srcDisp]
+   * dstReg ==  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7288,7 +7288,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ==  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7351,7 +7351,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register CMP. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ==  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ==  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -7393,7 +7393,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -7478,7 +7478,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg ==  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7520,7 +7520,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ==  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7583,7 +7583,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register CMP. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ==  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ==  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -7625,7 +7625,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -7710,7 +7710,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg ==  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7752,7 +7752,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ==  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7815,7 +7815,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register CMP. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ==  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ==  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -7857,7 +7857,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -7942,7 +7942,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg ==  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -7984,7 +7984,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMP. That is,
    * <PRE>
-   * dstReg ==  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ==  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -8089,7 +8089,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate CMP. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ==  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ==  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -8148,7 +8148,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -8271,7 +8271,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate CMP. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ==  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ==  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -8330,7 +8330,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -8453,7 +8453,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate CMP. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ==  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ==  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -8512,7 +8512,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ==  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ==  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -8619,7 +8619,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate CMP. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] == (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] == (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -8642,7 +8642,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate CMP. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] == (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] == (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -8723,7 +8723,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register OR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] |=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] |=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -8765,7 +8765,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -8850,7 +8850,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  [srcIndex<<srcScale + srcDisp]
+   * dstReg |=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -8892,7 +8892,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg |=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -8955,7 +8955,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register OR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] |=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] |=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -8997,7 +8997,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -9082,7 +9082,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg |=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -9124,7 +9124,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg |=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -9187,7 +9187,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register OR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] |=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] |=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -9229,7 +9229,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -9314,7 +9314,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg |=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -9356,7 +9356,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg |=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -9419,7 +9419,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register OR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] |=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] |=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -9461,7 +9461,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -9546,7 +9546,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg |=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -9588,7 +9588,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset OR. That is,
    * <PRE>
-   * dstReg |=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg |=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -9693,7 +9693,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate OR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] |=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] |=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -9752,7 +9752,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -9875,7 +9875,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate OR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] |=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] |=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -9934,7 +9934,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -10057,7 +10057,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate OR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] |=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] |=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -10116,7 +10116,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] |=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] |=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -10223,7 +10223,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate OR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] |= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] |= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -10246,7 +10246,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate OR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] |= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] |= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -10327,7 +10327,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SBB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -CF=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -CF=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -10369,7 +10369,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -10454,7 +10454,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  [srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -10496,7 +10496,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -10559,7 +10559,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SBB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -CF=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -CF=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -10601,7 +10601,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -10686,7 +10686,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -10728,7 +10728,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -10791,7 +10791,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SBB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -CF=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -CF=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -10833,7 +10833,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -10918,7 +10918,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -10960,7 +10960,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -11023,7 +11023,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SBB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -CF=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -CF=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -11065,7 +11065,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -11150,7 +11150,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -11192,7 +11192,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SBB. That is,
    * <PRE>
-   * dstReg -CF=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -CF=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -11297,7 +11297,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SBB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -CF=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -CF=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -11356,7 +11356,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -11479,7 +11479,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SBB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -CF=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -11538,7 +11538,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -11661,7 +11661,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SBB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -CF=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -11720,7 +11720,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -CF=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -CF=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -11827,7 +11827,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SBB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] -CF= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] -CF= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -11850,7 +11850,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SBB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -CF= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -CF= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -11931,7 +11931,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SUB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -11973,7 +11973,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -12058,7 +12058,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  [srcIndex<<srcScale + srcDisp]
+   * dstReg -=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12100,7 +12100,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12163,7 +12163,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SUB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -12205,7 +12205,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -12290,7 +12290,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg -=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12332,7 +12332,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12395,7 +12395,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SUB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -12437,7 +12437,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -12522,7 +12522,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg -=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12564,7 +12564,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12627,7 +12627,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SUB. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] -=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] -=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -12669,7 +12669,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -12754,7 +12754,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg -=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12796,7 +12796,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUB. That is,
    * <PRE>
-   * dstReg -=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -12901,7 +12901,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SUB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -12960,7 +12960,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -13083,7 +13083,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SUB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13142,7 +13142,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -13265,7 +13265,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SUB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13324,7 +13324,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] -=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] -=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -13431,7 +13431,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SUB. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] -= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] -= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -13454,7 +13454,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SUB. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] -= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] -= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13535,7 +13535,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register TEST. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13577,7 +13577,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -13661,7 +13661,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register TEST. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13703,7 +13703,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -13787,7 +13787,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register TEST. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13829,7 +13829,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -13913,7 +13913,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register TEST. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] &=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -13955,7 +13955,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -14073,7 +14073,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate TEST. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -14124,7 +14124,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -14231,7 +14231,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate TEST. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -14282,7 +14282,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -14389,7 +14389,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate TEST. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -14440,7 +14440,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] &=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -14539,7 +14539,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate TEST. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] &= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] &= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -14562,7 +14562,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate TEST. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] &= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] &= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -14643,7 +14643,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register XOR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ~=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ~=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -14685,7 +14685,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -14770,7 +14770,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  [srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -14812,7 +14812,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -14875,7 +14875,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register XOR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ~=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ~=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -14917,7 +14917,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -15002,7 +15002,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -15044,7 +15044,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -15107,7 +15107,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register XOR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ~=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ~=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -15149,7 +15149,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -15234,7 +15234,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -15276,7 +15276,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -15339,7 +15339,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register XOR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] ~=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] ~=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -15381,7 +15381,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -15466,7 +15466,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -15508,7 +15508,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XOR. That is,
    * <PRE>
-   * dstReg ~=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg ~=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -15613,7 +15613,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate XOR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ~=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ~=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -15672,7 +15672,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -15795,7 +15795,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate XOR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ~=  (word)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ~=  (word)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -15854,7 +15854,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  (word)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  (word)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -15977,7 +15977,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate XOR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ~=  (quad)  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ~=  (quad)  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16036,7 +16036,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] ~=  (quad)  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] ~=  (quad)  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -16143,7 +16143,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate XOR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] ~= (byte) imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] ~= (byte) imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -16166,7 +16166,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate XOR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] ~= (byte) imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] ~= (byte) imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16247,7 +16247,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register BT. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] BT=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] BT=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16289,7 +16289,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register BT. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BT=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BT=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -16406,7 +16406,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate BT. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] BT=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] BT=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16459,7 +16459,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate BT. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BT=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BT=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -16534,7 +16534,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register BTC. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] BTC=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] BTC=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16576,7 +16576,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register BTC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BTC=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BTC=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -16693,7 +16693,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate BTC. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] BTC=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] BTC=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16746,7 +16746,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate BTC. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BTC=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BTC=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -16821,7 +16821,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register BTR. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] BTR=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] BTR=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -16863,7 +16863,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register BTR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BTR=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BTR=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -16980,7 +16980,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate BTR. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] BTR=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] BTR=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -17033,7 +17033,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate BTR. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BTR=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BTR=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -17108,7 +17108,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register BTS. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] BTS=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] BTS=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -17150,7 +17150,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register BTS. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BTS=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BTS=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -17267,7 +17267,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate BTS. That is,
    * <PRE>
-   * [dstIndex<<dstScale + dstDisp] BTS=  imm
+   * [dstIndex&lt;&lt;dstScale + dstDisp] BTS=  imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -17320,7 +17320,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate BTS. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] BTS=  imm
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] BTS=  imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -17497,7 +17497,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a CALL to register offset. That is,
    * <PRE>
-   * pc = [dstIndex<<dstScale + dstDisp]
+   * pc = [dstIndex&lt;&lt;dstScale + dstDisp]
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -17533,7 +17533,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a CALL to register offset. That is,
    * <PRE>
-   * pc = [dstBase + dstIndex<<dstScale + dstDisp]
+   * pc = [dstBase + dstIndex&lt;&lt;dstScale + dstDisp]
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -17689,7 +17689,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a JMP to register offset. That is,
    * <PRE>
-   * pc = [dstIndex<<dstScale + dstDisp]
+   * pc = [dstIndex&lt;&lt;dstScale + dstDisp]
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -17725,7 +17725,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a JMP to register offset. That is,
    * <PRE>
-   * pc = [dstBase + dstIndex<<dstScale + dstDisp]
+   * pc = [dstBase + dstIndex&lt;&lt;dstScale + dstDisp]
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -17806,7 +17806,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  [index<<scale + disp]
+   * --  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -17845,7 +17845,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  [base + index<<scale + disp]
+   * --  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -17923,7 +17923,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  (byte)  [index<<scale + disp]
+   * --  (byte)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -17962,7 +17962,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  (byte)  [base + index<<scale + disp]
+   * --  (byte)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18044,7 +18044,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  (word)  [index<<scale + disp]
+   * --  (word)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18083,7 +18083,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  (word)  [base + index<<scale + disp]
+   * --  (word)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18165,7 +18165,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  (quad)  [index<<scale + disp]
+   * --  (quad)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18204,7 +18204,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DEC to register offset. That is,
    * <PRE>
-   * --  (quad)  [base + index<<scale + disp]
+   * --  (quad)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18286,7 +18286,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  [index<<scale + disp]
+   * ++  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18325,7 +18325,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  [base + index<<scale + disp]
+   * ++  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18403,7 +18403,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  (byte)  [index<<scale + disp]
+   * ++  (byte)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18442,7 +18442,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  (byte)  [base + index<<scale + disp]
+   * ++  (byte)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18524,7 +18524,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  (word)  [index<<scale + disp]
+   * ++  (word)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18563,7 +18563,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  (word)  [base + index<<scale + disp]
+   * ++  (word)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18645,7 +18645,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  (quad)  [index<<scale + disp]
+   * ++  (quad)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18684,7 +18684,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a INC to register offset. That is,
    * <PRE>
-   * ++  (quad)  [base + index<<scale + disp]
+   * ++  (quad)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18762,7 +18762,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  [index<<scale + disp]
+   * -  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18801,7 +18801,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  [base + index<<scale + disp]
+   * -  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18879,7 +18879,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  (byte)  [index<<scale + disp]
+   * -  (byte)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -18918,7 +18918,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  (byte)  [base + index<<scale + disp]
+   * -  (byte)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -18996,7 +18996,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  (word)  [index<<scale + disp]
+   * -  (word)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -19035,7 +19035,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  (word)  [base + index<<scale + disp]
+   * -  (word)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -19113,7 +19113,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  (quad)  [index<<scale + disp]
+   * -  (quad)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -19152,7 +19152,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NEG to register offset. That is,
    * <PRE>
-   * -  (quad)  [base + index<<scale + disp]
+   * -  (quad)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -19230,7 +19230,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  [index<<scale + disp]
+   * ~  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -19269,7 +19269,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  [base + index<<scale + disp]
+   * ~  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -19347,7 +19347,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  (byte)  [index<<scale + disp]
+   * ~  (byte)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -19386,7 +19386,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  (byte)  [base + index<<scale + disp]
+   * ~  (byte)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -19464,7 +19464,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  (word)  [index<<scale + disp]
+   * ~  (word)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -19503,7 +19503,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  (word)  [base + index<<scale + disp]
+   * ~  (word)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -19581,7 +19581,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  (quad)  [index<<scale + disp]
+   * ~  (quad)  [index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param index the destination index register
@@ -19620,7 +19620,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a NOT to register offset. That is,
    * <PRE>
-   * ~  (quad)  [base + index<<scale + disp]
+   * ~  (quad)  [base + index&lt;&lt;scale + disp]
    * </PRE>
    *
    * @param base the destination base register
@@ -19700,7 +19700,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a MUL by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -19722,7 +19722,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a MUL by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -19820,7 +19820,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a MUL by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -19842,7 +19842,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a MUL by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -19940,7 +19940,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IMUL1 by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -19962,7 +19962,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IMUL1 by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20060,7 +20060,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IMUL1 by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20082,7 +20082,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IMUL1 by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX * [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX * [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20180,7 +20180,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DIV by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX / [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX / [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20202,7 +20202,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DIV by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX / [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX / [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20300,7 +20300,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DIV by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX / [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX / [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20322,7 +20322,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a DIV by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX / [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX / [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20420,7 +20420,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IDIV by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX u/ [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX u/ [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20442,7 +20442,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IDIV by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX u/ [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX u/ [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20540,7 +20540,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IDIV by register indexed. That is,
    * <PRE>
-   * EAX:EDX = EAX u/ [srcBase + srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX u/ [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20562,7 +20562,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a IDIV by register offseted. That is,
    * <PRE>
-   * EAX:EDX = EAX u/ [srcIndex<<srcScale + srcDisp]
+   * EAX:EDX = EAX u/ [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg must always be EAX/R0
@@ -20622,7 +20622,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOV. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] :=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] :=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -20664,7 +20664,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] :=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] :=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -20749,7 +20749,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  [srcIndex<<srcScale + srcDisp]
+   * dstReg :=  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -20791,7 +20791,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg :=  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -20854,7 +20854,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOV. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] :=  (byte)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] :=  (byte)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -20896,7 +20896,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] :=  (byte)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] :=  (byte)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -20981,7 +20981,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  (byte)  [srcIndex<<srcScale + srcDisp]
+   * dstReg :=  (byte)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -21023,7 +21023,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  (byte)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg :=  (byte)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -21086,7 +21086,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOV. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] :=  (word)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] :=  (word)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -21128,7 +21128,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] :=  (word)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] :=  (word)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -21213,7 +21213,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  (word)  [srcIndex<<srcScale + srcDisp]
+   * dstReg :=  (word)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -21255,7 +21255,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  (word)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg :=  (word)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -21318,7 +21318,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOV. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] :=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] :=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -21360,7 +21360,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] :=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] :=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -21445,7 +21445,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg :=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -21487,7 +21487,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOV. That is,
    * <PRE>
-   * dstReg :=  (quad)  [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg :=  (quad)  [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg the destination register
@@ -21571,7 +21571,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] MOV = imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -21594,7 +21594,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstIndex<<scale + dstDisp] MOV = imm
+   * [dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -21676,7 +21676,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] MOV = imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -21699,7 +21699,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstIndex<<scale + dstDisp] MOV = imm
+   * [dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -21781,7 +21781,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] MOV = imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -21804,7 +21804,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstIndex<<scale + dstDisp] MOV = imm
+   * [dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -21886,7 +21886,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstBase + dstIndex<<scale + dstDisp] MOV = imm
+   * [dstBase + dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -21909,7 +21909,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate MOV. That is,
    * <PRE>
-   * [dstIndex<<scale + dstDisp] MOV = imm
+   * [dstIndex&lt;&lt;scale + dstDisp] MOV = imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -22008,7 +22008,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended from register offset. That is,
    * <PRE>
-   * dstReg := (byte) [srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (byte) [srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22048,7 +22048,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended by register indexed. That is,
    * <PRE>
-   * dstReg := (byte) [srcBase + srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (byte) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22128,7 +22128,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended from register offset. That is,
    * <PRE>
-   * dstReg := (word) [srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (word) [srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22168,7 +22168,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended by register indexed. That is,
    * <PRE>
-   * dstReg := (word) [srcBase + srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22248,7 +22248,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended from register offset. That is,
    * <PRE>
-   * dstReg := (byte) [srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (byte) [srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22288,7 +22288,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended by register indexed. That is,
    * <PRE>
-   * dstReg := (byte) [srcBase + srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (byte) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22368,7 +22368,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended from register offset. That is,
    * <PRE>
-   * dstReg := (word) [srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (word) [srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22408,7 +22408,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move sign extended by register indexed. That is,
    * <PRE>
-   * dstReg := (word) [srcBase + srcIndex<<srcScale + srcDisp] (sign extended)
+   * dstReg := (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (sign extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22488,7 +22488,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended from register offset. That is,
    * <PRE>
-   * dstReg := (byte) [srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (byte) [srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22528,7 +22528,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended by register indexed. That is,
    * <PRE>
-   * dstReg := (byte) [srcBase + srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (byte) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22608,7 +22608,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended from register offset. That is,
    * <PRE>
-   * dstReg := (word) [srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (word) [srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22648,7 +22648,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended by register indexed. That is,
    * <PRE>
-   * dstReg := (word) [srcBase + srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22728,7 +22728,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended from register offset. That is,
    * <PRE>
-   * dstReg := (byte) [srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (byte) [srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22768,7 +22768,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended by register indexed. That is,
    * <PRE>
-   * dstReg := (byte) [srcBase + srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (byte) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22848,7 +22848,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended from register offset. That is,
    * <PRE>
-   * dstReg := (word) [srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (word) [srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22888,7 +22888,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a move zero extended by register indexed. That is,
    * <PRE>
-   * dstReg := (word) [srcBase + srcIndex<<srcScale + srcDisp] (zero extended)
+   * dstReg := (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp] (zero extended)
    * </PRE>
    *
    * @param dstReg the destination register
@@ -22930,7 +22930,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register CMPXCHG. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <->=  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] <->=  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -22972,7 +22972,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register CMPXCHG. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <->=  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] <->=  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -23056,7 +23056,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register CMPXCHG. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <->=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] <->=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -23098,7 +23098,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register CMPXCHG. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <->=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] <->=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the base register
@@ -23241,7 +23241,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -23294,7 +23294,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -23384,7 +23384,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -23426,7 +23426,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -23528,7 +23528,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -23581,7 +23581,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -23671,7 +23671,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -23713,7 +23713,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -23815,7 +23815,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -23868,7 +23868,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -23958,7 +23958,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24000,7 +24000,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24102,7 +24102,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24155,7 +24155,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24245,7 +24245,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROL. That is,
    * <PRE>
-   * rotate left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24287,7 +24287,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROL. That is,
    * <PRE>
-   * rotate left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24389,7 +24389,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24442,7 +24442,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24532,7 +24532,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24574,7 +24574,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24676,7 +24676,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24729,7 +24729,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24819,7 +24819,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -24861,7 +24861,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -24963,7 +24963,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25016,7 +25016,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25106,7 +25106,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25148,7 +25148,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25250,7 +25250,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25303,7 +25303,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25393,7 +25393,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register ROR. That is,
    * <PRE>
-   * rotate right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25435,7 +25435,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register ROR. That is,
    * <PRE>
-   * rotate right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25537,7 +25537,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25590,7 +25590,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25680,7 +25680,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25722,7 +25722,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25824,7 +25824,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -25877,7 +25877,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -25967,7 +25967,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26009,7 +26009,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCL. That is,
    * <PRE>
-   * rotate left with carry of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26111,7 +26111,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry  of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26164,7 +26164,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry  of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26254,7 +26254,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry  of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26296,7 +26296,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry  of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26398,7 +26398,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry  of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26451,7 +26451,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate left with carry  of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26541,7 +26541,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry  of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26583,7 +26583,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCL. That is,
    * <PRE>
-   * rotate left with carry  of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate left with carry  of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26685,7 +26685,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26738,7 +26738,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26828,7 +26828,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -26870,7 +26870,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -26972,7 +26972,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27025,7 +27025,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27115,7 +27115,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27157,7 +27157,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27259,7 +27259,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27312,7 +27312,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27402,7 +27402,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27444,7 +27444,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27546,7 +27546,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27599,7 +27599,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27689,7 +27689,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27731,7 +27731,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register RCR. That is,
    * <PRE>
-   * rotate right with carry of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * rotate right with carry of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27833,7 +27833,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -27886,7 +27886,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -27976,7 +27976,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28018,7 +28018,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28120,7 +28120,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28173,7 +28173,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28263,7 +28263,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28305,7 +28305,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28407,7 +28407,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28460,7 +28460,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28550,7 +28550,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28592,7 +28592,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28694,7 +28694,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28747,7 +28747,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28837,7 +28837,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -28879,7 +28879,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAL. That is,
    * <PRE>
-   * arithemetic shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -28981,7 +28981,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29034,7 +29034,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29124,7 +29124,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29166,7 +29166,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29268,7 +29268,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29321,7 +29321,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29411,7 +29411,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29453,7 +29453,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29555,7 +29555,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29608,7 +29608,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29698,7 +29698,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29740,7 +29740,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29842,7 +29842,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -29895,7 +29895,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -29985,7 +29985,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30027,7 +30027,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHL. That is,
    * <PRE>
-   * logical shift left of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift left of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30129,7 +30129,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30182,7 +30182,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30272,7 +30272,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30314,7 +30314,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30416,7 +30416,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30469,7 +30469,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30559,7 +30559,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30601,7 +30601,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30703,7 +30703,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30756,7 +30756,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30846,7 +30846,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -30888,7 +30888,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -30990,7 +30990,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31043,7 +31043,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31133,7 +31133,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31175,7 +31175,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SHR. That is,
    * <PRE>
-   * logical shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * logical shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31277,7 +31277,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31330,7 +31330,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31420,7 +31420,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31462,7 +31462,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31564,7 +31564,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31617,7 +31617,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31707,7 +31707,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31749,7 +31749,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31851,7 +31851,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -31904,7 +31904,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -31994,7 +31994,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -32036,7 +32036,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -32138,7 +32138,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -32191,7 +32191,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--immediate SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by imm
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by imm
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -32281,7 +32281,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -32323,7 +32323,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register SAR. That is,
    * <PRE>
-   * arithemetic shift right of [dstBase + dstIndex<<dstScale + dstDisp] by srcReg
+   * arithemetic shift right of [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] by srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -32346,7 +32346,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--immediate SHLD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -32367,7 +32367,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--immediate SHLD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32388,7 +32388,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--immediate SHLD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32410,7 +32410,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--immediate SHLD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -32434,7 +32434,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register--immediate SHLD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -32457,7 +32457,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate an absolute--register--immediate SHLD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -32478,7 +32478,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--register SHLD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -32499,7 +32499,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--register SHLD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32520,7 +32520,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--register SHLD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32542,7 +32542,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHLD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -32566,7 +32566,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHLD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -32589,7 +32589,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHLD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -32610,7 +32610,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--immediate SHLD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -32631,7 +32631,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--immediate SHLD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32652,7 +32652,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--immediate SHLD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32674,7 +32674,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--immediate SHLD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -32698,7 +32698,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register--immediate SHLD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -32721,7 +32721,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate an absolute--register--immediate SHLD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -32742,7 +32742,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--register SHLD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -32763,7 +32763,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--register SHLD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32784,7 +32784,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--register SHLD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32806,7 +32806,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHLD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -32830,7 +32830,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHLD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -32853,7 +32853,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHLD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -32874,7 +32874,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--immediate SHRD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -32895,7 +32895,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--immediate SHRD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32916,7 +32916,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--immediate SHRD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -32938,7 +32938,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--immediate SHRD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -32962,7 +32962,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register--immediate SHRD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -32985,7 +32985,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate an absolute--register--immediate SHRD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -33006,7 +33006,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--register SHRD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -33027,7 +33027,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--register SHRD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -33048,7 +33048,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--register SHRD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -33070,7 +33070,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHRD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -33094,7 +33094,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHRD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -33117,7 +33117,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHRD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -33138,7 +33138,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--immediate SHRD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -33159,7 +33159,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--immediate SHRD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -33180,7 +33180,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--immediate SHRD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -33202,7 +33202,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--immediate SHRD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -33226,7 +33226,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register--immediate SHRD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -33249,7 +33249,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate an absolute--register--immediate SHRD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -33270,7 +33270,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register--register SHRD. That is,
    * <PRE>
-   * left <<= shiftBy (with bits from right shifted in)
+   * left &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination register
@@ -33291,7 +33291,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register--register SHRD. That is,
    * <PRE>
-   * [left] <<= shiftBy (with bits from right shifted in)
+   * [left] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -33312,7 +33312,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register--register SHRD. That is,
    * <PRE>
-   * [left + disp] <<= shiftBy (with bits from right shifted in)
+   * [left + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param left the destination base register
@@ -33334,7 +33334,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHRD. That is,
    * <PRE>
-   * [leftBase + leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftBase + leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftBase the destination base register
@@ -33358,7 +33358,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHRD. That is,
    * <PRE>
-   * [leftIndex<<scale + disp] <<= shiftBy (with bits from right shifted in)
+   * [leftIndex&lt;&lt;scale + disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param leftIndex the destination index register
@@ -33381,7 +33381,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register--register SHRD. That is,
    * <PRE>
-   * [disp] <<= shiftBy (with bits from right shifted in)
+   * [disp] &lt;&lt;= shiftBy (with bits from right shifted in)
    * </PRE>
    *
    * @param disp the destination displacement
@@ -33453,7 +33453,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index POP. That is,
    * <PRE>
-   * pop [base + index<<scale + disp], SP -= 4
+   * pop [base + index&lt;&lt;scale + disp], SP -= 4
    * </PRE>
    *
    * @param base the base register
@@ -33473,7 +33473,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset POP. That is,
    * <PRE>
-   * pop [index<<scale + disp], SP -= 4
+   * pop [index&lt;&lt;scale + disp], SP -= 4
    * </PRE>
    *
    * @param index the index register
@@ -33558,7 +33558,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index PUSH. That is,
    * <PRE>
-   * push [base + index<<scale + disp], SP += 4
+   * push [base + index&lt;&lt;scale + disp], SP += 4
    * </PRE>
    *
    * @param base the base register
@@ -33578,7 +33578,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset PUSH. That is,
    * <PRE>
-   * push [index<<scale + disp], SP += 4
+   * push [index&lt;&lt;scale + disp], SP += 4
    * </PRE>
    *
    * @param index the index register
@@ -33633,7 +33633,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ADDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -33653,7 +33653,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ADDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33674,7 +33674,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33696,7 +33696,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ADDSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33716,7 +33716,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ADDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -33740,7 +33740,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ADDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33761,7 +33761,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register SUBSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -33781,7 +33781,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement SUBSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33802,7 +33802,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUBSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33824,7 +33824,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute SUBSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33844,7 +33844,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index SUBSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -33868,7 +33868,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect SUBSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33889,7 +33889,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MULSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -33909,7 +33909,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MULSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33930,7 +33930,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MULSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33952,7 +33952,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MULSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -33972,7 +33972,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MULSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -33996,7 +33996,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MULSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34017,7 +34017,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register DIVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34037,7 +34037,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement DIVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34058,7 +34058,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset DIVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34080,7 +34080,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute DIVSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34100,7 +34100,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index DIVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34124,7 +34124,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect DIVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34145,7 +34145,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34165,7 +34165,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34186,7 +34186,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34208,7 +34208,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34228,7 +34228,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34252,7 +34252,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34273,7 +34273,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVSS. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -34293,7 +34293,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVSS. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -34315,7 +34315,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVSS. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -34335,7 +34335,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVSS. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -34358,7 +34358,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVSS. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -34380,7 +34380,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVLPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34399,7 +34399,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVLPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34419,7 +34419,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVLPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34440,7 +34440,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVLPS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34459,7 +34459,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVLPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34482,7 +34482,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVLPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34502,7 +34502,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVLPS. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -34521,7 +34521,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVLPS. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -34542,7 +34542,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVLPS. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -34561,7 +34561,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVLPS. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -34583,7 +34583,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVLPS. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -34604,7 +34604,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register SQRTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34624,7 +34624,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement SQRTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34645,7 +34645,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SQRTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34667,7 +34667,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute SQRTSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34687,7 +34687,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index SQRTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34711,7 +34711,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect SQRTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34732,7 +34732,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSS2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34752,7 +34752,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSS2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34773,7 +34773,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSS2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34795,7 +34795,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSS2SD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34815,7 +34815,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSS2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34839,7 +34839,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSS2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34860,7 +34860,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34880,7 +34880,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34901,7 +34901,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34923,7 +34923,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSI2SS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34943,7 +34943,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -34967,7 +34967,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -34988,7 +34988,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35008,7 +35008,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35029,7 +35029,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35051,7 +35051,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSI2SS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35071,7 +35071,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35095,7 +35095,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSI2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35116,7 +35116,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35136,7 +35136,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35157,7 +35157,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35179,7 +35179,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSS2SI. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35199,7 +35199,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35208,7 +35208,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
    * @param srcScale the source scale
    * @param srcDisp the source displacement
    */
-  // dstReg <<=  (quad)  [srcBase + srcIndex<<scale + srcDisp]
+  // dstReg &lt;&lt;=  (quad)  [srcBase + srcIndex&lt;&lt;scale + srcDisp]
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2,3})
   public final void emitCVTSS2SI_Reg_RegIdx(GPR dstReg, GPR srcBase, GPR srcIndex, short srcScale, Offset srcDisp) {
     int miStart = mi;
@@ -35223,7 +35223,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35244,7 +35244,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35264,7 +35264,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35285,7 +35285,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35307,7 +35307,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSS2SI. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35327,7 +35327,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35351,7 +35351,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35372,7 +35372,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35392,7 +35392,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35413,7 +35413,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35435,7 +35435,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTTSS2SI. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35455,7 +35455,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35479,7 +35479,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35500,7 +35500,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35520,7 +35520,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35541,7 +35541,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35563,7 +35563,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTTSS2SI. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35583,7 +35583,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35607,7 +35607,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTTSS2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35628,7 +35628,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register UCOMISS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35647,7 +35647,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement UCOMISS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35667,7 +35667,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset UCOMISS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35688,7 +35688,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute UCOMISS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35707,7 +35707,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index UCOMISS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35730,7 +35730,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect UCOMISS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35750,7 +35750,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPEQSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35771,7 +35771,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPEQSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35793,7 +35793,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPEQSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35816,7 +35816,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPEQSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35837,7 +35837,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPEQSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35862,7 +35862,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPEQSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35884,7 +35884,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35905,7 +35905,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35927,7 +35927,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35950,7 +35950,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPLTSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -35971,7 +35971,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -35996,7 +35996,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36018,7 +36018,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36039,7 +36039,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36061,7 +36061,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36084,7 +36084,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPLESS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36105,7 +36105,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36130,7 +36130,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36152,7 +36152,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPUNORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36173,7 +36173,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPUNORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36195,7 +36195,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPUNORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36218,7 +36218,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPUNORDSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36239,7 +36239,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPUNORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36264,7 +36264,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPUNORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36286,7 +36286,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPNESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36307,7 +36307,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPNESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36329,7 +36329,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPNESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36352,7 +36352,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPNESS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36373,7 +36373,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPNESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36398,7 +36398,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPNESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36420,7 +36420,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPNLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36441,7 +36441,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPNLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36463,7 +36463,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPNLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36486,7 +36486,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPNLTSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36507,7 +36507,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPNLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36532,7 +36532,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPNLTSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36554,7 +36554,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPNLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36575,7 +36575,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPNLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36597,7 +36597,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPNLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36620,7 +36620,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPNLESS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36641,7 +36641,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPNLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36666,7 +36666,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPNLESS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36688,7 +36688,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36709,7 +36709,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36731,7 +36731,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36754,7 +36754,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPORDSS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36775,7 +36775,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36800,7 +36800,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPORDSS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36822,7 +36822,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36841,7 +36841,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVD. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -36860,7 +36860,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -36881,7 +36881,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVD. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -36900,7 +36900,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -36922,7 +36922,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVD. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -36943,7 +36943,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -36962,7 +36962,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -36982,7 +36982,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37003,7 +37003,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37022,7 +37022,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37045,7 +37045,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37065,7 +37065,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37085,7 +37085,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVD. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37105,7 +37105,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -37127,7 +37127,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVD. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -37147,7 +37147,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37170,7 +37170,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVD. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37192,7 +37192,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37212,7 +37212,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37233,7 +37233,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37255,7 +37255,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37275,7 +37275,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37299,7 +37299,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37320,7 +37320,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37339,7 +37339,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37359,7 +37359,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37380,7 +37380,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37399,7 +37399,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37422,7 +37422,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37442,7 +37442,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVQ. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37461,7 +37461,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVQ. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -37482,7 +37482,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVQ. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -37501,7 +37501,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVQ. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37523,7 +37523,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVQ. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37544,7 +37544,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37564,7 +37564,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37585,7 +37585,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37607,7 +37607,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37627,7 +37627,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37651,7 +37651,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37672,7 +37672,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVQ. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37692,7 +37692,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVQ. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -37714,7 +37714,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVQ. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -37734,7 +37734,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVQ. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37757,7 +37757,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVQ. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -37779,7 +37779,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ADDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37799,7 +37799,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ADDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37820,7 +37820,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ADDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37842,7 +37842,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ADDSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37862,7 +37862,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ADDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37886,7 +37886,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ADDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37907,7 +37907,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register SUBSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -37927,7 +37927,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement SUBSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37948,7 +37948,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SUBSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37970,7 +37970,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute SUBSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -37990,7 +37990,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index SUBSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38014,7 +38014,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect SUBSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38035,7 +38035,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MULSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38055,7 +38055,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MULSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38076,7 +38076,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MULSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38098,7 +38098,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MULSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38118,7 +38118,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MULSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38142,7 +38142,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MULSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38163,7 +38163,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register DIVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38183,7 +38183,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement DIVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38204,7 +38204,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset DIVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38226,7 +38226,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute DIVSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38246,7 +38246,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index DIVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38270,7 +38270,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect DIVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38291,7 +38291,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38311,7 +38311,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38332,7 +38332,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38354,7 +38354,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38374,7 +38374,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38398,7 +38398,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38419,7 +38419,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVSD. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -38439,7 +38439,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVSD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -38461,7 +38461,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVSD. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -38481,7 +38481,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVSD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -38504,7 +38504,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVSD. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -38526,7 +38526,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register MOVLPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38546,7 +38546,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement MOVLPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38567,7 +38567,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset MOVLPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38589,7 +38589,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute MOVLPD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38609,7 +38609,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index MOVLPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38633,7 +38633,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect MOVLPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38654,7 +38654,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-indirect--register MOVLPD. That is,
    * <PRE>
-   * [dstBase] <<=  (quad)  srcReg
+   * [dstBase] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -38674,7 +38674,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-offset--register MOVLPD. That is,
    * <PRE>
-   * [dstReg<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstReg&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstIndex the destination index register
@@ -38696,7 +38696,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a absolute--register MOVLPD. That is,
    * <PRE>
-   * [dstDisp] <<=  (quad)  srcReg
+   * [dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstDisp the destination displacement
@@ -38716,7 +38716,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-index--register MOVLPD. That is,
    * <PRE>
-   * [dstBase + dstIndex<<dstScale + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstIndex&lt;&lt;dstScale + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -38739,7 +38739,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register-displacement--register MOVLPD. That is,
    * <PRE>
-   * [dstBase + dstDisp] <<=  (quad)  srcReg
+   * [dstBase + dstDisp] &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstBase the destination base register
@@ -38761,7 +38761,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register SQRTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38781,7 +38781,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement SQRTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38802,7 +38802,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset SQRTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38824,7 +38824,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute SQRTSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38844,7 +38844,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index SQRTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38868,7 +38868,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect SQRTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38889,7 +38889,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSI2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38909,7 +38909,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSI2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38930,7 +38930,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSI2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38952,7 +38952,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSI2SD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -38972,7 +38972,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSI2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -38996,7 +38996,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSI2SD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39017,7 +39017,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSD2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39037,7 +39037,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSD2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39058,7 +39058,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSD2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39080,7 +39080,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSD2SS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39100,7 +39100,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSD2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39124,7 +39124,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSD2SS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39145,7 +39145,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39165,7 +39165,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39186,7 +39186,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39208,7 +39208,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSD2SI. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39228,7 +39228,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39252,7 +39252,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39273,7 +39273,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39293,7 +39293,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39314,7 +39314,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39336,7 +39336,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTTSD2SI. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39356,7 +39356,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39380,7 +39380,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTTSD2SI. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39401,7 +39401,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSI2SDQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39421,7 +39421,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSI2SDQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39442,7 +39442,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSI2SDQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39464,7 +39464,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSI2SDQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39484,7 +39484,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSI2SDQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39508,7 +39508,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSI2SDQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39529,7 +39529,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39549,7 +39549,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39570,7 +39570,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39592,7 +39592,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTSD2SIQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39612,7 +39612,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39636,7 +39636,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39657,7 +39657,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CVTTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39677,7 +39677,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CVTTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39698,7 +39698,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CVTTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39720,7 +39720,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CVTTSD2SIQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39740,7 +39740,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CVTTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39764,7 +39764,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CVTTSD2SIQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39785,7 +39785,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register UCOMISD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39805,7 +39805,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement UCOMISD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39826,7 +39826,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset UCOMISD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39848,7 +39848,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute UCOMISD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39868,7 +39868,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index UCOMISD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39892,7 +39892,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect UCOMISD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39913,7 +39913,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPEQSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -39934,7 +39934,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPEQSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39956,7 +39956,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPEQSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -39979,7 +39979,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPEQSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40000,7 +40000,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPEQSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40025,7 +40025,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPEQSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40047,7 +40047,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40068,7 +40068,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40090,7 +40090,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40113,7 +40113,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPLTSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40134,7 +40134,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40159,7 +40159,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40181,7 +40181,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40202,7 +40202,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40224,7 +40224,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40247,7 +40247,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPLESD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40268,7 +40268,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40293,7 +40293,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40315,7 +40315,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPUNORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40336,7 +40336,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPUNORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40358,7 +40358,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPUNORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40381,7 +40381,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPUNORDSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40402,7 +40402,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPUNORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40427,7 +40427,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPUNORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40449,7 +40449,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPNESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40470,7 +40470,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPNESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40492,7 +40492,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPNESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40515,7 +40515,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPNESD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40536,7 +40536,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPNESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40561,7 +40561,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPNESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40583,7 +40583,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPNLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40604,7 +40604,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPNLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40626,7 +40626,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPNLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40649,7 +40649,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPNLTSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40670,7 +40670,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPNLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40695,7 +40695,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPNLTSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40717,7 +40717,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPNLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40738,7 +40738,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPNLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40760,7 +40760,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPNLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40783,7 +40783,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPNLESD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40804,7 +40804,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPNLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40829,7 +40829,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPNLESD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40851,7 +40851,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register CMPORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40872,7 +40872,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement CMPORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40894,7 +40894,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset CMPORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40917,7 +40917,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute CMPORDSD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40938,7 +40938,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index CMPORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -40963,7 +40963,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect CMPORDSD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -40985,7 +40985,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41004,7 +41004,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41024,7 +41024,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41045,7 +41045,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute PSLLQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41064,7 +41064,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41087,7 +41087,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41107,7 +41107,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41126,7 +41126,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41146,7 +41146,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41167,7 +41167,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute PSRLQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41186,7 +41186,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41209,7 +41209,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41229,7 +41229,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41249,7 +41249,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41270,7 +41270,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41292,7 +41292,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute PSLLQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41312,7 +41312,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41336,7 +41336,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect PSLLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41357,7 +41357,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41377,7 +41377,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41398,7 +41398,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41420,7 +41420,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute PSRLQ. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41440,7 +41440,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41464,7 +41464,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect PSRLQ. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41485,7 +41485,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ANDPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41504,7 +41504,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ANDPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41524,7 +41524,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ANDPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41545,7 +41545,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ANDPS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41564,7 +41564,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ANDPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41587,7 +41587,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ANDPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41607,7 +41607,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ANDPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41627,7 +41627,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ANDPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41648,7 +41648,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ANDPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41670,7 +41670,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ANDPD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41690,7 +41690,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ANDPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41714,7 +41714,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ANDPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41735,7 +41735,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ANDNPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41754,7 +41754,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ANDNPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41774,7 +41774,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ANDNPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41795,7 +41795,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ANDNPS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41814,7 +41814,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ANDNPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41837,7 +41837,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ANDNPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41857,7 +41857,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ANDNPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41877,7 +41877,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ANDNPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41898,7 +41898,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ANDNPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41920,7 +41920,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ANDNPD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41940,7 +41940,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ANDNPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -41964,7 +41964,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ANDNPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -41985,7 +41985,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42004,7 +42004,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42024,7 +42024,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42045,7 +42045,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ORPS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42064,7 +42064,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42087,7 +42087,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42107,7 +42107,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register ORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42127,7 +42127,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement ORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42148,7 +42148,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset ORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42170,7 +42170,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute ORPD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42190,7 +42190,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index ORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42214,7 +42214,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect ORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42235,7 +42235,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register XORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42254,7 +42254,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement XORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42274,7 +42274,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42295,7 +42295,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute XORPS. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42314,7 +42314,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index XORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42337,7 +42337,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect XORPS. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42357,7 +42357,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register XORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42377,7 +42377,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-displacement XORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcBase + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42398,7 +42398,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-offset XORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcIndex<<srcScale + srcDisp]
+   * dstReg &lt;&lt;=  (quad)  [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42420,7 +42420,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--absolute XORPD. That is,
    * <PRE>
-   *  dstReg <<=  (quad)  [srcDisp]
+   *  dstReg &lt;&lt;=  (quad)  [srcDisp]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42440,7 +42440,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-index XORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  srcReg
+   * dstReg &lt;&lt;=  (quad)  srcReg
    * </PRE>
    *
    * @param dstReg destination register
@@ -42464,7 +42464,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Generate a register--register-indirect XORPD. That is,
    * <PRE>
-   * dstReg <<=  (quad)  [srcBase]
+   * dstReg &lt;&lt;=  (quad)  [srcBase]
    * </PRE>
    *
    * @param dstReg destination register
@@ -42525,7 +42525,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on dstReg. That is,
    * <PRE>
-   * dstReg += () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg += () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42548,7 +42548,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on FP0. That is,
    * <PRE>
-   * dstReg += () [srcIndex<<srcScale + srcDisp]
+   * dstReg += () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42631,7 +42631,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on dstReg. That is,
    * <PRE>
-   * dstReg += (quad) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg += (quad) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42654,7 +42654,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on FP0. That is,
    * <PRE>
-   * dstReg += (quad) [srcIndex<<srcScale + srcDisp]
+   * dstReg += (quad) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42737,7 +42737,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on dstReg. That is,
    * <PRE>
-   * dstReg += () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg += () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42760,7 +42760,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on FP0. That is,
    * <PRE>
-   * dstReg += () [srcIndex<<srcScale + srcDisp]
+   * dstReg += () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42843,7 +42843,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on dstReg. That is,
    * <PRE>
-   * dstReg += (word) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg += (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42866,7 +42866,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform + on FP0. That is,
    * <PRE>
-   * dstReg += (word) [srcIndex<<srcScale + srcDisp]
+   * dstReg += (word) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -42990,7 +42990,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43013,7 +43013,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= () [srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43096,7 +43096,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= (quad) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= (quad) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43119,7 +43119,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= (quad) [srcIndex<<srcScale + srcDisp]
+   * dstReg /= (quad) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43202,7 +43202,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43225,7 +43225,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= () [srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43308,7 +43308,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= (word) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43331,7 +43331,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= (word) [srcIndex<<srcScale + srcDisp]
+   * dstReg /= (word) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43455,7 +43455,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43478,7 +43478,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= () [srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43561,7 +43561,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= (quad) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= (quad) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43584,7 +43584,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= (quad) [srcIndex<<srcScale + srcDisp]
+   * dstReg /= (quad) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43667,7 +43667,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43690,7 +43690,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= () [srcIndex<<srcScale + srcDisp]
+   * dstReg /= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43773,7 +43773,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on dstReg. That is,
    * <PRE>
-   * dstReg /= (word) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg /= (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43796,7 +43796,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform / on FP0. That is,
    * <PRE>
-   * dstReg /= (word) [srcIndex<<srcScale + srcDisp]
+   * dstReg /= (word) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43920,7 +43920,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on dstReg. That is,
    * <PRE>
-   * dstReg x= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg x= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -43943,7 +43943,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on FP0. That is,
    * <PRE>
-   * dstReg x= () [srcIndex<<srcScale + srcDisp]
+   * dstReg x= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44026,7 +44026,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on dstReg. That is,
    * <PRE>
-   * dstReg x= (quad) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg x= (quad) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44049,7 +44049,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on FP0. That is,
    * <PRE>
-   * dstReg x= (quad) [srcIndex<<srcScale + srcDisp]
+   * dstReg x= (quad) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44132,7 +44132,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on dstReg. That is,
    * <PRE>
-   * dstReg x= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg x= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44155,7 +44155,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on FP0. That is,
    * <PRE>
-   * dstReg x= () [srcIndex<<srcScale + srcDisp]
+   * dstReg x= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44238,7 +44238,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on dstReg. That is,
    * <PRE>
-   * dstReg x= (word) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg x= (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44261,7 +44261,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform x on FP0. That is,
    * <PRE>
-   * dstReg x= (word) [srcIndex<<srcScale + srcDisp]
+   * dstReg x= (word) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44385,7 +44385,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44408,7 +44408,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= () [srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44491,7 +44491,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= (quad) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= (quad) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44514,7 +44514,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= (quad) [srcIndex<<srcScale + srcDisp]
+   * dstReg -= (quad) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44597,7 +44597,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44620,7 +44620,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= () [srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44703,7 +44703,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= (word) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44726,7 +44726,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= (word) [srcIndex<<srcScale + srcDisp]
+   * dstReg -= (word) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44850,7 +44850,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44873,7 +44873,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= () [srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44956,7 +44956,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= (quad) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= (quad) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -44979,7 +44979,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= (quad) [srcIndex<<srcScale + srcDisp]
+   * dstReg -= (quad) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -45062,7 +45062,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= () [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -45085,7 +45085,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= () [srcIndex<<srcScale + srcDisp]
+   * dstReg -= () [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -45168,7 +45168,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on dstReg. That is,
    * <PRE>
-   * dstReg -= (word) [srcBase + srcIndex<<srcScale + srcDisp]
+   * dstReg -= (word) [srcBase + srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -45191,7 +45191,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /**
    * Perform - on FP0. That is,
    * <PRE>
-   * dstReg -= (word) [srcIndex<<srcScale + srcDisp]
+   * dstReg -= (word) [srcIndex&lt;&lt;srcScale + srcDisp]
    * </PRE>
    *
    * @param dstReg destination register, must be FP0
@@ -45291,7 +45291,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FLD", reg);
   }
 
-  /** top of stack loaded from (double word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack loaded from (double word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFLD_Reg_RegIdx(FPR dummy, GPR baseReg, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45301,7 +45301,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FLD", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack loaded from (double word) [idxReg<<scale + disp] */
+  /** top of stack loaded from (double word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFLD_Reg_RegOff(FPR dummy, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45340,7 +45340,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FLD", reg);
   }
 
-  /** top of stack loaded from (quad) [baseReg + idxReg<<scale + disp] */
+  /** top of stack loaded from (quad) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFLD_Reg_RegIdx_Quad(FPR dummy, GPR baseReg, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45350,7 +45350,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FLD", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack loaded from (quad) [idxReg<<scale + disp] */
+  /** top of stack loaded from (quad) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFLD_Reg_RegOff_Quad(FPR dummy, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45389,7 +45389,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FILD", reg);
   }
 
-  /** top of stack loaded from (word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack loaded from (word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFILD_Reg_RegIdx_Word(FPR dummy, GPR baseReg, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45399,7 +45399,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FILD", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack loaded from (word) [idxReg<<scale + disp] */
+  /** top of stack loaded from (word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFILD_Reg_RegOff_Word(FPR dummy, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45438,7 +45438,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FILD", reg);
   }
 
-  /** top of stack loaded from (double word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack loaded from (double word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFILD_Reg_RegIdx(FPR dummy, GPR baseReg, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45448,7 +45448,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FILD", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack loaded from (double word) [idxReg<<scale + disp] */
+  /** top of stack loaded from (double word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFILD_Reg_RegOff(FPR dummy, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45487,7 +45487,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FILD", reg);
   }
 
-  /** top of stack loaded from (quad) [baseReg + idxReg<<scale + disp] */
+  /** top of stack loaded from (quad) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFILD_Reg_RegIdx_Quad(FPR dummy, GPR baseReg, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45497,7 +45497,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FILD", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack loaded from (quad) [idxReg<<scale + disp] */
+  /** top of stack loaded from (quad) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFILD_Reg_RegOff_Quad(FPR dummy, GPR idxReg, short scale, Offset disp) {
     int miStart = mi;
@@ -45536,7 +45536,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FIST", reg);
   }
 
-  /** top of stack stored to (word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFIST_RegIdx_Reg_Word(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45546,7 +45546,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FIST", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (word) [idxReg<<scale + disp] */
+  /** top of stack stored to (word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFIST_RegOff_Reg_Word(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45585,7 +45585,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FIST", reg);
   }
 
-  /** top of stack stored to (double word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFIST_RegIdx_Reg(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45595,7 +45595,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FIST", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (double word) [idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFIST_RegOff_Reg(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45634,7 +45634,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FISTP", reg);
   }
 
-  /** top of stack stored to (word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFISTP_RegIdx_Reg_Word(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45644,7 +45644,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FISTP", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (word) [idxReg<<scale + disp] */
+  /** top of stack stored to (word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFISTP_RegOff_Reg_Word(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45683,7 +45683,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FISTP", reg);
   }
 
-  /** top of stack stored to (double word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFISTP_RegIdx_Reg(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45693,7 +45693,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FISTP", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (double word) [idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFISTP_RegOff_Reg(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45732,7 +45732,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FISTP", reg);
   }
 
-  /** top of stack stored to (quad) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (quad) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFISTP_RegIdx_Reg_Quad(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45742,7 +45742,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FISTP", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (quad) [idxReg<<scale + disp] */
+  /** top of stack stored to (quad) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFISTP_RegOff_Reg_Quad(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45781,7 +45781,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FST", reg);
   }
 
-  /** top of stack stored to (double word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFST_RegIdx_Reg(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45791,7 +45791,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FST", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (double word) [idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFST_RegOff_Reg(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45830,7 +45830,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FST", reg);
   }
 
-  /** top of stack stored to (quad) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (quad) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFST_RegIdx_Reg_Quad(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45840,7 +45840,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FST", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (quad) [idxReg<<scale + disp] */
+  /** top of stack stored to (quad) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFST_RegOff_Reg_Quad(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45879,7 +45879,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FSTP", reg);
   }
 
-  /** top of stack stored to (double word) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFSTP_RegIdx_Reg(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45889,7 +45889,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FSTP", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (double word) [idxReg<<scale + disp] */
+  /** top of stack stored to (double word) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFSTP_RegOff_Reg(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45928,7 +45928,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RN(miStart, "FSTP", reg);
   }
 
-  /** top of stack stored to (quad) [baseReg + idxReg<<scale + disp] */
+  /** top of stack stored to (quad) [baseReg + idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
   public final void emitFSTP_RegIdx_Reg_Quad(GPR baseReg, GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
@@ -45938,7 +45938,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RXD(miStart, "FSTP", baseReg, idxReg, scale, disp);
   }
 
-  /** top of stack stored to (quad) [idxReg<<scale + disp] */
+  /** top of stack stored to (quad) [idxReg&lt;&lt;scale + disp] */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1})
   public final void emitFSTP_RegOff_Reg_Quad(GPR idxReg, short scale, Offset disp, FPR dummy) {
     int miStart = mi;
