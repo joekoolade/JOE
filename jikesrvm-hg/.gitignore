@@ -1,5 +1,5 @@
 /dist
 /target
-/generated
+generated/
 /image.optNoGC.log
 /components
