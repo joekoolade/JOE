@@ -648,7 +648,8 @@ public class BootImageWriter extends BootImageWriterMessages
     Vector<String>   bootImageTypeNames    = null;
     String   bootImageTypeNamesFile = null;
     String[] bootImageCompilerArgs = {};
-
+    String bootImageStartupName	   = null;
+    
     //
     // This may look useless, but it is not: it is a kludge to prevent
     // forName blowing up.  By forcing the system to load some classes
@@ -796,6 +797,14 @@ public class BootImageWriter extends BootImageWriterMessages
       if (args[i].equals("-littleEndian")) {
         littleEndian = true;
         continue;
+      }
+      
+      if (args[i].equals("-jam")) {
+    	  if (++i >= args.length)
+    		  fail("Need to specify jam files");
+    	  bootImageStartupName = args[i];
+    	  System.out.print("JAMMING to "+bootImageStartupName);
+    	  continue;
       }
       fail("unrecognized command line argument: " + args[i]);
     }
@@ -1078,6 +1087,13 @@ public class BootImageWriter extends BootImageWriterMessages
       bootImage.setAddressWord(jtocPtr.plus(oIDOffset), MiscHeader.getOID(), false, false);
     }
 
+    if(bootImageStartupName!=null) {
+    	say("Creating x86 startup code ...");
+    	GenerateX86Startup startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister);
+    	say("Done!\n Writing the image ...");
+    	startup.writeImage();
+    	say("Done!");
+    }
     //
     // Write image to disk.
     //

@@ -69,7 +69,7 @@ public abstract class Configuration {
           VM._assert(xxx);
       </pre>
   */
-  public static final boolean VerifyAssertions = true;
+  public static final boolean VerifyAssertions = false;
   public static final boolean ExtremeAssertions = false;
 
   /**
@@ -82,13 +82,13 @@ public abstract class Configuration {
   public static final boolean ParanoidVerifyUnint = false;
 
   /** Is this an adaptive build? */
-  public static final boolean BuildForAdaptiveSystem = true;
+  public static final boolean BuildForAdaptiveSystem = false;
 
   /** Is this an opt compiler build? */
-  public static final boolean BuildForOptCompiler = true;
+  public static final boolean BuildForOptCompiler = false;
 
   /** build with Base boot image compiler? */
-  public static final boolean BuildWithBaseBootImageCompiler = false;
+  public static final boolean BuildWithBaseBootImageCompiler = true;
 
   // Interface method dispatch strategy.
   // We either use IMT's (Alpern, Cocchi, Fink, Grove, and Lieber OOPSLA 2001)
@@ -109,8 +109,8 @@ public abstract class Configuration {
   public static final boolean BuildWithGCTrace = false;
   public static final boolean BuildWithGCSpy = false;
   
-  public static final String RVM_VERSION_STRING = "Jikes RVM 3.1.3+hg (r50c500c6d5b8ee2c30fc985d4e93d16ed14fb6f1)";
-  public static final String RVM_CONFIGURATION = "development";
+  public static final String RVM_VERSION_STRING = "Jikes RVM 3.1.3+hg (rUnknown)";
+  public static final String RVM_CONFIGURATION = "baseGenCopy";
 
   /**
    * Alignment checking (for IA32 only; for debugging purposes only).

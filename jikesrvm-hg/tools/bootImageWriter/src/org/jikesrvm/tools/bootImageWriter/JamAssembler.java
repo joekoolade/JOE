@@ -3,6 +3,7 @@ package org.jikesrvm.tools.bootImageWriter;
 import org.jikesrvm.compilers.baseline.ia32.BaselineCompilerImpl;
 import org.jikesrvm.compilers.common.assembler.ia32.Assembler;
 import org.jikesrvm.VM;
+import org.vmmagic.unboxed.Address;
 
 public class JamAssembler extends Assembler {
 
@@ -24,12 +25,12 @@ public class JamAssembler extends Assembler {
 	 * zero filled
 	 * @param alignment amount of alignment. 2 = 4 byte boundary, 3 = 8 byte boundary
 	 */
-	public void align(int alignment) {
-		if(alignment > 32)
-			VM._assert(false, "Bad alignment: "+alignment);
-
+	public void align(int mask) {
+		/*
+		 * Fix the aligment. No shift, mask instead
+		 */
 		int miStart = mi;
-		mi = mi+(1<<alignment) & (0xffffffff<<alignment);
+		mi = (mi+(mask-1)) & ~(mask-1);
 		for(int mi0=miStart; mi0<mi; mi0++) {
 			setMachineCodes(mi0, (byte) 0);
 		}
@@ -248,6 +249,48 @@ public class JamAssembler extends Assembler {
 		setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x0f);
 		setMachineCodes(mi++, (byte)0x01);
+		emitRegIndirectRegOperands(GPR.getForOpcode(0), GPR.getForOpcode(2)); // opcode /2
+		emitImm32(tableAddress);
+		if(lister != null) lister.I(miStart, "LGDT", tableAddress.toInt());
+	}
+
+	public void emitLIDT(Address tableAddress) {
+		int miStart = mi;
+		// operand size prefix
+		setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x0f);
+		setMachineCodes(mi++, (byte)0x01);
+		emitRegIndirectRegOperands(GPR.getForOpcode(0), GPR.getForOpcode(3)); // opcode /3
+		emitImm32(tableAddress);
+		if(lister != null) lister.I(miStart, "LIDT", tableAddress.toInt());
+	}
+	
+	/**
+	 * Generate a CLI opcode
+	 */
+	public void emitCLI() {
+		int miStart = mi;
+		setMachineCodes(mi++, (byte)0xfa);
+		if(lister != null) lister.OP(miStart, "CLI");
+	}
+	
+	/**
+	 * Generate and STI opcode
+	 */
+	public void emitSTI() {
+		int miStart = mi;
+		setMachineCodes(mi++, (byte)0xfb);
+		if(lister != null) lister.OP(miStart, "STI");
+	}
+	
+	/**
+	 * Provide access to Assembler.emitImm16() function.
+	 */
+	public int emitImm16(int imm, int index) {
+		return super.emitImm16(imm, index);
+	}
+	
+	public int emitImm32(int imm, int index) {
+		return super.emitImm32(imm, index);
 	}
 }

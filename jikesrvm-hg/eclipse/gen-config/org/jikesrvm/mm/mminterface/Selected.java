@@ -19,9 +19,9 @@ import org.mmtk.utility.Log;
 import org.vmmagic.pragma.*;
 
 public class Selected {
-  public static final String name = "org.mmtk.plan.generational.immix.GenImmix";
+  public static final String name = "org.mmtk.plan.generational.copying.GenCopy";
   @Uninterruptible
-  public static final class Plan extends org.mmtk.plan.generational.immix.GenImmix
+  public static final class Plan extends org.mmtk.plan.generational.copying.GenCopy
   {
     private static final Plan plan = new Plan();
 
@@ -30,12 +30,12 @@ public class Selected {
   }
 
   @Uninterruptible
-  public static final class Collector extends org.mmtk.plan.generational.immix.GenImmixCollector
+  public static final class Collector extends org.mmtk.plan.generational.copying.GenCopyCollector
   {
   }
 
   @Uninterruptible
-  public static final class Constraints extends org.mmtk.plan.generational.immix.GenImmixConstraints
+  public static final class Constraints extends org.mmtk.plan.generational.copying.GenCopyConstraints
   {
     private static final Constraints constraints = new Constraints();
 
@@ -44,7 +44,7 @@ public class Selected {
   }
 
   @Uninterruptible
-  public static class Mutator extends org.mmtk.plan.generational.immix.GenImmixMutator
+  public static class Mutator extends org.mmtk.plan.generational.copying.GenCopyMutator
   {
     @Inline
     public final RVMThread getThread() { return (RVMThread) this; }
