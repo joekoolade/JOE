@@ -15,7 +15,7 @@ public class GenerateX86Startup {
 		// set the stack pointer
 		// asm.emitMOV_Reg_Imm(GPR.ESP, stack.toInt());
 		// reset coprocessor
-		asm.emit
+		asm.emitOUTB();
 		// ignore all PIC interrupts
 		// setup idt, gdt, ldt
 		// enable protected mode
