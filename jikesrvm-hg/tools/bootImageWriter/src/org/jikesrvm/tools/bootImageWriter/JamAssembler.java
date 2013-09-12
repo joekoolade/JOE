@@ -3,6 +3,7 @@ package org.jikesrvm.tools.bootImageWriter;
 import org.jikesrvm.compilers.baseline.ia32.BaselineCompilerImpl;
 import org.jikesrvm.compilers.common.assembler.ia32.Assembler;
 import org.jikesrvm.VM;
+import org.vmmagic.unboxed.Address;
 
 public class JamAssembler extends Assembler {
 
