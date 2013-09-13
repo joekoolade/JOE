@@ -1,5 +1,10 @@
 package org.jikesrvm.tools.bootImageWriter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.jikesrvm.ia32.CodeArray;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
 import org.vmmagic.unboxed.Address;
@@ -66,10 +71,19 @@ public class GenerateX86Startup {
 		asm.emitCALL_Imm(vmEntry.toInt());
 	}
 	
-	public void writeImage() {
+	public void writeImage(String filename) {
 		// Write startup image out to a file
 		CodeArray codeArray = asm.getMachineCodes();
 		byte[] code = (byte[]) codeArray.getBacking();
-		
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(filename);
+			out.write(code);
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 }

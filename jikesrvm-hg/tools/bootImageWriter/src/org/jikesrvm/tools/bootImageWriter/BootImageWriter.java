@@ -1091,7 +1091,7 @@ public class BootImageWriter extends BootImageWriterMessages
     	say("Creating x86 startup code ...");
     	GenerateX86Startup startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister);
     	say("Done!\n Writing the image ...");
-    	startup.writeImage();
+    	startup.writeImage(bootImageStartupName);
     	say("Done!");
     }
     //
