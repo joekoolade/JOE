@@ -245,11 +245,14 @@ public class JamAssembler extends Assembler {
 
 	public void emitLGDT(Address tableAddress) {
 		int miStart = mi;
+		// load address int ESI
+		// emitMOV_Reg_Imm(ESI, tableAddress.toInt());
 		// operand size prefix
-		setMachineCodes(mi++, (byte)0x66);
+		// setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x0f);
 		setMachineCodes(mi++, (byte)0x01);
-		emitRegIndirectRegOperands(GPR.getForOpcode(0), GPR.getForOpcode(2)); // opcode /2
+		// emitRegIndirectRegOperands(GPR.getForOpcode(5), GPR.getForOpcode(2)); // opcode /2
+		setMachineCodes(mi++, regIndirectRegModRM(GPR.getForOpcode(5), GPR.getForOpcode(2)));
 		emitImm32(tableAddress);
 		if(lister != null) lister.I(miStart, "LGDT", tableAddress.toInt());
 	}
@@ -260,7 +263,7 @@ public class JamAssembler extends Assembler {
 		setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x0f);
 		setMachineCodes(mi++, (byte)0x01);
-		emitRegIndirectRegOperands(GPR.getForOpcode(0), GPR.getForOpcode(3)); // opcode /3
+		emitRegIndirectRegOperands(GPR.getForOpcode(3), GPR.getForOpcode(0)); // opcode /3
 		emitImm32(tableAddress);
 		if(lister != null) lister.I(miStart, "LIDT", tableAddress.toInt());
 	}

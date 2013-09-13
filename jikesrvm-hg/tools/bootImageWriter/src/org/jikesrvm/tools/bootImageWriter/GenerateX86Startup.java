@@ -15,8 +15,22 @@ public class GenerateX86Startup {
 	public GenerateX86Startup(Address stack, Address vmEntry) {
 		int multibootEntry=1;
 		asm.emitJMP_Label(multibootEntry);
-		asm.align(2);
+		asm.align(4);
+		// Insert multiboot header
+		Multiboot mbh = new Multiboot();
+		int codeIndex = asm.getMachineCodeIndex();
+		mbh.setHeaderAddress(0x100000+codeIndex);
+		mbh.setEntryAddress(0x100000);
+		mbh.setLoadAddress(0x100000);
+		mbh.setLoadEndAddress(0);
+		mbh.setBssAddrEnd(0);
+		mbh.writeMultibootHeader();
 		asm.space(Multiboot.HEADER_SIZE);
+		int[] header = mbh.getIntArray();
+		for (int v : header) {
+			System.out.println("mbh: "+Integer.toHexString(codeIndex)+" "+Integer.toHexString(v));
+			codeIndex = asm.emitImm32(v, codeIndex);
+		}
 		/*
 		 * Reserve space for GDT and IDT tables
 		 */
