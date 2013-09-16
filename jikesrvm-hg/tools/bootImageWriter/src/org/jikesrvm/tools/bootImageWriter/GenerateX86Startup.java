@@ -36,7 +36,7 @@ public class GenerateX86Startup {
 		 */
 		asm.align(0x40);
 		Address gdtTablePtr = Address.fromIntZeroExtend(0x100050);
-		Address idtTablePtr = gdtTablePtr.plus(0x40);
+		Address gdtDesc = Address.fromIntZeroExtend(0x100040);
 		asm.space(0xc0);
 		// GDT table pointer; limit is 3*N-1 bytes
 		asm.emitImm16((3*8)-1, 0x40);
@@ -74,7 +74,7 @@ public class GenerateX86Startup {
 		asm.emitOUTB(0x80);
 		
 		// setup idt, gdt
-		asm.emitLGDT(gdtTablePtr);
+		asm.emitLGDT(gdtDesc);
 		// asm.emitLIDT(idtTablePtr);
 		
 		// enable protected mode

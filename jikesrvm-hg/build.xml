@@ -1643,6 +1643,34 @@ Check to make sure all required properties are specified. This includes properti
         <fail message="Failed to write bootimage."/>
       </sequential>
     </if>
+  	<exec dir="${build.base}" executable="cat" output="${build.base}/jam.image">
+  		<arg value="jamX86.image"/>
+  		<arg value="RVM.code.image"/>
+  		<arg value="RVM.data.image"/>
+  		<arg value="RVM.rmap.image"/>
+  	</exec>
+  	<exec dir="${build.base}" executable="objcopy">
+  		<arg value="-I"/>
+  		<arg value="binary"/>
+  		<arg value="-v"/>
+  		<arg value="-O"/>
+  		<arg value="elf32-i386"/>
+  		<arg value="-B"/>
+  		<arg value="i386"/>
+  		<arg value="--rename-section"/>
+  		<arg value=".data=.jam"/>
+  		<arg value="jam.image"/>
+  		<arg value="jam.elf"/>
+    </exec>
+  	<exec dir="${build.base}" executable="ld">
+  		<arg value="-m"/>
+  		<arg value="elf_i386"/>
+  		<arg value="-o"/>
+  		<arg value="jam.out"/>
+  		<arg value="-T"/>
+  		<arg value="${basedir}/tools/bootImageWriter/jam.lds"/>
+  		<arg value="jam.elf"/>
+    </exec>
   </target>
 
   <!-- **************************************************************************** -->

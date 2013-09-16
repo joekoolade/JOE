@@ -66,7 +66,7 @@ public class Multiboot {
 		headerCode = new int[12];	// array is initialized to 0
 		
 		headerCode[MAGIC_OFFSET] = MAGIC;
-		headerCode[FLAGS_OFFSET] = HEADER_MEM_FLAG|HEADER_LOADADDR_FLAG;
+		headerCode[FLAGS_OFFSET] = HEADER_MEM_FLAG;
 		headerCode[CHECKSUM_OFFSET] = -(headerCode[0]+headerCode[1]);
 		headerCode[HEADERADDR_OFFSET] = headerAddr.toInt();
 		headerCode[LOADADDR_OFFSET] = loadAddr.toInt();
