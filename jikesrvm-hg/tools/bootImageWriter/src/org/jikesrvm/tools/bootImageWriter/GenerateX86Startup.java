@@ -22,7 +22,7 @@ public class GenerateX86Startup {
 		mbh.setHeaderAddress(0x100000+codeIndex);
 		mbh.setEntryAddress(0x100000);
 		mbh.setLoadAddress(0x100000);
-		mbh.setLoadEndAddress(0);
+		mbh.setLoadEndAddress(0xa00000);
 		mbh.setBssAddrEnd(0);
 		mbh.writeMultibootHeader();
 		asm.space(Multiboot.HEADER_SIZE);
