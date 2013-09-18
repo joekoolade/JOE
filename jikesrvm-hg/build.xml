@@ -1577,7 +1577,7 @@ Check to make sure all required properties are specified. This includes properti
     <echo message="MMTk properties = ${mmtk.properties}"/>
     <java classname="org.jikesrvm.tools.bootImageWriter.BootImageWriter"
           fork="yes"
-          maxmemory="500M"
+          maxmemory="700M"
           failonerror="false"
           resultproperty="bootimage-writer.result"
           dir="${basedir}/tools/bootImageWriter/src">
@@ -1602,12 +1602,12 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.data.image"/>
       <arg value="-or"/>
       <arg path="${build.base}/RVM.rmap.image"/>
-      <arg value="-demographics"/>
+      <!-- <arg value="-demographics"/> -->
       <arg value="-m"/>
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>
 	  <arg value="-profile"/>
-      <!-- <arg value="-detailed"/> -->
+      <arg value="-detailed"/>
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
@@ -1643,12 +1643,14 @@ Check to make sure all required properties are specified. This includes properti
         <fail message="Failed to write bootimage."/>
       </sequential>
     </if>
+<!--
   	<exec dir="${build.base}" executable="cat" output="${build.base}/jam.image">
   		<arg value="jamX86.image"/>
   		<arg value="RVM.code.image"/>
   		<arg value="RVM.data.image"/>
   		<arg value="RVM.rmap.image"/>
   	</exec>
+-->
   	<exec dir="${build.base}" executable="objcopy">
   		<arg value="-I"/>
   		<arg value="binary"/>
@@ -1658,9 +1660,48 @@ Check to make sure all required properties are specified. This includes properti
   		<arg value="-B"/>
   		<arg value="i386"/>
   		<arg value="--rename-section"/>
-  		<arg value=".data=.jam"/>
-  		<arg value="jam.image"/>
-  		<arg value="jam.elf"/>
+  		<arg value=".data=.jam.startup"/>
+  		<arg value="jamX86.image"/>
+  		<arg value="jam_startup.o"/>
+    </exec>
+  	<exec dir="${build.base}" executable="objcopy">
+  		<arg value="-I"/>
+  		<arg value="binary"/>
+  		<arg value="-v"/>
+  		<arg value="-O"/>
+  		<arg value="elf32-i386"/>
+  		<arg value="-B"/>
+  		<arg value="i386"/>
+  		<arg value="--rename-section"/>
+  		<arg value=".data=.jam.data"/>
+  		<arg value="RVM.data.image"/>
+  		<arg value="jam_rvmdata.o"/>
+    </exec>
+  	<exec dir="${build.base}" executable="objcopy">
+  		<arg value="-I"/>
+  		<arg value="binary"/>
+  		<arg value="-v"/>
+  		<arg value="-O"/>
+  		<arg value="elf32-i386"/>
+  		<arg value="-B"/>
+  		<arg value="i386"/>
+  		<arg value="--rename-section"/>
+  		<arg value=".data=.jam.code"/>
+  		<arg value="RVM.code.image"/>
+  		<arg value="jam_rvmcode.o"/>
+    </exec>
+  	<exec dir="${build.base}" executable="objcopy">
+  		<arg value="-I"/>
+  		<arg value="binary"/>
+  		<arg value="-v"/>
+  		<arg value="-O"/>
+  		<arg value="elf32-i386"/>
+  		<arg value="-B"/>
+  		<arg value="i386"/>
+  		<arg value="--rename-section"/>
+  		<arg value=".data=.jam.rmap"/>
+  		<arg value="RVM.rmap.image"/>
+  		<arg value="jam_rvmrmap.o"/>
     </exec>
   	<exec dir="${build.base}" executable="ld">
   		<arg value="-m"/>
@@ -1669,7 +1710,10 @@ Check to make sure all required properties are specified. This includes properti
   		<arg value="jam.out"/>
   		<arg value="-T"/>
   		<arg value="${basedir}/tools/bootImageWriter/jam.lds"/>
-  		<arg value="jam.elf"/>
+  		<arg value="jam_startup.o"/>
+  		<arg value="jam_rvmcode.o"/>
+		<arg value="jam_rvmdata.o"/>
+  		<arg value="jam_rvmrmap.o"/>
     </exec>
   </target>
 

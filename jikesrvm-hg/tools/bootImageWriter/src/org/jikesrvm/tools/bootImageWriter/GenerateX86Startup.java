@@ -82,7 +82,7 @@ public class GenerateX86Startup {
 		// setup THREAD ID
 		// setup FRAME POINTER
 		// call VM.boot()
-		asm.emitCALL_Imm(vmEntry.toInt());
+		asm.emitCALL_Abs(vmEntry);
 	}
 	
 	public void writeImage(String filename) {

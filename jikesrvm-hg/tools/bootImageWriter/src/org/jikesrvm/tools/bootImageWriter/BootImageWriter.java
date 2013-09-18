@@ -635,6 +635,8 @@ public class BootImageWriter extends BootImageWriterMessages
    */
   private static Object staticsJunk;
 
+private static boolean jamming=false;
+
   /**
    * Main.
    * @param args command line arguments
@@ -804,6 +806,7 @@ public class BootImageWriter extends BootImageWriterMessages
     		  fail("Need to specify jam files");
     	  bootImageStartupName = args[i];
     	  System.out.print("JAMMING to "+bootImageStartupName);
+    	  jamming = true;
     	  continue;
       }
       fail("unrecognized command line argument: " + args[i]);
@@ -835,15 +838,15 @@ public class BootImageWriter extends BootImageWriterMessages
 
     if (bootImageDataAddress.isZero())
       fail("please specify boot-image address with \"-da <addr>\"");
-    if (!(bootImageDataAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
+    if (!jamming && !(bootImageDataAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
       fail("please specify a boot-image address that is a multiple of 0x01000000");
     if (bootImageCodeAddress.isZero())
       fail("please specify boot-image address with \"-ca <addr>\"");
-    if (!(bootImageCodeAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
+    if (!jamming && !(bootImageCodeAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
       fail("please specify a boot-image address that is a multiple of 0x01000000");
     if (bootImageRMapAddress.isZero())
       fail("please specify boot-image address with \"-ra <addr>\"");
-    if (!(bootImageRMapAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
+    if (!jamming && !(bootImageRMapAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
       fail("please specify a boot-image address that is a multiple of 0x01000000");
 
     // Redirect the log file
@@ -1088,7 +1091,8 @@ public class BootImageWriter extends BootImageWriterMessages
     }
 
     if(bootImageStartupName!=null) {
-    	say("Creating x86 startup code ...");
+    	say("Creating x86 startup code ... "+Integer.toHexString(bootRecord.spRegister.toInt()) + " " +
+    			Integer.toHexString(bootRecord.ipRegister.toInt()));
     	GenerateX86Startup startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister);
     	say("Done!\n Writing the image ...");
     	startup.writeImage(bootImageStartupName);
@@ -2097,6 +2101,7 @@ public class BootImageWriter extends BootImageWriterMessages
       if (depth == depthCutoff)
         say(SPACES.substring(0,depth+1), "TOO DEEP: cutting off");
       else if (depth < depthCutoff) {
+    	  if(depth<0) depth=0;
         String tab = SPACES.substring(0,depth+1);
         if (depth == 0 && jtocCount >= 0)
           tab = tab + "jtoc #" + String.valueOf(jtocCount) + " ";
@@ -2200,9 +2205,9 @@ public class BootImageWriter extends BootImageWriterMessages
         Object value = jdkFieldAcc.get(jdkObject);
         if (!allocOnly) {
           Class<?> jdkClass = jdkFieldAcc.getDeclaringClass();
-          if (verbose >= 2) traceContext.push(value.getClass().getName(),
-              jdkClass.getName(),
-              jdkFieldAcc.getName());
+//          if (verbose >= 2 && value!=null) traceContext.push(value.getClass().getName(),
+//              jdkClass.getName(),
+//              jdkFieldAcc.getName());
           copyReferenceFieldToBootImage(rvmFieldAddress, value, jdkObject,
               !untracedField, !(untracedField || rvmField.isFinal()), rvmFieldName, rvmFieldType);
         }
@@ -2232,6 +2237,7 @@ public class BootImageWriter extends BootImageWriterMessages
       if (depth == depthCutoff)
         say(SPACES.substring(0,depth+1), "TOO DEEP: cutting off");
       else if (depth < depthCutoff) {
+    	  if(depth<0) depth=0;
         String tab = SPACES.substring(0,depth+1);
         if (depth == 0 && jtocCount >= 0)
           tab = tab + "jtoc #" + String.valueOf(jtocCount) + ": ";
@@ -2359,6 +2365,7 @@ public class BootImageWriter extends BootImageWriterMessages
       if (depth == depthCutoff)
         say(SPACES.substring(0,depth+1), "TOO DEEP: cutting off");
       else if (depth < depthCutoff) {
+    	  if(depth<0) depth=0;
         String tab = SPACES.substring(0,depth+1);
         if (depth == 0 && jtocCount >= 0)
           tab = tab + "jtoc #" + String.valueOf(jtocCount) + ": ";
@@ -3080,6 +3087,7 @@ public class BootImageWriter extends BootImageWriterMessages
           if (depth == depthCutoff)
             say(SPACES.substring(0,depth+1), "TOO DEEP: cutting off");
           else if (depth < depthCutoff) {
+        	  if(depth<0) depth=0;
             String tab = SPACES.substring(0,depth+1);
             if (depth == 0 && jtocCount >= 0)
               tab = tab + "jtoc #" + String.valueOf(jtocCount);
@@ -3139,6 +3147,7 @@ public class BootImageWriter extends BootImageWriterMessages
           if (depth == depthCutoff)
             say(SPACES.substring(0,depth+1), "TOO DEEP: cutting off");
           else if (depth < depthCutoff) {
+        	  if(depth<0) depth=0;
             String tab = SPACES.substring(0,depth+1);
             if (depth == 0 && jtocCount >= 0)
               tab = tab + "#" + String.valueOf(jtocCount);
