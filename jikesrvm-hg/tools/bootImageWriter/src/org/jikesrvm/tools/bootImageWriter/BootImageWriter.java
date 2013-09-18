@@ -1091,9 +1091,10 @@ private static boolean jamming=false;
     }
 
     if(bootImageStartupName!=null) {
-    	say("Creating x86 startup code ... "+Integer.toHexString(bootRecord.spRegister.toInt()) + " " +
+    	say("Creating x86 startup code ... \nsp: "+Integer.toHexString(bootRecord.spRegister.toInt()) + " start: " +
     			Integer.toHexString(bootRecord.ipRegister.toInt()));
-    	GenerateX86Startup startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister);
+    	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
+    	GenerateX86Startup startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister, bootRecord.tocRegister, tr);
     	say("Done!\n Writing the image ...");
     	startup.writeImage(bootImageStartupName);
     	say("Done!");

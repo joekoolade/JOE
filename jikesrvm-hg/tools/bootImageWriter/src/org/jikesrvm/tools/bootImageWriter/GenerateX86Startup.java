@@ -12,7 +12,14 @@ import org.vmmagic.unboxed.Address;
 public class GenerateX86Startup {
 	private JamAssembler asm = new JamAssembler(1024);
 
-	public GenerateX86Startup(Address stack, Address vmEntry) {
+	/**
+	 * 
+	 * @param stack top of stack
+	 * @param vmEntry pointer to VM.boot()
+	 * @param jtoc Jikes tables of classes
+	 * @param tid  thread id
+	 */
+	public GenerateX86Startup(Address stack, Address vmEntry, Address jtoc, Address tid) {
 		int multibootEntry=1;
 		asm.emitJMP_Label(multibootEntry);
 		asm.align(4);
