@@ -7,6 +7,9 @@ import org.vmmagic.unboxed.Address;
 
 public class JamAssembler extends Assembler {
 
+	public static enum SEG {
+		ES, CS, SS, DS, FS, GS;
+	}
 	public JamAssembler(int bytecodeSize) {
 		super(bytecodeSize);
 	}
@@ -266,6 +269,37 @@ public class JamAssembler extends Assembler {
 		emitRegIndirectRegOperands(GPR.getForOpcode(3), GPR.getForOpcode(0)); // opcode /3
 		emitImm32(tableAddress);
 		if(lister != null) lister.I(miStart, "LIDT", tableAddress.toInt());
+	}
+	
+	/**
+	 * Move srcReg to segment register
+	 * 
+	 * seg := srcReg
+	 * 
+	 * @param seg
+	 * @param srcReg
+	 */
+	public void emitMOVSEG(SEG seg, GPR srcReg) {
+		int miStart = mi;
+		setMachineCodes(mi++, (byte)0x8e);
+		setMachineCodes(mi++, (byte)(0xc0 | (seg.ordinal()<<3) | srcReg.ordinal()));
+		// if(lister != null) lister.
+	}
+	
+	/**
+	 * Call to an absolute address
+	 * 
+	 * pc = absolute address
+	 * 
+	 * @param abs address of code to jump to 
+	 */
+	public void emitFARCALL(Address abs, int selector) {
+		int miStart = mi;
+//		setMachineCodes(mi++, (byte)0x66);
+		setMachineCodes(mi++, (byte)0x9a);
+		emitImm32(abs);
+		emitImm16(selector);
+		if(lister != null) lister.I(miStart, "CALL", abs.toInt());
 	}
 	
 	/**

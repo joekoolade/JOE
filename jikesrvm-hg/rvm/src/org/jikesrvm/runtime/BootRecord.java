@@ -159,7 +159,7 @@ public class BootRecord {
    * Verbosity level for booting
    * set by -X:verboseBoot=
    */
-  public int verboseBoot = 0;
+  public int verboseBoot = 1;
 
   // RVM startoff
   //

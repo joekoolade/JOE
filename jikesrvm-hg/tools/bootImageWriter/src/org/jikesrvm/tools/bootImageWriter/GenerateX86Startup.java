@@ -7,11 +7,15 @@ import java.io.IOException;
 
 import org.jikesrvm.ia32.CodeArray;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
+import org.jikesrvm.ia32.StackframeLayoutConstants;
+import org.jikesrvm.tools.bootImageWriter.JamAssembler.SEG;
 import org.vmmagic.unboxed.Address;
 
 public class GenerateX86Startup {
 	private JamAssembler asm = new JamAssembler(1024);
-
+	private static final int CODE_SEGMENT = 1<<3;
+	private static final int DATA_SEGMENT = 2<<3;
+	
 	/**
 	 * 
 	 * @param stack top of stack
@@ -80,16 +84,39 @@ public class GenerateX86Startup {
 		// io delay
 		asm.emitOUTB(0x80);
 		
-		// setup idt, gdt
+		// setup gdt
 		asm.emitLGDT(gdtDesc);
 		// asm.emitLIDT(idtTablePtr);
+		// Load the data segment registers
+//		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
+//		asm.emitMOVSEG(SEG.DS, GPR.EAX);
+//		asm.emitMOVSEG(SEG.ES, GPR.EAX);
+//		asm.emitMOVSEG(SEG.FS, GPR.EAX);
+//		asm.emitMOVSEG(SEG.GS, GPR.EAX);
+//		asm.emitMOVSEG(SEG.SS, GPR.EAX);
+		// enable protected mode; not needed for qemu -kernel option
+		// setup THREAD ID register
+		asm.emitLEA_Reg_Abs(GPR.ESI, tid);
+		// setup top of stack pointer
+		asm.emitLEA_Reg_Abs(GPR.ESP, stack);
+		// setup the thread register's frame pointer
+		asm.emitMOV_Reg_Reg(GPR.EAX, GPR.ESP);
+		asm.emitSUB_Reg_Imm_Byte(GPR.EAX, 8);
+		asm.emitMOV_RegInd_Reg(GPR.ESI, GPR.EAX);
+		// setup the return address sentinel
+		asm.emitPUSH_Imm(0xdeadbabe);
+		// setup the frame pointer sentinel
+		asm.emitPUSH_Imm(StackframeLayoutConstants.STACKFRAME_SENTINEL_FP.toInt());
+		// setup invisible method id
+		asm.emitPUSH_Imm(StackframeLayoutConstants.INVISIBLE_METHOD_ID);
+		// 
+		// 
+		// create the primordial object
 		
-		// enable protected mode
-		// setup JTOC pointer
-		// setup THREAD ID
 		// setup FRAME POINTER
-		// call VM.boot()
-		asm.emitCALL_Abs(vmEntry);
+		// call VM.boot(); we are never coming back
+		// asm.emitFARCALL(vmEntry, 0x8);
+		asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
 	public void writeImage(String filename) {
