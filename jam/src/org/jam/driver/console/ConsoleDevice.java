@@ -26,4 +26,6 @@ public abstract class ConsoleDevice extends Device {
 	}
 	abstract public void setMode(int mode);
 	abstract public void putChar(char c);
+	abstract public void clear();
+	abstract public void setCursor(int x, int y);
 }

@@ -13,6 +13,11 @@ package org.jam.driver.console;
  */
 public class PcConsoleDevice extends ConsoleDevice {
 
+	public PcConsoleDevice(int width, int height) {
+		super(width, height);
+		// TODO Auto-generated constructor stub
+	}
+
 	/* (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#setMode(int)
 	 */
