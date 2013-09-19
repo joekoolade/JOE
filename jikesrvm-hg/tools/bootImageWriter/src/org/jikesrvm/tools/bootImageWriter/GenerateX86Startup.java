@@ -55,10 +55,10 @@ public class GenerateX86Startup {
 		// descriptor 0 is null
 		// decscriptor 1 is the code segment
 		asm.emitImm32(0xffff, 0x58);
-		asm.emitImm32(0xcf9a00, 0x60);
+		asm.emitImm32(0xcf9a00, 0x5c);
 		// descriptor 2 is the data segment
-		asm.emitImm32(0xffff, 0x68);
-		asm.emitImm32(0xcf9200, 0x70);
+		asm.emitImm32(0xffff, 0x60);
+		asm.emitImm32(0xcf9200, 0x64);
 		// IDT table pointer
 		// should be at 0x100 for the multibootEntry
 		asm.resolveForwardReferences(multibootEntry);
@@ -88,12 +88,12 @@ public class GenerateX86Startup {
 		asm.emitLGDT(gdtDesc);
 		// asm.emitLIDT(idtTablePtr);
 		// Load the data segment registers
-//		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
-//		asm.emitMOVSEG(SEG.DS, GPR.EAX);
-//		asm.emitMOVSEG(SEG.ES, GPR.EAX);
-//		asm.emitMOVSEG(SEG.FS, GPR.EAX);
-//		asm.emitMOVSEG(SEG.GS, GPR.EAX);
-//		asm.emitMOVSEG(SEG.SS, GPR.EAX);
+		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
+		asm.emitMOVSEG(SEG.DS, GPR.EAX);
+		asm.emitMOVSEG(SEG.ES, GPR.EAX);
+		asm.emitMOVSEG(SEG.FS, GPR.EAX);
+		asm.emitMOVSEG(SEG.GS, GPR.EAX);
+		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 		// enable protected mode; not needed for qemu -kernel option
 		// setup THREAD ID register
 		asm.emitLEA_Reg_Abs(GPR.ESI, tid);
