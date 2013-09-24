@@ -7,6 +7,8 @@
  */
 package org.jam.driver.console;
 
+import org.jam.driver.bus.LocalBus;
+
 /**
  * @author jkulig
  *
@@ -14,8 +16,7 @@ package org.jam.driver.console;
 public class PcConsoleDevice extends ConsoleDevice {
 
 	public PcConsoleDevice(int width, int height) {
-		super(width, height);
-		// TODO Auto-generated constructor stub
+		super(new LocalBus(), width, height);
 	}
 
 	/* (non-Javadoc)
@@ -32,8 +33,8 @@ public class PcConsoleDevice extends ConsoleDevice {
 	 */
 	@Override
 	public void putChar(char c) {
-		// TODO Auto-generated method stub
-
+		super.putChar(c);
+		
 	}
 
 	/* (non-Javadoc)

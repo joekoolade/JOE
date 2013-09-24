@@ -18,7 +18,7 @@ import org.vmmagic.unboxed.Address;
  */
 public class LocalBus extends Bus {
 
-	LocalBus() {
+	public LocalBus() {
 		super(null);
 	}
 
