@@ -56,6 +56,10 @@ public abstract class ConsoleDevice extends Device {
 	abstract public void setCursor(int x, int y);
 	
 	public void setForeground(int color) {
-		charAttrib = color
+		charAttrib = color;
+	}
+	
+	public void setBackground(int color) {
+		charAttrib |= (color<<4);
 	}
 }
