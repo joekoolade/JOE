@@ -17,22 +17,24 @@ import org.jam.driver.Device;
 public abstract class ConsoleDevice extends Device {
 	int x;
 	int y;
-	int width;
-	int height;
+	int columns;
+	int lines;
 	int[] buffer;		// the text frame buffer
 	int position;
 	
-	public ConsoleDevice(Bus bus, int width, int height) {
+	public ConsoleDevice(Bus bus, int columns, int lines) {
 		super(bus, "ConsoleDevice");
-		this.width = width;
-		this.height = height;
-		buffer = new int[width*height];
+		this.columns = columns;
+		this.lines = lines;
+		buffer = new int[columns*lines];
 	}
-	abstract public void setMode(int mode);
 	public void putChar(char c) {
-		
+		buffer[x + y*columns] = c;
 	}
 	
+	public void scrollUp(int lines) {
+		
+	}
 	/**
 	 * Clear out the screen
 	 */
@@ -44,6 +46,9 @@ public abstract class ConsoleDevice extends Device {
 			buffer[i] = (int)' ';
 		}
 	}
-	abstract public void setCursor(int x, int y);
+	public void setCursor(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
 	
 }

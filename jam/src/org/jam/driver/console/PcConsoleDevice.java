@@ -55,7 +55,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 	@Override
 	public void putChar(char c) {
 		super.putChar(c);
-		
+		attributeBuffer[x + lines*lineSize] = charAttrib;
 	}
 
 	/* (non-Javadoc)
