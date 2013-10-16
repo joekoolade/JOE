@@ -30,6 +30,35 @@ public abstract class ConsoleDevice extends Device {
 	}
 	public void putChar(char c) {
 		buffer[x + y*columns] = c;
+		/*
+		 * Advance to next column
+		 */
+		y++;
+		/*
+		 * Check for a newline
+		 */
+		if(c == '\n') {
+			// reset y to first column
+			y = 0;
+			// position x to the next row
+			x++;
+			if(x > lines) {
+				// At the bottom row. Need scroll one line up
+				scrollUp(1);
+			}
+		}
+		// book keeping; keep track of x,y positioning and current screen buffer offset
+		y++;  // advance to the next column
+		if(y > columns) {
+			// set y to first column
+			y = 0;
+			// position x to the next row
+			x++;
+			if(x > lines) {
+				// At the bottom row. Need scroll one line up
+				scrollUp(1);
+			}
+		}
 	}
 	
 	public void scrollUp(int lines) {

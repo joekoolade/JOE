@@ -8,6 +8,8 @@
 package org.jam.driver.console;
 
 import org.jam.driver.bus.LocalBus;
+import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.Offset;
 
 /**
  * @author jkulig
@@ -17,6 +19,8 @@ public class PcConsoleDevice extends ConsoleDevice {
 	int[] attributeBuffer;
 	int charAttrib;
 	int mode;
+	Address screen;
+	Offset current;
 	
 	public static final int BLACK 		= 0;
 	public final static int BLUE  		= 1;
@@ -38,12 +42,14 @@ public class PcConsoleDevice extends ConsoleDevice {
 	public PcConsoleDevice(int width, int height) {
 		super(new LocalBus(), width, height);
 		attributeBuffer = new int[width*height];
+		screen = Address.fromIntZeroExtend(0xb8000);
+		current = Offset.zero();
+		columns = 0;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#setMode(int)
 	 */
-	@Override
 	public void setMode(int mode) {
 		// TODO Auto-generated method stub
 
@@ -54,8 +60,11 @@ public class PcConsoleDevice extends ConsoleDevice {
 	 */
 	@Override
 	public void putChar(char c) {
+		attributeBuffer[x + y*columns] = charAttrib;
 		super.putChar(c);
-		attributeBuffer[x + lines*lineSize] = charAttrib;
+		current.plus(1);
+		// Write to screen buffer
+		screen.store(charAttrib, current);
 	}
 
 	/* (non-Javadoc)
@@ -63,8 +72,13 @@ public class PcConsoleDevice extends ConsoleDevice {
 	 */
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-
+		super.clear();
+		/*
+		 * Reset the attribute buffer to the current attribute
+		 */
+		for(int i=0; i<attributeBuffer.length; i++) {
+			attributeBuffer[i] = charAttrib;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -72,8 +86,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 	 */
 	@Override
 	public void setCursor(int x, int y) {
-		// TODO Auto-generated method stub
-
+		super.setCursor(x, y);
 	}
 
 	public void setForeground(int color) {
