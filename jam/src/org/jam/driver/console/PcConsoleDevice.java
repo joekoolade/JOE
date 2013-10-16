@@ -43,7 +43,6 @@ public class PcConsoleDevice extends ConsoleDevice {
 	/* (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#setMode(int)
 	 */
-	@Override
 	public void setMode(int mode) {
 		// TODO Auto-generated method stub
 
@@ -55,7 +54,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 	@Override
 	public void putChar(char c) {
 		super.putChar(c);
-		attributeBuffer[x + lines*lineSize] = charAttrib;
+		attributeBuffer[x + y*columns] = charAttrib;
 	}
 
 	/* (non-Javadoc)
@@ -63,8 +62,13 @@ public class PcConsoleDevice extends ConsoleDevice {
 	 */
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-
+		super.clear();
+		/*
+		 * Reset the attribute buffer to the current attribute
+		 */
+		for(int i=0; i<attributeBuffer.length; i++) {
+			attributeBuffer[i] = charAttrib;
+		}
 	}
 
 	/* (non-Javadoc)
