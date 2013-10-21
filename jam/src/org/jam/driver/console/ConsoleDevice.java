@@ -62,7 +62,9 @@ public abstract class ConsoleDevice extends Device {
 	}
 	
 	public void scrollUp(int lines) {
-		
+		for(int i=0; i<(this.lines-1)*columns; i++) {
+			buffer[i] = buffer[i+(lines*columns)];
+		}
 	}
 	/**
 	 * Clear out the screen

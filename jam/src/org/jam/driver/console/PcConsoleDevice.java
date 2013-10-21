@@ -67,6 +67,12 @@ public class PcConsoleDevice extends ConsoleDevice {
 		screen.store(charAttrib, current);
 	}
 
+	public void scrollUp(int lines) {
+		for(int i=0; i<(this.lines-1)*columns; i++) {
+			attributeBuffer[i] = attributeBuffer[i+(lines*columns)];
+		}
+		
+	}
 	/* (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#clear()
 	 */

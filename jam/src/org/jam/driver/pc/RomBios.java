@@ -5,6 +5,9 @@ import org.jam.driver.Device;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
+/*
+ * todo: make a singleton?
+ */
 public class RomBios extends Device {
 	Address dataArea;
 	Offset videoModeOffset;
