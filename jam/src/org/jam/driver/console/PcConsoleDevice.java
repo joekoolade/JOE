@@ -22,26 +22,13 @@ public class PcConsoleDevice extends ConsoleDevice {
 	Address screen;
 	Offset current;
 	
-	public static final int BLACK 		= 0;
-	public final static int BLUE  		= 1;
-	public final static int GREEN 		= 2;
-	public final static int CYAN		= 3;
-	public final static int RED			= 4;
-	public final static int MAGENTA 	= 5;
-	public final static int BROWN		= 6;
-	public final static int LT_GRAY 	= 7;
-	public final static int DARK_GRAY 	= 8;
-	public final static int LT_BLUE 	= 9;
-	public final static int LT_GREEN	= 10;
-	public final static int LT_CYAN		= 11;
-	public final static int LT_RED		= 12;
-	public final static int LT_MAGENTA	= 13;
-	public final static int YELLOW		= 14;
-	public final static int WHITE		= 15;
 	
 	public PcConsoleDevice(int width, int height) {
 		super(new LocalBus(), width, height);
 		attributeBuffer = new int[width*height];
+		setForeground(VgaColor.WHITE);
+		setBackground(VgaColor.BLACK);
+		clear();
 		screen = Address.fromIntZeroExtend(0xb8000);
 		current = Offset.zero();
 		columns = 0;
@@ -85,6 +72,11 @@ public class PcConsoleDevice extends ConsoleDevice {
 		for(int i=0; i<attributeBuffer.length; i++) {
 			attributeBuffer[i] = charAttrib;
 		}
+		
+		current.fromIntSignExtend(0);
+		for(int i=0; i<buffer.length; i++) {
+			
+		}
 	}
 
 	/* (non-Javadoc)
@@ -95,12 +87,12 @@ public class PcConsoleDevice extends ConsoleDevice {
 		super.setCursor(x, y);
 	}
 
-	public void setForeground(int color) {
-		charAttrib = color;
+	public void setForeground(VgaColor color) {
+		charAttrib |= color.foregroundColor();
 	}
 	
-	public void setBackground(int color) {
-		charAttrib |= (color<<4);
+	public void setBackground(VgaColor color) {
+		charAttrib |= color.backgroundColor();
 	}
 
 }
