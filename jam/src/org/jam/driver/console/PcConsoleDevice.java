@@ -22,7 +22,6 @@ public class PcConsoleDevice extends ConsoleDevice {
 	Address screen;
 	Offset current;
 	
-	
 	public PcConsoleDevice(int width, int height) {
 		super(new LocalBus(), width, height);
 		attributeBuffer = new int[width*height];

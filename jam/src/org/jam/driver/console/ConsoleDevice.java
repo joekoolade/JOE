@@ -30,11 +30,6 @@ public abstract class ConsoleDevice extends Device {
 		clear();
 	}
 	public void putChar(char c) {
-		buffer[x + y*columns] = c;
-		/*
-		 * Advance to next column
-		 */
-		x++;
 		/*
 		 * Check for a newline
 		 */
@@ -48,7 +43,17 @@ public abstract class ConsoleDevice extends Device {
 				scrollUp(1);
 				y--;
 			}
+			return;
 		}
+		
+		/*
+		 * Put character into the buffer
+		 */
+		buffer[x + y*columns] = c;
+		/*
+		 * Advance to next column
+		 */
+		x++;
 		// book keeping; keep track of x,y positioning and current screen buffer offset
 		if(x > columns) {
 			// set y to first column
@@ -66,6 +71,10 @@ public abstract class ConsoleDevice extends Device {
 		for(int i=0; i<(this.lines-1)*columns; i++) {
 			buffer[i] = buffer[i+(lines*columns)];
 		}
+		// Erase the last line with spaces
+		for(int i=(this.lines-1)*columns; i<this.lines*columns; i++) {
+			buffer[i] = (int)' ';
+		}
 	}
 	/**
 	 * Clear out the screen
@@ -79,6 +88,21 @@ public abstract class ConsoleDevice extends Device {
 		}
 	}
 	public void setCursor(int x, int y) {
+		/*
+		 * For now just clamp the x,y when over or under
+		 */
+		if(x>columns) {
+			x=columns;
+		}
+		if(x<0) {
+			x=0;
+		}
+		if(y>lines) {
+			y=lines;
+		}
+		if(y<0) {
+			y=0;
+		}
 		this.x = x;
 		this.y = y;
 	}
