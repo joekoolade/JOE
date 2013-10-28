@@ -48,6 +48,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 		super.putChar(c);
 		if(c == '\n') {
 			current=Offset.fromIntZeroExtend(y*lines*2);
+			
 		} else {
 			screen.store((byte)c, current);
 			current.plus(1);
