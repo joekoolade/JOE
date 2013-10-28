@@ -124,7 +124,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
 
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
@@ -804,7 +804,8 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void write(char value) {
     if (runningVM) {
-      sysCall.sysConsoleWriteChar(value);
+      // sysCall.sysConsoleWriteChar(value);
+      
     } else {
       writeNotRunningVM(value);
     }

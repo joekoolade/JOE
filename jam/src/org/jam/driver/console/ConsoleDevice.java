@@ -21,15 +21,24 @@ public abstract class ConsoleDevice extends Device {
 	int lines;
 	int[] buffer;		// the text frame buffer
 	int position;
+	boolean scrollUp;
 	
 	public ConsoleDevice(Bus bus, int columns, int lines) {
 		super(bus, "ConsoleDevice");
 		this.columns = columns;
 		this.lines = lines;
 		buffer = new int[columns*lines];
-		clear();
 	}
+	
+	public boolean doScrollUp() {
+		return scrollUp;
+	}
+	
 	public void putChar(char c) {
+		/*
+		 * Reset scrollup
+		 */
+		scrollUp=false;
 		/*
 		 * Check for a newline
 		 */
@@ -40,7 +49,7 @@ public abstract class ConsoleDevice extends Device {
 			y++;
 			if(y > lines) {
 				// At the bottom row. Need scroll one line up
-				scrollUp(1);
+				scrollUp=true;
 				y--;
 			}
 			return;
@@ -62,7 +71,7 @@ public abstract class ConsoleDevice extends Device {
 			y++;
 			if(y > lines) {
 				// At the bottom row. Need scroll one line up
-				scrollUp(1);
+				scrollUp=true;
 			}
 		}
 	}

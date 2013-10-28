@@ -68,9 +68,6 @@ public class ConsoleDeviceTests {
 	 */
 	@Test
 	public void testConsoleDevice() {
-		int expected[] = new int[80*25];
-		Arrays.fill(expected, (int)' ');
-
 		ConsoleDevice cut = new TestConsole(new LocalBus(), 80, 25);
 		assertEquals(80*25, cut.buffer.length);
 		assertEquals(80, cut.columns);
@@ -78,7 +75,6 @@ public class ConsoleDeviceTests {
 		assertEquals(0, cut.x);
 		assertEquals(0, cut.y);
 		assertEquals(0, cut.position);
-		assertArrayEquals(expected, cut.buffer);
 	}
 
 	/**
