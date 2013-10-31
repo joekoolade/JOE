@@ -27,7 +27,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 		attributeBuffer = new int[width*height];
 		setForeground(VgaColor.WHITE);
 		setBackground(VgaColor.BLACK);
-		screen = Address.fromIntZeroExtend(0xb8000);
+		screen = Address.fromIntZeroExtend(0xa8000);
 		current = Offset.zero();
 		mode = 3;
 	}
@@ -46,9 +46,11 @@ public class PcConsoleDevice extends ConsoleDevice {
 	public void putChar(char c) {
 		attributeBuffer[x + y*columns] = charAttrib;
 		super.putChar(c);
+		/*
+		 * Advance current pointer on a new line
+		 */
 		if(c == '\n') {
 			current=Offset.fromIntZeroExtend(y*lines*2);
-			
 		} else {
 			screen.store((byte)c, current);
 			current.plus(1);
@@ -56,14 +58,41 @@ public class PcConsoleDevice extends ConsoleDevice {
 			screen.store(charAttrib, current);
 			current.plus(1);
 		}
+		if(doScrollUp()) {
+			scrollUp(1);
+		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.jam.driver.console.ConsoleDevice#scrollUp(int)
+	 */
 	public void scrollUp(int lines) {
+		/*
+		 * scroll up the attribute buffer; lines 0-23
+		 */
 		for(int i=0; i<(this.lines-1)*columns; i++) {
 			attributeBuffer[i] = attributeBuffer[i+(lines*columns)];
 		}
 		super.scrollUp(lines);
+		/*
+		 * Write out the buffer
+		 */
+		current = Offset.zero();
+		for(int i=0; i<this.lines*columns; i++) {
+			screen.store((byte)buffer[i], current);
+			current.plus(1);
+			// Write to screen buffer
+			screen.store(attributeBuffer[i], current);
+			current.plus(1);
+		}
+		/*
+		 * Set new current position
+		 */
+		current = Offset.fromIntZeroExtend((x + y*columns)*2);
+		scrollUp = false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#clear()
 	 */

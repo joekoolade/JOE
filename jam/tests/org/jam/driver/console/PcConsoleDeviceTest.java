@@ -9,9 +9,21 @@ package org.jam.driver.console;
 
 import static org.junit.Assert.*;
 
+import org.easymock.Capture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.powermock.api.easymock.PowerMock.*;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.capture;
+
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.Offset;
 
 import com.sun.org.apache.bcel.internal.classfile.Attribute;
 
@@ -19,6 +31,8 @@ import com.sun.org.apache.bcel.internal.classfile.Attribute;
  * @author jkulig
  *
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Address.class, Offset.class})
 public class PcConsoleDeviceTest {
 
 	/**
@@ -40,6 +54,9 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testPutChar() {
+		Address screenMock = createMock(Address.class);
+		Offset currentMock = createMock(Offset.class);
+		
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
 		cut.setForeground(VgaColor.CYAN);
 		cut.setBackground(VgaColor.LT_GREEN);
@@ -76,6 +93,11 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testPcConsoleDevice() {
+		mockStatic(Address.class);
+		mockStatic(Offset.class);
+		Capture<Integer> captured = new Capture<Integer>();
+		expect(Address.fromIntSignExtend(capture(captured))).andReturn(null);
+		expect(Offset.zero()).andReturn(null);
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
 		assertEquals(cut.lines*cut.columns, cut.attributeBuffer.length);
 		assertEquals(0x0f, cut.charAttrib);

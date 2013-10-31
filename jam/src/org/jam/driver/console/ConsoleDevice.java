@@ -77,10 +77,13 @@ public abstract class ConsoleDevice extends Device {
 	}
 	
 	public void scrollUp(int lines) {
+		/*
+		 * move lines 1-24 to 0-23
+		 */
 		for(int i=0; i<(this.lines-1)*columns; i++) {
 			buffer[i] = buffer[i+(lines*columns)];
 		}
-		// Erase the last line with spaces
+		// Erase the last line, 24,  with spaces
 		for(int i=(this.lines-1)*columns; i<this.lines*columns; i++) {
 			buffer[i] = (int)' ';
 		}
