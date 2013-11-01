@@ -29,3 +29,7 @@ joeq.tbz2
 CVS/
 /linux-*
 generated/
+.metadata/
+jnode/
+uboot/
+.classpath

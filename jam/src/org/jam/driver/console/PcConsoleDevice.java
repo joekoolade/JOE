@@ -27,7 +27,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 		attributeBuffer = new int[width*height];
 		setForeground(VgaColor.WHITE);
 		setBackground(VgaColor.BLACK);
-		screen = Address.fromIntZeroExtend(0xa8000);
+		screen = Address.fromIntZeroExtend(0xb8000);
 		current = Offset.zero();
 		mode = 3;
 	}

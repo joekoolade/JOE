@@ -56,6 +56,9 @@ public class PcConsoleDeviceTest {
 	public void testPutChar() {
 		Address screenMock = createMock(Address.class);
 		Offset currentMock = createMock(Offset.class);
+		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(null);
+		expect(Offset.zero()).andReturn(null);
+		replay(Address.class, Offset.class);
 		
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
 		cut.setForeground(VgaColor.CYAN);
@@ -95,10 +98,11 @@ public class PcConsoleDeviceTest {
 	public void testPcConsoleDevice() {
 		mockStatic(Address.class);
 		mockStatic(Offset.class);
-		Capture<Integer> captured = new Capture<Integer>();
-		expect(Address.fromIntSignExtend(capture(captured))).andReturn(null);
+		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(null);
 		expect(Offset.zero()).andReturn(null);
+		replay(Address.class, Offset.class);
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
+		verify(Address.class, Offset.class);
 		assertEquals(cut.lines*cut.columns, cut.attributeBuffer.length);
 		assertEquals(0x0f, cut.charAttrib);
 		assertEquals(3, cut.mode);
