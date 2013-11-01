@@ -30,6 +30,4 @@ CVS/
 /linux-*
 generated/
 .metadata/
-jnode/
-uboot/
 .classpath
