@@ -125,10 +125,12 @@ public class PcConsoleDevice extends ConsoleDevice {
 	}
 
 	public void setForeground(VgaColor color) {
+		charAttrib &= 0xf0;
 		charAttrib |= color.foregroundColor();
 	}
 	
 	public void setBackground(VgaColor color) {
+		charAttrib &= 0x0f;
 		charAttrib |= color.backgroundColor();
 	}
 
