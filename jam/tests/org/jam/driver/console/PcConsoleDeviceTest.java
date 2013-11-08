@@ -9,7 +9,8 @@ package org.jam.driver.console;
 
 import static org.junit.Assert.*;
 
-import org.easymock.Capture;
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,15 +18,11 @@ import org.junit.runner.RunWith;
 
 import static org.powermock.api.easymock.PowerMock.*;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.capture;
 
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
-
-import com.sun.org.apache.bcel.internal.classfile.Attribute;
 
 /**
  * @author jkulig
@@ -64,7 +61,6 @@ public class PcConsoleDeviceTest {
 		expect(currentMock.plus(1)).andReturn(currentMock);
 		screenMock.store(0xa3,currentMock);
 		expect(currentMock.plus(1)).andReturn(currentMock);
-		// replay(Address.class, Offset.class, screenMock, currentMock);
 		replayAll();
 		
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
@@ -72,15 +68,59 @@ public class PcConsoleDeviceTest {
 		cut.setBackground(VgaColor.LT_GREEN);
 		cut.putChar('a');
 		verifyAll();
-		
 	}
 
+	@Test
+	public void testNewLine() {
+		mockStatic(Address.class);
+		mockStatic(Offset.class);
+		Address screenMock = createMock(Address.class);
+		Offset currentMock = createMock(Offset.class);
+		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(screenMock);
+		expect(Offset.zero()).andReturn(currentMock);
+		expect(Offset.fromIntZeroExtend(160)).andReturn(currentMock);
+		replayAll();
+		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
+		cut.putChar('\n');
+		verifyAll();
+	
+	}
 	/**
 	 * Test method for {@link org.jam.driver.console.PcConsoleDevice#scrollUp(int)}.
 	 */
 	@Test
 	public void testScrollUp() {
-		fail("Not yet implemented");
+		mockStatic(Address.class);
+		mockStatic(Offset.class);
+		Address screenMock = createMock(Address.class);
+		Offset currentMock = createMock(Offset.class);
+		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(screenMock);
+		expect(Offset.zero()).andReturn(currentMock);
+		expect(Offset.fromIntZeroExtend(24*80*2)).andReturn(currentMock);
+		expect(Offset.zero()).andReturn(currentMock);
+		for(int i=0; i<24*80; i++) {
+			screenMock.store((byte)0, currentMock);
+			expect(currentMock.plus(1)).andReturn(currentMock);
+			// Write to screen buffer
+			screenMock.store(15, currentMock);
+			expect(currentMock.plus(1)).andReturn(currentMock);
+		}
+		for(int i=0; i<80; i++) {
+			screenMock.store((byte)32, currentMock);
+			expect(currentMock.plus(1)).andReturn(currentMock);
+			// Write to screen buffer
+			screenMock.store(15, currentMock);
+			expect(currentMock.plus(1)).andReturn(currentMock);
+		}
+	
+		expect(Offset.fromIntZeroExtend(24*80*2)).andReturn(currentMock);
+		replayAll();
+		
+		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
+		cut.setCursor(40, 24);
+		cut.putChar('\n');
+		verifyAll();
+		assertEquals("scrollup should be false!", false, cut.scrollUp);
 	}
 
 	/**
@@ -111,9 +151,12 @@ public class PcConsoleDeviceTest {
 		replay(Address.class, Offset.class);
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
 		verify(Address.class, Offset.class);
-		assertEquals(cut.lines*cut.columns, cut.attributeBuffer.length);
-		assertEquals(0x0f, cut.charAttrib);
-		assertEquals(3, cut.mode);
+		assertEquals("Wrong buffer length!", cut.lines*cut.columns, cut.attributeBuffer.length);
+		assertEquals("Wrong attribute!", 0x0f, cut.charAttrib);
+		assertEquals("Wrong mode!", 3, cut.mode);
+		int[] expectedAttributeBuffer = new int[cut.lines*cut.columns];
+		Arrays.fill(expectedAttributeBuffer, 0xf);
+		assertArrayEquals("default array attribute", expectedAttributeBuffer, cut.attributeBuffer);
 	}
 
 	/**
@@ -122,9 +165,9 @@ public class PcConsoleDeviceTest {
 	@Test
 	public void testSetMode() {
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
-		assertEquals(3, cut.mode);
+		assertEquals("Default mode", 3, cut.mode);
 		cut.setMode(4);
-		assertEquals(4, cut.mode);
+		assertEquals("New mode", 4, cut.mode);
 		
 	}
 
@@ -144,7 +187,10 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testSetBackground() {
-		fail("Not yet implemented");
+		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
+		cut.charAttrib = 0xff;
+		cut.setBackground(VgaColor.LT_GREEN);
+		assertEquals(0xaf, cut.charAttrib);
 	}
 
 }

@@ -47,7 +47,7 @@ public abstract class ConsoleDevice extends Device {
 			x = 0;
 			// position x to the next row
 			y++;
-			if(y > lines) {
+			if(y > (lines-1)) {
 				// At the bottom row. Need scroll one line up
 				scrollUp=true;
 				y--;

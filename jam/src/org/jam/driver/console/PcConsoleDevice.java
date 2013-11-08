@@ -30,8 +30,14 @@ public class PcConsoleDevice extends ConsoleDevice {
 		screen = Address.fromIntZeroExtend(0xb8000);
 		current = Offset.zero();
 		mode = 3;
+		initializeAttributeBuffer();
 	}
 
+	void initializeAttributeBuffer() {
+		for(int i=0; i<attributeBuffer.length; i++) {
+			attributeBuffer[i] = charAttrib;
+		}
+	}
 	/* (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#setMode(int)
 	 */
@@ -50,7 +56,7 @@ public class PcConsoleDevice extends ConsoleDevice {
 		 * Advance current pointer on a new line
 		 */
 		if(c == '\n') {
-			current=Offset.fromIntZeroExtend(y*lines*2);
+			current=Offset.fromIntZeroExtend(y*columns*2);
 		} else {
 			screen.store((byte)c, current);
 			current.plus(1);
