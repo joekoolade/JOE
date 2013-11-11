@@ -112,14 +112,14 @@ public class PcConsoleDevice extends ConsoleDevice {
 			attributeBuffer[i] = charAttrib;
 		}
 		
-		current = Offset.fromIntSignExtend(0);
+		current = Offset.zero();
 		for(int i=0; i<buffer.length; i++) {
 			screen.store(buffer[i], current);
 			current.plus(1);
 			screen.store(attributeBuffer[i], current);
 			current.plus(1);
 		}
-		current = Offset.fromIntSignExtend(0);
+		current = Offset.zero();
 	}
 
 	/* (non-Javadoc)

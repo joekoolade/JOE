@@ -32,6 +32,9 @@ import org.vmmagic.unboxed.Offset;
 @PrepareForTest({Address.class, Offset.class})
 public class PcConsoleDeviceTest {
 
+	private Offset currentMock;
+	private Address screenMock;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -51,12 +54,7 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testPutChar() {
-		mockStatic(Address.class);
-		mockStatic(Offset.class);
-		Address screenMock = createMock(Address.class);
-		Offset currentMock = createMock(Offset.class);
-		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(screenMock);
-		expect(Offset.zero()).andReturn(currentMock);
+		replayConsoleDeviceCreation();
 		screenMock.store((byte)'a',currentMock);
 		expect(currentMock.plus(1)).andReturn(currentMock);
 		screenMock.store(0xa3,currentMock);
@@ -72,12 +70,7 @@ public class PcConsoleDeviceTest {
 
 	@Test
 	public void testNewLine() {
-		mockStatic(Address.class);
-		mockStatic(Offset.class);
-		Address screenMock = createMock(Address.class);
-		Offset currentMock = createMock(Offset.class);
-		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(screenMock);
-		expect(Offset.zero()).andReturn(currentMock);
+		replayConsoleDeviceCreation();
 		expect(Offset.fromIntZeroExtend(160)).andReturn(currentMock);
 		replayAll();
 		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
@@ -90,12 +83,7 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testScrollUp() {
-		mockStatic(Address.class);
-		mockStatic(Offset.class);
-		Address screenMock = createMock(Address.class);
-		Offset currentMock = createMock(Offset.class);
-		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(screenMock);
-		expect(Offset.zero()).andReturn(currentMock);
+		replayConsoleDeviceCreation();
 		expect(Offset.fromIntZeroExtend(24*80*2)).andReturn(currentMock);
 		expect(Offset.zero()).andReturn(currentMock);
 		for(int i=0; i<24*80; i++) {
@@ -128,7 +116,34 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testClear() {
-		fail("Not yet implemented");
+		replayConsoleDeviceCreation();
+		expect(Offset.zero()).andReturn(currentMock);
+		for(int i=0; i<80*25; i++) {
+			screenMock.store(32, currentMock);
+			expect(currentMock.plus(1)).andReturn(currentMock);
+			screenMock.store(0xf, currentMock);
+			expect(currentMock.plus(1)).andReturn(currentMock);
+		}
+		expect(Offset.zero()).andReturn(currentMock);
+		replayAll();
+		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
+		cut.clear();
+		int[] expectedBuffer = new int[80*25];
+		int[] expectedAttrib = new int[80*25];
+		Arrays.fill(expectedBuffer, 32);
+		Arrays.fill(expectedAttrib, 0xf);
+		assertArrayEquals("Buffer not cleared", expectedBuffer, cut.buffer);
+		assertArrayEquals("Attributes not cleared", expectedAttrib, cut.attributeBuffer);
+		verifyAll();
+	}
+
+	private void replayConsoleDeviceCreation() {
+		mockStatic(Address.class);
+		mockStatic(Offset.class);
+		screenMock = createMock(Address.class);
+		currentMock = createMock(Offset.class);
+		expect(Address.fromIntZeroExtend(0xb8000)).andReturn(screenMock);
+		expect(Offset.zero()).andReturn(currentMock);
 	}
 
 	/**
@@ -136,7 +151,12 @@ public class PcConsoleDeviceTest {
 	 */
 	@Test
 	public void testSetCursor() {
-		fail("Not yet implemented");
+		PcConsoleDevice cut = new PcConsoleDevice(80, 25);
+		assertEquals("x default", 0, cut.x);
+		assertEquals("y default", 0, cut.y);
+		cut.setCursor(40, 24);
+		assertEquals("x", 40, cut.x);
+		assertEquals("y", 24, cut.y);
 	}
 
 	/**
