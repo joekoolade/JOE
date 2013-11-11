@@ -805,7 +805,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void write(char value) {
     if (runningVM) {
       // sysCall.sysConsoleWriteChar(value);
-      
+      platform.putChar(value);
     } else {
       writeNotRunningVM(value);
     }
