@@ -12,6 +12,8 @@
  */
 package org.jikesrvm;
 
+import org.jam.board.GenericPc;
+import org.jam.runtime.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
@@ -68,6 +70,11 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   public static MainThread mainThread;
 
+  /**
+   * Use this for syscalls
+   */
+  public static Platform platform;
+  
   //----------------------------------------------------------------------//
   //                          Initialization.                             //
   //----------------------------------------------------------------------//
@@ -126,6 +133,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     runningVM = true;
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
 
+    platform = new GenericPc();
+    platform.boot();
+    
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
 

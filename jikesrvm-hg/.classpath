@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/ppc/**|org/jikesrvm/tools/header_gen/GenArch_ppc.java" kind="src" path="rvm/src"/>
+	<classpathentry kind="src" path="jam"/>
 	<classpathentry kind="src" path="rvm/test-src"/>
 	<classpathentry kind="src" path="MMTk/ext/vm/jikesrvm"/>
 	<classpathentry kind="src" path="MMTk/src"/>
