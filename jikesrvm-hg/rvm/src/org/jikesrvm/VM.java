@@ -143,6 +143,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     // has placed a pointer to the current RVMThread in a special
     // register.
     if (verboseBoot >= 1) VM.sysWriteln("Setting up current RVMThread");
+    while(verboseBoot>=1)
+    	;
     ThreadLocalState.boot();
 
     // Finish thread initialization that couldn't be done in boot image.
