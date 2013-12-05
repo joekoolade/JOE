@@ -17,18 +17,16 @@ import org.vmmagic.unboxed.Offset;
  *
  */
 public class PcBootConsoleDevice {
-	final public static int width = 80;
-	final public static int height = 25;
-	public static int[] attributeBuffer = new int[width*height];
+	final public static int WIDTH = 80;
+	final public static int LINES = 25;
+	public static int[] attributeBuffer = new int[WIDTH*LINES];
 	public static int charAttrib;
 	public static int mode = 3;
 	public static Address screen = Address.fromIntZeroExtend(0xb8000);
 	public static Offset current = Offset.zero();
 	public static int x;
 	public static int y;
-	public static int columns;
-	public static int lines;
-	public static int[] buffer = new int[width*height];		// the text frame buffer
+	public static int[] buffer = new int[WIDTH*LINES];		// the text frame buffer
 	public static int position;
 	public static boolean scrollUp;
 	
@@ -38,20 +36,58 @@ public class PcBootConsoleDevice {
 		initializeAttributeBuffer();
 	};
 
-	static void initializeAttributeBuffer() {
+	static public void initializeAttributeBuffer() {
 		for(int i=0; i<attributeBuffer.length; i++) {
 			attributeBuffer[i] = charAttrib;
 		}
 	}
 
 	public static void putChar(char c) {
-		attributeBuffer[x + y*columns] = charAttrib;
-//		super.putChar(c);
+		attributeBuffer[x + y*WIDTH] = charAttrib;
+		/*
+		 * Reset scrollup
+		 */
+		scrollUp=false;
+		/*
+		 * Check for a newline
+		 */
+		if(c == '\n') {
+			// reset y to first column
+			x = 0;
+			// position x to the next row
+			y++;
+			if(y > (LINES-1)) {
+				// At the bottom row. Need scroll one line up
+				scrollUp=true;
+				y--;
+			}
+		} else {
+		
+		/*
+		 * Put character into the buffer
+		 */
+		buffer[x + y*WIDTH] = c;
+		/*
+		 * Advance to next column
+		 */
+		x++;
+		// book keeping; keep track of x,y positioning and current screen buffer offset
+		if(x > WIDTH) {
+			// set y to first column
+			x = 0;
+			// position x to the next row
+			y++;
+			if(y > LINES) {
+				// At the bottom row. Need scroll one line up
+				scrollUp=true;
+			}
+		}
+		}
 		/*
 		 * Advance current pointer on a new line
 		 */
 		if(c == '\n') {
-			current=Offset.fromIntZeroExtend(y*columns*2);
+			current=Offset.fromIntZeroExtend(y*WIDTH*2);
 		} else {
 			screen.store((byte)c, current);
 			current.plus(1);
@@ -72,14 +108,24 @@ public class PcBootConsoleDevice {
 		/*
 		 * scroll up the attribute buffer; lines 0-23
 		 */
-		for(int i=0; i<(lines-1)*columns; i++) {
-			attributeBuffer[i] = attributeBuffer[i+(lines*columns)];
+		for(int i=0; i<(LINES-1)*WIDTH; i++) {
+			attributeBuffer[i] = attributeBuffer[i+(lines*WIDTH)];
+		}
+		/*
+		 * move lines 1-24 to 0-23
+		 */
+		for(int i=0; i<(LINES-1)*WIDTH; i++) {
+			buffer[i] = buffer[i+(lines*WIDTH)];
+		}
+		// Erase the last line, 24,  with spaces
+		for(int i=(LINES-1)*WIDTH; i<LINES*WIDTH; i++) {
+			buffer[i] = (int)' ';
 		}
 		/*
 		 * Write out the buffer
 		 */
 		current = Offset.zero();
-		for(int i=0; i<lines*columns; i++) {
+		for(int i=0; i<LINES*WIDTH; i++) {
 			screen.store((byte)buffer[i], current);
 			current.plus(1);
 			// Write to screen buffer
@@ -89,7 +135,7 @@ public class PcBootConsoleDevice {
 		/*
 		 * Set new current position
 		 */
-		current = Offset.fromIntZeroExtend((x + y*columns)*2);
+		current = Offset.fromIntZeroExtend((x + y*WIDTH)*2);
 		scrollUp = false;
 	}
 	
@@ -99,6 +145,12 @@ public class PcBootConsoleDevice {
 		 */
 		for(int i=0; i<attributeBuffer.length; i++) {
 			attributeBuffer[i] = charAttrib;
+		}
+		/*
+		 * Put spaces into the buffer
+		 */
+		for (int i=0; i < buffer.length; i++) {
+			buffer[i] = (int)' ';
 		}
 		
 		current = Offset.zero();
@@ -112,6 +164,8 @@ public class PcBootConsoleDevice {
 	}
 
 	public static void setCursor(int x, int y) {
+		PcBootConsoleDevice.x = x;
+		PcBootConsoleDevice.y = y;
 	}
 
 	public static void setForeground(VgaColor color) {
