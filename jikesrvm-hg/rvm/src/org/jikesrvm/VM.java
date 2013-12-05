@@ -13,6 +13,7 @@
 package org.jikesrvm;
 
 import org.jam.board.GenericPc;
+import org.jam.driver.console.PcBootConsoleDevice;
 import org.jam.runtime.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
@@ -39,6 +40,7 @@ import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.jikesrvm.runtime.SysCall;
 
 import static org.jikesrvm.runtime.SysCall.sysCall;
+
 import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
 import org.jikesrvm.scheduler.Synchronization;
@@ -70,11 +72,6 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   public static MainThread mainThread;
 
-  /**
-   * Use this for syscalls
-   */
-  public static Platform platform;
-  
   //----------------------------------------------------------------------//
   //                          Initialization.                             //
   //----------------------------------------------------------------------//
@@ -133,11 +130,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     runningVM = true;
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
 
-    platform = new GenericPc();
-    platform.boot();
-    
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
-    if (verboseBoot >= 1) VM.sysWriteln("Booting");
+    if (verboseBoot >= 1) VM.sysWrite("Booting");
 
     // Set up the current RVMThread object.  The bootstrap program
     // has placed a pointer to the current RVMThread in a special
@@ -817,7 +811,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void write(char value) {
     if (runningVM) {
       // sysCall.sysConsoleWriteChar(value);
-      platform.putChar(value);
+      PcBootConsoleDevice.putChar(value);
     } else {
       writeNotRunningVM(value);
     }
