@@ -8,6 +8,8 @@
 package org.jam.driver.console;
 
 import org.jam.driver.bus.LocalBus;
+import org.vmmagic.pragma.Interruptible;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -24,11 +26,11 @@ public class PcBootConsoleDevice {
 	public static int mode = 3;
 	public static Address screen = Address.fromIntZeroExtend(0xb8000);
 	public static Offset current = Offset.zero();
-	public static int x;
-	public static int y;
+	public static int x=0;
+	public static int y=0;
 	public static int[] buffer = new int[WIDTH*LINES];		// the text frame buffer
-	public static int position;
-	public static boolean scrollUp;
+	public static int position=0;
+	public static boolean scrollUp=false;
 	
 	static {
 		setForeground(VgaColor.WHITE);
@@ -42,6 +44,7 @@ public class PcBootConsoleDevice {
 		}
 	}
 
+	@Uninterruptible
 	public static void putChar(char c) {
 		attributeBuffer[x + y*WIDTH] = charAttrib;
 		/*
@@ -90,10 +93,10 @@ public class PcBootConsoleDevice {
 			current=Offset.fromIntZeroExtend(y*WIDTH*2);
 		} else {
 			screen.store((byte)c, current);
-			current.plus(1);
+			current = current.plus(1);
 			// Write to screen buffer
-			screen.store(charAttrib, current);
-			current.plus(1);
+			screen.store((byte)charAttrib, current);
+			current = current.plus(1);
 		}
 		if(scrollUp) {
 			scrollUp(1);
@@ -127,10 +130,10 @@ public class PcBootConsoleDevice {
 		current = Offset.zero();
 		for(int i=0; i<LINES*WIDTH; i++) {
 			screen.store((byte)buffer[i], current);
-			current.plus(1);
+			current = current.plus(1);
 			// Write to screen buffer
-			screen.store(attributeBuffer[i], current);
-			current.plus(1);
+			screen.store((byte)attributeBuffer[i], current);
+			current = current.plus(1);
 		}
 		/*
 		 * Set new current position
@@ -155,10 +158,10 @@ public class PcBootConsoleDevice {
 		
 		current = Offset.zero();
 		for(int i=0; i<buffer.length; i++) {
-			screen.store(buffer[i], current);
-			current.plus(1);
-			screen.store(attributeBuffer[i], current);
-			current.plus(1);
+			screen.store((byte)buffer[i], current);
+			current = current.plus(1);
+			screen.store((byte)attributeBuffer[i], current);
+			current = current.plus(1);
 		}
 		current = Offset.zero();
 	}

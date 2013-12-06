@@ -131,14 +131,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
 
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
-    if (verboseBoot >= 1) VM.sysWrite("Booting");
+    if (verboseBoot >= 1) VM.sysWriteln("Booting");
 
     // Set up the current RVMThread object.  The bootstrap program
     // has placed a pointer to the current RVMThread in a special
     // register.
     if (verboseBoot >= 1) VM.sysWriteln("Setting up current RVMThread");
-    while(verboseBoot>=1)
-    	;
     ThreadLocalState.boot();
 
     // Finish thread initialization that couldn't be done in boot image.
