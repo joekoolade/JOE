@@ -133,21 +133,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
 
-    // Set up the current RVMThread object.  The bootstrap program
-    // has placed a pointer to the current RVMThread in a special
-    // register.
-    if (verboseBoot >= 1) VM.sysWriteln("Setting up current RVMThread");
-    ThreadLocalState.boot();
-
-    // Finish thread initialization that couldn't be done in boot image.
-    // The "stackLimit" must be set before any interruptible methods are called
-    // because it's accessed by compiler-generated stack overflow checks.
-    //
-    if (verboseBoot >= 1) VM.sysWriteln("Doing thread initialization");
-    RVMThread currentThread = RVMThread.getCurrentThread();
-    currentThread.stackLimit = Magic.objectAsAddress(
-        currentThread.getStack()).plus(ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GUARD);
-
     finishBooting();
   }
 
@@ -160,12 +145,8 @@ public class VM extends Properties implements Constants, ExitStatus {
   @Interruptible
   private static void finishBooting() {
 
-    // get pthread_id from OS and store into vm_processor field
-    //
-    sysCall.sysSetupHardwareTrapHandler();
-    RVMThread.getCurrentThread().pthread_id = sysCall.sysGetThreadId();
-    RVMThread.getCurrentThread().priority_handle = sysCall.sysGetThreadPriorityHandle();
-    RVMThread.availableProcessors = SysCall.sysCall.sysNumProcessors();
+    // fixme: should be configurable
+    RVMThread.availableProcessors = 1;
 
     // Set up buffer locks used by Thread for logging and status dumping.
     //    This can happen at any point before we start running
@@ -288,18 +269,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
     RVMThread.getCurrentThread().setupBootJavaThread();
 
-    // Create JNI Environment for boot thread.
-    // After this point the boot thread can invoke native methods.
-    org.jikesrvm.jni.JNIEnvironment.boot();
-    if (verboseBoot >= 1) VM.sysWriteln("Initializing JNI for boot thread");
-    RVMThread.getCurrentThread().initializeJNIEnv();
-    if (verboseBoot >= 1) VM.sysWriteln("JNI initialized for boot thread");
-
-    if (VM.BuildForHarmony) {
-      System.loadLibrary("hyluni");
-      System.loadLibrary("hythr");
-      System.loadLibrary("hyniochar");
-    }
     runClassInitializer("java.io.File"); // needed for when we initialize the
     // system/application class loader.
     runClassInitializer("java.lang.String");
@@ -348,9 +317,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     }
     // Run class initializers that require JNI
     if (verboseBoot >= 1) VM.sysWriteln("Running late class initializers");
-    if (VM.BuildForGnuClasspath) {
-      System.loadLibrary("javaio");
-    }
     runClassInitializer("java.lang.Math");
     runClassInitializer("java.util.TreeMap");
     if (VM.BuildForGnuClasspath) {
@@ -364,25 +330,6 @@ public class VM extends Properties implements Constants, ExitStatus {
       runClassInitializer("java.util.zip.ZipFile$PartialInputStream");
     }
     runClassInitializer("java.util.zip.ZipFile");
-    if (VM.BuildForHarmony) {
-      runClassInitializer("java.util.Hashtable");
-      runClassInitializer("java.util.jar.Manifest");
-      runClassInitializer("java.util.jar.Attributes$Name");
-      runClassInitializer("java.util.BitSet");
-      runClassInitializer("java.util.regex.Matcher");
-      runClassInitializer("java.util.regex.Pattern");
-      runClassInitializer("org.apache.harmony.luni.internal.net.www.protocol.jar.JarURLConnection");
-      runClassInitializer("org.apache.harmony.luni.platform.OSMemory");
-      runClassInitializer("org.apache.harmony.luni.platform.Platform");
-      runClassInitializer("org.apache.harmony.luni.platform.AbstractMemorySpy");
-      runClassInitializer("org.apache.harmony.luni.platform.PlatformAddress");
-      runClassInitializer("org.apache.harmony.nio.internal.FileChannelImpl");
-      runClassInitializer("com.ibm.icu.util.ULocale");
-      runClassInitializer("java.io.ObjectStreamClass");
-      runClassInitializer("java.io.ObjectStreamClass$OSCThreadLocalCache");
-      runClassInitializer("java.io.ObjectInputStream");
-      runClassInitializer("java.security.MessageDigest");
-    }
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.lang.VMDouble");
     }
@@ -418,22 +365,6 @@ public class VM extends Properties implements Constants, ExitStatus {
       runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
     runClassInitializer("java.util.logging.Logger");
-    if (VM.BuildForHarmony) {
-      Entrypoints.luni1.setObjectValueUnchecked(null, null);
-      Entrypoints.luni2.setObjectValueUnchecked(null, null);
-      Entrypoints.luni3.setObjectValueUnchecked(null, null);
-      Entrypoints.luni4.setObjectValueUnchecked(null, null);
-      Entrypoints.luni5.setObjectValueUnchecked(null, null);
-      Entrypoints.luni6.setObjectValueUnchecked(null, null);
-      //runClassInitializer("java.lang.String$ConsolePrintStream");
-      runClassInitializer("org.apache.harmony.luni.util.Msg");
-      runClassInitializer("org.apache.harmony.archive.internal.nls.Messages");
-      runClassInitializer("org.apache.harmony.luni.internal.nls.Messages");
-      runClassInitializer("org.apache.harmony.nio.internal.nls.Messages");
-      runClassInitializer("org.apache.harmony.niochar.internal.nls.Messages");
-      runClassInitializer("java.util.logging.LogManager");
-    }
-
     // Initialize compiler that compiles dynamically loaded classes.
     //
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
@@ -504,14 +435,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     mainThread.start();
 
-    // End of boot thread.
-    //
-    if (VM.TraceThreads) RVMThread.trace("VM.boot", "completed - terminating");
-    if (verboseBoot >= 2) {
-      VM.sysWriteln("Boot sequence completed; finishing boot thread");
-    }
-
-    RVMThread.getCurrentThread().terminate();
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
