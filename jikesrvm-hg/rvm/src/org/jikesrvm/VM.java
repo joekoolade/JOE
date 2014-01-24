@@ -109,6 +109,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     init(classpath, null);
   }
 
+  
   /**
    * Begin VM execution.<p>
    *
@@ -126,9 +127,10 @@ public class VM extends Properties implements Constants, ExitStatus {
   @UnpreemptibleNoWarn("No point threading until threading is booted")
   @Entrypoint
   public static void boot() {
+	bootRecord();
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = BootRecord.the_boot_record.verboseBoot;
 
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
@@ -136,7 +138,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     finishBooting();
   }
 
-  /**
+  private static void bootRecord() {
+	BootRecord.the_boot_record.bootImageCodeStart = Address.fromLong(0x2000000);
+	BootRecord.the_boot_record.bootImageCodeEnd   = Address.fromLong(0x3ffffff);
+}
+
+/**
    * Complete the task of booting Jikes RVM.
    * Done in a secondary method mainly because this code
    * doesn't have to be uninterruptible and this is the cleanest
