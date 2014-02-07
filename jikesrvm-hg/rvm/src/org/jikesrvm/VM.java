@@ -139,8 +139,12 @@ public class VM extends Properties implements Constants, ExitStatus {
   }
 
   private static void bootRecord() {
-	BootRecord.the_boot_record.bootImageCodeStart = Address.fromLong(0x2000000);
-	BootRecord.the_boot_record.bootImageCodeEnd   = Address.fromLong(0x3ffffff);
+	BootRecord.the_boot_record.bootImageDataStart = Address.fromLong(0x00101000);
+	BootRecord.the_boot_record.bootImageDataEnd   = Address.fromLong(0x01ffffff);
+	BootRecord.the_boot_record.bootImageCodeStart = Address.fromLong(0x02000000);
+	BootRecord.the_boot_record.bootImageCodeEnd   = Address.fromLong(0x03ffffff);
+	BootRecord.the_boot_record.bootImageRMapStart = Address.fromLong(0x04000000);
+	BootRecord.the_boot_record.bootImageRMapEnd   = Address.fromLong(0x05ffffff);
 }
 
 /**
