@@ -10,8 +10,12 @@
  ~  See the COPYRIGHT.txt file distributed with this work for information
  ~  regarding copyright ownership.
  -->
-<project name="classpath" default="build" basedir=".">
-
+<project name="classpath" default="build" basedir="."
+	xmlns:if="ant:if"
+	xmlns:unless="ant:unless"
+>
+  <antversion property="antversion"/>
+  <echo message="Ant Version is ${antversion}"/>
   <import file="base.xml"/>
   <property file="${components.file}"/>
   <property name="build.compiler" value="javac1.6"/>
@@ -203,7 +207,12 @@
     <patch patchfile="${components.patch.dir}/classpath-web.RVM-1047.patch"
            dir="${classpath.package.dir}/classpath/" strip="0"/>
   </target>
-  <target name="patch" depends="patch-classpath-web,patch-classpath-git"/>
+  <target name="patch" depends="patch-classpath-web,patch-classpath-git">
+  	<patch patchfile="${components.patch.dir}/classpath.gnu-classpath-config.patch"
+		   dir="${classpath.package.dir}/classpath/" strip="0"/>
+    <patch patchfile="${components.patch.dir}/classpath.gnu-java-security-config.patch"
+        dir="${classpath.package.dir}/classpath/" strip="0"/>
+  </target>
 
   <!-- build classpath in classpath.dir -->
   <target name="build" depends="fetch,patch" description="Download Classpath and build.">
@@ -216,7 +225,7 @@
   		<arg line="-c scripts/generate-locale-list.sh"/>
   	</exec>
   		
-	<javac srcdir="${classpath.dir}" destdir="${classpath.dir}/classes"
+	<javac srcdir="${classpath.dir}" destdir="${classpath.dir}/classes" nowarn="on"
 		classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
 		sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
   		includes="java/**,javax/**,gnu/**,sun/**,org/**,vm/reference/**,external/**"
