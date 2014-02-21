@@ -79,7 +79,7 @@ import org.vmmagic.unboxed.*;
   public static int createDescriptor(Address start, Address end) {
     int chunks = end.diff(start).toWord().rshl(Space.LOG_BYTES_IN_CHUNK).toInt();
     if (VM.VERIFY_ASSERTIONS)
-      VM.assertions._assert(!start.isZero() && chunks > 0 && chunks < (1 << SIZE_BITS));
+      VM.assertions._assert(start.isZero() && chunks > 0 && chunks < (1 << SIZE_BITS));
     boolean top = end.EQ(Space.HEAP_END);
     Word tmp = start.toWord();
     tmp = tmp.rshl(BASE_EXPONENT);

@@ -38,7 +38,8 @@
   <property name="main.java" location="rvm/src"/>
   <property name="test.java" location="rvm/test-src/"/>
   <property name="mmtk.java" location="MMTk/src"/>
-  <property name="jam.java" location="/home/jkulig/git/jei/jam/src"/>
+  <property name="joebase.dir" location="c:/Users/jkulig/git/joekoolade/JEI"/>
+  <property name="jam.java" location="${joebase.dir}/jam/src"/>
   <property name="mmtk-harness.java" location="MMTk/harness/src"/>
   <property name="mmtk-harness-vmmagic.java" location="MMTk/harness/vmmagic"/>
   <property name="mmtk-vm-rvm.java" location="MMTk/ext/vm/jikesrvm"/>
@@ -1705,8 +1706,10 @@ Check to make sure all required properties are specified. This includes properti
   		<arg value="jam_rvmrmap.o"/>
     </exec>
   	<exec dir="${build.base}" executable="ld">
+<!--
   		<arg value="-m"/>
   		<arg value="elf_i386"/>
+-->
   		<arg value="-o"/>
   		<arg value="jam.out"/>
   		<arg value="-T"/>
@@ -2190,11 +2193,11 @@ target.jni-suffix=${target.jni-suffix}
   <!-- *                                                                          * -->
   <!-- **************************************************************************** -->
 
-  <target name="cross-compile-host" depends="gen-booter-headers,init-image-dir-on-host"
+  <target name="cross-compile-host" depends="gen-booter-headers,build-bootimage"
           description="Cross compile host portion."/>
   <target name="cross-compile-target" depends="setup-runtime" description="Cross compile target portion."/>
 
-  <target name="runtime" depends="cross-compile-host,cross-compile-target" description="Build the runtime."/>
+  <target name="runtime" depends="cross-compile-host" description="Build the runtime."/>
 
   <target name="main" depends="rvm-unit-tests"/>
   <!-- Create an image using a profile (which requires first creating a profile) -->

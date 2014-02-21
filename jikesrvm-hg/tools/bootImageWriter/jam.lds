@@ -1,4 +1,3 @@
-# OUTPUT_FORMAT("elf32-i386")
 start = 0x100100;
 ENTRY(start)
 SECTIONS

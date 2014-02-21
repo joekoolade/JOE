@@ -107,6 +107,7 @@ public class PcBootConsoleDevice {
 	 * (non-Javadoc)
 	 * @see org.jam.driver.console.ConsoleDevice#scrollUp(int)
 	 */
+	@Uninterruptible
 	public static void scrollUp(int lines) {
 		/*
 		 * scroll up the attribute buffer; lines 0-23
