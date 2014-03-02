@@ -1609,7 +1609,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>
 	  <arg value="-profile"/>
-      <!-- <arg value="-detailed"/> -->
+<!--      <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
@@ -1705,11 +1705,9 @@ Check to make sure all required properties are specified. This includes properti
   		<arg value="RVM.rmap.image"/>
   		<arg value="jam_rvmrmap.o"/>
     </exec>
-  	<exec dir="${build.base}" executable="ld">
-<!--
+  	<exec dir="${build.base}" executable="i686-pc-linux-ld">
   		<arg value="-m"/>
   		<arg value="elf_i386"/>
--->
   		<arg value="-o"/>
   		<arg value="jam.out"/>
   		<arg value="-T"/>

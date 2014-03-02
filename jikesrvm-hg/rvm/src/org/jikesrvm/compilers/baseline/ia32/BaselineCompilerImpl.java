@@ -3348,20 +3348,6 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       /*
        * generate stacklimit check
        */
-      if (isInterruptible) {
-        // S0<-limit
-        if (VM.BuildFor32Addr) {
-          asm.emitCMP_Reg_RegDisp(SP, TR, Entrypoints.stackLimitField.getOffset());
-        } else {
-          asm.emitCMP_Reg_RegDisp_Quad(SP, TR, Entrypoints.stackLimitField.getOffset());
-        }
-        asm.emitBranchLikelyNextInstruction();
-        ForwardReference fr = asm.forwardJcc(Assembler.LGT);        // Jmp around trap if OK
-        asm.emitINT_Imm(RuntimeEntrypoints.TRAP_STACK_OVERFLOW + RVM_TRAP_BASE);     // trap
-        fr.resolve(asm);
-      } else {
-        // TODO!! make sure stackframe of uninterruptible method doesn't overflow guard page
-      }
 
       if (!VM.runningTool && ((BaselineCompiledMethod) compiledMethod).hasCounterArray()) {
         // use (nonvolatile) EBX to hold base of this method's counter array
@@ -3393,24 +3379,6 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
   protected final void emit_deferred_prologue() {
 
     if (VM.VerifyAssertions) VM._assert(method.isForOsrSpecialization());
-
-    if (isInterruptible) {
-      // S0<-limit
-      ThreadLocalState.emitMoveFieldToReg(asm, S0, Entrypoints.stackLimitField.getOffset());
-      if (VM.BuildFor32Addr) {
-        asm.emitSUB_Reg_Reg(S0, SP);
-        asm.emitADD_Reg_Imm(S0, method.getOperandWords() << LG_WORDSIZE);
-      } else {
-        asm.emitSUB_Reg_Reg_Quad(S0, SP);
-        asm.emitADD_Reg_Imm_Quad(S0, method.getOperandWords() << LG_WORDSIZE);
-      }
-      asm.emitBranchLikelyNextInstruction();
-      ForwardReference fr = asm.forwardJcc(Assembler.LT);    // Jmp around trap
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_STACK_OVERFLOW + RVM_TRAP_BASE); // trap
-      fr.resolve(asm);
-    } else {
-      // TODO!! make sure stackframe of uninterruptible method doesn't overflow
-    }
 
     /* never do monitor enter for synced method since the specialized
      * code starts after original monitor enter.

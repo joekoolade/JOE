@@ -33,7 +33,7 @@ public class GenerateX86Startup {
 		mbh.setHeaderAddress(0x100000+codeIndex);
 		mbh.setEntryAddress(0x100000);
 		mbh.setLoadAddress(0x100000);
-		mbh.setLoadEndAddress(0xa00000);
+		mbh.setLoadEndAddress(0x171c000);
 		mbh.setBssAddrEnd(0);
 		mbh.writeMultibootHeader();
 		asm.space(Multiboot.HEADER_SIZE);
@@ -95,6 +95,8 @@ public class GenerateX86Startup {
 		asm.emitMOVSEG(SEG.GS, GPR.EAX);
 		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 		// enable protected mode; not needed for qemu -kernel option
+		// Set cr0.MP
+		// Set cr4.OSFXSR
 		// setup THREAD ID register
 		asm.emitLEA_Reg_Abs(GPR.ESI, tid);
 		// setup top of stack pointer
