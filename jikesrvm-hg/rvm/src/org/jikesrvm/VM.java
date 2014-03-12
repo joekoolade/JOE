@@ -130,7 +130,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     writingBootImage = false;
     runningVM = true;
     verboseBoot = BootRecord.the_boot_record.verboseBoot;
-
+    org.jikesrvm.ia32.ThreadLocalState.setCurrentThread(RVMThread.bootThread);
+    
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
 
@@ -785,6 +786,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     System.err.print(value);
   }
 
+  static char digitBuffer[] = new char[64];
+  static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd','e', 'f' };
+  
   /**
    * Low level print to console.
    * @param value       What is printed, as hex only
@@ -793,7 +797,8 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void writeHex(int value) {
     if (runningVM) {
-      sysCall.sysConsoleWriteInteger(value, 2 /*just hex*/);
+    	long val = value;
+    	writeHex(val & 0xffffffffL);
     } else {
       writeHexNotRunningVM(value);
     }
@@ -812,7 +817,17 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void writeHex(long value) {
     if (runningVM) {
-      sysCall.sysConsoleWriteLong(value, 2);
+        int i;
+        long val=value;
+        for(i=63; val > 0; i--) {
+      	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
+      	  val>>=4;
+        }
+        digitBuffer[i--] = 'x';
+        digitBuffer[i] = '0';
+        for(; i<64; i++) {
+      	  PcBootConsoleDevice.putChar(digitBuffer[i]);
+        }
     } else {
       writeHexNotRunningVM(value);
     }
@@ -875,7 +890,8 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void writeInt(int value) {
     if (runningVM) {
-      sysCall.sysConsoleWriteInteger(value, 0 /*just decimal*/);
+    	long val = (long)value;
+    	write(value, false);
     } else {
       writeNotRunningVM(value);
     }
@@ -893,7 +909,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   @NoInline
   /* don't waste code space inlining these --dave */
   public static void write(long value) {
-    write(value, true);
+    writeHex(value);
   }
 
   /**
@@ -906,7 +922,22 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void write(long value, boolean hexToo) {
     if (runningVM) {
-      sysCall.sysConsoleWriteLong(value, hexToo ? 1 : 0);
+    	if(hexToo) {
+    		writeHex(value);
+    	} else {
+            int i;
+            long val=value;
+            for(i=63; val > 0; i--) {
+          	  digitBuffer[i] = hexDigits[(int)(val%10)];
+          	  val/=10;
+            }
+            if((value & 0x8000000000000000L) != 0) {
+            	digitBuffer[i] = '-';
+            }
+            for(; i<64; i++) {
+          	  PcBootConsoleDevice.putChar(digitBuffer[i]);
+            }
+    	}
     } else {
       writeNotRunningVM(value);
     }

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.jikesrvm.ia32.CodeArray;
+import org.jikesrvm.ia32.RegisterConstants.CR;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
 import org.jikesrvm.ia32.StackframeLayoutConstants;
 import org.jikesrvm.tools.bootImageWriter.JamAssembler.SEG;
@@ -96,7 +97,12 @@ public class GenerateX86Startup {
 		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 		// enable protected mode; not needed for qemu -kernel option
 		// Set cr0.MP
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
+		asm.emitMOVCR(GPR.EAX, CR.CR0);
 		// Set cr4.OSFXSR
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0x200);
+		asm.emitMOVCR(GPR.EAX, CR.CR4);
+		
 		// setup THREAD ID register
 		asm.emitLEA_Reg_Abs(GPR.ESI, tid);
 		// setup top of stack pointer

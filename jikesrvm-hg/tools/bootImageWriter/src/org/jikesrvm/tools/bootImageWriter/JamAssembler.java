@@ -319,7 +319,45 @@ public class JamAssembler extends Assembler {
 		setMachineCodes(mi++, (byte)0xfb);
 		if(lister != null) lister.OP(miStart, "STI");
 	}
-	
+
+	/**
+	 * Move control register to a general purpose register; only handles 32bit case
+	 * 
+	 * <PRE>
+	 * dstReg := CR0-CR7
+	 * </PRE>
+	 * 
+	 * @param srcReg
+	 * @param dstReg
+	 */
+	public void emitMOVCR(CR srcReg, GPR dstReg) {
+		int miStart = mi;
+		setMachineCodes(mi++, (byte)0x0f);
+		setMachineCodes(mi++, (byte)0x20);
+		emitRegRegOperands(dstReg, srcReg);
+		if(lister != null) {
+			lister.RR(miStart, "MOV", dstReg, srcReg);
+		}
+	}
+	/**
+	 * Move control register to a general purpose register; only handles 32bit case
+	 * 
+	 * <PRE>
+	 * CR0-CR7 := srcReg
+	 * </PRE>
+	 * 
+	 * @param srcReg
+	 * @param dstReg
+	 */
+	public void emitMOVCR(GPR srcReg, CR dstReg) {
+		int miStart = mi;
+		setMachineCodes(mi++, (byte)0x0f);
+		setMachineCodes(mi++, (byte)0x22);
+		emitRegRegOperands(srcReg, dstReg);
+		if(lister != null) {
+			lister.RR(miStart, "MOV", dstReg, srcReg);
+		}
+	}
 	/**
 	 * Provide access to Assembler.emitImm16() function.
 	 */

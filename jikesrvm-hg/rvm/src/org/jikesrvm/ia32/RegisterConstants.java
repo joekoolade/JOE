@@ -235,6 +235,47 @@ public interface RegisterConstants {
     }
   }
 
+  /**
+   * Represention of the IA control registers
+   */
+  public enum CR implements MachineRegister {
+	  CR0(0), CR1(1), CR2(2), CR3(3), CR4(4), CR5(5), CR6(6), CR7(7),
+	  CR8(8), CR9(9), CR10(10), CR11(11), CR12(12), CR13(13), CR14(14), CR15(15);
+
+    /** Local copy of the backing array. Copied here to avoid calls to clone */
+	private static final CR[] vals = values();
+	
+	CR(int v) {
+		if(v != ordinal()) {
+			throw new Error("Invalid CR register ordinal");
+		}
+	}
+
+	@Override
+	@Pure
+    public byte value() {
+	      return (byte)ordinal();
+    }
+
+	@Override
+	@Pure
+	public boolean needsREXprefix() {
+		if (VM.buildFor32Addr()) {
+			return false;
+		} else {
+			return value() > 7;
+		}
+	}
+    /**
+     * Convert encoded value into the CR it represents
+     * @param num encoded value
+     * @return represented CR
+     */
+    @Pure
+    public static CR lookup(int num) {
+    	return vals[num];
+    }
+  }
   /*
    * Symbolic values for general purpose registers.
    * These values are used to assemble instructions and as indices into:
@@ -312,6 +353,23 @@ public interface RegisterConstants {
   XMM XMM14 = XMM.XMM14;
   XMM XMM15 = XMM.XMM15;
 
+  CR CR0 = CR.CR0;
+  CR CR1 = CR.CR1;
+  CR CR2 = CR.CR2;
+  CR CR3 = CR.CR3;
+  CR CR4 = CR.CR4;
+  CR CR5 = CR.CR5;
+  CR CR6 = CR.CR6;
+  CR CR7 = CR.CR7;
+  CR CR8 = CR.CR8;
+  CR CR9 = CR.CR9;
+  CR CR10 = CR.CR10;
+  CR CR11 = CR.CR11;
+  CR CR12 = CR.CR12;
+  CR CR13 = CR.CR13;
+  CR CR14 = CR.CR14;
+  CR CR15 = CR.CR15;
+  
   /*
    * Dedicated registers.
    */
