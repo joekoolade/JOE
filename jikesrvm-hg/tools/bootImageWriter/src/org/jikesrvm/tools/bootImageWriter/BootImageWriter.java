@@ -1062,7 +1062,9 @@ private static boolean jamming=false;
     bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImage.getCodeSize());
     bootRecord.bootImageRMapStart = bootImageRMapAddress;
     bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImage.getRMapSize());
-
+    bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
+    bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x2000000);
+    
     // Update field of boot record now by re-copying
     //
     if (verbose >= 1) say("re-copying boot record (and its TIB)");
