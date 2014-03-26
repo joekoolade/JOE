@@ -55,11 +55,11 @@ public class GenerateX86Startup {
 		asm.emitImm32(gdtTablePtr.toInt(), 0x42);
 		// descriptor 0 is null
 		// decscriptor 1 is the code segment
-		asm.emitImm32(0xffff, 0x58);
-		asm.emitImm32(0xcf9a00, 0x5c);
+		asm.emitImm32(0x5000, 0x58);
+		asm.emitImm32(0xc09a00, 0x5c);
 		// descriptor 2 is the data segment
-		asm.emitImm32(0xffff, 0x60);
-		asm.emitImm32(0xcf9200, 0x64);
+		asm.emitImm32(0x6000, 0x60);
+		asm.emitImm32(0xc09200, 0x64);
 		// IDT table pointer
 		// should be at 0x100 for the multibootEntry
 		asm.resolveForwardReferences(multibootEntry);
@@ -95,6 +95,7 @@ public class GenerateX86Startup {
 		asm.emitMOVSEG(SEG.FS, GPR.EAX);
 		asm.emitMOVSEG(SEG.GS, GPR.EAX);
 		asm.emitMOVSEG(SEG.SS, GPR.EAX);
+
 		// enable protected mode; not needed for qemu -kernel option
 		// Set cr0.MP
 		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
@@ -123,8 +124,8 @@ public class GenerateX86Startup {
 		
 		// setup FRAME POINTER
 		// call VM.boot(); we are never coming back
-		// asm.emitFARCALL(vmEntry, 0x8);
-		asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
+		asm.emitFARCALL(vmEntry, 0x8);
+		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
 	public void writeImage(String filename) {

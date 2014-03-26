@@ -39,6 +39,7 @@ import org.jikesrvm.objectmodel.TIBLayoutConstants;
 import org.jikesrvm.options.OptionSet;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.scheduler.RVMThread;
 import org.mmtk.plan.CollectorContext;
 import org.mmtk.plan.Plan;
 import org.mmtk.policy.Space;
@@ -113,6 +114,12 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
   public static void boot(BootRecord theBootRecord) {
     Mmapper.markAsMapped(BOOT_IMAGE_DATA_START, BOOT_IMAGE_DATA_SIZE);
     Mmapper.markAsMapped(BOOT_IMAGE_CODE_START, BOOT_IMAGE_CODE_SIZE);
+    VM.sysWrite("Heap: ");
+    VM.sysWrite(theBootRecord.initialHeapSize);
+    VM.sysWrite(' ');
+    VM.sysWrite(theBootRecord.maximumHeapSize);
+    VM.sysWriteln();
+    VM.sysWriteln("Current feedlet: ", Magic.objectAsAddress(RVMThread.bootThread.feedlet));
     HeapGrowthManager.boot(theBootRecord.initialHeapSize, theBootRecord.maximumHeapSize);
     DebugUtil.boot(theBootRecord);
     Selected.Plan.get().enableAllocation();

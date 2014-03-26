@@ -130,7 +130,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     writingBootImage = false;
     runningVM = true;
     verboseBoot = BootRecord.the_boot_record.verboseBoot;
-    org.jikesrvm.ia32.ThreadLocalState.setCurrentThread(RVMThread.bootThread);
+    ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
