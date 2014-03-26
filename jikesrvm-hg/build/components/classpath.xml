@@ -217,10 +217,11 @@
   <!-- build classpath in classpath.dir -->
   <target name="build" depends="fetch,patch" description="Download Classpath and build.">
   	<mkdir dir="${classpath.dir}/classes"/>
- <!-- 	<touch file="${classpath.dir}/gnu/java/locale/LocaleData.java"/> -->
+    <touch file="${classpath.dir}/gnu/java/locale/LocaleData.java"/>
   	<exec executable="c:\cygwin\bin\sh.exe"
   		dir="${classpath.dir}"
-  		output="${classpath.dir}/gnu/java/locale/LocaleData.java">
+  		output="${classpath.dir}/gnu/java/locale/LocaleData.java"
+  		error="${classpath.dir}/gnu/java/locale/err.log">
   		
   		<arg line="-c scripts/generate-locale-list.sh"/>
   	</exec>

@@ -38,7 +38,7 @@
   <property name="main.java" location="rvm/src"/>
   <property name="test.java" location="rvm/test-src/"/>
   <property name="mmtk.java" location="MMTk/src"/>
-  <property name="joebase.dir" location="c:/Users/jkulig/git/joekoolade/JEI"/>
+  <property name="joebase.dir" location="c:/local/git"/>
   <property name="jam.java" location="${joebase.dir}/jam/src"/>
   <property name="mmtk-harness.java" location="MMTk/harness/src"/>
   <property name="mmtk-harness-vmmagic.java" location="MMTk/harness/vmmagic"/>
