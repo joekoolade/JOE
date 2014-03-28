@@ -104,20 +104,23 @@ public class GenerateX86Startup {
 		asm.emitMOV_Reg_Imm(GPR.EAX, 0x200);
 		asm.emitMOVCR(GPR.EAX, CR.CR4);
 		
-		// setup THREAD ID register
-		asm.emitLEA_Reg_Abs(GPR.ESI, tid);
+		// setup THREAD ID register; This puts the RVMThread.bootThread object ref into ESI
+		asm.emitMOV_Reg_Abs(GPR.ESI, tid);
 		// setup top of stack pointer
 		asm.emitLEA_Reg_Abs(GPR.ESP, stack);
 		// setup the thread register's frame pointer
 		asm.emitMOV_Reg_Reg(GPR.EAX, GPR.ESP);
 		asm.emitSUB_Reg_Imm_Byte(GPR.EAX, 8);
-		asm.emitMOV_RegInd_Reg(GPR.ESI, GPR.EAX);
+		asm.emitMOV_RegInd_Reg(GPR.EAX, GPR.ESI);
 		// setup the return address sentinel
 		asm.emitPUSH_Imm(0xdeadbabe);
 		// setup the frame pointer sentinel
 		asm.emitPUSH_Imm(StackframeLayoutConstants.STACKFRAME_SENTINEL_FP.toInt());
 		// setup invisible method id
 		asm.emitPUSH_Imm(StackframeLayoutConstants.INVISIBLE_METHOD_ID);
+		// For null pointer calls; just halt
+		Address Zero = Address.zero();
+		asm.emitMOV_Abs_Imm(Zero, 0xf4f4f4f4);
 		// 
 		// 
 		// create the primordial object

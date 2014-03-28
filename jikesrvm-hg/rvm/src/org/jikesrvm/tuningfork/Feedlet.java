@@ -424,7 +424,10 @@ public final class Feedlet {
   }
 
   private long getTimeStamp() {
-    return Time.nanoTime();
+	  /*
+	   * FIXME: was nanoTime(). Need to use time set in the jam kernel
+	   */
+    return Time.cycles();
   }
 
   @NoInline

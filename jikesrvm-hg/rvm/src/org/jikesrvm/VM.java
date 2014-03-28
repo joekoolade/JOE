@@ -130,7 +130,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     writingBootImage = false;
     runningVM = true;
     verboseBoot = BootRecord.the_boot_record.verboseBoot;
-    ThreadLocalState.setCurrentThread(RVMThread.bootThread);
+//    ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
@@ -159,8 +159,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     //    This must happen before any uses of "new".
     //
     if (verboseBoot >= 1) {
-      VM.sysWriteln("Setting up memory manager: bootrecord = ",
-                    Magic.objectAsAddress(BootRecord.the_boot_record));
+      VM.sysWriteln("Setting up memory manager: bootThread = ", Magic.objectAsAddress(RVMThread.bootThread));
     }
     MemoryManager.boot(BootRecord.the_boot_record);
 
