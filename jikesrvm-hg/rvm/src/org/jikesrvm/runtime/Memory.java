@@ -528,7 +528,7 @@ public class Memory {
     if (VM.VerifyAssertions) {
       VM._assert(isPageAligned(address) && isPageMultiple(size));
     }
-    return SysCall.sysCall.sysMMapErrno(address, size, prot, flags, -1, Offset.zero());
+    return MemoryManager.alloc(address, size);
   }
 
   /**
