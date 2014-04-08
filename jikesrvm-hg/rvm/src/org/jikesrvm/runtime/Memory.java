@@ -18,6 +18,7 @@ import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_DOUBLE;
 import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_INT;
 import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_SHORT;
 
+import org.jam.mm.MemoryManager;
 import org.jikesrvm.VM;
 import org.vmmagic.pragma.Inline;
 import org.vmmagic.pragma.Uninterruptible;

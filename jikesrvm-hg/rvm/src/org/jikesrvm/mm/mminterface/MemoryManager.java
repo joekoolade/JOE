@@ -119,7 +119,15 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
     VM.sysWrite(' ');
     VM.sysWrite(theBootRecord.maximumHeapSize);
     VM.sysWriteln();
-    VM.sysWriteln("Current feedlet: ", Magic.objectAsAddress(RVMThread.bootThread.feedlet));
+    VM.sysWrite("Data: ", BOOT_IMAGE_DATA_START);
+    VM.sysWrite(" ", BOOT_IMAGE_DATA_END);
+    VM.sysWriteln();
+    VM.sysWrite("Code: ", BOOT_IMAGE_CODE_START);
+    VM.sysWrite(" ", BOOT_IMAGE_CODE_END);
+    VM.sysWriteln();
+    VM.sysWrite("Rmap: ", BOOT_IMAGE_RMAP_START);
+    VM.sysWrite(" ", BOOT_IMAGE_RMAP_END);
+    VM.sysWriteln();
     HeapGrowthManager.boot(theBootRecord.initialHeapSize, theBootRecord.maximumHeapSize);
     DebugUtil.boot(theBootRecord);
     Selected.Plan.get().enableAllocation();

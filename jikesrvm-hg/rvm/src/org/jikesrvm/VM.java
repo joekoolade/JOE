@@ -155,6 +155,11 @@ public class VM extends Properties implements Constants, ExitStatus {
     //    multi-threaded.
     Services.boot();
 
+    /*
+     * Baremetal memory initialization
+     */
+    org.jam.mm.MemoryManager.boot(BootRecord.the_boot_record);
+    
     // Initialize memory manager.
     //    This must happen before any uses of "new".
     //
@@ -773,8 +778,9 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void write(int value) {
     if (runningVM) {
-      int mode = (value < -(1 << 20) || value > (1 << 20)) ? 2 : 0; // hex only or decimal only
-      sysCall.sysConsoleWriteInteger(value, mode);
+      boolean mode = (value < -(1 << 20) || value > (1 << 20)); // hex only or decimal only
+      //sysCall.sysConsoleWriteInteger(value, mode);
+      write(value, mode);
     } else {
       writeNotRunningVM(value);
     }
@@ -818,6 +824,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (runningVM) {
         int i;
         long val=value;
+        digitBuffer[63] = '0';
         for(i=63; val > 0; i--) {
       	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
       	  val>>=4;
@@ -926,6 +933,39 @@ public class VM extends Properties implements Constants, ExitStatus {
     	} else {
             int i;
             long val=value;
+            digitBuffer[63] = '0';
+            for(i=63; val > 0; i--) {
+          	  digitBuffer[i] = hexDigits[(int)(val%10)];
+          	  val/=10;
+            }
+            if((value & 0x8000000000000000L) != 0) {
+            	digitBuffer[i] = '-';
+            }
+            for(; i<64; i++) {
+          	  PcBootConsoleDevice.putChar(digitBuffer[i]);
+            }
+    	}
+    } else {
+      writeNotRunningVM(value);
+    }
+  }
+
+  /**
+   * Low level print to console.
+   * @param value   what is printed
+   * @param hexToo  how to print: true  - print as decimal followed by hex
+   *                              false - print as decimal only
+   */
+  @NoInline
+  /* don't waste code space inlining these --dave */
+  public static void write(int value, boolean hexToo) {
+    if (runningVM) {
+    	if(hexToo) {
+    		writeHex(value);
+    	} else {
+            int i;
+            int val=value;
+            digitBuffer[63] = '0';
             for(i=63; val > 0; i--) {
           	  digitBuffer[i] = hexDigits[(int)(val%10)];
           	  val/=10;
