@@ -38,7 +38,7 @@
   <property name="main.java" location="rvm/src"/>
   <property name="test.java" location="rvm/test-src/"/>
   <property name="mmtk.java" location="MMTk/src"/>
-  <property name="joebase.dir" location="c:/local/git"/>
+  <property name="joebase.dir" location="c:/local/git/jam/JEI"/>
   <property name="jam.java" location="${joebase.dir}/jam/src"/>
   <property name="mmtk-harness.java" location="MMTk/harness/src"/>
   <property name="mmtk-harness-vmmagic.java" location="MMTk/harness/vmmagic"/>
@@ -1727,36 +1727,16 @@ Check to make sure all required properties are specified. This includes properti
 
   <!-- Generate InterfaceDeclarations.h for booter -->
   <target name="gen-interface" depends="gen-asm">
-    <mkdir dir="${build.native}"/>
-    <java classname="org.jikesrvm.tools.header_gen.GenerateInterfaceDeclarations" fork="yes" maxmemory="200M"
-          failonerror="true">
-      <classpath>
-        <pathelement location="${build.classes}"/>
-        <pathelement location="${build.vm.jar}"/>
-        <pathelement location="${build.rt.jar}"/>
-        <pathelement path="${build.extra.rt.jars}"/>
-      </classpath>
-      <sysproperty key="mmtk.hostjvm" value="org.jikesrvm.mm.mmtk.Factory"/>
-      <sysproperty key="mmtk.properties" value="${mmtk.properties}"/>
-      <jvmarg value="-Xbootclasspath/a:${build.rt.jar}"/>
-      <arg value="-da"/>
-      <arg value="${target.bootimage.data.address}"/>
-      <arg value="-ca"/>
-      <arg value="${target.bootimage.code.address}"/>
-      <arg value="-ra"/>
-      <arg value="${target.bootimage.rmap.address}"/>
-      <arg value="-out"/>
-      <arg value="${build.native}/InterfaceDeclarations.h"/>
-    </java>
   </target>
 
   <!-- Generate JNI headers for booter -->
   <target name="gen-jni-headers" depends="gen-asm">
-    <mkdir dir="${build.native}"/>
+<!--    <mkdir dir="${build.native}"/>
     <javah outputFile="${build.native}/org_jikesrvm_runtime_DynamicLibrary.h" 
            classpath="${build.vm.jar}">
       <class name="org.jikesrvm.runtime.DynamicLibrary"/>
     </javah>
+-->
   </target>
 
   <target name="gen-runbootimage" depends="check-properties,get-hg-version">

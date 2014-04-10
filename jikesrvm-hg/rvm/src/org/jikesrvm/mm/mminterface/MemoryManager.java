@@ -39,6 +39,7 @@ import org.jikesrvm.objectmodel.TIBLayoutConstants;
 import org.jikesrvm.options.OptionSet;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.scheduler.RVMThread;
 import org.mmtk.plan.CollectorContext;
 import org.mmtk.plan.Plan;
 import org.mmtk.policy.Space;
@@ -113,6 +114,20 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
   public static void boot(BootRecord theBootRecord) {
     Mmapper.markAsMapped(BOOT_IMAGE_DATA_START, BOOT_IMAGE_DATA_SIZE);
     Mmapper.markAsMapped(BOOT_IMAGE_CODE_START, BOOT_IMAGE_CODE_SIZE);
+    VM.sysWrite("Heap: ");
+    VM.sysWrite(theBootRecord.initialHeapSize);
+    VM.sysWrite(' ');
+    VM.sysWrite(theBootRecord.maximumHeapSize);
+    VM.sysWriteln();
+    VM.sysWrite("Data: ", BOOT_IMAGE_DATA_START);
+    VM.sysWrite(" ", BOOT_IMAGE_DATA_END);
+    VM.sysWriteln();
+    VM.sysWrite("Code: ", BOOT_IMAGE_CODE_START);
+    VM.sysWrite(" ", BOOT_IMAGE_CODE_END);
+    VM.sysWriteln();
+    VM.sysWrite("Rmap: ", BOOT_IMAGE_RMAP_START);
+    VM.sysWrite(" ", BOOT_IMAGE_RMAP_END);
+    VM.sysWriteln();
     HeapGrowthManager.boot(theBootRecord.initialHeapSize, theBootRecord.maximumHeapSize);
     DebugUtil.boot(theBootRecord);
     Selected.Plan.get().enableAllocation();

@@ -18,6 +18,7 @@ import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_DOUBLE;
 import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_INT;
 import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_SHORT;
 
+import org.jam.mm.MemoryManager;
 import org.jikesrvm.VM;
 import org.vmmagic.pragma.Inline;
 import org.vmmagic.pragma.Uninterruptible;
@@ -528,7 +529,7 @@ public class Memory {
     if (VM.VerifyAssertions) {
       VM._assert(isPageAligned(address) && isPageMultiple(size));
     }
-    return SysCall.sysCall.sysMMapErrno(address, size, prot, flags, -1, Offset.zero());
+    return MemoryManager.alloc(address, size);
   }
 
   /**
@@ -560,8 +561,11 @@ public class Memory {
     return SysCall.sysCall.sysMProtect(address, size, prot) == 0;
   }
 
-  private static int pagesize = -1;
-  private static int pagesizeLog = -1;
+  /*
+   * FIXME: get from jam kernel
+   */
+  private static int pagesize = 4096;
+  private static int pagesizeLog = 12;
 
   /**
    * Do getpagesize call

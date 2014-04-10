@@ -33,7 +33,7 @@ public abstract class Configuration {
   public static final boolean BuildFor64Addr = !BuildFor32Addr;
 
   public static final boolean BuildForAix = false;
-  public static final boolean BuildForLinux = true;
+  public static final boolean BuildForLinux = false;
   public static final boolean BuildForSolaris = false; 
   public static final boolean BuildForOsx = !BuildForAix && !BuildForLinux && !BuildForSolaris;
 
@@ -69,7 +69,7 @@ public abstract class Configuration {
           VM._assert(xxx);
       </pre>
   */
-  public static final boolean VerifyAssertions = false;
+  public static final boolean VerifyAssertions = true;
   public static final boolean ExtremeAssertions = false;
 
   /**
@@ -110,7 +110,7 @@ public abstract class Configuration {
   public static final boolean BuildWithGCSpy = false;
   
   public static final String RVM_VERSION_STRING = "Jikes RVM 3.1.3+hg (rUnknown)";
-  public static final String RVM_CONFIGURATION = "baseGenCopy";
+  public static final String RVM_CONFIGURATION = "BaseBaseNoGC";
 
   /**
    * Alignment checking (for IA32 only; for debugging purposes only).

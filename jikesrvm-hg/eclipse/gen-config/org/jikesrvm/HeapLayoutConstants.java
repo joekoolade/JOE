@@ -20,16 +20,20 @@ import org.vmmagic.unboxed.*;
 public interface HeapLayoutConstants {
 
   /** The address of the start of the data section of the boot image. */
-  Address BOOT_IMAGE_DATA_START = Address.fromIntZeroExtend( 0x60000000 );
+  Address BOOT_IMAGE_DATA_START =
+    Address.fromIntZeroExtend( 0x00101000 );
 
   /** The address of the start of the code section of the boot image. */
-  Address BOOT_IMAGE_CODE_START = Address.fromIntZeroExtend( 0x64000000 );
+  Address BOOT_IMAGE_CODE_START =
+    Address.fromIntZeroExtend( 0x02000000 );
 
   /** The address of the start of the ref map section of the boot image. */
-  Address BOOT_IMAGE_RMAP_START = Address.fromIntZeroExtend( 0x67000000 );
+  Address BOOT_IMAGE_RMAP_START =
+    Address.fromIntZeroExtend( 0x04000000 );
 
   /** The address in virtual memory that is the highest that can be mapped. */
-  Address MAXIMUM_MAPPABLE = Address.fromIntZeroExtend( 0xb0000000 );
+  Address MAXIMUM_MAPPABLE =
+    Address.fromIntZeroExtend( 0xC0000000 );
 
   /** The maximum boot image data size */
   int BOOT_IMAGE_DATA_SIZE = 56<<20;

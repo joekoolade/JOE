@@ -34,7 +34,7 @@ import org.vmmagic.pragma.*;
   @Override
   protected final Address getHeapEndConstant() { return MAXIMUM_MAPPABLE; }
   @Override
-  protected final Address getAvailableStartConstant() { return BOOT_IMAGE_CODE_END; }
+  protected final Address getAvailableStartConstant() { return BOOT_IMAGE_RMAP_END; }
   @Override
   protected final Address getAvailableEndConstant() { return MAXIMUM_MAPPABLE; }
   @Override

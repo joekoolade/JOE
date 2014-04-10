@@ -55,11 +55,11 @@ public class GenerateX86Startup {
 		asm.emitImm32(gdtTablePtr.toInt(), 0x42);
 		// descriptor 0 is null
 		// decscriptor 1 is the code segment
-		asm.emitImm32(0xffff, 0x58);
-		asm.emitImm32(0xcf9a00, 0x5c);
+		asm.emitImm32(0x5000, 0x58);
+		asm.emitImm32(0xc09a00, 0x5c);
 		// descriptor 2 is the data segment
-		asm.emitImm32(0xffff, 0x60);
-		asm.emitImm32(0xcf9200, 0x64);
+		asm.emitImm32(0x6000, 0x60);
+		asm.emitImm32(0xc09200, 0x64);
 		// IDT table pointer
 		// should be at 0x100 for the multibootEntry
 		asm.resolveForwardReferences(multibootEntry);
@@ -95,6 +95,7 @@ public class GenerateX86Startup {
 		asm.emitMOVSEG(SEG.FS, GPR.EAX);
 		asm.emitMOVSEG(SEG.GS, GPR.EAX);
 		asm.emitMOVSEG(SEG.SS, GPR.EAX);
+
 		// enable protected mode; not needed for qemu -kernel option
 		// Set cr0.MP
 		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
@@ -103,28 +104,31 @@ public class GenerateX86Startup {
 		asm.emitMOV_Reg_Imm(GPR.EAX, 0x200);
 		asm.emitMOVCR(GPR.EAX, CR.CR4);
 		
-		// setup THREAD ID register
-		asm.emitLEA_Reg_Abs(GPR.ESI, tid);
+		// setup THREAD ID register; This puts the RVMThread.bootThread object ref into ESI
+		asm.emitMOV_Reg_Abs(GPR.ESI, tid);
 		// setup top of stack pointer
 		asm.emitLEA_Reg_Abs(GPR.ESP, stack);
 		// setup the thread register's frame pointer
 		asm.emitMOV_Reg_Reg(GPR.EAX, GPR.ESP);
 		asm.emitSUB_Reg_Imm_Byte(GPR.EAX, 8);
-		asm.emitMOV_RegInd_Reg(GPR.ESI, GPR.EAX);
+		asm.emitMOV_RegInd_Reg(GPR.EAX, GPR.ESI);
 		// setup the return address sentinel
 		asm.emitPUSH_Imm(0xdeadbabe);
 		// setup the frame pointer sentinel
 		asm.emitPUSH_Imm(StackframeLayoutConstants.STACKFRAME_SENTINEL_FP.toInt());
 		// setup invisible method id
 		asm.emitPUSH_Imm(StackframeLayoutConstants.INVISIBLE_METHOD_ID);
+		// For null pointer calls; just halt
+		Address Zero = Address.zero();
+		asm.emitMOV_Abs_Imm(Zero, 0xf4f4f4f4);
 		// 
 		// 
 		// create the primordial object
 		
 		// setup FRAME POINTER
 		// call VM.boot(); we are never coming back
-		// asm.emitFARCALL(vmEntry, 0x8);
-		asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
+		asm.emitFARCALL(vmEntry, 0x8);
+		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
 	public void writeImage(String filename) {

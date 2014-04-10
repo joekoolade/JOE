@@ -28,7 +28,10 @@ public final class Statistics extends org.mmtk.vm.Statistics implements Constant
    */
   @Override
   public long nanoTime() {
-    return Time.nanoTime();
+	  /*
+	   * FIXME: 
+	   */
+    return Time.cycles();
   }
 
   /**
