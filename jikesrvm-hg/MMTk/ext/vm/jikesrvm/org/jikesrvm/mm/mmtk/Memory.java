@@ -58,7 +58,7 @@ import org.vmmagic.pragma.*;
 
   /* FIXME the following was established via trial and error :-( */
   //  private static int BOOT_SEGMENT_MB = 4+(BOOT_IMAGE_SIZE.toInt()>>LOG_BYTES_IN_MBYTE);
-  private static int BOOT_SEGMENT_MB = (0x10000000>>LOG_BYTES_IN_MBYTE);
+  private static int BOOT_SEGMENT_MB = (BOOT_IMAGE_RMAP_START.toInt()>>LOG_BYTES_IN_MBYTE);
 
   /**
    * Return the space associated with/reserved for the VM.  In the
@@ -108,7 +108,7 @@ import org.vmmagic.pragma.*;
     if (result.EQ(start)) return 0;
     if (result.GT(Address.fromIntZeroExtend(127))) {
       VM.sysWrite("demand zero mmap with MAP_FIXED on ", start);
-      VM.sysWriteln(" returned some other address", result);
+      VM.sysWriteln(" returned some other address ", result);
       VM.sysFail("mmap with MAP_FIXED has unexpected behavior");
     }
     return result.toInt();
