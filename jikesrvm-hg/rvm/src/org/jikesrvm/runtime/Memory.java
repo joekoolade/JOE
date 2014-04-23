@@ -436,9 +436,20 @@ public class Memory {
     Address dstEnd = dst.plus(cnt);
     boolean overlap = !srcEnd.LE(dst) && !dstEnd.LE(src);
     if (overlap) {
-      SysCall.sysCall.sysMemmove(dst, src, cnt);
+    	Offset i = Offset.fromIntZeroExtend(cnt.toInt()-1);
+    	for( ; cnt.GT(Extent.zero()); ) {
+    		dst.store(src.loadByte(i), i);
+    		i.minus(1);
+    		cnt.minus(1);
+    	}
     } else {
-      SysCall.sysCall.sysCopy(dst, src, cnt);
+      Offset i = Offset.zero();
+      Extent cnt0 = Extent.zero();
+      for( ; cnt0.LT(cnt);) {
+    	  dst.store(src.loadByte(i), i);
+    	  i.plus(1);
+    	  cnt0.plus(1);
+      }
     }
   }
 
@@ -462,11 +473,14 @@ public class Memory {
    * @param len extent to zero.
    */
   public static void zero(boolean useNT, Address start, Extent len) {
-    if (useNT) {
-      SysCall.sysCall.sysZeroNT(start, len);
-    } else {
-      SysCall.sysCall.sysZero(start, len);
-    }
+	  // todo: use some magic here
+	  Offset index = Offset.zero();
+	  Extent ext = Extent.zero();
+	  for( ; ext.LT(len) ; ) {
+		  start.store(0, index);
+		  index = index.plus(1);
+		  ext=ext.plus(1);
+	  }
   }
 
   ////////////////////////
