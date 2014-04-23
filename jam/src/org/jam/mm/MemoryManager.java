@@ -23,13 +23,13 @@ public class MemoryManager {
 	}
 	
 	public static Address alloc(Address address, Extent size) {
-		Address memPtr = currentFreeMem;
+		Address freeMemPtr = currentFreeMem;
 		if(currentFreeMem.plus(size).GT(freeMemEnd)) {
 			VM.sysFail("Out of Memory");
 		}
 		VM.sysWrite("Memory Manager: allocating=", currentFreeMem, " size=", size.toInt());
 		VM.sysWriteln();
 		currentFreeMem = currentFreeMem.plus(size);
-		return memPtr;
+		return freeMemPtr;
 	}
 }

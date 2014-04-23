@@ -146,16 +146,20 @@ public class Log implements Constants {
     int index = TEMP_BUFFER_SIZE - 1;
     char[] intBuffer = getIntBuffer();
 
-    nextDigit = (int) (l % 10);
+    // fixme: remove inner int cast; need 64bit modulus
+    nextDigit = (int) ((int)l % 10);
     nextChar = hexDigitCharacter[negative ? - nextDigit : nextDigit];
     intBuffer[index--] = nextChar;
-    l = l / 10;
+    // fixme: remove inner int cast; need 64bit divide
+    l = (int)l / 10;
 
     while (l != 0) {
-      nextDigit = (int) (l % 10);
+        // fixme: remove inner int cast; need 64bit modulus
+      nextDigit = (int) ((int)l % 10);
       nextChar = hexDigitCharacter[negative ? - nextDigit : nextDigit];
       intBuffer[index--] = nextChar;
-      l = l / 10;
+      // fixme: remove inner int cast; need 64bit divide
+      l = (int)l / 10;
     }
 
     if (negative) {
