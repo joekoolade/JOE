@@ -18,6 +18,7 @@ import org.mmtk.utility.heap.MonotonePageResource;
 import org.mmtk.utility.heap.VMRequest;
 import org.mmtk.utility.Constants;
 import org.mmtk.utility.HeaderByte;
+import org.mmtk.utility.Log;
 
 import org.mmtk.vm.VM;
 
@@ -83,6 +84,7 @@ import org.vmmagic.pragma.*;
    */
   public ImmortalSpace(String name, boolean zeroed, VMRequest vmRequest) {
     super(name, false, true, zeroed, vmRequest);
+    Log.write("ImmortalSpace: "); Log.write(start); Log.write(" "); Log.writeln(extent);
     if (vmRequest.isDiscontiguous()) {
       pr = new MonotonePageResource(this, META_DATA_PAGES_PER_REGION);
     } else {

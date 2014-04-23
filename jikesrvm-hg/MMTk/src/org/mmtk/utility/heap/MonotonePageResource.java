@@ -14,6 +14,7 @@ package org.mmtk.utility.heap;
 
 import org.mmtk.policy.Space;
 import org.mmtk.utility.Conversions;
+import org.mmtk.utility.Log;
 import org.mmtk.utility.alloc.EmbeddedMetaData;
 import org.mmtk.utility.options.Options;
 
@@ -117,6 +118,7 @@ public final class MonotonePageResource extends PageResource {
     boolean newChunk = false;
     lock();
     Address rtn = cursor;
+    Log.write("MonotonePageResource.allocPages: "); Log.writeln(rtn);
     if (Space.chunkAlign(rtn, true).NE(currentChunk)) {
       newChunk = true;
       currentChunk = Space.chunkAlign(rtn, true);

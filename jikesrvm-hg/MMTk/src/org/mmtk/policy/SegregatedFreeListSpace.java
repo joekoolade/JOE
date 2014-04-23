@@ -19,6 +19,7 @@ import org.mmtk.utility.heap.Map;
 import org.mmtk.utility.heap.VMRequest;
 import org.mmtk.utility.Constants;
 import org.mmtk.utility.Conversions;
+import org.mmtk.utility.Log;
 import org.mmtk.utility.Memory;
 
 import org.mmtk.vm.Lock;
@@ -109,6 +110,7 @@ public abstract class SegregatedFreeListSpace extends Space implements Constants
     } else {
       totalMetadata += META_DATA_PAGES_PER_REGION_NO_BITMAP;
     }
+    Log.write("SegregatedFreeListSpace: "); Log.write(start); Log.write(" "); Log.writeln(extent);
     if (vmRequest.isDiscontiguous()) {
       pr = new FreeListPageResource(this, totalMetadata);
     } else {

@@ -428,6 +428,7 @@ public abstract class Space implements Constants {
     }
 
     /* Page budget is ok, try to acquire virtual memory */
+    Log.write("acquire: "); Log.write(pagesReserved); Log.write(" "); Log.writeln(pages);
     Address rtn = pr.getNewPages(pagesReserved, pages, zeroed);
     if (rtn.isZero()) {
       /* Failed, so force a GC */

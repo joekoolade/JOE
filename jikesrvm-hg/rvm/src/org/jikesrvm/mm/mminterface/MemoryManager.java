@@ -590,8 +590,11 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
 
     /* Now make the request */
     Address region;
+    VM.write("allocateSpace: "); VM.write(bytes); VM.write(' ');
+    VM.write(align);  VM.write(' '); VM.write(offset); VM.write(' ');
+    VM.write(allocator);  VM.write(' '); VM.write(site); VM.writeln();
     region = mutator.alloc(bytes, align, offset, allocator, site);
-
+    VM.write("allocateSpace region= "); VM.write(region); VM.writeln();
     /* TODO: if (Stats.GATHER_MARK_CONS_STATS) Plan.cons.inc(bytes); */
     if (CHECK_MEMORY_IS_ZEROED) Memory.assertIsZeroed(region, bytes);
 

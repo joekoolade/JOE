@@ -824,6 +824,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (runningVM) {
         int i;
         long val=value;
+        for(i=0; i<64; i++) {
+        	digitBuffer[i] = ' ';
+        }
         digitBuffer[63] = '0';
         for(i=63; val > 0; i--) {
       	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
@@ -933,6 +936,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     	} else {
             int i;
             long val=value;
+            for(i=0; i<64; i++) {
+            	digitBuffer[i] = ' ';
+            }
             digitBuffer[63] = '0';
             for(i=63; val > 0; i--) {
           	  digitBuffer[i] = hexDigits[(int)(val%10)];
@@ -965,6 +971,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     	} else {
             int i;
             int val=value;
+            for(i=0; i<64; i++) {
+            	digitBuffer[i] = ' ';
+            }
             digitBuffer[63] = '0';
             for(i=63; val > 0; i--) {
           	  digitBuffer[i] = hexDigits[(int)(val%10)];
