@@ -172,6 +172,9 @@ import org.vmmagic.unboxed.Word;
   public final Address alloc(int bytes, int align, int offset) {
     Address start = alignAllocationNoFill(cursor, align, offset);
     Address end = start.plus(bytes);
+    Log.write("BumpPointer.alloc: "); Log.write(bytes); Log.write(' '); 
+    Log.write(align); Log.write(' '); Log.write(offset); Log.write(' ');
+    Log.write(start); Log.write(' '); Log.writeln(end);
     if (end.GT(internalLimit))
       return allocSlow(start, end, align, offset);
     fillAlignmentGap(cursor, start);
@@ -284,6 +287,7 @@ import org.vmmagic.unboxed.Word;
     /* Check if we already have a block to use */
     if (allowScanning && !region.isZero()) {
       Address nextRegion = getNextRegion(region);
+      Log.write("next region: "); Log.write(region); Log.write(' '); Log.writeln(nextRegion);
       if (!nextRegion.isZero()) {
         return consumeNextRegion(nextRegion, bytes, align, offset);
       }

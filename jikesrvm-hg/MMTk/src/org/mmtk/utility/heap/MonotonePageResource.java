@@ -118,7 +118,8 @@ public final class MonotonePageResource extends PageResource {
     boolean newChunk = false;
     lock();
     Address rtn = cursor;
-    Log.write("MonotonePageResource.allocPages: "); Log.writeln(rtn);
+    Log.write("MonotonePageResource.allocPages: "); Log.write(cursor); Log.write(' '); Log.write(currentChunk);
+    Log.write(' '); Log.writeln(sentinel);
     if (Space.chunkAlign(rtn, true).NE(currentChunk)) {
       newChunk = true;
       currentChunk = Space.chunkAlign(rtn, true);
@@ -136,7 +137,6 @@ public final class MonotonePageResource extends PageResource {
     }
     Extent bytes = Conversions.pagesToBytes(requiredPages);
     Address tmp = cursor.plus(bytes);
-
     if (!contiguous && tmp.GT(sentinel)) {
       /* we're out of virtual memory within our discontiguous region, so ask for more */
       int requiredChunks = Space.requiredChunks(requiredPages);
@@ -145,7 +145,8 @@ public final class MonotonePageResource extends PageResource {
       sentinel = cursor.plus(chunk.isZero() ? 0 : requiredChunks<<Space.LOG_BYTES_IN_CHUNK);
       rtn = cursor;
       tmp = cursor.plus(bytes);
-      newChunk = true;
+      Log.write("!contiguous: "); Log.write(cursor); Log.write(' '); Log.write(sentinel); Log.write(' '); Log.writeln(requiredChunks); 
+     newChunk = true;
     }
     if (VM.VERIFY_ASSERTIONS)
       VM.assertions._assert(rtn.GE(cursor) && rtn.LT(cursor.plus(bytes)));

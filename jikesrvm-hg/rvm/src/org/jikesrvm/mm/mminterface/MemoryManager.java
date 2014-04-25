@@ -499,6 +499,9 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
   public static Object allocateScalar(int size, TIB tib, int allocator, int align, int offset, int site) {
     Selected.Mutator mutator = Selected.Mutator.get();
     allocator = mutator.checkAllocator(org.jikesrvm.runtime.Memory.alignUp(size, MIN_ALIGNMENT), align, allocator);
+    VM.write("allocateScalar: "); VM.write(size); VM.write(' ');
+    VM.write(allocator); VM.write(' '); VM.write(align); VM.write(' ');
+    VM.write(offset); VM.write(' '); VM.write(site); VM.writeln();
     Address region = allocateSpace(mutator, size, align, offset, allocator, site);
     Object result = ObjectModel.initializeScalar(region, tib, size);
     mutator.postAlloc(ObjectReference.fromObject(result), ObjectReference.fromObject(tib), size, allocator);
@@ -531,6 +534,8 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
       throwLargeArrayOutOfMemoryError();
     }
     int size = elemBytes + headerSize;
+    VM.write("allocateArray: "); VM.write(numElements); VM.write(' '); VM.write(size); VM.write(' ');
+    VM.write(allocator); VM.write(' '); VM.write(align); VM.write(' '); VM.write(offset); VM.writeln();
     return allocateArrayInternal(numElements, size, tib, allocator, align, offset, site);
   }
 
@@ -591,8 +596,8 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
     /* Now make the request */
     Address region;
     VM.write("allocateSpace: "); VM.write(bytes); VM.write(' ');
-    VM.write(align);  VM.write(' '); VM.write(offset); VM.write(' ');
-    VM.write(allocator);  VM.write(' '); VM.write(site); VM.writeln();
+    VM.write(allocator);  VM.write(' '); VM.write(align);  VM.write(' '); VM.write(offset); VM.write(' ');
+    VM.write(site); VM.writeln();
     region = mutator.alloc(bytes, align, offset, allocator, site);
     VM.write("allocateSpace region= "); VM.write(region); VM.writeln();
     /* TODO: if (Stats.GATHER_MARK_CONS_STATS) Plan.cons.inc(bytes); */
