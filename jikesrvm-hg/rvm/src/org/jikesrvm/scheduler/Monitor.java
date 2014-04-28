@@ -70,7 +70,7 @@ public class Monitor {
    * instantiate too many of these.
    */
   public Monitor() {
-    monitor = sysCall.sysMonitorCreate();
+    monitor = Word.zero(); // sysCall.sysMonitorCreate();
   }
   /**
    * Wait until it is possible to acquire the lock and then acquire it.
@@ -92,7 +92,7 @@ public class Monitor {
   public void lockNoHandshake() {
     int mySlot = RVMThread.getCurrentThreadSlot();
     if (mySlot != holderSlot) {
-      sysCall.sysMonitorEnter(monitor);
+      // sysCall.sysMonitorEnter(monitor);
       if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
       if (VM.VerifyAssertions) VM._assert(recCount==0);
       holderSlot = mySlot;
@@ -106,7 +106,7 @@ public class Monitor {
   @NoInline
   @NoOptCompile
   public void relockNoHandshake(int recCount) {
-    sysCall.sysMonitorEnter(monitor);
+    // sysCall.sysMonitorEnter(monitor);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
     holderSlot=RVMThread.getCurrentThreadSlot();
@@ -165,11 +165,11 @@ public class Monitor {
   private void lockWithHandshakeNoRecImpl() {
     for (;;) {
       RVMThread.enterNative();
-      sysCall.sysMonitorEnter(monitor);
+      // sysCall.sysMonitorEnter(monitor);
       if (RVMThread.attemptLeaveNativeNoBlock()) {
         return;
       } else {
-        sysCall.sysMonitorExit(monitor);
+        // sysCall.sysMonitorExit(monitor);
         RVMThread.leaveNative();
       }
     }
@@ -192,11 +192,11 @@ public class Monitor {
   private void relockWithHandshakeImpl(int recCount) {
     for (;;) {
       RVMThread.enterNative();
-      sysCall.sysMonitorEnter(monitor);
+      // sysCall.sysMonitorEnter(monitor);
       if (RVMThread.attemptLeaveNativeNoBlock()) {
         break;
       } else {
-        sysCall.sysMonitorExit(monitor);
+        // sysCall.sysMonitorExit(monitor);
         RVMThread.leaveNative();
       }
     }
@@ -215,7 +215,7 @@ public class Monitor {
   public void unlock() {
     if (--recCount==0) {
       holderSlot=-1;
-      sysCall.sysMonitorExit(monitor);
+      // sysCall.sysMonitorExit(monitor);
     }
   }
   /**
@@ -228,7 +228,7 @@ public class Monitor {
     int result=recCount;
     recCount=0;
     holderSlot=-1;
-    sysCall.sysMonitorExit(monitor);
+    // sysCall.sysMonitorExit(monitor);
     return result;
   }
   /**
@@ -246,7 +246,7 @@ public class Monitor {
     int recCount=this.recCount;
     this.recCount=0;
     holderSlot=-1;
-    sysCall.sysMonitorWait(monitor);
+    // sysCall.sysMonitorWait(monitor);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
     this.recCount=recCount;
@@ -268,7 +268,7 @@ public class Monitor {
     int recCount=this.recCount;
     this.recCount=0;
     holderSlot=-1;
-    sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
+    // sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
     this.recCount=recCount;
@@ -287,7 +287,7 @@ public class Monitor {
   @NoInline
   @NoOptCompile
   public void timedWaitRelativeNoHandshake(long delayNanos) {
-    long now=sysCall.sysNanoTime();
+    long now=0; //sysCall.sysNanoTime();
     timedWaitAbsoluteNoHandshake(now+delayNanos);
   }
   /**
@@ -398,7 +398,7 @@ public class Monitor {
   @NoInline
   @NoOptCompile
   public void broadcast() {
-    sysCall.sysMonitorBroadcast(monitor);
+    // sysCall.sysMonitorBroadcast(monitor);
   }
   /**
    * Send a broadcast after first acquiring the lock.  Release the lock

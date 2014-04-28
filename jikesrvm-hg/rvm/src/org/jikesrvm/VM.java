@@ -176,13 +176,13 @@ public class VM extends Properties implements Constants, ExitStatus {
 
     // Fetch arguments from program command line.
     //
-    if (verboseBoot >= 1) VM.sysWriteln("Fetching command-line arguments");
-    CommandLineArgs.fetchCommandLineArguments();
+//    if (verboseBoot >= 1) VM.sysWriteln("Fetching command-line arguments");
+//    CommandLineArgs.fetchCommandLineArguments();
 
     // Process most virtual machine command line arguments.
     //
-    if (verboseBoot >= 1) VM.sysWriteln("Early stage processing of command line");
-    CommandLineArgs.earlyProcessCommandLineArguments();
+//    if (verboseBoot >= 1) VM.sysWriteln("Early stage processing of command line");
+//    CommandLineArgs.earlyProcessCommandLineArguments();
 
     // Early initialization of TuningFork tracing engine.
     TraceEngine.engine.earlyStageBooting();
