@@ -8,7 +8,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.TreeMap;
@@ -20,7 +25,8 @@ import java.util.regex.Pattern;
  */
 public class RvmMap {
 	RvmMapFileScanner mapFile;
-	TreeMap<Long, RvmSymbol> codeSymbolTable;
+	ArrayList<RvmSymbol> codeTable;
+	LinkedHashMap<Long, RvmSymbol> tibTable;
 
 	// Statistics
 	static int codeSymbols = 0;
@@ -29,12 +35,13 @@ public class RvmMap {
 	static int literalSymbols = 0;
 	static int tibSymbols = 0;
 	static int unknownSymbols = 0;
+	private static String logFile;
 	
 	enum SymbolCategory {
 		literal, code, field, tib, literal_field, unknown,
 	}
 
-	class RvmSymbol {
+	class RvmSymbol implements Comparable {
 		int slot;
 		int offset;
 		SymbolCategory category;
@@ -78,6 +85,13 @@ public class RvmMap {
 			}
 		}
 
+		@Override
+        public int compareTo(Object arg0) {
+			RvmSymbol o = (RvmSymbol)arg0;
+			if(content > o.content) return 1;
+			else if(content < o.content) return -1;
+			else return 0;
+		}
 		public boolean isCodeSymbol() {
 			return category == SymbolCategory.code;
 		}
@@ -129,6 +143,7 @@ public class RvmMap {
 		public String toString() {
 			return slot + " " + Integer.toHexString(offset) + " " + category + " " + Long.toHexString(content) + " " + details;
 		}
+
 	}
 
 	class RvmMapFileScanner {
@@ -222,19 +237,21 @@ public class RvmMap {
 
 	public RvmMap() throws FileNotFoundException {
 		mapFile = new RvmMapFileScanner();
-		codeSymbolTable = new TreeMap<Long, RvmMap.RvmSymbol>();
-		createMaps();
+		codeTable = new ArrayList<RvmMap.RvmSymbol>();
+		tibTable = new LinkedHashMap<Long, RvmMap.RvmSymbol>();
+		createTables();
+		sortCodeTableSymbols();
 	}
 
 	public RvmMap(String mapFileName) throws FileNotFoundException {
 		mapFile = new RvmMapFileScanner(mapFileName);
-		createMaps();
+		createTables();
 	}
 
 	/**
 	 * Creates a symbol table of code and tib symbols
 	 */
-	private void createMaps() {
+	private void createTables() {
 		RvmSymbol symbol = null;
 		while (true) {
 			try {
@@ -248,13 +265,50 @@ public class RvmMap {
 				printStatistics();
 				return;
 			}
-			if (symbol.isCodeSymbol() || symbol.isTibSymbol()) {
-				codeSymbolTable.put(symbol.getContent(), symbol);
-				System.out.println(symbol);
+			if (symbol.isCodeSymbol()) {
+				codeTable.add(symbol);
+			}
+			if(symbol.isTibSymbol()) {
+				tibTable.put(symbol.getContent(), symbol);
 			}
 		}
 	}
 
+	public RvmSymbol findSymbol(long address) {
+		int min=0, max, midpoint;
+		max = codeTable.size()-1;
+		
+		// Do binary search
+		while(min < max) {
+			midpoint = (min + max)/2;
+			RvmSymbol symbol = codeTable.get(midpoint);
+			if(symbol.getContent() == address)
+				return symbol;
+			if(symbol.getContent() < address) {
+				RvmSymbol previousSymbol = codeTable.get(midpoint-1);
+				if(previousSymbol.getContent() == address)
+					return previousSymbol;
+				if(previousSymbol.getContent() < address)
+					return symbol;
+				// Calculate a new midpoint
+				max = midpoint-2;
+			}
+			else {
+				RvmSymbol nextSymbol = codeTable.get(midpoint+1);
+				if(nextSymbol.getContent() == address)
+					return nextSymbol;
+				if(nextSymbol.getContent() > address)
+					return symbol;
+				// set new minmu
+				min = midpoint+1;
+			}
+		}
+		return null;
+	}
+	private void sortCodeTableSymbols() {
+		Collections.sort(codeTable);
+	}
+	
 	public void printStatistics() {
 		System.out.println("Symbol Statistics\nCode: " + codeSymbols
 		        + "\nTibs: " + tibSymbols + "\nFields: " + fieldSymbols
@@ -265,9 +319,24 @@ public class RvmMap {
 	public static void main(String[] args) {
 		try {
 	        RvmMap symbolMapFile = new RvmMap();
+	        processArguments(args);
+	        symbolMapFile.processFile();
         } catch (FileNotFoundException e) {
 	        System.out.print(e.getMessage());
 	        e.printStackTrace();
         }
 	}
+
+	private void processFile() {
+	    // TODO Auto-generated method stub
+	    
+    }
+
+	private static void processArguments(String[] args) {
+		if(args.length == 0) {
+			logFile = "stderr.txt";
+		} else {
+			logFile = args[0];
+		}
+    }
 }
