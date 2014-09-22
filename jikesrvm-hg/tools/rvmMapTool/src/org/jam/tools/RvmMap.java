@@ -331,9 +331,12 @@ public class RvmMap {
 
 	void openTraceFile() {
 		traceFile = new File("stderr.txt");
-		
 	}
 
+	void processTraceFile() {
+		scanFile = new Scanner(traceFile);
+		
+	}
 	private void processFile() {
 	    // TODO Auto-generated method stub
 	    
