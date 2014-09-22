@@ -27,6 +27,7 @@ public class RvmMap {
 	RvmMapFileScanner mapFile;
 	ArrayList<RvmSymbol> codeTable;
 	LinkedHashMap<Long, RvmSymbol> tibTable;
+	File traceFile;
 
 	// Statistics
 	static int codeSymbols = 0;
@@ -35,7 +36,7 @@ public class RvmMap {
 	static int literalSymbols = 0;
 	static int tibSymbols = 0;
 	static int unknownSymbols = 0;
-	private static String logFile;
+	private String logFile;
 	
 	enum SymbolCategory {
 		literal, code, field, tib, literal_field, unknown,
@@ -321,10 +322,16 @@ public class RvmMap {
 	        RvmMap symbolMapFile = new RvmMap();
 	        processArguments(args);
 	        symbolMapFile.processFile();
+	        symbolMapFile.openTraceFile();
         } catch (FileNotFoundException e) {
 	        System.out.print(e.getMessage());
 	        e.printStackTrace();
         }
+	}
+
+	void openTraceFile() {
+		traceFile = new File("stderr.txt");
+		
 	}
 
 	private void processFile() {
