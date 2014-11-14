@@ -320,7 +320,7 @@ public class RvmMap {
 	public static void main(String[] args) {
 		try {
 	        RvmMap symbolMapFile = new RvmMap();
-	        processArguments(args);
+	        symbolMapFile.processArguments(args);
 	        symbolMapFile.processFile();
 	        symbolMapFile.openTraceFile();
         } catch (FileNotFoundException e) {
@@ -333,8 +333,8 @@ public class RvmMap {
 		traceFile = new File("stderr.txt");
 	}
 
-	void processTraceFile() {
-		scanFile = new Scanner(traceFile);
+	void processTraceFile() throws FileNotFoundException {
+		Scanner scanFile = new Scanner(traceFile);
 		
 	}
 	private void processFile() {
@@ -342,7 +342,7 @@ public class RvmMap {
 	    
     }
 
-	private static void processArguments(String[] args) {
+	void processArguments(String[] args) {
 		if(args.length == 0) {
 			logFile = "stderr.txt";
 		} else {
