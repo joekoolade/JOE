@@ -320,33 +320,10 @@ public class RvmMap {
 	public static void main(String[] args) {
 		try {
 	        RvmMap symbolMapFile = new RvmMap();
-	        symbolMapFile.processArguments(args);
-	        symbolMapFile.processFile();
-	        symbolMapFile.openTraceFile();
         } catch (FileNotFoundException e) {
 	        System.out.print(e.getMessage());
 	        e.printStackTrace();
         }
 	}
 
-	void openTraceFile() {
-		traceFile = new File("stderr.txt");
-	}
-
-	void processTraceFile() throws FileNotFoundException {
-		Scanner scanFile = new Scanner(traceFile);
-		
-	}
-	private void processFile() {
-	    // TODO Auto-generated method stub
-	    
-    }
-
-	void processArguments(String[] args) {
-		if(args.length == 0) {
-			logFile = "stderr.txt";
-		} else {
-			logFile = args[0];
-		}
-    }
 }
