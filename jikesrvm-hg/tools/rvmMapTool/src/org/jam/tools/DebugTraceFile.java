@@ -10,23 +10,31 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class DebugTraceFile {
-	
+
 	public static void main(String args[])
 	{
 		try {
-	        RvmMap symbolMapFile = new RvmMap("RVM.map.0");
 	        DebugTraceFile traceFile = new DebugTraceFile();
 	        
 	        traceFile.processArguments(args);
-	        traceFile.processFile();
+	        traceFile.processDumpFile();
 	    } catch (FileNotFoundException e) {
 	        System.out.print(e.getMessage());
 	        e.printStackTrace();
-        }
+        } catch (IOException e) {
+        	System.out.print(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	private String dumpFileName;
 	private String debuggedFileName="trace.log";
+	private RvmMap symbolMapFile;
+	
+	public DebugTraceFile() throws FileNotFoundException
+	{
+        symbolMapFile = new RvmMap("RVM.map.0");
+	}
 	
 	void processDumpFile() throws IOException {
 		BufferedReader dumpFile = new BufferedReader(new FileReader(dumpFileName));
@@ -39,7 +47,20 @@ public class DebugTraceFile {
 				String inToken = dumpFile.readLine();
 				if(inToken.equals("IN:")) {
 					String asmLine = dumpFile.readLine();
-					
+					Long address = Long.valueOf(asmLine.substring(0,9), 16);
+					RvmSymbol symbol = symbolMapFile.findSymbol(address);
+					if(symbol.isUnknown())
+					{
+						continue;
+					}
+					if(symbol.getContent() == address)
+					{
+						System.out.println(symbol.getDetails());
+					}
+					else
+					{
+						System.out.println(symbol.getDetails() + " + " + (address - symbol.getContent()));
+					}
 				}
 			}
 		}

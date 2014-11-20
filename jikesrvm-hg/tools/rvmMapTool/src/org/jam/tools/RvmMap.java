@@ -38,115 +38,6 @@ public class RvmMap {
 	static int unknownSymbols = 0;
 	private String logFile;
 	
-	enum SymbolCategory {
-		literal, code, field, tib, literal_field, unknown,
-	}
-
-	class RvmSymbol implements Comparable {
-		int slot;
-		int offset;
-		SymbolCategory category;
-		long content;
-		String details;
-
-		public RvmSymbol(int slot, int offset, String category, long content,
-		        String details) throws Exception {
-			this.slot = slot;
-			this.offset = offset;
-			this.content = content;
-			this.details = details;
-
-			category = category.replace('/', '_');
-			if (category.equals(SymbolCategory.literal.toString())) {
-				this.category = SymbolCategory.literal;
-				literalSymbols++;
-			} else if (category.equals(SymbolCategory.code.toString())) {
-				this.category = SymbolCategory.code;
-				codeSymbols++;
-			} else if (category.equals(SymbolCategory.field.toString())) {
-				this.category = SymbolCategory.field;
-				fieldSymbols++;
-			} else if (category.equals(SymbolCategory.tib.toString())) {
-				this.category = SymbolCategory.tib;
-				tibSymbols++;
-			} else if (category.equals(SymbolCategory.literal_field.toString())) {
-				this.category = SymbolCategory.literal_field;
-				literalFieldSymbols++;
-			} else if (category.equals(SymbolCategory.unknown.toString())) {
-				if(content != 0) {
-					this.category = SymbolCategory.tib;
-					tibSymbols++;
-				} else {
-					this.category = SymbolCategory.unknown;
-					unknownSymbols++;
-				}
-			}
-			else {
-				throw new Exception("Invalid category: " + category + " this: " + this);
-			}
-		}
-
-		@Override
-        public int compareTo(Object arg0) {
-			RvmSymbol o = (RvmSymbol)arg0;
-			if(content > o.content) return 1;
-			else if(content < o.content) return -1;
-			else return 0;
-		}
-		public boolean isCodeSymbol() {
-			return category == SymbolCategory.code;
-		}
-
-		public boolean isTibSymbol() {
-			return category == SymbolCategory.tib;
-		}
-
-		public int getSlot() {
-			return slot;
-		}
-
-		public void setSlot(int slot) {
-			this.slot = slot;
-		}
-
-		public int getOffset() {
-			return offset;
-		}
-
-		public void setOffset(int offset) {
-			this.offset = offset;
-		}
-
-		public SymbolCategory getCategory() {
-			return category;
-		}
-
-		public void setCategory(SymbolCategory category) {
-			this.category = category;
-		}
-
-		public long getContent() {
-			return content;
-		}
-
-		public void setContent(long content) {
-			this.content = content;
-		}
-
-		public String getDetails() {
-			return details;
-		}
-
-		public void setDetails(String details) {
-			this.details = details;
-		}
-		
-		public String toString() {
-			return slot + " " + Integer.toHexString(offset) + " " + category + " " + Long.toHexString(content) + " " + details;
-		}
-
-	}
-
 	class RvmMapFileScanner {
 		final String mapFileName = "RVM.map";
 		File file;
@@ -238,8 +129,8 @@ public class RvmMap {
 
 	public RvmMap() throws FileNotFoundException {
 		mapFile = new RvmMapFileScanner();
-		codeTable = new ArrayList<RvmMap.RvmSymbol>();
-		tibTable = new LinkedHashMap<Long, RvmMap.RvmSymbol>();
+		codeTable = new ArrayList<RvmSymbol>();
+		tibTable = new LinkedHashMap<Long, RvmSymbol>();
 		createTables();
 		sortCodeTableSymbols();
 	}
@@ -279,6 +170,10 @@ public class RvmMap {
 		int min=0, max, midpoint;
 		max = codeTable.size()-1;
 		
+		// check min and max
+		if(address < codeTable.get(0).content || address > codeTable.get(max).content)
+			return RvmSymbol.unknownSymbol;
+		
 		// Do binary search
 		while(min < max) {
 			midpoint = (min + max)/2;
@@ -300,11 +195,11 @@ public class RvmMap {
 					return nextSymbol;
 				if(nextSymbol.getContent() > address)
 					return symbol;
-				// set new minmu
+				// set new minmum
 				min = midpoint+1;
 			}
 		}
-		return null;
+		return RvmSymbol.unknownSymbol;
 	}
 	private void sortCodeTableSymbols() {
 		Collections.sort(codeTable);
