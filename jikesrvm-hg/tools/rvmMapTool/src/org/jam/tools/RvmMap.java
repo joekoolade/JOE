@@ -137,6 +137,9 @@ public class RvmMap {
 
 	public RvmMap(String mapFileName) throws FileNotFoundException {
 		mapFile = new RvmMapFileScanner(mapFileName);
+		mapFile = new RvmMapFileScanner();
+		codeTable = new ArrayList<RvmSymbol>();
+		tibTable = new LinkedHashMap<Long, RvmSymbol>();
 		createTables();
 	}
 

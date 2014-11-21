@@ -33,7 +33,7 @@ public class DebugTraceFile {
 	
 	public DebugTraceFile() throws FileNotFoundException
 	{
-        symbolMapFile = new RvmMap("RVM.map.0");
+        symbolMapFile = new RvmMap("RVM.map");
 	}
 	
 	void processDumpFile() throws IOException {
