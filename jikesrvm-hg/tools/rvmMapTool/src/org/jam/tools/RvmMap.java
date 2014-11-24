@@ -141,6 +141,7 @@ public class RvmMap {
 		codeTable = new ArrayList<RvmSymbol>();
 		tibTable = new LinkedHashMap<Long, RvmSymbol>();
 		createTables();
+		sortCodeTableSymbols();
 	}
 
 	/**

@@ -45,9 +45,9 @@ public class DebugTraceFile {
 			line = dumpFile.readLine();
 			if(line.equals("----------------")) {
 				String inToken = dumpFile.readLine();
-				if(inToken.equals("IN:")) {
+				if(inToken.equals("IN: ")) {
 					String asmLine = dumpFile.readLine();
-					Long address = Long.valueOf(asmLine.substring(0,9), 16);
+					Long address = Long.valueOf(asmLine.substring(2,10), 16);
 					RvmSymbol symbol = symbolMapFile.findSymbol(address);
 					if(symbol.isUnknown())
 					{
@@ -59,7 +59,7 @@ public class DebugTraceFile {
 					}
 					else
 					{
-						System.out.println(symbol.getDetails() + " + " + (address - symbol.getContent()));
+						System.out.println(symbol.getDetails() + " + 0x" + Long.toHexString((address - symbol.getContent())));
 					}
 				}
 			}
