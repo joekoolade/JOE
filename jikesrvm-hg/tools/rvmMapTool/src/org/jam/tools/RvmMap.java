@@ -185,22 +185,22 @@ public class RvmMap {
 			if(symbol.getContent() == address)
 				return symbol;
 			if(symbol.getContent() < address) {
-				RvmSymbol previousSymbol = codeTable.get(midpoint-1);
-				if(previousSymbol.getContent() == address)
-					return previousSymbol;
-				if(previousSymbol.getContent() < address)
-					return symbol;
-				// Calculate a new midpoint
-				max = midpoint-2;
-			}
-			else {
 				RvmSymbol nextSymbol = codeTable.get(midpoint+1);
 				if(nextSymbol.getContent() == address)
 					return nextSymbol;
 				if(nextSymbol.getContent() > address)
 					return symbol;
-				// set new minmum
-				min = midpoint+1;
+				// Calculate a new midpoint
+				min = midpoint+2;
+			}
+			else {
+				RvmSymbol previousSymbol = codeTable.get(midpoint-1);
+				if(previousSymbol.getContent() == address)
+					return previousSymbol;
+				if(previousSymbol.getContent() < address)
+					return previousSymbol;
+				// set new minimum
+				max = midpoint-2;
 			}
 		}
 		return RvmSymbol.unknownSymbol;
