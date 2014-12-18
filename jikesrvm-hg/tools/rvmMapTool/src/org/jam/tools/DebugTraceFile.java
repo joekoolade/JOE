@@ -10,12 +10,15 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class DebugTraceFile {
-
+	private String symbolMapFileName;
+	private String dumpFileName;
+	private String debuggedFileName="trace.log";
+	private RvmMap symbolMapFile;
+	
 	public static void main(String args[])
 	{
 		try {
 	        DebugTraceFile traceFile = new DebugTraceFile();
-	        
 	        traceFile.processArguments(args);
 	        traceFile.processDumpFile();
 	    } catch (FileNotFoundException e) {
@@ -27,18 +30,10 @@ public class DebugTraceFile {
 		}
 	}
 
-	private String dumpFileName;
-	private String debuggedFileName="trace.log";
-	private RvmMap symbolMapFile;
-	
-	public DebugTraceFile() throws FileNotFoundException
-	{
-        symbolMapFile = new RvmMap("RVM.map");
-	}
-	
 	void processDumpFile() throws IOException {
 		BufferedReader dumpFile = new BufferedReader(new FileReader(dumpFileName));
 		BufferedWriter tracedFile = new BufferedWriter(new FileWriter(debuggedFileName));
+        symbolMapFile = new RvmMap(symbolMapFileName);
 		String line;
 		
 		while(dumpFile.ready()) {
@@ -73,6 +68,15 @@ public class DebugTraceFile {
 			dumpFileName = "stderr.txt";
 		} else {
 			dumpFileName = args[0];
+		}
+		
+		if(args.length == 2)
+		{
+			symbolMapFileName = args[1];
+		}
+		else
+		{
+			symbolMapFileName = "RVM.map";
 		}
     }
 }
