@@ -82,6 +82,7 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
    */
   private static final boolean CHECK_MEMORY_IS_ZEROED = false;
   private static final boolean traceAllocator = false;
+  private static final boolean DEBUG = false;
 
   /**
    * Has the interface been booted yet?
@@ -499,9 +500,12 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
   public static Object allocateScalar(int size, TIB tib, int allocator, int align, int offset, int site) {
     Selected.Mutator mutator = Selected.Mutator.get();
     allocator = mutator.checkAllocator(org.jikesrvm.runtime.Memory.alignUp(size, MIN_ALIGNMENT), align, allocator);
-    VM.write("allocateScalar: "); VM.write(size); VM.write(' ');
-    VM.write(allocator); VM.write(' '); VM.write(align); VM.write(' ');
-    VM.write(offset); VM.write(' '); VM.write(site); VM.writeln();
+    if(DEBUG)
+    {
+	    VM.write("allocateScalar: "); VM.write(size); VM.write(' ');
+	    VM.write(allocator); VM.write(' '); VM.write(align); VM.write(' ');
+	    VM.write(offset); VM.write(' '); VM.write(site); VM.writeln();
+    }
     Address region = allocateSpace(mutator, size, align, offset, allocator, site);
     Object result = ObjectModel.initializeScalar(region, tib, size);
     mutator.postAlloc(ObjectReference.fromObject(result), ObjectReference.fromObject(tib), size, allocator);
@@ -595,11 +599,17 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
 
     /* Now make the request */
     Address region;
-    VM.write("allocateSpace: "); VM.write(bytes); VM.write(' ');
-    VM.write(allocator);  VM.write(' '); VM.write(align);  VM.write(' '); VM.write(offset); VM.write(' ');
-    VM.write(site); VM.writeln();
+    if(DEBUG)
+    {
+	    VM.write("allocateSpace: "); VM.write(bytes); VM.write(' ');
+	    VM.write(allocator);  VM.write(' '); VM.write(align);  VM.write(' '); VM.write(offset); VM.write(' ');
+	    VM.write(site); VM.writeln();
+    }
     region = mutator.alloc(bytes, align, offset, allocator, site);
-    VM.write("allocateSpace region= "); VM.write(region); VM.writeln();
+    if(DEBUG)
+    {
+    	VM.write("allocateSpace region= "); VM.write(region); VM.writeln();
+    }
     /* TODO: if (Stats.GATHER_MARK_CONS_STATS) Plan.cons.inc(bytes); */
     if (CHECK_MEMORY_IS_ZEROED) Memory.assertIsZeroed(region, bytes);
 

@@ -100,6 +100,7 @@ import org.vmmagic.unboxed.Word;
   private static final int SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES = 128;
 
   private static final boolean VERBOSE = false;
+  private static final boolean DEBUG = false;
 
   /****************************************************************************
    *
@@ -172,9 +173,12 @@ import org.vmmagic.unboxed.Word;
   public final Address alloc(int bytes, int align, int offset) {
     Address start = alignAllocationNoFill(cursor, align, offset);
     Address end = start.plus(bytes);
-    Log.write("BumpPointer.alloc: "); Log.write(bytes); Log.write(' '); 
-    Log.write(align); Log.write(' '); Log.write(offset); Log.write(' ');
-    Log.write(start); Log.write(' '); Log.writeln(end);
+    if(DEBUG)
+    {
+	    Log.write("BumpPointer.alloc: "); Log.write(bytes); Log.write(' '); 
+	    Log.write(align); Log.write(' '); Log.write(offset); Log.write(' ');
+	    Log.write(start); Log.write(' '); Log.writeln(end);
+    }
     if (end.GT(internalLimit))
       return allocSlow(start, end, align, offset);
     fillAlignmentGap(cursor, start);

@@ -194,10 +194,10 @@ public class VM extends Properties implements Constants, ExitStatus {
 
     // Initialize class loader.
     //
-    String bootstrapClasses = CommandLineArgs.getBootstrapClasses();
+    String bootstrapClasses = ""; // CommandLineArgs.getBootstrapClasses();
     if (verboseBoot >= 1) VM.sysWriteln("Initializing bootstrap class loader: ", bootstrapClasses);
     RVMClassLoader.boot();      // Wipe out cached application class loader
-    BootstrapClassLoader.boot(bootstrapClasses);
+    // BootstrapClassLoader.boot(bootstrapClasses);
 
     // Initialize statics that couldn't be placed in bootimage, either
     // because they refer to external state (open files), or because they
