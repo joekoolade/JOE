@@ -538,8 +538,11 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
       throwLargeArrayOutOfMemoryError();
     }
     int size = elemBytes + headerSize;
-    VM.write("allocateArray: "); VM.write(numElements); VM.write(' '); VM.write(size); VM.write(' ');
-    VM.write(allocator); VM.write(' '); VM.write(align); VM.write(' '); VM.write(offset); VM.writeln();
+    if(DEBUG)
+    {
+	    VM.write("allocateArray: "); VM.write(numElements); VM.write(' '); VM.write(size); VM.write(' ');
+	    VM.write(allocator); VM.write(' '); VM.write(align); VM.write(' '); VM.write(offset); VM.writeln();
+    }
     return allocateArrayInternal(numElements, size, tib, allocator, align, offset, site);
   }
 
