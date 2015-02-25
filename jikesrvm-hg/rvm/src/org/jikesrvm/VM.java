@@ -482,7 +482,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     } else {
       RVMMethod clinit = cls.getClassInitializerMethod();
       if (clinit != null) {
-        clinit.compile();
+        // clinit.compile();
         if (verboseBoot >= 10) VM.sysWriteln("invoking method " + clinit);
         try {
           Magic.invokeClassInitializer(clinit.getCurrentEntryCodeArray());

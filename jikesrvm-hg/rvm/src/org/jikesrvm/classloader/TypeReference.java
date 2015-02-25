@@ -234,6 +234,7 @@ public final class TypeReference {
     // Primitives, arrays of primitives, system classes and arrays of system
     // classes must use the bootstrap classloader.  Force that here so we don't
     // have to worry about it anywhere else in the VM.
+    step1();
     ClassLoader bootstrapCL = BootstrapClassLoader.getBootstrapClassLoader();
     if (cl == null) {
       cl = bootstrapCL;
@@ -258,7 +259,12 @@ public final class TypeReference {
     return findOrCreateInternal(cl, tn);
   }
 
-  /**
+  private static void step1() {
+	// TODO Auto-generated method stub
+	
+  }
+
+/**
    * Shorthand for doing a find or create for a type reference that should
    * be created using the bootstrap classloader.
    * @param tn type name
@@ -327,21 +333,63 @@ public final class TypeReference {
       val = key;
       nextId++; // id of val is the nextId, move it along
       int column = val.id >> LOG_ROW_SIZE;
+  		step2();
       if (column == types.length) {
         // Grow the array of types if necessary
+    	  step3();
         TypeReference[][] tmp = new TypeReference[column+1][];
+        step4();
         for (int i=0; i < column; i++) {
           tmp[i] = types[i];
         }
         types = tmp;
+        step5();
         types[column] = new TypeReference[1 << LOG_ROW_SIZE];
+        step6();
       }
       types[column][val.id & ROW_MASK] = val;
+      step7();
       dictionary.add(val);
+      step8();
     }
     return val;
   }
-  private static void canonicalizeCL(ClassLoader cl) {
+  private static void step8() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void step7() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void step6() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void step5() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void step4() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void step3() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void step2() {
+	// TODO Auto-generated method stub
+	
+}
+
+private static void canonicalizeCL(ClassLoader cl) {
     clDict.add(cl);
   }
   public static ImmutableEntryHashSetRVM<ClassLoader> getCLDict() { return clDict; }
