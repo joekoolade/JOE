@@ -1,5 +1,7 @@
 package org.jam.tools;
 
+import javassist.bytecode.stackmap.TypeData.ClassName;
+
 class RvmSymbol implements Comparable {
 	enum SymbolCategory {
 		literal, code, field, tib, literal_field, unknown,
@@ -10,6 +12,10 @@ class RvmSymbol implements Comparable {
 	SymbolCategory category;
 	long content;
 	String details;
+	String clsName;
+	String methodName;
+	String argName;
+	String fieldName;
 	static final public RvmSymbol unknownSymbol = new RvmSymbol();
 	
 	/*
@@ -29,7 +35,7 @@ class RvmSymbol implements Comparable {
 		this.slot = slot;
 		this.offset = offset;
 		this.content = content;
-		this.details = details;
+		this.details = details.trim();
 
 		category = category.replace('/', '_');
 		if (category.equals(SymbolCategory.literal.toString())) {
@@ -37,6 +43,7 @@ class RvmSymbol implements Comparable {
 			RvmMap.literalSymbols++;
 		} else if (category.equals(SymbolCategory.code.toString())) {
 			this.category = SymbolCategory.code;
+			getCodeFields();
 			RvmMap.codeSymbols++;
 		} else if (category.equals(SymbolCategory.field.toString())) {
 			this.category = SymbolCategory.field;
@@ -59,6 +66,13 @@ class RvmSymbol implements Comparable {
 		else {
 			throw new Exception("Invalid category: " + category + " this: " + this);
 		}
+	}
+
+	private void getCodeFields() {
+		int nameStart = details.indexOf(',')+3;
+		int nameEnd = details.indexOf(';', nameStart);
+		clsName = details.substring(nameStart, nameEnd).replace('/', '.');
+		
 	}
 
 	@Override
