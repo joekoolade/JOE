@@ -69,9 +69,11 @@ class RvmSymbol implements Comparable {
 	}
 
 	private void getCodeFields() {
+		// Get the class name
 		int nameStart = details.indexOf(',')+3;
 		int nameEnd = details.indexOf(';', nameStart);
 		clsName = details.substring(nameStart, nameEnd).replace('/', '.');
+		// get the method name
 		
 	}
 
