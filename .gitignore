@@ -32,3 +32,4 @@ generated/
 .metadata/
 .classpath
 jnode-master/
+/stderr.txt
