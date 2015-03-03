@@ -74,7 +74,9 @@ class RvmSymbol implements Comparable {
 		int nameEnd = details.indexOf(';', nameStart);
 		clsName = details.substring(nameStart, nameEnd).replace('/', '.');
 		// get the method name
-		
+		nameStart = nameEnd+4;
+		nameEnd = details.indexOf('(', nameStart)-1;
+		methodName = details.substring(nameStart, nameEnd);
 	}
 
 	@Override
@@ -95,6 +97,16 @@ class RvmSymbol implements Comparable {
 	public boolean isUnknown()
 	{
 		return this==unknownSymbol;
+	}
+	
+	public String getClassName()
+	{
+		return clsName;
+	}
+	
+	public String getMethodName()
+	{
+		return methodName;
 	}
 	
 	public int getSlot() {

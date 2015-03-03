@@ -50,11 +50,11 @@ public class DebugTraceFile {
 					}
 					if(symbol.getContent() == address)
 					{
-						System.out.println(symbol.getDetails());
+						System.out.println("0x" + Long.toHexString(address) + ": " +symbol.getClassName()+"."+symbol.getMethodName()+"()");
 					}
 					else
 					{
-						System.out.println(symbol.getDetails() + " + 0x" + Long.toHexString((address - symbol.getContent())));
+						System.out.println("0x" + Long.toHexString(address) + ": [0x" + Long.toHexString(symbol.getContent())+"]" + symbol.getClassName()+"."+symbol.getMethodName()+"() + 0x" + Long.toHexString((address - symbol.getContent())));
 					}
 				}
 			}
