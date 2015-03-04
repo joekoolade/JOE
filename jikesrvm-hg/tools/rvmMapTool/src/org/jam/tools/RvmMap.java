@@ -207,8 +207,14 @@ public class RvmMap {
 	}
 	private void sortCodeTableSymbols() {
 		Collections.sort(codeTable);
+		removeDuplicates();
 	}
 	
+	private void removeDuplicates() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public void printStatistics() {
 		System.out.println("Symbol Statistics\nCode: " + codeSymbols
 		        + "\nTibs: " + tibSymbols + "\nFields: " + fieldSymbols
