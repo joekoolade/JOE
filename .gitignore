@@ -19,7 +19,6 @@ Classpath.h
 .settings/
 /vmkit-3.3
 .gitignore~
-/classpath*
 /jikesrvm-3.1.3
 /gcc*
 /soot*
@@ -33,3 +32,4 @@ generated/
 .classpath
 jnode-master/
 /stderr.txt
+/bin/

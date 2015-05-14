@@ -39,6 +39,7 @@
   <property name="test.java" location="rvm/test-src/"/>
   <property name="mmtk.java" location="MMTk/src"/>
   <property name="joebase.dir" location="c:/local/git/jam/JEI"/>
+  <property name="classpath.dir" location="../classpath-0.98"/>
   <property name="jam.java" location="${joebase.dir}/jam/src"/>
   <property name="mmtk-harness.java" location="MMTk/harness/src"/>
   <property name="mmtk-harness-vmmagic.java" location="MMTk/harness/vmmagic"/>
@@ -435,6 +436,27 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
+  <path id="gnu.classpath.src">
+    <pathelement location="${classpath.dir}"/>  
+  </path>
+  
+  <target name="compile-classpath" description="Compile GNU classpath">
+    <mkdir dir="${classpath.dir}/bin"/>
+    <javac srcdir="${classpath.dir}" destdir="${classpath.dir}/bin">
+      <include name="gnu/**"/>
+      <include name="java/**"/>
+      <include name="javax/**"/>
+      <include name="org/**"/>
+      <include name="sun/**"/>
+      <exclude name="gnu/java/awt/peer/x/**"/>
+      <bootclasspath path="${classpath.dir}"/>
+      <sourcepath path="${classpath.dir}/vm/reference"/>
+      <sourcepath path="${classpath.dir}/external/w3c_dom"/>
+      <sourcepath path="${classpath.dir}/external/jsr166"/>
+      <sourcepath path="${classpath.dir}/external/sax"/>
+      <sourcepath path="${classpath.dir}/external/relaxngDatatype"/>
+    </javac>
+  </target>
   <!-- we are compiling mmtk independently to ensure that it can build independent of the rvm -->
   <target name="compile-mmtk" depends="compile-vmmagic-stub,compile-options" description="Compile MMTk toolkit.">
     <property name="build.mmtk.classes" location="${build.dir}/mmtk/classes"/>
