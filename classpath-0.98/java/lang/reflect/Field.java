@@ -96,7 +96,6 @@ extends AccessibleObject implements Member
   Field(VMField f)
   {
     this.f = f;
-    f.f = this;
   }
 
   /**
@@ -257,7 +256,7 @@ extends AccessibleObject implements Member
   public Object get(Object o)
     throws IllegalAccessException
   {
-    return f.get(o);
+    return f.get(this, o);
   }
 
   /**
@@ -280,7 +279,7 @@ extends AccessibleObject implements Member
   public boolean getBoolean(Object o)
     throws IllegalAccessException
   {
-    return f.getBoolean(o);
+    return f.getBoolean(this, o);
   }
 
   /**
@@ -303,7 +302,7 @@ extends AccessibleObject implements Member
   public byte getByte(Object o)
     throws IllegalAccessException
   {
-    return f.getByte(o);
+    return f.getByte(this, o);
   }
 
   /**
@@ -324,7 +323,7 @@ extends AccessibleObject implements Member
   public char getChar(Object o)
     throws IllegalAccessException
   {
-    return f.getChar(o);
+    return f.getChar(this, o);
   }
 
   /**
@@ -347,7 +346,7 @@ extends AccessibleObject implements Member
   public short getShort(Object o)
     throws IllegalAccessException
   {
-    return f.getShort(o);
+    return f.getShort(this, o);
   }
 
   /**
@@ -370,7 +369,7 @@ extends AccessibleObject implements Member
   public int getInt(Object o)
     throws IllegalAccessException
   {
-    return f.getInt(o);
+    return f.getInt(this, o);
   }
 
   /**
@@ -393,7 +392,7 @@ extends AccessibleObject implements Member
   public long getLong(Object o)
     throws IllegalAccessException
   {
-    return f.getLong(o);
+    return f.getLong(this, o);
   }
 
   /**
@@ -416,7 +415,7 @@ extends AccessibleObject implements Member
   public float getFloat(Object o)
     throws IllegalAccessException
   {
-    return f.getFloat(o);
+    return f.getFloat(this, o);
   }
 
   /**
@@ -440,7 +439,7 @@ extends AccessibleObject implements Member
   public double getDouble(Object o)
     throws IllegalAccessException
   {
-    return f.getDouble(o);
+    return f.getDouble(this, o);
   }
 
   /**
@@ -491,7 +490,7 @@ extends AccessibleObject implements Member
   public void set(Object o, Object value)
     throws IllegalAccessException
   {
-    f.set(o, value);
+    f.set(this, o, value);
   }
 
   /**
@@ -514,7 +513,7 @@ extends AccessibleObject implements Member
   public void setBoolean(Object o, boolean value)
     throws IllegalAccessException
   {
-    f.setBoolean(o, value);
+    f.setBoolean(this, o, value);
   }
 
   /**
@@ -537,7 +536,7 @@ extends AccessibleObject implements Member
   public void setByte(Object o, byte value)
     throws IllegalAccessException
   {
-    f.setByte(o, value);
+    f.setByte(this, o, value);
   }
 
   /**
@@ -560,7 +559,7 @@ extends AccessibleObject implements Member
   public void setChar(Object o, char value)
     throws IllegalAccessException
   {
-    f.setChar(o, value);
+    f.setChar(this, o, value);
   }
 
   /**
@@ -583,7 +582,7 @@ extends AccessibleObject implements Member
   public void setShort(Object o, short value)
     throws IllegalAccessException
   {
-    f.setShort(o, value);
+    f.setShort(this, o, value);
   }
 
   /**
@@ -606,7 +605,7 @@ extends AccessibleObject implements Member
   public void setInt(Object o, int value)
     throws IllegalAccessException
   {
-    f.setInt(o, value);
+    f.setInt(this, o, value);
   }
 
   /**
@@ -629,7 +628,7 @@ extends AccessibleObject implements Member
   public void setLong(Object o, long value)
     throws IllegalAccessException
   {
-    f.setLong(o, value);
+    f.setLong(this, o, value);
   }
 
   /**
@@ -652,7 +651,7 @@ extends AccessibleObject implements Member
   public void setFloat(Object o, float value)
     throws IllegalAccessException
   {
-    f.setFloat(o, value);
+    f.setFloat(this, o, value);
   }
 
   /**
@@ -675,7 +674,7 @@ extends AccessibleObject implements Member
   public void setDouble(Object o, double value)
     throws IllegalAccessException
   {
-    f.setDouble(o, value);
+    f.setDouble(this, o, value);
   }
 
   /**

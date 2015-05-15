@@ -567,6 +567,13 @@ public abstract class Toolkit
     if (toolkit != null)
       return toolkit;
 
+    // Check for the headless property.
+    if (GraphicsEnvironment.isHeadless())
+      {
+        toolkit = new HeadlessToolkit();
+        return toolkit;
+      }
+
     String toolkit_name = SystemProperties.getProperty("awt.toolkit",
                                                        default_toolkit_name);
     try

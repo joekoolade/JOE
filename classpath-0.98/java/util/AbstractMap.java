@@ -80,7 +80,7 @@ public abstract class AbstractMap<K, V> implements Map<K, V>
    *
    * @since 1.6 
    */
-  public static class SimpleImmutableEntry<K, V>
+  public static class SimpleImmutableEntry<K, V> extends SimpleEntry<K,V>
     implements Entry<K, V>, Serializable
   {
     /**
@@ -88,34 +88,22 @@ public abstract class AbstractMap<K, V> implements Map<K, V>
      */
     private static final long serialVersionUID = 7138329143949025153L;
 
-    K key;
-    V value;
-
     public SimpleImmutableEntry(K key, V value)
     {
-      this.key = key;
-      this.value = value;
+      super(key,value);
     }
 
     public SimpleImmutableEntry(Entry<? extends K, ? extends V> entry)
     {
-      this(entry.getKey(), entry.getValue());
+      super(entry);
     }
 
-    public K getKey()
-    {
-      return key;
-    }
-
-    public V getValue()
-    {
-      return value;
-    }
-
+    @Override
     public V setValue(V value)
     {
       throw new UnsupportedOperationException("setValue not supported on immutable entry");
     }
+
   }
 
 /** An "enum" of iterator types. */

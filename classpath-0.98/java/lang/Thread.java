@@ -374,8 +374,8 @@ public class Thread implements Runnable
         this.threadId = ++totalThreadsCreated;
       }
 
-    priority = current.priority;
-    daemon = current.daemon;
+    priority = current.getPriority();
+    daemon = current.isDaemon();
     contextClassLoader = current.contextClassLoader;
     contextClassLoaderIsSystemClassLoader =
         current.contextClassLoaderIsSystemClassLoader;

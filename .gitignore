@@ -33,3 +33,5 @@ generated/
 jnode-master/
 /stderr.txt
 /bin/
+
+*.rej

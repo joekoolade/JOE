@@ -41,6 +41,7 @@ package java.nio;
 import gnu.classpath.Pointer;
 
 import java.io.IOException;
+import gnu.classpath.Pointer;
 
 /**
  * @since 1.4

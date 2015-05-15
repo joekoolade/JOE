@@ -397,7 +397,7 @@ Java_java_lang_VMDouble_toString
    */
 
   do {
-    jdouble parsed_value;
+    volatile jdouble parsed_value;
 
     assert(least_necessary_precision <= maximal_precision);
 

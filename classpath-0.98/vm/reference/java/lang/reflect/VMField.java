@@ -112,16 +112,16 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #getBoolean(Object)
-   * @see #getByte(Object)
-   * @see #getChar(Object)
-   * @see #getShort(Object)
-   * @see #getInt(Object)
-   * @see #getLong(Object)
-   * @see #getFloat(Object)
-   * @see #getDouble(Object)
+   * @see #getBoolean(Field f, Object)
+   * @see #getByte(Field f, Object)
+   * @see #getChar(Field f, Object)
+   * @see #getShort(Field f, Object)
+   * @see #getInt(Field f, Object)
+   * @see #getLong(Field f, Object)
+   * @see #getFloat(Field f, Object)
+   * @see #getDouble(Field f, Object)
    */
-  native Object get(Object o)
+  native Object get(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -139,9 +139,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native boolean getBoolean(Object o)
+  native boolean getBoolean(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -159,9 +159,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native byte getByte(Object o)
+  native byte getByte(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -178,9 +178,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native char getChar(Object o)
+  native char getChar(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -198,9 +198,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native short getShort(Object o)
+  native short getShort(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -218,9 +218,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native int getInt(Object o)
+  native int getInt(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -238,9 +238,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native long getLong(Object o)
+  native long getLong(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -258,9 +258,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native float getFloat(Object o)
+  native float getFloat(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -279,9 +279,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #get(Object)
+   * @see #get(Field f, Object)
    */
-  native double getDouble(Object o)
+  native double getDouble(Field f, Object o)
     throws IllegalAccessException;
 
   /**
@@ -320,16 +320,16 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #setBoolean(Object, boolean)
-   * @see #setByte(Object, byte)
-   * @see #setChar(Object, char)
-   * @see #setShort(Object, short)
-   * @see #setInt(Object, int)
-   * @see #setLong(Object, long)
-   * @see #setFloat(Object, float)
-   * @see #setDouble(Object, double)
+   * @see #setBoolean(Field f, Object, boolean)
+   * @see #setByte(Field f, Object, byte)
+   * @see #setChar(Field f, Object, char)
+   * @see #setShort(Field f, Object, short)
+   * @see #setInt(Field f, Object, int)
+   * @see #setLong(Field f, Object, long)
+   * @see #setFloat(Field f, Object, float)
+   * @see #setDouble(Field f, Object, double)
    */
-  native void set(Object o, Object value)
+  native void set(Field f, Object o, Object value)
     throws IllegalAccessException;
 
   /**
@@ -347,9 +347,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setBoolean(Object o, boolean value)
+  native void setBoolean(Field f, Object o, boolean value)
     throws IllegalAccessException;
 
   /**
@@ -367,9 +367,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setByte(Object o, byte value)
+  native void setByte(Field f, Object o, byte value)
     throws IllegalAccessException;
 
   /**
@@ -387,9 +387,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setChar(Object o, char value)
+  native void setChar(Field f, Object o, char value)
     throws IllegalAccessException;
 
   /**
@@ -407,9 +407,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setShort(Object o, short value)
+  native void setShort(Field f, Object o, short value)
     throws IllegalAccessException;
 
   /**
@@ -427,9 +427,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setInt(Object o, int value)
+  native void setInt(Field f, Object o, int value)
     throws IllegalAccessException;
 
   /**
@@ -447,9 +447,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setLong(Object o, long value)
+  native void setLong(Field f, Object o, long value)
     throws IllegalAccessException;
 
   /**
@@ -467,9 +467,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setFloat(Object o, float value)
+  native void setFloat(Field f, Object o, float value)
     throws IllegalAccessException;
 
   /**
@@ -487,9 +487,9 @@ final class VMField
    *         requires an instance
    * @throws ExceptionInInitializerError if accessing a static field triggered
    *         class initialization, which then failed
-   * @see #set(Object, Object)
+   * @see #set(Field f, Object, Object)
    */
-  native void setDouble(Object o, double value)
+  native void setDouble(Field f, Object o, double value)
     throws IllegalAccessException;
 
   /**
