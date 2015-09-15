@@ -96,7 +96,6 @@ extends AccessibleObject implements Member, GenericDeclaration
   Method(VMMethod m)
   {
     this.m = m;
-    m.m = this;
   }
 
   /**
@@ -324,7 +323,7 @@ extends AccessibleObject implements Member, GenericDeclaration
   public Object invoke(Object o, Object... args)
     throws IllegalAccessException, InvocationTargetException
   {
-    return m.invoke(o, args);
+    return m.invoke(o, args, this);
   }
 
   /**

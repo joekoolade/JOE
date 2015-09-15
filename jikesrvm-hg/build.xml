@@ -38,9 +38,9 @@
   <property name="main.java" location="rvm/src"/>
   <property name="test.java" location="rvm/test-src/"/>
   <property name="mmtk.java" location="MMTk/src"/>
-  <property name="joebase.dir" location="c:/local/git/jam/JEI"/>
+  <!-- <property name="joebase.dir" location="c:/local/git/jam/JEI"/> -->
   <property name="classpath.dir" location="../classpath-0.98"/>
-  <property name="jam.java" location="${joebase.dir}/jam/src"/>
+  <property name="jam.java" location="../jam/src"/>
   <property name="mmtk-harness.java" location="MMTk/harness/src"/>
   <property name="mmtk-harness-vmmagic.java" location="MMTk/harness/vmmagic"/>
   <property name="mmtk-vm-rvm.java" location="MMTk/ext/vm/jikesrvm"/>
@@ -49,6 +49,7 @@
   <property name="options.java" location="common/options/src"/>
   <property name="tuningforklib.java" location="external/tuningforklib/src"/>	
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
+  <property name="classpath.lib.dir" location="../classpath-0.98"/>
 	
   <!-- Location of .dat files for options -->	
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
@@ -266,6 +267,7 @@
 
   <target name="check-components-properties" depends="include-gcspy-check,prepare-ant-tasks">
     <mkdir dir="${components.dir}"/>
+    <!--
     <if>
       <conditions>
         <equals arg1="${classlib.provider}" arg2="GNU Classpath"/>
@@ -283,6 +285,7 @@
         <ant antfile="build/components/harmony.xml" target="ensure"/>
       </sequential>
     </if>
+    -->
     <if>
       <conditions>
         <equals arg1="${config.with-profile}" arg2="true"/>
@@ -341,7 +344,7 @@ Check to make sure all required properties are specified. This includes properti
  * component properties for classpath, gcspy etc.
   -->
   <target name="check-properties"
-          depends="check-host-properties,check-config-properties,check-target-properties,check-classlibrary-properties,check-classpath-properties,check-harmony-properties,check-gcspy-properties,check-mmtk-properties"
+          depends="check-host-properties,check-config-properties,check-target-properties,check-classlibrary-properties,check-harmony-properties,check-gcspy-properties,check-mmtk-properties"
           description="Check that all required properties are specified.">
 
     <!-- setup properties for start of build. -->
@@ -422,13 +425,13 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="compile-vmmagic-stub">
     <mkdir dir="${build.vmmagic-stub.classes}"/>
-    <javac srcdir="${vmmagic-stub.java}" destdir="${build.vmmagic-stub.classes}" debug="true" debugLevel="lines,source"
+    <javac srcdir="${vmmagic-stub.java}" destdir="${build.vmmagic-stub.classes}" debug="true" debugLevel="vars,lines,source"
            source="${mmtk.java.version}" target="${mmtk.java.version}" includeantruntime="false"/>
   </target>
 
   <target name="compile-options" depends="compile-vmmagic-stub">
     <mkdir dir="${build.options.classes}"/>
-    <javac srcdir="${options.java}" destdir="${build.options.classes}" debug="true" debugLevel="lines,source"
+    <javac srcdir="${options.java}" destdir="${build.options.classes}" debug="true" debugLevel="vars,lines,source"
            source="${mmtk.java.version}" target="${mmtk.java.version}" includeantruntime="false">
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -441,27 +444,36 @@ Check to make sure all required properties are specified. This includes properti
   </path>
   
   <target name="compile-classpath" description="Compile GNU classpath">
-    <mkdir dir="${classpath.dir}/bin"/>
-    <javac srcdir="${classpath.dir}" destdir="${classpath.dir}/bin">
-      <include name="gnu/**"/>
-      <include name="java/**"/>
-      <include name="javax/**"/>
-      <include name="org/**"/>
-      <include name="sun/**"/>
-      <exclude name="gnu/java/awt/peer/x/**"/>
-      <bootclasspath path="${classpath.dir}"/>
-      <sourcepath path="${classpath.dir}/vm/reference"/>
-      <sourcepath path="${classpath.dir}/external/w3c_dom"/>
-      <sourcepath path="${classpath.dir}/external/jsr166"/>
-      <sourcepath path="${classpath.dir}/external/sax"/>
-      <sourcepath path="${classpath.dir}/external/relaxngDatatype"/>
-    </javac>
+    <mkdir dir="${classpath.dir}/classes"/>
+    <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" destdir="${classpath.dir}/classes"
+        classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
+        sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/vm/reference/gnu,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
+        includes="java/**,javax/**,gnu/**,sun/**,org/**,vm/reference/**,external/**,org/jikesrvm/**"
+        excludes="gnu/java/awt/peer/x/**"
+        includeantruntime="no"
+    />
+    <jar file="${classpath.dir}/src.jar" basedir="${classpath.dir}">
+      <include name="java/**/*.java"/>
+      <include name="javax/**/*.java"/>
+      <include name="gnu/**/*.java"/>
+      <include name="vm/reference/**/*.java"/>
+      <include name="vm/reference/gnu/**/*.java"/>
+      <include name="external/jsr166/**/*.java"/>
+      <include name="external/relaxngDatatype/**/*.java"/>
+      <include name="external/sax/**/*.java"/>
+      <include name="external/w3c_dom/**/*.java"/>
+    </jar>
+    <jar file="${classpath.dir}/classpath.jar" basedir="${classpath.dir}/classes">
+      <exclude name="org/jikesrvm/**"/>
+      <exclude name="**/JikesRVMSupport.class"/>
+      <exclude name="**/VMCommonLibrarySupport.class"/>
+    </jar>
   </target>
   <!-- we are compiling mmtk independently to ensure that it can build independent of the rvm -->
   <target name="compile-mmtk" depends="compile-vmmagic-stub,compile-options" description="Compile MMTk toolkit.">
     <property name="build.mmtk.classes" location="${build.dir}/mmtk/classes"/>
     <mkdir dir="${build.mmtk.classes}"/>
-    <javac srcdir="${mmtk.java}" destdir="${build.mmtk.classes}" debug="true" debugLevel="lines,source"
+    <javac srcdir="${mmtk.java}" destdir="${build.mmtk.classes}" debug="true" debugLevel="vars,lines,source"
            source="${mmtk.java.version}" target="${mmtk.java.version}" includeantruntime="false">
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -483,7 +495,7 @@ Check to make sure all required properties are specified. This includes properti
     <javacc target="${basedir}/MMTk/harness/src-generated/org/mmtk/harness/lang/parser/Parser.jj" javacchome="${javacc.dir}" outputdirectory="${generated.mmtk-harness-parser.java}"/>
     <mkdir dir="${build.mmtk-harness.classes}"/>
     <javac srcdir="${mmtk-harness.java}:${mmtk-harness-vmmagic.java}:${mmtk-vm-harness.java}:${generated.mmtk-harness-parser.java}" 
-        destdir="${build.mmtk-harness.classes}" debug="true" debugLevel="lines,source" 
+        destdir="${build.mmtk-harness.classes}" debug="true" debugLevel="vars,lines,source" 
         source="${harness.java.version}" target="${harness.java.version}" includeantruntime="false">
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -759,7 +771,7 @@ Check to make sure all required properties are specified. This includes properti
     </exec>
     <exec executable="${c.exe}" failonerror="true">
       <arg
-          line="-W -Wall -Wbad-function-cast -Wcast-align -Wpointer-arith -Wcast-qual -Wshadow -Wmissing-prototypes -Wmissing-declarations -fkeep-static-consts -fkeep-inline-functions -Wwrite-strings -Wno-aggregate-return -Wmissing-noreturn -Wnested-externs -Wtrigraphs -Wconversion -Wsign-compare -Wno-unused -Wno-strict-prototypes -Wno-undef"/>
+          line="-W -Wall -Wbad-function-cast -Wcast-align -Wpointer-arith -Wcast-qual -Wshadow -Wmissing-prototypes -Wmissing-declarations -fkeep-inline-functions -Wwrite-strings -Wno-aggregate-return -Wmissing-noreturn -Wnested-externs -Wtrigraphs -Wconversion -Wsign-compare -Wno-unused -Wno-strict-prototypes -Wno-undef"/>
       <arg value="-I"/>
       <arg value="${basedir}/rvm/src-generated/opt-burs/jburg"/>
       <arg value="-o"/>
@@ -971,7 +983,7 @@ Check to make sure all required properties are specified. This includes properti
           tofile="${build.ia32-assembler-opt.dir}/org/jikesrvm/compilers/common/assembler/ia32/Assembler.java"/>
 
     <javac srcdir="${build.ia32-assembler-opt.dir}" destdir="${build.ia32-assembler-opt.dir}" debug="true"
-           debugLevel="lines,source" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
+           debugLevel="vars,lines,source" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
       <src path="${ia32-assembler-opt.dir}"/>
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1214,7 +1226,7 @@ Check to make sure all required properties are specified. This includes properti
                debug="true"
                fork="true"
                memoryMaximumSize="500M"
-               debugLevel="lines,source"
+               debugLevel="vars,lines,source"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
                srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
@@ -1313,7 +1325,7 @@ Check to make sure all required properties are specified. This includes properti
     <echo message="second compile (from ${generated.java})"/>
     <javac destdir="${build.classes}"
            debug="true"
-           debugLevel="lines,source"
+           debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
            srcdir="${build.base}/syscall/java"
@@ -1406,7 +1418,7 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="compile-vmmagic" depends="compile">
     <mkdir dir="${build.vmmagic.classes}"/>
-    <javac srcdir="${vmmagic.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="lines,source"
+    <javac srcdir="${vmmagic.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="vars,lines,source"
            source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
       <src path="${generated.vmmagic.arch.java}"/>
       <classpath>
@@ -1544,7 +1556,7 @@ Check to make sure all required properties are specified. This includes properti
         <concat destfile="${build.base}/Primordials.txt">
           <filelist dir="${build.base}" files="ClassesForImage.txt"/>
           <filelist dir="${primordials.dir}"
-                    files="Classpath-0.${classpath.version}.txt,RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
+                    files="Classpath-0.97.2.txt,RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
         </concat>
       </sequential>
     </if>
@@ -1569,7 +1581,7 @@ Check to make sure all required properties are specified. This includes properti
     <property name="build.bootimage-writer.dir" value="${build.base}/bootimage-writer"/>
     <mkdir dir="${build.bootimage-writer.dir}"/>
     <javac srcdir="${basedir}/tools/bootImageWriter/src" destdir="${build.bootimage-writer.dir}" debug="true"
-           debugLevel="lines,source" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
+           debugLevel="vars,lines,source" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
       <classpath>
         <pathelement location="${build.vm.jar}"/>
         <pathelement location="${build.rt.jar}"/>
@@ -1581,7 +1593,7 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement path="${build.extra.rt.jars}"/>
+<!--      <pathelement path="${build.extra.rt.jars}"/> -->
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
@@ -1631,7 +1643,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>
 	  <arg value="-profile"/>
-<!--      <arg value="-detailed"/> -->
+      <arg value="-detailed"/>
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
@@ -2255,6 +2267,11 @@ target.jni-suffix=${target.jni-suffix}
     <delete dir="${external.lib.dir}"/>
   </target>
 
+  <target name="clean-classpath" description="Delete class files and jars.">
+    <delete dir="${classpath.dir}/classes"/>
+    <delete file="${classpath.dir}/classpath.jar"/>
+    <delete file="${classpath.dir}/src.jar"/>
+  </target>
   <!-- **************************************************************************** -->
   <!-- *                                                                          * -->
   <!-- *                                Checkstyle                                * -->
@@ -2382,7 +2399,7 @@ target.jni-suffix=${target.jni-suffix}
     <record name="${build.dir}/javadoc/JavadocReport.txt" action="start" emacsmode="true"/>
     <javac destdir="${build.dir}/javadoc/classes-ia32"
            debug="true"
-           debugLevel="lines,source"
+           debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
            includeantruntime="false">

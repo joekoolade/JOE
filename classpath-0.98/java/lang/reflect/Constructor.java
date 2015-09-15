@@ -95,7 +95,6 @@ public final class Constructor<T>
   Constructor(VMConstructor cons)
   {
     this.cons = cons;
-    cons.cons = this;
   }
 
   private Constructor()
@@ -316,7 +315,7 @@ public final class Constructor<T>
   {
     // Inescapable as the VM layer is 1.4 based. 
     @SuppressWarnings("unchecked")
-      T ins = (T) cons.construct(args);
+      T ins = (T) cons.construct(args, this);
     return ins;
   }
 

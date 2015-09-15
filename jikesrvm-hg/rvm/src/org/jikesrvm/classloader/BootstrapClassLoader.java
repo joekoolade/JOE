@@ -114,7 +114,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
       RVMType type = null;
       try {
         // Debugging:
-        // VM.sysWriteln("loadVMClass: trying to resolve className " + className);
+        VM.sysWriteln("loadVMClass: trying to resolve className " + className);
         type = RVMClassLoader.defineClassInternal(className, dataInputStream, this);
         loaded.put(className, type);
       } finally {

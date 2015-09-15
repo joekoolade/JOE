@@ -47,9 +47,6 @@ public abstract class Configuration {
   public static final boolean BuildForPowerOpenABI = BuildForAix || (BuildForLinux && BuildForPowerPC && BuildFor64Addr);
   public static final boolean BuildForSVR4ABI = !(BuildForPowerOpenABI || BuildForMachOABI);
 
-  /** Are we using Classpath's portable native sync feature? */
-  public static final boolean PortableNativeSync = @_PORTABLE_NATIVE_SYNC_@;
-
   /**
    * Can a dereference of a null pointer result in an access
    * to 'low' memory addresses that must be explicitly guarded because the
