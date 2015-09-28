@@ -30,9 +30,10 @@ public abstract class ProgramHeader implements ELFConstants {
     public int getFlags() { return flags; }
     public int getAlign() { return align; }
 
-    public void writeHeader(ELFImpl file) throws IOException {
+    public void writeHeader(ELFImpl file, int offset) throws IOException {
+    	System.out.println("ph writeheader: "+offset);
         file.write_word(this.getType());
-        file.write_off(this.getOffset());
+        file.write_off(offset);
         file.write_addr(this.getVAddr());
         file.write_addr(this.getPAddr());
         file.write_word(this.getFileSz());
@@ -48,7 +49,7 @@ public abstract class ProgramHeader implements ELFConstants {
         public final int getType() { return PT_NULL; }
     }
     public static class LoadProgramHeader extends ProgramHeader {
-    	public LoadProgramHeader(int flags, int addr, int addralign, byte[] data)
+    	public LoadProgramHeader(int flags, int addr, int addralign, byte[] data, int length)
     	{
     		vaddr = addr;
     		this.flags = flags;
@@ -56,8 +57,13 @@ public abstract class ProgramHeader implements ELFConstants {
     		vaddr = addr;
     		align = addralign;
     		this.data = data;
+    		filesz = length;
     	}
         public final int getType() { return PT_LOAD; }
+        public void writeData(ELF file) throws IOException {
+        	System.out.println("LPH writeData: "+filesz);
+            file.write_bytes(data, offset, filesz);
+        }
     }
     public static class DynamicProgramHeader extends ProgramHeader {
         public final int getType() { return PT_DYNAMIC; }
@@ -73,4 +79,7 @@ public abstract class ProgramHeader implements ELFConstants {
     }
 
     public static int getSize() { return 32; }
+	public void writeData(ELF file)  throws IOException{
+    	System.out.println("ph writeData");
+	}
 }

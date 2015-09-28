@@ -12,12 +12,17 @@
  */
 package org.jikesrvm.tools.bootImageWriter;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
+
+import static joeq.Linker.ELF.ELFConstants.*;
+import joeq.Linker.ELF.ELFRandomAccessFile;
+import joeq.Linker.ELF.ProgramHeader.LoadProgramHeader;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.SizeConstants;
@@ -147,6 +152,28 @@ public class BootImage extends BootImageWriterMessages
     trace = t;
   }
 
+  public void writeElfFile(byte[] startupCode) throws IOException
+  {
+	  RandomAccessFile execFile = new RandomAccessFile("jam.out", "rw");
+	  // truncate the file
+	  execFile.setLength(0);
+	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_386, 0x100100, execFile);
+	  
+	  /*
+	   * Setup the startup code
+	   */
+	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode, startupCode.length);
+	  elf.addProgramHeader(programHeader);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x101000, 0x1000, bootImageData.array(), getDataSize());
+	  elf.addProgramHeader(programHeader);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x2000000, 0x1000, bootImageCode.array(), getCodeSize());
+	  elf.addProgramHeader(programHeader);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x4000000, 0x1000, bootImageRMap, getRMapSize());
+	  elf.addProgramHeader(programHeader);
+	  elf.write();
+	  execFile.close();
+  }
+  
   /**
    * Write boot image to disk.
    */

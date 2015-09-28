@@ -1589,11 +1589,23 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
-  <target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list">
+  <target name="compile-bootimage-writer" description="Only compiles. No dependencies.">
+    <property name="build.bootimage-writer.dir" value="${build.base}/bootimage-writer"/>
+    <mkdir dir="${build.bootimage-writer.dir}"/>
+    <javac srcdir="${basedir}/tools/bootImageWriter/src" destdir="${build.bootimage-writer.dir}" debug="true"
+           debugLevel="vars,lines,source" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
+      <classpath>
+        <pathelement location="${build.vm.jar}"/>
+        <pathelement location="${build.rt.jar}"/>
+      </classpath>
+    </javac>
+  </target>
+
+<target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list">
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-<!--      <pathelement path="${build.extra.rt.jars}"/> -->
+      <pathelement location="${build.mmtk.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
@@ -1643,7 +1655,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>
 	  <arg value="-profile"/>
-      <arg value="-detailed"/>
+      <!-- <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
@@ -1679,78 +1691,100 @@ Check to make sure all required properties are specified. This includes properti
         <fail message="Failed to write bootimage."/>
       </sequential>
     </if>
-<!--
-  	<exec dir="${build.base}" executable="cat" output="${build.base}/jam.image">
-  		<arg value="jamX86.image"/>
-  		<arg value="RVM.code.image"/>
-  		<arg value="RVM.data.image"/>
-  		<arg value="RVM.rmap.image"/>
-  	</exec>
--->
-  	<exec dir="${build.base}" executable="objcopy">
-  		<arg value="-I"/>
-  		<arg value="binary"/>
-  		<arg value="-v"/>
-  		<arg value="-O"/>
-  		<arg value="elf32-i386"/>
-  		<arg value="-B"/>
-  		<arg value="i386"/>
-  		<arg value="--rename-section"/>
-  		<arg value=".data=.jam.startup"/>
-  		<arg value="jamX86.image"/>
-  		<arg value="jam_startup.o"/>
-    </exec>
-  	<exec dir="${build.base}" executable="objcopy">
-  		<arg value="-I"/>
-  		<arg value="binary"/>
-  		<arg value="-v"/>
-  		<arg value="-O"/>
-  		<arg value="elf32-i386"/>
-  		<arg value="-B"/>
-  		<arg value="i386"/>
-  		<arg value="--rename-section"/>
-  		<arg value=".data=.jam.data"/>
-  		<arg value="RVM.data.image"/>
-  		<arg value="jam_rvmdata.o"/>
-    </exec>
-  	<exec dir="${build.base}" executable="objcopy">
-  		<arg value="-I"/>
-  		<arg value="binary"/>
-  		<arg value="-v"/>
-  		<arg value="-O"/>
-  		<arg value="elf32-i386"/>
-  		<arg value="-B"/>
-  		<arg value="i386"/>
-  		<arg value="--rename-section"/>
-  		<arg value=".data=.jam.code"/>
-  		<arg value="RVM.code.image"/>
-  		<arg value="jam_rvmcode.o"/>
-    </exec>
-  	<exec dir="${build.base}" executable="objcopy">
-  		<arg value="-I"/>
-  		<arg value="binary"/>
-  		<arg value="-v"/>
-  		<arg value="-O"/>
-  		<arg value="elf32-i386"/>
-  		<arg value="-B"/>
-  		<arg value="i386"/>
-  		<arg value="--rename-section"/>
-  		<arg value=".data=.jam.rmap"/>
-  		<arg value="RVM.rmap.image"/>
-  		<arg value="jam_rvmrmap.o"/>
-    </exec>
-  	<exec dir="${build.base}" executable="i686-pc-linux-ld">
-  		<arg value="-m"/>
-  		<arg value="elf_i386"/>
-  		<arg value="-o"/>
-  		<arg value="jam.out"/>
-  		<arg value="-T"/>
-  		<arg value="${basedir}/tools/bootImageWriter/jam.lds"/>
-  		<arg value="jam_startup.o"/>
-  		<arg value="jam_rvmcode.o"/>
-		<arg value="jam_rvmdata.o"/>
-  		<arg value="jam_rvmrmap.o"/>
-    </exec>
+    
+  </target>
+  <target name="just-build-bootimage">
+    <property name="build.bootimage-writer.dir" value="${build.base}/bootimage-writer"/>
+    <path id="rvm.class.path">
+      <pathelement location="${build.vm.jar}"/>
+      <pathelement location="${build.rt.jar}"/>
+      <pathelement location="${build.mmtk.jar}"/>
+    </path>
+    <property name="rvm.class.path" refid="rvm.class.path"/>
+
+    <condition property="endian_opt" value="-littleEndian" else="">
+      <equals arg1="${target.arch}" arg2="ia32"/>
+    </condition>
+
+    <condition property="bootimage.classlib" value="Harmony">
+      <equals arg1="${classlib.provider}" arg2="Harmony"/>
+    </condition>
+
+    <condition property="bootimage.classlib" value="Classpath">
+      <equals arg1="${classlib.provider}" arg2="GNU Classpath"/>
+    </condition>
+
+    <echo message="Building bootimage. Output redirected to : ${build.base}/BootImageWriterOutput.txt"/>
+    <echo message="MMTk properties = ${mmtk.properties}"/>
+    <java classname="org.jikesrvm.tools.bootImageWriter.BootImageWriter"
+          fork="yes"
+          maxmemory="700M"
+          failonerror="false"
+          resultproperty="bootimage-writer.result"
+          dir="${build.base}">
+      <classpath>
+        <pathelement location="${build.bootimage-writer.dir}"/>
+        <path refid="rvm.class.path"/>
+      </classpath>
+      <sysproperty key="mmtk.hostjvm" value="org.jikesrvm.mm.mmtk.Factory"/>
+      <sysproperty key="mmtk.properties" value="${mmtk.properties}"/>
+      <sysproperty key="rvm.properties" value="${build.base}/rvm.properties"/>
+      <jvmarg value="-Xbootclasspath/a:${rvm.class.path}"/>
+      <arg value="-log"/>
+      <arg path="${build.base}/BootImageWriterOutput.txt"/>
+      <arg value="-classpath"/>
+      <arg path="${build.bootimage-writer.dir}:${rvm.class.path}"/>
+      <arg value="-n"/>
+      <arg path="${build.base}/Primordials.txt"/>
+      <arg value="-oc"/>
+      <arg path="${build.base}/RVM.code.image"/>
+      <arg value="-od"/>
+      <arg path="${build.base}/RVM.data.image"/>
+      <arg value="-or"/>
+      <arg path="${build.base}/RVM.rmap.image"/>
+      <!-- <arg value="-demographics"/> -->
+      <arg value="-m"/>
+      <arg path="${build.base}/RVM.map"/>
+      <arg value="-trace"/>
+      <arg value="-profile"/>
+      <!-- <arg value="-detailed"/> -->
+      <!-- <arg value="-X:bc:verbose=true"/> -->
+      <!-- <arg value="-X:bc:mc=true"/> -->
+      <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
+      <arg value="${target.bootimage.data.address}"/>
+      <arg value="-ca"/>
+      <arg value="${target.bootimage.code.address}"/>
+      <arg value="-ra"/>
+      <arg value="${target.bootimage.rmap.address}"/>
+      <arg value="-numThreads=${bootimage.threads}"/>
+      <arg value="-classlib"/>
+      <arg value="${bootimage.classlib}"/>
+      <arg value="-jam"/>
+      <arg value="${build.base}/jamX86.image"/>
+    </java>
+
+    <loadfile property="bootimage.warnings" srcFile="${build.base}/BootImageWriterOutput.txt">
+      <filterchain>
+        <linecontainsregexp>
+          <regexp pattern="^WARNING"/>
+        </linecontainsregexp>
+      </filterchain>
+    </loadfile>
+    <fail if="bootimage.warnings" message="${bootimage.warnings}"/>
+    <!--
+    <if>
+      <conditions>
+        <not>
+          <equals arg1="${bootimage-writer.result}" arg2="0"/>
+        </not>
+      </conditions>
+      <sequential>
+        <loadfile property="bootimage.ouput" srcFile="${build.base}/BootImageWriterOutput.txt"/>
+        <echo message="${bootimage.ouput}"/>
+        <fail message="Failed to write bootimage."/>
+      </sequential>
+    </if>
+    -->
   </target>
 
   <!-- **************************************************************************** -->
@@ -1758,20 +1792,6 @@ Check to make sure all required properties are specified. This includes properti
   <!-- *                Section for building the booter                           * -->
   <!-- *                                                                          * -->
   <!-- **************************************************************************** -->
-
-  <!-- Generate InterfaceDeclarations.h for booter -->
-  <target name="gen-interface" depends="gen-asm">
-  </target>
-
-  <!-- Generate JNI headers for booter -->
-  <target name="gen-jni-headers" depends="gen-asm">
-<!--    <mkdir dir="${build.native}"/>
-    <javah outputFile="${build.native}/org_jikesrvm_runtime_DynamicLibrary.h" 
-           classpath="${build.vm.jar}">
-      <class name="org.jikesrvm.runtime.DynamicLibrary"/>
-    </javah>
--->
-  </target>
 
   <target name="gen-runbootimage" depends="check-properties,get-hg-version">
     <mkdir dir="${build.native}"/>
@@ -1786,7 +1806,7 @@ Check to make sure all required properties are specified. This includes properti
   </target>
 
   <!-- generate all headers required when compiling bootloader -->
-  <target name="gen-booter-headers" depends="gen-jni-headers,gen-interface,gen-runbootimage"/>
+  <target name="gen-booter-headers" depends="gen-runbootimage"/>
 
   <!-- Setup any properties required during native compile of bootloader -->
   <target name="check-bootloader-properties" depends="setup-filter-properties">

@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.IOException;
-import jwutil.util.Assert;
 
 /**
  *
@@ -26,8 +25,8 @@ abstract class ELFImpl implements ELF, ELFConstants {
     //protected int e_shoff;
     protected int e_flags;
     
-    protected List/*<ProgramHeader>*/ program_headers;
-    protected List/*<Section>*/ sections;
+    protected List<ProgramHeader> program_headers;
+    protected List<Section> sections;
     protected Section.StrTabSection section_header_string_table;
     
     /** Creates new ELFImpl */
@@ -36,9 +35,10 @@ abstract class ELFImpl implements ELF, ELFConstants {
         ei_data = data;
         e_type = type;
         e_machine = machine;
+        e_entry = entry;
         e_version = EV_CURRENT;
-        program_headers = new LinkedList();
-        sections = new LinkedList();
+        program_headers = new LinkedList<ProgramHeader>();
+        sections = new LinkedList<Section>();
     }
     protected ELFImpl() {
         ei_class = ELFCLASS32;
@@ -46,8 +46,8 @@ abstract class ELFImpl implements ELF, ELFConstants {
         e_type = ET_REL;
         e_machine = EM_386;
         e_version = EV_CURRENT;
-        program_headers = new LinkedList();
-        sections = new LinkedList();
+        program_headers = new LinkedList<ProgramHeader>();
+        sections = new LinkedList<Section>();
     }
 
     public Section.StrTabSection getSectionHeaderStringTable() {
@@ -66,10 +66,10 @@ abstract class ELFImpl implements ELF, ELFConstants {
     
     public Section getSection(int i) {
         if (i == SHN_ABS) return Section.AbsSection.INSTANCE;
-        return (Section)sections.get(i);
+        return sections.get(i);
     }
     
-    public List/*<Section>*/ getSections() {
+    public List/*<Section>*/<Section> getSections() {
         return sections;
     }
     
@@ -93,20 +93,20 @@ abstract class ELFImpl implements ELF, ELFConstants {
     
     public void write() throws IOException {
         // sanity check - sections should include the string tables.
-        if (section_header_string_table != null)
-            Assert._assert(sections.contains(section_header_string_table));
+//        if (section_header_string_table != null)
+//            Assert._assert(sections.contains(section_header_string_table));
         
         // add section header names to the section header string table.
         if (section_header_string_table != null) {
-            Iterator si = sections.iterator();
+            Iterator<Section> si = sections.iterator();
             while (si.hasNext()) {
-                Section s = (Section)si.next();
+                Section s = si.next();
                 section_header_string_table.addString(s.getName());
             }
         }
         
         // file offsets for the program header table and the section table.
-        int e_phoff, e_shoff, soff;
+        int e_phoff, e_shoff, soff, poff = 0;
         
         // calculate program header table offset.
         if (program_headers.isEmpty()) {
@@ -114,58 +114,75 @@ abstract class ELFImpl implements ELF, ELFConstants {
             soff = e_shoff = ELFImpl.getHeaderSize();
         } else {
             e_phoff = ELFImpl.getHeaderSize();
-            soff = e_shoff = e_phoff + (program_headers.size() * ProgramHeader.getSize());
-        }
-        
-        // pack all sections and calculate section header offset.
-        Iterator si = sections.iterator();
-        Section s = (Section)si.next();
-        Assert._assert(s instanceof Section.NullSection);
-        int i = 0;
-        while (si.hasNext()) {
-            s = (Section)si.next();
-            if (s instanceof Section.StrTabSection) {
-                Section.StrTabSection ss = (Section.StrTabSection)s;
-                if (ss.getNumberOfEntries() < 10000)
-                    ss.super_pack();
-                else
-                    ss.pack();
-            } else if (s instanceof Section.SymTabSection) {
-                Section.SymTabSection ss = (Section.SymTabSection)s;
-                ss.setIndices();
+            if(sections.isEmpty())
+            {
+            	soff = 0;
+            	e_shoff = 0;
             }
-            if (!(s instanceof Section.NoBitsSection))
-                e_shoff += s.getSize();
-            s.setIndex(++i);
+            else
+            {
+            	poff = soff = e_shoff = e_phoff + (program_headers.size() * ProgramHeader.getSize());
+            }
         }
-        
+                
+        // pack all sections and calculate section header offset.
+        Iterator<Section> si = sections.iterator();
+        Section s = null;
+        if(!sections.isEmpty())
+        {
+	        s = si.next();
+	//        Assert._assert(s instanceof Section.NullSection);
+	        int i = 0;
+	        while (si.hasNext()) {
+	            s = si.next();
+	            if (s instanceof Section.StrTabSection) {
+	                Section.StrTabSection ss = (Section.StrTabSection)s;
+	                if (ss.getNumberOfEntries() < 10000)
+	                    ss.super_pack();
+	                else
+	                    ss.pack();
+	            } else if (s instanceof Section.SymTabSection) {
+	                Section.SymTabSection ss = (Section.SymTabSection)s;
+	                ss.setIndices();
+	            }
+	            if (!(s instanceof Section.NoBitsSection))
+	                e_shoff += s.getSize();
+	            s.setIndex(++i);
+	        }
+        }
         // now, actually do the writing.
         // write the header.
         writeHeader(e_phoff, e_shoff);
         
-        // write the program header table
-        Iterator pi = program_headers.iterator();
-        while (pi.hasNext()) {
-            ProgramHeader p = (ProgramHeader)pi.next();
-            p.writeHeader(this);
+        for(ProgramHeader ph: program_headers)
+        {
+        	ph.writeHeader(this, poff);
+        	poff += ph.getFileSz();
         }
         
+        for(ProgramHeader ph: program_headers)
+        {
+        	ph.writeData(this);
+        }
         // write the section data
         si = sections.iterator();
         while (si.hasNext()) {
-            s = (Section)si.next();
+            s = si.next();
             s.writeData(this);
         }
         
         // write the section header table
         si = sections.iterator();
         while (si.hasNext()) {
-            s = (Section)si.next();
+            s = si.next();
             s.writeHeader(this, soff);
             if (!(s instanceof Section.NoBitsSection))
                 soff += s.getSize();
         }
     }
+
+    private void processProgramHeaders() {
+	}
 
     void writeHeader(int e_phoff, int e_shoff) throws IOException {
         writeIdent();
@@ -200,6 +217,6 @@ abstract class ELFImpl implements ELF, ELFConstants {
         write_byte(ELFMAG3);
     }
     
-    public static int getHeaderSize() { return 64; }
+    public static int getHeaderSize() { return 52; }
     
 }

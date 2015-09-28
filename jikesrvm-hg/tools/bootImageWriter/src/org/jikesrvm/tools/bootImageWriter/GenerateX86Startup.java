@@ -146,4 +146,8 @@ public class GenerateX86Startup {
 			System.exit(-1);
 		}
 	}
+	
+	public byte[] getArray() {
+		return (byte[]) asm.getMachineCodes().getBacking();
+	}
 }

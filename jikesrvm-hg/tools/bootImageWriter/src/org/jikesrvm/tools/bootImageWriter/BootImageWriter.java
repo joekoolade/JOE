@@ -1092,11 +1092,12 @@ private static boolean jamming=false;
       bootImage.setAddressWord(jtocPtr.plus(oIDOffset), MiscHeader.getOID(), false, false);
     }
 
+    GenerateX86Startup startup=null;
     if(bootImageStartupName!=null) {
     	say("Creating x86 startup code ... \nsp: "+Integer.toHexString(bootRecord.spRegister.toInt()) + " start: " +
     			Integer.toHexString(bootRecord.ipRegister.toInt()));
     	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
-    	GenerateX86Startup startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister, bootRecord.tocRegister, tr);
+    	startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister, bootRecord.tocRegister, tr);
     	say("Done!\n Writing the image ...");
     	startup.writeImage(bootImageStartupName);
     	say("Done!");
@@ -1106,7 +1107,11 @@ private static boolean jamming=false;
     //
     if (profile) startTime = System.currentTimeMillis();
     try {
+    	say("writing image files");
       bootImage.write();
+    	say("writing elf file");
+      bootImage.writeElfFile(startup.getArray());
+      say("File writing done");
     } catch (IOException e) {
       fail("unable to write bootImage: "+e);
     }
