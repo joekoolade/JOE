@@ -49,15 +49,16 @@ public abstract class ProgramHeader implements ELFConstants {
         public final int getType() { return PT_NULL; }
     }
     public static class LoadProgramHeader extends ProgramHeader {
-    	public LoadProgramHeader(int flags, int addr, int addralign, byte[] data, int length)
+    	public LoadProgramHeader(int flags, int addr, int addralign, byte[] data, int fileLength, int memorySize)
     	{
     		vaddr = addr;
     		this.flags = flags;
-    		paddr = 0;
+    		paddr = addr;
     		vaddr = addr;
     		align = addralign;
     		this.data = data;
-    		filesz = length;
+    		filesz = fileLength;
+    		memsz = memorySize;
     	}
         public final int getType() { return PT_LOAD; }
         public void writeData(ELF file) throws IOException {

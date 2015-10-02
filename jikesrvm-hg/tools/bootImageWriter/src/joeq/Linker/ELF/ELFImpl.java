@@ -123,6 +123,7 @@ abstract class ELFImpl implements ELF, ELFConstants {
             {
             	poff = soff = e_shoff = e_phoff + (program_headers.size() * ProgramHeader.getSize());
             }
+            poff = e_phoff + (program_headers.size() * ProgramHeader.getSize());
         }
                 
         // pack all sections and calculate section header offset.

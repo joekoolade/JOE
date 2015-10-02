@@ -137,7 +137,9 @@ public class BootImage extends BootImageWriterMessages
     this.imageDataFileName = imageDataFileName;
     this.imageRMapFileName = imageRMapFileName;
     dataOut = new RandomAccessFile(imageDataFileName,"rw");
+    dataOut.setLength(0);
     codeOut = new RandomAccessFile(imageCodeFileName,"rw");
+    codeOut.setLength(0);
     if (mapByteBuffers) {
       bootImageData = dataOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_DATA_SIZE);
       bootImageCode = codeOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_CODE_SIZE);
@@ -157,18 +159,18 @@ public class BootImage extends BootImageWriterMessages
 	  RandomAccessFile execFile = new RandomAccessFile("jam.out", "rw");
 	  // truncate the file
 	  execFile.setLength(0);
-	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_386, 0x100100, execFile);
+	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_386, 0x100000, execFile);
 	  
 	  /*
 	   * Setup the startup code
 	   */
-	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode, startupCode.length);
+	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode, startupCode.length, 0x1000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x101000, 0x1000, bootImageData.array(), getDataSize());
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x101000, 0x1000, bootImageData.array(), getDataSize(), 0x1EFF000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x2000000, 0x1000, bootImageCode.array(), getCodeSize());
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x2000000, 0x1000, bootImageCode.array(), getCodeSize(), 0x2000000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x4000000, 0x1000, bootImageRMap, getRMapSize());
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x4000000, 0x1000, bootImageRMap, getRMapSize(), 0x40000);
 	  elf.addProgramHeader(programHeader);
 	  elf.write();
 	  execFile.close();
@@ -214,6 +216,8 @@ public class BootImage extends BootImageWriterMessages
        used portion of the array actually gets written into the image. */
     bootImageRMap = new byte[referenceMapReferences<<LOG_BYTES_IN_WORD];
     rMapSize = ScanBootImage.encodeRMap(bootImageRMap, referenceMap, referenceMapLimit);
+    File oldRmap = new File(imageRMapFileName);
+    oldRmap.delete();
     FileOutputStream rmapOut = new FileOutputStream(imageRMapFileName);
     rmapOut.write(bootImageRMap, 0, rMapSize);
     rmapOut.flush();
@@ -472,4 +476,16 @@ public class BootImage extends BootImageWriterMessages
   public void countNulledReference() {
     numNulledReferences += 1;
   }
+
+public String getCodeFileName() {
+	return imageCodeFileName;
+}
+
+public String getDataFileName() {
+	return imageDataFileName;
+}
+
+public String getRMapFileName() {
+	return imageRMapFileName;
+}
 }
