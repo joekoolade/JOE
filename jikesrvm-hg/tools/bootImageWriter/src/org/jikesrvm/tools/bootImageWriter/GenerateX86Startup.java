@@ -1,7 +1,6 @@
 package org.jikesrvm.tools.bootImageWriter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -9,11 +8,14 @@ import org.jikesrvm.ia32.CodeArray;
 import org.jikesrvm.ia32.RegisterConstants.CR;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
 import org.jikesrvm.ia32.StackframeLayoutConstants;
+import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.tools.bootImageWriter.JamAssembler.SEG;
 import org.vmmagic.unboxed.Address;
 
 public class GenerateX86Startup {
+	private static final int X86_LOADADDR = 0x100000;
 	private JamAssembler asm = new JamAssembler(1024);
+	@SuppressWarnings("unused")
 	private static final int CODE_SEGMENT = 1<<3;
 	private static final int DATA_SEGMENT = 2<<3;
 	
@@ -24,17 +26,17 @@ public class GenerateX86Startup {
 	 * @param jtoc Jikes tables of classes
 	 * @param tid  thread id
 	 */
-	public GenerateX86Startup(Address stack, Address vmEntry, Address jtoc, Address tid) {
+	public GenerateX86Startup(BootRecord bootRecord) {
 		int multibootEntry=1;
 		asm.emitJMP_Label(multibootEntry);
 		asm.align(4);
 		// Insert multiboot header
 		Multiboot mbh = new Multiboot();
 		int codeIndex = asm.getMachineCodeIndex();
-		mbh.setHeaderAddress(0x100000+codeIndex);
-		mbh.setEntryAddress(0x100000);
-		mbh.setLoadAddress(0x100000);
-		mbh.setLoadEndAddress(0x171c000);
+		mbh.setHeaderAddress(X86_LOADADDR+codeIndex);
+		mbh.setEntryAddress(X86_LOADADDR);
+		mbh.setLoadAddress(X86_LOADADDR);
+		mbh.setLoadEndAddress((bootRecord.bootImageRMapEnd.toInt() - X86_LOADADDR) - 0x40);
 		mbh.setBssAddrEnd(0);
 		mbh.writeMultibootHeader();
 		asm.space(Multiboot.HEADER_SIZE);
@@ -105,9 +107,9 @@ public class GenerateX86Startup {
 		asm.emitMOVCR(GPR.EAX, CR.CR4);
 		
 		// setup THREAD ID register; This puts the RVMThread.bootThread object ref into ESI
-		asm.emitMOV_Reg_Abs(GPR.ESI, tid);
+		asm.emitMOV_Reg_Abs(GPR.ESI, bootRecord.tocRegister.plus(bootRecord.bootThreadOffset));
 		// setup top of stack pointer
-		asm.emitLEA_Reg_Abs(GPR.ESP, stack);
+		asm.emitLEA_Reg_Abs(GPR.ESP, bootRecord.spRegister);
 		// setup the thread register's frame pointer
 		asm.emitMOV_Reg_Reg(GPR.EAX, GPR.ESP);
 		asm.emitSUB_Reg_Imm_Byte(GPR.EAX, 8);
@@ -127,7 +129,7 @@ public class GenerateX86Startup {
 		
 		// setup FRAME POINTER
 		// call VM.boot(); we are never coming back
-		asm.emitFARCALL(vmEntry, 0x8);
+		asm.emitFARCALL(bootRecord.ipRegister, 0x8);
 		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
@@ -136,12 +138,13 @@ public class GenerateX86Startup {
 		CodeArray codeArray = asm.getMachineCodes();
 		byte[] code = (byte[]) codeArray.getBacking();
 		FileOutputStream out = null;
+		File oldFile = new File(filename);
+		oldFile.delete();
 		try {
 			out = new FileOutputStream(filename);
 			out.write(code);
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.exit(-1);
 		}
