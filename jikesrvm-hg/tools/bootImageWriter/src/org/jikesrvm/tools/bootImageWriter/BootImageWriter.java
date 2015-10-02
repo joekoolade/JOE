@@ -1099,7 +1099,7 @@ private static boolean jamming=false;
     	say("Creating x86 startup code ... \nsp: "+Integer.toHexString(bootRecord.spRegister.toInt()) + " start: " +
     			Integer.toHexString(bootRecord.ipRegister.toInt()));
     	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
-    	startup = new GenerateX86Startup(bootRecord.spRegister, bootRecord.ipRegister, bootRecord.tocRegister, tr);
+    	startup = new GenerateX86Startup(bootRecord);
     	say("Done!\n Writing the image ...");
     	startup.writeImage(bootImageStartupName);
     	say("Done!");

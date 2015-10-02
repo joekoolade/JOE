@@ -36,7 +36,7 @@ public class GenerateX86Startup {
 		mbh.setHeaderAddress(X86_LOADADDR+codeIndex);
 		mbh.setEntryAddress(X86_LOADADDR);
 		mbh.setLoadAddress(X86_LOADADDR);
-		mbh.setLoadEndAddress((bootRecord.bootImageRMapEnd.toInt() - X86_LOADADDR) - 0x40);
+		mbh.setLoadEndAddress(0);
 		mbh.setBssAddrEnd(0);
 		mbh.writeMultibootHeader();
 		asm.space(Multiboot.HEADER_SIZE);
