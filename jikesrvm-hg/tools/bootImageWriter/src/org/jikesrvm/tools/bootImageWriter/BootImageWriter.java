@@ -14,11 +14,14 @@ package org.jikesrvm.tools.bootImageWriter;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -650,7 +653,7 @@ private static boolean jamming=false;
     Vector<String>   bootImageTypeNames    = null;
     String   bootImageTypeNamesFile = null;
     String[] bootImageCompilerArgs = {};
-    String bootImageStartupName	   = null;
+    bootImageStartupName = null;
     
     //
     // This may look useless, but it is not: it is a kludge to prevent
@@ -1061,7 +1064,6 @@ private static boolean jamming=false;
     bootRecord.bootImageCodeStart = bootImageCodeAddress;
     bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImage.getCodeSize());
     bootRecord.bootImageRMapStart = bootImageRMapAddress;
-    bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImage.getRMapSize());
     bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
     bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x2000000);
     
@@ -1161,7 +1163,66 @@ private static boolean jamming=false;
     if (verbose >= 1) say("done");
   }
 
-  /**
+  private static void writeMultibootFile() throws IOException {
+	final int memoryOffset = 0x100000;
+	String multibootFileName = "jam.bin";
+	RandomAccessFile multibootFile = new RandomAccessFile(multibootFileName, "rw");
+	/*
+	 * Append the multiboot header and init code file
+	 */
+	File startupCode = new File(bootImageStartupName);
+	byte[]	fileBuffer = new byte[(int)startupCode.length()];
+	FileInputStream fileReader = new FileInputStream(startupCode);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	/*
+	 * Compute file offset for data image
+	 */
+	int fileOffset = bootImageDataAddress.toInt() - memoryOffset;
+	multibootFile.seek(fileOffset);
+	/*
+	 * Append the data file
+	 */
+	File dataFile = new File(bootImage.getDataFileName());
+	fileBuffer = new byte[(int)dataFile.length()];
+	fileReader = new FileInputStream(dataFile);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	/*
+	 * Compute file offset for code image 
+	 */
+	fileOffset = bootImageCodeAddress.toInt() - memoryOffset;
+	multibootFile.seek(fileOffset);
+	/*
+	 * Append the code file
+	 */
+	File codeFile = new File(bootImage.getCodeFileName());
+	fileBuffer = new byte[(int)codeFile.length()];
+	fileReader = new FileInputStream(codeFile);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	/*
+	 * Compute file offset for map image
+	 */
+	fileOffset = bootImageRMapAddress.toInt() - memoryOffset;
+	multibootFile.seek(fileOffset);
+	/*
+	 * Append the map file
+	 */
+	File mapFile = new File(bootImage.getRMapFileName());
+	fileBuffer = new byte[(int)mapFile.length()];
+	fileReader = new FileInputStream(mapFile);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	
+	multibootFile.close();
+}
+
+/**
    * Class holding per type details for demographics
    */
   private static class DemographicInformation {
@@ -3296,7 +3357,8 @@ private static boolean jamming=false;
    *
    * @param fileName name of file to write the map to
    */
-  private static void writeAddressMap(String mapFileName) throws IOException {
+  @SuppressWarnings("unused")
+private static void writeAddressMap(String mapFileName) throws IOException {
     if (verbose >= 1) say("writing ", mapFileName);
 
     // Restore previously unnecessary Statics data structures
@@ -3597,6 +3659,8 @@ private static boolean jamming=false;
   }
 
   private static final HashMap<RVMType, Integer> typeSizes = new HashMap<RVMType, Integer>();
+
+private static String bootImageStartupName;
 
   /**
    * Get the number of non-final references of the object in the boot image
