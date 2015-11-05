@@ -1,7 +1,5 @@
 package org.jam.tools;
 
-import javassist.bytecode.stackmap.TypeData.ClassName;
-
 class RvmSymbol implements Comparable {
 	enum SymbolCategory {
 		literal, code, field, tib, literal_field, unknown,

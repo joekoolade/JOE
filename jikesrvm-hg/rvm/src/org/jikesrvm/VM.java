@@ -172,7 +172,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     // them over from bootimage writing time.
     //
     if (verboseBoot >= 1) VM.sysWriteln("Initializing baseline compiler options to defaults");
-    BaselineCompiler.initOptions();
+//    BaselineCompiler.initOptions();
 
     // Fetch arguments from program command line.
     //

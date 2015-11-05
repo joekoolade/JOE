@@ -36,7 +36,8 @@ public interface HeapLayoutConstants {
     Address.fromIntZeroExtend( 0xC0000000 );
 
   /** The maximum boot image data size */
-  int BOOT_IMAGE_DATA_SIZE = 56<<20;
+//  int BOOT_IMAGE_DATA_SIZE = 56<<20;
+  int BOOT_IMAGE_DATA_SIZE = 0x1eff000;
 
   /** The maximum boot image code size */
   int BOOT_IMAGE_CODE_SIZE = 24<<20;

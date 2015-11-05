@@ -133,7 +133,7 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
     DebugUtil.boot(theBootRecord);
     Selected.Plan.get().enableAllocation();
     SynchronizedCounter.boot();
-    Monitor.boot();
+    // Monitor.boot();
     booted = true;
   }
 
