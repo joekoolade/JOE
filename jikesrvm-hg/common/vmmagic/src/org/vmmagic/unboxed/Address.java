@@ -398,6 +398,27 @@ public final class Address {
   }
 
   /**
+   * Loads a byte from io space pointed to by the
+   * current instance.
+   * 
+   * @return the read value
+   */
+  public byte ioLoadByte() {
+	  return (byte) 0;
+  }
+  
+  /**
+   * Loads a byte from io space pointed to by the
+   * current instance.
+   * 
+   * @param offset the offset to the value
+   * @return the read value
+   */
+  public byte ioLoadByte(Offset offset) {
+	  return (byte) 0;
+  }
+  
+  /**
    * Loads a char from the memory location pointed to by the
    * current instance.
    *
@@ -419,6 +440,27 @@ public final class Address {
   }
 
   /**
+   * Loads a char from the IO space pointed to by the
+   * current instance.
+   *
+   * @return the read value
+   */
+  public char ioLoadChar() {
+    return (char) 0;
+  }
+
+  /**
+   * Loads a char from the IO space pointed to by the
+   * current instance.
+   *
+   * @param offset the offset to the value.
+   * @return the read value
+   */
+  public char ioLoadChar(Offset offset) {
+    return (char) 0;
+  }
+
+  /**
    * Loads a short from the memory location pointed to by the
    * current instance.
    *
@@ -436,6 +478,27 @@ public final class Address {
    * @return the read value
    */
   public short loadShort(Offset offset) {
+    return (short) 0;
+  }
+
+  /**
+   * Loads a short from IO space pointed to by the
+   * current instance.
+   *
+   * @return the read value
+   */
+  public short ioLoadShort() {
+    return (short) 0;
+  }
+
+  /**
+   * Loads a short from IO space pointed to by the
+   * current instance.
+   *
+   * @param offset the offset to the value.
+   * @return the read value
+   */
+  public short ioLoadShort(Offset offset) {
     return (short) 0;
   }
 
@@ -481,6 +544,26 @@ public final class Address {
     return 0;
   }
 
+  /**
+   * Loads an int from IO space pointed to by the
+   * current instance.
+   *
+   * @return the read value
+   */
+  public int ioLoadInt() {
+    return 0;
+  }
+
+  /**
+   * Loads an int from IO space pointed to by the
+   * current instance.
+   *
+   * @param offset the offset to the value.
+   * @return the read value
+   */
+  public int ioLoadInt(Offset offset) {
+    return 0;
+  }
 
   /**
    * Loads a long from the memory location pointed to by the
@@ -500,6 +583,27 @@ public final class Address {
    * @return the read value
    */
   public long loadLong(Offset offset) {
+    return 0L;
+  }
+
+  /**
+   * Loads a long from IO space pointed to by the
+   * current instance.
+   *
+   * @return the read value
+   */
+  public long ioLoadLong() {
+    return 0L;
+  }
+
+  /**
+   * Loads a long from IO space pointed to by the
+   * current instance.
+   *
+   * @param offset the offset to the value.
+   * @return the read value
+   */
+  public long ioLoadLong(Offset offset) {
     return 0L;
   }
 
@@ -682,6 +786,25 @@ public final class Address {
   }
 
   /**
+   * Stores the byte value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value The byte value to store.
+   */
+  public void ioStore(byte value) {
+  }
+
+  /**
+   * Stores the byte value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value The byte value to store.
+   * @param offset the offset to the value.
+   */
+  public void ioStore(byte value, Offset offset) {
+  }
+
+  /**
    * Stores an int value in memory location pointed to by the
    * current instance.
    *
@@ -698,6 +821,25 @@ public final class Address {
    * @param offset the offset to the value.
    */
   public void store(int value, Offset offset) {
+  }
+
+  /**
+   * Stores an int value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value The int value to store.
+   */
+  public void ioStore(int value) {
+  }
+
+  /**
+   * Stores an int value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value The int value to store.
+   * @param offset the offset to the value.
+   */
+  public void ioStore(int value, Offset offset) {
   }
 
   /**
@@ -759,6 +901,25 @@ public final class Address {
   }
 
   /**
+   * Stores a char value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value the char value to store.
+   */
+  public void ioStore(char value) {
+  }
+
+  /**
+   * Stores a char value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value the char value to store.
+   * @param offset the offset to the value.
+   */
+  public void ioStore(char value, Offset offset) {
+  }
+
+  /**
    * Stores a short value in the memory location pointed to by the
    * current instance.
    *
@@ -775,6 +936,25 @@ public final class Address {
    * @param offset the offset to the value.
    */
   public void store(short value, Offset offset) {
+  }
+
+  /**
+   * Stores a short value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value the short value to store.
+   */
+  public void ioStore(short value) {
+  }
+
+  /**
+   * Stores a short value in the IO space pointed to by the
+   * current instance.
+   *
+   * @param value the short value to store.
+   * @param offset the offset to the value.
+   */
+  public void ioStore(short value, Offset offset) {
   }
 
   /****************************************************************************

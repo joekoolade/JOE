@@ -275,6 +275,17 @@ final class BaselineMagic {
     generators.put(getMethodReference(Address.class, MagicNames.loadObjectReference, ObjectReference.class), g);
   }
 
+  private static final class IOLoad32 extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  // TODO
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOLoad32();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadInt, int.class), g);
+  }
   /**
    * Load a 32bit quantity from an address and offset parameter
    */
@@ -519,6 +530,59 @@ final class BaselineMagic {
     generators.put(getMethodReference(Magic.class, MagicNames.prepareLong, Object.class, Offset.class, long.class), g);
   }
 
+  /**
+   * Store a 32bit quantity to an IO space address
+   */
+  private static final class IOStore32 extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(EAX);
+		  asm.emitPOP_Reg(EDX);
+		  asm.emitOUT32();
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOStore32();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, int.class, void.class), g);
+  }
+
+  /**
+   * Store a 16bit quantity to an IO space address
+   */
+  private static final class IOStore16 extends MagicGenerator 
+  {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) 
+	  {
+		  asm.emitPOP_Reg(EAX);
+		  asm.emitPOP_Reg(EDX);
+		  asm.emitOUT16();
+	  }
+  }
+  
+  static 
+  {
+	  MagicGenerator g = new IOStore16();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, short.class, void.class), g);
+  }
+  
+  private static final class IOStore8 extends MagicGenerator 
+  {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+	  {
+		  asm.emitPOP_Reg(EAX);
+		  asm.emitPOP_Reg(EDX);
+		  asm.emitOUT8();
+	  }
+  }
+  
+  static
+  {
+	  MagicGenerator g = new IOStore8();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, byte.class, void.class), g);
+  }
   /**
    * Store a 32bit quantity to an address
    */
