@@ -278,7 +278,9 @@ final class BaselineMagic {
   private static final class IOLoad32 extends MagicGenerator {
 	  @Override
 	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
-		  // TODO
+		  asm.emitPOP_Reg(T1);	// IO address
+		  asm.emitIN32();
+		  asm.emitPUSH_Reg(T0);	// int value
 	  }
   }
   
@@ -286,7 +288,86 @@ final class BaselineMagic {
 	  MagicGenerator g = new IOLoad32();
 	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadInt, int.class), g);
   }
-  /**
+  
+  private static final class IOLoad32_offset extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(S0);	// offset
+		  asm.emitPOP_Reg(T1);	// IO address
+		  asm.emitADD_Reg_Reg(T1, S0);
+		  asm.emitIN32();
+		  asm.emitPUSH_Reg(T0);	// int value
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOLoad32_offset();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadInt, Offset.class, int.class), g);
+  }
+  
+  private static final class IOLoad16 extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(T1);	// IO address
+		  asm.emitIN16();
+		  asm.emitPUSH_Reg(T0);	// short value
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOLoad16();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadShort, short.class), g);
+  }
+  
+  private static final class IOLoad16_offset extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(S0);	// offset
+		  asm.emitPOP_Reg(T1);	// IO address
+		  asm.emitADD_Reg_Reg(T1, S0);
+		  asm.emitIN16();
+		  asm.emitPUSH_Reg(T0);	// int value
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOLoad16_offset();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadShort, Offset.class, short.class), g);
+  }
+  
+  private static final class IOLoad8 extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(T1);	// IO address
+		  asm.emitIN8();
+		  asm.emitPUSH_Reg(T0);	// short value
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOLoad8();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadByte, byte.class), g);
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadChar, char.class), g);
+  }
+  
+  private static final class IOLoad8_offset extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(S0);	// offset
+		  asm.emitPOP_Reg(T1);	// IO address
+		  asm.emitADD_Reg_Reg(T1, S0);
+		  asm.emitIN8();
+		  asm.emitPUSH_Reg(T0);	// byte value
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOLoad8_offset();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadByte, Offset.class, byte.class), g);
+	  generators.put(getMethodReference(Address.class, MagicNames.ioLoadChar, Offset.class, char.class), g);
+  }
+  
+ /**
    * Load a 32bit quantity from an address and offset parameter
    */
   private static final class Load32_Offset extends MagicGenerator {
@@ -536,8 +617,8 @@ final class BaselineMagic {
   private static final class IOStore32 extends MagicGenerator {
 	  @Override
 	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
-		  asm.emitPOP_Reg(EAX);
-		  asm.emitPOP_Reg(EDX);
+		  asm.emitPOP_Reg(T0);		// int value
+		  asm.emitPOP_Reg(T1);		// IO address
 		  asm.emitOUT32();
 	  }
   }
@@ -548,6 +629,25 @@ final class BaselineMagic {
   }
 
   /**
+   * Store a 32bit quantity to an IO space address + offset
+   */
+  private static final class IOStore32_offset extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(T0);		// int value
+		  asm.emitPOP_Reg(S0);		// offset
+		  asm.emitPOP_Reg(T1);		// IO address
+		  asm.emitADD_Reg_Reg(T1, S0);	// IO address + offset
+		  asm.emitOUT32();
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOStore32_offset();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, int.class, void.class), g);
+  }
+
+  /**
    * Store a 16bit quantity to an IO space address
    */
   private static final class IOStore16 extends MagicGenerator 
@@ -555,8 +655,8 @@ final class BaselineMagic {
 	  @Override
 	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) 
 	  {
-		  asm.emitPOP_Reg(EAX);
-		  asm.emitPOP_Reg(EDX);
+		  asm.emitPOP_Reg(T0);		// short value
+		  asm.emitPOP_Reg(T1);		// IO address
 		  asm.emitOUT16();
 	  }
   }
@@ -567,13 +667,32 @@ final class BaselineMagic {
 	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, short.class, void.class), g);
   }
   
+  /**
+   * Store a 32bit quantity to an IO space address + offset
+   */
+  private static final class IOStore16_offset extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(T0);		// short value
+		  asm.emitPOP_Reg(S0);		// offset
+		  asm.emitPOP_Reg(T1);		// IO address
+		  asm.emitADD_Reg_Reg(T1, S0);	// IO address + offset
+		  asm.emitOUT16();
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOStore16_offset();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, short.class, void.class), g);
+  }
+
   private static final class IOStore8 extends MagicGenerator 
   {
 	  @Override
 	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
 	  {
-		  asm.emitPOP_Reg(EAX);
-		  asm.emitPOP_Reg(EDX);
+		  asm.emitPOP_Reg(T0); // byte value
+		  asm.emitPOP_Reg(T1); // IO address
 		  asm.emitOUT8();
 	  }
   }
@@ -582,7 +701,29 @@ final class BaselineMagic {
   {
 	  MagicGenerator g = new IOStore8();
 	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, byte.class, void.class), g);
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, char.class, void.class), g);
   }
+
+  /**
+   * Store a 32bit quantity to an IO space address + offset
+   */
+  private static final class IOStore8_offset extends MagicGenerator {
+	  @Override
+	  void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+		  asm.emitPOP_Reg(T0);		// byte value
+		  asm.emitPOP_Reg(S0);		// offset
+		  asm.emitPOP_Reg(T1);		// IO address
+		  asm.emitADD_Reg_Reg(T1, S0);	// IO address + offset
+		  asm.emitOUT16();
+	  }
+  }
+  
+  static {
+	  MagicGenerator g = new IOStore8_offset();
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, byte.class, void.class), g);
+	  generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, char.class, void.class), g);
+  }
+
   /**
    * Store a 32bit quantity to an address
    */

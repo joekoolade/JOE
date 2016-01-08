@@ -13,7 +13,8 @@
 package org.jikesrvm;
 
 import org.jam.board.GenericPc;
-import org.jam.driver.console.PcBootConsoleDevice;
+import org.jam.driver.serial.PcBootSerialPort;
+import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.runtime.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
@@ -129,9 +130,16 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = 10; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     
+    /*
+     * Setup the serial port
+     */
+    PcBootSerialPort.setBaudRate(SerialPortBaudRate.BAUDRATE_115200);
+    PcBootSerialPort.setParityNone();
+    PcBootSerialPort.setWordLength8();
+    PcBootSerialPort.setStopBits1();
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
     if (verboseBoot >= 1) VM.sysWriteln("Booting");
 
@@ -467,7 +475,10 @@ public class VM extends Properties implements Constants, ExitStatus {
       sysWrite("running class intializer for ");
       sysWriteln(className);
     }
-    Atom classDescriptor = Atom.findOrCreateAsciiAtom(className.replace('.', '/')).descriptorFromClassName();
+    className.replace('.', '/');
+    sysWrite("Replaced className: ");
+    sysWriteln(className);
+    Atom classDescriptor = Atom.findOrCreateAsciiAtom(className).descriptorFromClassName();
     TypeReference tRef =
         TypeReference.findOrCreate(BootstrapClassLoader.getBootstrapClassLoader(), classDescriptor);
     RVMClass cls = (RVMClass) tRef.peekType();
@@ -638,15 +649,15 @@ public class VM extends Properties implements Constants, ExitStatus {
   private static Offset sysWriteLockOffset = Offset.max();
 
   private static void swLock() {
-    if (sysWriteLockOffset.isMax()) return;
-    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
-      ;
-    }
+//    if (sysWriteLockOffset.isMax()) return;
+//    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
+//      ;
+//    }
   }
 
   private static void swUnlock() {
-    if (sysWriteLockOffset.isMax()) return;
-    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
+//    if (sysWriteLockOffset.isMax()) return;
+//    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
   }
 
   /**
@@ -741,7 +752,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void write(char value) {
     if (runningVM) {
       // sysCall.sysConsoleWriteChar(value);
-      PcBootConsoleDevice.putChar(value);
+      PcBootSerialPort.putChar(value);
     } else {
       writeNotRunningVM(value);
     }
@@ -838,7 +849,7 @@ public class VM extends Properties implements Constants, ExitStatus {
         digitBuffer[i--] = 'x';
         digitBuffer[i] = '0';
         for(; i<64; i++) {
-      	  PcBootConsoleDevice.putChar(digitBuffer[i]);
+      	  PcBootSerialPort.putChar(digitBuffer[i]);
         }
     } else {
       writeHexNotRunningVM(value);
@@ -951,7 +962,7 @@ public class VM extends Properties implements Constants, ExitStatus {
             	digitBuffer[i] = '-';
             }
             for(; i<64; i++) {
-          	  PcBootConsoleDevice.putChar(digitBuffer[i]);
+            	PcBootSerialPort.putChar(digitBuffer[i]);
             }
     	}
     } else {
@@ -986,7 +997,7 @@ public class VM extends Properties implements Constants, ExitStatus {
             	digitBuffer[i] = '-';
             }
             for(; i<64; i++) {
-          	  PcBootConsoleDevice.putChar(digitBuffer[i]);
+            	PcBootSerialPort.putChar(digitBuffer[i]);
             }
     	}
     } else {
@@ -1188,9 +1199,9 @@ public class VM extends Properties implements Constants, ExitStatus {
 
   @NoInline
   public static void sysWrite(String s) {
-    swLock();
+//    swLock();
     write(s);
-    swUnlock();
+//    swUnlock();
   }
 
   @NoInline

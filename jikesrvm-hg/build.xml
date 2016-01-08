@@ -946,7 +946,6 @@ Check to make sure all required properties are specified. This includes properti
     <property name="build.ia32-assembler-opt.dir" location="${build.dir}/ia32-assembler-opt"/>
     <property name="ia32-assembler-opt.dir" location="${basedir}/rvm/src-generated/ia32-assembler-opt"/>
 
-<!--
     <mkdir dir="${generated.ia32.java}/org/jikesrvm/compilers/opt/mir2mc/ia32"/>
     <mkdir dir="${build.ia32-assembler-opt.dir}"/>
     <GenerateFromTemplate>
@@ -963,7 +962,6 @@ Check to make sure all required properties are specified. This includes properti
         <arg value="OPERATOR_FILE=${basedir}/rvm/src-generated/opt-ir/ia32/OperatorList.dat"/>
       </args>
     </GenerateFromTemplate>
--->
     <copy todir="${build.ia32-assembler-opt.dir}">
       <fileset dir="${main.java}">
         <include name="org/jikesrvm/ia32/RegisterConstants.java"/>
@@ -982,7 +980,7 @@ Check to make sure all required properties are specified. This includes properti
           tofile="${build.ia32-assembler-opt.dir}/org/jikesrvm/compilers/common/assembler/ForwardReference.java"/>
     <copy file="${main.java}/org/jikesrvm/compilers/common/assembler/AbstractAssembler.java"
           tofile="${build.ia32-assembler-opt.dir}/org/jikesrvm/compilers/common/assembler/AbstractAssembler.java"/>
-    <copy file="${generated.ia32.java}/org/jikesrvm/compilers/common/assembler/ia32/Assembler.java"
+    <copy file="${main.java}/org/jikesrvm/compilers/common/assembler/ia32/Assembler.java"
           tofile="${build.ia32-assembler-opt.dir}/org/jikesrvm/compilers/common/assembler/ia32/Assembler.java"/>
 
     <javac srcdir="${build.ia32-assembler-opt.dir}" destdir="${build.ia32-assembler-opt.dir}" debug="true"
@@ -1431,7 +1429,8 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
-  <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-harmony"/>
+  <!-- <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-harmony"/> -->
+  <target name="package" depends="compile-vmmagic,package-classpath,package-harmony"/>
 
   <target name="package-harmony" if="harmony.classlib">
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
@@ -1671,6 +1670,8 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="${bootimage.classlib}"/>
       <arg value="-jam"/>
       <arg value="${build.base}/jamX86.image"/>
+      <arg value="-out"/>
+      <arg value="${build.base}/jam.out"/>
     </java>
 
     <loadfile property="bootimage.warnings" srcFile="${build.base}/BootImageWriterOutput.txt">

@@ -798,10 +798,10 @@ public final class Address {
    * Stores the byte value in the IO space pointed to by the
    * current instance.
    *
-   * @param value The byte value to store.
-   * @param offset the offset to the value.
+   * @param offset The byte value to store.
+   * @param val the offset to the value.
    */
-  public void ioStore(byte value, Offset offset) {
+  public void ioStore(Offset offset, byte val) {
   }
 
   /**
@@ -839,7 +839,7 @@ public final class Address {
    * @param value The int value to store.
    * @param offset the offset to the value.
    */
-  public void ioStore(int value, Offset offset) {
+  public void ioStore(Offset offset, int value) {
   }
 
   /**
@@ -916,7 +916,7 @@ public final class Address {
    * @param value the char value to store.
    * @param offset the offset to the value.
    */
-  public void ioStore(char value, Offset offset) {
+  public void ioStore(Offset offset, char value) {
   }
 
   /**
@@ -954,7 +954,7 @@ public final class Address {
    * @param value the short value to store.
    * @param offset the offset to the value.
    */
-  public void ioStore(short value, Offset offset) {
+  public void ioStore(Offset offset, short value) {
   }
 
   /****************************************************************************
