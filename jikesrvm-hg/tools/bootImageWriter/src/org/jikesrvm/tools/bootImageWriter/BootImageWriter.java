@@ -650,6 +650,7 @@ private static boolean jamming=false;
     String   bootImageDataName     = null;
     String   bootImageRMapName     = null;
     String   bootImageMapName      = null;
+    String   elfImageName		   = null;
     Vector<String>   bootImageTypeNames    = null;
     String   bootImageTypeNamesFile = null;
     String[] bootImageCompilerArgs = {};
@@ -669,6 +670,16 @@ private static boolean jamming=false;
     // Process command line directives.
     //
     for (int i = 0; i < args.length; ++i) {
+      // name of the elf image file
+      if(args[i].equals("-out"))
+      {
+    	  if(++i > args.length)
+    	  {
+    		  fail("Not elf image name for -out argument");
+    	  }
+    	  elfImageName = args[i];
+    	  continue;
+      }
       // name of class library
       if (args[i].equals("-classlib")) {
         if (++i >= args.length)
@@ -872,7 +883,7 @@ private static boolean jamming=false;
     // (need to get contiguous storage before it gets fragmented by pinned objects)
     //
     try {
-      bootImage = new BootImage(littleEndian, verbose >= 1, bootImageCodeName, bootImageDataName, bootImageRMapName);
+      bootImage = new BootImage(littleEndian, verbose >= 1, bootImageCodeName, bootImageDataName, bootImageRMapName, elfImageName);
     } catch (IOException e) {
       fail("unable to write bootImage: "+e);
     }

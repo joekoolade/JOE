@@ -122,6 +122,11 @@ public class BootImage extends BootImageWriterMessages
   private final String imageRMapFileName;
 
   /**
+   * the elf image
+   */
+  private String jamoutFile;
+
+  /**
    * Use mapped byte buffers? We need to truncate the byte buffer
    * before writing it to disk. This operation is supported on UNIX but
    * not Windows.
@@ -132,10 +137,11 @@ public class BootImage extends BootImageWriterMessages
    * @param ltlEndian write words low-byte first?
    * @param t turn tracing on?
    */
-  BootImage(boolean ltlEndian, boolean t, String imageCodeFileName, String imageDataFileName, String imageRMapFileName) throws IOException {
+  BootImage(boolean ltlEndian, boolean t, String imageCodeFileName, String imageDataFileName, String imageRMapFileName, String elfImage) throws IOException {
     this.imageCodeFileName = imageCodeFileName;
     this.imageDataFileName = imageDataFileName;
     this.imageRMapFileName = imageRMapFileName;
+    jamoutFile = elfImage;
     dataOut = new RandomAccessFile(imageDataFileName,"rw");
     dataOut.setLength(0);
     codeOut = new RandomAccessFile(imageCodeFileName,"rw");
@@ -156,7 +162,7 @@ public class BootImage extends BootImageWriterMessages
 
   public void writeElfFile(byte[] startupCode) throws IOException
   {
-	  RandomAccessFile execFile = new RandomAccessFile("jam.out", "rw");
+	  RandomAccessFile execFile = new RandomAccessFile(jamoutFile, "rw");
 	  // truncate the file
 	  execFile.setLength(0);
 	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_386, 0x100000, execFile);
