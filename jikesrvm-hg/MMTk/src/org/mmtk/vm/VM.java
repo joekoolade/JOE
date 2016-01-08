@@ -38,7 +38,7 @@ import org.vmmagic.unboxed.Offset;
  * Both the constants and the singleton instances are initialized to
  * VM-specific values at build time using reflection and a VM-specific
  * factory class. The system property <code>mmtk.hostjvm</code> is
- * interrogated at build time to establish concrete instantations of
+ * interrogated at build time to establish concrete instantiations of
  * the abstract classes in this package. By <b>convention</b>,
  * <code>mmtk.hostjvm</code> will identify a VM-provided package which
  * includes concrete instances of each of the abstract classes, with
@@ -55,10 +55,18 @@ public final class VM {
 
   /** <code>true</code> if assertions should be verified */
   public static final boolean VERIFY_ASSERTIONS;
+  /**
+   * HEAP_START, HEAP_END define the the lower and upper bounds of virtual
+   * memory that can contain objects
+   */
   /** The lowest address in virtual memory known to MMTk */
   public static final Address HEAP_START;
   /** The highest address in virtual memory known to MMTk */
   public static final Address HEAP_END;
+  /**
+   * AVAILABLE_START, AVAILABLE_END are a subrange within the HEAP that
+   * MMtk is free to manage
+   */
   /** The lowest address in the contiguously available memory available to MMTk */
   public static final Address AVAILABLE_START;
   /** The highest address in the contiguously available memory available to MMTk */
