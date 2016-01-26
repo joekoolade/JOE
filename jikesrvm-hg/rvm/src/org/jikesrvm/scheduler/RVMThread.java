@@ -5072,12 +5072,12 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   public static void traceback(String message) {
     if (VM.runningVM) {
-      outputLock.lockNoHandshake();
+      // outputLock.lockNoHandshake();
     }
     VM.sysWriteln(message);
     tracebackWithoutLock();
     if (VM.runningVM) {
-      outputLock.unlock();
+      // outputLock.unlock();
     }
   }
 
