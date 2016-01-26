@@ -476,8 +476,6 @@ public class VM extends Properties implements Constants, ExitStatus {
       sysWriteln(className);
     }
     className.replace('.', '/');
-    sysWrite("Replaced className: ");
-    sysWriteln(className);
     Atom classDescriptor = Atom.findOrCreateAsciiAtom(className).descriptorFromClassName();
     TypeReference tRef =
         TypeReference.findOrCreate(BootstrapClassLoader.getBootstrapClassLoader(), classDescriptor);
@@ -493,12 +491,13 @@ public class VM extends Properties implements Constants, ExitStatus {
     } else {
       RVMMethod clinit = cls.getClassInitializerMethod();
       if (clinit != null) {
-        // clinit.compile();
+    	clinit.compile();
         if (verboseBoot >= 10) {
         	VM.sysWrite("Invoking <init> for ");
         	VM.sysWriteln(className);
         }
         try {
+          //VM.sysWrite(ObjectReference.fromObject(clinit.getCurrentEntryCodeArray()));
           Magic.invokeClassInitializer(clinit.getCurrentEntryCodeArray());
         } catch (Error e) {
           throw e;
