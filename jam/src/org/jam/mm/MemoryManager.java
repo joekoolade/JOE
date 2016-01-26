@@ -13,7 +13,7 @@ public class MemoryManager {
 	static Address cursor;
 	
 	public static void boot(BootRecord bootRecord) {
-		freeMemStart = bootRecord.bootImageRMapEnd;
+		freeMemStart = bootRecord.bootImageRMapStart;
 		freeMemEnd = freeMemStart.plus(bootRecord.maximumHeapSize);
 		cursor = freeMemStart;
 		VM.sysWrite("MemoryManager: start=", freeMemStart);
@@ -25,6 +25,7 @@ public class MemoryManager {
 	public static Address alloc(Address address, Extent size) {
 		Address cursor = address;
 		if(cursor.plus(size).GT(freeMemEnd)) {
+			VM.sysWriteln("PANIC: ", cursor.toInt(), " ", size.toInt());
 			VM.sysFail("Out of Memory");
 		}
 		VM.sysWrite("Memory Manager: allocating=", cursor, " size=", size.toInt());
