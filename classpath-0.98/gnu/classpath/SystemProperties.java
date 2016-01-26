@@ -66,59 +66,59 @@ public class SystemProperties
 
   static
   {
-    VMSystemProperties.preInit(defaultProperties);
+//    VMSystemProperties.preInit(defaultProperties);
 
     defaultProperties.put("gnu.classpath.home", Configuration.CLASSPATH_HOME);
     defaultProperties.put("gnu.classpath.version",
                           Configuration.CLASSPATH_VERSION);
 
     // Set base URL if not already set.
-    if (defaultProperties.get("gnu.classpath.home.url") == null)
-      defaultProperties.put("gnu.classpath.home.url",
-			    "file://"
-			    + Configuration.CLASSPATH_HOME
-	                    + "/lib");
-
-    // Set short name if not already set.
-    if (defaultProperties.get("gnu.classpath.vm.shortname") == null)
-      {
-	String value = defaultProperties.getProperty("java.vm.name");
-	int index = value.lastIndexOf(' ');
-	if (index != -1)
-	  value = value.substring(index + 1);
-	defaultProperties.put("gnu.classpath.vm.shortname", value);
-      }
-
-    // Network properties
-    if (defaultProperties.get("http.agent") == null)
-      {
-	String userAgent = ("gnu-classpath/"
-	                    + defaultProperties.getProperty("gnu.classpath.version")
-	                    + " ("
-	                    + defaultProperties.getProperty("gnu.classpath.vm.shortname")
-	                    + "/"
-	                    + defaultProperties.getProperty("java.vm.version")
-	                    + ")");
-	 defaultProperties.put("http.agent", userAgent);
-      }
+//    if (defaultProperties.get("gnu.classpath.home.url") == null)
+//      defaultProperties.put("gnu.classpath.home.url",
+//			    "file://"
+//			    + Configuration.CLASSPATH_HOME
+//	                    + "/lib");
+//
+//    // Set short name if not already set.
+//    if (defaultProperties.get("gnu.classpath.vm.shortname") == null)
+//      {
+//	String value = defaultProperties.getProperty("java.vm.name");
+//	int index = value.lastIndexOf(' ');
+//	if (index != -1)
+//	  value = value.substring(index + 1);
+//	defaultProperties.put("gnu.classpath.vm.shortname", value);
+//      }
+//
+//    // Network properties
+//    if (defaultProperties.get("http.agent") == null)
+//      {
+//	String userAgent = ("gnu-classpath/"
+//	                    + defaultProperties.getProperty("gnu.classpath.version")
+//	                    + " ("
+//	                    + defaultProperties.getProperty("gnu.classpath.vm.shortname")
+//	                    + "/"
+//	                    + defaultProperties.getProperty("java.vm.version")
+//	                    + ")");
+//	 defaultProperties.put("http.agent", userAgent);
+//      }
 
     // 8859_1 is a safe default encoding to use when not explicitly set
     if (defaultProperties.get("file.encoding") == null)
       defaultProperties.put("file.encoding", "8859_1");
 
     // XXX FIXME - Temp hack for old systems that set the wrong property
-    if (defaultProperties.get("java.io.tmpdir") == null)
-      defaultProperties.put("java.io.tmpdir",
-                            defaultProperties.get("java.tmpdir"));
+//    if (defaultProperties.get("java.io.tmpdir") == null)
+//      defaultProperties.put("java.io.tmpdir",
+//                            defaultProperties.get("java.tmpdir"));
 
     // FIXME: we need a better way to handle this.
     // For instance, having a single VM class for each OS might help.
-    if (defaultProperties.get("gnu.classpath.mime.types.file") == null
-        && "Linux".equals(defaultProperties.get("os.name")))
-      defaultProperties.put("gnu.classpath.mime.types.file",
-                            "/etc/mime.types");
-
-    VMSystemProperties.postInit(defaultProperties);
+//    if (defaultProperties.get("gnu.classpath.mime.types.file") == null
+//        && "Linux".equals(defaultProperties.get("os.name")))
+//      defaultProperties.put("gnu.classpath.mime.types.file",
+//                            "/etc/mime.types");
+//
+//    VMSystemProperties.postInit(defaultProperties);
 
     // Note that we use clone here and not new.  Some programs assume
     // that the system properties do not have a parent.
