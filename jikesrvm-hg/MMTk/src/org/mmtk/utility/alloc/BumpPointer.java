@@ -291,7 +291,10 @@ import org.vmmagic.unboxed.Word;
     /* Check if we already have a block to use */
     if (allowScanning && !region.isZero()) {
       Address nextRegion = getNextRegion(region);
-      Log.write("next region: "); Log.write(region); Log.write(' '); Log.writeln(nextRegion);
+      if(DEBUG)
+      {
+    	  Log.write("next region: "); Log.write(region); Log.write(' '); Log.writeln(nextRegion);
+      }
       if (!nextRegion.isZero()) {
         return consumeNextRegion(nextRegion, bytes, align, offset);
       }

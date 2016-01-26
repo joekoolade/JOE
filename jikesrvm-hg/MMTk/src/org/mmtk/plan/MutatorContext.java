@@ -192,7 +192,7 @@ public abstract class MutatorContext implements Constants {
    */
   @Inline
   public Address alloc(int bytes, int align, int offset, int allocator, int site) {
-	  Log.write("MutatorContext allocator "); Log.writeln(allocator);
+	//  Log.write("MutatorContext allocator "); Log.writeln(allocator);
     switch (allocator) {
     case      Plan.ALLOC_LOS: return los.alloc(bytes, align, offset);
     case      Plan.ALLOC_IMMORTAL: return immortal.alloc(bytes, align, offset);

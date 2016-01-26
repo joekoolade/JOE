@@ -40,7 +40,7 @@ import org.vmmagic.pragma.*;
   //TODO: 64-bit: this is not OK: value does not fit in int, but should, we do not want to create such big array
   private static final int MMAP_CHUNK_MASK = MMAP_CHUNK_BYTES - 1;
   private static final int MMAP_NUM_CHUNKS = 1 << (Constants.LOG_BYTES_IN_ADDRESS_SPACE - LOG_MMAP_CHUNK_BYTES);
-  public static final boolean verbose = true;
+  public static final boolean verbose = false;
 
   /****************************************************************************
    * Class variables
@@ -125,7 +125,10 @@ import org.vmmagic.pragma.*;
   public static void ensureMapped(Address start, int pages) {
     int startChunk = Conversions.addressToMmapChunksDown(start);
     int endChunk = Conversions.addressToMmapChunksUp(start.plus(Conversions.pagesToBytes(pages)));
-    Log.write("Chunks: "); Log.write(startChunk); Log.write("-"); Log.writeln(endChunk);
+    if(verbose)
+   	{
+    	Log.write("Chunks: "); Log.write(startChunk); Log.write("-"); Log.writeln(endChunk);
+   	}
     for (int chunk = startChunk; chunk < endChunk; chunk++) {
       if (mapped[chunk] == MAPPED) continue;
       Address mmapStart = Conversions.mmapChunksToAddress(chunk);

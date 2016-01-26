@@ -118,8 +118,8 @@ public final class MonotonePageResource extends PageResource {
     boolean newChunk = false;
     lock();
     Address rtn = cursor;
-    Log.write("MonotonePageResource.allocPages: "); Log.write(cursor); Log.write(' '); Log.write(currentChunk);
-    Log.write(' '); Log.writeln(sentinel);
+//    Log.write("MonotonePageResource.allocPages: "); Log.write(cursor); Log.write(' '); Log.write(currentChunk);
+//    Log.write(' '); Log.writeln(sentinel);
     if (Space.chunkAlign(rtn, true).NE(currentChunk)) {
       newChunk = true;
       currentChunk = Space.chunkAlign(rtn, true);
@@ -145,7 +145,7 @@ public final class MonotonePageResource extends PageResource {
       sentinel = cursor.plus(chunk.isZero() ? 0 : requiredChunks<<Space.LOG_BYTES_IN_CHUNK);
       rtn = cursor;
       tmp = cursor.plus(bytes);
-      Log.write("!contiguous: "); Log.write(cursor); Log.write(' '); Log.write(sentinel); Log.write(' '); Log.writeln(requiredChunks); 
+      // Log.write("!contiguous: "); Log.write(cursor); Log.write(' '); Log.write(sentinel); Log.write(' '); Log.writeln(requiredChunks); 
      newChunk = true;
     }
     if (VM.VERIFY_ASSERTIONS)
