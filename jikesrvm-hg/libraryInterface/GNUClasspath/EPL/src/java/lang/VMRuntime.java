@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.jikesrvm.*;
-import org.jikesrvm.runtime.DynamicLibrary;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.mm.mminterface.*;
 
@@ -84,7 +83,6 @@ public final class VMRuntime {
    * @param loader Ignored.  {@code null} means the bootstrap class loader.
    * @return nonzero on success, zero on failure. */
   static int nativeLoad(String libName, ClassLoader loader) {
-    return DynamicLibrary.load(libName);
   }
 
 

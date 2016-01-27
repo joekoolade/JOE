@@ -16,7 +16,6 @@ import org.jikesrvm.VM;
 import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.CompiledMethod;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
-import org.jikesrvm.runtime.DynamicLibrary;
 import org.jikesrvm.runtime.Entrypoints;
 import org.vmmagic.pragma.Pure;
 import org.vmmagic.unboxed.Address;
@@ -167,31 +166,7 @@ public final class NativeMethod extends RVMMethod {
   }
 
   private boolean resolveNativeMethod() {
-    if (!nativeIP.isZero()) {
-      // method has already been resolved via registerNative.
-      return true;
-    }
-
-    final String nativeProcedureName = getMangledName(false);
-    final String nativeProcedureNameWithSignature = getMangledName(true);
-
-    Address symbolAddress = DynamicLibrary.resolveSymbol(nativeProcedureNameWithSignature);
-    if (symbolAddress.isZero()) {
-      symbolAddress = DynamicLibrary.resolveSymbol(nativeProcedureName);
-    }
-
-    if (symbolAddress.isZero()) {
-      // native procedure not found in library
-      return false;
-    } else {
-      if (VM.BuildForPowerOpenABI) {
-        nativeIP = symbolAddress.loadAddress();
-        nativeTOC = symbolAddress.loadAddress(Offset.fromIntSignExtend(BYTES_IN_ADDRESS));
-      } else {
-        nativeIP = symbolAddress;
-      }
-      return true;
-    }
+	  return false;
   }
 
   /**

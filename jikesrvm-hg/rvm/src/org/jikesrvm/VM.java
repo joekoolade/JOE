@@ -33,7 +33,6 @@ import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.BootRecord;
-import org.jikesrvm.runtime.DynamicLibrary;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.ExitStatus;
 import org.jikesrvm.runtime.Magic;
@@ -275,7 +274,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     //
     if (verboseBoot >= 1) VM.sysWriteln("Booting scheduler");
     RVMThread.boot();
-//    DynamicLibrary.boot();
 
     if (verboseBoot >= 1) VM.sysWriteln("Enabling GC");
 //    MemoryManager.enableCollection();
