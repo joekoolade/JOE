@@ -185,10 +185,8 @@ public final class MemoryManager implements HeapLayoutConstants, Constants {
    */
   @Interruptible
   public static void processCommandLineArg(String arg) {
-    if (!OptionSet.gc.process(arg)) {
       VM.sysWriteln("Unrecognized command line argument: \"" + arg + "\"");
       VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-    }
   }
 
   /***********************************************************************

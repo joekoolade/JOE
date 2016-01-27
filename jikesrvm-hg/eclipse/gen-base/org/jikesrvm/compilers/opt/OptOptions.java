@@ -463,6 +463,8 @@ public class OptOptions implements Cloneable {
   }
 
   /**
+   * FIXME may not need this
+   * 
    * Take a string (most likely a command-line argument) and try to proccess it
    * as an option command.  Return true if the string was understood, false
    * otherwise.
@@ -1347,7 +1349,7 @@ public class OptOptions implements Cloneable {
        return true;
      }
     if (name.equals("print_ir_level")) {
-       PRINT_IR_LEVEL = CommandLineArgs.primitiveParseInt(value);
+       // PRINT_IR_LEVEL = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("profile_edge_count_input_file")) {
@@ -1374,23 +1376,23 @@ public class OptOptions implements Cloneable {
        return false;
      }
     if (name.equals("profile_infrequent_threshold")) {
-       PROFILE_INFREQUENT_THRESHOLD = CommandLineArgs.primitiveParseFloat(value);
+       // PROFILE_INFREQUENT_THRESHOLD = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("profile_cbs_hotness")) {
-       PROFILE_CBS_HOTNESS = CommandLineArgs.primitiveParseFloat(value);
+//       PROFILE_CBS_HOTNESS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("escape_max_array_size")) {
-       ESCAPE_MAX_ARRAY_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       ESCAPE_MAX_ARRAY_SIZE = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("ssa_load_elimination_rounds")) {
-       SSA_LOAD_ELIMINATION_ROUNDS = CommandLineArgs.primitiveParseInt(value);
+//       SSA_LOAD_ELIMINATION_ROUNDS = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("l2m_max_block_size")) {
-       L2M_MAX_BLOCK_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       L2M_MAX_BLOCK_SIZE = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("regalloc_spill_cost_estimate")) {
@@ -1409,79 +1411,79 @@ public class OptOptions implements Cloneable {
        return false;
      }
     if (name.equals("regalloc_simple_spill_cost_move_factor")) {
-       REGALLOC_SIMPLE_SPILL_COST_MOVE_FACTOR = CommandLineArgs.primitiveParseFloat(value);
+//       REGALLOC_SIMPLE_SPILL_COST_MOVE_FACTOR = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("regalloc_simple_spill_cost_memory_operand_factor")) {
-       REGALLOC_SIMPLE_SPILL_COST_MEMORY_OPERAND_FACTOR = CommandLineArgs.primitiveParseFloat(value);
+//       REGALLOC_SIMPLE_SPILL_COST_MEMORY_OPERAND_FACTOR = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("control_tableswitch_cutoff")) {
-       CONTROL_TABLESWITCH_CUTOFF = CommandLineArgs.primitiveParseInt(value);
+//       CONTROL_TABLESWITCH_CUTOFF = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("control_cond_move_cutoff")) {
-       CONTROL_COND_MOVE_CUTOFF = CommandLineArgs.primitiveParseInt(value);
+//       CONTROL_COND_MOVE_CUTOFF = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("control_unroll_log")) {
-       CONTROL_UNROLL_LOG = CommandLineArgs.primitiveParseInt(value);
+//       CONTROL_UNROLL_LOG = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("control_static_splitting_max_cost")) {
-       CONTROL_STATIC_SPLITTING_MAX_COST = CommandLineArgs.primitiveParseInt(value);
+//       CONTROL_STATIC_SPLITTING_MAX_COST = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("control_well_predicted_cutoff")) {
-       CONTROL_WELL_PREDICTED_CUTOFF = CommandLineArgs.primitiveParseFloat(value);
+//       CONTROL_WELL_PREDICTED_CUTOFF = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_max_target_size")) {
-       INLINE_MAX_TARGET_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       INLINE_MAX_TARGET_SIZE = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("inline_max_inline_depth")) {
-       INLINE_MAX_INLINE_DEPTH = CommandLineArgs.primitiveParseInt(value);
+//       INLINE_MAX_INLINE_DEPTH = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("inline_max_always_inline_target_size")) {
-       INLINE_MAX_ALWAYS_INLINE_TARGET_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       INLINE_MAX_ALWAYS_INLINE_TARGET_SIZE = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("inline_massive_method_size")) {
-       INLINE_MASSIVE_METHOD_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       INLINE_MASSIVE_METHOD_SIZE = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("inline_max_arg_bonus")) {
-       INLINE_MAX_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_MAX_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_precise_reg_array_arg_bonus")) {
-       INLINE_PRECISE_REG_ARRAY_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_PRECISE_REG_ARRAY_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_declared_aastored_array_arg_bonus")) {
-       INLINE_DECLARED_AASTORED_ARRAY_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_DECLARED_AASTORED_ARRAY_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_precise_reg_class_arg_bonus")) {
-       INLINE_PRECISE_REG_CLASS_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_PRECISE_REG_CLASS_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_extant_reg_class_arg_bonus")) {
-       INLINE_EXTANT_REG_CLASS_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_EXTANT_REG_CLASS_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_int_const_arg_bonus")) {
-       INLINE_INT_CONST_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_INT_CONST_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_null_const_arg_bonus")) {
-       INLINE_NULL_CONST_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_NULL_CONST_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_object_const_arg_bonus")) {
-       INLINE_OBJECT_CONST_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_OBJECT_CONST_ARG_BONUS = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_call_depth_cost")) {
@@ -1489,11 +1491,11 @@ public class OptOptions implements Cloneable {
        return true;
      }
     if (name.equals("inline_ai_max_target_size")) {
-       INLINE_AI_MAX_TARGET_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       INLINE_AI_MAX_TARGET_SIZE = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("inline_ai_min_callsite_fraction")) {
-       INLINE_AI_MIN_CALLSITE_FRACTION = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_AI_MIN_CALLSITE_FRACTION = CommandLineArgs.primitiveParseFloat(value);
        return true;
      }
     if (name.equals("inline_guard_kind")) {

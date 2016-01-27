@@ -27,7 +27,6 @@ import org.vmutil.options.StringOption;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.Constants;
-import org.jikesrvm.CommandLineArgs;
 
 /**
  * Class to handle command-line arguments and options for GC.
@@ -40,89 +39,6 @@ public final class OptionSet extends org.vmutil.options.OptionSet {
 
   private OptionSet(String prefix) {
     this.prefix = prefix;
-  }
-
-  /**
-   * Take a string (most likely a command-line argument) and try to proccess it
-   * as an option command.  Return true if the string was understood, false
-   * otherwise.
-   *
-   * @param arg a String to try to process as an option command
-   * @return {@code true} if successful, {@code false} otherwise
-   */
-  public boolean process(String arg) {
-
-    // First handle the "option commands"
-    if (arg.equals("help")) {
-       printHelp();
-       return true;
-    }
-    if (arg.equals("printOptions")) {
-       printOptions();
-       return true;
-    }
-    if (arg.length() == 0) {
-      printHelp();
-      return true;
-    }
-
-    // Required format of arg is 'name=value'
-    // Split into 'name' and 'value' strings
-    int split = arg.indexOf('=');
-    if (split == -1) {
-      VM.sysWriteln("  Illegal option specification!\n  \""+arg+
-                  "\" must be specified as a name-value pair in the form of option=value");
-      return false;
-    }
-
-    String name = arg.substring(0,split);
-    String value = arg.substring(split+1);
-
-    Option o = getOption(name);
-
-    if (o == null) return false;
-
-    switch (o.getType()) {
-      case Option.BOOLEAN_OPTION:
-        if (value.equals("true")) {
-          ((BooleanOption)o).setValue(true);
-          return true;
-        } else if (value.equals("false")) {
-          ((BooleanOption)o).setValue(false);
-          return true;
-        }
-        return false;
-      case Option.INT_OPTION:
-        int ival = CommandLineArgs.primitiveParseInt(value);
-        ((IntOption)o).setValue(ival);
-        return true;
-      case Option.ADDRESS_OPTION:
-        ival = CommandLineArgs.primitiveParseInt(value);
-        ((AddressOption)o).setValue(ival);
-        return true;
-      case Option.FLOAT_OPTION:
-        float fval = CommandLineArgs.primitiveParseFloat(value);
-        ((FloatOption)o).setValue(fval);
-        return true;
-      case Option.STRING_OPTION:
-        ((StringOption)o).setValue(value);
-        return true;
-      case Option.ENUM_OPTION:
-        ((EnumOption)o).setValue(value);
-        return true;
-      case Option.PAGES_OPTION:
-        long pval = CommandLineArgs.parseMemorySize(o.getName(), name, "b", 1, arg, value);
-        if (pval < 0) return false;
-        ((PagesOption)o).setBytes(Extent.fromIntSignExtend((int)pval));
-        return true;
-      case Option.MICROSECONDS_OPTION:
-        int mval = CommandLineArgs.primitiveParseInt(value);
-        ((MicrosecondsOption)o).setMicroseconds(mval);
-        return true;
-    }
-
-    // None of the above tests matched, so this wasn't an option
-    return false;
   }
 
   /**

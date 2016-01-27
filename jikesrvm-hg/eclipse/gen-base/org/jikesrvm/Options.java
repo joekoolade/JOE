@@ -178,23 +178,23 @@ import org.vmmagic.pragma.*;
         return false;
     }
     if (name.equals("maxSystemTroubleRecursionDepth")) {
-       maxSystemTroubleRecursionDepth = CommandLineArgs.primitiveParseInt(value);
+//       maxSystemTroubleRecursionDepth = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("interruptQuantum")) {
-       interruptQuantum = CommandLineArgs.primitiveParseInt(value);
+//       interruptQuantum = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("schedulingMultiplier")) {
-       schedulingMultiplier = CommandLineArgs.primitiveParseInt(value);
+//       schedulingMultiplier = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("traceThreadScheduling")) {
-       TraceThreadScheduling = CommandLineArgs.primitiveParseInt(value);
+//       TraceThreadScheduling = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("verboseStackTrace")) {
-       VerboseStackTracePeriod = CommandLineArgs.primitiveParseInt(value);
+//       VerboseStackTracePeriod = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("edgeCounterFile")) {
@@ -202,19 +202,19 @@ import org.vmmagic.pragma.*;
        return true;
      }
     if (name.equals("CBSCallSamplesPerTick")) {
-       CBSCallSamplesPerTick = CommandLineArgs.primitiveParseInt(value);
+//       CBSCallSamplesPerTick = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("CBSCallSampleStride")) {
-       CBSCallSampleStride = CommandLineArgs.primitiveParseInt(value);
+//       CBSCallSampleStride = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("CBSMethodSamplesPerTick")) {
-       CBSMethodSamplesPerTick = CommandLineArgs.primitiveParseInt(value);
+//       CBSMethodSamplesPerTick = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("CBSMethodSampleStride")) {
-       CBSMethodSampleStride = CommandLineArgs.primitiveParseInt(value);
+//       CBSMethodSampleStride = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
     if (name.equals("tfTraceFile")) {
@@ -222,7 +222,7 @@ import org.vmmagic.pragma.*;
        return true;
      }
     if (name.equals("forceOneCPU")) {
-       forceOneCPU = CommandLineArgs.primitiveParseInt(value);
+//       forceOneCPU = CommandLineArgs.primitiveParseInt(value);
        return true;
      }
        //End generated command-line processing

@@ -19,7 +19,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.jikesrvm.Callbacks;
-import org.jikesrvm.CommandLineArgs;
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
@@ -48,7 +47,7 @@ public final class MainThread extends Thread {
   public MainThread(String[] args) {
     super("MainThread");
     setDaemon(false); // NB otherwise we inherit the boot threads daemon status
-    this.agents = CommandLineArgs.getJavaAgentArgs();
+    this.agents = null;
     this.args = args;
     if (dbg) {
       VM.sysWriteln("MainThread(args.length == ", args.length, "): constructor done");

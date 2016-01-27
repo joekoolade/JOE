@@ -13,7 +13,6 @@
 package org.jikesrvm.adaptive.util;
 
 import org.jikesrvm.VM;
-import org.jikesrvm.CommandLineArgs;
 
 /**
  * Class to handle command-line arguments and options for the
@@ -218,6 +217,8 @@ public class AOSExternalOptions implements Cloneable {
   }
 
   /**
+   * TODO may not need this
+   * 
    * Take a string (most likely a command-line argument) and try to proccess it
    * as an option command.  Return true if the string was understood, false
    * otherwise.
@@ -415,7 +416,7 @@ public class AOSExternalOptions implements Cloneable {
         return false;
     }
     if (name.equals("method_sample_size")) {
-       METHOD_SAMPLE_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       METHOD_SAMPLE_SIZE = 1;
        return true;
      }
     if (name.equals("initial_compiler")) {
@@ -487,35 +488,35 @@ public class AOSExternalOptions implements Cloneable {
        return true;
      }
     if (name.equals("bulk_compilation_verbosity")) {
-       BULK_COMPILATION_VERBOSITY = CommandLineArgs.primitiveParseInt(value);
+//       BULK_COMPILATION_VERBOSITY = 0;
        return true;
      }
     if (name.equals("logging_level")) {
-       LOGGING_LEVEL = CommandLineArgs.primitiveParseInt(value);
+//       LOGGING_LEVEL = 0;
        return true;
      }
     if (name.equals("final_report_level")) {
-       FINAL_REPORT_LEVEL = CommandLineArgs.primitiveParseInt(value);
+//       FINAL_REPORT_LEVEL = 0;
        return true;
      }
     if (name.equals("decay_frequency")) {
-       DECAY_FREQUENCY = CommandLineArgs.primitiveParseInt(value);
+//       DECAY_FREQUENCY = 0;
        return true;
      }
     if (name.equals("dcg_decay_rate")) {
-       DCG_DECAY_RATE = CommandLineArgs.primitiveParseFloat(value);
+//       DCG_DECAY_RATE = 0;
        return true;
      }
     if (name.equals("dcg_sample_size")) {
-       DCG_SAMPLE_SIZE = CommandLineArgs.primitiveParseInt(value);
+//       DCG_SAMPLE_SIZE = 0;
        return true;
      }
     if (name.equals("inline_ai_seed_multiplier")) {
-       INLINE_AI_SEED_MULTIPLIER = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_AI_SEED_MULTIPLIER = 1.0;
        return true;
      }
     if (name.equals("inline_ai_hot_callsite_threshold")) {
-       INLINE_AI_HOT_CALLSITE_THRESHOLD = CommandLineArgs.primitiveParseFloat(value);
+//       INLINE_AI_HOT_CALLSITE_THRESHOLD = 1.0;
        return true;
      }
     if (name.equals("offlinePlan")) {
@@ -523,23 +524,23 @@ public class AOSExternalOptions implements Cloneable {
        return true;
      }
     if (name.equals("early_exit_time")) {
-       EARLY_EXIT_TIME = CommandLineArgs.primitiveParseInt(value);
+//       EARLY_EXIT_TIME = 1;
        return true;
      }
     if (name.equals("invocation_count_threshold")) {
-       INVOCATION_COUNT_THRESHOLD = CommandLineArgs.primitiveParseInt(value);
+//       INVOCATION_COUNT_THRESHOLD = 10;
        return true;
      }
     if (name.equals("invocation_count_opt_level")) {
-       INVOCATION_COUNT_OPT_LEVEL = CommandLineArgs.primitiveParseInt(value);
+//       INVOCATION_COUNT_OPT_LEVEL = 1;
        return true;
      }
     if (name.equals("counter_based_sample_interval")) {
-       COUNTER_BASED_SAMPLE_INTERVAL = CommandLineArgs.primitiveParseInt(value);
+//       COUNTER_BASED_SAMPLE_INTERVAL = 10;
        return true;
      }
     if (name.equals("max_opt_level")) {
-       MAX_OPT_LEVEL = CommandLineArgs.primitiveParseInt(value);
+//       MAX_OPT_LEVEL = 1;
        return true;
      }
        //End generated command-line processing
