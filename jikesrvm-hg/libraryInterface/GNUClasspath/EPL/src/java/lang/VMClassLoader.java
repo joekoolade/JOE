@@ -65,32 +65,32 @@ final class VMClassLoader {
   private static final ImmutableEntryHashMapRVM<String,ZipFile> bootjars =
     new ImmutableEntryHashMapRVM<String,ZipFile>();
 
-  static {
-    String[] packages = getBootPackages();
-
-    if (packages != null) {
-      String specName =
-        SystemProperties.getProperty("java.specification.name");
-      String vendor =
-        SystemProperties.getProperty("java.specification.vendor");
-      String version =
-        SystemProperties.getProperty("java.specification.version");
-
-      for (String packageName : packages) {
-        final Package p = new Package(packageName,
-            specName,
-            vendor,
-            version,
-            "GNU Classpath",
-            "GNU",
-            Configuration.CLASSPATH_VERSION,
-            null,
-            null);
-
-        definedPackages.put(packageName, p);
-      }
-    }
-  }
+//  static {
+//    String[] packages = getBootPackages();
+//
+//    if (packages != null) {
+//      String specName =
+//        SystemProperties.getProperty("java.specification.name");
+//      String vendor =
+//        SystemProperties.getProperty("java.specification.vendor");
+//      String version =
+//        SystemProperties.getProperty("java.specification.version");
+//
+//      for (String packageName : packages) {
+//        final Package p = new Package(packageName,
+//            specName,
+//            vendor,
+//            version,
+//            "GNU Classpath",
+//            "GNU",
+//            Configuration.CLASSPATH_VERSION,
+//            null,
+//            null);
+//
+//        definedPackages.put(packageName, p);
+//      }
+//    }
+//  }
 
   static Class<?> defineClass(ClassLoader cl, String name,
                               byte[] data, int offset, int len,

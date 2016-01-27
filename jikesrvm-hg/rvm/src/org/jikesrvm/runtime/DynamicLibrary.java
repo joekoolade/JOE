@@ -21,6 +21,7 @@ import org.jikesrvm.util.StringUtilities;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
+// TODO remove this
 /**
  * Interface to the dynamic libraries of our underlying operating system.
  */

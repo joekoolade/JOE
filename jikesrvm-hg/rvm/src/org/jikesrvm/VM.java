@@ -275,17 +275,17 @@ public class VM extends Properties implements Constants, ExitStatus {
     //
     if (verboseBoot >= 1) VM.sysWriteln("Booting scheduler");
     RVMThread.boot();
-    DynamicLibrary.boot();
+//    DynamicLibrary.boot();
 
     if (verboseBoot >= 1) VM.sysWriteln("Enabling GC");
-    MemoryManager.enableCollection();
+//    MemoryManager.enableCollection();
 
     if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
-    RVMThread.getCurrentThread().setupBootJavaThread();
+//    RVMThread.getCurrentThread().setupBootJavaThread();
 
-    runClassInitializer("java.io.File"); // needed for when we initialize the
-    // system/application class loader.
     runClassInitializer("java.lang.String");
+//    runClassInitializer("java.io.File"); // needed for when we initialize the
+    // system/application class loader.
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.security.provider.DefaultPolicy");
     }
@@ -334,16 +334,15 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.lang.Math");
     runClassInitializer("java.util.TreeMap");
     if (VM.BuildForGnuClasspath) {
-      runClassInitializer("gnu.java.nio.VMChannel");
-      runClassInitializer("gnu.java.nio.FileChannelImpl");
+//      runClassInitializer("gnu.java.nio.VMChannel");
+//      runClassInitializer("gnu.java.nio.FileChannelImpl");
     }
     runClassInitializer("java.io.FileDescriptor");
-    runClassInitializer("java.io.FilePermission");
-    runClassInitializer("java.util.jar.JarFile");
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.util.zip.ZipFile$PartialInputStream");
-    }
-    runClassInitializer("java.util.zip.ZipFile");
+//    runClassInitializer("java.util.jar.JarFile");
+//    if (VM.BuildForGnuClasspath) {
+//      runClassInitializer("java.util.zip.ZipFile$PartialInputStream");
+//    }
+//    runClassInitializer("java.util.zip.ZipFile");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.lang.VMDouble");
     }
@@ -358,7 +357,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 
     if (verboseBoot >= 1) VM.sysWriteln("initializing standard streams");
     // Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
-    FileSystem.initializeStandardStreams();
+    // FileSystem.initializeStandardStreams();
 
     ///////////////////////////////////////////////////////////////
     // The VM is now fully booted.                               //
@@ -378,15 +377,15 @@ public class VM extends Properties implements Constants, ExitStatus {
       runClassInitializer("java.lang.reflect.Proxy");
       runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
-    runClassInitializer("java.util.logging.Logger");
+    // runClassInitializer("java.util.logging.Logger");
     // Initialize compiler that compiles dynamically loaded classes.
     //
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
     RuntimeCompiler.boot();
 
     // Process remainder of the VM's command line arguments.
-    if (verboseBoot >= 1) VM.sysWriteln("Late stage processing of command line");
-    String[] applicationArguments = CommandLineArgs.lateProcessCommandLineArguments();
+//    if (verboseBoot >= 1) VM.sysWriteln("Late stage processing of command line");
+//    String[] applicationArguments = CommandLineArgs.lateProcessCommandLineArguments();
 
     if (VM.verboseClassLoading || verboseBoot >= 1) VM.sysWrite("[VM booted]\n");
 
@@ -396,23 +395,23 @@ public class VM extends Properties implements Constants, ExitStatus {
     }
 
     // The first argument must be a class name.
-    if (verboseBoot >= 1) VM.sysWriteln("Extracting name of class to execute");
-    if (applicationArguments.length == 0) {
-      pleaseSpecifyAClass();
-    }
-    if (applicationArguments.length > 0 && !TypeDescriptorParsing.isJavaClassName(applicationArguments[0])) {
-      VM.sysWrite("vm: \"");
-      VM.sysWrite(applicationArguments[0]);
-      VM.sysWrite("\" is not a legal Java class name.\n");
-      pleaseSpecifyAClass();
-    }
-
-    if (applicationArguments.length > 0 && applicationArguments[0].startsWith("-X")) {
-        VM.sysWrite("vm: \"");
-        VM.sysWrite(applicationArguments[0]);
-        VM.sysWrite("\" is not a recognized Jikes RVM command line argument.\n");
-        VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-    }
+//    if (verboseBoot >= 1) VM.sysWriteln("Extracting name of class to execute");
+//    if (applicationArguments.length == 0) {
+//      pleaseSpecifyAClass();
+//    }
+//    if (applicationArguments.length > 0 && !TypeDescriptorParsing.isJavaClassName(applicationArguments[0])) {
+//      VM.sysWrite("vm: \"");
+//      VM.sysWrite(applicationArguments[0]);
+//      VM.sysWrite("\" is not a legal Java class name.\n");
+//      pleaseSpecifyAClass();
+//    }
+//
+//    if (applicationArguments.length > 0 && applicationArguments[0].startsWith("-X")) {
+//        VM.sysWrite("vm: \"");
+//        VM.sysWrite(applicationArguments[0]);
+//        VM.sysWrite("\" is not a recognized Jikes RVM command line argument.\n");
+//        VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
+//    }
 
     if (verboseBoot >= 1) VM.sysWriteln("Initializing Application Class Loader");
     RVMClassLoader.getApplicationClassLoader();
@@ -426,37 +425,30 @@ public class VM extends Properties implements Constants, ExitStatus {
     // tree yet.
     // java.security.JikesRVMSupport.fullyBootedVM();
 
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.lang.ClassLoader$StaticData");
-    }
+//    if (VM.BuildForGnuClasspath) {
+//      runClassInitializer("java.lang.ClassLoader$StaticData");
+//    }
 
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
 
     // enable alignment checking
-    if (VM.AlignmentChecking) {
-      SysCall.sysCall.sysEnableAlignmentChecking();
-    }
+//    if (VM.AlignmentChecking) {
+//      SysCall.sysCall.sysEnableAlignmentChecking();
+//    }
 
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
-    mainThread = new MainThread(applicationArguments);
+//    mainThread = new MainThread(null);
 
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
-    mainThread.start();
+//    mainThread.start();
 
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
-  }
-
-  @Interruptible
-  private static void pleaseSpecifyAClass() {
-    VM.sysWrite("vm: Please specify a class to execute.\n");
-    VM.sysWrite("vm:   You can invoke the VM with the \"-help\" flag for usage information.\n");
-    VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
   }
 
   /**

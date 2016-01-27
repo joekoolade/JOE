@@ -169,7 +169,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   protected static final boolean traceBind = false;
 
   /** Trace thread start/stop */
-  protected static final boolean traceAcct = false;
+  protected static final boolean traceAcct = true;
 
   /** Trace execution */
   protected static final boolean trace = false;
@@ -1340,8 +1340,6 @@ public final class RVMThread extends ThreadContext implements Constants {
     doProfileReport = new Latch(false);
     monitorBySlot[getCurrentThread().threadSlot] = new NoYieldpointsMonitor();
     communicationLockBySlot[getCurrentThread().threadSlot] = new Monitor();
-    sysCall.sysCreateThreadSpecificDataKeys();
-    sysCall.sysStashVMThread(getCurrentThread());
 
     if (traceAcct) {
       VM.sysWriteln("boot thread at ",Magic.objectAsAddress(getCurrentThread()));
@@ -1351,12 +1349,12 @@ public final class RVMThread extends ThreadContext implements Constants {
 
     threadingInitialized = true;
     // Always run timer thread, so we can respond to debug requests
-    new TimerThread().start();
+//    new TimerThread().start();
     if (VM.BuildForAdaptiveSystem) {
       ObjectHolder.boot();
     }
 
-    FinalizerThread.boot();
+    // FinalizerThread.boot();
     getCurrentThread().enableYieldpoints();
     if (traceAcct) VM.sysWriteln("RVMThread booted");
   }
