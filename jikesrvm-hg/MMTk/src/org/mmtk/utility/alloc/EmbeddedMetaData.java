@@ -33,10 +33,10 @@ public final class EmbeddedMetaData implements Constants {
 
   /* The (log of the) size of each region of meta data management */
   public static final int LOG_BYTES_IN_REGION = 22;
-  public static final int BYTES_IN_REGION = 1 << LOG_BYTES_IN_REGION;
+  public static final int BYTES_IN_REGION = 1 << LOG_BYTES_IN_REGION;		// 4MB
   private static final Word REGION_MASK = Word.fromIntSignExtend(BYTES_IN_REGION - 1);
   public static final int LOG_PAGES_IN_REGION = LOG_BYTES_IN_REGION - LOG_BYTES_IN_PAGE;
-  public static final int PAGES_IN_REGION = 1 << LOG_PAGES_IN_REGION;
+  public static final int PAGES_IN_REGION = 1 << LOG_PAGES_IN_REGION;  // 1K assuming 4K page size
 
   /**
    * Given an address, return the beginning of the meta data for the

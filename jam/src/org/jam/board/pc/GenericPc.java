@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.jam.board;
+package org.jam.board.pc;
 
 import org.jam.driver.console.PcConsoleDevice;
 import org.jam.runtime.Platform;

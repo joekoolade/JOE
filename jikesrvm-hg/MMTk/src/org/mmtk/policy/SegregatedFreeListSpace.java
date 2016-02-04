@@ -152,6 +152,7 @@ public abstract class SegregatedFreeListSpace extends Space implements Constants
    */
   public void returnBlock(Address block, int sizeClass, Address freeCell) {
     if (VM.VERIFY_ASSERTIONS) {
+    	Log.write(getName()); Log.write(' '); Log.write(sizeClass); Log.write(' '); Log.writeln(freeCell);
       VM.assertions._assert(BlockAllocator.getNext(block).isZero());
     }
     if (preserveFreeList()) {

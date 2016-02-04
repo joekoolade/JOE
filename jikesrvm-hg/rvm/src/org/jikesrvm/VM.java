@@ -12,7 +12,7 @@
  */
 package org.jikesrvm;
 
-import org.jam.board.GenericPc;
+import org.jam.board.pc.GenericPc;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.runtime.Platform;

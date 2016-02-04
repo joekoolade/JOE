@@ -13,7 +13,7 @@ import org.vmmagic.unboxed.Address;
  * @author jkulig
  *
  */
-public abstract class Bus {
+public abstract class Bus implements BusOperations {
 	private final Bus parent;
 	private final Device parentDevice;
 	
@@ -26,14 +26,4 @@ public abstract class Bus {
 		this.parent = parent;
 		this.parentDevice = null;
 	}
-	
-	abstract public int readInt(Address a);
-	abstract public short readShort(Address a);
-	abstract public byte readByte(Address a);
-	abstract public long readLong(Address a);
-	abstract public void writeInt(Address a, int value);
-	abstract public void writeShort(Address a, short value);
-	abstract public void writeByte(Address a, byte value);
-	abstract public void writeLong(Address a, long value);
-	
 }
