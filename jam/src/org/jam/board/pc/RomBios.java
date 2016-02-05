@@ -1,4 +1,4 @@
-package org.jam.driver.pc;
+package org.jam.board.pc;
 
 import org.jam.driver.Bus;
 import org.jam.driver.Device;

@@ -5,7 +5,7 @@
  * All rights reserved.
  * 
  */
-package org.jam.driver.irqchip;
+package org.jam.board.pc;
 
 import org.jam.driver.BusOperations;
 import org.jam.driver.bus.PcIoBus;
