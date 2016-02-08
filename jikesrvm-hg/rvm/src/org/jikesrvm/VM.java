@@ -129,7 +129,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = 10; // BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = 2; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     
     /*
@@ -140,7 +140,23 @@ public class VM extends Properties implements Constants, ExitStatus {
     PcBootSerialPort.setWordLength8();
     PcBootSerialPort.setStopBits1();
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();
-    if (verboseBoot >= 1) VM.sysWriteln("Booting");
+    // Set up the current RVMThread object.  The bootstrap program
+    // has placed a pointer to the current RVMThread in a special
+    // register.
+    if (verboseBoot >= 1) VM.sysWriteln("Setting up current RVMThread");
+    ThreadLocalState.boot();
+
+    // Finish thread initialization that couldn't be done in boot image.
+    // The "stackLimit" must be set before any interruptible methods are called
+    // because it's accessed by compiler-generated stack overflow checks.
+    //
+    if (verboseBoot >= 1) VM.sysWriteln("Doing thread initialization");
+    RVMThread currentThread = RVMThread.getCurrentThread();
+    currentThread.stackLimit = Magic.objectAsAddress(currentThread.getStack()).plus(ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GUARD);
+    if (verboseBoot >= 1)
+   	{
+    	VM.sysWrite("Stack Limit: "); VM.sysWrite(Magic.objectAsAddress(currentThread.getStack())); VM.sysWriteln(" ", currentThread.stackLimit);
+   	}
 
     finishBooting();
   }
@@ -196,7 +212,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     String bootstrapClasses = ""; // CommandLineArgs.getBootstrapClasses();
     if (verboseBoot >= 1) VM.sysWriteln("Initializing bootstrap class loader: ", bootstrapClasses);
     RVMClassLoader.boot();      // Wipe out cached application class loader
-    // BootstrapClassLoader.boot(bootstrapClasses);
 
     // Initialize statics that couldn't be placed in bootimage, either
     // because they refer to external state (open files), or because they
@@ -457,8 +472,7 @@ public class VM extends Properties implements Constants, ExitStatus {
       sysWrite("running class intializer for ");
       sysWriteln(className);
     }
-    className.replace('.', '/');
-    Atom classDescriptor = Atom.findOrCreateAsciiAtom(className).descriptorFromClassName();
+    Atom classDescriptor = Atom.findOrCreateAsciiAtom(className.replace('.', '/')).descriptorFromClassName();
     TypeReference tRef =
         TypeReference.findOrCreate(BootstrapClassLoader.getBootstrapClassLoader(), classDescriptor);
     RVMClass cls = (RVMClass) tRef.peekType();
@@ -479,7 +493,6 @@ public class VM extends Properties implements Constants, ExitStatus {
         	VM.sysWriteln(className);
         }
         try {
-          //VM.sysWrite(ObjectReference.fromObject(clinit.getCurrentEntryCodeArray()));
           Magic.invokeClassInitializer(clinit.getCurrentEntryCodeArray());
         } catch (Error e) {
           throw e;
