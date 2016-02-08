@@ -1899,6 +1899,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    * must be serviced and acknowledged.
    */
   private void enterNativeBlockedImpl(boolean jni) {
+	VM.sysFail("enterNativeBlockedImpl!");
     if (traceReallyBlock)
       VM.sysWriteln("Thread #", threadSlot, " entering native blocked.");
     // NB: anything this method calls CANNOT change the contextRegisters
@@ -1928,6 +1929,7 @@ public final class RVMThread extends ThreadContext implements Constants {
 
   @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
   private void leaveNativeBlockedImpl() {
+	  VM.sysFail("leaveNativeBlockedImpl");
     checkBlockNoSaveContext();
   }
 
@@ -2236,6 +2238,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   @NoInline // so we can get the fp
   public static void enterNative() {
+	  VM.sysFail("enterNative!");
     RVMThread t = getCurrentThread();
     if (ALWAYS_LOCK_ON_STATE_TRANSITION) {
       t.enterNativeBlocked();
@@ -2266,6 +2269,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    * @return true if thread transitioned to IN_JAVA, otherwise false
    */
   public static boolean attemptLeaveNativeNoBlock() {
+	  VM.sysFail("attemptLeaveNativeNoBlock!");
     if (ALWAYS_LOCK_ON_STATE_TRANSITION)
       return false;
     RVMThread t = getCurrentThread();
@@ -2290,6 +2294,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   @Unpreemptible("May block if the thread was asked to do so; otherwise does no actions that would lead to blocking")
   public static void leaveNative() {
+	  VM.sysFail("leaveNative!");
     if (!attemptLeaveNativeNoBlock()) {
       if (traceReallyBlock) {
         VM.sysWriteln("Thread #", getCurrentThreadSlot(),
@@ -2300,6 +2305,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   }
 
   public static void enterJNIFromCallIntoNative() {
+	  VM.sysFail("enterJNIFromCallIntoNative");
     // FIXME: call these in PPC instead of doing it in machine code...
     getCurrentThread().observeExecStatus();
     if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
@@ -2310,6 +2316,7 @@ public final class RVMThread extends ThreadContext implements Constants {
 
   @Unpreemptible
   public static void leaveJNIFromCallIntoNative() {
+	  VM.sysFail("leaveJNIFromCallIntoNative!");
     // FIXME: call these in PPC instead of doing it in machine code...
     getCurrentThread().observeExecStatus();
     if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
@@ -2319,6 +2326,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   }
 
   public static void enterJNIFromJNIFunctionCall() {
+	  VM.sysFail("enterJNIFromJNIFunctionCall!");
     // FIXME: call these instead of doing it in machine code...  currently this
     // is never called.
     getCurrentThread().observeExecStatus();
@@ -2330,6 +2338,7 @@ public final class RVMThread extends ThreadContext implements Constants {
 
   @Unpreemptible
   public static void leaveJNIFromJNIFunctionCall() {
+	  VM.sysFail("leaveJNIFromJNIFunctionCall");
     // FIXME: call these instead of doing it in machine code...  currently this
     // is never called.
     getCurrentThread().observeExecStatus();
@@ -2496,6 +2505,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   }
 
   /**
+   * FIXME: remove this
    * Get current thread's JNI environment.
    */
   public JNIEnvironment getJNIEnv() {
@@ -2532,7 +2542,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   @Interruptible
   public void initializeJNIEnv() {
-    this.jniEnv = this.jniEnvShadow = new JNIEnvironment();
+    this.jniEnv = null;
   }
 
   /**
@@ -2587,26 +2597,26 @@ public final class RVMThread extends ThreadContext implements Constants {
   @SuppressWarnings({ "unused" })
   // Called by back-door methods.
   private static void startoff() {
-    bindIfRequested();
+    //bindIfRequested();
 
-    sysCall.sysSetupHardwareTrapHandler();
+    //sysCall.sysSetupHardwareTrapHandler();
 
     RVMThread currentThread = getCurrentThread();
 
     /*
      * get pthread_id from the operating system and store into RVMThread field
      */
-    currentThread.pthread_id = sysCall.sysGetThreadId();
-    currentThread.priority_handle = sysCall.sysGetThreadPriorityHandle();
+    //currentThread.pthread_id = sysCall.sysGetThreadId();
+    //currentThread.priority_handle = sysCall.sysGetThreadPriorityHandle();
 
     /*
      * set thread priority to match stored value
      */
-    sysCall.sysSetThreadPriority(currentThread.pthread_id,
-        currentThread.priority_handle, currentThread.priority - Thread.NORM_PRIORITY);
+//    sysCall.sysSetThreadPriority(currentThread.pthread_id,
+//        currentThread.priority_handle, currentThread.priority - Thread.NORM_PRIORITY);
 
     currentThread.enableYieldpoints();
-    sysCall.sysStashVMThread(currentThread);
+//    sysCall.sysStashVMThread(currentThread);
     if (traceAcct) {
       VM.sysWriteln("Thread #", currentThread.threadSlot, " with pthread id ",
           currentThread.pthread_id, " running!");
@@ -2648,8 +2658,8 @@ public final class RVMThread extends ThreadContext implements Constants {
     acctLock.unlock();
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " starting!");
-    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
-        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
+//    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
+//        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
   }
 
   /**
@@ -2832,7 +2842,7 @@ public final class RVMThread extends ThreadContext implements Constants {
 
   /** Uninterruptible final portion of thread termination. */
   void finishThreadTermination() {
-    sysCall.sysThreadTerminate();
+    // sysCall.sysThreadTerminate();
     if (VM.VerifyAssertions)
       VM._assert(VM.NOT_REACHED);
   }
