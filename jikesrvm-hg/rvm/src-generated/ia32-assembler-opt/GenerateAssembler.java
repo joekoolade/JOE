@@ -1078,6 +1078,8 @@ public class GenerateAssembler {
     excludedOpcodes.add("OUT8");
     excludedOpcodes.add("OUT16");
     excludedOpcodes.add("OUT32");
+    excludedOpcodes.add("STI");
+    excludedOpcodes.add("CLI");
   }
 
   /**

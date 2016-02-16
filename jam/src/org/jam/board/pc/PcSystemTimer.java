@@ -8,6 +8,7 @@
 package org.jam.board.pc;
 
 import org.jam.system.IrqHandler;
+import org.vmmagic.pragma.InterruptHandler;
 
 //import baremetal.kernel.Scheduler;
 //import baremetal.vm.Thread;
@@ -49,7 +50,8 @@ implements IrqHandler {
    * 
    * context array is builtin into the stack.
    */
-  public void handler(int[] context) {
+  @InterruptHandler
+  public void handler() {
     tick++;
     overflow += 193180;
     if(overflow>=1000000) {

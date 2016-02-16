@@ -7,11 +7,13 @@
  */
 package org.jam.system;
 
+import org.jikesrvm.ArchitectureSpecific;
+
 
 /**
  * @author Joe Kulig
  *
  */
 public interface IrqHandler {
-  void handler(int[] context);
+	void handler();
 }
