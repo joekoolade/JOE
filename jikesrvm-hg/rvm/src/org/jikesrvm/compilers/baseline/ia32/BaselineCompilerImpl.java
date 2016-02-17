@@ -261,7 +261,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
 
   @Override
   protected final void emit_threadSwitchTest(int whereFrom) {
-    genThreadSwitchTest(whereFrom);
+    //genThreadSwitchTest(whereFrom);
   }
 
   @Override
@@ -3368,7 +3368,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
 
       if (method.isSynchronized()) genMonitorEnter();
 
-      genThreadSwitchTest(RVMThread.PROLOGUE);
+      // genThreadSwitchTest(RVMThread.PROLOGUE);
     }
   }
 
@@ -3384,7 +3384,10 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
      * code starts after original monitor enter.
      */
 
-    genThreadSwitchTest(RVMThread.PROLOGUE);
+    /*
+     * JAM does not need to test for thread switching. 
+     */
+    // genThreadSwitchTest(RVMThread.PROLOGUE);
   }
 
   /**
