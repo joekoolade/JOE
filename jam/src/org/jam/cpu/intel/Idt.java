@@ -21,31 +21,27 @@ import org.vmmagic.unboxed.Offset;
 public final class Idt
 implements SegmentDescriptorTypes
 {
+  private static Idt idt0 = new Idt();
   Address base;
   int codeSegment;
   int limit;
   final private static int MAX_VECTORS = 256;
   
-  public Idt() {
+  private Idt() {
     base = Address.fromIntZeroExtend(0);
     codeSegment = 8;
     limit = MAX_VECTORS*8-1;
   }
   
-  /**
-   * 
-   * @param table Location of IDT table
-   * @param size In number of interrupts vectors
-   */
-  public Idt(Address table, int size, int segment)
+  public static Idt getInstance()
   {
-	  base = table;
-	  // Convert to bytes
-	  limit = size*8-1;
-	  codeSegment = segment;
+	  return idt0;
   }
   
-  public void init() {
+  public void init(Address irqTable, int size) 
+  {
+	  base = irqTable;
+	  limit = size * 8 - 1;
   }
   
   /**
@@ -60,4 +56,49 @@ implements SegmentDescriptorTypes
 	  base.store((codeSegment<<16)|(irq.toInt()&0xffff), vectorOffset);
 	  base.store((irq.toInt() & 0xFFFF0000) | SEGMENT_PRESENT | INTERRUPTGATE, vectorOffset.plus(4));
   }
+
+	/**
+	 * @return the base
+	 */
+	public Address getBase() {
+		return base;
+	}
+
+	/**
+	 * @param base
+	 *            the base to set
+	 */
+	public void setBase(Address base) {
+		this.base = base;
+	}
+
+	/**
+	 * @return the codeSegment
+	 */
+	public int getCodeSegment() {
+		return codeSegment;
+	}
+
+	/**
+	 * @param codeSegment
+	 *            the codeSegment to set
+	 */
+	public void setCodeSegment(int codeSegment) {
+		this.codeSegment = codeSegment;
+	}
+
+	/**
+	 * @return the limit
+	 */
+	public int getLimit() {
+		return limit;
+	}
+
+	/**
+	 * @param limit
+	 *            the limit to set
+	 */
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
 }
