@@ -3248,7 +3248,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
 
   private void genPrologue() {
     if (shouldPrint) asm.comment("prologue for " + method);
-    if (klass.hasBridgeFromNativeAnnotation()) {
+    if (false) {
       // replace the normal prologue with a special prolog
       JNICompiler.generateGlueCodeForJNIMethod(asm, method, compiledMethod.getId());
       // set some constants for the code generation of the rest of the method
@@ -3306,8 +3306,8 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
        * save all registers except FP, SP, TR, S0 (scratch), and
        * EDI and EBX saved above.
        */
+      if(false) {
       // TODO: (SJF): When I try to reclaim ESI, I may have to save it here?
-      if (klass.hasDynamicBridgeAnnotation()) {
         savedRegistersSize += 2 << LG_WORDSIZE;
         if (VM.VerifyAssertions) VM._assert(T0_SAVE_OFFSET.toInt() == -4*WORDSIZE);
         asm.emitPUSH_Reg(T0);
@@ -3400,7 +3400,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       // pop locals and parameters, get to saved GPR's
       adjustStack((method.getLocalWords() << LG_WORDSIZE)+(returnSize-bytesPopped), true);
       JNICompiler.generateEpilogForJNIMethod(asm, this.method);
-    } else if (klass.hasDynamicBridgeAnnotation()) {
+    } else if (false) {
       // we never return from a DynamicBridge frame
       asm.emitINT_Imm(0xFF);
     } else {
