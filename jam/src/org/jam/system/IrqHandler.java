@@ -7,9 +7,6 @@
  */
 package org.jam.system;
 
-import org.jikesrvm.ArchitectureSpecific;
-
-
 /**
  * @author Joe Kulig
  *
