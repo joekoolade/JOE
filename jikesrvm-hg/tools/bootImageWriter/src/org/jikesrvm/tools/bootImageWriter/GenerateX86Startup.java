@@ -129,7 +129,7 @@ public class GenerateX86Startup {
 		
 		// setup FRAME POINTER
 		// call VM.boot(); we are never coming back
-		asm.emitFARCALL(bootRecord.ipRegister, 0x8);
+		asm.emitFARCALL(bootRecord.ipRegister, CODE_SEGMENT);
 		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
