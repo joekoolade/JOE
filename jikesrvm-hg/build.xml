@@ -863,14 +863,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="template.vm.valueopts.dat">
       <pathelement path="${options.dir}/ValueOptions.vm.dat"/>
     </path>
-    <GenerateFromTemplate>
-      <args>
-        <arg path="${options.dir}/Options.template"/>
-        <arg path="${generated.java}/org/jikesrvm/Options.java"/>
-        <arg value="BOOLEAN_DAT_FILES=${toString:template.vm.booleanopts.dat}"/>
-        <arg value="VALUE_DAT_FILES=${toString:template.vm.valueopts.dat}"/>
-      </args>
-    </GenerateFromTemplate>
     <mkdir dir="${generated.java}/org/jikesrvm/compilers/baseline"/>
     <path id="template.shared.booleanopts.dat">
       <pathelement path="${options.dir}/SharedBooleanOptions.dat"/>
@@ -884,45 +876,18 @@ Check to make sure all required properties are specified. This includes properti
     <path id="template.base.valueopts.dat">
       <pathelement path="${options.dir}/ValueOptions.baseline.dat"/>
     </path>
-    <GenerateFromTemplate>
-      <args>
-        <arg path="${options.dir}/BaselineOptions.template"/>
-        <arg path="${generated.java}/org/jikesrvm/compilers/baseline/BaselineOptions.java"/>
-        <arg value="BOOLEAN_DAT_FILES=${toString:template.base.booleanopts.dat} ${toString:template.shared.booleanopts.dat}"/>
-        <arg value="VALUE_DAT_FILES=${toString:template.base.valueopts.dat} ${toString:template.shared.valueopts.dat}"/>
-        <arg value="MYTYPE=BaselineOptions"/>
-      </args>
-    </GenerateFromTemplate>
     <path id="template.opt.booleanopts.dat">
       <pathelement path="${options.dir}/BooleanOptions.opt.dat"/>
     </path>
     <path id="template.opt.valueopts.dat">
       <pathelement path="${options.dir}/ValueOptions.opt.dat"/>
     </path>
-    <GenerateFromTemplate>
-      <args>
-        <arg path="${options.dir}/OptOptions.template"/>
-        <arg path="${generated.java}/org/jikesrvm/compilers/opt/OptOptions.java"/>
-        <arg value="BOOLEAN_DAT_FILES=${toString:template.opt.booleanopts.dat} ${toString:template.shared.booleanopts.dat}"/>
-        <arg value="VALUE_DAT_FILES=${toString:template.opt.valueopts.dat} ${toString:template.shared.valueopts.dat}"/>
-        <arg value="MYTYPE=OptOptions"/>
-      </args>
-    </GenerateFromTemplate>
     <path id="template.aos.booleanopts.dat">
       <pathelement path="${options.dir}/BooleanOptions.aos.dat"/>
     </path>
     <path id="template.aos.valueopts.dat">
       <pathelement path="${options.dir}/ValueOptions.aos.dat"/>
     </path>
-    <GenerateFromTemplate>
-      <args>
-        <arg path="${options.dir}/AOSOptions.template"/>
-        <arg path="${generated.java}/org/jikesrvm/adaptive/util/AOSExternalOptions.java"/>
-        <arg value="BOOLEAN_DAT_FILES=${toString:template.aos.booleanopts.dat}"/>
-        <arg value="VALUE_DAT_FILES=${toString:template.aos.valueopts.dat}"/>
-        <arg value="MYTYPE=AOSExternalOptions"/>
-      </args>
-    </GenerateFromTemplate>
     <touch file="${generated.dir}/Options-uptodate"/>
   </target>
 
@@ -962,6 +927,7 @@ Check to make sure all required properties are specified. This includes properti
         <arg value="OPERATOR_FILE=${basedir}/rvm/src-generated/opt-ir/ia32/OperatorList.dat"/>
       </args>
     </GenerateFromTemplate>
+    
     <copy todir="${build.ia32-assembler-opt.dir}">
       <fileset dir="${main.java}">
         <include name="org/jikesrvm/ia32/RegisterConstants.java"/>

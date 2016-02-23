@@ -316,13 +316,13 @@ public class RuntimeCompiler implements Constants, Callbacks.ExitMonitor {
   public static void processOptCommandLineArg(String prefix, String arg) {
     if (VM.BuildForAdaptiveSystem) {
       if (compilerEnabled) {
-        if (((OptOptions) options).processAsOption(prefix, arg)) {
+//        if (((OptOptions) options).processAsOption(prefix, arg)) {
           // update the optimization plan to reflect the new command line argument
           optimizationPlan = OptimizationPlanner.createOptimizationPlan((OptOptions) options);
-        } else {
-          VM.sysWrite("Unrecognized opt compiler argument \"" + arg + "\"");
-          VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-        }
+//        } else {
+//          VM.sysWrite("Unrecognized opt compiler argument \"" + arg + "\"");
+//          VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
+//        }
       } else {
         String[] tmp = new String[earlyOptArgs.length + 2];
         for (int i = 0; i < earlyOptArgs.length; i++) {

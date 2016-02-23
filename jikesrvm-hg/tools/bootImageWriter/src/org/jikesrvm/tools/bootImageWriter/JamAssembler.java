@@ -260,6 +260,9 @@ public class JamAssembler extends Assembler {
 		if(lister != null) lister.I(miStart, "LGDT", tableAddress.toInt());
 	}
 
+	/**
+	 * XXX Hardcode the descriptor address. Only need to modify the table address within the descriptor
+	 */
 	public void emitLIDT(Address tableAddress) {
 		int miStart = mi;
 		// operand size prefix
@@ -302,24 +305,6 @@ public class JamAssembler extends Assembler {
 		if(lister != null) lister.I(miStart, "CALL", abs.toInt());
 	}
 	
-	/**
-	 * Generate a CLI opcode
-	 */
-	public void emitCLI() {
-		int miStart = mi;
-		setMachineCodes(mi++, (byte)0xfa);
-		if(lister != null) lister.OP(miStart, "CLI");
-	}
-	
-	/**
-	 * Generate and STI opcode
-	 */
-	public void emitSTI() {
-		int miStart = mi;
-		setMachineCodes(mi++, (byte)0xfb);
-		if(lister != null) lister.OP(miStart, "STI");
-	}
-
 	/**
 	 * Move control register to a general purpose register; only handles 32bit case
 	 * 

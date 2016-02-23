@@ -69,16 +69,16 @@ public final class OptimizingBootImageCompiler extends BootImageCompiler {
       OptimizingCompiler.setBootOptions(masterOptions);
 
       // Allow further customization by the user.
-      for (int i = 0, n = args.length; i < n; i++) {
-        String arg = args[i];
-        if (!masterOptions.processAsOption("-X:bc:", arg)) {
-          if (arg.startsWith("exclude=")) {
-            excludePattern = arg.substring(8);
-          } else {
-            VM.sysWrite("BootImageCompiler: Unrecognized argument " + arg + "; ignoring\n");
-          }
-        }
-      }
+//      for (int i = 0, n = args.length; i < n; i++) {
+//        String arg = args[i];
+//        if (!masterOptions.processAsOption("-X:bc:", arg)) {
+//          if (arg.startsWith("exclude=")) {
+//            excludePattern = arg.substring(8);
+//          } else {
+//            VM.sysWrite("BootImageCompiler: Unrecognized argument " + arg + "; ignoring\n");
+//          }
+//        }
+//      }
       EdgeCounts.loadCountsFromFileIfAvailable(masterOptions.PROFILE_EDGE_COUNT_INPUT_FILE);
       OptimizingCompiler.init(masterOptions);
     } catch (OptimizingCompilerException e) {

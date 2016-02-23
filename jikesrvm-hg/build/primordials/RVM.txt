@@ -21,9 +21,6 @@
 
 [Lorg/jikesrvm/ArchitectureSpecific$CodeArray;
 
-[Lorg/jikesrvm/CommandLineArgs$Prefix;
-[Lorg/jikesrvm/CommandLineArgs$PrefixType;
-
 [Lorg/jikesrvm/classloader/RVMAnnotation;
 [Lorg/jikesrvm/classloader/RVMAnnotation$AnnotationMember;
 [Lorg/jikesrvm/classloader/RVMClass;
@@ -45,8 +42,6 @@
 [Lorg/jikesrvm/compilers/baseline/UnusualMaps;
 [Lorg/jikesrvm/compilers/common/CompiledMethod;
 [[Lorg/jikesrvm/compilers/common/CompiledMethod;
-
-[Lorg/jikesrvm/runtime/DynamicLibrary;
 
 [Lorg/jikesrvm/scheduler/RVMThread;
 [Lorg/jikesrvm/scheduler/Monitor;

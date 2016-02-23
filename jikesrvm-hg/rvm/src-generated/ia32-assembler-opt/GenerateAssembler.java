@@ -1080,6 +1080,7 @@ public class GenerateAssembler {
     excludedOpcodes.add("OUT32");
     excludedOpcodes.add("STI");
     excludedOpcodes.add("CLI");
+    excludedOpcodes.add("LIDT");
   }
 
   /**

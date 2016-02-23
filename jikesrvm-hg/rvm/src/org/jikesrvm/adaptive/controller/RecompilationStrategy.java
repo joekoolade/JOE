@@ -267,25 +267,25 @@ public abstract class RecompilationStrategy {
 
     String prefix = "opt" + optLevel + ":";
     for (String optCompilerOption : optCompilerOptions) {
-      if (optCompilerOption.startsWith("opt:")) {
-        String option = optCompilerOption.substring(4);
-        if (!options.processAsOption("-X:recomp:", option)) {
-          VM.sysWrite("vm: Unrecognized optimizing compiler command line argument: \"" +
-                      option +
-                      "\" passed in as " +
-                      optCompilerOption +
-                      "\n");
-        }
-      } else if (optCompilerOption.startsWith(prefix)) {
-        String option = optCompilerOption.substring(5);
-        if (!options.processAsOption("-X:recomp:" + prefix, option)) {
-          VM.sysWrite("vm: Unrecognized optimizing compiler command line argument: \"" +
-                      option +
-                      "\" passed in as " +
-                      optCompilerOption +
-                      "\n");
-        }
-      }
+//      if (optCompilerOption.startsWith("opt:")) {
+//        String option = optCompilerOption.substring(4);
+//        if (!options.processAsOption("-X:recomp:", option)) {
+//          VM.sysWrite("vm: Unrecognized optimizing compiler command line argument: \"" +
+//                      option +
+//                      "\" passed in as " +
+//                      optCompilerOption +
+//                      "\n");
+//        }
+//      } else if (optCompilerOption.startsWith(prefix)) {
+//        String option = optCompilerOption.substring(5);
+//        if (!options.processAsOption("-X:recomp:" + prefix, option)) {
+//          VM.sysWrite("vm: Unrecognized optimizing compiler command line argument: \"" +
+//                      option +
+//                      "\" passed in as " +
+//                      optCompilerOption +
+//                      "\n");
+//        }
+//      }
     }
     // TODO: check for optimization levels that are invalid; that is,
     // greater than optLevelMax.

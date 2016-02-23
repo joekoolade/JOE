@@ -17,8 +17,10 @@ import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.compilers.baseline.ia32.BaselineCompilerImpl;
 import org.jikesrvm.ia32.OutOfLineMachineCode;
 import org.jikesrvm.ia32.RegisterConstants;
+import org.jikesrvm.ia32.RegisterConstants.GPR;
 import org.jikesrvm.compilers.common.assembler.ForwardReference;
 import org.jikesrvm.compilers.common.assembler.AbstractAssembler;
+
 import static org.jikesrvm.ia32.RegisterConstants.GPR;
 
 import org.vmmagic.pragma.*;
@@ -2402,6 +2404,22 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
 	  }
   }
   
+  /**
+   * Generate an LIDT address
+   * @param registerDesciptor
+   */
+	public void emitLIDT(Address registerDesciptor) {
+		int miStart = mi;
+		// operand size prefix
+		//setMachineCodes(mi++, (byte)0x66);
+		setMachineCodes(mi++, (byte)0x0f);
+		setMachineCodes(mi++, (byte)0x01);
+		emitRegIndirectRegOperands(GPR.getForOpcode(3), GPR.getForOpcode(0)); // opcode /3
+		emitImm32(registerDesciptor);
+		if(lister != null) lister.I(miStart, "LIDT", registerDesciptor.toInt());
+	}
+	
+
 /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *
