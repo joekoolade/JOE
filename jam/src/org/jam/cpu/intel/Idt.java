@@ -9,6 +9,7 @@ package org.jam.cpu.intel;
 
 import org.jikesrvm.ArchitectureSpecific;
 import org.jikesrvm.ArchitectureSpecific.Assembler;
+import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
@@ -30,6 +31,7 @@ implements SegmentDescriptorTypes
 	int limit;
 	final private static int MAX_VECTORS = 256;
 	final private static int DEFAULT_IDT_DESCRIPTOR_ADDRESS = 0x800;
+	final private static int DEFAULT_IDT_VECTOR_TABLE = 0;
 
 	/**
 	 * Memory location of the IDT vector table
@@ -49,12 +51,11 @@ implements SegmentDescriptorTypes
 	private Idt() {
 		if (!VM.runningVM)
 			return;
-		base = Address.fromIntZeroExtend(0);
+		base = Address.fromIntZeroExtend(DEFAULT_IDT_VECTOR_TABLE);
 		codeSegment = 8;
 		limit = MAX_VECTORS * 8 - 1;
 
-		idtTableRegister = Address
-				.fromIntZeroExtend(DEFAULT_IDT_DESCRIPTOR_ADDRESS);
+		idtTableRegister = Address.fromIntZeroExtend(DEFAULT_IDT_DESCRIPTOR_ADDRESS);
 		idtTableRegister.store((short) limit);
 		idtTableRegister.store(base, Offset.zero().plus(2));
 
@@ -66,8 +67,10 @@ implements SegmentDescriptorTypes
 		asm.emitLIDT(idtTableRegister);
 		// return
 		asm.emitRET();
+		VM.sysWrite("Loading IDT\n");
 		try {
 			Magic.invokeClassInitializer(asm.getMachineCodes());
+			VM.write("\nIDT loaded!\n");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -91,9 +94,7 @@ implements SegmentDescriptorTypes
 		 */
 		Offset vectorOffset = Offset.fromIntSignExtend(vector * 8);
 		base.store((codeSegment << 16) | (irq.toInt() & 0xffff), vectorOffset);
-		base.store(
-				(irq.toInt() & 0xFFFF0000) | SEGMENT_PRESENT | INTERRUPTGATE,
-				vectorOffset.plus(4));
+		base.store((irq.toInt() & 0xFFFF0000) | SEGMENT_PRESENT | INTERRUPTGATE,vectorOffset.plus(4));
 	}
 
 	/**

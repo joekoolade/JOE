@@ -2414,7 +2414,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
 		//setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x0f);
 		setMachineCodes(mi++, (byte)0x01);
-		emitRegIndirectRegOperands(GPR.getForOpcode(3), GPR.getForOpcode(0)); // opcode /3
+		setMachineCodes(mi++, regIndirectRegModRM(GPR.getForOpcode(5),GPR.getForOpcode(3))); // opcode /3, disp32
 		emitImm32(registerDesciptor);
 		if(lister != null) lister.I(miStart, "LIDT", registerDesciptor.toInt());
 	}

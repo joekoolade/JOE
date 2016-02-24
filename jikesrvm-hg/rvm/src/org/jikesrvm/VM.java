@@ -394,6 +394,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 
     if (VM.verboseClassLoading || verboseBoot >= 1) VM.sysWrite("[VM booted]\n");
 
+    runClassInitializer("org.jam.cpu.intel.Idt");
     if (VM.BuildForAdaptiveSystem) {
       if (verboseBoot >= 1) VM.sysWriteln("Initializing adaptive system");
       Controller.boot();
