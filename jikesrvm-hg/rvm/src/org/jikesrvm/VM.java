@@ -837,9 +837,16 @@ public class VM extends Properties implements Constants, ExitStatus {
         	digitBuffer[i] = ' ';
         }
         digitBuffer[63] = '0';
-        for(i=63; val > 0; i--) {
-      	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
-      	  val>>=4;
+        if(val == 0)
+        {
+            i=62;
+        }
+        else
+        {
+            for(i=63; val > 0; i--) {
+          	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
+          	  val>>=4;
+            }
         }
         digitBuffer[i--] = 'x';
         digitBuffer[i] = '0';
