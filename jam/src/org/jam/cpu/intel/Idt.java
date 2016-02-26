@@ -1,9 +1,8 @@
 /*
  * Created on Oct 19, 2004
- *
+ * 
  * Copyright (C) Joe Kulig, 2004
  * All rights reserved.
- * 
  */
 package org.jam.cpu.intel;
 
@@ -15,38 +14,38 @@ import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
-
 /**
  * @author Joe Kulig
  *
- * Interrupt Decsciptor Table
- * A table of 256 vectors that associates each exception/interrupt with a gate descriptor to
- * a procedure used to service the associated exception/interrupt
+ *         Interrupt Decsciptor Table
+ *         A table of 256 vectors that associates each exception/interrupt with a gate descriptor to
+ *         a procedure used to service the associated exception/interrupt
  */
-public final class Idt
-implements SegmentDescriptorTypes
-{
-	private static Idt idt = new Idt();
-	int codeSegment;
-	int limit;
-	final private static int MAX_VECTORS = 256;
-	final private static int DEFAULT_IDT_DESCRIPTOR_ADDRESS = 0x800;
-	final private static int DEFAULT_IDT_VECTOR_TABLE = 0;
+public final class Idt implements SegmentDescriptorTypes {
+    private static Idt       idt                            = new Idt();
+    int                      codeSegment;
+    int                      limit;
+    final private static int MAX_VECTORS                    = 256;
+    final private static int DEFAULT_IDT_DESCRIPTOR_ADDRESS = 0x800;
+    final private static int DEFAULT_IDT_VECTOR_TABLE       = 0;
+    final private static IrqVector dispatchTable[] = new IrqVector[MAX_VECTORS];
+    
+    /**
+     * Memory location of the IDT vector table
+     */
+    Address                  base;
 
-	/**
-	 * Memory location of the IDT vector table
-	 */
-	Address base;
-
-  /**
-   *  Memory location of of the IDTR register memory location
-   *  
-   *  						0       2      6
-   *  						+-------+------+
-   *  idtTableRegister -->	|limit  | base |
-   *  						+-------+------+
-   */
-  private Address idtTableRegister;
+    //	@formatter:off
+    /**
+     *  Memory location of of the IDTR register memory location
+     * 
+     *  						0       2      6
+     *  						+-------+------+
+     *  idtTableRegister -->	|limit  | base |
+     *  						+-------+------+
+     */
+	// formatter:on
+    private Address idtTableRegister;
   
 	private Idt() {
 		if (!VM.runningVM)
@@ -88,7 +87,16 @@ implements SegmentDescriptorTypes
 	/**
 	 * Installs irq route at interrupt vector
 	 */
-	public void loadVector(int vector, Address irq) {
+	public void registerHandler(int vector, IrqHandler irq, int stackSize)
+	{
+	    IrqVector tableVector = new IrqVector(irq, stackSize);
+	    dispatchTable[vector] = tableVector; 
+	}
+	
+	void loadVectors()
+	{
+	    Address irq=Address.zero();
+	    int vector=0;
 		/*
 		 * Write out IDT Interrupt gate descriptor
 		 */
@@ -140,5 +148,22 @@ implements SegmentDescriptorTypes
 	 */
 	public void setLimit(int limit) {
 		this.limit = limit;
+	}
+	
+	class IrqVector {
+	    IrqHandler handler;
+	    byte[]  stack;
+	    
+	    public IrqVector()
+	    {
+	        handler = null;
+	        stack = null;
+	    }
+	    
+	    public IrqVector(IrqHandler handler, int stackSize)
+	    {
+	        this.handler = handler;
+	        stack = new byte[stackSize];
+	    }
 	}
 }

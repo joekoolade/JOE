@@ -7,81 +7,80 @@
  */
 package org.jam.board.pc;
 
-import org.jam.system.IrqHandler;
+import org.jam.cpu.intel.IrqHandler;
 import org.vmmagic.pragma.InterruptHandler;
-
-//import baremetal.kernel.Scheduler;
-//import baremetal.vm.Thread;
-
 
 /**
  * @author joe
  *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PcSystemTimer extends I82c54 
+public class PcSystemTimer
 implements IrqHandler {
-  public static long tick; // in milliseconds
-  public static int sourceFreq = 1193180;	// i82c54 source frequency is 1.193180 Mhz
-  public static int ticksPerSecond = 1000;
-  public static int counterDivisor =  sourceFreq/ticksPerSecond;
-  public static int overflow; // in nanoseconds
-  /*
-   * how many ticks to wait to reschedule
-   */
-  public static int scheduleTick = 20;
-  
-  public PcSystemTimer() {
-    super();
-    /*
-     * Set the time for the PC system timer.
-     * Default is an interrupt every 1.193 ms.     
-     */
-    counter0(MODE2, counterDivisor);
-  }
 
-  public final long getTime() {
-    return tick;
-  }
-  
-  /*
-   * timer interrupt handler.
-   * 
-   * context array is builtin into the stack.
-   */
-  @InterruptHandler
-  public void handler() {
-    tick++;
-    overflow += 193180;
-    if(overflow>=1000000) {
-      tick++;
-      overflow -= 1000000;
+    public I82c54 timer;
+    public long tick;                                        // in milliseconds
+    public int  sourceFreq     = 1193180;                    // i82c54 source frequency is 1.193180 Mhz
+    public int  ticksPerSecond = 1000;
+    public int  counterDivisor = sourceFreq / ticksPerSecond;
+    public int  overflow;                                    // in nanoseconds
+    /*
+     * how many ticks to wait to reschedule
+     */
+    public int  scheduleTick   = 20;
+
+    public PcSystemTimer()
+    {
+        /*
+         * Set the time for the PC system timer. Default is an interrupt every 1.193 ms.
+         */
+        timer = new I82c54();
+        timer.counter0(I82c54.MODE2, counterDivisor);
     }
-//    Platform.slavePic.eoi();
-//    Platform.masterPic.eoi();
-    
-    /*
-     * skip scheduling if no current thread
-     */
-//    if(Scheduler.currentThread==null) return;
-    
-    /*
-     * Process the sleep queue
-     */
-//    Thread.processSleepQueue();
+
+    public final long getTime()
+    {
+        return tick;
+    }
 
     /*
-     * todo: thread scheduling routine call. every 10-100ms.
+     * timer interrupt handler.
+     * 
+     * context array is builtin into the stack.
      */
-    if(tick % scheduleTick == 0) {
-//      Scheduler.currentThread.saveInterruptContext(context);
-//      Thread.scheduler.schedule();
+    public void handler()
+    {
+        tick++;
+        overflow += 193180;
+        if (overflow >= 1000000)
+        {
+            tick++;
+            overflow -= 1000000;
+        }
+        // Platform.slavePic.eoi();
+        // Platform.masterPic.eoi();
+
+        /*
+         * skip scheduling if no current thread
+         */
+        // if(Scheduler.currentThread==null) return;
+
+        /*
+         * Process the sleep queue
+         */
+        // Thread.processSleepQueue();
+
+        /*
+         * todo: thread scheduling routine call. every 10-100ms.
+         */
+        if (tick % scheduleTick == 0)
+        {
+            // Scheduler.currentThread.saveInterruptContext(context);
+            // Thread.scheduler.schedule();
+        }
+
+        // if(Thread.newThread) {
+        // Thread.newThread = false;
+        // Scheduler.currentThread.kernelResume();
+        // }
     }
-    
-//    if(Thread.newThread) {
-//      Thread.newThread = false;
-//      Scheduler.currentThread.kernelResume();
-//    }
-  }
 }

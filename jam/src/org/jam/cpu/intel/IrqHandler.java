@@ -6,16 +6,10 @@
  */
 package org.jam.cpu.intel;
 
-import org.vmmagic.pragma.InterruptHandler;
-
 /**
  * @author Joe Kulig
  *
  */
-public class IrqDispatcher {
-	@InterruptHandler
-	private static void dispatch()
-	{
-		
-	}
+public interface IrqHandler {
+    public void handler();
 }
