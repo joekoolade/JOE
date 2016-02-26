@@ -37,9 +37,6 @@ import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.ExitStatus;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
-import org.jikesrvm.runtime.SysCall;
-
-import static org.jikesrvm.runtime.SysCall.sysCall;
 
 import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
@@ -768,7 +765,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   /* don't waste code space inlining these --dave */
   public static void write(double value, int postDecimalDigits) {
     if (runningVM) {
-      sysCall.sysConsoleWriteDouble(value, postDecimalDigits);
+      //sysCall.sysConsoleWriteDouble(value, postDecimalDigits);
     } else {
       writeNotRunningVM(value);
     }
@@ -1041,7 +1038,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     }
     while (fieldWidth > len++) write(" ");
     if (runningVM) {
-      sysCall.sysConsoleWriteInteger(value, 0);
+      // sysCall.sysConsoleWriteInteger(value, 0);
     } else {
       writeNotRunningVM(value);
     }
@@ -2424,7 +2421,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     handlePossibleRecursiveShutdown();
 
     if (VM.VerifyAssertions) VM._assert(VM.runningVM);
-    sysCall.sysExit(value);
+    //sysCall.sysExit(value);
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
@@ -2530,7 +2527,7 @@ public class VM extends Properties implements Constants, ExitStatus {
                  "; we're stuck in a recursive shutdown/exit.");
     }
     /* Emergency death. */
-    sysCall.sysExit(EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN);
+    // sysCall.sysExit(EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN);
     /* And if THAT fails, go into an infinite loop.  Ugly, but it's better than
        returning from this function and leading to yet more cascading errors.
        and misleading error messages.   (To the best of my knowledge, we have
