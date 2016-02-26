@@ -2419,7 +2419,16 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
 		if(lister != null) lister.I(miStart, "LIDT", registerDesciptor.toInt());
 	}
 	
-
+	/**
+	 * Generate a HLT instruction
+	 */
+	public void emitHLT()
+	{
+	    int miStart = mi;
+	    
+	    setMachineCodes(mi++, (byte)0xF4);
+	    if(lister != null) lister.OP(miStart, "HLT");
+	}
 /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *

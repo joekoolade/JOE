@@ -67,6 +67,7 @@ public class MagicNames {
   public static final Atom loadObjectReference = Atom.findOrCreateAsciiAtom("loadObjectReference");
   public static final Atom store = Atom.findOrCreateAsciiAtom("store");
   public static final Atom ioStore = Atom.findOrCreateAsciiAtom("ioStore");
+  public static final Atom halt = Atom.findOrCreateAsciiAtom("halt");
   public static final Atom pause = Atom.findOrCreateAsciiAtom("pause");
   public static final Atom sqrt  = Atom.findOrCreateAsciiAtom("sqrt");
 

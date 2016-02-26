@@ -2421,7 +2421,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     handlePossibleRecursiveShutdown();
 
     if (VM.VerifyAssertions) VM._assert(VM.runningVM);
-    //sysCall.sysExit(value);
+    Magic.halt();
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
@@ -2527,7 +2527,7 @@ public class VM extends Properties implements Constants, ExitStatus {
                  "; we're stuck in a recursive shutdown/exit.");
     }
     /* Emergency death. */
-    // sysCall.sysExit(EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN);
+    Magic.halt();
     /* And if THAT fails, go into an infinite loop.  Ugly, but it's better than
        returning from this function and leading to yet more cascading errors.
        and misleading error messages.   (To the best of my knowledge, we have

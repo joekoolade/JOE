@@ -2365,6 +2365,21 @@ final class BaselineMagic {
     generators.put(getMethodReference(Magic.class, MagicNames.pause, void.class), g);
   }
 
+  /*
+   * Halt the cpu
+   */
+  private static final class Halt extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitHLT();
+      }
+  }
+  static {
+      MagicGenerator g = new Halt();
+      generators.put(getMethodReference(Magic.class, MagicNames.halt, void.class), g);
+  }
+  
   /**
    * Floating point square root
    */

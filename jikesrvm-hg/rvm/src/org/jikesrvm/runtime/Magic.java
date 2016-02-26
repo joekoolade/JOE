@@ -1144,6 +1144,17 @@ public final class Magic {
     }
   }
 
+    /**
+     * emit a HLT instruction
+     */
+    public static void halt()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
   /**
    * A hardware SQRT instruction
    */
