@@ -11,6 +11,7 @@ import org.jikesrvm.ArchitectureSpecific.Assembler;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
+import org.vmmagic.pragma.InterruptHandler;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -84,6 +85,176 @@ public final class Idt implements SegmentDescriptorTypes {
 		limit = size * 8 - 1;
 	}
 
+	/**
+	 * 
+	 * @author Joe Kulig
+	 *
+	 * This class provides static methods that can be dispatched from the IDT vector table
+	 * 
+	 */
+	static class InterruptVectors {
+	    @InterruptHandler
+	    public static void irq0()
+	    {
+	        VM.sysFail("FAULT: Divide by 0");
+	    }
+	    @InterruptHandler
+	    public static void irq1()
+	    {
+	        VM.sysFail("INT1, Reserved");
+	    }
+	    @InterruptHandler
+	    public static void irq2()
+	    {
+	        VM.sysFail("NMI Interrupt");
+	    }
+	    @InterruptHandler
+	    public static void irq3()
+	    {
+	        VM.sysFail("Breakpoint");
+	    }
+	    @InterruptHandler
+	    public static void irq4()
+	    {
+	        VM.sysFail("Overflow");
+	    }
+        @InterruptHandler
+        public static void irq5()
+        {
+            VM.sysFail("BOUND range exceeded");
+        }
+        @InterruptHandler
+        public static void irq6()
+        {
+            VM.sysFail("Invalid Opcode");
+        }
+        @InterruptHandler
+        public static void irq7()
+        {
+            VM.sysFail("Device Not Available");
+        }
+        @InterruptHandler
+        public static void irq8()
+        {
+            VM.sysFail("Double Fault");
+        }
+        @InterruptHandler
+        public static void irq9()
+        {
+            VM.sysFail("Coprocessor Segment Overrun");
+        }
+        @InterruptHandler
+        public static void irq10()
+        {
+            VM.sysFail("Invalid TSS");
+        }
+       @InterruptHandler
+        public static void irq11()
+        {
+            VM.sysFail("Segment Not Present");
+        }
+       @InterruptHandler
+       public static void irq12()
+       {
+           VM.sysFail("Stack Segment Fault");
+       }
+       @InterruptHandler
+       public static void irq13()
+       {
+           VM.sysFail("General Protection");
+       }
+       @InterruptHandler
+       public static void irq14()
+       {
+           VM.sysFail("Page Fault");
+       }
+       @InterruptHandler
+       public static void irq15()
+       {
+           VM.sysFail("INT15, reserved");
+       }
+       @InterruptHandler
+       public static void irq16()
+       {
+           VM.sysFail("x87 FPU Floating-Point Error");
+       }
+       @InterruptHandler
+       public static void irq17()
+       {
+           VM.sysFail("Alignment Check");
+       }
+       @InterruptHandler
+       public static void irq18()
+       {
+           VM.sysFail("Machine Check");
+       }
+       @InterruptHandler
+       public static void irq19()
+       {
+           VM.sysFail("SIMD Floating Point Exception");
+       }
+       @InterruptHandler
+       public static void irq20()
+       {
+           VM.sysFail("Virtualization Exception");
+       }
+       @InterruptHandler
+       public static void irq21()
+       {
+           VM.sysFail("INT21");
+       }
+       @InterruptHandler
+       public static void irq22()
+       {
+           VM.sysFail("INT22");
+       }
+       @InterruptHandler
+       public static void irq23()
+       {
+           VM.sysFail("INT23");
+       }
+       @InterruptHandler
+       public static void irq24()
+       {
+           VM.sysFail("INT24");
+       }
+       @InterruptHandler
+       public static void irq25()
+       {
+           VM.sysFail("INT25");
+       }
+       @InterruptHandler
+       public static void irq26()
+       {
+           VM.sysFail("INT26");
+       }
+       @InterruptHandler
+       public static void irq27()
+       {
+           VM.sysFail("INT27");
+       }
+       @InterruptHandler
+       public static void irq28()
+       {
+           VM.sysFail("INT28");
+       }
+       @InterruptHandler
+       public static void irq29()
+       {
+           VM.sysFail("INT29");
+       }
+       @InterruptHandler
+       public static void irq30()
+       {
+           VM.sysFail("INT30");
+       }
+       @InterruptHandler
+       public static void irq31()
+       {
+           VM.sysFail("INT31");
+       }
+
+	}
 	/**
 	 * Installs irq route at interrupt vector
 	 */
