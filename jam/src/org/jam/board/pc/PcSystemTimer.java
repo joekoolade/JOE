@@ -7,6 +7,7 @@
  */
 package org.jam.board.pc;
 
+import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.IrqHandler;
 import org.vmmagic.pragma.InterruptHandler;
 
@@ -35,6 +36,7 @@ implements IrqHandler {
          */
         timer = new I82c54();
         timer.counter0(I82c54.MODE2, counterDivisor);
+        Idt.getInstance().registerHandler(32, this, 4096);
     }
 
     public final long getTime()
