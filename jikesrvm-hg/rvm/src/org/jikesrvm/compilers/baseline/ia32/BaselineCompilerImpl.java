@@ -1015,13 +1015,13 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       asm.emitIDIV_Reg_Reg_Quad(EAX, ECX);
       asm.emitPUSH_Reg(EAX); // push result
     } else {
-      // (1) zero check
-      asm.emitMOV_Reg_RegInd(T0, SP);
-      asm.emitOR_Reg_RegDisp(T0, SP, ONE_SLOT);
-      asm.emitBranchLikelyNextInstruction();
-      ForwardReference fr1 = asm.forwardJcc(Assembler.NE);
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_DIVIDE_BY_ZERO + RVM_TRAP_BASE);    // trap if divisor is 0
-      fr1.resolve(asm);
+//      // (1) zero check
+//      asm.emitMOV_Reg_RegInd(T0, SP);
+//      asm.emitOR_Reg_RegDisp(T0, SP, ONE_SLOT);
+//      asm.emitBranchLikelyNextInstruction();
+//      ForwardReference fr1 = asm.forwardJcc(Assembler.NE);
+//      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_DIVIDE_BY_ZERO + RVM_TRAP_BASE);    // trap if divisor is 0
+//      fr1.resolve(asm);
       // (2) save RVM nonvolatiles
       int numNonVols = NONVOLATILE_GPRS.length;
       Offset off = Offset.fromIntSignExtend(numNonVols * WORDSIZE);
@@ -1060,13 +1060,13 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       asm.emitIDIV_Reg_Reg_Quad(EAX, ECX);
       asm.emitPUSH_Reg(EDX); // push result
     } else {
-      // (1) zero check
-      asm.emitMOV_Reg_RegInd(T0, SP);
-      asm.emitOR_Reg_RegDisp(T0, SP, ONE_SLOT);
-      asm.emitBranchLikelyNextInstruction();
-      ForwardReference fr1 = asm.forwardJcc(Assembler.NE);
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_DIVIDE_BY_ZERO + RVM_TRAP_BASE);    // trap if divisor is 0
-      fr1.resolve(asm);
+//      // (1) zero check
+//      asm.emitMOV_Reg_RegInd(T0, SP);
+//      asm.emitOR_Reg_RegDisp(T0, SP, ONE_SLOT);
+//      asm.emitBranchLikelyNextInstruction();
+//      ForwardReference fr1 = asm.forwardJcc(Assembler.NE);
+//      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_DIVIDE_BY_ZERO + RVM_TRAP_BASE);    // trap if divisor is 0
+//      fr1.resolve(asm);
       // (2) save RVM nonvolatiles
       int numNonVols = NONVOLATILE_GPRS.length;
       Offset off = Offset.fromIntSignExtend(numNonVols * WORDSIZE);
@@ -3248,12 +3248,9 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
 
   private void genPrologue() {
     if (shouldPrint) asm.comment("prologue for " + method);
-    if (false) {
-      // replace the normal prologue with a special prolog
-      JNICompiler.generateGlueCodeForJNIMethod(asm, method, compiledMethod.getId());
-      // set some constants for the code generation of the rest of the method
-      // firstLocalOffset is shifted down because more registers are saved
-      firstLocalOffset = STACKFRAME_BODY_OFFSET - (JNICompiler.SAVED_GPRS_FOR_JNI << LG_WORDSIZE);
+    if (method.hasInterruptHandlerAnnotation()) {
+        // no prologue
+        return;
     } else {
       /* paramaters are on the stack and/or in registers;  There is space
        * on the stack for all the paramaters;  Parameter slots in the
@@ -3400,9 +3397,9 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       // pop locals and parameters, get to saved GPR's
       adjustStack((method.getLocalWords() << LG_WORDSIZE)+(returnSize-bytesPopped), true);
       JNICompiler.generateEpilogForJNIMethod(asm, this.method);
-    } else if (false) {
-      // we never return from a DynamicBridge frame
-      asm.emitINT_Imm(0xFF);
+    } else if (method.hasInterruptHandlerAnnotation()) {
+      // generate return from interrupt
+      asm.emitIRET();
     } else {
       // normal method
       if (method.hasBaselineSaveLSRegistersAnnotation()) {

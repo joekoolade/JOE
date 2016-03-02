@@ -26,7 +26,7 @@ import org.vmmagic.unboxed.Offset;
  *         a procedure used to service the associated exception/interrupt
  */
 public final class Idt implements SegmentDescriptorTypes {
-    private static Idt       idt                            = new Idt(40);
+    private static Idt       idt                            = new Idt(48);
     int                      codeSegment;
     int                      limit;
     final private static int MAX_VECTORS                    = 256;
@@ -273,7 +273,14 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int32()
        {
-           VM.sysFail("IRQ0");
+           if(dispatchTable[32] != null)
+           {
+               dispatchTable[32].handler.handler();
+           }
+           else
+           {
+               VM.sysWriteln("INT32, spurious interrupts");
+           }
        }
        @InterruptHandler
        public static void int33()
@@ -310,7 +317,46 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            VM.sysFail("IRQ7");
        }
-
+       @InterruptHandler
+       public static void int40()
+       {
+           VM.sysFail("TRAP_NULL_POINTER");
+       }
+       @InterruptHandler
+       public static void int41()
+       {
+           VM.sysFail("TRAP_ARRAY_BOUNDS");
+       }
+       @InterruptHandler
+       public static void int42()
+       {
+           VM.sysFail("TRAP_STACK_OVERFLOW");
+       }
+       @InterruptHandler
+       public static void int43()
+       {
+           VM.sysFail("TRAP_CHECKCAST");
+       }
+       @InterruptHandler
+       public static void int44()
+       {
+           VM.sysFail("TRAP_REGENERATE");
+       }
+       @InterruptHandler
+       public static void int45()
+       {
+           VM.sysFail("TRAP_MUST_IMPLEMENT");
+       }
+       @InterruptHandler
+       public static void int46()
+       {
+           VM.sysFail("TRAP_STORE_CHECK");
+       }
+       @InterruptHandler
+       public static void int47()
+       {
+           VM.sysFail("TRAP_STACK_OVERFLOW_FATAL");
+       }
 	}
 	/**
 	 * Installs irq route at interrupt vector

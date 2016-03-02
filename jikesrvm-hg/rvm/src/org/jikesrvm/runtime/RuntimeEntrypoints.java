@@ -82,16 +82,15 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
   // Trap codes for communication with C trap handler.
   //
   public static final int TRAP_UNKNOWN = -1;
-  public static final int TRAP_NULL_POINTER = 0;
-  public static final int TRAP_ARRAY_BOUNDS = 1;
+  public static final int TRAP_NULL_POINTER = 40;
+  public static final int TRAP_ARRAY_BOUNDS = 41;
   public static final int TRAP_DIVIDE_BY_ZERO = 2;
-  public static final int TRAP_STACK_OVERFLOW = 3;
-  public static final int TRAP_CHECKCAST = 4; // opt-compiler
-  public static final int TRAP_REGENERATE = 5; // opt-compiler
-  public static final int TRAP_JNI_STACK = 6; // jni
-  public static final int TRAP_MUST_IMPLEMENT = 7;
-  public static final int TRAP_STORE_CHECK = 8; // opt-compiler
-  public static final int TRAP_STACK_OVERFLOW_FATAL = 9; // assertion checking
+  public static final int TRAP_STACK_OVERFLOW = 42;
+  public static final int TRAP_CHECKCAST = 43; // opt-compiler
+  public static final int TRAP_REGENERATE = 44; // opt-compiler
+  public static final int TRAP_MUST_IMPLEMENT = 45;
+  public static final int TRAP_STORE_CHECK = 46; // opt-compiler
+  public static final int TRAP_STACK_OVERFLOW_FATAL = 47; // assertion checking
 
   //---------------------------------------------------------------//
   //                     Type Checking.                            //
@@ -601,17 +600,17 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
    * @see MemberReference#needsDynamicLink
    */
   public static void initializeClassForDynamicLink(RVMClass cls) {
-    if (VM.TraceClassLoading) {
-      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (begin) " + cls + "\n");
-    }
-
-    cls.resolve();
-    cls.instantiate();
-    cls.initialize();   // throws ExceptionInInitializerError
-
-    if (VM.TraceClassLoading) {
-      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (end)   " + cls + "\n");
-    }
+//    if (VM.TraceClassLoading) {
+//      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (begin) " + cls + "\n");
+//    }
+//
+//    cls.resolve();
+//    cls.instantiate();
+//    cls.initialize();   // throws ExceptionInInitializerError
+//
+//    if (VM.TraceClassLoading) {
+//      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (end)   " + cls + "\n");
+//    }
   }
 
   //---------------------------------------------------------------//
@@ -696,7 +695,7 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
     Registers exceptionRegisters = myThread.getExceptionRegisters();
     if (false) VM.sysWriteln("we have exception registers = ",Magic.objectAsAddress(exceptionRegisters));
 
-    if ((trapCode == TRAP_STACK_OVERFLOW || trapCode == TRAP_JNI_STACK) &&
+    if (trapCode == TRAP_STACK_OVERFLOW &&
         myThread.getStack().length < (STACK_SIZE_MAX >> LOG_BYTES_IN_ADDRESS) &&
         !myThread.hasNativeStackFrame()) {
       // expand stack by the size appropriate for normal or native frame
@@ -741,7 +740,6 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
             VM.sysWriteln("\nFatal error: DivideByZero within uninterruptible region.");
             break;
           case TRAP_STACK_OVERFLOW:
-          case TRAP_JNI_STACK:
             VM.sysWriteln("\nFatal error: StackOverflowError within uninterruptible region.");
             break;
           case TRAP_CHECKCAST:

@@ -1082,6 +1082,7 @@ public class GenerateAssembler {
     excludedOpcodes.add("CLI");
     excludedOpcodes.add("LIDT");
     excludedOpcodes.add("HLT");
+    excludedOpcodes.add("IRET");
   }
 
   /**
