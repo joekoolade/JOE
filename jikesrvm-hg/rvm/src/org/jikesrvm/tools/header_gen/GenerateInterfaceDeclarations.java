@@ -435,7 +435,7 @@ public class GenerateInterfaceDeclarations {
     p("static const int Runtime_TRAP_STACK_OVERFLOW = " + RuntimeEntrypoints.TRAP_STACK_OVERFLOW + ";\n");
     p("static const int Runtime_TRAP_CHECKCAST      = " + RuntimeEntrypoints.TRAP_CHECKCAST + ";\n");
     p("static const int Runtime_TRAP_REGENERATE     = " + RuntimeEntrypoints.TRAP_REGENERATE + ";\n");
-    p("static const int Runtime_TRAP_JNI_STACK     = " + RuntimeEntrypoints.TRAP_JNI_STACK + ";\n");
+//    p("static const int Runtime_TRAP_JNI_STACK     = " + RuntimeEntrypoints.TRAP_JNI_STACK + ";\n");
     p("static const int Runtime_TRAP_MUST_IMPLEMENT = " + RuntimeEntrypoints.TRAP_MUST_IMPLEMENT + ";\n");
     p("static const int Runtime_TRAP_STORE_CHECK = " + RuntimeEntrypoints.TRAP_STORE_CHECK + ";\n");
     pln();

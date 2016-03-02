@@ -701,11 +701,7 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
       // expand stack by the size appropriate for normal or native frame
       // and resume execution at successor to trap instruction
       // (C trap handler has set register.ip to the instruction following the trap).
-      if (trapCode == TRAP_JNI_STACK) {
-        RVMThread.resizeCurrentStack(myThread.getStackLength() + STACK_SIZE_JNINATIVE_GROW, exceptionRegisters);
-      } else {
-        RVMThread.resizeCurrentStack(myThread.getStackLength() + STACK_SIZE_GROW, exceptionRegisters);
-      }
+      RVMThread.resizeCurrentStack(myThread.getStackLength() + STACK_SIZE_GROW, exceptionRegisters);
       if (VM.VerifyAssertions) VM._assert(exceptionRegisters.inuse);
       exceptionRegisters.inuse = false;
       Magic.restoreHardwareExceptionState(exceptionRegisters);
@@ -772,7 +768,6 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
         exceptionObject = new java.lang.ArithmeticException();
         break;
       case TRAP_STACK_OVERFLOW:
-      case TRAP_JNI_STACK:
         exceptionObject = new java.lang.StackOverflowError();
         break;
       case TRAP_CHECKCAST:
