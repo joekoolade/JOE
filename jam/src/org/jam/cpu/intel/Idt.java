@@ -275,7 +275,7 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            if(dispatchTable[32] != null)
            {
-               dispatchTable[32].handler.handler();
+               dispatchTable[32].vector.handler();
            }
            else
            {
@@ -549,6 +549,46 @@ public final class Idt implements SegmentDescriptorTypes {
          */
         irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int39"));
         storeVector(39, irqAddress);
+        /**
+         * TRAP_NULL_POINTER
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int40"));
+        storeVector(40, irqAddress);
+        /**
+         * TRAP_ARRAY_BOUNDS
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int41"));
+        storeVector(41, irqAddress);
+        /**
+         * TRAP_STACK_OVERFLOW
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int42"));
+        storeVector(42, irqAddress);
+        /**
+         * TRAP_CHECKCAST
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int43"));
+        storeVector(43, irqAddress);
+        /**
+         * TRAP_REGENERATE
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int44"));
+        storeVector(44, irqAddress);
+        /**
+         * TRAP_MUST_IMPLEMENT
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int45"));
+        storeVector(45, irqAddress);
+        /**
+         * TRAP_STORE_CHECK
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int46"));
+        storeVector(46, irqAddress);
+        /**
+         * TRAP_STACK_OVERFLOW_FATAL
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int47"));
+        storeVector(47, irqAddress);
 	}
 
     /**
@@ -608,18 +648,18 @@ public final class Idt implements SegmentDescriptorTypes {
 	}
 	
 	class IrqVector {
-	    IrqHandler handler;
+	    IrqHandler vector;
 	    byte[]  stack;
 	    
 	    public IrqVector()
 	    {
-	        handler = null;
+	        vector = null;
 	        stack = null;
 	    }
 	    
 	    public IrqVector(IrqHandler handler, int stackSize)
 	    {
-	        this.handler = handler;
+	        this.vector = handler;
 	        stack = new byte[stackSize];
 	    }
 	}
