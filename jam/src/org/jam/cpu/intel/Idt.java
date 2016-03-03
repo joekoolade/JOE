@@ -26,7 +26,7 @@ import org.vmmagic.unboxed.Offset;
  *         a procedure used to service the associated exception/interrupt
  */
 public final class Idt implements SegmentDescriptorTypes {
-    private static Idt       idt                            = new Idt(48);
+    private static Idt       idt                            = new Idt(49);
     int                      codeSegment;
     int                      limit;
     final private static int MAX_VECTORS                    = 256;
@@ -357,6 +357,14 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            VM.sysFail("TRAP_STACK_OVERFLOW_FATAL");
        }
+       /**
+        * SWI handler; signals that a yield/thread switch needs to take place
+        */
+       @InterruptHandler
+       public static void int48()
+       {
+           VM.sysFail("SWI");
+       }
 	}
 	/**
 	 * Installs irq route at interrupt vector
@@ -589,6 +597,11 @@ public final class Idt implements SegmentDescriptorTypes {
          */
         irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int47"));
         storeVector(47, irqAddress);
+        /**
+         * SWI; yields processor by calling the scheduler
+         */
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int48"));
+        storeVector(48, irqAddress);
 	}
 
     /**
