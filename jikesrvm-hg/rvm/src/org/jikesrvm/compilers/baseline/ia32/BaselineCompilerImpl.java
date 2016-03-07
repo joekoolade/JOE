@@ -2775,7 +2775,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
             }
             asm.emitBranchLikelyNextInstruction();
             ForwardReference fr = asm.forwardJcc(Assembler.LGT);
-            asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT + RVM_TRAP_BASE);
+            asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT);
             fr.resolve(asm);
           }
 
@@ -2787,7 +2787,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
           }
           asm.emitBranchLikelyNextInstruction();
           ForwardReference fr = asm.forwardJcc(Assembler.NE);
-          asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT + RVM_TRAP_BASE);
+          asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT);
           fr.resolve(asm);
         }
       }
@@ -3013,7 +3013,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       }
       asm.emitBranchLikelyNextInstruction();
       ForwardReference fr = asm.forwardJcc(Assembler.LGT);
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST + RVM_TRAP_BASE);
+      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST );
       fr.resolve(asm);
     }
 
@@ -3021,7 +3021,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     asm.emitTEST_RegDisp_Imm(S0, Offset.fromIntZeroExtend(interfaceIndex << LOG_BYTES_IN_INT), interfaceMask);
     asm.emitBranchLikelyNextInstruction();
     ForwardReference fr = asm.forwardJcc(Assembler.NE);
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST + RVM_TRAP_BASE);
+    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST);
     fr.resolve(asm);
     isNull.resolve(asm);
   }
@@ -3056,7 +3056,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       }
       asm.emitBranchLikelyNextInstruction();
       ForwardReference fr = asm.forwardJcc(Assembler.LGT);
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST + RVM_TRAP_BASE);
+      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST);
       fr.resolve(asm);
     }
 
@@ -3065,7 +3065,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     asm.emitCMP_Reg_Imm(S0, LHSId);
     asm.emitBranchLikelyNextInstruction();
     ForwardReference fr = asm.forwardJcc(Assembler.EQ);
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST + RVM_TRAP_BASE);
+    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST);
     fr.resolve(asm);
     isNull.resolve(asm);
   }
@@ -3089,7 +3089,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     }
     asm.emitBranchLikelyNextInstruction();
     ForwardReference fr = asm.forwardJcc(Assembler.EQ);
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST + RVM_TRAP_BASE);
+    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_CHECKCAST);
     fr.resolve(asm);
     isNull.resolve(asm);
   }
@@ -3476,7 +3476,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     asm.emitBranchLikelyNextInstruction();
     ForwardReference fr = asm.forwardJcc(Assembler.NE);
     // trap
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_NULL_POINTER + RVM_TRAP_BASE);
+    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_NULL_POINTER);
     fr.resolve(asm);
   }
 
@@ -3502,7 +3502,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     // "pass" index param to C trap handler
     ThreadLocalState.emitMoveRegToField(asm, ArchEntrypoints.arrayIndexTrapParamField.getOffset(), indexReg);
     // trap
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_ARRAY_BOUNDS + RVM_TRAP_BASE);
+    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_ARRAY_BOUNDS);
     fr.resolve(asm);
   }
 

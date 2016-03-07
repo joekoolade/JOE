@@ -2446,4 +2446,76 @@ final class BaselineMagic {
     MagicGenerator g = new IsConstantParameter();
     generators.put(getMethodReference(Magic.class, MagicNames.isConstantParameter, int.class, boolean.class), g);
   }
+  
+  /*
+   * Save registers onto the stack
+   */
+  private static final class SaveContext extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPUSHAD();
+      }
+  }
+  static
+  {
+      MagicGenerator g = new SaveContext();
+      generators.put(getMethodReference(Magic.class, MagicNames.saveContext, void.class), g);
+  }
+  
+  /*
+   * restore registers from the stack
+   */
+  private static final class RestoreContext extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          /*
+           * Should be at the interrupted stacks SP.
+           * 
+           * Switch to the interrupted stack by popping it into the SP
+           */
+          asm.emitPOP_Reg(GPR.ESP);
+          /*
+           * Now restore the interrrupted threads context
+           */
+          asm.emitPOPAD();
+      }
+  }
+  static
+  {
+      MagicGenerator g = new RestoreContext();
+      generators.put(getMethodReference(Magic.class, MagicNames.restoreContext, void.class), g);
+  }
+  
+  /**
+   * Set ESP to a new stack pointer
+   */
+  private static final class SwitchStack extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          // Get the current stack pointer
+          asm.emitLEA_Reg_RegDisp(S0, SP, sd);
+          // Pop new stack parameter into the ESP
+          asm.emitPOP_Reg(SP);
+          /*
+           * ISR is running on new stack.
+           * Push the previous SP from the interrupted thread/isr onto it
+           */
+          asm.emitPUSH_Reg(S0);
+      }
+  }
+  
+  /**
+   * Add SwitchStack magic into the table
+   */
+  static
+  {
+      MagicGenerator g = new SwitchStack();
+      generators.put(getMethodReference(Magic.class, MagicNames.switchStack, Address.class, void.class), g);
+  }
 }

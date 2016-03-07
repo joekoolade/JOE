@@ -1083,6 +1083,8 @@ public class GenerateAssembler {
     excludedOpcodes.add("LIDT");
     excludedOpcodes.add("HLT");
     excludedOpcodes.add("IRET");
+    excludedOpcodes.add("PUSHAD");
+    excludedOpcodes.add("POPAD");
   }
 
   /**

@@ -26,10 +26,8 @@ public class MagicNames {
   public static final Atom invokeMethodReturningInt = Atom.findOrCreateAsciiAtom("invokeMethodReturningInt");
   public static final Atom invokeMethodReturningLong = Atom.findOrCreateAsciiAtom("invokeMethodReturningLong");
   public static final Atom invokeMethodReturningFloat = Atom.findOrCreateAsciiAtom("invokeMethodReturningFloat");
-  public static final Atom invokeMethodReturningDouble =
-      Atom.findOrCreateAsciiAtom("invokeMethodReturningDouble");
-  public static final Atom invokeMethodReturningObject =
-      Atom.findOrCreateAsciiAtom("invokeMethodReturningObject");
+  public static final Atom invokeMethodReturningDouble   = Atom.findOrCreateAsciiAtom("invokeMethodReturningDouble");
+  public static final Atom invokeMethodReturningObject   = Atom.findOrCreateAsciiAtom("invokeMethodReturningObject");
 
   public static final Atom getFramePointer = Atom.findOrCreateAsciiAtom("getFramePointer");
   public static final Atom getTocPointer = Atom.findOrCreateAsciiAtom("getTocPointer");
@@ -125,11 +123,13 @@ public class MagicNames {
 
   public static final Atom saveThreadState = Atom.findOrCreateAsciiAtom("saveThreadState");
   public static final Atom threadSwitch = Atom.findOrCreateAsciiAtom("threadSwitch");
-  public static final Atom restoreHardwareExceptionState =
-      Atom.findOrCreateAsciiAtom("restoreHardwareExceptionState");
+  public static final Atom restoreHardwareExceptionState = Atom.findOrCreateAsciiAtom("restoreHardwareExceptionState");
   public static final Atom returnToNewStack = Atom.findOrCreateAsciiAtom("returnToNewStack");
   public static final Atom dynamicBridgeTo = Atom.findOrCreateAsciiAtom("dynamicBridgeTo");
-
+  public static final Atom saveContext = Atom.findOrCreateAsciiAtom("saveContext");
+  public static final Atom restoreContext = Atom.findOrCreateAsciiAtom("restoreContext");
+  public static final Atom switchStack = Atom.findOrCreateAsciiAtom("switchStack");
+  
   public static final Atom objectAsAddress = Atom.findOrCreateAsciiAtom("objectAsAddress");
   public static final Atom addressAsObject = Atom.findOrCreateAsciiAtom("addressAsObject");
   public static final Atom addressAsTIB = Atom.findOrCreateAsciiAtom("addressAsTIB");

@@ -5479,4 +5479,17 @@ public final class RVMThread extends ThreadContext implements Constants {
     sloppyExecStatusHistogram[oldState]++;
     sloppyExecStatusHistogram[newState]++;
   }
+
+    /**
+     * @param framePointer
+     */
+    public void setFramePointer(Address framePointer)
+    {
+        this.framePointer = framePointer;
+    }
+    
+    public Address getFramePointer()
+    {
+        return framePointer;
+    }
 }

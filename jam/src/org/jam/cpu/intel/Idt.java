@@ -6,6 +6,7 @@
  */
 package org.jam.cpu.intel;
 
+import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific;
 import org.jikesrvm.ArchitectureSpecific.Assembler;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
@@ -15,6 +16,8 @@ import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.InterruptHandler;
+import org.vmmagic.pragma.NoBoundsCheck;
+import org.vmmagic.pragma.NoNullCheck;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -273,14 +276,15 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int32()
        {
-           if(dispatchTable[32] != null)
-           {
-               dispatchTable[32].vector.handler();
-           }
-           else
-           {
-               VM.sysWriteln("INT32, spurious interrupts");
-           }
+           // Save registers on the interrupted stack
+           Magic.saveContext();
+           // Switch to the interrupt stack
+           Magic.switchStack(Platform.timer.getHandlerStack());
+           Platform.timer.handler();
+           // Restore back to the interrupt stack and context
+           Magic.restoreContext();
+           // The interrupt handler annotation will emit the IRET
+           // good bye
        }
        @InterruptHandler
        public static void int33()
@@ -663,17 +667,33 @@ public final class Idt implements SegmentDescriptorTypes {
 	class IrqVector {
 	    IrqHandler vector;
 	    byte[]  stack;
+	    final Address stackTop;
 	    
 	    public IrqVector()
 	    {
 	        vector = null;
 	        stack = null;
+	        stackTop = null;
 	    }
 	    
 	    public IrqVector(IrqHandler handler, int stackSize)
 	    {
 	        this.vector = handler;
 	        stack = new byte[stackSize];
+	        /*
+	         * Put in the sentinel
+	         */
+	        stack[stackSize-1] = 0;    // IP = 0
+	        stack[stackSize-2] = 0;    // FP = 0
+	        stack[stackSize-3] = 0;    // cmid = 0
+	        stackTop = Magic.objectAsAddress(stack[0]).plus((stackSize-3)<<2);
+	        VM.sysWrite("IrqVector: ", Magic.objectAsAddress(stack[0]));
+	        VM.sysWriteln("-->", stackTop);
+	    }
+	    
+	    public Address getStack()
+	    {
+	        return stackTop;
 	    }
 	}
 }

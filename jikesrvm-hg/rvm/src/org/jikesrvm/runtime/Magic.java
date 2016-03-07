@@ -1191,14 +1191,50 @@ public final class Magic {
     return 0;
   }
 
-  /**
-   * Is the specified parameter constant (due to either inlining or specialization).
-   * Count starts at zero and includes the 'this' parameter for instance methods.
-   */
-  public static boolean isConstantParameter(int index) {
-    if (VM.runningVM && VM.VerifyAssertions) {
-      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+    /**
+     * Is the specified parameter constant (due to either inlining or specialization).
+     * Count starts at zero and includes the 'this' parameter for instance methods.
+     */
+    public static boolean isConstantParameter(int index)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+        return false;
     }
-    return false;
-  }
+
+    /**
+     * Save processor registers on the stack
+     */
+    public static void saveContext()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * Restore processor registers from the stack
+     */
+    public static void restoreContext()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * @param stack
+     * @return The previous stack pointer
+     */
+    public static void switchStack(Address stack)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
 }

@@ -13,6 +13,7 @@
 package org.jikesrvm;
 
 import org.jam.board.pc.GenericPc;
+import org.jam.board.pc.PcSystemTimer;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.runtime.Platform;
@@ -37,7 +38,6 @@ import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.ExitStatus;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
-
 import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
 import org.jikesrvm.scheduler.Synchronization;
@@ -432,6 +432,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //      runClassInitializer("java.lang.ClassLoader$StaticData");
 //    }
 
+    PcSystemTimer timer = new PcSystemTimer();
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
