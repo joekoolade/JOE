@@ -13,10 +13,9 @@
 package org.jikesrvm;
 
 import org.jam.board.pc.GenericPc;
-import org.jam.board.pc.PcSystemTimer;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
-import org.jam.runtime.Platform;
+import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
@@ -385,36 +384,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
     RuntimeCompiler.boot();
 
-    // Process remainder of the VM's command line arguments.
-//    if (verboseBoot >= 1) VM.sysWriteln("Late stage processing of command line");
-//    String[] applicationArguments = CommandLineArgs.lateProcessCommandLineArguments();
-
     if (VM.verboseClassLoading || verboseBoot >= 1) VM.sysWrite("[VM booted]\n");
 
-    runClassInitializer("org.jam.cpu.intel.Idt");
     if (VM.BuildForAdaptiveSystem) {
       if (verboseBoot >= 1) VM.sysWriteln("Initializing adaptive system");
       Controller.boot();
     }
-
-    // The first argument must be a class name.
-//    if (verboseBoot >= 1) VM.sysWriteln("Extracting name of class to execute");
-//    if (applicationArguments.length == 0) {
-//      pleaseSpecifyAClass();
-//    }
-//    if (applicationArguments.length > 0 && !TypeDescriptorParsing.isJavaClassName(applicationArguments[0])) {
-//      VM.sysWrite("vm: \"");
-//      VM.sysWrite(applicationArguments[0]);
-//      VM.sysWrite("\" is not a legal Java class name.\n");
-//      pleaseSpecifyAClass();
-//    }
-//
-//    if (applicationArguments.length > 0 && applicationArguments[0].startsWith("-X")) {
-//        VM.sysWrite("vm: \"");
-//        VM.sysWrite(applicationArguments[0]);
-//        VM.sysWrite("\" is not a recognized Jikes RVM command line argument.\n");
-//        VM.sysExit(VM.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-//    }
 
     if (verboseBoot >= 1) VM.sysWriteln("Initializing Application Class Loader");
     RVMClassLoader.getApplicationClassLoader();
@@ -432,15 +407,10 @@ public class VM extends Properties implements Constants, ExitStatus {
 //      runClassInitializer("java.lang.ClassLoader$StaticData");
 //    }
 
-    PcSystemTimer timer = new PcSystemTimer();
+    Platform.init();
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
-
-    // enable alignment checking
-//    if (VM.AlignmentChecking) {
-//      SysCall.sysCall.sysEnableAlignmentChecking();
-//    }
 
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");

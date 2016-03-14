@@ -6,15 +6,22 @@
  */
 package org.jam.board.pc;
 
+import org.jam.cpu.intel.Idt;
+import org.jikesrvm.scheduler.RoundRobin;
+import org.jikesrvm.scheduler.Scheduler;
+
 /**
  * @author Joe Kulig
  *
  */
 public class Platform {
     public static PcSystemTimer timer;
+    public static Scheduler scheduler;
     
-    public void init()
+    public static void init()
     {
         timer = new PcSystemTimer();
+        scheduler = new RoundRobin();
+        Idt.init();
     }
 }

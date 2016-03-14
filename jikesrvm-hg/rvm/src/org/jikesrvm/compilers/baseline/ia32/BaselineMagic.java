@@ -2491,7 +2491,8 @@ final class BaselineMagic {
   }
   
   /**
-   * Set ESP to a new stack pointer
+   * Set ESP to a new stack pointer and
+   * save into thread's framePointer field
    */
   private static final class SwitchStack extends MagicGenerator
   {
@@ -2507,6 +2508,12 @@ final class BaselineMagic {
            * Push the previous SP from the interrupted thread/isr onto it
            */
           asm.emitPUSH_Reg(S0);
+          /*
+           * Save interrupted thread's stack pointer into
+           * current thread's frame pointer field
+           */
+          asm.emitPUSH_Reg(S0);
+          asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());
       }
   }
   
@@ -2517,5 +2524,51 @@ final class BaselineMagic {
   {
       MagicGenerator g = new SwitchStack();
       generators.put(getMethodReference(Magic.class, MagicNames.switchStack, Address.class, void.class), g);
+  }
+  
+  /**
+   * Set the IDT register
+   */
+  private static final class SetIdt extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(S0);
+          asm.emitLIDT(S0);
+      }
+  }
+  /**
+   * Add SetIdt magic into the table
+   */
+  static
+  {
+      MagicGenerator g = new SetIdt();
+      generators.put(getMethodReference(Magic.class, MagicNames.setIdt, Address.class, void.class), g);
+  }
+  
+  /**
+   * Start a thread
+   */
+  private static final class StartThread extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(S0);  // thread instruction pointer
+          asm.emitPOP_Reg(SP);  // switch to the new stack
+          /*
+           * Start executing at the new thread
+           */
+          asm.emitJMP_Reg(S0);
+      }
+  }
+  /**
+   * Add StartThread into the table
+   */
+  static
+  {
+      MagicGenerator g = new StartThread();
+      generators.put(getMethodReference(Magic.class, MagicNames.startThread, Address.class, Address.class, void.class), g);
   }
 }

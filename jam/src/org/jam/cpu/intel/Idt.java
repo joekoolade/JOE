@@ -76,30 +76,24 @@ public final class Idt implements SegmentDescriptorTypes {
 		idtTableRegister.store((short) this.limit);
 		idtTableRegister.store(base, Offset.zero().plus(2));
 
-		/*
-		 * Generate code to load the IDT register and then call it
-		 */
-		Assembler asm = new ArchitectureSpecific.Assembler(2, false);
-		// load the IDT from an absolute address
-		asm.emitLIDT(idtTableRegister);
-		// return
-		asm.emitRET();
-		VM.sysWrite("Loading IDT\n");
-		try {
-			Magic.invokeClassInitializer(asm.getMachineCodes());
-			VM.write("\nIDT loaded!\n");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+		Magic.setIdt(idtTableRegister);
 		interruptVectorClass = TypeReference.findOrCreate(InterruptVectors.class).peekType().asClass();
 		loadVectors();
 	}
   
 	public static Idt getInstance() {
+	    if(idt == null)
+	    {
+	        idt = new Idt(49);
+	    }
 		return idt;
 	}
 
+	public static void init()
+	{
+	    idt = new Idt(49);
+	}
+	
 	public void init(Address irqTable, int size) {
 		base = irqTable;
 		limit = size * 8 - 1;
@@ -367,7 +361,15 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int48()
        {
-           VM.sysFail("SWI");
+           // Save registers on the interrupted stack
+           Magic.saveContext();
+           // Switch to the interrupt stack
+           Magic.switchStack(Platform.scheduler.getHandlerStack());
+           Platform.timer.handler();
+           // Restore back to the interrupt stack and context
+           Magic.restoreContext();
+           // The interrupt handler annotation will emit the IRET
+           // good bye
        }
 	}
 	/**

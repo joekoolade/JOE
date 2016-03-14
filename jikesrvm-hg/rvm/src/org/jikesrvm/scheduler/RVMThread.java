@@ -69,7 +69,6 @@ import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Word;
 import org.vmmagic.unboxed.Offset;
 
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod;
 import org.jikesrvm.compilers.opt.runtimesupport.OptMachineCodeMap;
@@ -1214,6 +1213,10 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   public Feedlet feedlet;
 
+private Address ip;
+
+private Address sp;
+
   /**
    * Get a NoYieldpointsCondLock for a given thread slot.
    */
@@ -1311,8 +1314,6 @@ public final class RVMThread extends ThreadContext implements Constants {
   }
 
   static void bind(int cpuId) {
-    if (VM.VerifyAssertions) VM._assert(sysCall.sysThreadBindSupported()==1);
-    sysCall.sysThreadBind(cpuId);
   }
 
   static void bindIfRequested() {
@@ -1590,8 +1591,6 @@ public final class RVMThread extends ThreadContext implements Constants {
       if (traceAcct) {
         VM.sysWriteln("registered mutator for ", threadSlot);
       }
-
-      initializeJNIEnv();
 
       if (VM.BuildForAdaptiveSystem) {
         onStackReplacementEvent = new OnStackReplacementEvent();
@@ -2597,26 +2596,9 @@ public final class RVMThread extends ThreadContext implements Constants {
   @SuppressWarnings({ "unused" })
   // Called by back-door methods.
   private static void startoff() {
-    //bindIfRequested();
-
-    //sysCall.sysSetupHardwareTrapHandler();
-
     RVMThread currentThread = getCurrentThread();
 
-    /*
-     * get pthread_id from the operating system and store into RVMThread field
-     */
-    //currentThread.pthread_id = sysCall.sysGetThreadId();
-    //currentThread.priority_handle = sysCall.sysGetThreadPriorityHandle();
-
-    /*
-     * set thread priority to match stored value
-     */
-//    sysCall.sysSetThreadPriority(currentThread.pthread_id,
-//        currentThread.priority_handle, currentThread.priority - Thread.NORM_PRIORITY);
-
     currentThread.enableYieldpoints();
-//    sysCall.sysStashVMThread(currentThread);
     if (traceAcct) {
       VM.sysWriteln("Thread #", currentThread.threadSlot, " with pthread id ",
           currentThread.pthread_id, " running!");
@@ -2658,6 +2640,8 @@ public final class RVMThread extends ThreadContext implements Constants {
     acctLock.unlock();
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " starting!");
+    
+    Magic.startThread(ip, sp);
 //    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
 //        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
   }
@@ -2842,7 +2826,7 @@ public final class RVMThread extends ThreadContext implements Constants {
 
   /** Uninterruptible final portion of thread termination. */
   void finishThreadTermination() {
-    // sysCall.sysThreadTerminate();
+    Magic.yield();
     if (VM.VerifyAssertions)
       VM._assert(VM.NOT_REACHED);
   }
@@ -3126,13 +3110,13 @@ public final class RVMThread extends ThreadContext implements Constants {
   }
 
   public static void yieldNoHandshake() {
-    sysCall.sysThreadYield();
+    Magic.yield();
   }
 
   @UnpreemptibleNoWarn
   public static void yieldWithHandshake() {
     getCurrentThread().checkBlock();
-    sysCall.sysThreadYield();
+    Magic.yield();
   }
   /**
    * Suspend execution of current thread for specified number of seconds (or
@@ -3142,11 +3126,11 @@ public final class RVMThread extends ThreadContext implements Constants {
   public static void sleep(long ns) throws InterruptedException {
     RVMThread t = getCurrentThread();
     t.waiting = Waiting.TIMED_WAITING;
-    long atStart = sysCall.sysNanoTime();
+    long atStart = Magic.getTimeBase(); // sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
     t.monitor().lockNoHandshake();
     while (!t.hasInterrupt && t.asyncThrowable == null &&
-        sysCall.sysNanoTime() < whenEnd) {
+        Magic.getTimeBase() < whenEnd) {
       t.monitor().timedWaitAbsoluteWithHandshake(whenEnd);
     }
     boolean throwInterrupt = false;
@@ -3218,7 +3202,7 @@ public final class RVMThread extends ThreadContext implements Constants {
       // block
       monitor().lockNoHandshake();
       while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
-             (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
+             (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos)) {
         if (hasTimeout) {
           monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
         } else {
@@ -3287,7 +3271,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   @Interruptible
   public static void wait(Object o, long millis) {
-    long currentNanos = sysCall.sysNanoTime();
+    long currentNanos = Magic.getTimeBase(); //sysCall.sysNanoTime();
     getCurrentThread().waitImpl(o, true, currentNanos + millis * 1000 * 1000);
   }
 
@@ -3399,13 +3383,13 @@ public final class RVMThread extends ThreadContext implements Constants {
     if (isAbsolute) {
       whenWakeupNanos = time;
     } else {
-      whenWakeupNanos = sysCall.sysNanoTime() + time;
+      whenWakeupNanos = Magic.getTimeBase(); //sysCall.sysNanoTime() + time;
     }
     Throwable throwThis = null;
     monitor().lockNoHandshake();
     waiting = hasTimeout ? Waiting.TIMED_WAITING : Waiting.WAITING;
     while (!parkingPermit && !hasInterrupt && asyncThrowable == null &&
-           (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
+           (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos)) {
       if (hasTimeout) {
         monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
       } else {
@@ -3799,7 +3783,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   @NoCheckStore
   public static void hardHandshakeSuspend(BlockAdapter ba,
                                           HardHandshakeVisitor hhv) {
-    long before=sysCall.sysNanoTime();
+    long before=Magic.getTimeBase(); //sysCall.sysNanoTime();
 
     RVMThread current=getCurrentThread();
 
@@ -3874,7 +3858,7 @@ public final class RVMThread extends ThreadContext implements Constants {
     handshakeLock.unlock();
 
     if (false) {
-      long after=sysCall.sysNanoTime();
+      long after=Magic.getTimeBase(); //sysCall.sysNanoTime();
       totalSuspendTime+=after-before;
       VM.sysWriteln("Stopping the world took ",(after-before)," ns (",totalSuspendTime," ns total)");
     }
@@ -3884,7 +3868,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   @Unpreemptible
   public static void hardHandshakeResume(BlockAdapter ba,
                                          HardHandshakeVisitor hhv) {
-    long before=sysCall.sysNanoTime();
+    long before=Magic.getTimeBase();  //sysCall.sysNanoTime();
 
     handshakeLock.lockWithHandshake();
 
@@ -3909,7 +3893,7 @@ public final class RVMThread extends ThreadContext implements Constants {
     handshakeLock.unlock();
 
     if (false) {
-      long after=sysCall.sysNanoTime();
+      long after=Magic.getTimeBase(); //sysCall.sysNanoTime();
       totalResumeTime+=after-before;
       VM.sysWriteln("Resuming the world took ",(after-before)," ns (",totalResumeTime," ns total)");
     }
@@ -4498,7 +4482,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   public int getPriority() {
     if (isAlive()) {
       // compute current priority
-      priority = sysCall.sysGetThreadPriority(pthread_id, priority_handle) + Thread.NORM_PRIORITY;
+      priority = 0; // sysCall.sysGetThreadPriority(pthread_id, priority_handle) + Thread.NORM_PRIORITY;
     }
     if (tracePriority) {
       VM.sysWriteln("Thread #", getThreadSlot(), " get priority returning: ", priority);
@@ -4514,7 +4498,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   public void setPriority(int priority) {
     if (isAlive()) {
-      int result = sysCall.sysSetThreadPriority(pthread_id, priority_handle, priority - Thread.NORM_PRIORITY);
+      int result = 0; // sysCall.sysSetThreadPriority(pthread_id, priority_handle, priority - Thread.NORM_PRIORITY);
       if (result == 0) {
         this.priority = priority;
         if (tracePriority) {
@@ -5346,7 +5330,7 @@ public final class RVMThread extends ThreadContext implements Constants {
     } else {
       // Another failure occurred while attempting to exit cleanly.
       // Get out quick and dirty to avoid hanging.
-      sysCall.sysExit(VM.EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN);
+        Magic.halt();
     }
   }
 

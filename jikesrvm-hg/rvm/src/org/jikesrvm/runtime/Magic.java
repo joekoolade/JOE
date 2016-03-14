@@ -1228,10 +1228,44 @@ public final class Magic {
 
     /**
      * @param stack
-     * @return The previous stack pointer
      */
     public static void switchStack(Address stack)
     {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    /**
+     * Set the IDT register
+     * @param lidtDescriptor
+     */
+    public static void setIdt(Address lidtDescriptor)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * 
+     */
+    @Uninterruptible
+    public static void yield()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    public static void startThread(Address ip, Address sp)
+    {
+        /*
+         * Push ip onto the sp; switch to sp; and return
+         */
         if (VM.runningVM && VM.VerifyAssertions)
         {
             VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler

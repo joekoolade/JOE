@@ -2413,17 +2413,14 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   
   /**
    * Generate an LIDT address
-   * @param registerDesciptor
+   * @param lidtDesciptor
    */
-	public void emitLIDT(Address registerDesciptor) {
+	public void emitLIDT(GPR lidtDesciptor) {
 		int miStart = mi;
-		// operand size prefix
-		//setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x0f);
 		setMachineCodes(mi++, (byte)0x01);
-		setMachineCodes(mi++, regIndirectRegModRM(GPR.getForOpcode(5),GPR.getForOpcode(3))); // opcode /3, disp32
-		emitImm32(registerDesciptor);
-		if(lister != null) lister.I(miStart, "LIDT", registerDesciptor.toInt());
+		setMachineCodes(mi++, regIndirectRegModRM(lidtDesciptor,GPR.getForOpcode(3))); // opcode /3, disp32
+		if(lister != null) lister.R(miStart, "LIDT", lidtDesciptor);
 	}
 	
 	/**

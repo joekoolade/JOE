@@ -129,6 +129,7 @@ public class MagicNames {
   public static final Atom saveContext = Atom.findOrCreateAsciiAtom("saveContext");
   public static final Atom restoreContext = Atom.findOrCreateAsciiAtom("restoreContext");
   public static final Atom switchStack = Atom.findOrCreateAsciiAtom("switchStack");
+  public static final Atom startThread = Atom.findOrCreateAsciiAtom("startThread");
   
   public static final Atom objectAsAddress = Atom.findOrCreateAsciiAtom("objectAsAddress");
   public static final Atom addressAsObject = Atom.findOrCreateAsciiAtom("addressAsObject");
@@ -157,6 +158,7 @@ public class MagicNames {
   public static final Atom prefetch = Atom.findOrCreateAsciiAtom("prefetch");
   /* IA-specific */
   public static final Atom prefetchNTA = Atom.findOrCreateAsciiAtom("prefetchNTA");
+  public static final Atom setIdt = Atom.findOrCreateAsciiAtom("setIdt");
   /* PowerPC-specific */
   public static final Atom dcbst = Atom.findOrCreateAsciiAtom("dcbst");
   public static final Atom dcbt = Atom.findOrCreateAsciiAtom("dcbt");
