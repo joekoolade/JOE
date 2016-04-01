@@ -12,7 +12,6 @@
  */
 package org.jikesrvm;
 
-import org.jam.board.pc.GenericPc;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.board.pc.Platform;
@@ -26,7 +25,6 @@ import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMember;
 import org.jikesrvm.classloader.MemberReference;
 import org.jikesrvm.classloader.RVMMethod;
-import org.jikesrvm.classloader.TypeDescriptorParsing;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.compilers.baseline.BaselineCompiler;
 import org.jikesrvm.compilers.common.BootImageCompiler;
@@ -41,7 +39,6 @@ import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
 import org.jikesrvm.scheduler.Synchronization;
 import org.jikesrvm.scheduler.RVMThread;
-import org.jikesrvm.runtime.FileSystem;
 import org.jikesrvm.tuningfork.TraceEngine;
 import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.Inline;
@@ -282,7 +279,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    MemoryManager.enableCollection();
 
     if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
-//    RVMThread.getCurrentThread().setupBootJavaThread();
+    RVMThread.getCurrentThread().setupBootJavaThread();
 
     runClassInitializer("java.lang.String");
 //    runClassInitializer("java.io.File"); // needed for when we initialize the
@@ -408,6 +405,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    }
 
     Platform.init();
+    Magic.enableInterrupts();
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
@@ -422,7 +420,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
 
-    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
+    int i = 0;
+    while(true)
+    {
+        i++;
+    }
+    //if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
   /**
@@ -612,15 +615,15 @@ public class VM extends Properties implements Constants, ExitStatus {
   private static Offset sysWriteLockOffset = Offset.max();
 
   private static void swLock() {
-//    if (sysWriteLockOffset.isMax()) return;
-//    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
-//      ;
-//    }
+    if (sysWriteLockOffset.isMax()) return;
+    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
+      ;
+    }
   }
 
   private static void swUnlock() {
-//    if (sysWriteLockOffset.isMax()) return;
-//    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
+    if (sysWriteLockOffset.isMax()) return;
+    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
   }
 
   /**
@@ -1169,9 +1172,9 @@ public class VM extends Properties implements Constants, ExitStatus {
 
   @NoInline
   public static void sysWrite(String s) {
-//    swLock();
+    swLock();
     write(s);
-//    swUnlock();
+    swUnlock();
   }
 
   @NoInline

@@ -7,10 +7,7 @@
  */
 package org.jam.board.pc;
 
-import org.jam.cpu.intel.Idt;
-import org.jam.cpu.intel.IrqHandler;
 import org.jikesrvm.runtime.Magic;
-import org.vmmagic.pragma.InterruptHandler;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -81,31 +78,7 @@ public class PcSystemTimer
             tick++;
             overflow -= 1000000;
         }
-        // Platform.slavePic.eoi();
-        // Platform.masterPic.eoi();
 
-        /*
-         * skip scheduling if no current thread
-         */
-        // if(Scheduler.currentThread==null) return;
-
-        /*
-         * Process the sleep queue
-         */
-        // Thread.processSleepQueue();
-
-        /*
-         * todo: thread scheduling routine call. every 10-100ms.
-         */
-        if (tick % scheduleTick == 0)
-        {
-            // Scheduler.currentThread.saveInterruptContext(context);
-            // Thread.scheduler.schedule();
-        }
-
-        // if(Thread.newThread) {
-        // Thread.newThread = false;
-        // Scheduler.currentThread.kernelResume();
-        // }
+         Platform.masterPic.eoi();
     }
 }

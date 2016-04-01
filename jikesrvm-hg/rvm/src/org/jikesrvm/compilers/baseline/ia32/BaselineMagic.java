@@ -2479,6 +2479,10 @@ final class BaselineMagic {
            */
           asm.emitPOP_Reg(GPR.ESP);
           /*
+           * Need to pop the interrupt thread stack
+           */
+          asm.emitPOP_Reg(GPR.EAX);
+          /*
            * Now restore the interrrupted threads context
            */
           asm.emitPOPAD();
@@ -2502,6 +2506,8 @@ final class BaselineMagic {
           // Get the current stack pointer
           asm.emitLEA_Reg_RegDisp(S0, SP, sd);
           // Pop new stack parameter into the ESP
+          // The new stack parameter is still on the old stack
+          // remember to pop when restoring
           asm.emitPOP_Reg(SP);
           /*
            * ISR is running on new stack.
@@ -2513,7 +2519,7 @@ final class BaselineMagic {
            * current thread's frame pointer field
            */
           asm.emitPUSH_Reg(S0);
-          asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());
+          asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());
       }
   }
   
@@ -2570,5 +2576,47 @@ final class BaselineMagic {
   {
       MagicGenerator g = new StartThread();
       generators.put(getMethodReference(Magic.class, MagicNames.startThread, Address.class, Address.class, void.class), g);
+  }
+  
+  /**
+   * Enable interrupts
+   */
+  private static final class EnableInterrupts extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitSTI();
+      }
+  }
+  
+  /**
+   * Add EnableInterrupts into the table
+   */
+  static
+  {
+      MagicGenerator g = new EnableInterrupts();
+      generators.put(getMethodReference(Magic.class, MagicNames.enableInterrupts, void.class), g);
+  }
+
+  /**
+   * Disable interrupts
+   */
+  private static final class DisableInterrupts extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitCLI();
+      }
+  }
+  
+  /**
+   * Add EnableInterrupts into the table
+   */
+  static
+  {
+      MagicGenerator g = new DisableInterrupts();
+      generators.put(getMethodReference(Magic.class, MagicNames.disableInterrupts, void.class), g);
   }
 }

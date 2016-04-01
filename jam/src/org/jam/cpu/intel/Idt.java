@@ -150,7 +150,9 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int8()
         {
-            VM.sysFail("Double Fault");
+            VM.write("Double Fault");
+            Magic.halt();
+            //VM.sysFail("Double Fault");
         }
         @InterruptHandler
         public static void int9()

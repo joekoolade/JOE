@@ -1271,4 +1271,21 @@ public final class Magic {
             VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
         }
     }
+    
+    public static void enableInterrupts()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    public static void disableInterrupts()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
 }

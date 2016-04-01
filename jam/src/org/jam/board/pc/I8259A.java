@@ -7,8 +7,6 @@
  */
 package org.jam.board.pc;
 
-import org.jam.driver.BusOperations;
-import org.jam.driver.bus.PcIoBus;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -51,8 +49,7 @@ public class I8259A {
    */
   private byte icw1,icw2,icw3,icw4;
   private boolean isSlave;
-  private Address port, port1;
-  private BusOperations bus;
+  private Address cmd, data;
   
   final public int ICW1_INIT  = 0x10;
   final public int ICW1_LTIM  = 0x08;
@@ -66,13 +63,20 @@ public class I8259A {
   final public int ICW4_MS    = 0x04;
   final public int ICW4_AEOI  = 0x02;
   final public int ICW4_8086MODE = 0x01;
+  private Address delay;
   
-  public I8259A(PcIoBus bus, int port) {
-    this.port = Address.fromIntZeroExtend(port);
-    port1 = Address.fromIntZeroExtend(port+1);
-    this.bus = bus;
+  public I8259A(int port) {
+    cmd = Address.fromIntZeroExtend(port);
+    data = Address.fromIntZeroExtend(port+1);
+    delay = Address.fromIntSignExtend(0x80);
+    isSlave = false;
   }
   
+  public I8259A(int port, boolean isSlave)
+  {
+      this(port);
+      this.isSlave = isSlave;
+  }
   public void slaveControllerIrq(byte irq) {
     if(isSlave)
       icw3 = irq;
@@ -81,12 +85,17 @@ public class I8259A {
   }
   public void pcSetup() {
     icw1=ICW1_INIT|ICW1_IC2;
+    /*
+     * IRQ vector remapping
+     * Master PIC is 0x20-0x27
+     * Slave PIC is  0x28-0x2F
+     */
     if(isSlave) {
-      icw3=0x02; // slave id 2
-      icw2=0x70;
+      icw3=0x02; // slave id 2; cascade identity
+      icw2=0x28;
     } else {
       icw3=0x04; // slave PIC is on IRQ2
-      icw2=0x68;
+      icw2=0x20;
     }
     icw4=ICW4_8086MODE;
     initialize();
@@ -99,28 +108,45 @@ public class I8259A {
     isSlave = false;
   }
   public void initialize() {
-    bus.writeByte(port, icw1);
-    bus.writeByte(port1, icw2);
+    cmd.ioStore(icw1);
+    data.ioStore(icw2);
     if((icw1&2)==0) {
-    	bus.writeByte(port1, icw3);
-      if((icw1&1)!=0)
-    	  bus.writeByte(port1, icw4);
+        data.ioStore(icw3);
+        if((icw1&1)!=0)
+        {
+          data.ioStore(icw4);
+        }
     }
   }
   
   public void eoi() {
-	  bus.writeByte(port, (byte) 0x20);
+      cmd.ioStore((byte) 0x20);
   }
   
-  public int interruptRequestRegister() {
-	  bus.writeByte(port1, (byte) 0xa);
-    return bus.readByte(port);
-  }
-  public int interruptInServiceRegister() {
-	  bus.writeByte(port1, (byte) 0xb);
-    return bus.readByte(port);
-  }
-  public void interruptMask(byte mask) {
-	  bus.writeByte(port1, mask);
-  }
+    /**
+     * Read the interrupt request register (IRR).
+     * This indicates which interrupts have raised
+     * @return IRR value
+     */
+    public int interruptRequestRegister()
+    {
+        data.ioStore((byte) 0xa);
+        return cmd.ioLoadByte();
+    }
+
+    /**
+     * Read the in-service register (ISR)
+     * This indicates which interrupt being service (sent to the CPU)
+     * @return
+     */
+    public int interruptInServiceRegister()
+    {
+        data.ioStore((byte) 0xb);
+        return cmd.ioLoadByte();
+    }
+
+    public void interruptMask(byte mask)
+    {
+        data.ioStore(mask);
+    }
 }

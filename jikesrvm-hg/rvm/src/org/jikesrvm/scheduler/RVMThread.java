@@ -1313,18 +1313,6 @@ private Address sp;
     }
   }
 
-  static void bind(int cpuId) {
-  }
-
-  static void bindIfRequested() {
-    if (VM.forceOneCPU>=0) {
-      if (traceBind) {
-        VM.sysWriteln("binding thread to CPU: ",VM.forceOneCPU);
-      }
-      bind(VM.forceOneCPU);
-    }
-  }
-
   /**
    * Boot the threading subsystem.
    */
@@ -1345,8 +1333,6 @@ private Address sp;
     if (traceAcct) {
       VM.sysWriteln("boot thread at ",Magic.objectAsAddress(getCurrentThread()));
     }
-
-    bindIfRequested();
 
     threadingInitialized = true;
     // Always run timer thread, so we can respond to debug requests

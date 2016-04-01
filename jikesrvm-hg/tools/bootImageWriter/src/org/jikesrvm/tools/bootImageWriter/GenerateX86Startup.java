@@ -82,8 +82,8 @@ public class GenerateX86Startup {
 		// io delay
 		asm.emitOUTB(0x80);
 		// mask all interrupts but cascad on primary PIC
-		asm.emitMOV_Reg_Imm(GPR.EAX, 0xfb);
-		asm.emitOUTB(0xf1);
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0xff);
+		asm.emitOUTB(0x21);
 		// io delay
 		asm.emitOUTB(0x80);
 		
