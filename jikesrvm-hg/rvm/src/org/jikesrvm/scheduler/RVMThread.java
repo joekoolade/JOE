@@ -15,15 +15,18 @@ package org.jikesrvm.scheduler;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.ArchitectureSpecific.Registers;
 import org.jikesrvm.ArchitectureSpecificOpt.PostThreadSwitch;
+
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_NORMAL;
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.INVISIBLE_METHOD_ID;
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GUARD;
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_METHOD_ID_OFFSET;
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET;
+
 import org.jikesrvm.ArchitectureSpecific.BaselineConstants;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants;
@@ -68,7 +71,6 @@ import org.vmmagic.pragma.NoCheckStore;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Word;
 import org.vmmagic.unboxed.Offset;
-
 import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod;
 import org.jikesrvm.compilers.opt.runtimesupport.OptMachineCodeMap;
@@ -1427,7 +1429,8 @@ private Address sp;
       numThreads = 1;
     } else {
       processAboutToTerminate();
-      acctLock.lockNoHandshake();
+      //acctLock.lockNoHandshake();
+      Magic.disableInterrupts();
       if (freeSlotN > 0) {
         threadSlot = freeSlots[--freeSlotN];
       } else {
@@ -1436,7 +1439,8 @@ private Address sp;
         }
         threadSlot = nextSlot++;
       }
-      acctLock.unlock();
+      Magic.enableInterrupts();
+      //acctLock.unlock();
       // before we actually use this slot, ensure that there is a monitor
       // for it. note that if the slot doesn't have a monitor, then we
       // "own" it since we allocated it above but haven't done anything
@@ -1447,22 +1451,26 @@ private Address sp;
       }
       if (communicationLockBySlot[threadSlot] == null) {
         Monitor m = new Monitor();
-        handshakeLock.lockWithHandshake();
+        Magic.disableInterrupts();
+        //handshakeLock.lockWithHandshake();
         communicationLockBySlot[threadSlot] = m;
-        handshakeLock.unlock();
+        Magic.enableInterrupts();
+        //handshakeLock.unlock();
       }
       Magic.sync(); /*
                      * make sure that nobody sees the thread in any of the
                      * tables until the thread slot is inited
                      */
 
-      acctLock.lockNoHandshake();
+      //acctLock.lockNoHandshake();
+      Magic.disableInterrupts();
       threadBySlot[threadSlot] = this;
 
       threadIdx = numThreads++;
       threads[threadIdx] = this;
 
-      acctLock.unlock();
+      //acctLock.unlock();
+      Magic.enableInterrupts();
     }
     lockingId = threadSlot << ThinLockConstants.TL_THREAD_ID_SHIFT;
     if (traceAcct) {
@@ -2612,6 +2620,8 @@ private Address sp;
 
   /**
    * Start execution of 'this' by creating and starting a native thread.
+   * 
+   * TODO: This needs to just schedule the thread
    */
   @Interruptible
   public void start() {
@@ -2627,7 +2637,7 @@ private Address sp;
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " starting!");
     
-    Magic.startThread(ip, sp);
+    Platform.scheduler.addThread(this);
 //    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
 //        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
   }

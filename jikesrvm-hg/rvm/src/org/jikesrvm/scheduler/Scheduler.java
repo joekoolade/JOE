@@ -14,5 +14,6 @@ import org.vmmagic.unboxed.Address;
  */
 public interface Scheduler {
     public void nextThread();
+    public void addThread(RVMThread thread);
     public Address getHandlerStack();
 }

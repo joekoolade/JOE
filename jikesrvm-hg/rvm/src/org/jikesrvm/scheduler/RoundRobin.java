@@ -32,6 +32,8 @@ implements Scheduler {
         stack[STACK_SIZE-3] = 0;    // cmid = 0
         
         stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-3)<<2);
+        
+        runQueue = new ThreadQueue();
     }
     /* (non-Javadoc)
      * @see org.jikesrvm.scheduler.Scheduler#scheduleThread()
@@ -66,7 +68,8 @@ implements Scheduler {
      * Puts thread onto the run queue
      * @param thread the thread to put on the run queue
      */
-    public void runThread(RVMThread thread)
+    @Override
+    public void addThread(RVMThread thread)
     {
         runQueue.enqueue(thread);
     }

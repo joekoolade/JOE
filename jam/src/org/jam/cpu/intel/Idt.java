@@ -367,7 +367,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Magic.saveContext();
            // Switch to the interrupt stack
            Magic.switchStack(Platform.scheduler.getHandlerStack());
-           Platform.timer.handler();
+           Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context
            Magic.restoreContext();
            // The interrupt handler annotation will emit the IRET

@@ -35,6 +35,7 @@ import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.ExitStatus;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
+import org.jikesrvm.scheduler.IdleThread;
 import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
 import org.jikesrvm.scheduler.Synchronization;
@@ -404,7 +405,17 @@ public class VM extends Properties implements Constants, ExitStatus {
 //      runClassInitializer("java.lang.ClassLoader$StaticData");
 //    }
 
+    /*
+     * Need to initialize the platform here because
+     * we need the scheduler to start threads.
+     */
     Platform.init();
+    // Put the IdleThread on the queue
+    if(verboseBoot >= 1)
+    {
+        VM.sysWriteln("Idle Thread");
+    }
+    new IdleThread().start();
     Magic.enableInterrupts();
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
