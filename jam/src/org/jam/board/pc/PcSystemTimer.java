@@ -51,7 +51,12 @@ public class PcSystemTimer
         stack[STACK_SIZE-2] = 0;    // FP = 0
         stack[STACK_SIZE-3] = 0;    // cmid = 0
         
-        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-3)<<2);
+        /*
+         * On a stack switch, the new stack is popped so need to count for this
+         * in the stackTop field. This space will contain the interrupted thread's
+         * stack pointer.
+         */
+        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
     }
 
     public final long getTime()

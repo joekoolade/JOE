@@ -2637,6 +2637,35 @@ private Address sp;
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " starting!");
     
+    /*
+     * Need to setup the stack so it looks like it
+     * is returning from an interrupt
+     * 
+     * Top of Stack
+     * ------------
+     * EFLAGS
+     * ------------
+     * CS
+     * ------------
+     * EIP
+     * ------------
+     * EAX
+     * ------------
+     * ECX
+     * ------------
+     * EDX
+     * ------------
+     * EBX
+     * ------------
+     * ESP
+     * ------------
+     * EBP
+     * ------------
+     * ESI
+     * ------------
+     * EDI
+     * ------------
+     */
     Platform.scheduler.addThread(this);
 //    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
 //        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
