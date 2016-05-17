@@ -187,6 +187,8 @@ public class Entrypoints {
     getField(org.jikesrvm.scheduler.RVMThread.class, "bootThread",
              org.jikesrvm.scheduler.RVMThread.class);
 
+  public static final RVMField stackPointerField = getField(org.jikesrvm.scheduler.RVMThread.class, "sp", org.vmmagic.unboxed.Address.class);
+  
   public static final RVMField scratchStorageField =
       getField(org.jikesrvm.scheduler.RVMThread.class, "scratchStorage", double.class);
   public static final RVMField takeYieldpointField =

@@ -68,6 +68,7 @@ public class MagicNames {
   public static final Atom halt = Atom.findOrCreateAsciiAtom("halt");
   public static final Atom pause = Atom.findOrCreateAsciiAtom("pause");
   public static final Atom sqrt  = Atom.findOrCreateAsciiAtom("sqrt");
+  public static final Atom yield = Atom.findOrCreateAsciiAtom("yield");
 
   public static final Atom getInlineDepth = Atom.findOrCreateAsciiAtom("getInlineDepth");
   public static final Atom isConstantParameter = Atom.findOrCreateAsciiAtom("isConstantParameter");
@@ -128,6 +129,7 @@ public class MagicNames {
   public static final Atom dynamicBridgeTo = Atom.findOrCreateAsciiAtom("dynamicBridgeTo");
   public static final Atom saveContext = Atom.findOrCreateAsciiAtom("saveContext");
   public static final Atom restoreContext = Atom.findOrCreateAsciiAtom("restoreContext");
+  public static final Atom restoreThreadContext = Atom.findOrCreateAsciiAtom("restoreThreadContext");
   public static final Atom switchStack = Atom.findOrCreateAsciiAtom("switchStack");
   public static final Atom startThread = Atom.findOrCreateAsciiAtom("startThread");
   public static final Atom enableInterrupts = Atom.findOrCreateAsciiAtom("enableInterrupts");

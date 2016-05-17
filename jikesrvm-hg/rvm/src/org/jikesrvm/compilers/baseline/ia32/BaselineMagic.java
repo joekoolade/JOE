@@ -2455,7 +2455,14 @@ final class BaselineMagic {
       @Override
       void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
       {
+          /**
+           * Save context onto the stack
+           */
           asm.emitPUSHAD();
+          /**
+           * Save stack pointer into RVMThread.sp
+           */
+          asm.emitMOV_RegDisp_Reg(ESI, Entrypoints.stackPointerField.getOffset(), SP);
       }
   }
   static
@@ -2494,6 +2501,34 @@ final class BaselineMagic {
       generators.put(getMethodReference(Magic.class, MagicNames.restoreContext, void.class), g);
   }
   
+  /*
+   * restore context and stack from the thread
+   */
+  private static final class RestoreThreadContext extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          /*
+           * restore the stack pointer from the RVMThread sp field
+           */
+          asm.emitMOV_Reg_RegDisp(SP, ESI, Entrypoints.stackPointerField.getOffset());
+          /*
+           * Need to pop the interrupt thread stack
+           */
+          asm.emitPOP_Reg(GPR.EAX);
+          /*
+           * Now restore the interrrupted threads context
+           */
+          asm.emitPOPAD();
+      }
+  }
+  static
+  {
+      MagicGenerator g = new RestoreThreadContext();
+      generators.put(getMethodReference(Magic.class, MagicNames.restoreThreadContext, void.class), g);
+  }
+  
   /**
    * Set ESP to a new stack pointer and
    * save into thread's framePointer field
@@ -2518,8 +2553,8 @@ final class BaselineMagic {
            * Save interrupted thread's stack pointer into
            * current thread's frame pointer field
            */
-          asm.emitPUSH_Reg(S0);
-          asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());
+          //asm.emitPUSH_Reg(S0);
+          //asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());
       }
   }
   
@@ -2618,5 +2653,26 @@ final class BaselineMagic {
   {
       MagicGenerator g = new DisableInterrupts();
       generators.put(getMethodReference(Magic.class, MagicNames.disableInterrupts, void.class), g);
+  }
+  
+  /**
+   * Generate a yield interrupt
+   */
+  private static final class Yield extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitINT_Imm(48);
+      }
+  }
+  
+  /**
+   * Add Yield into the table
+   */
+  static
+  {
+      MagicGenerator g = new Yield();
+      generators.put(getMethodReference(Magic.class, MagicNames.yield, void.class), g);
   }
 }

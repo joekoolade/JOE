@@ -18,7 +18,7 @@ import java.security.PrivilegedAction;
 import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.ArchitectureSpecific.Registers;
-import org.jikesrvm.ArchitectureSpecificOpt.PostThreadSwitch;
+//import org.jikesrvm.ArchitectureSpecificOpt.PostThreadSwitch;
 
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_NORMAL;
 import static org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants.INVISIBLE_METHOD_ID;
@@ -446,6 +446,11 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   @Entrypoint
   public static RVMThread bootThread;
+  
+  /**
+   * Need to identify which thread is the Idle thread
+   */
+  public static RVMThread idleThread;
 
   /**
    * Is the threading system initialized?
@@ -1571,11 +1576,18 @@ private Address sp;
       // initialize thread registers
       Address ip = Magic.objectAsAddress(instructions);
       Address sp = Magic.objectAsAddress(stack).plus(stack.length);
-
+      contextRegisters.gprs.set(Registers.ESI.value(), Magic.objectAsAddress(this).toWord());
+      VM.sysWrite("ip: ", ip);
+      VM.sysWrite(" sp: ", sp);
+      VM.sysWrite(" esi: ", contextRegisters.gprs.get(Registers.ESI.value()));
+      VM.write('\n');
       // Initialize the a thread stack as if "startoff" method had been called
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       Configuration.archHelper.initializeStack(contextRegisters, ip, sp);
-
+      this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
+      VM.sysWrite("rvmthread sp: ", this.sp);
+      VM.write('\n');
+      
       VM.enableGC();
 
       assignThreadSlot();
@@ -2665,8 +2677,10 @@ private Address sp;
      * ------------
      * EDI
      * ------------
+     * new stack - 4       ESP: new stack
+     * ------------
      */
-    Platform.scheduler.addThread(this);
+//    Platform.scheduler.addThread(this);
 //    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
 //        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
   }
@@ -4072,9 +4086,9 @@ private Address sp;
       // that between when this runs and when the glue code runs there will
       // be no interleaved GC; obviously if we did this before the thread
       // switch then there would be the possibility of interleaved GC.
-      if (VM.BuildForAdaptiveSystem && t.isWaitingForOsr) {
-        PostThreadSwitch.postProcess(t);
-      }
+//      if (VM.BuildForAdaptiveSystem && t.isWaitingForOsr) {
+//        PostThreadSwitch.postProcess(t);
+//      }
       if (t.asyncThrowable != null) {
         throwThis = t.asyncThrowable;
         t.asyncThrowable = null;
@@ -5492,13 +5506,13 @@ private Address sp;
     /**
      * @param framePointer
      */
-    public void setFramePointer(Address framePointer)
+    public void setStackPointer(Address framePointer)
     {
-        this.framePointer = framePointer;
+        this.sp = framePointer;
     }
     
-    public Address getFramePointer()
+    public Address getStackPointer()
     {
-        return framePointer;
+        return sp;
     }
 }

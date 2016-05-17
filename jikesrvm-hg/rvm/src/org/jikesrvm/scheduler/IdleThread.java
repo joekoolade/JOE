@@ -9,6 +9,7 @@ package org.jikesrvm.scheduler;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.unboxed.ObjectReference;
 
 /**
  * @author Joe Kulig
@@ -23,6 +24,8 @@ public class IdleThread extends SystemThread {
     public IdleThread()
     {
         super("IdleThread");
+        RVMThread.idleThread = this.rvmThread;
+        VM.sysWriteln("idle thread: ", ObjectReference.fromObject(RVMThread.idleThread));
     }
     
     /* 

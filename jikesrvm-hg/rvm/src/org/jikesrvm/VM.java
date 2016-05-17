@@ -431,6 +431,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
 
+    Magic.yield();
+    
     int i = 0;
     while(true)
     {

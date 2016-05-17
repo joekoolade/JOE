@@ -6,6 +6,7 @@
  */
 package org.jikesrvm.scheduler;
 
+import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 
@@ -31,7 +32,7 @@ implements Scheduler {
         stack[STACK_SIZE-2] = 0;    // FP = 0
         stack[STACK_SIZE-3] = 0;    // cmid = 0
         
-        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-3)<<2);
+        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
         
         runQueue = new ThreadQueue();
     }
@@ -41,27 +42,33 @@ implements Scheduler {
     @Override
     public void nextThread()
     {
+        RVMThread nextThread;
+        
         if(runQueue.peek() == null)
         {
-            return;
+            nextThread = RVMThread.idleThread;
         }
-        RVMThread currentThread = Magic.getThreadRegister();
-        /*
-         * Put previous back on the run queue
-         */
-        runQueue.enqueue(currentThread);
-        /*
-         * Get the next runnable candidate
-         */
-        RVMThread nextThread = runQueue.dequeue();
+        else
+        {
+            RVMThread currentThread = Magic.getThreadRegister();
+            /*
+             * Put previous back on the run queue
+             */
+            runQueue.enqueue(currentThread);
+            /*
+             * Get the next runnable candidate
+             */
+            nextThread = runQueue.dequeue();
+        }
         /*
          * Setup to restore from new thread
          */
-        stack[RETURN_SP] = nextThread.getFramePointer().toInt();
+        stack[RETURN_SP] = nextThread.getStackPointer().toInt();
+        VM.sysWriteln("next thread sp: ", stack[RETURN_SP]);
         /*
          * Set the thread register
          */
-        Magic.setThreadRegister(currentThread);
+        Magic.setThreadRegister(nextThread);
     }
 
     /**

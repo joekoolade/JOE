@@ -1227,6 +1227,17 @@ public final class Magic {
     }
 
     /**
+     * Restore processor registers from the stack
+     */
+    public static void restoreThreadContext()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
      * @param stack
      */
     public static void switchStack(Address stack)
