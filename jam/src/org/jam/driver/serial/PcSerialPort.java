@@ -1,50 +1,209 @@
 package org.jam.driver.serial;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+
+import org.jam.board.pc.Platform;
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
 public class PcSerialPort {
 	Address comPort;
-	final private Offset RBR = PcSerialPortRegister.RBR.getOffset();
-	final private Offset THR = PcSerialPortRegister.THR.getOffset();
-	final private Offset LSR = PcSerialPortRegister.LSR.getOffset();
-	final private Offset LCR = PcSerialPortRegister.LCR.getOffset();
-	final private Offset DLL = PcSerialPortRegister.DLL.getOffset();
-	final private Offset DLH = PcSerialPortRegister.DLH.getOffset();
+	/*
+	 * Interrupt stack
+	 */
+	private int stack[];
+	Address stackTop;
+	private final static int STACK_SIZE = 256;
+	private ArrayDeque<Character> receiveBuffer;
+	private ArrayDeque<Character> transmitBuffer;
+	private final static int BUFFER_SIZE = 512;
+	private int transmitIndex;
+	private int receiveIndex;
+	private final static int MAX_RETRY = 3;
 	
-	final private int LSR_TEMT = 0x40;		// empty data holding register
-	@SuppressWarnings("unused")
-	final private int LSR_THRE = 0x20;		// empty transmitter holding register
+	final private static Offset RBR = PcSerialPortRegister.RBR.getOffset();
+	final private static Offset THR = PcSerialPortRegister.THR.getOffset();
+	final private static Offset LSR = PcSerialPortRegister.LSR.getOffset();
+	final private static Offset LCR = PcSerialPortRegister.LCR.getOffset();
+	final private static Offset DLL = PcSerialPortRegister.DLL.getOffset();
+	final private static Offset DLH = PcSerialPortRegister.DLH.getOffset();
+	final private static Offset IIR = PcSerialPortRegister.IIR.getOffset();
 	
-	final private int LCR_DLAB = 0x80;		// Divisor latch access
+	final private static int LSR_TEMT = 0x40;		// empty data holding register
 	@SuppressWarnings("unused")
-	final private int LCR_SB   = 0x40;		// break
-	@SuppressWarnings("unused")
-	final private int LCR_SP   = 0x20;		// sticky parity
-	final private int LCR_EPS  = 0x10;		// even parity select
-	final private int LCR_PEN  = 0x08;		// parity enable
-	final private int LCR_STB  = 0x04;		// stop bits
-	final private int LCR_WL_MASK = 0x3;
-	final private int LCR_WL_8BITS = 0x3;
-	final private int LCR_WL_7BITS = 0x2;
-	final private int LCR_WL_6BITS = 0x1;
-	final private int LCR_WL_5BITS = 0x0;
+	final private static int LSR_THRE = 0x20;		// empty transmitter holding register
 	
+	final private static int LCR_DLAB = 0x80;		// Divisor latch access
+	@SuppressWarnings("unused")
+	final private static int LCR_SB   = 0x40;		// break
+	@SuppressWarnings("unused")
+	final private static int LCR_SP   = 0x20;		// sticky parity
+	final private static int LCR_EPS  = 0x10;		// even parity select
+	final private static int LCR_PEN  = 0x08;		// parity enable
+	final private static int LCR_STB  = 0x04;		// stop bits
+	final private static int LCR_WL_MASK = 0x3;
+	final private static int LCR_WL_8BITS = 0x3;
+	final private static int LCR_WL_7BITS = 0x2;
+	final private static int LCR_WL_6BITS = 0x1;
+	final private static int LCR_WL_5BITS = 0x0;
+	
+	// Interrupt enable register
+	final private static int IER_LPM      = 0x20;     // low power mode interrupt enable
+	final private static int IER_SM       = 0x10;     // sleep mode interrupt enable
+	final private static int IER_MSI      = 0x08;     // modem status interrupt enable
+	final private static int IER_RLSI     = 0x04;     // receiver line status interrupt enable
+	final private static int IER_THREI    = 0x02;     // xmit holding register empty interrupt enable
+	final private static int IER_RDAI     = 0x01;     // receiver data available interrupt enable
+	
+	// Interrupt identification register
+	final private static int IIR_FIFO_NF  = 0x80;     // FIFO enabled but not functioning
+	final private static int IIR_FIFO_EN  = 0xC0;     // FIFO enabled
+	final private static int IIR_FIFO64   = 0x20;     // 64 byte FIFO enabled (16750 only)
+	// bits 1-3
+	final private static int IIR_MSI      = 0x00;     // modem status interrupt
+	final private static int IIR_THREI    = 0x01;     // xmit holding register empty interrupt
+	final private static int IIR_RDAI     = 0x02;     // receiver data available interrupt
+	final private static int IIR_RLSI     = 0x03;     // receiver line status interrupt
+	final private static int IIR_TIP      = 0x06;     // timeout interrupt pending (16550)
+	// bit 0
+	final private static int IIR_IPF      = 0x01;     // interrupt pending flag
+	
+	// Line Status Register
+	final private static int LSR_FIFOERR  = 0x80;     // RCV FIFO error
+	final private static int LSR_EDHR     = 0x40;     // empty data holding registers
+	final private static int LSR_ETHR     = 0x20;     // empty xmit holding registers
+	final private static int LSR_BI       = 0x10;     // break interrupt
+	final private static int LSR_FE       = 0x08;     // framing error
+	final private static int LSR_PE       = 0x04;     // parity error
+	final private static int LSR_OE       = 0x02;     // overrun error
+	final private static int LSR_DR       = 0x01;     // data ready
+	
+	public int breakCount = 0;
+	public int framingError = 0;
+	public int parityError = 0;
+	public int overrunError = 0;
+
 	public PcSerialPort(int portAddress)
 	{
 		comPort = Address.fromIntZeroExtend(portAddress);
+		receiveBuffer = new ArrayDeque<Character>(BUFFER_SIZE);
+		transmitBuffer = new ArrayDeque<Character>(BUFFER_SIZE);
+		transmitIndex = 0;
+		receiveIndex = 0;
+		
+        /*
+         * Allocate irq handler stack
+         */
+        stack = new int[STACK_SIZE];
+        /*
+         * Put in the sentinel
+         */
+        stack[STACK_SIZE-1] = 0;    // IP = 0
+        stack[STACK_SIZE-2] = 0;    // FP = 0
+        stack[STACK_SIZE-3] = 0;    // cmid = 0
+        
+        /*
+         * On a stack switch, the new stack is popped so need to count for this
+         * in the stackTop field. This space will contain the interrupted thread's
+         * stack pointer.
+         */
+        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
 	}
+	
+	public final void handler()
+	{
+	    int interruptId;
+	    int status;
+	    
+	    interruptId = comPort.ioLoadByte(IIR);
+	    if((interruptId & 0x1) == 0x1)
+	    {
+	        // Eitht com3 or spurious interrupt
+	        return;
+	    }
+	    status = (interruptId>>1) & 0xFF;
+	    if(status == IIR_RLSI)
+	    {
+	        // Line status interrupt; read the LSR register
+	        int lsrRegister = comPort.ioLoadByte(LSR);
+	        if((lsrRegister & LSR_BI) != 0)
+	        {
+	            breakCount++;
+	        }
+	        if((lsrRegister & LSR_FE) != 0)
+	        {
+	            framingError++;
+	        }
+	        if((lsrRegister & LSR_PE) != 0)
+	        {
+	            parityError++;
+	        }
+	        if((lsrRegister & LSR_OE) != 0)
+	        {
+	            overrunError++;
+	        }
+	    }
+	    if(status == IIR_THREI)
+	    {
+	        // Transmit register empty
+	        if(transmitBuffer.isEmpty())
+	        {
+	            disableTransmit();
+	        }
+	        else
+	        {
+	            char val = transmitBuffer.remove();
+	            comPort.ioStore(THR, val);
+	        }
+	    }
+	    Platform.masterPic.eoi();
+	}
+	
+    /**
+     * 
+     */
+    final private void disableTransmit()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public Address getHandlerStack()
+    {
+        
+        return stackTop;
+    }
 	
 	public char read() 
 	{
 		return comPort.ioLoadChar(RBR);
 	}
 	
+	private void enableTransmit()
+	{
+	    
+	}
 	public void write(char val) 
 	{
-		while((comPort.ioLoadByte(LSR) & LSR_TEMT) == 0)
+	    int retry = 0;
+	    
+	    if(transmitBuffer.isEmpty() == false)
+	    {
+	        transmitBuffer.add(val);
+	        enableTransmit();
+	        return;
+	    }
+		while((comPort.ioLoadByte(LSR) & LSR_TEMT) == 0 && retry <= MAX_RETRY)
 		{
-			// wait until the transmitter is empty
+			retry++;
+		}
+		if((comPort.ioLoadByte(LSR) & LSR_TEMT) == 0 && retry <= MAX_RETRY)
+		{
+		    transmitBuffer.add(val);
+		    enableTransmit();
+		    return;
 		}
 		comPort.ioStore(THR, val);
 	}

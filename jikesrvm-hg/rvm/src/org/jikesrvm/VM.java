@@ -14,6 +14,7 @@ package org.jikesrvm;
 
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.tests.Sleep;
 import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
@@ -421,24 +422,24 @@ public class VM extends Properties implements Constants, ExitStatus {
       CompilerAdvice.postBoot();
     }
 
+    
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
-
+    Sleep sleep = new Sleep();
+    
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
-
+//    new Thread(sleep).start();
+    
+    // Say good bye to the boot thread
     Magic.yield();
     
-    int i = 0;
-    while(true)
-    {
-        i++;
-    }
-    //if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
+    // As one suspects this should never be reached
+    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
   /**

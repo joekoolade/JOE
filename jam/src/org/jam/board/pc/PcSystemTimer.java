@@ -7,7 +7,10 @@
  */
 package org.jam.board.pc;
 
+import java.util.TreeMap;
+
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -19,14 +22,16 @@ public class PcSystemTimer
 
     public I82c54 timer;
     public long tick;                                        // in milliseconds
-    public int  sourceFreq     = 1193180;                    // i82c54 source frequency is 1.193180 Mhz
-    public int  ticksPerSecond = 1000;
+    public static final int  sourceFreq     = 1193180;                    // i82c54 source frequency is 1.193180 Mhz
+    public static final int  ticksPerSecond = 1000;
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
     
     private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;
+    private static final int TICKSPERNSECS = 1000000;
+    private TreeMap<Long, RVMThread> timerQueue;
     
     /*
      * how many ticks to wait to reschedule
@@ -57,6 +62,7 @@ public class PcSystemTimer
          * stack pointer.
          */
         stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
+        timerQueue = new TreeMap<Long, RVMThread>();
     }
 
     public final long getTime()
@@ -84,6 +90,59 @@ public class PcSystemTimer
             overflow -= 1000000;
         }
 
-         Platform.masterPic.eoi();
+        checkTimers();
+        schedule();
+        Platform.masterPic.eoi();
+    }
+    
+    final private void schedule()
+    {
+        // do nothing for now
+    }
+    
+    private void checkTimers()
+    {
+        if(timerQueue.isEmpty())
+        {
+            return;
+        }
+        Long timerExpiration = timerQueue.firstKey();
+        
+        if(tick < timerExpiration)
+        {
+            return;
+        }
+        
+        /*
+         * Remove the thread from the timer and schedule it
+         */
+        RVMThread thread = timerQueue.remove(timerExpiration);
+        Platform.scheduler.addThread(thread);
+    }
+    
+    /**
+     * Set timer for a thread
+     * @param time_ns time to sleep in nanoseconds.
+     */
+    public void startTimer(long time_ns)
+    {
+        long timerTicks;
+        
+        /*
+         * convert to ticks (milliseconds)
+         */
+        timerTicks = time_ns / TICKSPERNSECS;
+        /*
+         * set expiration time and put on the queue
+         */
+        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
+        /*
+         * schedule a new thread
+         */
+        Platform.scheduler.nextThread();
+        /*
+         * give it up
+         */
+        Magic.yield();
     }
 }

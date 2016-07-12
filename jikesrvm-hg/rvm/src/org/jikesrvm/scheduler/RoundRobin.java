@@ -53,8 +53,12 @@ implements Scheduler {
             RVMThread currentThread = Magic.getThreadRegister();
             /*
              * Put previous back on the run queue
+             * Unless it is the idle thread which is never runnable
              */
-            runQueue.enqueue(currentThread);
+            if(!currentThread.isIdleThread())
+            {
+                runQueue.enqueue(currentThread);
+            }
             /*
              * Get the next runnable candidate
              */

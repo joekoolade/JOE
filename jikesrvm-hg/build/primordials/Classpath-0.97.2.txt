@@ -179,6 +179,11 @@ Ljava/util/AbstractMap$SimpleImmutableEntry;
 Ljava/util/AbstractSet;
 [Ljava/util/AbstractSet;
 
+Ljava/util/ArrayDeque;
+Ljava/util/ArrayDeque$1;
+Ljava/util/ArrayDeque$DeqIterator;
+Ljava/util/ArrayDeque$DescendingIterator;
+
 Ljava/util/ArrayList;
 Ljava/util/AbstractList$1;
 Ljava/util/AbstractList$2;

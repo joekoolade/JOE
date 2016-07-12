@@ -269,6 +269,9 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            VM.sysFail("INT31");
        }
+       /**
+        * IRQ0, System timer interrupt
+        */
        @InterruptHandler
        public static void int32()
        {
@@ -297,10 +300,21 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            VM.sysFail("IRQ3");
        }
+       /**
+        * IRQ4, COM1/COM3 serial ports
+        */
        @InterruptHandler
        public static void int36()
        {
-           VM.sysFail("IRQ4");
+           // Save registers on the interrupted stack
+           Magic.saveContext();
+           // Switch to the interrupt stack
+           Magic.switchStack(Platform.timer.getHandlerStack());
+           Platform.serialPort.handler();
+           // Restore back to the interrupt stack and context
+           Magic.restoreContext();
+           // The interrupt handler annotation will emit the IRET
+           // good bye
        }
        @InterruptHandler
        public static void int37()

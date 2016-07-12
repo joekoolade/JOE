@@ -2680,9 +2680,13 @@ private Address sp;
      * new stack - 4       ESP: new stack
      * ------------
      */
-//    Platform.scheduler.addThread(this);
-//    sysCall.sysThreadCreate(Magic.objectAsAddress(this),
-//        contextRegisters.ip, contextRegisters.getInnermostFramePointer());
+    /*
+     * Do not schedule the idle thread
+     */
+    if(!isIdleThread())
+    {
+        Platform.scheduler.addThread(this);
+    }
   }
 
   /**
@@ -3167,11 +3171,9 @@ private Address sp;
     t.waiting = Waiting.TIMED_WAITING;
     long atStart = Magic.getTimeBase(); // sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
-    t.monitor().lockNoHandshake();
-    while (!t.hasInterrupt && t.asyncThrowable == null &&
-        Magic.getTimeBase() < whenEnd) {
-      t.monitor().timedWaitAbsoluteWithHandshake(whenEnd);
-    }
+    
+    Platform.timer.startTimer(ns);
+    
     boolean throwInterrupt = false;
     Throwable throwThis = null;
     if (t.hasInterrupt) {
@@ -3182,8 +3184,6 @@ private Address sp;
       throwThis = t.asyncThrowable;
       t.asyncThrowable = null;
     }
-    t.monitor().unlock();
-    t.waiting = Waiting.RUNNABLE;
     if (throwThis != null) {
       RuntimeEntrypoints.athrow(throwThis);
     }
@@ -4410,6 +4410,10 @@ private Address sp;
     return this == bootThread;
   }
 
+  public boolean isIdleThread()
+  {
+      return this == idleThread;
+  }
   /** @return Is this the MainThread ? */
   private boolean isMainThread() {
     return thread instanceof MainThread;
