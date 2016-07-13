@@ -51,18 +51,24 @@ public class I8259A {
   private boolean isSlave;
   private Address cmd, data;
   
-  final public int ICW1_INIT  = 0x10;
-  final public int ICW1_LTIM  = 0x08;
-  final public int ICW1_ADI   = 0x04;
-  final public int ICW1_SNGL  = 0x02;
-  final public int ICW1_IC2   = 0x01;
-  final public int ICW2_BASE_ADDR_MASK = 0x7;
-  final public int ICW3_SLAVE = 0x1;
-  final public int ICW4_SFNM  = 0x10;
-  final public int ICW4_BUF   = 0x08;
-  final public int ICW4_MS    = 0x04;
-  final public int ICW4_AEOI  = 0x02;
-  final public int ICW4_8086MODE = 0x01;
+  final public static int ICW1_INIT  = 0x10;
+  final public static int ICW1_LTIM  = 0x08;
+  final public static int ICW1_ADI   = 0x04;
+  final public static int ICW1_SNGL  = 0x02;
+  final public static int ICW1_IC2   = 0x01;
+  final public static int ICW2_BASE_ADDR_MASK = 0x7;
+  final public static int ICW3_SLAVE = 0x1;
+  final public static int ICW4_SFNM  = 0x10;
+  final public static int ICW4_BUF   = 0x08;
+  final public static int ICW4_MS    = 0x04;
+  final public static int ICW4_AEOI  = 0x02;
+  final public static int ICW4_8086MODE = 0x01;
+  
+  public static final byte SYSTEM_TIMER = 0x01;
+  public static final byte SLAVE = 0x04;
+  public static final byte COM2 = 0x08;
+  public static final byte COM1 = 0x10;
+  
   private Address delay;
   
   public I8259A(int port) {
@@ -99,6 +105,8 @@ public class I8259A {
     }
     icw4=ICW4_8086MODE;
     initialize();
+    // disable all interrupts
+    interruptMask(0xFF);
   }
   
   public void slave() {
@@ -145,8 +153,25 @@ public class I8259A {
         return cmd.ioLoadByte();
     }
 
-    public void interruptMask(byte mask)
+    /**
+     * Sets the interrupt mask
+     * @param i
+     */
+    final public void interruptMask(int i)
     {
-        data.ioStore(mask);
+        data.ioStore(i);
+    }
+    
+    /**
+     * Enables an individual interrupt of the interrupt mask
+     * @param irq
+     */
+    final public void setInterrupt(byte irq)
+    {
+        byte interruptMask;
+        
+        interruptMask = data.ioLoadByte();
+        interruptMask &= ~irq;
+        data.ioStore(interruptMask);
     }
 }

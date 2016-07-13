@@ -41,9 +41,9 @@ public class Platform {
         Idt.init();
         masterPic = new I8259A(MASTERPICPORT);
         masterPic.pcSetup();
-        masterPic.interruptMask((byte)0xFE);
+        masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
+        masterPic.setInterrupt(I8259A.COM1);
         slavePic = new I8259A(SLAVEPICPORT, true);
         slavePic.pcSetup();
-        slavePic.interruptMask((byte)0xFF);
     }
 }
