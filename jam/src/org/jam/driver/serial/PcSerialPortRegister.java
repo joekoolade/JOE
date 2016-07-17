@@ -18,6 +18,7 @@ public enum PcSerialPortRegister {
 	LCR(3),
 	MCR(4),
 	LSR(5),
+	MSR(6),
 	SCR(7);
 	
 	private PcSerialPortRegister(int offset)

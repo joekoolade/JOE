@@ -1,5 +1,8 @@
 package org.jam.driver.serial;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
@@ -30,6 +33,8 @@ public class PcSerialPort {
 	final private static Offset DLL = PcSerialPortRegister.DLL.getOffset();
 	final private static Offset DLH = PcSerialPortRegister.DLH.getOffset();
 	final private static Offset IIR = PcSerialPortRegister.IIR.getOffset();
+    final private static Offset IER = PcSerialPortRegister.IER.getOffset();
+	final private static Offset MSR = PcSerialPortRegister.MSR.getOffset();
 	
 	final private static int LSR_TEMT = 0x40;		// empty data holding register
 	@SuppressWarnings("unused")
@@ -63,10 +68,10 @@ public class PcSerialPort {
 	final private static int IIR_FIFO64   = 0x20;     // 64 byte FIFO enabled (16750 only)
 	// bits 1-3
 	final private static int IIR_MSI      = 0x00;     // modem status interrupt
-	final private static int IIR_THREI    = 0x01;     // xmit holding register empty interrupt
-	final private static int IIR_RDAI     = 0x02;     // receiver data available interrupt
-	final private static int IIR_RLSI     = 0x03;     // receiver line status interrupt
-	final private static int IIR_TIP      = 0x06;     // timeout interrupt pending (16550)
+	final private static int IIR_THREI    = 0x02;     // xmit holding register empty interrupt
+	final private static int IIR_RDAI     = 0x04;     // receiver data available interrupt
+	final private static int IIR_RLSI     = 0x06;     // receiver line status interrupt
+	final private static int IIR_TIP      = 0x0C;     // timeout interrupt pending (16550)
 	// bit 0
 	final private static int IIR_IPF      = 0x01;     // interrupt pending flag
 	
@@ -85,9 +90,14 @@ public class PcSerialPort {
 	public int parityError = 0;
 	public int overrunError = 0;
 
+	private SerialOutputStream outputStream;
+	private PrintStream printStream;
+	
 	public PcSerialPort(int portAddress)
 	{
 		comPort = Address.fromIntZeroExtend(portAddress);
+		// disable all interrupts
+		disableInterrupts();
 		receiveBuffer = new ArrayDeque<Character>(BUFFER_SIZE);
 		transmitBuffer = new ArrayDeque<Character>(BUFFER_SIZE);
 		transmitIndex = 0;
@@ -110,23 +120,56 @@ public class PcSerialPort {
          * stack pointer.
          */
         stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
+        
+        outputStream = new SerialOutputStream(this);
+        printStream = new PrintStream(outputStream);
 	}
 	
-	public final void handler()
+	private class SerialOutputStream extends OutputStream {
+	    PcSerialPort serialPort;
+	    
+	    public SerialOutputStream(PcSerialPort port)
+	    {
+	        super();
+	        serialPort = port;
+	    }
+	    
+        /* (non-Javadoc)
+         * @see java.io.OutputStream#write(int)
+         */
+        @Override
+        public void write(int b) throws IOException
+        {
+            serialPort.write((char)b);
+        }
+	    
+	}
+	
+	public PrintStream getPrintStream()
+	{
+	    return printStream;
+	}
+	/**
+     * Disable all uart interrupts
+     */
+    private void disableInterrupts()
+    {
+       comPort.ioStore(IER, 0);
+    }
+
+    public final void handler()
 	{
 	    int interruptId;
-	    int status;
 	    
 	    interruptId = comPort.ioLoadByte(IIR);
 	    if((interruptId & 0x1) == 0x1)
 	    {
-	        // Eitht com3 or spurious interrupt
+	        // Either com3 or spurious interrupt
 	        return;
 	    }
-	    status = (interruptId>>1) & 0xFF;
-	    if(status == IIR_RLSI)
+	    if(interruptId == IIR_RLSI)
 	    {
-	        // Line status interrupt; read the LSR register
+	        // Line status interrupt; read the LSR register to reset interrupt
 	        int lsrRegister = comPort.ioLoadByte(LSR);
 	        if((lsrRegister & LSR_BI) != 0)
 	        {
@@ -145,12 +188,12 @@ public class PcSerialPort {
 	            overrunError++;
 	        }
 	    }
-	    if(status == IIR_THREI)
+	    if(interruptId == IIR_THREI)
 	    {
 	        // Transmit register empty
 	        if(transmitBuffer.isEmpty())
 	        {
-	            disableTransmit();
+	            disableTransmitInterrupts();
 	        }
 	        else
 	        {
@@ -158,15 +201,27 @@ public class PcSerialPort {
 	            comPort.ioStore(THR, val);
 	        }
 	    }
+	    if(interruptId == IIR_RDAI)
+	    {
+	        // reset interrupt by reading the RBR register
+	        comPort.ioLoadByte(RBR);
+	    }
+	    if(interruptId == IIR_MSI)
+	    {
+	        // reset the interrupt
+	        comPort.ioLoadByte(MSR);
+	    }
 	    Platform.masterPic.eoi();
 	}
 	
     /**
-     * 
+     * Disable the transmit holding register empty interrupt
      */
-    final private void disableTransmit()
+    final private void disableTransmitInterrupts()
     {
-        // TODO Auto-generated method stub
+        byte ierReg = comPort.ioLoadByte(IER);
+        ierReg &= ~IER_THREI;
+        comPort.ioStore(IER, ierReg);
         
     }
 
@@ -181,9 +236,14 @@ public class PcSerialPort {
 		return comPort.ioLoadChar(RBR);
 	}
 	
-	private void enableTransmit()
+	/**
+	 * Enable the transmit holding register empty interrupt
+	 */
+	private void enableTransmitInterrupts()
 	{
-	    
+        byte ierReg = comPort.ioLoadByte(IER);
+        ierReg |= IER_THREI;
+        comPort.ioStore(IER, ierReg);
 	}
 	public void write(char val) 
 	{
@@ -192,7 +252,7 @@ public class PcSerialPort {
 	    if(transmitBuffer.isEmpty() == false)
 	    {
 	        transmitBuffer.add(val);
-	        enableTransmit();
+	        enableTransmitInterrupts();
 	        return;
 	    }
 		while((comPort.ioLoadByte(LSR) & LSR_TEMT) == 0 && retry <= MAX_RETRY)
@@ -202,7 +262,7 @@ public class PcSerialPort {
 		if((comPort.ioLoadByte(LSR) & LSR_TEMT) == 0 && retry <= MAX_RETRY)
 		{
 		    transmitBuffer.add(val);
-		    enableTransmit();
+		    enableTransmitInterrupts();
 		    return;
 		}
 		comPort.ioStore(THR, val);
