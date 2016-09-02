@@ -2565,7 +2565,7 @@ final class BaselineMagic {
            * ISR is running on new stack.
            * Push the previous SP from the interrupted thread/isr onto it
            */
-          asm.emitPUSH_Reg(S0);
+          //asm.emitPUSH_Reg(S0);
           /*
            * Save interrupted thread's stack pointer into
            * current thread's frame pointer field

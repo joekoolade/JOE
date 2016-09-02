@@ -442,6 +442,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     // Say good bye to the boot thread
     Magic.yield();
     
+    VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");
     // As one suspects this should never be reached
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }

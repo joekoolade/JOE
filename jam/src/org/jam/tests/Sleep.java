@@ -31,9 +31,9 @@ public final class Sleep implements Runnable {
         {
             try
             {
-                System.out.println("*");
-//                System.out.print(' ');
-//                System.out.flush();
+                System.out.print(i);
+                System.out.print(' ');
+                System.out.flush();
                 Thread.sleep(1000);
             }
             catch (InterruptedException e)

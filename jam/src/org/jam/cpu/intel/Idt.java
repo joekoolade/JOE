@@ -158,10 +158,10 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int8()
         {
-            Magic.saveContext();
-            Magic.halt();
-            VM.write("Double Fault");
-            //VM.sysFail("Double Fault");
+//            Magic.saveContext();
+//            Magic.halt();
+//            VM.write("Double Fault");
+            VM.sysFail("Double Fault");
         }
         @InterruptHandler
         public static void int9()
@@ -390,7 +390,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Magic.saveContext();
            // Switch to the interrupt stack
            Magic.switchStack(Platform.scheduler.getHandlerStack());
-           VM.sysWriteln("int48/yield");
+//           VM.sysWriteln("int48/yield");
            Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context
            Magic.restoreThreadContext();

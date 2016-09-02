@@ -16,4 +16,8 @@ public interface Scheduler {
     public void nextThread();
     public void addThread(RVMThread thread);
     public Address getHandlerStack();
+    /**
+     * @return
+     */
+    public boolean noRunnableThreads();
 }

@@ -35,29 +35,22 @@ implements Scheduler {
         VM.sysWriteln("roundrobin stack top: ", stackTop);
         runQueue = new ThreadQueue();
     }
-    /* (non-Javadoc)
-     * @see org.jikesrvm.scheduler.Scheduler#scheduleThread()
+    /* 
+     * Current thread must be scheduled before calling calling
+     * 
      */
     @Override
     public void nextThread()
     {
         RVMThread nextThread;
         
+        RVMThread currentThread = Magic.getThreadRegister();
         if(runQueue.peek() == null)
         {
             nextThread = RVMThread.idleThread;
         }
         else
         {
-            RVMThread currentThread = Magic.getThreadRegister();
-            /*
-             * Put previous back on the run queue
-             * Unless it is the idle thread which is never runnable
-             */
-            if(!currentThread.isIdleThread())
-            {
-                runQueue.enqueue(currentThread);
-            }
             /*
              * Get the next runnable candidate
              */
@@ -66,7 +59,10 @@ implements Scheduler {
         /*
          * Setup to restore from new thread
          */
-        VM.sysWriteln("next thread sp: ", nextThread.getStackPointer());
+//        VM.sysWrite(Magic.objectAsAddress(Magic.getThreadRegister()));
+//        VM.sysWriteln("->", Magic.objectAsAddress(nextThread));
+//        VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
+//        VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
         /*
          * Set the thread register
          */
@@ -91,6 +87,14 @@ implements Scheduler {
     {
         // TODO Auto-generated method stub
         return stackTop;
+    }
+    /* (non-Javadoc)
+     * @see org.jikesrvm.scheduler.Scheduler#noRunnableThreads()
+     */
+    @Override
+    public boolean noRunnableThreads()
+    {
+        return runQueue.isEmpty();
     }
 
 }

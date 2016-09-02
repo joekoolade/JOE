@@ -2818,13 +2818,7 @@ private Address sp;
    */
   @Interruptible
   private void callSystemExit(final int exitStatus) {
-    AccessController.doPrivileged(new PrivilegedAction<Object>() {
-      @Override
-      public Object run() {
-        System.exit(exitStatus);
-        return null;
-      }
-    });
+      // run shut down hooks
   }
 
   /**
@@ -3153,12 +3147,13 @@ private Address sp;
   }
 
   public static void yieldNoHandshake() {
+    Platform.scheduler.addThread(Magic.getThreadRegister());
     Magic.yield();
   }
 
-  @UnpreemptibleNoWarn
   public static void yieldWithHandshake() {
     getCurrentThread().checkBlock();
+    Platform.scheduler.addThread(Magic.getThreadRegister());
     Magic.yield();
   }
   /**
@@ -3167,7 +3162,7 @@ private Address sp;
    */
   @Interruptible
   public static void sleep(long ns) throws InterruptedException {
-      //VM.sysWriteln("sleep: ", (int)ns);
+    // VM.sysWriteln("sleep: ", ns);
     RVMThread t = getCurrentThread();
     t.waiting = Waiting.TIMED_WAITING;
     long atStart = Magic.getTimeBase(); // sysCall.sysNanoTime();

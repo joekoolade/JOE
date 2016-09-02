@@ -23,11 +23,11 @@ public class PcSystemTimer
 
     public I82c54 timer;
     public long tick;                                        // in milliseconds
-    public static final int  sourceFreq     = 1193180;                    // i82c54 source frequency is 1.193180 Mhz
-    public static final int  ticksPerSecond = 1000;
+    private static final int  sourceFreq     = 1193180;                    // i82c54 source frequency is 1.193180 Mhz
+    private static final int  ticksPerSecond = 1000;
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
-    
+    public int BOLT = 10;   // schedule new process
     private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;
@@ -98,7 +98,37 @@ public class PcSystemTimer
     
     final private void schedule()
     {
-        // do nothing for now
+        /*
+         * If there are no threads waiting run then
+         * just keep running the current one
+         */
+        if(Platform.scheduler.noRunnableThreads())
+        {
+            return;
+        }
+        /*
+         * We took a timer tick and there are threads that are runnable.
+         */
+        RVMThread currentThread = Magic.getThreadRegister();
+        
+        /*
+         * Current thread has had its time allotment so put it on queue 
+         * and schedule a new thread
+         */
+        if(((int)tick % BOLT) == 0 && !currentThread.isIdleThread())
+        {
+            Platform.scheduler.addThread(currentThread);
+            Platform.scheduler.nextThread();
+        }
+        else if(currentThread.isIdleThread())
+        {
+            /*
+             * There is a runnable thread and the idle thread is running
+             * so schedule a new thread
+             */
+            Platform.scheduler.nextThread();
+        }
+        
     }
     
     private void checkTimers()
@@ -117,9 +147,9 @@ public class PcSystemTimer
         /*
          * Remove the thread from the timer and schedule it
          */
-        VM.sysWriteln("Timer expired!");
+//        VM.sysWriteln("Timer expired!");
         RVMThread thread = timerQueue.remove(timerExpiration);
-        VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
+//        VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
         Platform.scheduler.addThread(thread);
     }
     
@@ -129,22 +159,21 @@ public class PcSystemTimer
      */
     public void startTimer(long time_ns)
     {
-        long timerTicks;
+        int timerTicks;
         
         /*
          * convert to ticks (milliseconds)
          */
-        timerTicks = time_ns / TICKSPERNSECS;
+        timerTicks = (int)time_ns / TICKSPERNSECS;
+//        VM.sysWriteln("timer ticks: ", timerTicks);
+//        VM.sysWriteln("time_ns: ", time_ns);
+//        VM.sysWriteln("expire: ", timerTicks+tick);
         /*
          * set expiration time and put on the queue
          */
         timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
         /*
-         * schedule a new thread
-         */
-        Platform.scheduler.nextThread();
-        /*
-         * give it up
+         * give it up and schedule a new thread
          */
         Magic.yield();
     }
