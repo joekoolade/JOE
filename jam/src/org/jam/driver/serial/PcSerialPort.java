@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-
 import org.jam.board.pc.Platform;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;

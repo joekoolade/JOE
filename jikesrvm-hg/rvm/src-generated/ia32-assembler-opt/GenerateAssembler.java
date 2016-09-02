@@ -1085,6 +1085,8 @@ public class GenerateAssembler {
     excludedOpcodes.add("IRET");
     excludedOpcodes.add("PUSHAD");
     excludedOpcodes.add("POPAD");
+    excludedOpcodes.add("BSR");
+    excludedOpcodes.add("MOVSEG");
   }
 
   /**

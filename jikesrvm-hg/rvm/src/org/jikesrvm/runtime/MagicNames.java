@@ -218,4 +218,7 @@ public class MagicNames {
   public static final Atom addressArrayLength = Atom.findOrCreateAsciiAtom("length");
   public static final Atom addressArrayGet = Atom.findOrCreateAsciiAtom("get");
   public static final Atom addressArraySet = Atom.findOrCreateAsciiAtom("set");
+  
+  // Segment register manipulations
+  public static final Atom setCS = Atom.findOrCreateAsciiAtom("setCS");
 }

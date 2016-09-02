@@ -359,13 +359,13 @@ public final class ThinLock implements ThinLockConstants {
         // communicationLock even if the owner was null.  but that would be
         // goofy.
         if (false) VM.sysWriteln("entering pair handshake");
-        owner.beginPairHandshake();
+        // owner.beginPairHandshake();
         if (false) VM.sysWriteln("done with that");
 
         Word newLockWord=Magic.getWordAtOffset(o, lockOffset);
         result=Synchronization.tryCompareAndSwap(
           o, lockOffset, oldLockWord, changed);
-        owner.endPairHandshake();
+        // owner.endPairHandshake();
         if (false) VM.sysWriteln("that worked.");
 
         return result;

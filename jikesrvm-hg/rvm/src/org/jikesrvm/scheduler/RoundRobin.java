@@ -19,7 +19,6 @@ implements Scheduler {
     private int[] stack;
     private Address stackTop;
     private final static int STACK_SIZE = 256;
-    private final static int RETURN_SP = STACK_SIZE-4;
     private ThreadQueue runQueue;
     
     public RoundRobin()
@@ -33,7 +32,7 @@ implements Scheduler {
         stack[STACK_SIZE-3] = 0;    // cmid = 0
         
         stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
-        
+        VM.sysWriteln("roundrobin stack top: ", stackTop);
         runQueue = new ThreadQueue();
     }
     /* (non-Javadoc)
@@ -67,8 +66,7 @@ implements Scheduler {
         /*
          * Setup to restore from new thread
          */
-        stack[RETURN_SP] = nextThread.getStackPointer().toInt();
-        VM.sysWriteln("next thread sp: ", stack[RETURN_SP]);
+        VM.sysWriteln("next thread sp: ", nextThread.getStackPointer());
         /*
          * Set the thread register
          */

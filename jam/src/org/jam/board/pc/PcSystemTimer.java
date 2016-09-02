@@ -9,6 +9,7 @@ package org.jam.board.pc;
 
 import java.util.TreeMap;
 
+import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.unboxed.Address;
@@ -116,7 +117,9 @@ public class PcSystemTimer
         /*
          * Remove the thread from the timer and schedule it
          */
+        VM.sysWriteln("Timer expired!");
         RVMThread thread = timerQueue.remove(timerExpiration);
+        VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
         Platform.scheduler.addThread(thread);
     }
     

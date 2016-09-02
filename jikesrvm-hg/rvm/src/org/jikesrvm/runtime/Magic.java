@@ -1299,4 +1299,11 @@ public final class Magic {
         }
     }
 
+    public static void setCS(int segment)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
 }

@@ -13,7 +13,9 @@
 package org.jikesrvm.compilers.baseline.ia32;
 
 import org.jikesrvm.SizeConstants;
+
 import static org.jikesrvm.mm.mminterface.Barriers.*;
+
 import org.jikesrvm.VM;
 import org.jikesrvm.adaptive.AosEntrypoints;
 import org.jikesrvm.adaptive.recompilation.InvocationCounts;
@@ -36,6 +38,7 @@ import org.jikesrvm.compilers.baseline.BaselineCompiler;
 import org.jikesrvm.compilers.baseline.EdgeCounts;
 import org.jikesrvm.compilers.common.CompiledMethod;
 import org.jikesrvm.compilers.common.assembler.ForwardReference;
+import org.jikesrvm.compilers.common.assembler.ForwardReference.ConditionalBranch;
 import org.jikesrvm.compilers.common.assembler.ia32.Assembler;
 import org.jikesrvm.ia32.BaselineConstants;
 import org.jikesrvm.ia32.ThreadLocalState;
@@ -1015,38 +1018,131 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       asm.emitIDIV_Reg_Reg_Quad(EAX, ECX);
       asm.emitPUSH_Reg(EAX); // push result
     } else {
-//      // (1) zero check
-//      asm.emitMOV_Reg_RegInd(T0, SP);
-//      asm.emitOR_Reg_RegDisp(T0, SP, ONE_SLOT);
-//      asm.emitBranchLikelyNextInstruction();
-//      ForwardReference fr1 = asm.forwardJcc(Assembler.NE);
-//      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_DIVIDE_BY_ZERO + RVM_TRAP_BASE);    // trap if divisor is 0
-//      fr1.resolve(asm);
-      // (2) save RVM nonvolatiles
-      int numNonVols = NONVOLATILE_GPRS.length;
-      Offset off = Offset.fromIntSignExtend(numNonVols * WORDSIZE);
-      for (int i = 0; i < numNonVols; i++) {
-        asm.emitPUSH_Reg(NONVOLATILE_GPRS[i]);
-      }
-      // (3) Push args to C function (reversed)
-      asm.emitPUSH_RegDisp(SP, off.plus(4));
-      asm.emitPUSH_RegDisp(SP, off.plus(4));
-      asm.emitPUSH_RegDisp(SP, off.plus(20));
-      asm.emitPUSH_RegDisp(SP, off.plus(20));
-      // (4) invoke C function through bootrecord
-      asm.emitMOV_Reg_Abs(S0, Magic.getTocPointer().plus(Entrypoints.the_boot_recordField.getOffset()));
-      asm.emitCALL_RegDisp(S0, Entrypoints.sysLongDivideIPField.getOffset());
-      // (5) pop space for arguments
-      adjustStack(4 * WORDSIZE, true);
-      // (6) restore RVM nonvolatiles
-      for (int i = numNonVols - 1; i >= 0; i--) {
-        asm.emitPOP_Reg(NONVOLATILE_GPRS[i]);
-      }
-      // (7) pop expression stack
-      adjustStack(WORDSIZE*4, true);
-      // (8) push results
-      asm.emitPUSH_Reg(T1);
-      asm.emitPUSH_Reg(T0);
+        asm.emitPUSH_Reg(EBP);
+        /*
+         *   stack looks like:
+         *   ...
+         *   a: dividend.high    FIVE_SLOTS
+         *      dividend.low     FOUR_SLOTS
+         *   b: divisor.high     THREE_SLOTS
+         *      divisor.low      TWO_SLOTS
+         *      EBP              <--- esp
+         */
+        asm.emitMOV_Reg_RegDisp_Word(EDX, SP, TWO_SLOTS); // edx = divisor.high
+        asm.emitMOV_Reg_RegDisp_Word(EAX, SP, THREE_SLOTS); // eax = divisor.low
+        asm.emitMOV_Reg_Reg(ECX, EDX);
+        asm.emitSAR_RegInd_Imm_Byte(ECX, 31);           // ( b < 0 ) ? -1 : 0
+        asm.emitXOR_Reg_Reg(EAX, ECX);
+        asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (b < 0) ? not(b) : b
+        asm.emitSUB_Reg_Reg(EAX, ECX);
+        asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(b)
+        asm.emitMOV_RegDisp_Reg(SP, TWO_SLOTS, EDX);
+        asm.emitMOV_RegDisp_Reg(SP, THREE_SLOTS, EAX);    // store abs(b) onto the stack
+        asm.emitMOV_Reg_Reg(EBP, ECX);                  // put sign of b in ebp
+        asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);   // edx = dividend.high
+        asm.emitMOV_Reg_RegDisp(EAX, SP, FIVE_SLOTS);   // eax = dividend.low
+        asm.emitMOV_Reg_Reg(ECX, EDX);
+        asm.emitSAR_RegInd_Imm_Byte(ECX, 31);           // ( a < 0 ) ? -1 : 0
+        asm.emitXOR_Reg_Reg(EAX, ECX);
+        asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (a < 0) ? not(a) : a
+        asm.emitSUB_Reg_Reg(EAX, ECX);
+        asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(a)
+        asm.emitMOV_RegDisp_Reg(SP, FOUR_SLOTS, EDX);
+        asm.emitMOV_RegDisp_Reg(SP, FIVE_SLOTS, EAX);    // store abs(a) onto the stack
+        asm.emitXOR_Reg_Reg(EBP, ECX);                  // sign result = sign of a ^ sign of b
+        asm.emitMOV_Reg_RegDisp(EBX, SP, TWO_SLOTS);     // Find the index i of the leading bit in b.
+        asm.emitBSR_Reg_Reg(ECX, EBX);                  // if divisor.high is 0
+//        ForwardReference F9 = asm.forwardJcc(Assembler.EQ);  
+        asm.emitJCC_Cond_Label(Assembler.EQ, 9);        // jump to special case 9
+        
+        // b.high > 0
+        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);    // construct bhi containing [1+i:32+i] of b
+        asm.emitSHR_Reg_Reg(EAX, ECX);
+        asm.emitSHR_Reg_Imm(EAX, 1);                    // dividend.low >> (i+1)
+        asm.emitNOT_Reg(ECX);                           // 31-i
+        asm.emitSHL_Reg_Reg(EBX, ECX);                  // dividend.high << (31-i)
+        asm.emitOR_Reg_Reg(EBX, EAX);                   // bhi = dividend.low | dividend.high
+        asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, FIVE_SLOTS);
+        asm.emitCMP_Reg_Reg(EDX, EBX);                  // Jump to F1 if a.high > b.high
+        asm.emitJCC_Cond_Label(Assembler.GE, 1);
+        //ForwardReference F1 = asm.forwardJcc();
+        
+        //  a <  b >> (i+1)
+        asm.emitDIV_Reg_Reg(EAX, EBX);                  // eax = quotient; edx = remainder
+        asm.emitNOT_Reg(ECX);
+        asm.emitSHR_Reg_Imm(EAX, 1);
+        asm.emitSHR_Reg_Reg(EAX, ECX);
+        asm.emitMOV_Reg_Reg(EDI, EAX);
+        asm.emitMUL_Reg_RegDisp(EAX, SP, THREE_SLOTS);    // eax = dividend.low
+        asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
+        asm.emitMOV_Reg_RegDisp(EBX, SP, FIVE_SLOTS);
+        asm.emitSUB_Reg_Reg(EBX, EAX);
+        asm.emitSBB_Reg_Reg(ECX, EDX);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
+        asm.emitMUL_Reg_Reg(EAX, EDI);                  // q*dividend.high
+        asm.emitSUB_Reg_Reg(ECX, EAX);
+        asm.emitSBB_Reg_Imm(EDI, 0);                    // decrement q if remainder negative
+        asm.emitXOR_Reg_Reg(EDX, EDX);
+        asm.emitMOV_Reg_Reg(EAX, EDI);
+        // restore sign to result
+        asm.emitADD_Reg_Reg(EAX, EBP);
+        asm.emitADC_Reg_Reg(EDX, EBP);
+        asm.emitXOR_Reg_Reg(EAX, EBP);
+        asm.emitXOR_Reg_Reg(EDX, EBP);
+        asm.emitPOP_Reg(EBP);
+        asm.emitPUSH_Reg(EAX);
+        asm.emitPUSH_Reg(EDX);
+        
+        //F1.resolve(asm);
+        asm.resolveForwardReferences(1);
+        asm.emitSUB_Reg_Reg(EDX, EBX);          // dividend.high - divisor.high
+        asm.emitDIV_Reg_Reg(EAX, EBX);
+        asm.emitNOT_Reg(ECX);
+        asm.emitSHR_Reg_Imm(EAX, 1);
+        asm.emitOR_Reg_Imm(EAX, 0x80000000);
+        asm.emitSHR_Reg_Reg(EAX, ECX);
+        asm.emitMOV_Reg_Reg(EDI, EAX);
+        asm.emitMUL_Reg_RegDisp(EAX, SP, THREE_SLOTS);    // dividend.low * q
+        asm.emitMOV_Reg_RegDisp(EBX, SP, FIVE_SLOTS);
+        asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
+        asm.emitSUB_Reg_Reg(EBX, EAX);
+        asm.emitSBB_Reg_Reg(ECX, EDX);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
+        asm.emitMUL_Reg_Reg(EAX, EDI);          // q * dividend.high
+        asm.emitSUB_Reg_Reg(ECX, EAX);
+        asm.emitSBB_Reg_Imm(EDI, 0);
+        asm.emitXOR_Reg_Reg(EDX, EDX);
+        asm.emitMOV_Reg_Reg(EAX, EDI);
+        
+        // restore correct sign to the result
+        asm.emitADD_Reg_Reg(EAX, EBP);
+        asm.emitADC_Reg_Reg(EDX, EBP);
+        asm.emitXOR_Reg_Reg(EAX, EBP);
+        asm.emitXOR_Reg_Reg(EDX, EBP);
+        asm.emitPOP_Reg(EBP);
+        asm.emitPUSH_Reg(EAX);
+        asm.emitPUSH_Reg(EDX);
+        
+        //F9.resolve(asm);
+        asm.resolveForwardReferences(9);
+        // dividend.high is 0
+        asm.emitMOV_Reg_RegDisp(EAX, SP, FOUR_SLOTS);
+        asm.emitMOV_Reg_RegDisp(ECX, SP, THREE_SLOTS);
+        asm.emitXOR_Reg_Reg(EDX, EDX);
+        asm.emitDIV_Reg_Reg(EAX, ECX);
+        asm.emitMOV_Reg_Reg(EBX, EAX);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, FIVE_SLOTS);
+        asm.emitDIV_Reg_Reg(EAX, ECX);
+        asm.emitMOV_Reg_Reg(EDX, EBX);
+        // restore correct sign to the result
+        asm.emitADD_Reg_Reg(EAX, EBP);
+        asm.emitADC_Reg_Reg(EDX, EBP);
+        asm.emitXOR_Reg_Reg(EAX, EBP);
+        asm.emitXOR_Reg_Reg(EDX, EBP);
+        asm.emitPOP_Reg(EBP);
+        asm.emitPUSH_Reg(EAX);
+        asm.emitPUSH_Reg(EDX);
     }
   }
 

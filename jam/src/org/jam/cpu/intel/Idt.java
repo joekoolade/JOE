@@ -33,8 +33,7 @@ public final class Idt implements SegmentDescriptorTypes {
     int                      codeSegment;
     int                      limit;
     final private static int MAX_VECTORS                    = 256;
-    final private static int DEFAULT_IDT_DESCRIPTOR_ADDRESS = 0x800;
-    final private static int DEFAULT_IDT_VECTOR_TABLE       = 0;
+    final private static int DEFAULT_IDT_VECTOR_TABLE       = 0x1000;
     final private static IrqVector dispatchTable[]          = new IrqVector[MAX_VECTORS];
     private static RVMClass interruptVectorClass            = null;
     /**
@@ -79,6 +78,15 @@ public final class Idt implements SegmentDescriptorTypes {
 		Magic.setIdt(idtTableRegister);
 		interruptVectorClass = TypeReference.findOrCreate(InterruptVectors.class).peekType().asClass();
 		loadVectors();
+		/*
+		 * Put HLT in memory locations 0 - 0x1000
+		 */
+		Address addr = Address.zero();
+		Offset offset = Offset.zero();
+		for(int i=0; i < 0x1000; i += 4)
+		{
+		    addr.store(0xfaf4faf4, offset.plus(i));
+		}
 	}
   
 	public static Idt getInstance() {
@@ -150,8 +158,9 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int8()
         {
-            VM.write("Double Fault");
+            Magic.saveContext();
             Magic.halt();
+            VM.write("Double Fault");
             //VM.sysFail("Double Fault");
         }
         @InterruptHandler
@@ -177,7 +186,7 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int13()
        {
-           VM.sysFail("General Protection");
+           VM.sysFailTrap("General Protection");
        }
        @InterruptHandler
        public static void int14()
@@ -281,7 +290,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Magic.switchStack(Platform.timer.getHandlerStack());
            Platform.timer.handler();
            // Restore back to the interrupt stack and context
-           Magic.restoreContext();
+           Magic.restoreThreadContext();
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -312,7 +321,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Magic.switchStack(Platform.timer.getHandlerStack());
            Platform.serialPort.handler();
            // Restore back to the interrupt stack and context
-           Magic.restoreContext();
+           Magic.restoreThreadContext();
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -413,8 +422,8 @@ public final class Idt implements SegmentDescriptorTypes {
 	    /**
 	     * divide error exception
 	     */
-	    irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int0"));
-	    storeVector(0, irqAddress);
+//	    irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int0"));
+//	    storeVector(0, irqAddress);
 	    /**
 	     * debug exception
 	     */

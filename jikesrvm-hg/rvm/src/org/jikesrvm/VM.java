@@ -411,6 +411,7 @@ public class VM extends Properties implements Constants, ExitStatus {
      * we need the scheduler to start threads.
      */
     Platform.init();
+    
     // Put the IdleThread on the queue
     if(verboseBoot >= 1)
     {
@@ -422,6 +423,8 @@ public class VM extends Properties implements Constants, ExitStatus {
       CompilerAdvice.postBoot();
     }
 
+    System.setOut(Platform.serialPort.getPrintStream());
+    System.out.println("System.out is working!");
     
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
@@ -433,7 +436,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
-//    new Thread(sleep).start();
+    new Thread(sleep).start();
+    VM.sysWriteln("Main thread started");
     
     // Say good bye to the boot thread
     Magic.yield();
@@ -2347,6 +2351,13 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
+  @NoInline
+  public static void sysFailTrap(String message)
+  {
+      VM.sysWriteln(Magic.getFramePointer());
+      RVMThread.trapTraceback(message);
+      VM.shutdown(EXIT_STATUS_SYSFAIL);
+  }
   /**
    * Exit virtual machine due to internal failure of some sort.  This
    * two-argument form is  needed for us to call before the VM's Integer class

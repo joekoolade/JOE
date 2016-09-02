@@ -18,10 +18,10 @@ import org.jikesrvm.compilers.baseline.ia32.BaselineCompilerImpl;
 import org.jikesrvm.ia32.OutOfLineMachineCode;
 import org.jikesrvm.ia32.RegisterConstants;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
+import org.jikesrvm.ia32.RegisterConstants.SEG;
+
 import org.jikesrvm.compilers.common.assembler.ForwardReference;
 import org.jikesrvm.compilers.common.assembler.AbstractAssembler;
-
-import static org.jikesrvm.ia32.RegisterConstants.GPR;
 
 import org.vmmagic.pragma.*;
 import org.vmmagic.unboxed.*;
@@ -2455,7 +2455,16 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
         setMachineCodes(mi++, (byte)0x61);
         if(lister != null) lister.OP(miStart, "POPAD");
     }
-    
+ 
+    public final void emitBSR_Reg_Reg(GPR dst, GPR src)
+    {
+        int miStart = mi;
+        
+        setMachineCodes(mi++, (byte)0x0F);
+        setMachineCodes(mi++, (byte)0xBD);
+        emitRegRegOperands(dst, src);
+    }
+
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *
@@ -21116,6 +21125,21 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     if (lister != null) lister.RDR(miStart, "MOV", dstBase, dstDisp, srcReg);
   }
 
+  /**
+   * Move srcReg to segment register
+   * 
+   * seg := srcReg
+   * 
+   * @param seg
+   * @param srcReg
+   */
+  public void emitMOVSEG(SEG seg, GPR srcReg) {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0x8e);
+      setMachineCodes(mi++, (byte)(0xc0 | (seg.ordinal()<<3) | srcReg.ordinal()));
+      // if(lister != null) lister.
+  }
+  
   /**
    * Generate a register--register MOV. That is,
    * <PRE>

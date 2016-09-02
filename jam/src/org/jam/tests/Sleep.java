@@ -26,12 +26,14 @@ public final class Sleep implements Runnable {
     {
         int i=0;
         
+        System.out.println("Executing Sleep loop test");
         while(true)
         {
             try
             {
-                System.out.print(i);
-                System.out.print(' ');
+                System.out.println("*");
+//                System.out.print(' ');
+//                System.out.flush();
                 Thread.sleep(1000);
             }
             catch (InterruptedException e)

@@ -35,6 +35,9 @@ public interface RegisterConstants {
     boolean needsREXprefix();
   }
 
+  public enum SEG {
+      ES, CS, SS, DS, FS, GS;
+  }
   /**
    * Super interface for floating point registers
    */
@@ -369,6 +372,8 @@ public interface RegisterConstants {
   CR CR13 = CR.CR13;
   CR CR14 = CR.CR14;
   CR CR15 = CR.CR15;
+  
+  SEG CS = SEG.CS;
   
   /*
    * Dedicated registers.

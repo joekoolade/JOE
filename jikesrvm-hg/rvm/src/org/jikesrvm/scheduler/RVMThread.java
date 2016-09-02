@@ -3167,6 +3167,7 @@ private Address sp;
    */
   @Interruptible
   public static void sleep(long ns) throws InterruptedException {
+      //VM.sysWriteln("sleep: ", (int)ns);
     RVMThread t = getCurrentThread();
     t.waiting = Waiting.TIMED_WAITING;
     long atStart = Magic.getTimeBase(); // sysCall.sysNanoTime();
@@ -3198,7 +3199,7 @@ private Address sp;
    */
   @Interruptible
   public static void sleep(long millis, int ns) throws InterruptedException {
-    sleep(ns + millis * 1000L * 1000L);
+    sleep((long)ns + millis * 1000L * 1000L);
   }
 
   /*
@@ -5127,6 +5128,24 @@ private Address sp;
     }
   }
 
+  private static void dumpExceptionStack(Address frame)
+  {
+      VM.sysWrite("Error Code:"); VM.sysWriteln(frame.loadInt());
+      VM.sysWrite("IP:"); VM.sysWriteln(frame.loadInt(Offset.fromIntZeroExtend(4)));
+      VM.sysWrite("CS:"); VM.sysWriteln(frame.loadInt(Offset.fromIntZeroExtend(8)));
+      VM.sysWrite("Flags:"); VM.sysWriteln(frame.loadInt(Offset.fromIntZeroExtend(12)));
+  }
+  
+  public static void trapTraceback(String message)
+  {
+      VM.sysWriteln(message);
+      VM.sysWriteln("Thread #", getCurrentThreadSlot());
+      Address framePointer = Magic.getCallerFramePointer(Magic.getFramePointer());
+      VM.sysWriteln(framePointer);
+      dumpExceptionStack(framePointer.plus(12));
+      dumpStack(framePointer);
+  }
+  
   static void tracebackWithoutLock() {
     if (VM.runningVM) {
       VM.sysWriteln("Thread #", getCurrentThreadSlot());

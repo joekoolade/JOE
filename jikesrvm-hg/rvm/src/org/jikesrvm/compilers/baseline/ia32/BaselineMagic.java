@@ -44,6 +44,7 @@ import static org.jikesrvm.ia32.RegisterConstants.XMM0;
 import static org.jikesrvm.ia32.RegisterConstants.XMM1;
 import static org.jikesrvm.ia32.RegisterConstants.XMM2;
 import static org.jikesrvm.ia32.RegisterConstants.XMM3;
+import static org.jikesrvm.ia32.RegisterConstants.CS;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_FRAME_POINTER_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_METHOD_ID_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET;
@@ -182,6 +183,7 @@ final class BaselineMagic {
           (dc != ObjectModel.class)
       ){
         if (checkMR.needsDynamicLink(cm)) {
+            System.err.println("EarlyReferenceCheckDecorator: "+m.toString()+" "+cm.toString());
           BaselineCompilerImpl.emitDynamicLinkingSequence(asm, S0, checkMR, true);
           if (offset.NE(NO_SLOT)) {
             asm.emitMOV_Reg_RegDisp(T0, SP, offset);
@@ -227,6 +229,7 @@ final class BaselineMagic {
           (dc != ObjectModel.class)
       ){
         if (checkMR.needsDynamicLink(cm)) {
+            System.err.println("LateReferenceCheckDecorator: "+m.toString()+" "+cm.toString());
           BaselineCompilerImpl.emitDynamicLinkingSequence(asm, S0, checkMR, true);
           if (offset.NE(NO_SLOT)) {
             asm.emitMOV_Reg_RegDisp(T0, SP, offset);
@@ -2456,11 +2459,24 @@ final class BaselineMagic {
       void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
       {
           /**
-           * Save context onto the stack
+           * Save context onto the stack.
+           * 
+           * This will push the following on the stack
+           * 
+           *    Top Stack
+           *    ...
+           *    EAX
+           *    ECX
+           *    EDX
+           *    EBX
+           *    ESP (Above EAX)
+           *    EBP
+           *    ESI
+           *    EDI  <-- ESP
            */
           asm.emitPUSHAD();
           /**
-           * Save stack pointer into RVMThread.sp
+           * Save stack pointer into RVMThread.sp, RVMThtread.sp = ESP
            */
           asm.emitMOV_RegDisp_Reg(ESI, Entrypoints.stackPointerField.getOffset(), SP);
       }
@@ -2516,7 +2532,7 @@ final class BaselineMagic {
           /*
            * Need to pop the interrupt thread stack
            */
-          asm.emitPOP_Reg(GPR.EAX);
+          //asm.emitPOP_Reg(GPR.EAX);
           /*
            * Now restore the interrrupted threads context
            */
@@ -2539,7 +2555,8 @@ final class BaselineMagic {
       void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
       {
           // Get the current stack pointer
-          asm.emitLEA_Reg_RegDisp(S0, SP, sd);
+          //asm.emitLEA_Reg_RegDisp(S0, SP, sd);
+          asm.emitMOV_Reg_Reg(S0, SP);
           // Pop new stack parameter into the ESP
           // The new stack parameter is still on the old stack
           // remember to pop when restoring
@@ -2674,5 +2691,24 @@ final class BaselineMagic {
   {
       MagicGenerator g = new Yield();
       generators.put(getMethodReference(Magic.class, MagicNames.yield, void.class), g);
+  }
+  
+  /**
+   * Generate a segment register move
+   */
+  private static final class SetCS extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(S0);
+          asm.emitMOVSEG(CS, S0);
+      }
+  }
+  
+  static
+  {
+      MagicGenerator g = new SetCS();
+      generators.put(getMethodReference(Magic.class, MagicNames.setCS, int.class, void.class), g);
   }
 }

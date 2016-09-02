@@ -28,7 +28,7 @@ import org.vmmagic.unboxed.Word;
  */
 public abstract class MachineSpecificIA extends MachineSpecific implements ArchConstants {
 
-  private static final int STARTUP_CONTEXT = (13*4);
+  private static final int STARTUP_CONTEXT = (12*4);
 /**
    * A well-known memory location used to manipulate the FPU control word.
    */
@@ -77,18 +77,17 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
      * Setup the interrupt return and registers
      */
     sp = sp.minus(STARTUP_CONTEXT);
-    sp.store(sp, Offset.zero());        // Thread stack
-    sp.store(0, Offset.zero().plus(4));         // EDI
-    sp.store(contextRegisters.gprs.get(ESI.value()), Offset.zero().plus(8));        // ESI
-    sp.store(sp, Offset.zero().plus(12));        // EBP
-    sp.store(0xFFFFFFFC, Offset.zero().plus(16));        // ESP
-    sp.store(0, Offset.zero().plus(20));        // EBX
-    sp.store(0, Offset.zero().plus(24));        // EDX
-    sp.store(0, Offset.zero().plus(28));        // ECX
-    sp.store(0, Offset.zero().plus(32));        // EAX
-    sp.store(ip, Offset.zero().plus(36));       // EIP
-    sp.store(8, Offset.zero().plus(40));        // Code segment
-    sp.store(0x200, Offset.zero().plus(44));        // EFLAGS
+    sp.store(0, Offset.zero().plus(0));         // EDI
+    sp.store(contextRegisters.gprs.get(ESI.value()), Offset.zero().plus(4));        // ESI
+    sp.store(sp, Offset.zero().plus(8));        // EBP
+    sp.store(0xFFFFFFFC, Offset.zero().plus(12));        // ESP
+    sp.store(0, Offset.zero().plus(16));        // EBX
+    sp.store(0, Offset.zero().plus(20));        // EDX
+    sp.store(0, Offset.zero().plus(24));        // ECX
+    sp.store(0, Offset.zero().plus(28));        // EAX
+    sp.store(ip, Offset.zero().plus(32));       // EIP
+    sp.store(8, Offset.zero().plus(36));        // Code segment
+    sp.store(0x200, Offset.zero().plus(40));        // EFLAGS
     contextRegisters.gprs.set(ESP.value(), sp.toWord());
     contextRegisters.fp = fp;
     contextRegisters.ip = ip;

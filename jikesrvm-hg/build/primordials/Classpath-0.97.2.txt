@@ -435,6 +435,8 @@ Ljava/lang/ThreadLocal;
 Ljava/lang/ThreadLocalMap;
 Ljava/lang/ThreadLocalMap$Entry;
 [Ljava/lang/ThreadLocalMap$Entry;
+Ljava/lang/InheritableThreadLocal;
+
 Ljava/util/LinkedList;
 Ljava/util/LinkedList$Entry;
 Ljava/util/LinkedList$LinkedListItr;
