@@ -14,6 +14,7 @@ package org.jikesrvm;
 
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
 import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
@@ -426,6 +427,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     System.setOut(Platform.serialPort.getPrintStream());
     System.out.println("System.out is working!");
     
+    LdivTests.test1();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.

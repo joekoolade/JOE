@@ -1022,33 +1022,34 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
         /*
          *   stack looks like:
          *   ...
-         *   a: dividend.high    FIVE_SLOTS
-         *      dividend.low     FOUR_SLOTS
-         *   b: divisor.high     THREE_SLOTS
-         *      divisor.low      TWO_SLOTS
+         *   a: dividend.high    FOUR_SLOTS
+         *      dividend.low     THREE_SLOTS
+         *   b: divisor.high     TWO_SLOTS
+         *      divisor.low      ONE_SLOTS
          *      EBP              <--- esp
          */
-        asm.emitMOV_Reg_RegDisp_Word(EDX, SP, TWO_SLOTS); // edx = divisor.high
-        asm.emitMOV_Reg_RegDisp_Word(EAX, SP, THREE_SLOTS); // eax = divisor.low
+        asm.emitMOV_Reg_RegDisp(EDX, SP, TWO_SLOTS); // edx = divisor.high
+        asm.emitMOV_Reg_RegDisp(EAX, SP, ONE_SLOT); // eax = divisor.low
+        
         asm.emitMOV_Reg_Reg(ECX, EDX);
-        asm.emitSAR_RegInd_Imm_Byte(ECX, 31);           // ( b < 0 ) ? -1 : 0
+        asm.emitSAR_Reg_Imm(ECX, 31);           // ( b < 0 ) ? -1 : 0
         asm.emitXOR_Reg_Reg(EAX, ECX);
         asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (b < 0) ? not(b) : b
         asm.emitSUB_Reg_Reg(EAX, ECX);
         asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(b)
         asm.emitMOV_RegDisp_Reg(SP, TWO_SLOTS, EDX);
-        asm.emitMOV_RegDisp_Reg(SP, THREE_SLOTS, EAX);    // store abs(b) onto the stack
+        asm.emitMOV_RegDisp_Reg(SP, ONE_SLOT, EAX);    // store abs(b) onto the stack
         asm.emitMOV_Reg_Reg(EBP, ECX);                  // put sign of b in ebp
         asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);   // edx = dividend.high
-        asm.emitMOV_Reg_RegDisp(EAX, SP, FIVE_SLOTS);   // eax = dividend.low
+        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);   // eax = dividend.low
         asm.emitMOV_Reg_Reg(ECX, EDX);
-        asm.emitSAR_RegInd_Imm_Byte(ECX, 31);           // ( a < 0 ) ? -1 : 0
+        asm.emitSAR_Reg_Imm(ECX, 31);           // ( a < 0 ) ? -1 : 0
         asm.emitXOR_Reg_Reg(EAX, ECX);
         asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (a < 0) ? not(a) : a
         asm.emitSUB_Reg_Reg(EAX, ECX);
         asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(a)
         asm.emitMOV_RegDisp_Reg(SP, FOUR_SLOTS, EDX);
-        asm.emitMOV_RegDisp_Reg(SP, FIVE_SLOTS, EAX);    // store abs(a) onto the stack
+        asm.emitMOV_RegDisp_Reg(SP, THREE_SLOTS, EAX);    // store abs(a) onto the stack
         asm.emitXOR_Reg_Reg(EBP, ECX);                  // sign result = sign of a ^ sign of b
         asm.emitMOV_Reg_RegDisp(EBX, SP, TWO_SLOTS);     // Find the index i of the leading bit in b.
         asm.emitBSR_Reg_Reg(ECX, EBX);                  // if divisor.high is 0
@@ -1056,27 +1057,27 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
         asm.emitJCC_Cond_Label(Assembler.EQ, 9);        // jump to special case 9
         
         // b.high > 0
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);    // construct bhi containing [1+i:32+i] of b
+        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);    // construct bhi containing [1+i:32+i] of b
         asm.emitSHR_Reg_Reg(EAX, ECX);
         asm.emitSHR_Reg_Imm(EAX, 1);                    // dividend.low >> (i+1)
         asm.emitNOT_Reg(ECX);                           // 31-i
         asm.emitSHL_Reg_Reg(EBX, ECX);                  // dividend.high << (31-i)
         asm.emitOR_Reg_Reg(EBX, EAX);                   // bhi = dividend.low | dividend.high
         asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, FIVE_SLOTS);
-        asm.emitCMP_Reg_Reg(EDX, EBX);                  // Jump to F1 if a.high > b.high
-        asm.emitJCC_Cond_Label(Assembler.GE, 1);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);
+        asm.emitCMP_Reg_Reg(EDX, EBX);                  // Jump to F1 if a.high < b.high
+        asm.emitJCC_Cond_Label(Assembler.LT, 1);
         //ForwardReference F1 = asm.forwardJcc();
         
-        //  a <  b >> (i+1)
+        //  a >  b >> (i+1)
         asm.emitDIV_Reg_Reg(EAX, EBX);                  // eax = quotient; edx = remainder
         asm.emitNOT_Reg(ECX);
         asm.emitSHR_Reg_Imm(EAX, 1);
         asm.emitSHR_Reg_Reg(EAX, ECX);
         asm.emitMOV_Reg_Reg(EDI, EAX);
-        asm.emitMUL_Reg_RegDisp(EAX, SP, THREE_SLOTS);    // eax = dividend.low
+        asm.emitMUL_Reg_RegDisp(EAX, SP, ONE_SLOT);    // eax = dividend.low
         asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(EBX, SP, FIVE_SLOTS);
+        asm.emitMOV_Reg_RegDisp(EBX, SP, THREE_SLOTS);
         asm.emitSUB_Reg_Reg(EBX, EAX);
         asm.emitSBB_Reg_Reg(ECX, EDX);
         asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
@@ -1091,8 +1092,11 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
         asm.emitXOR_Reg_Reg(EAX, EBP);
         asm.emitXOR_Reg_Reg(EDX, EBP);
         asm.emitPOP_Reg(EBP);
-        asm.emitPUSH_Reg(EAX);
+        // Pop off the arguments
+        asm.emitADD_Reg_Imm(ESP, 16);
         asm.emitPUSH_Reg(EDX);
+        asm.emitPUSH_Reg(EAX);
+        asm.emitJMP_Label(10);
         
         //F1.resolve(asm);
         asm.resolveForwardReferences(1);
@@ -1103,8 +1107,8 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
         asm.emitOR_Reg_Imm(EAX, 0x80000000);
         asm.emitSHR_Reg_Reg(EAX, ECX);
         asm.emitMOV_Reg_Reg(EDI, EAX);
-        asm.emitMUL_Reg_RegDisp(EAX, SP, THREE_SLOTS);    // dividend.low * q
-        asm.emitMOV_Reg_RegDisp(EBX, SP, FIVE_SLOTS);
+        asm.emitMUL_Reg_RegDisp(EAX, SP, ONE_SLOT);    // dividend.low * q
+        asm.emitMOV_Reg_RegDisp(EBX, SP, THREE_SLOTS);
         asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
         asm.emitSUB_Reg_Reg(EBX, EAX);
         asm.emitSBB_Reg_Reg(ECX, EDX);
@@ -1121,19 +1125,22 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
         asm.emitXOR_Reg_Reg(EAX, EBP);
         asm.emitXOR_Reg_Reg(EDX, EBP);
         asm.emitPOP_Reg(EBP);
-        asm.emitPUSH_Reg(EAX);
+        // Pop off the arguments
+        asm.emitADD_Reg_Imm(ESP, 16);
         asm.emitPUSH_Reg(EDX);
-        
+        asm.emitPUSH_Reg(EAX);
+        asm.emitJMP_Label(10);
+
         //F9.resolve(asm);
         asm.resolveForwardReferences(9);
         // dividend.high is 0
-        asm.emitMOV_Reg_RegDisp(EAX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(ECX, SP, THREE_SLOTS);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, FOUR_SLOTS);       // a.hi
+        asm.emitMOV_Reg_RegDisp(ECX, SP, ONE_SLOT);         // b.lo
         asm.emitXOR_Reg_Reg(EDX, EDX);
-        asm.emitDIV_Reg_Reg(EAX, ECX);
+        asm.emitDIV_Reg_Reg(EAX, ECX);                      // a.hi/b.lo
         asm.emitMOV_Reg_Reg(EBX, EAX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, FIVE_SLOTS);
-        asm.emitDIV_Reg_Reg(EAX, ECX);
+        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);      // a.lo
+        asm.emitDIV_Reg_Reg(EAX, ECX);                      // a.lo / b.lo
         asm.emitMOV_Reg_Reg(EDX, EBX);
         // restore correct sign to the result
         asm.emitADD_Reg_Reg(EAX, EBP);
@@ -1141,8 +1148,11 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
         asm.emitXOR_Reg_Reg(EAX, EBP);
         asm.emitXOR_Reg_Reg(EDX, EBP);
         asm.emitPOP_Reg(EBP);
-        asm.emitPUSH_Reg(EAX);
+        // Pop off the arguments
+        asm.emitADD_Reg_Imm(ESP, 16);
         asm.emitPUSH_Reg(EDX);
+        asm.emitPUSH_Reg(EAX);
+        asm.resolveForwardReferences(10);
     }
   }
 

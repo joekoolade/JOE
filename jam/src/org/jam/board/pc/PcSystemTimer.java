@@ -159,12 +159,12 @@ public class PcSystemTimer
      */
     public void startTimer(long time_ns)
     {
-        int timerTicks;
+        long timerTicks;
         
         /*
          * convert to ticks (milliseconds)
          */
-        timerTicks = (int)time_ns / TICKSPERNSECS;
+        timerTicks = time_ns / TICKSPERNSECS;
 //        VM.sysWriteln("timer ticks: ", timerTicks);
 //        VM.sysWriteln("time_ns: ", time_ns);
 //        VM.sysWriteln("expire: ", timerTicks+tick);

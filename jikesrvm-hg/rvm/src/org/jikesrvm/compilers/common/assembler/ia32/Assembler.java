@@ -2462,7 +2462,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
         
         setMachineCodes(mi++, (byte)0x0F);
         setMachineCodes(mi++, (byte)0xBD);
-        emitRegRegOperands(dst, src);
+        emitRegRegOperands(src, dst);
     }
 
   /*

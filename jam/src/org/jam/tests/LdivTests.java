@@ -15,6 +15,21 @@ public class LdivTests {
     {
         long a,b,c;
         
-        
+        a = 0x22000000000L;
+        b = 0x2L;
+        c = a/b;
+        System.out.println("c=0x"+ Long.toHexString(c));
+        b = 0x11000000000L;
+        c = a/b;
+        System.out.println("c=0x" + Long.toHexString(c));
+        a = 10 * 1000000000L;
+        b = 1000000;
+        c = a/b;
+        System.out.println("c=0x" + Long.toHexString(c));
+    }
+    
+    public static void main(String[] args)
+    {
+        test1();
     }
 }
