@@ -63,7 +63,6 @@ import org.jikesrvm.classloader.RVMType;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.compilers.common.assembler.ForwardReference;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
-import org.jikesrvm.jni.FunctionTable;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.objectmodel.IMT;
 import org.jikesrvm.objectmodel.JavaHeader;
@@ -2119,7 +2118,7 @@ final class BaselineMagic {
         new GetValueAtDisplacement(Offset.fromIntSignExtend(STACKFRAME_METHOD_ID_OFFSET)));
     MagicGenerator g = new GetValueAtDisplacement(ObjectModel.getArrayLengthOffset());
     generators.put(getMethodReference(Magic.class, MagicNames.getArrayLength, Object.class, int.class), g);
-    Class<?>[] unboxedTypes = new Class<?>[]{AddressArray.class, CodeArray.class, ExtentArray.class, FunctionTable.class, IMT.class, ObjectReferenceArray.class, OffsetArray.class, TIB.class, WordArray.class};
+    Class<?>[] unboxedTypes = new Class<?>[]{AddressArray.class, CodeArray.class, ExtentArray.class, IMT.class, ObjectReferenceArray.class, OffsetArray.class, TIB.class, WordArray.class};
     for (Class<?> type : unboxedTypes) {
       generators.put(getMethodReference(type, MagicNames.addressArrayLength, int.class), g);
     }
@@ -2223,11 +2222,11 @@ final class BaselineMagic {
   static {
     MagicGenerator g = VM.BuildFor32Addr ? new Load32_Array() : new Load64_Array();
     Class<?>[] unboxedTypes = new Class<?>[] { AddressArray.class,
-        ExtentArray.class, FunctionTable.class, IMT.class,
+        ExtentArray.class, IMT.class,
         ObjectReferenceArray.class, OffsetArray.class,
         TIB.class, WordArray.class };
     Class<?>[] resultTypes = new Class<?>[] { Address.class, Extent.class,
-        CodeArray.class, CodeArray.class, ObjectReference.class, Offset.class,
+        CodeArray.class, ObjectReference.class, Offset.class,
         Object.class, Word.class };
     for (int i=0; i < unboxedTypes.length; i++) {
       Class<?> type = unboxedTypes[i];
@@ -2288,11 +2287,11 @@ final class BaselineMagic {
   static {
     MagicGenerator g = VM.BuildFor32Addr ? new Store32_Array() : new Store64_Array();
     Class<?>[] unboxedTypes = new Class<?>[] { AddressArray.class,
-        ExtentArray.class, FunctionTable.class, IMT.class,
+        ExtentArray.class, IMT.class,
         ObjectReferenceArray.class, OffsetArray.class,
         TIB.class, WordArray.class };
     Class<?>[] operandTypes = new Class<?>[] { Address.class, Extent.class,
-        CodeArray.class, CodeArray.class, ObjectReference.class, Offset.class,
+        CodeArray.class, ObjectReference.class, Offset.class,
         Object.class, Word.class };
     for (int i=0; i < unboxedTypes.length; i++) {
       Class<?> type = unboxedTypes[i];

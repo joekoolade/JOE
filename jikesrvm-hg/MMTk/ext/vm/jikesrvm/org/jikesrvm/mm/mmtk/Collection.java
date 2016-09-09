@@ -20,7 +20,6 @@ import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mminterface.Selected;
 import org.jikesrvm.mm.mminterface.CollectorThread;
-import org.jikesrvm.runtime.SysCall;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.scheduler.FinalizerThread;
 
@@ -52,7 +51,7 @@ public class Collection extends org.mmtk.vm.Collection implements org.mmtk.utili
 
   @Override
   public int getDefaultThreads() {
-    return SysCall.sysCall.sysNumProcessors();
+    return 1; // SysCall.sysCall.sysNumProcessors();
   }
 
   @Override

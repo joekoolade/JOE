@@ -37,8 +37,6 @@ import org.jikesrvm.compilers.common.CompiledMethod;
 import org.jikesrvm.compilers.common.assembler.ForwardReference;
 import org.jikesrvm.compilers.common.assembler.ppc.Assembler;
 import org.jikesrvm.compilers.common.assembler.ppc.AssemblerConstants;
-import org.jikesrvm.jni.ppc.JNICompiler;
-import org.jikesrvm.jni.ppc.JNIStackframeLayoutConstants;
 import static org.jikesrvm.mm.mminterface.Barriers.*;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.objectmodel.ObjectModel;
@@ -58,7 +56,7 @@ import org.vmmagic.unboxed.Offset;
  * Compiler is the baseline compiler class for powerPC architectures.
  */
 public abstract class BaselineCompilerImpl extends BaselineCompiler
-    implements BaselineConstants, JNIStackframeLayoutConstants, BBConstants, AssemblerConstants {
+    implements BaselineConstants, BBConstants, AssemblerConstants {
 
   // stackframe pseudo-constants //
   private int frameSize;

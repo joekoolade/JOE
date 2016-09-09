@@ -42,7 +42,6 @@ import org.jikesrvm.compilers.common.CompiledMethod;
 import org.jikesrvm.compilers.common.CompiledMethods;
 import org.jikesrvm.osr.ObjectHolder;
 import org.jikesrvm.adaptive.OSRListener;
-import org.jikesrvm.jni.JNIEnvironment;
 import org.jikesrvm.mm.mminterface.CollectorThread;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mminterface.ThreadContext;
@@ -465,10 +464,6 @@ public final class RVMThread extends ThreadContext implements Constants {
   private long yieldpointsTaken;
 
   private long yieldpointsTakenFully;
-
-  private long nativeEnteredBlocked;
-
-  private long jniEnteredBlocked;
 
   /**
    * Assertion checking while manipulating raw addresses -- see
@@ -948,15 +943,6 @@ public final class RVMThread extends ThreadContext implements Constants {
   /*
    * JNI fields
    */
-
-  /**
-   * Cached JNI environment for this thread
-   */
-  @Entrypoint
-  @Untraced
-  private JNIEnvironment jniEnv;
-  @SuppressWarnings("unused")
-  private JNIEnvironment jniEnvShadow;
 
   /** Used by GC to determine collection success */
   private boolean physicalAllocationFailed;
@@ -1888,132 +1874,6 @@ private Address sp;
     checkBlockNoSaveContext();
   }
 
-  /**
-   * Internal method for transitioning a thread from IN_JAVA or IN_JAVA_TO_BLOCK to
-   * either BLOCKED_IN_NATIVE or BLOCKED_IN_JNI, depending on the value of the jni
-   * parameter.  It is always safe to conservatively call this method when transitioning
-   * to native code, though it is faster to call either enterNative(),
-   * enterJNIFromCallIntoNative(), or enterJNIFromJNIFunctionCall().
-   * <p>
-   * This method takes care of all bookkeeping and notifications required when a
-   * a thread that has been requested to block instead decides to run native code.
-   * Threads enter native code never need to block, since they will not be executing
-   * any Java code.  However, such threads must ensure that any system services (like
-   * GC) that are waiting for this thread to stop are notified that the thread has
-   * instead chosen to exit Java.  As well, any requests to perform a soft handshake
-   * must be serviced and acknowledged.
-   */
-  private void enterNativeBlockedImpl(boolean jni) {
-	VM.sysFail("enterNativeBlockedImpl!");
-    if (traceReallyBlock)
-      VM.sysWriteln("Thread #", threadSlot, " entering native blocked.");
-    // NB: anything this method calls CANNOT change the contextRegisters
-    // or the JNI env. as well, this code will be running concurrently
-    // with stop-the-world GC!
-    boolean commitSoftRendezvous;
-    monitor().lockNoHandshake();
-    if (jni) {
-      jniEnteredBlocked++;
-      setExecStatus(BLOCKED_IN_JNI);
-    } else {
-      nativeEnteredBlocked++;
-      setExecStatus(BLOCKED_IN_NATIVE);
-    }
-    acknowledgeBlockRequests();
-    handleHandshakeRequest();
-    commitSoftRendezvous = softRendezvousCheckAndClear();
-    monitor().unlock();
-    if (traceBlock)
-      VM.sysWriteln("Thread #", threadSlot,
-          " done with the locking part of native entry.");
-    if (commitSoftRendezvous)
-      softRendezvousCommit();
-    if (traceBlock)
-      VM.sysWriteln("Thread #", threadSlot, " done enter native blocked.");
-  }
-
-  @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
-  private void leaveNativeBlockedImpl() {
-	  VM.sysFail("leaveNativeBlockedImpl");
-    checkBlockNoSaveContext();
-  }
-
-  private void enterNativeBlocked() {
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
-    enterNativeBlockedImpl(false);
-    assertAcceptableStates(IN_NATIVE,BLOCKED_IN_NATIVE);
-  }
-
-  @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
-  private void leaveNativeBlocked() {
-    assertAcceptableStates(IN_NATIVE,BLOCKED_IN_NATIVE);
-    leaveNativeBlockedImpl();
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
-  }
-
-  private void enterJNIBlocked() {
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
-    enterNativeBlockedImpl(true);
-    assertAcceptableStates(IN_JNI,BLOCKED_IN_JNI);
-  }
-
-  @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
-  private void leaveJNIBlocked() {
-    assertAcceptableStates(IN_JNI,BLOCKED_IN_JNI);
-    leaveNativeBlockedImpl();
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
-  }
-
-  @Entrypoint
-  public static void enterJNIBlockedFromJNIFunctionCall() {
-    RVMThread t=getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #",t.getThreadSlot(), " in enterJNIBlockedFromJNIFunctionCall");
-      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
-    }
-    t.enterJNIBlocked();
-  }
-
-  @Entrypoint
-  public static void enterJNIBlockedFromCallIntoNative() {
-    RVMThread t=getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #",t.getThreadSlot(), " in enterJNIBlockedFromCallIntoNative");
-      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
-    }
-    t.enterJNIBlocked();
-  }
-
-  @Entrypoint
-  @Unpreemptible("May block if the thread was asked to do so, but otherwise will not block")
-  static void leaveJNIBlockedFromJNIFunctionCall() {
-    RVMThread t = getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #", t.getThreadSlot(),
-          " in leaveJNIBlockedFromJNIFunctionCall");
-      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
-      VM.sysWriteln("state = ", t.getExecStatus());
-      VM.sysWriteln("jtoc = ", Magic.getJTOC());
-    }
-    t.leaveJNIBlocked();
-  }
-
-  /**
-   * Called when JNI code tried to transition from  IN_JNI to IN_JAVA but failed
-   */
-  @Entrypoint
-  @Unpreemptible("May block if the thread was asked to do so, but otherwise will not block")
-  public static void leaveJNIBlockedFromCallIntoNative() {
-    RVMThread t = getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #", t.getThreadSlot(),
-          " in leaveJNIBlockedFromCallIntoNative");
-      VM.sysWriteln("state = ", t.getExecStatus());
-      VM.sysWriteln("jtoc = ", Magic.getJTOC());
-    }
-    t.leaveJNIBlocked();
-  }
-
   private int setBlockedExecStatus() {
     int oldState, newState;
     do {
@@ -2227,132 +2087,6 @@ private Address sp;
                                                      Magic.getCallerFramePointer(curFP));
   }
 
-  /**
-   * Indicate that we'd like the current thread to be executing privileged code that
-   * does not require synchronization with the GC.  This call may be made on a thread
-   * that is IN_JAVA or IN_JAVA_TO_BLOCK, and will result in the thread being either
-   * IN_NATIVE or BLOCKED_IN_NATIVE.  In the case of an
-   * IN_JAVA_TO_BLOCK-&gt;BLOCKED_IN_NATIVE transition, this call will acquire the
-   * thread's lock and send out a notification to any threads waiting for this thread
-   * to reach a safepoint.  This notification serves to notify them that the thread
-   * is in GC-safe code, but will not reach an actual safepoint for an indetermined
-   * amount of time.  This is significant, because safepoints may perform additional
-   * actions (such as handling handshake requests, which may include things like
-   * mutator flushes and running isync) that IN_NATIVE code will not perform until
-   * returning to IN_JAVA by way of a leaveNative() call.
-   */
-  @NoInline // so we can get the fp
-  public static void enterNative() {
-	  VM.sysFail("enterNative!");
-    RVMThread t = getCurrentThread();
-    if (ALWAYS_LOCK_ON_STATE_TRANSITION) {
-      t.enterNativeBlocked();
-    } else {
-      int oldState, newState;
-      do {
-        oldState = t.getExecStatus();
-        if (oldState == IN_JAVA) {
-          newState = IN_NATIVE;
-        } else {
-          t.assertAcceptableStates(IN_JAVA_TO_BLOCK);
-          t.enterNativeBlocked();
-          return;
-        }
-      } while (!(t.attemptFastExecStatusTransition(oldState, newState)));
-    }
-    // NB this is not a correct assertion, as there is a race.  we could succeed in
-    // CASing the status to IN_NATIVE, but then someone else could asynchronosly
-    // set it to whatever they want.
-    //if (VM.VerifyAssertions)
-    //  VM._assert(t.execStatus == IN_NATIVE);
-  }
-
-  /**
-   * Attempt to transition from IN_JNI or IN_NATIVE to IN_JAVA, fail if execStatus is
-   * anything but IN_JNI or IN_NATIVE.
-   *
-   * @return true if thread transitioned to IN_JAVA, otherwise false
-   */
-  public static boolean attemptLeaveNativeNoBlock() {
-	  VM.sysFail("attemptLeaveNativeNoBlock!");
-    if (ALWAYS_LOCK_ON_STATE_TRANSITION)
-      return false;
-    RVMThread t = getCurrentThread();
-    int oldState, newState;
-    do {
-      oldState = t.getExecStatus();
-      if (oldState == IN_NATIVE || oldState == IN_JNI) {
-        newState = IN_JAVA;
-      } else {
-        t.assertAcceptableStates(BLOCKED_IN_NATIVE,BLOCKED_IN_JNI);
-        return false;
-      }
-    } while (!(t.attemptFastExecStatusTransition(oldState, newState)));
-    return true;
-  }
-
-  /**
-   * Leave privileged code.  This is valid for threads that are either IN_NATIVE,
-   * IN_JNI, BLOCKED_IN_NATIVE, or BLOCKED_IN_JNI, and always results in the thread
-   * being IN_JAVA.  If the thread was previously BLOCKED_IN_NATIVE or BLOCKED_IN_JNI,
-   * the thread will block until notified that it can run again.
-   */
-  @Unpreemptible("May block if the thread was asked to do so; otherwise does no actions that would lead to blocking")
-  public static void leaveNative() {
-	  VM.sysFail("leaveNative!");
-    if (!attemptLeaveNativeNoBlock()) {
-      if (traceReallyBlock) {
-        VM.sysWriteln("Thread #", getCurrentThreadSlot(),
-            " is leaving native blocked");
-      }
-      getCurrentThread().leaveNativeBlocked();
-    }
-  }
-
-  public static void enterJNIFromCallIntoNative() {
-	  VM.sysFail("enterJNIFromCallIntoNative");
-    // FIXME: call these in PPC instead of doing it in machine code...
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
-        RVMThread.IN_JNI)) {
-      RVMThread.enterJNIBlockedFromCallIntoNative();
-    }
-  }
-
-  @Unpreemptible
-  public static void leaveJNIFromCallIntoNative() {
-	  VM.sysFail("leaveJNIFromCallIntoNative!");
-    // FIXME: call these in PPC instead of doing it in machine code...
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
-        RVMThread.IN_JAVA)) {
-      RVMThread.leaveJNIBlockedFromCallIntoNative();
-    }
-  }
-
-  public static void enterJNIFromJNIFunctionCall() {
-	  VM.sysFail("enterJNIFromJNIFunctionCall!");
-    // FIXME: call these instead of doing it in machine code...  currently this
-    // is never called.
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
-        RVMThread.IN_JNI)) {
-      RVMThread.enterJNIBlockedFromJNIFunctionCall();
-    }
-  }
-
-  @Unpreemptible
-  public static void leaveJNIFromJNIFunctionCall() {
-	  VM.sysFail("leaveJNIFromJNIFunctionCall");
-    // FIXME: call these instead of doing it in machine code...  currently this
-    // is never called.
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
-        RVMThread.IN_JAVA)) {
-      RVMThread.leaveJNIBlockedFromJNIFunctionCall();
-    }
-  }
-
   public void unblock(BlockAdapter ba) {
     if (traceBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
@@ -2509,14 +2243,6 @@ private Address sp;
     return thread;
   }
 
-  /**
-   * FIXME: remove this
-   * Get current thread's JNI environment.
-   */
-  public JNIEnvironment getJNIEnv() {
-    return jniEnv;
-  }
-
   /** Get the disable GC depth */
   public int getDisableGCDepth() {
     return disableGCDepth;
@@ -2542,24 +2268,7 @@ private Address sp;
     disallowAllocationsByThisThread = false;
   }
 
-  /**
-   * Initialize JNI environment for system threads. Called by VM.finishBooting
-   */
-  @Interruptible
-  public void initializeJNIEnv() {
-    this.jniEnv = null;
-  }
-
-  /**
-   * Indicate whether the stack of this Thread contains any C frame (used in
-   * RuntimeEntrypoints.deliverHardwareException for stack resize)
-   *
-   * @return false during the prolog of the first Java to C transition true
-   *         afterward
-   */
-  public boolean hasNativeStackFrame() {
-    return jniEnv != null && jniEnv.hasNativeStackFrame();
-  }
+  
 
   /*
    * Starting and ending threads
@@ -4861,8 +4570,6 @@ private Address sp;
     VM.sysWriteln("acquireCount for my monitor: ", monitor().acquireCount);
     VM.sysWriteln("yieldpoints taken: ", yieldpointsTaken);
     VM.sysWriteln("yieldpoints taken fully: ", yieldpointsTakenFully);
-    VM.sysWriteln("native entered blocked: ", nativeEnteredBlocked);
-    VM.sysWriteln("JNI entered blocked: ", jniEnteredBlocked);
   }
 
   /**

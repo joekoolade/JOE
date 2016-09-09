@@ -124,9 +124,6 @@ public final class TypeReference {
   public static final TypeReference ITable = findOrCreate(org.jikesrvm.objectmodel.ITable.class);
   public static final TypeReference IMT = findOrCreate(org.jikesrvm.objectmodel.IMT.class);
   public static final TypeReference Thread = findOrCreate(org.jikesrvm.scheduler.RVMThread.class);
-  public static final TypeReference FunctionTable = findOrCreate(org.jikesrvm.jni.FunctionTable.class);
-  public static final TypeReference LinkageTripletTable = findOrCreate(org.jikesrvm.jni.LinkageTripletTable.class);
-
   public static final TypeReference JavaLangObject = findOrCreate(java.lang.Object.class);
   public static final TypeReference JavaLangClass = findOrCreate(java.lang.Class.class);
   public static final TypeReference JavaLangString = findOrCreate(java.lang.String.class);
@@ -179,8 +176,6 @@ public final class TypeReference {
 
   public static final TypeReference ReferenceMaps =
       findOrCreate(org.jikesrvm.compilers.baseline.ReferenceMaps.class);
-  public static final TypeReference JNIFunctions = findOrCreate(org.jikesrvm.jni.JNIFunctions.class);
-
   public static final TypeReference RVMArray = findOrCreate(org.jikesrvm.classloader.RVMArray.class);
   /** Abstract base of reflective method invoker classes */
   static final TypeReference baseReflectionClass = TypeReference.findOrCreate(ReflectionBase.class);
@@ -623,8 +618,7 @@ private static void canonicalizeCL(ClassLoader cl) {
    */
   @Uninterruptible
   public boolean isRuntimeTable() {
-    return this == IMT || this == TIB || this == ITable || this == ITableArray ||
-           this == FunctionTable || this == LinkageTripletTable;
+    return this == IMT || this == TIB || this == ITable || this == ITableArray;
   }
 
   /**

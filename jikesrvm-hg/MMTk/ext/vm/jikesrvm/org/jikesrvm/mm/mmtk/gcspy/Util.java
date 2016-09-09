@@ -18,7 +18,6 @@ import org.mmtk.plan.Plan;
 import org.mmtk.vm.VM;
 
 import org.jikesrvm.runtime.Magic;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.objectmodel.ObjectModel;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
@@ -37,7 +36,7 @@ import org.vmmagic.pragma.*;
   @Override
   public final Address malloc(int size) {
     if (org.jikesrvm.VM.BuildWithGCSpy) {
-      Address rtn  = sysCall.sysMalloc(size);
+      Address rtn  = Address.zero(); // sysCall.sysMalloc(size);
       if (rtn.isZero()) VM.assertions.fail("GCspy malloc failure");
       return rtn;
     } else
@@ -46,9 +45,9 @@ import org.vmmagic.pragma.*;
 
   @Override
   public final void free(Address addr) {
-    if (org.jikesrvm.VM.BuildWithGCSpy)
-      if (!addr.isZero())
-        sysCall.sysFree(addr);
+//    if (org.jikesrvm.VM.BuildWithGCSpy)
+//      if (!addr.isZero())
+//        sysCall.sysFree(addr);
   }
 
   /**
@@ -87,9 +86,9 @@ import org.vmmagic.pragma.*;
       for (int i=str_length; i < size; i++)  {
         rtn.store((byte)0, Offset.fromIntSignExtend(i-str_offset));
       }
-      if (DEBUG_) {
-        sysCall.sysWriteBytes(2/*SysTraceFd*/, rtn, size); Log.write("\n");
-      }
+//      if (DEBUG_) {
+//        sysCall.sysWriteBytes(2/*SysTraceFd*/, rtn, size); Log.write("\n");
+//      }
       return rtn;
     } else {
       return Address.zero();
@@ -98,8 +97,8 @@ import org.vmmagic.pragma.*;
 
   @Override
   public final void formatSize(Address buffer, int size) {
-    if (org.jikesrvm.VM.BuildWithGCSpy)
-      sysCall.gcspyFormatSize(buffer, size);
+//    if (org.jikesrvm.VM.BuildWithGCSpy)
+//      sysCall.gcspyFormatSize(buffer, size);
   }
 
 
@@ -140,9 +139,9 @@ import org.vmmagic.pragma.*;
 
   @Override
   public final int sprintf(Address str, Address format, Address value) {
-    if (org.jikesrvm.VM.BuildWithGCSpy)
-      return sysCall.gcspySprintf(str, format, value);
-    else
+//    if (org.jikesrvm.VM.BuildWithGCSpy)
+//      return sysCall.gcspySprintf(str, format, value);
+//    else
       return 0;
   }
 }

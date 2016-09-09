@@ -586,14 +586,6 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
    *
    */
   private void checkJNIBase() {
-    if (VM.BuildForAix) {
-      GCMapIterator iterator = iteratorGroup.getJniIterator();
-      Address refaddr =  iterator.getNextReferenceAddress();
-      while(!refaddr.isZero()) {
-        reportDelayedRootEdge(trace, refaddr);
-        refaddr = iterator.getNextReferenceAddress();
-      }
-    }
   }
 
 
@@ -618,8 +610,6 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getStack())));
     VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread)));
     VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getStack())));
-    VM._assert(thread.getJNIEnv() == null || trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getJNIEnv())));
-    VM._assert(thread.getJNIEnv() == null || thread.getJNIEnv().refsArray() == null || trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getJNIEnv().refsArray())));
     VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getContextRegisters())));
     VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getContextRegisters().gprs)));
     VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getExceptionRegisters())));
@@ -638,8 +628,6 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     Log.write("         ip = "); Log.writeln(ip);
     Log.write("         fp = "); Log.writeln(fp);
     Log.write("  registers.ip = "); Log.writeln(thread.getContextRegisters().ip);
-    if (verbosity >= 3 && thread.getJNIEnv() != null)
-      thread.getJNIEnv().dumpJniRefsStack();
   }
 
   /**

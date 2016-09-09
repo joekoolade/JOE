@@ -36,8 +36,6 @@ obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 package gnu.java.nio;
 
-import gnu.classpath.Configuration;
-
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -105,24 +103,13 @@ public final class VMChannel
    *
    * Cache the max of the IDs to avoid gratuitous native calls.
    */
-  private static int MAX_STANDARD_FD;
+  private static int MAX_STANDARD_FD = 0;
 
   private static int max(int[] values) {
     int result = values[0];
     for (int i : values)
       if (i > result) result = i;
     return result;
-  }
-
-  static
-  {
-    // load the shared library needed for native methods.
-    if (Configuration.INIT_LOAD_LIBRARY)
-    {
-      System.loadLibrary ("javanio");
-    }
-    initIDs();
-    MAX_STANDARD_FD = max(new int[] {stdin_fd(),stdin_fd(),stderr_fd()});
   }
 
   public static VMChannel getStdin() throws IOException

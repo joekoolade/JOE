@@ -13,7 +13,6 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.UninterruptibleNoWarn;
@@ -46,7 +45,7 @@ public class TimerThread extends SystemThread {
     if (verbose>=1) VM.sysWriteln("TimerThread run routine entered");
     try {
       for (;;) {
-        sysCall.sysNanoSleep(1000L*1000L*VM.interruptQuantum);
+        //sysCall.sysNanoSleep(1000L*1000L*VM.interruptQuantum);
 
         if (VM.BuildForAdaptiveSystem) {
           // grab the lock to prevent threads from getting GC'd while we are

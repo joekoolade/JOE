@@ -14,6 +14,6 @@ package gnu.java.lang;
 
 final class VMCPStringBuilder {
   public static String toString(char[] value, int startIndex, int count) {
-    return java.lang.JikesRVMSupport.newStringWithoutCopy(value, startIndex, count);
+    return null;
   }
 }

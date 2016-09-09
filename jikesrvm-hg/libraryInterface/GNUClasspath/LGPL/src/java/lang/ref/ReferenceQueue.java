@@ -40,9 +40,9 @@ package java.lang.ref;
 
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.Unpreemptible;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.scheduler.LightMonitor;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.runtime.Time;
 import org.jikesrvm.VM;
 
 /**
@@ -178,9 +178,9 @@ public class ReferenceQueue<T>
   public Reference<? extends T> remove(long timeout)
     throws InterruptedException
   {
-    long whenAwake=sysCall.sysNanoTime()+timeout*1000L*1000L;
+    long whenAwake=Time.nanoTime()+timeout*1000L*1000L;
     lock.lockWithHandshake();
-    while (first==null && (timeout==0 || sysCall.sysNanoTime() < whenAwake)) {
+    while (first==null && (timeout==0 || Time.nanoTime() < whenAwake)) {
       if (whenAwake==0) {
         lock.waitInterruptibly();
       } else {

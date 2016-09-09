@@ -15,6 +15,7 @@ package org.jikesrvm.classloader;
 import org.jikesrvm.VM;
 import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.CompiledMethod;
+import org.jikesrvm.compilers.common.CompiledMethods;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
 import org.jikesrvm.runtime.Entrypoints;
 import org.vmmagic.pragma.Pure;
@@ -79,11 +80,7 @@ public final class NativeMethod extends RVMMethod {
       Entrypoints.unimplementedNativeMethodMethod.compile();
       return Entrypoints.unimplementedNativeMethodMethod.getCurrentCompiledMethod();
     } else {
-      if (VM.writingBootImage) {
-        return BootImageCompiler.compile(this);
-      } else {
-        return RuntimeCompiler.compile(this);
-      }
+        return CompiledMethods.createCompiledMethod(this, CompiledMethod.JNI);
     }
   }
 

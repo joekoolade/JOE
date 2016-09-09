@@ -91,8 +91,6 @@ public class Entrypoints {
       getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseAbstractMethodError", "()V");
   public static final NormalMethod raiseIllegalAccessError =
       getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseIllegalAccessError", "()V");
-  public static final NormalMethod deliverHardwareExceptionMethod =
-      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "deliverHardwareException", "(II)V");
   public static final NormalMethod unlockAndThrowMethod =
       getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "unlockAndThrow", "(Ljava/lang/Object;Ljava/lang/Throwable;)V");
 
@@ -209,14 +207,6 @@ public class Entrypoints {
       getMethod(org.jikesrvm.scheduler.RVMThread.class, "yieldpointFromBackedge", "()V");
   public static final NormalMethod yieldpointFromEpilogueMethod =
       getMethod(org.jikesrvm.scheduler.RVMThread.class, "yieldpointFromEpilogue", "()V");
-  public static final NormalMethod enterJNIBlockedFromJNIFunctionCallMethod =
-      getMethod(org.jikesrvm.scheduler.RVMThread.class, "enterJNIBlockedFromJNIFunctionCall", "()V");
-  public static final NormalMethod enterJNIBlockedFromCallIntoNativeMethod =
-      getMethod(org.jikesrvm.scheduler.RVMThread.class, "enterJNIBlockedFromCallIntoNative", "()V");
-  public static final NormalMethod leaveJNIBlockedFromJNIFunctionCallMethod =
-      getMethod(org.jikesrvm.scheduler.RVMThread.class, "leaveJNIBlockedFromJNIFunctionCall", "()V");
-  public static final NormalMethod leaveJNIBlockedFromCallIntoNativeMethod =
-      getMethod(org.jikesrvm.scheduler.RVMThread.class, "leaveJNIBlockedFromCallIntoNative", "()V");
 
   public static final NormalMethod threadRunMethod = getMethod(org.jikesrvm.scheduler.RVMThread.class, "run", "()V");
   public static final NormalMethod threadStartoffMethod =
@@ -226,8 +216,6 @@ public class Entrypoints {
       getField(org.jikesrvm.scheduler.RVMThread.class, "stackLimit", org.vmmagic.unboxed.Address.class);
 
   public static final RVMField threadSlotField = getField(org.jikesrvm.scheduler.RVMThread.class, "threadSlot", int.class);
-  public static final RVMField jniEnvField =
-      getField(org.jikesrvm.scheduler.RVMThread.class, "jniEnv", org.jikesrvm.jni.JNIEnvironment.class);
   public static final RVMField threadContextRegistersField =
       getField(org.jikesrvm.scheduler.RVMThread.class,
                "contextRegisters",
@@ -390,41 +378,6 @@ public class Entrypoints {
 
   public static final RVMField innermostElementTypeDimensionField =
       getField(org.jikesrvm.classloader.RVMArray.class, "innermostElementTypeDimension", int.class);
-
-  public static final RVMField JNIEnvSavedTRField =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "savedTRreg", org.jikesrvm.scheduler.RVMThread.class);
-  public static final RVMField JNIEnvBasePointerOnEntryToNative =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "basePointerOnEntryToNative", org.vmmagic.unboxed.Address.class);
-  public static final RVMField JNIGlobalRefsField =
-    getField(org.jikesrvm.jni.JNIGlobalRefTable.class, "JNIGlobalRefs", org.vmmagic.unboxed.AddressArray.class);
-  public static final RVMField JNIRefsField =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefs", org.vmmagic.unboxed.AddressArray.class);
-  public static final RVMField JNIRefsTopField = getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefsTop", int.class);
-  public static final RVMField JNIRefsMaxField = getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefsMax", int.class);
-  public static final RVMField JNIRefsSavedFPField =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefsSavedFP", int.class);
-  public static final RVMField JNITopJavaFPField =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "JNITopJavaFP", org.vmmagic.unboxed.Address.class);
-  public static final RVMField JNIHasPendingExceptionField =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "hasPendingException", int.class);
-  public static final RVMField JNIExternalFunctionsField =
-      getField(org.jikesrvm.jni.JNIEnvironment.class, "externalJNIFunctions", org.vmmagic.unboxed.Address.class);
-  public static final RVMField JNIEnvSavedJTOCField =
-      VM.BuildForPowerPC ? getField(org.jikesrvm.jni.JNIEnvironment.class,
-                                    "savedJTOC",
-                                    org.vmmagic.unboxed.Address.class) : null;
-  public static final RVMMethod jniEntry =
-      VM.BuildForIA32 ? getMethod(org.jikesrvm.jni.JNIEnvironment.class,
-                                  "entryToJNI",
-                                  "(I)V") : null;
-  public static final RVMMethod jniExit =
-      VM.BuildForIA32 ? getMethod(org.jikesrvm.jni.JNIEnvironment.class,
-                                  "exitFromJNI",
-                                  "(I)Ljava/lang/Object;") : null;
-      public static final RVMMethod jniThrowPendingException =
-        VM.BuildForPowerPC ? getMethod(org.jikesrvm.jni.JNIEnvironment.class,
-                                    "throwPendingException",
-                                    "()V") : null;
 
   public static final RVMField the_boot_recordField =
       getField(org.jikesrvm.runtime.BootRecord.class, "the_boot_record", org.jikesrvm.runtime.BootRecord.class);

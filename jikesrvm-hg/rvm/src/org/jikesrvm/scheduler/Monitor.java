@@ -12,7 +12,6 @@
  */
 package org.jikesrvm.scheduler;
 
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.VM;
 
 import org.vmmagic.pragma.Uninterruptible;
@@ -163,16 +162,15 @@ public class Monitor {
   @Unpreemptible
   @NoOptCompile
   private void lockWithHandshakeNoRecImpl() {
-    for (;;) {
-      RVMThread.enterNative();
-      // sysCall.sysMonitorEnter(monitor);
-      if (RVMThread.attemptLeaveNativeNoBlock()) {
-        return;
-      } else {
-        // sysCall.sysMonitorExit(monitor);
-        RVMThread.leaveNative();
-      }
-    }
+//    for (;;) {
+//      // sysCall.sysMonitorEnter(monitor);
+//      if (RVMThread.attemptLeaveNativeNoBlock()) {
+//        return;
+//      } else {
+//        // sysCall.sysMonitorExit(monitor);
+//        RVMThread.leaveNative();
+//      }
+//    }
   }
   /**
    * Relock the mutex after using {@link #unlockCompletely()} and notify
@@ -190,16 +188,16 @@ public class Monitor {
   @Unpreemptible
   @NoOptCompile
   private void relockWithHandshakeImpl(int recCount) {
-    for (;;) {
-      RVMThread.enterNative();
-      // sysCall.sysMonitorEnter(monitor);
-      if (RVMThread.attemptLeaveNativeNoBlock()) {
-        break;
-      } else {
-        // sysCall.sysMonitorExit(monitor);
-        RVMThread.leaveNative();
-      }
-    }
+//    for (;;) {
+//      RVMThread.enterNative();
+//      // sysCall.sysMonitorEnter(monitor);
+//      if (RVMThread.attemptLeaveNativeNoBlock()) {
+//        break;
+//      } else {
+//        // sysCall.sysMonitorExit(monitor);
+//        RVMThread.leaveNative();
+//      }
+//    }
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
     holderSlot=RVMThread.getCurrentThreadSlot();
@@ -316,10 +314,8 @@ public class Monitor {
   @Unpreemptible
   @NoOptCompile
   private void waitWithHandshakeImpl() {
-    RVMThread.enterNative();
     waitNoHandshake();
     int recCount=unlockCompletely();
-    RVMThread.leaveNative();
     relockWithHandshakeImpl(recCount);
   }
   /**
@@ -349,10 +345,8 @@ public class Monitor {
   @Unpreemptible
   @NoOptCompile
   private void timedWaitAbsoluteWithHandshakeImpl(long whenWakeupNanos) {
-    RVMThread.enterNative();
     timedWaitAbsoluteNoHandshake(whenWakeupNanos);
     int recCount=unlockCompletely();
-    RVMThread.leaveNative();
     relockWithHandshakeImpl(recCount);
   }
   /**
@@ -382,10 +376,8 @@ public class Monitor {
   @Unpreemptible
   @NoOptCompile
   private void timedWaitRelativeWithHandshakeImpl(long delayNanos) {
-    RVMThread.enterNative();
     timedWaitRelativeNoHandshake(delayNanos);
     int recCount=unlockCompletely();
-    RVMThread.leaveNative();
     relockWithHandshakeImpl(recCount);
   }
 

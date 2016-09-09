@@ -32,15 +32,17 @@
   <property file="${jikesrvm.dir}/build/configs/config.properties.defaults"/>
 
   <setBuildName property="build.name" config="${config.name}"/>
-
+  
   <!-- location of resources -->
   <property name="primordials.dir" location="build/primordials"/>
   <property name="main.java" location="rvm/src"/>
+  <property name="arch.java" location="rvm/arch"/>
   <property name="test.java" location="rvm/test-src/"/>
   <property name="mmtk.java" location="MMTk/src"/>
   <!-- <property name="joebase.dir" location="c:/local/git/jam/JEI"/> -->
   <property name="classpath.dir" location="../classpath-0.98"/>
   <property name="jam.java" location="../jam/src"/>
+  <property name="jikessupport.classpath.dir" location="libraryInterface/GNUClasspath/EPL/src"/>
   <property name="mmtk-harness.java" location="MMTk/harness/src"/>
   <property name="mmtk-harness-vmmagic.java" location="MMTk/harness/vmmagic"/>
   <property name="mmtk-vm-rvm.java" location="MMTk/ext/vm/jikesrvm"/>
@@ -50,7 +52,12 @@
   <property name="tuningforklib.java" location="external/tuningforklib/src"/>	
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
   <property name="classpath.lib.dir" location="../classpath-0.98"/>
-	
+
+  <!-- Classpath library -->
+  <property name="classlib.library-interface.cpl.java" location="libraryInterface/GNUClasspath/EPL/src"/>
+  <property name="classlib.library-interface.non-cpl.java" location="libraryInterface/GNUClasspath/LGPL/src"/>
+  <property name="classlib.library-interface.non-cpl2.java" location="libraryInterface/GNUClasspath/PD/src"/>
+
   <!-- Location of .dat files for options -->	
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
@@ -85,7 +92,7 @@
 
   <property name="generated.java" location="${generated.dir}/main/java"/>
   <property name="generated.ia32.java" location="${generated.dir}/ia32-${target.address.size}/main/java"/>
-  <property name="generated.arch.java" location="${generated.dir}/${target.arch}-${target.address.size}/main/java"/>
+  <property name="generated.arch.java" location="${arch.java}/ia32/src"/>
   <property name="generated.vmmagic.arch.java" location="${generated.dir}/vmmagic/${target.address.size}/java"/>
 
   <property name="generated.asm" location="${generated.dir}/asm/java"/>
@@ -446,11 +453,13 @@ Check to make sure all required properties are specified. This includes properti
   <target name="compile-classpath" description="Compile GNU classpath">
     <mkdir dir="${classpath.dir}/classes"/>
     <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" destdir="${classpath.dir}/classes"
-        classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
-        sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/vm/reference/gnu,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
-        includes="java/**,javax/**,gnu/**,sun/**,org/**,vm/reference/**,external/**,org/jikesrvm/**"
-        excludes="gnu/java/awt/peer/x/**"
-        includeantruntime="no"
+      classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
+      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/vm/reference/gnu,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
+      includes="java/**,javax/**,gnu/**,sun/**,org/**,vm/reference/**,external/**,org/jikesrvm/**"
+      excludes="gnu/java/awt/peer/x/**"
+      includeantruntime="no"
+      source="${rvm.java.version}"
+      target="${rvm.java.version}"
     />
     <jar file="${classpath.dir}/src.jar" basedir="${classpath.dir}">
       <include name="java/**/*.java"/>
@@ -695,6 +704,7 @@ Check to make sure all required properties are specified. This includes properti
       <condition property="@{arch}-ia32_quote" value="/**" else="">
         <equals arg1="@{arch}" arg2="ia32"/>
       </condition>
+      <!--
       <copy file="${basedir}/rvm/src-generated/vm-configuration/ArchitectureSpecific.template"
             tofile="${generated.dir}/@{arch}-@{addressSize}/main/java/org/jikesrvm/ArchitectureSpecific.java">
         <filterset>
@@ -711,6 +721,7 @@ Check to make sure all required properties are specified. This includes properti
             <filter token="_IA32_QUOTE_" value="${@{arch}-ia32_quote}"/>
           </filterset>
         </copy>
+        -->
     </sequential>
   </macrodef>
 
@@ -1266,43 +1277,20 @@ Check to make sure all required properties are specified. This includes properti
       </sequential>
     </if>
 
-    <mkdir dir="${build.base}/syscall/java"/>
-
-    <javac srcDir="${syscall.dir}"
-           source="${rvm.java.version}"
-           target="${rvm.java.version}"
-           failonerror="true"
-           includeantruntime="false">
-      <classpath>
-        <pathelement location="${tasks.classes}"/>
-        <pathelement location="${build.vmmagic-stub.classes}"/>
-        <pathelement location="${build.classes}"/>
-      </classpath>
-      <compilerarg value="-proc:only"/>
-      
-      <!-- Processor needs to be specified explicitly, otherwise lookup will fail -->
-      <compilerarg value="-processor"/>
-      <compilerarg value="org.jikesrvm.tools.annotation_processing.SysCallProcessor"/>
- 
-      <compilerarg value="-processorpath"/>
-      <compilerarg value="${tasks.classes}"/>
-      <compilerarg value="-s"/>
-      <compilerarg value="${build.base}/syscall/java"/>
-    </javac>
-  	
+<!--
     <echo message="second compile (from ${generated.java})"/>
     <javac destdir="${build.classes}"
            debug="true"
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${build.base}/syscall/java"
            includeantruntime="false">
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
         <pathelement location="${build.classes}"/>
       </classpath>
     </javac>
+-->
   </target>
 
   <target name="compile-unit-tests" depends="compile">

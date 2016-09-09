@@ -14,7 +14,6 @@ package org.jikesrvm.mm.mminterface;
 
 import org.jikesrvm.ArchitectureSpecific;
 import org.jikesrvm.ArchitectureSpecific.BaselineGCMapIterator;
-import org.jikesrvm.ArchitectureSpecific.JNIGCMapIterator;
 import org.jikesrvm.ArchitectureSpecificOpt.OptGCMapIterator;
 import org.jikesrvm.VM;
 import org.jikesrvm.SizeConstants;
@@ -55,9 +54,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
   /** iterator for HardwareTrap stackframes */
   private final GCMapIterator hardwareTrapIterator;
 
-  /** iterator for JNI Java -> C  stackframes */
-  private final GCMapIterator jniIterator;
-
   public GCMapIteratorGroup() {
     registerLocations = WordArray.create(ArchitectureSpecific.ArchConstants.NUM_GPRS);
 
@@ -67,7 +63,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
     } else {
       optIterator = null;
     }
-    jniIterator = new JNIGCMapIterator(registerLocations);
     hardwareTrapIterator = new HardwareTrapGCMapIterator(registerLocations);
   }
 
@@ -95,7 +90,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
       optIterator.newStackWalk(thread);
     }
     hardwareTrapIterator.newStackWalk(thread);
-    jniIterator.newStackWalk(thread);
   }
 
   /**
@@ -116,8 +110,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
         return baselineIterator;
       case CompiledMethod.OPT:
         return optIterator;
-      case CompiledMethod.JNI:
-        return jniIterator;
     }
     if (VM.VerifyAssertions) {
       VM._assert(VM.NOT_REACHED, "GCMapIteratorGroup.selectIterator: Unknown type of compiled method");
@@ -125,14 +117,4 @@ public final class GCMapIteratorGroup implements SizeConstants {
     return null;
   }
 
-  /**
-   * get the GCMapIterator used for scanning JNI native stack frames.
-   *
-   * @return jniIterator
-   */
-  @Uninterruptible
-  public GCMapIterator getJniIterator() {
-    if (VM.VerifyAssertions) VM._assert(jniIterator != null);
-    return jniIterator;
-  }
 }

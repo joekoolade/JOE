@@ -664,132 +664,6 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
   }
 
   /**
-   * Deliver a hardware exception to current java thread.
-   * <p>
-   * Does not return.
-   * (stack is unwound, starting at trap site, and
-   *           execution resumes in a catch block somewhere up the stack)
-   *     /or/  execution resumes at instruction following trap
-   *     (for TRAP_STACK_OVERFLOW)
-   *
-   * <p> Note:     Control reaches here by the actions of an
-   *           external "C" signal handler
-   *           which saves the register state of the trap site into the
-   *           "exceptionRegisters" field of the current
-   *           Thread object.
-   *           The signal handler also inserts a <hardware trap> frame
-   *           onto the stack immediately above this frame, for use by
-   *           HardwareTrapGCMapIterator during garbage collection.
-   *
-   * @param trapCode code indicating kind of exception that was trapped
-   * (see TRAP_xxx, above)
-   * @param trapInfo array subscript (for array bounds trap, only)
-   */
-  @Entrypoint
-  @UnpreemptibleNoWarn
-  static void deliverHardwareException(int trapCode, int trapInfo) {
-    if (false) VM.sysWriteln("delivering hardware exception");
-    RVMThread myThread = RVMThread.getCurrentThread();
-    if (false) VM.sysWriteln("we have a thread = ",Magic.objectAsAddress(myThread));
-    if (false) VM.sysWriteln("it's in state = ",myThread.getExecStatus());
-    Registers exceptionRegisters = myThread.getExceptionRegisters();
-    if (false) VM.sysWriteln("we have exception registers = ",Magic.objectAsAddress(exceptionRegisters));
-
-    if (trapCode == TRAP_STACK_OVERFLOW &&
-        myThread.getStack().length < (STACK_SIZE_MAX >> LOG_BYTES_IN_ADDRESS) &&
-        !myThread.hasNativeStackFrame()) {
-      // expand stack by the size appropriate for normal or native frame
-      // and resume execution at successor to trap instruction
-      // (C trap handler has set register.ip to the instruction following the trap).
-      RVMThread.resizeCurrentStack(myThread.getStackLength() + STACK_SIZE_GROW, exceptionRegisters);
-      if (VM.VerifyAssertions) VM._assert(exceptionRegisters.inuse);
-      exceptionRegisters.inuse = false;
-      Magic.restoreHardwareExceptionState(exceptionRegisters);
-
-      if (VM.VerifyAssertions) VM._assert(NOT_REACHED);
-    }
-
-    // GC stress testing
-    if (canForceGC()) {
-      //VM.sysWrite("FORCING GC: in deliverHardwareException\n");
-      System.gc();
-    }
-
-    // Sanity checking.
-    // Hardware traps in uninterruptible code should be considered hard failures.
-    if (!VM.sysFailInProgress()) {
-      Address fp = exceptionRegisters.getInnermostFramePointer();
-      int compiledMethodId = Magic.getCompiledMethodID(fp);
-      if (compiledMethodId != INVISIBLE_METHOD_ID) {
-        CompiledMethod compiledMethod = CompiledMethods.getCompiledMethod(compiledMethodId);
-        Address ip = exceptionRegisters.getInnermostInstructionAddress();
-        Offset instructionOffset = compiledMethod.getInstructionOffset(ip);
-        if (compiledMethod.isWithinUninterruptibleCode(instructionOffset)) {
-          switch (trapCode) {
-          case TRAP_NULL_POINTER:
-            VM.sysWriteln("\nFatal error: NullPointerException within uninterruptible region.");
-            break;
-          case TRAP_ARRAY_BOUNDS:
-            VM.sysWriteln("\nFatal error: ArrayIndexOutOfBoundsException within uninterruptible region (index was ", trapInfo, ").");
-            break;
-          case TRAP_DIVIDE_BY_ZERO:
-            VM.sysWriteln("\nFatal error: DivideByZero within uninterruptible region.");
-            break;
-          case TRAP_STACK_OVERFLOW:
-            VM.sysWriteln("\nFatal error: StackOverflowError within uninterruptible region.");
-            break;
-          case TRAP_CHECKCAST:
-            VM.sysWriteln("\nFatal error: ClassCastException within uninterruptible region.");
-            break;
-          case TRAP_MUST_IMPLEMENT:
-            VM.sysWriteln("\nFatal error: IncompatibleClassChangeError within uninterruptible region.");
-            break;
-          case TRAP_STORE_CHECK:
-            VM.sysWriteln("\nFatal error: ArrayStoreException within uninterruptible region.");
-            break;
-          default:
-            VM.sysWriteln("\nFatal error: Unknown hardware trap within uninterruptible region.");
-          break;
-          }
-          VM.sysFail("Exiting virtual machine due to uninterruptibility violation.");
-        }
-      }
-    }
-
-    Throwable exceptionObject;
-    switch (trapCode) {
-      case TRAP_NULL_POINTER:
-        exceptionObject = new java.lang.NullPointerException();
-        break;
-      case TRAP_ARRAY_BOUNDS:
-        exceptionObject = new java.lang.ArrayIndexOutOfBoundsException(trapInfo);
-        break;
-      case TRAP_DIVIDE_BY_ZERO:
-        exceptionObject = new java.lang.ArithmeticException();
-        break;
-      case TRAP_STACK_OVERFLOW:
-        exceptionObject = new java.lang.StackOverflowError();
-        break;
-      case TRAP_CHECKCAST:
-        exceptionObject = new java.lang.ClassCastException();
-        break;
-      case TRAP_MUST_IMPLEMENT:
-        exceptionObject = new java.lang.IncompatibleClassChangeError();
-        break;
-      case TRAP_STORE_CHECK:
-        exceptionObject = new java.lang.ArrayStoreException();
-        break;
-      default:
-        exceptionObject = new java.lang.UnknownError();
-        RVMThread.traceback("UNKNOWN ERROR");
-        break;
-    }
-
-    VM.disableGC();  // VM.enableGC() is called when the exception is delivered.
-    deliverException(exceptionObject, exceptionRegisters);
-  }
-
-  /**
    * Unlock an object and then deliver a software exception
    * to current java thread.
    * <p>
@@ -896,8 +770,7 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
     // whenever the host operating system detects a hardware trap
     //
     BootRecord.the_boot_record.hardwareTrapMethodId = CompiledMethods.createHardwareTrapCompiledMethod().getId();
-    BootRecord.the_boot_record.deliverHardwareExceptionOffset =
-        Entrypoints.deliverHardwareExceptionMethod.getOffset();
+    BootRecord.the_boot_record.deliverHardwareExceptionOffset = Offset.zero();
 
     // tell "RunBootImage.C" to set "RVMThread.debugRequested" flag
     // whenever the host operating system detects a debug request signal
@@ -1135,27 +1008,6 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
    * Number of allocations left before a GC is forced. Only used if VM.StressGCAllocationInterval is not 0.
    */
   static int allocationCountDownToGC = VM.StressGCAllocationInterval;
-
-  /**
-   * Number of c-to-java jni calls left before a GC is forced. Only used if VM.StressGCAllocationInterval is not 0.
-   */
-  static int jniCountDownToGC = VM.StressGCAllocationInterval;
-
-  /**
-   * Check to see if we are stress testing garbage collector and if another JNI call should
-   * trigger a gc then do so.
-   */
-  @Inline
-  public static void checkJNICountDownToGC() {
-    // Temporarily disabled as it will causes nightly to take too long to run
-    // There should be a mechanism to optionally enable this countdown in Configuration
-    if (false && canForceGC()) {
-      if (jniCountDownToGC-- <= 0) {
-        jniCountDownToGC = VM.StressGCAllocationInterval;
-        System.gc();
-      }
-    }
-  }
 
   /**
    * Check to see if we are stress testing garbage collector and if another allocation should

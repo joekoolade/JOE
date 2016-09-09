@@ -21,7 +21,6 @@ import java.io.PrintStream;
 import org.jikesrvm.VM;
 import org.jikesrvm.Callbacks;
 import org.jikesrvm.scheduler.RVMThread;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.util.StringUtilities;
 import org.vmmagic.pragma.NoInline;
 import org.vmmagic.pragma.NoOptCompile;
@@ -75,9 +74,7 @@ public class FileSystem {
     // convert file name from unicode to filesystem character set
     // (assume file name is ascii, for now)
     byte[] asciiName = StringUtilities.stringToBytesNullTerminated(fileName);
-    int rc = sysCall.sysStat(asciiName, kind);
-    if (VM.TraceFileSystem) VM.sysWrite("FileSystem.stat: name=" + fileName + " kind=" + kind + " rc=" + rc + "\n");
-    return rc;
+    return 0;
   }
 
   /**
@@ -91,12 +88,7 @@ public class FileSystem {
     // (assume file name is ascii, for now)
     byte[] asciiName = StringUtilities.stringToBytesNullTerminated(fileName);
 
-    int rc = sysCall.sysAccess(asciiName, kind);
-
-    if (VM.TraceFileSystem) {
-      VM.sysWrite("FileSystem.access: name=" + fileName + " kind=" + kind + " rc=" + rc + "\n");
-    }
-    return rc;
+    return 0;
   }
 
   /**
@@ -110,11 +102,7 @@ public class FileSystem {
   @BaselineSaveLSRegisters
   @Unpreemptible
   public static int readByte(int fd) {
-    RVMThread.saveThreadState();
-    RVMThread.enterNative();
-    int result=sysCall.sysReadByte(fd);
-    RVMThread.leaveNative();
-    return result;
+    return 0;
   }
 
   /**
@@ -129,11 +117,7 @@ public class FileSystem {
   @BaselineSaveLSRegisters
   @Unpreemptible
   public static int writeByte(int fd, int b) {
-    RVMThread.saveThreadState();
-    RVMThread.enterNative();
-    int result=sysCall.sysWriteByte(fd,b);
-    RVMThread.leaveNative();
-    return result;
+    return 0;
   }
 
   /**
@@ -147,11 +131,7 @@ public class FileSystem {
   @BaselineSaveLSRegisters
   @Unpreemptible
   public static int readBytes(int fd, byte[] buf, int off, int cnt) {
-    RVMThread.saveThreadState();
-    RVMThread.enterNative();
-    int result=sysCall.sysReadBytes(fd,Magic.objectAsAddress(buf).plus(off),cnt);
-    RVMThread.leaveNative();
-    return result;
+    return 0;
   }
 
   /**
@@ -165,11 +145,7 @@ public class FileSystem {
   @BaselineSaveLSRegisters
   @Unpreemptible
   public static int writeBytes(int fd, byte[] buf, int off, int cnt) {
-    RVMThread.saveThreadState();
-    RVMThread.enterNative();
-    int result=sysCall.sysWriteBytes(fd,Magic.objectAsAddress(buf).plus(off),cnt);
-    RVMThread.leaveNative();
-    return result;
+    return 0;
   }
 
   @NoInline
@@ -177,11 +153,7 @@ public class FileSystem {
   @BaselineSaveLSRegisters
   @Unpreemptible
   public static boolean sync(int fd) {
-    RVMThread.saveThreadState();
-    RVMThread.enterNative();
-    boolean result=sysCall.sysSyncFile(fd) == 0;
-    RVMThread.leaveNative();
-    return result;
+    return true;
   }
 
   @NoInline
@@ -189,11 +161,7 @@ public class FileSystem {
   @BaselineSaveLSRegisters
   @Unpreemptible
   public static int bytesAvailable(int fd) {
-    RVMThread.saveThreadState();
-    RVMThread.enterNative();
-    int result=sysCall.sysBytesAvailable(fd);
-    RVMThread.leaveNative();
-    return result;
+    return 0;
   }
 
   // not sure if this is the right place to have this.

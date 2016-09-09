@@ -12,8 +12,6 @@
  */
 package java.lang;
 
-import static org.jikesrvm.runtime.SysCall.sysCall;
-
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.Atom;
@@ -164,20 +162,20 @@ final class VMCommonLibrarySupport {
    * Get the value of an environment variable.
    */
   static String getenv(String envarName) {
-    byte[] buf = new byte[128]; // Modest amount of space for starters.
-
-    byte[] nameBytes = envarName.getBytes();
-
-    // sysCall is uninterruptible so passing buf is safe
-    int len = sysCall.sysGetenv(nameBytes, buf, buf.length);
-
-    if (len < 0)                // not set.
-      return null;
-
-    if (len > buf.length) {
-      buf = new byte[len];
-      sysCall.sysGetenv(nameBytes, buf, len);
-    }
-    return new String(buf, 0, len);
+//    byte[] buf = new byte[128]; // Modest amount of space for starters.
+//
+//    byte[] nameBytes = envarName.getBytes();
+//
+//    // sysCall is uninterruptible so passing buf is safe
+//    int len = sysCall.sysGetenv(nameBytes, buf, buf.length);
+//
+//    if (len < 0)                // not set.
+//      return null;
+//
+//    if (len > buf.length) {
+//      buf = new byte[len];
+//      sysCall.sysGetenv(nameBytes, buf, len);
+//    }
+    return null;
   }
 }

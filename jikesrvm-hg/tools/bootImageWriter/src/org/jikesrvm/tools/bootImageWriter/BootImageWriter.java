@@ -62,8 +62,6 @@ import org.jikesrvm.classloader.TypeDescriptorParsing;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.compilers.common.CompiledMethod;
 import org.jikesrvm.compilers.common.CompiledMethods;
-import org.jikesrvm.jni.FunctionTable;
-import org.jikesrvm.jni.JNIEnvironment;
 import org.jikesrvm.mm.mminterface.AlignmentEncoding;
 import org.jikesrvm.objectmodel.MiscHeader;
 import org.jikesrvm.objectmodel.ObjectModel;
@@ -1543,11 +1541,6 @@ private static boolean jamming=false;
 
       // Free up unnecessary Statics data structures
       staticsJunk = Statics.bootImageInstantiationFinished();
-
-      // Do the portion of JNIEnvironment initialization that can be done
-      // at bootimage writing time.
-      FunctionTable functionTable = BuildJNIFunctionTable.buildTable();
-      JNIEnvironment.initFunctionTable(functionTable);
 
       //
       // Collect the VM class Field to JDK class Field correspondence

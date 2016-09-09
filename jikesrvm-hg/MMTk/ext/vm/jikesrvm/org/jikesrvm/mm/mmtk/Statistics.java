@@ -15,7 +15,6 @@ package org.jikesrvm.mm.mmtk;
 import org.mmtk.utility.Constants;
 import org.mmtk.utility.statistics.PerfEvent;
 import org.jikesrvm.runtime.Time;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 
 import org.vmmagic.pragma.*;
 
@@ -76,13 +75,13 @@ public final class Statistics extends org.mmtk.vm.Statistics implements Constant
     // initialize perf event
     String[] perfEventNames = events.split(",");
     int n = perfEventNames.length;
-    sysCall.sysPerfEventInit(n);
+//    sysCall.sysPerfEventInit(n);
     perfEvents = new PerfEvent[n];
     for (int i = 0; i < n; i++) {
-      sysCall.sysPerfEventCreate(i, perfEventNames[i].concat("\0").getBytes());
+//      sysCall.sysPerfEventCreate(i, perfEventNames[i].concat("\0").getBytes());
       perfEvents[i] = new PerfEvent(i, perfEventNames[i]);
     }
-    sysCall.sysPerfEventEnable();
+//    sysCall.sysPerfEventEnable();
   }
 
   /**
@@ -90,7 +89,7 @@ public final class Statistics extends org.mmtk.vm.Statistics implements Constant
    */
   @Override
   public void perfEventRead(int id, long[] values) {
-    sysCall.sysPerfEventRead(id, values);
+//    sysCall.sysPerfEventRead(id, values);
   }
 }
 

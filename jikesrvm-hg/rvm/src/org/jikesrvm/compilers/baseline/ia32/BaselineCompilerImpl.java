@@ -42,7 +42,6 @@ import org.jikesrvm.compilers.common.assembler.ForwardReference.ConditionalBranc
 import org.jikesrvm.compilers.common.assembler.ia32.Assembler;
 import org.jikesrvm.ia32.BaselineConstants;
 import org.jikesrvm.ia32.ThreadLocalState;
-import org.jikesrvm.jni.ia32.JNICompiler;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.objectmodel.JavaHeaderConstants;
 import org.jikesrvm.objectmodel.ObjectModel;
@@ -137,9 +136,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
    */
   @Uninterruptible
   private static int getFirstLocalOffset(NormalMethod method) {
-    if (method.getDeclaringClass().hasBridgeFromNativeAnnotation()) {
-      return STACKFRAME_BODY_OFFSET - (JNICompiler.SAVED_GPRS_FOR_JNI << LG_WORDSIZE);
-    } else if (method.hasBaselineSaveLSRegistersAnnotation()) {
+    if (method.hasBaselineSaveLSRegistersAnnotation()) {
       return STACKFRAME_BODY_OFFSET - (SAVED_GPRS_FOR_SAVE_LS_REGISTERS << LG_WORDSIZE);
     } else {
       return STACKFRAME_BODY_OFFSET - (SAVED_GPRS << LG_WORDSIZE);
@@ -3502,7 +3499,6 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     if (klass.hasBridgeFromNativeAnnotation()) {
       // pop locals and parameters, get to saved GPR's
       adjustStack((method.getLocalWords() << LG_WORDSIZE)+(returnSize-bytesPopped), true);
-      JNICompiler.generateEpilogForJNIMethod(asm, this.method);
     } else if (method.hasInterruptHandlerAnnotation()) {
       // generate return from interrupt
       asm.emitIRET();

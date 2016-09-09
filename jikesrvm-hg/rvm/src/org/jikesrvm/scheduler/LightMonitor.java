@@ -13,8 +13,8 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
+import org.jikesrvm.runtime.Time;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.Interruptible;
 import org.vmmagic.pragma.Unpreemptible;
@@ -100,7 +100,7 @@ public final class LightMonitor {
 
     me.monitor().lockNoHandshake();
     while (waiting.isQueued(me) &&
-           (whenAwake!=0 || sysCall.sysNanoTime() < whenAwake) &&
+           (whenAwake!=0 || Time.nanoTime() < whenAwake) &&
            !me.hasInterrupt && me.asyncThrowable == null) {
       if (whenAwake==0) {
         me.monitor().waitWithHandshake();
@@ -146,7 +146,7 @@ public final class LightMonitor {
 
   @Interruptible
   public void timedWaitRelativeInterruptibly(long delayNanos) {
-    waitImpl(sysCall.sysNanoTime()+delayNanos);
+    waitImpl(Time.nanoTime()+delayNanos);
   }
 
   public void broadcast() {

@@ -2650,7 +2650,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     // 1.
     //
     if (Magic.getFramePointer().minus(ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GCDISABLED)
-        .LT(myThread.stackLimit) && !myThread.hasNativeStackFrame()) {
+        .LT(myThread.stackLimit)) {
       RVMThread.resizeCurrentStack(myThread.getStackLength()+
           ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GCDISABLED, null);
     }

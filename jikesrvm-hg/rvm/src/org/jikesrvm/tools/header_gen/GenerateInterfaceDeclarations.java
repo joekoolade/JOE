@@ -471,8 +471,6 @@ public class GenerateInterfaceDeclarations {
     pln("RVMThread_stackLimit_offset = ", offset);
     offset = Entrypoints.threadExceptionRegistersField.getOffset();
     pln("RVMThread_exceptionRegisters_offset = ", offset);
-    offset = Entrypoints.jniEnvField.getOffset();
-    pln("RVMThread_jniEnv_offset = ", offset);
     offset = Entrypoints.execStatusField.getOffset();
     pln("RVMThread_execStatus_offset = ", offset);
     // constants in RVMThread
@@ -488,10 +486,6 @@ public class GenerateInterfaceDeclarations {
 
     offset = ArchEntrypoints.registersInUseField.getOffset();
     pln("Registers_inuse_offset = ", offset);
-
-    // fields in JNIEnvironment
-    offset = Entrypoints.JNIExternalFunctionsField.getOffset();
-    pln("JNIEnvironment_JNIExternalFunctions_offset = ", offset);
 
     arch.emitArchVirtualMachineDeclarations();
   }

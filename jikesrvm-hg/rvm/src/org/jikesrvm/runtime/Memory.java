@@ -494,7 +494,6 @@ public class Memory {
    * @param size     Size of address range (bytes)
    */
   public static void sync(Address address, int size) {
-    SysCall.sysCall.sysSyncCache(address, size);
   }
 
   ////////////////////////
@@ -572,7 +571,7 @@ public class Memory {
     if (VM.VerifyAssertions) {
       VM._assert(isPageAligned(address) && isPageMultiple(size));
     }
-    return SysCall.sysCall.sysMProtect(address, size, prot) == 0;
+    return true;
   }
 
   /*
@@ -587,7 +586,7 @@ public class Memory {
    */
   public static int getPagesize() {
     if (pagesize == -1) {
-      pagesize = SysCall.sysCall.sysGetPageSize();
+      pagesize = 4096;
       pagesizeLog = -1;
       int temp = pagesize;
       while (temp > 0) {

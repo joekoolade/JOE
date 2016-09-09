@@ -12,7 +12,6 @@
  */
 package org.jikesrvm.compilers.common;
 
-import org.jikesrvm.ArchitectureSpecific.JNICompiler;
 import org.jikesrvm.VM;
 import org.jikesrvm.Callbacks;
 import org.jikesrvm.classloader.NativeMethod;
@@ -80,13 +79,4 @@ public abstract class BootImageCompiler {
     return compile(method, null);
   }
 
-  /**
-   * Compile a native method.
-   * @param method the method to compile
-   * @return the compiled method
-   */
-  public static CompiledMethod compile(NativeMethod method) {
-    Callbacks.notifyMethodCompile(method, CompiledMethod.JNI);
-    return JNICompiler.compile(method);
-  }
 }

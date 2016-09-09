@@ -13,7 +13,6 @@
 package org.jikesrvm.compilers.common;
 
 import org.jikesrvm.ArchitectureSpecific;
-import org.jikesrvm.ArchitectureSpecific.JNICompiler;
 import org.jikesrvm.VM;
 import org.jikesrvm.Callbacks;
 import org.jikesrvm.Constants;
@@ -735,43 +734,6 @@ public class RuntimeCompiler implements Constants, Callbacks.ExitMonitor {
     } else {
       return baselineCompile(method);
     }
-  }
-
-  /**
-   * Compile the stub for a native method when it is first invoked.
-   * @param method the method to compile
-   * @return its compiled method.
-   */
-  public static CompiledMethod compile(NativeMethod method) {
-    Callbacks.notifyMethodCompile(method, CompiledMethod.JNI);
-    long start = 0;
-    CompiledMethod cm = null;
-    try {
-      if (VM.MeasureCompilation || VM.BuildForAdaptiveSystem) {
-        start = Time.nanoTime();
-      }
-
-      cm = JNICompiler.compile(method);
-      if (VM.verboseJNI) {
-        VM.sysWriteln("[Dynamic-linking native method " +
-                      method.getDeclaringClass() +
-                      "." +
-                      method.getName() +
-                      " " +
-                      method.getDescriptor());
-      }
-    } finally {
-      if (VM.MeasureCompilation || VM.BuildForAdaptiveSystem) {
-        long end = Time.nanoTime();
-        if (cm != null) {
-          double compileTime = Time.nanosToMillis(end - start);
-          cm.setCompilationTime(compileTime);
-          record(JNI_COMPILER, method, cm);
-        }
-      }
-    }
-
-    return cm;
   }
 
   /**

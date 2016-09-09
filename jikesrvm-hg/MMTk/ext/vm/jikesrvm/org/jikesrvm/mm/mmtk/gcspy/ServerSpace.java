@@ -13,7 +13,6 @@
 package org.jikesrvm.mm.mmtk.gcspy;
 
 import org.mmtk.utility.Log;
-import static org.jikesrvm.runtime.SysCall.sysCall;
 import org.jikesrvm.VM;
 import org.mmtk.utility.gcspy.GCspy;
 import org.mmtk.utility.gcspy.drivers.AbstractDriver;
@@ -50,7 +49,7 @@ import org.vmmagic.pragma.*;
               boolean mainSpace) {
     if (VM.BuildWithGCSpy) {
       spaceId = serverInterpreter.addSpace(this);
-      driver = sysCall.gcspyMainServerAddDriver(serverInterpreter.getServerAddress());
+      driver = Address.zero(); // sysCall.gcspyMainServerAddDriver(serverInterpreter.getServerAddress());
 
       // Convert Strings to char *
       Address serverNameAddr = GCspy.util.getBytes(serverName);
@@ -61,9 +60,9 @@ import org.vmmagic.pragma.*;
 
       // Add the driver to the server and initialise it
       if (DEBUG) Log.writeln("--   Setting up driver");
-      sysCall.gcspyDriverInit(driver, -1, serverNameAddr, driverNameAddr,
-                                 titleAddr, blockInfoAddr, tileNum,
-                                 unusedAddr, mainSpace ? 1 : 0);
+//      sysCall.gcspyDriverInit(driver, -1, serverNameAddr, driverNameAddr,
+//                                 titleAddr, blockInfoAddr, tileNum,
+//                                 unusedAddr, mainSpace ? 1 : 0);
     }
   }
 
@@ -79,14 +78,14 @@ import org.vmmagic.pragma.*;
    */
   @Override
   public void setTilename(int i, Address start, Address end) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverSetTileNameRange(driver, i, start, end);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverSetTileNameRange(driver, i, start, end);
   }
 
   @Override
   public void setTilename(int i, Address format, long value) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverSetTileName(driver, i, format, value);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverSetTileName(driver, i, format, value);
   }
 
   @Override
@@ -100,93 +99,93 @@ import org.vmmagic.pragma.*;
 
   @Override
   public void resize(int size) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverResize(driver, size);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverResize(driver, size);
   }
 
   @Override
   public void startCommunication() {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverStartComm(driver);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverStartComm(driver);
   }
 
   @Override
   public Address addStream(int streamId) {
-    if (VM.BuildWithGCSpy)
-      return sysCall.gcspyDriverAddStream(driver, streamId);
-    else
+//    if (VM.BuildWithGCSpy)
+//      return sysCall.gcspyDriverAddStream(driver, streamId);
+//    else
       return Address.zero();
   }
 
   @Override
   public void stream(int streamId, int len) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverStream(driver, streamId, len);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverStream(driver, streamId, len);
   }
 
   @Override
   public void streamByteValue(byte value) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverStreamByteValue(driver, value);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverStreamByteValue(driver, value);
   }
 
   @Override
   public void streamShortValue(short value) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverStreamShortValue(driver, value);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverStreamShortValue(driver, value);
   }
 
   @Override
   public void streamIntValue(int value) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverStreamIntValue(driver, value);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverStreamIntValue(driver, value);
   }
 
   @Override
   public void streamEnd() {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverEndOutput(driver);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverEndOutput(driver);
   }
 
   @Override
   public void summary(int streamId, int len) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverSummary(driver, streamId, len);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverSummary(driver, streamId, len);
   }
 
   @Override
   public void summaryValue(int val) {
-    sysCall.gcspyDriverSummaryValue(driver, val);
+//    sysCall.gcspyDriverSummaryValue(driver, val);
   }
 
   @Override
   public void summaryEnd() {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverEndOutput(driver);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverEndOutput(driver);
   }
 
   @Override
   public void sendControls(AbstractDriver space, int tileNum) {
     // start the stream
     if (VM.BuildWithGCSpy) {
-      sysCall.gcspyDriverInitOutput(driver);
-      sysCall.gcspyIntWriteControl(
-                              driver/* NOTE driver->interpreter in sys.C*/,
-                              spaceId,
-                              tileNum);
+//      sysCall.gcspyDriverInitOutput(driver);
+//      sysCall.gcspyIntWriteControl(
+//                              driver/* NOTE driver->interpreter in sys.C*/,
+//                              spaceId,
+//                              tileNum);
 
       // send a control for each tile
       for (int i = 0; i < tileNum; ++i)
         streamByteValue(space.getControl(i));
 
       // end the stream
-      sysCall.gcspyDriverEndOutput(driver);
+//      sysCall.gcspyDriverEndOutput(driver);
     }
   }
 
   @Override
   public void spaceInfo(Address info) {
-    if (VM.BuildWithGCSpy)
-      sysCall.gcspyDriverSpaceInfo(driver, info);
+//    if (VM.BuildWithGCSpy)
+//      sysCall.gcspyDriverSpaceInfo(driver, info);
   }
 }

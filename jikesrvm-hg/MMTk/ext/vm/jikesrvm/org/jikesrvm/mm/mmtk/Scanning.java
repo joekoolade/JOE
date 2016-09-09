@@ -19,8 +19,6 @@ import org.mmtk.utility.Constants;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.compilers.common.CompiledMethods;
-import org.jikesrvm.jni.JNIEnvironment;
-import org.jikesrvm.jni.JNIGlobalRefTable;
 import org.jikesrvm.mm.mminterface.AlignmentEncoding;
 import org.jikesrvm.mm.mminterface.HandInlinedScanning;
 import org.jikesrvm.mm.mminterface.Selected;
@@ -121,36 +119,6 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
    */
   @Override
   public void computeGlobalRoots(TraceLocal trace) {
-    /* scan jni functions */
-    CollectorContext cc = RVMThread.getCurrentThread().getCollectorContext();
-    Address jniFunctions = Magic.objectAsAddress(JNIEnvironment.JNIFunctions);
-    int threads = cc.parallelWorkerCount();
-    int size = JNIEnvironment.JNIFunctions.length();
-    int chunkSize = size / threads;
-    int start = cc.parallelWorkerOrdinal() * chunkSize;
-    int end = (cc.parallelWorkerOrdinal()+1 == threads) ? size : threads * chunkSize;
-
-    for(int i=start; i < end; i++) {
-      trace.processRootEdge(jniFunctions.plus(i << LOG_BYTES_IN_ADDRESS), true);
-    }
-
-    Address linkageTriplets = Magic.objectAsAddress(JNIEnvironment.LinkageTriplets);
-    if (linkageTriplets != null) {
-      for(int i=start; i < end; i++) {
-        trace.processRootEdge(linkageTriplets.plus(i << LOG_BYTES_IN_ADDRESS), true);
-      }
-    }
-
-    /* scan jni global refs */
-    Address jniGlobalRefs = Magic.objectAsAddress(JNIGlobalRefTable.JNIGlobalRefs);
-    size = JNIGlobalRefTable.JNIGlobalRefs.length();
-    chunkSize = size / threads;
-    start = cc.parallelWorkerOrdinal() * chunkSize;
-    end = (cc.parallelWorkerOrdinal()+1 == threads) ? size : threads * chunkSize;
-
-    for(int i=start; i < end; i++) {
-      trace.processRootEdge(jniGlobalRefs.plus(i << LOG_BYTES_IN_ADDRESS), true);
-    }
   }
 
   /**

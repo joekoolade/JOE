@@ -51,14 +51,14 @@ public class Time {
    * @return a monotonic timer value in nanoseconds.
    */
   public static long nanoTime() {
-    return SysCall.sysCall.sysNanoTime();
+    return Magic.getTimeBase();
   }
 
   /**
    * Time in milliseconds (epoch Jan 1 1970).
    */
   public static long currentTimeMillis() {
-    return SysCall.sysCall.sysCurrentTimeMillis();
+    return nanoTime()/1000000;
   }
 
   public static double nanosToSecs(long nanos) {
