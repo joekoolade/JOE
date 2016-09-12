@@ -18,10 +18,10 @@ import org.mmtk.utility.Log;
 
 import org.vmmagic.pragma.*;
 
-public class Selected {
-  public static final String name = "org.mmtk.plan.semispace.SS";
+public class SelectedNoGC {
+  public static final String name = "org.mmtk.plan.nogc.NoGC";
   @Uninterruptible
-  public static final class Plan extends org.mmtk.plan.semispace.SS
+  public static final class Plan extends org.mmtk.plan.nogc.NoGC
   {
     private static final Plan plan = new Plan();
 
@@ -30,12 +30,12 @@ public class Selected {
   }
 
   @Uninterruptible
-  public static final class Collector extends org.mmtk.plan.semispace.SSCollector
+  public static final class Collector extends org.mmtk.plan.nogc.NoGCCollector
   {
   }
 
   @Uninterruptible
-  public static final class Constraints extends org.mmtk.plan.semispace.SSConstraints
+  public static final class Constraints extends org.mmtk.plan.nogc.NoGCConstraints
   {
     private static final Constraints constraints = new Constraints();
 
@@ -44,7 +44,7 @@ public class Selected {
   }
 
   @Uninterruptible
-  public static class Mutator extends org.mmtk.plan.semispace.SSMutator
+  public static class Mutator extends org.mmtk.plan.nogc.NoGCMutator
   {
     @Inline
     public final RVMThread getThread() { return (RVMThread) this; }

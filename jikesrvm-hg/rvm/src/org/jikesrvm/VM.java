@@ -32,6 +32,7 @@ import org.jikesrvm.compilers.baseline.BaselineCompiler;
 import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
 import org.jikesrvm.mm.mminterface.MemoryManager;
+import org.jikesrvm.mm.mminterface.Selected;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.ExitStatus;
@@ -278,9 +279,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Booting scheduler");
     RVMThread.boot();
 
-    if (verboseBoot >= 1) VM.sysWriteln("Enabling GC");
-//    MemoryManager.enableCollection();
-
     if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
     RVMThread.getCurrentThread().setupBootJavaThread();
 
@@ -427,6 +425,13 @@ public class VM extends Properties implements Constants, ExitStatus {
     System.setOut(Platform.serialPort.getPrintStream());
     System.out.println("System.out is working!");
     
+    if (verboseBoot >= 1)
+    {
+        VM.sysWrite("Enabling GC: ");
+        VM.sysWriteln(Selected.name);
+    }
+    MemoryManager.enableCollection();
+
     LdivTests.test1();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");

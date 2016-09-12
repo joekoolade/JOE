@@ -1070,13 +1070,14 @@ Check to make sure all required properties are specified. This includes properti
       </filterset>
     </copy>
 
+<!--
     <copy file="${basedir}/rvm/src-generated/vm-configuration/Selected.template"
           tofile="${generated.config.java}/org/jikesrvm/mm/mminterface/Selected.java">
       <filterset>
         <filter token="_PLAN_" value="${config.mmtk.plan}"/>
       </filterset>
     </copy>
-
+-->
     <condition property="pp_address.method" value="fromIntZeroExtend" else="fromLong">
       <equals arg1="${target.address.size}" arg2="32"/>
     </condition>
