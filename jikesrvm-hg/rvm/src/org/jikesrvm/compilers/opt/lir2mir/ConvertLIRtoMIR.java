@@ -240,7 +240,7 @@ public final class ConvertLIRtoMIR extends OptimizationPlanCompositeElement {
                          SYSCALL,
                          GuardedBinary.getClearResult(s),
                          null,
-                         MethodOperand.STATIC(Entrypoints.sysLongRemainderIPField),
+                         null, // MethodOperand.STATIC(Entrypoints.sysLongRemainderIPField),
                          GuardedBinary.getClearVal1(s),
                          GuardedBinary.getClearVal2(s));
             ConvertToLowLevelIR.expandSysCallTarget(s, ir);

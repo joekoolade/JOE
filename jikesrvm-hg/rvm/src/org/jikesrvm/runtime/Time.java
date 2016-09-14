@@ -12,6 +12,7 @@
  */
 package org.jikesrvm.runtime;
 
+import org.jam.cpu.intel.Tsc;
 import org.vmmagic.pragma.Uninterruptible;
 
 /**
@@ -41,7 +42,7 @@ public class Time {
    * the conversion cannot be reliably supported on all of our platforms.
    */
   public static long cycles() {
-    return Magic.getTimeBase();
+      return Magic.getTimeBase();
   }
 
   /**
@@ -51,7 +52,7 @@ public class Time {
    * @return a monotonic timer value in nanoseconds.
    */
   public static long nanoTime() {
-    return Magic.getTimeBase();
+    return (Magic.getTimeBase()/Tsc.cyclesPer1000Ns) * 1000;
   }
 
   /**

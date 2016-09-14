@@ -385,8 +385,6 @@ public class Entrypoints {
       getField(org.jikesrvm.runtime.BootRecord.class, "externalSignalFlag", int.class);
   public static final RVMField sysLongDivideIPField =
       getField(org.jikesrvm.runtime.BootRecord.class, "sysLongDivideIP", org.vmmagic.unboxed.Address.class);
-  public static final RVMField sysLongRemainderIPField =
-      getField(org.jikesrvm.runtime.BootRecord.class, "sysLongRemainderIP", org.vmmagic.unboxed.Address.class);
   public static final RVMField sysLongToFloatIPField =
       getField(org.jikesrvm.runtime.BootRecord.class, "sysLongToFloatIP", org.vmmagic.unboxed.Address.class);
   public static final RVMField sysLongToDoubleIPField =

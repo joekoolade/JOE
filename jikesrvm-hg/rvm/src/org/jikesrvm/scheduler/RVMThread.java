@@ -1014,12 +1014,6 @@ public final class RVMThread extends ThreadContext implements Constants {
   public static int availableProcessors = -1;
 
   /**
-   * Thread handle. Currently stores pthread_t, which we assume to be no larger
-   * than a pointer-sized word.
-   */
-  public Word pthread_id;
-
-  /**
    * Thread priority handle.  Used when manipulating the threads priority.
    * This may be different from pthread_id.
    */
@@ -2315,8 +2309,7 @@ private Address sp;
 
     currentThread.enableYieldpoints();
     if (traceAcct) {
-      VM.sysWriteln("Thread #", currentThread.threadSlot, " with pthread id ",
-          currentThread.pthread_id, " running!");
+      VM.sysWriteln("Thread #", currentThread.threadSlot);
     }
 
     if (trace) {

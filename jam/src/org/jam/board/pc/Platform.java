@@ -7,6 +7,7 @@
 package org.jam.board.pc;
 
 import org.jam.cpu.intel.Idt;
+import org.jam.cpu.intel.Tsc;
 import org.jam.driver.serial.PcSerialPort;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RoundRobin;
@@ -35,6 +36,7 @@ public class Platform {
     public static void init()
     {
         timer = new PcSystemTimer();
+        Tsc.calibrate(50);
         serialPort = new PcSerialPort(COM1);
         VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
         scheduler = new RoundRobin();

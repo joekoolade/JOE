@@ -57,6 +57,9 @@ public class I82c54 {
   public final static int MODE5 = 0x0a;
   
   public I82c54() {
+      /*
+       * Set up hardware IO addresses
+       */
     counter0 = Address.fromIntZeroExtend(0x40);
     counter1 = Address.fromIntZeroExtend(0x41);
     counter2 = Address.fromIntZeroExtend(0x42);
