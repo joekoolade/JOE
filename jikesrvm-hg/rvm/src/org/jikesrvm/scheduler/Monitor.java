@@ -13,7 +13,9 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
-
+import org.jikesrvm.runtime.Entrypoints;
+import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.runtime.Time;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.Unpreemptible;
 import org.vmmagic.pragma.NonMoving;
@@ -69,7 +71,7 @@ public class Monitor {
    * instantiate too many of these.
    */
   public Monitor() {
-    monitor = Word.zero(); // sysCall.sysMonitorCreate();
+    monitor = Word.zero();
   }
   /**
    * Wait until it is possible to acquire the lock and then acquire it.
@@ -91,6 +93,10 @@ public class Monitor {
   public void lockNoHandshake() {
     int mySlot = RVMThread.getCurrentThreadSlot();
     if (mySlot != holderSlot) {
+        while(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 0, 1))
+        {
+            Magic.yield();
+        }
       // sysCall.sysMonitorEnter(monitor);
       if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
       if (VM.VerifyAssertions) VM._assert(recCount==0);
@@ -105,6 +111,10 @@ public class Monitor {
   @NoInline
   @NoOptCompile
   public void relockNoHandshake(int recCount) {
+      while(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 0, 1))
+      {
+          Magic.yield();
+      }
     // sysCall.sysMonitorEnter(monitor);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
@@ -155,7 +165,7 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible
   private void lockWithHandshakeNoRec() {
-    RVMThread.saveThreadState();
+//    RVMThread.saveThreadState();
     lockWithHandshakeNoRecImpl();
   }
   @NoInline
@@ -181,7 +191,7 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible("If the lock cannot be reacquired, this method may allow the thread to be asynchronously blocked")
   public void relockWithHandshake(int recCount) {
-    RVMThread.saveThreadState();
+//    RVMThread.saveThreadState();
     relockWithHandshakeImpl(recCount);
   }
   @NoInline
@@ -213,6 +223,10 @@ public class Monitor {
   public void unlock() {
     if (--recCount==0) {
       holderSlot=-1;
+      if(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 1, 0))
+      {
+          VM._assert(false);
+      }
       // sysCall.sysMonitorExit(monitor);
     }
   }
@@ -226,6 +240,10 @@ public class Monitor {
     int result=recCount;
     recCount=0;
     holderSlot=-1;
+    if(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 1, 0))
+    {
+        VM._assert(false);
+    }
     // sysCall.sysMonitorExit(monitor);
     return result;
   }
@@ -244,6 +262,10 @@ public class Monitor {
     int recCount=this.recCount;
     this.recCount=0;
     holderSlot=-1;
+    while(monitor.NE(Word.zero()))
+    {
+        Magic.yield();
+    }
     // sysCall.sysMonitorWait(monitor);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
@@ -266,6 +288,10 @@ public class Monitor {
     int recCount=this.recCount;
     this.recCount=0;
     holderSlot=-1;
+    while(monitor.NE(Word.zero()) && Time.nanoTime() < whenWakeupNanos)
+    {
+        Magic.yield();
+    }
     // sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
@@ -307,7 +333,7 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
   public void waitWithHandshake() {
-    RVMThread.saveThreadState();
+//    RVMThread.saveThreadState();
     waitWithHandshakeImpl();
   }
   @NoInline
@@ -338,7 +364,7 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
   public void timedWaitAbsoluteWithHandshake(long whenWakeupNanos) {
-    RVMThread.saveThreadState();
+//    RVMThread.saveThreadState();
     timedWaitAbsoluteWithHandshakeImpl(whenWakeupNanos);
   }
   @NoInline
@@ -369,7 +395,7 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
   public void timedWaitRelativeWithHandshake(long delayNanos) {
-    RVMThread.saveThreadState();
+//    RVMThread.saveThreadState();
     timedWaitRelativeWithHandshakeImpl(delayNanos);
   }
   @NoInline

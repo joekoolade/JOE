@@ -186,6 +186,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) {
       VM.sysWriteln("Setting up memory manager: bootThread = ", Magic.objectAsAddress(RVMThread.bootThread));
     }
+    org.mmtk.utility.options.Options.verbose.setValue(6);
     MemoryManager.boot(BootRecord.the_boot_record);
 
     // Reset the options for the baseline compiler to avoid carrying

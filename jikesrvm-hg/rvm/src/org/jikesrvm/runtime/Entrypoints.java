@@ -379,6 +379,8 @@ public class Entrypoints {
   public static final RVMField innermostElementTypeDimensionField =
       getField(org.jikesrvm.classloader.RVMArray.class, "innermostElementTypeDimension", int.class);
 
+  public static final RVMField monitorField = getField(org.jikesrvm.scheduler.Monitor.class, "monitor", org.vmmagic.unboxed.Word.class);
+  
   public static final RVMField the_boot_recordField =
       getField(org.jikesrvm.runtime.BootRecord.class, "the_boot_record", org.jikesrvm.runtime.BootRecord.class);
   public static final RVMField externalSignalFlagField =
