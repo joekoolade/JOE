@@ -587,3 +587,5 @@ Lgnu/java/util/regex/RETokenAny;
 Lgnu/java/util/regex/RETokenRepeated;
 Lgnu/java/util/regex/RETokenWordBoundary;
 Ljava/security/MessageDigest;
+
+Ltest/org/jikesrvm/org/gctests/Exhaust;

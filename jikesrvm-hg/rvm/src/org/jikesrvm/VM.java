@@ -43,6 +43,7 @@ import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
 import org.jikesrvm.scheduler.Synchronization;
 import org.jikesrvm.scheduler.RVMThread;
+import org.jikesrvm.scheduler.TestThread;
 import org.jikesrvm.tuningfork.TraceEngine;
 import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.Inline;
@@ -439,12 +440,15 @@ public class VM extends Properties implements Constants, ExitStatus {
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
-    Sleep sleep = new Sleep();
+//    Sleep sleep = new Sleep();
     
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
-    new Thread(sleep).start();
+//    new Thread(sleep).start();
+    Thread testThread = new TestThread();
+    testThread.start();
+    
     VM.sysWriteln("Main thread started");
     
     // Say good bye to the boot thread
