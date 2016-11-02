@@ -117,7 +117,7 @@ public class PcSerialPort {
          * in the stackTop field. This space will contain the interrupted thread's
          * stack pointer.
          */
-        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
+        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
         
         outputStream = new SerialOutputStream(this);
         printStream = new PrintStream(outputStream);

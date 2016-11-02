@@ -62,7 +62,7 @@ public class PcSystemTimer
          * in the stackTop field. This space will contain the interrupted thread's
          * stack pointer.
          */
-        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
+        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
         timerQueue = new TreeMap<Long, RVMThread>();
     }
 
@@ -176,5 +176,15 @@ public class PcSystemTimer
          * give it up and schedule a new thread
          */
         Magic.yield();
+    }
+    
+    /**
+     * Remove timer from queue and return thread
+     * @param timeKey
+     * @return
+     */
+    public RVMThread removeTimer(long timeKey)
+    {
+      return timerQueue.remove(timeKey);
     }
 }

@@ -31,7 +31,7 @@ implements Scheduler {
         stack[STACK_SIZE-2] = 0;    // FP = 0
         stack[STACK_SIZE-3] = 0;    // cmid = 0
         
-        stackTop = Magic.objectAsAddress(stack[0]).plus((STACK_SIZE-4)<<2);
+        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
         VM.sysWriteln("roundrobin stack top: ", stackTop);
         runQueue = new ThreadQueue();
     }
@@ -76,7 +76,14 @@ implements Scheduler {
     @Override
     public void addThread(RVMThread thread)
     {
-        runQueue.enqueue(thread);
+        /*
+         * See if thread is already queued somewhere else
+         * like a monitor
+         */
+        if(thread.queuedOn==null)
+        {
+          runQueue.enqueue(thread);
+        }
     }
     
     /* (non-Javadoc)
