@@ -12,6 +12,7 @@
  */
 package org.jikesrvm.scheduler;
 
+import org.jam.board.pc.Platform;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.Magic;
@@ -22,6 +23,7 @@ import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.NoInline;
 import org.vmmagic.pragma.NoOptCompile;
 import org.vmmagic.pragma.BaselineSaveLSRegisters;
+import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
 /**
@@ -61,10 +63,14 @@ import org.vmmagic.unboxed.Word;
 @Uninterruptible
 @NonMoving
 public class Monitor {
+  public static boolean trace = true;
   Word monitor;
   int holderSlot=-1; // use the slot so that we're even more GC safe
   int recCount;
   public int acquireCount;
+  ThreadQueue waiting;  // threads waiting to be notified
+  ThreadQueue locking;  // threads trying to acquire the monitor
+  private static Offset monitorOffset = Entrypoints.monitorField.getOffset();
   /**
    * Allocate a heavy condition variable and lock.  This involves
    * allocating stuff in C that never gets deallocated.  Thus, don't
@@ -72,6 +78,8 @@ public class Monitor {
    */
   public Monitor() {
     monitor = Word.zero();
+    waiting = new ThreadQueue();
+    locking = new ThreadQueue();
   }
   /**
    * Wait until it is possible to acquire the lock and then acquire it.
@@ -90,38 +98,73 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  public void lockNoHandshake() {
+  public void lockNoHandshake()
+  {
     int mySlot = RVMThread.getCurrentThreadSlot();
-    if (mySlot != holderSlot) {
-        while(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 0, 1))
-        {
-            Magic.yield();
-        }
+    if (mySlot != holderSlot)
+    {
+      /*
+       * Try to get the lock
+       */
+      while (!Magic.attemptInt(this, monitorOffset, 0, 1))
+      {
+        /*
+         * Wait on the locking queue
+         */
+        VM.sysWrite("LockQueue(No HS)", Magic.objectAsAddress(this));
+        VM.sysWrite("/T#", mySlot);
+        VM.sysWrite("/H", holderSlot);
+        VM.sysWrite("/R", recCount);
+        VM.sysWriteln("/A", acquireCount);
+        locking.enqueue(RVMThread.getCurrentThread());
+        Magic.yield();
+      }
       // sysCall.sysMonitorEnter(monitor);
-      if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
-      if (VM.VerifyAssertions) VM._assert(recCount==0);
+      if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
+      if (VM.VerifyAssertions) VM._assert(recCount == 0);
       holderSlot = mySlot;
     }
     recCount++;
     acquireCount++;
+    if(trace) 
+    {
+      VM.sysWrite("Lock(No HS)", Magic.objectAsAddress(this));
+      VM.sysWrite("/T#", mySlot);
+      VM.sysWrite("/R", recCount);
+      VM.sysWriteln("/A", acquireCount);
+    }
   }
+
   /**
    * Relock the mutex after using unlockCompletely.
    */
   @NoInline
   @NoOptCompile
-  public void relockNoHandshake(int recCount) {
-      while(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 0, 1))
-      {
-          Magic.yield();
-      }
+  public void relockNoHandshake(int recCount)
+  {
+    while (!Magic.attemptInt(this, monitorOffset, 0, 1))
+    {
+      /*
+       * Wait on the locking queue
+       */
+      locking.enqueue(RVMThread.getCurrentThread());
+      Magic.yield();
+    }
     // sysCall.sysMonitorEnter(monitor);
-    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
-    if (VM.VerifyAssertions) VM._assert(this.recCount==0);
-    holderSlot=RVMThread.getCurrentThreadSlot();
-    this.recCount=recCount;
+    if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
+    if (VM.VerifyAssertions) VM._assert(this.recCount == 0);
+    holderSlot = RVMThread.getCurrentThreadSlot();
+    this.recCount = recCount;
     acquireCount++;
+    if(trace) 
+    {
+      VM.sysWrite("Relock(No HS)", Magic.objectAsAddress(this));
+      VM.sysWrite("/T#", holderSlot);
+      VM.sysWrite("/R", recCount);
+      VM.sysWriteln("/A", acquireCount);
+    }
   }
+
   /**
    * Wait until it is possible to acquire the lock and then acquire it.
    * There is no bound on how long you might wait, if someone else is
@@ -149,38 +192,46 @@ public class Monitor {
   @Unpreemptible("If the lock cannot be acquired, this method will allow the thread to be asynchronously blocked")
   @NoInline
   @NoOptCompile
-  public void lockWithHandshake() {
+  public void lockWithHandshake()
+  {
     int mySlot = RVMThread.getCurrentThreadSlot();
-    if (mySlot != holderSlot) {
-      lockWithHandshakeNoRec();
-      if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
-      if (VM.VerifyAssertions) VM._assert(recCount==0);
+    if (mySlot != holderSlot)
+    {
+      while (!Magic.attemptInt(this, monitorOffset, 0, 1))
+      {
+        /*
+         * Wait on the locking queue
+         */
+        locking.enqueue(RVMThread.getCurrentThread());
+        Magic.yield();
+      }
+      if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
+      if (VM.VerifyAssertions) VM._assert(recCount == 0);
       holderSlot = mySlot;
     }
     recCount++;
     acquireCount++;
+    if(trace) 
+    {
+      VM.sysWrite("Lock(HS)", Magic.objectAsAddress(this));
+      VM.sysWrite("/T#", mySlot);
+      VM.sysWrite("/R", recCount);
+      VM.sysWriteln("/A", acquireCount);
+    }
   }
+
   @NoInline
   @NoOptCompile
   @BaselineSaveLSRegisters
   @Unpreemptible
   private void lockWithHandshakeNoRec() {
-//    RVMThread.saveThreadState();
-    lockWithHandshakeNoRecImpl();
+    lockWithHandshake();
   }
   @NoInline
   @Unpreemptible
   @NoOptCompile
   private void lockWithHandshakeNoRecImpl() {
-//    for (;;) {
-//      // sysCall.sysMonitorEnter(monitor);
-//      if (RVMThread.attemptLeaveNativeNoBlock()) {
-//        return;
-//      } else {
-//        // sysCall.sysMonitorExit(monitor);
-//        RVMThread.leaveNative();
-//      }
-//    }
+    lockWithHandshake();
   }
   /**
    * Relock the mutex after using {@link #unlockCompletely()} and notify
@@ -191,13 +242,13 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible("If the lock cannot be reacquired, this method may allow the thread to be asynchronously blocked")
   public void relockWithHandshake(int recCount) {
-//    RVMThread.saveThreadState();
-    relockWithHandshakeImpl(recCount);
+    relockNoHandshake(recCount);
   }
   @NoInline
   @Unpreemptible
   @NoOptCompile
   private void relockWithHandshakeImpl(int recCount) {
+    relockNoHandshake(recCount);
 //    for (;;) {
 //      RVMThread.enterNative();
 //      // sysCall.sysMonitorEnter(monitor);
@@ -223,13 +274,28 @@ public class Monitor {
   public void unlock() {
     if (--recCount==0) {
       holderSlot=-1;
-      if(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 1, 0))
+      /*
+       * release the monitor
+       */
+      if(!Magic.attemptInt(this, monitorOffset, 1, 0))
       {
           VM._assert(false);
       }
+      RVMThread waitingThread = locking.dequeue();
+      if(waitingThread != null)
+      {
+        /*
+         * schedule thread trying to acquire the monitor
+         */
+        Platform.scheduler.addThread(waitingThread);
+      }
       // sysCall.sysMonitorExit(monitor);
     }
-  }
+    VM.sysWrite("Unlock/", Magic.objectAsAddress(this));
+    VM.sysWrite("/T#", holderSlot);
+    VM.sysWrite("/R", recCount);
+    VM.sysWriteln("/A", acquireCount);
+ }
   /**
    * Completely release the lock, ignoring recursion.  Returns the
    * recursion count.
@@ -240,9 +306,20 @@ public class Monitor {
     int result=recCount;
     recCount=0;
     holderSlot=-1;
-    if(!Synchronization.tryCompareAndSwap(this, Entrypoints.monitorField.getOffset(), 1, 0))
+    /*
+     * release the monitor
+     */
+    if(!Magic.attemptInt(this, Entrypoints.monitorField.getOffset(), 1, 0))
     {
         VM._assert(false);
+    }
+    RVMThread waitingThread = locking.dequeue();
+    if(waitingThread != null)
+    {
+      /*
+       * schedule thread trying to acquire the monitor
+       */
+      Platform.scheduler.addThread(waitingThread);
     }
     // sysCall.sysMonitorExit(monitor);
     return result;
@@ -258,20 +335,55 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  public void waitNoHandshake() {
-    int recCount=this.recCount;
-    this.recCount=0;
-    holderSlot=-1;
-    while(monitor.NE(Word.zero()))
+  public void waitNoHandshake()
+  {
+    RVMThread thread = RVMThread.getCurrentThread();
+    /*
+     * put thread onto the wait queue
+     */
+    waiting.enqueue(thread);
+    /*
+     * Save current monitor state
+     * and reset
+     */
+    int recCount = this.recCount;
+    this.recCount = 0;
+    holderSlot = -1;
+    /*
+     * Release the monitor
+     */
+    if(!Magic.attemptInt(this, monitorOffset, 1, 0))
     {
-        Magic.yield();
+      VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
+    }
+    if(trace) {
+      VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
+      VM.sysWriteln("T#", thread.threadSlot);
+    }
+    /*
+     * Time to give up the processor
+     */
+    Magic.yield();
+    /*
+     * Keep looping until thread can get the monitor lock
+     */
+    while(!Magic.attemptInt(this, monitorOffset, 0, 1))
+    {
+      Magic.yield();
     }
     // sysCall.sysMonitorWait(monitor);
-    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
-    if (VM.VerifyAssertions) VM._assert(this.recCount==0);
-    this.recCount=recCount;
-    holderSlot=RVMThread.getCurrentThreadSlot();
+    if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
+    if (VM.VerifyAssertions) VM._assert(this.recCount == 0);
+    /*
+     * restore the monitor state
+     * 
+     * Do not need to unlock since that will be done at 
+     * a higher level
+     */
+    this.recCount = recCount;
+    holderSlot = RVMThread.getCurrentThreadSlot();
   }
+
   /**
    * Wait until someone calls {@link #broadcast()}, or until the clock
    * reaches the given time.
@@ -288,10 +400,38 @@ public class Monitor {
     int recCount=this.recCount;
     this.recCount=0;
     holderSlot=-1;
-    while(monitor.NE(Word.zero()) && Time.nanoTime() < whenWakeupNanos)
+    /*
+     * put thread onto the wait queue
+     */
+    RVMThread monitorThread = RVMThread.getCurrentThread();
+    waiting.enqueue(monitorThread);
+    /*
+     * start a timer for this monitor
+     */
+    VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
+    VM.sysWrite("/T#", monitorThread.threadSlot);
+    VM.sysWriteln("/", whenWakeupNanos);
+    Platform.timer.startTimer(whenWakeupNanos);
+    /*
+     * Release the monitor
+     */
+    if(!Magic.attemptInt(this, monitorOffset, 1, 0))
+    {
+      VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
+    }
+    /*
+     * Time to give up the processor
+     */
+    Magic.yield();
+    /*
+     * loop trying to acquire the monitor or when time expires
+     */
+    while(!Magic.attemptInt(this, monitorOffset, 0, 1) && Time.nanoTime() < whenWakeupNanos)
     {
         Magic.yield();
     }
+    Platform.timer.removeTimer(whenWakeupNanos);
+    Platform.scheduler.addThread(monitorThread);
     // sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
@@ -311,7 +451,7 @@ public class Monitor {
   @NoInline
   @NoOptCompile
   public void timedWaitRelativeNoHandshake(long delayNanos) {
-    long now=0; //sysCall.sysNanoTime();
+    long now=Time.nanoTime();
     timedWaitAbsoluteNoHandshake(now+delayNanos);
   }
   /**
@@ -416,6 +556,29 @@ public class Monitor {
   @NoInline
   @NoOptCompile
   public void broadcast() {
+    /*
+     * Get the waiting thread
+     */
+    RVMThread waitingThread = waiting.dequeue();
+    if(waitingThread != null)
+    {
+      /*
+       * Schedule thread to be run
+       * 
+       * Do not have to unlock monitor since that is being done at
+       * a higher level
+       */
+      if(trace) 
+      {
+        VM.sysWrite("Broadcast/", Magic.objectAsAddress(this));
+        VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
+      }
+      Platform.scheduler.addThread(waitingThread);
+    }
+    else 
+    {
+      VM.sysWriteln("Broadcast/", Magic.objectAsAddress(this));
+    }
     // sysCall.sysMonitorBroadcast(monitor);
   }
   /**
