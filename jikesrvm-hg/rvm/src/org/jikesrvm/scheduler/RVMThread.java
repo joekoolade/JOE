@@ -230,14 +230,14 @@ public final class RVMThread extends ThreadContext implements Constants {
    * the thread; though it would not be wrong to enter it prior to any other
    * long-running activity that does not require interaction with the GC.
    */
-  public static final int IN_NATIVE = 2;
+  // public static final int IN_NATIVE = 2;
 
   /**
    * Same as IN_NATIVE, except that we're executing JNI code and thus have a
    * JNI stack frame and JNI environment, and thus the GC can load registers
    * from there rather than using contextRegisters.
    */
-  public static final int IN_JNI = 3;
+  // public static final int IN_JNI = 3;
 
   /**
    * thread is in Java code but is expected to block. the transition from IN_JAVA
@@ -271,13 +271,13 @@ public final class RVMThread extends ThreadContext implements Constants {
    * Observe that it is always safe to conservatively change IN_NATIVE to
    * BLOCKED_IN_NATIVE.
    */
-  public static final int BLOCKED_IN_NATIVE = 5;
+  //public static final int BLOCKED_IN_NATIVE = 5;
 
   /**
    * like BLOCKED_IN_NATIVE, but indicates that the thread is in JNI rather than
    * VM native code.
    */
-  public static final int BLOCKED_IN_JNI = 6;
+  //public static final int BLOCKED_IN_JNI = 6;
 
   /**
    * Thread has died. As in, it's no longer executing any Java code and will
@@ -348,6 +348,10 @@ public final class RVMThread extends ThreadContext implements Constants {
     execStatus=newState;
   }
 
+  /**
+   * Is thread running in an interrupt
+   */
+  static public boolean isInterrupted;
   /**
    * Is the thread about to terminate? Protected by the thread's monitor. Note
    * that this field is not set atomically with the entering of the thread onto
@@ -1204,6 +1208,8 @@ private Address ip;
 
 private Address sp;
 
+public Address sentinelFp;
+
   /**
    * Get a NoYieldpointsCondLock for a given thread slot.
    */
@@ -1415,7 +1421,7 @@ private Address sp;
     } else {
       processAboutToTerminate();
       //acctLock.lockNoHandshake();
-      Magic.disableInterrupts();
+      //Magic.disableInterrupts();
       if (freeSlotN > 0) {
         threadSlot = freeSlots[--freeSlotN];
       } else {
@@ -1424,7 +1430,7 @@ private Address sp;
         }
         threadSlot = nextSlot++;
       }
-      Magic.enableInterrupts();
+      //Magic.enableInterrupts();
       //acctLock.unlock();
       // before we actually use this slot, ensure that there is a monitor
       // for it. note that if the slot doesn't have a monitor, then we
@@ -1448,14 +1454,14 @@ private Address sp;
                      */
 
       //acctLock.lockNoHandshake();
-      Magic.disableInterrupts();
+      // Magic.disableInterrupts();
       threadBySlot[threadSlot] = this;
 
       threadIdx = numThreads++;
       threads[threadIdx] = this;
 
       //acctLock.unlock();
-      Magic.enableInterrupts();
+      //Magic.enableInterrupts();
     }
     lockingId = threadSlot << ThinLockConstants.TL_THREAD_ID_SHIFT;
     if (traceAcct) {
@@ -1564,6 +1570,7 @@ private Address sp;
       // Initialize the a thread stack as if "startoff" method had been called
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       Configuration.archHelper.initializeStack(contextRegisters, ip, sp);
+      sentinelFp = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
       VM.sysWrite("rvmthread sp: ", this.sp);
       VM.write('\n');
@@ -1714,6 +1721,14 @@ private Address sp;
   @NoInline
   @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
   private void checkBlockNoSaveContext() {
+    if(isAboutToTerminate)
+    {
+      return;
+    }
+    if(isBlocking)
+    {
+      return;
+    }
     assertUnacceptableStates(NEW, TERMINATED);
     if (VM.VerifyAssertions) VM._assert(!isAboutToTerminate);
     if (VM.VerifyAssertions) VM._assert(!isBlocking);
@@ -1874,10 +1889,6 @@ private Address sp;
       oldState = getExecStatus();
       if (oldState == IN_JAVA) {
         newState = IN_JAVA_TO_BLOCK;
-      } else if (oldState == IN_NATIVE) {
-        newState = BLOCKED_IN_NATIVE;
-      } else if (oldState == IN_JNI) {
-        newState = BLOCKED_IN_JNI;
       } else {
         newState = oldState;
       }
@@ -1958,7 +1969,6 @@ private Address sp;
                   VM.sysWriteln("Thread #", threadSlot, "'s status is ",
                                 getExecStatus());
                 }
-                assertUnacceptableStates(IN_NATIVE);
               } else {
                 monitor().waitNoHandshake();
               }
@@ -1972,17 +1982,19 @@ private Address sp;
               result=getExecStatus();
             }
           }
-        } else if (newState == BLOCKED_IN_NATIVE || newState == BLOCKED_IN_JNI) {
-          // we own the thread for now - it cannot go back to executing Java
-          // code until we release the lock. before we do so we change its
-          // state accordingly and tell anyone who is waiting.
-          if (traceBlock)
-            VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
-                " has seen thread #", threadSlot,
-                " in native; changing its status accordingly.");
-          ba.clearBlockRequest(this);
-          ba.setBlocked(this, true);
-        }
+//        } else if (newState == BLOCKED_IN_NATIVE || newState == BLOCKED_IN_JNI) {
+//          // we own the thread for now - it cannot go back to executing Java
+//          // code until we release the lock. before we do so we change its
+//          // state accordingly and tell anyone who is waiting.
+//          if (traceBlock)
+//            VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
+//                " has seen thread #", threadSlot,
+//                " in native; changing its status accordingly.");
+//          ba.clearBlockRequest(this);
+//          ba.setBlocked(this, true);
+//        }
+      }
+    
       }
     }
     monitor().unlock();
@@ -2418,7 +2430,7 @@ private Address sp;
     if (VM.VerifyAssertions) {
       if (Lock.countLocksHeldByThread(getLockingId()) > 0) {
         VM.sysWriteln("Error, thread terminating holding a lock");
-        RVMThread.dumpVirtualMachine();
+//        RVMThread.dumpVirtualMachine();
       }
     }
 
@@ -2463,35 +2475,35 @@ private Address sp;
     if (traceAcct)
       VM.sysWriteln("done with accounting.");
 
-    if (terminateSystem) {
-      if (traceAcct)
-        VM.sysWriteln("terminating system.");
-      if (uncaughtExceptionCount > 0)
-      /* Use System.exit so that any shutdown hooks are run. */{
-        if (VM.TraceExceptionDelivery) {
-          VM.sysWriteln("Calling sysExit due to uncaught exception.");
-        }
-        callSystemExit(VM.EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION);
-      } else if (thread instanceof MainThread) {
-        MainThread mt = (MainThread) thread;
-        if (!mt.launched) {
-          /*
-           * Use System.exit so that any shutdown hooks are run. It is possible
-           * that shutdown hooks may be installed by static initializers which
-           * were run by classes initialized before we attempted to run the main
-           * thread. (As of this writing, 24 January 2005, the Classpath
-           * libraries do not do such a thing, but there is no reason why we
-           * should not support this.) This was discussed on
-           * jikesrvm-researchers on 23 Jan 2005 and 24 Jan 2005.
-           */
-          callSystemExit(VM.EXIT_STATUS_MAIN_THREAD_COULD_NOT_LAUNCH);
-        }
-      }
-      /* Use System.exit so that any shutdown hooks are run. */
-      callSystemExit(0);
-      if (VM.VerifyAssertions)
-        VM._assert(VM.NOT_REACHED);
-    }
+//    if (terminateSystem) {
+//      if (traceAcct)
+//        VM.sysWriteln("terminating system.");
+//      if (uncaughtExceptionCount > 0)
+//      /* Use System.exit so that any shutdown hooks are run. */{
+//        if (VM.TraceExceptionDelivery) {
+//          VM.sysWriteln("Calling sysExit due to uncaught exception.");
+//        }
+//        callSystemExit(VM.EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION);
+//      } else if (thread instanceof MainThread) {
+//        MainThread mt = (MainThread) thread;
+//        if (!mt.launched) {
+//          /*
+//           * Use System.exit so that any shutdown hooks are run. It is possible
+//           * that shutdown hooks may be installed by static initializers which
+//           * were run by classes initialized before we attempted to run the main
+//           * thread. (As of this writing, 24 January 2005, the Classpath
+//           * libraries do not do such a thing, but there is no reason why we
+//           * should not support this.) This was discussed on
+//           * jikesrvm-researchers on 23 Jan 2005 and 24 Jan 2005.
+//           */
+//          callSystemExit(VM.EXIT_STATUS_MAIN_THREAD_COULD_NOT_LAUNCH);
+//        }
+//      }
+//      /* Use System.exit so that any shutdown hooks are run. */
+//      callSystemExit(0);
+//      if (VM.VerifyAssertions)
+//        VM._assert(VM.NOT_REACHED);
+//    }
 
     if (traceAcct)
       VM.sysWriteln("making joinable...");
@@ -2824,9 +2836,7 @@ private Address sp;
     Throwable rethrow = null;
     try {
       observeExecStatus();
-      if (execStatus != IN_JAVA && execStatus != IN_JAVA_TO_BLOCK &&
-          execStatus != IN_NATIVE && execStatus != BLOCKED_IN_NATIVE &&
-          execStatus != BLOCKED_IN_JNI && execStatus != IN_JNI) {
+      if (execStatus != IN_JAVA && execStatus != IN_JAVA_TO_BLOCK) {
         throw new IllegalThreadStateException(
           "Cannot suspend a thread that is not running.");
       }
@@ -3405,12 +3415,18 @@ private Address sp;
     // not really a "soft handshake" request but we handle it here anyway
     if (asyncDebugRequestedForThisThread) {
       asyncDebugRequestedForThisThread = false;
-      dumpLock.lockNoHandshake();
+      if (!isInterrupted)
+      {
+        dumpLock.lockNoHandshake();
+      }
       VM.sysWriteln("Handling async stack trace request...");
       dump();
       VM.sysWriteln();
       dumpStack();
-      dumpLock.unlock();
+      if (!isInterrupted)
+      {
+        dumpLock.unlock();
+      }
     }
   }
 
@@ -3670,25 +3686,25 @@ private Address sp;
     // the no-yieldpoints code. At worst, setting takeYieldpoint to 0 will be
     // lost (because some other thread sets it to non-0), but in that case we'll
     // just come back here and reset it to 0 again.
-    if (!t.yieldpointsEnabled()) {
-      if (VM.VerifyAssertions)
-        VM._assert(!t.yieldToOSRRequested);
-      if (traceBlock && !wasAtYieldpoint) {
-        VM.sysWriteln("Thread #", t.threadSlot, " deferring yield!");
-        dumpStack();
-      }
-      t.yieldpointRequestPending = true;
-      t.takeYieldpoint = 0;
-      t.atYieldpoint = false;
-      return;
-    }
+//    if (!t.yieldpointsEnabled()) {
+//      if (VM.VerifyAssertions)
+//        VM._assert(!t.yieldToOSRRequested);
+//      if (traceBlock && !wasAtYieldpoint) {
+//        VM.sysWriteln("Thread #", t.threadSlot, " deferring yield!");
+//        //dumpStack();
+//      }
+//      t.yieldpointRequestPending = true;
+//      t.takeYieldpoint = 0;
+//      t.atYieldpoint = false;
+//      return;
+//    }
     t.yieldpointsTakenFully++;
 
     Throwable throwThis = null;
-    t.monitor().lockNoHandshake();
+    // t.monitor().lockNoHandshake();
 
     int takeYieldpointVal = t.takeYieldpoint;
-    if (takeYieldpointVal != 0) {
+    if (true) {
       t.takeYieldpoint = 0;
       // do two things: check if we should be blocking, and act upon
       // handshake requests. This also has the effect of reasserting that
@@ -3696,86 +3712,86 @@ private Address sp;
       t.checkBlock();
 
       // Process timer interrupt event
-      if (t.timeSliceExpired != 0) {
-        t.timeSliceExpired = 0;
+//      if (t.timeSliceExpired != 0) {
+//        t.timeSliceExpired = 0;
+//
+//        if (t.yieldForCBSCall || t.yieldForCBSMethod) {
+//          /*
+//           * CBS Sampling is still active from previous quantum. Note that fact,
+//           * but leave all the other CBS parameters alone.
+//           */
+//        } else {
+//          if (VM.CBSCallSamplesPerTick > 0) {
+//            t.yieldForCBSCall = true;
+//            t.takeYieldpoint = -1;
+//            t.firstCBSCallSample++;
+//            t.firstCBSCallSample = t.firstCBSCallSample % VM.CBSCallSampleStride;
+//            t.countdownCBSCall = t.firstCBSCallSample;
+//            t.numCBSCallSamples = VM.CBSCallSamplesPerTick;
+//          }
+//
+//          if (VM.CBSMethodSamplesPerTick > 0) {
+//            t.yieldForCBSMethod = true;
+//            t.takeYieldpoint = -1;
+//            t.firstCBSMethodSample++;
+//            t.firstCBSMethodSample = t.firstCBSMethodSample % VM.CBSMethodSampleStride;
+//            t.countdownCBSMethod = t.firstCBSMethodSample;
+//            t.numCBSMethodSamples = VM.CBSMethodSamplesPerTick;
+//          }
+//        }
+//
+//        if (VM.BuildForAdaptiveSystem) {
+//          RuntimeMeasurements.takeTimerSample(whereFrom,
+//              yieldpointServiceMethodFP);
+//        }
+//        if (VM.BuildForAdaptiveSystem) {
+//          OSRListener
+//              .checkForOSRPromotion(whereFrom, yieldpointServiceMethodFP);
+//        }
+//      }
 
-        if (t.yieldForCBSCall || t.yieldForCBSMethod) {
-          /*
-           * CBS Sampling is still active from previous quantum. Note that fact,
-           * but leave all the other CBS parameters alone.
-           */
-        } else {
-          if (VM.CBSCallSamplesPerTick > 0) {
-            t.yieldForCBSCall = true;
-            t.takeYieldpoint = -1;
-            t.firstCBSCallSample++;
-            t.firstCBSCallSample = t.firstCBSCallSample % VM.CBSCallSampleStride;
-            t.countdownCBSCall = t.firstCBSCallSample;
-            t.numCBSCallSamples = VM.CBSCallSamplesPerTick;
-          }
-
-          if (VM.CBSMethodSamplesPerTick > 0) {
-            t.yieldForCBSMethod = true;
-            t.takeYieldpoint = -1;
-            t.firstCBSMethodSample++;
-            t.firstCBSMethodSample = t.firstCBSMethodSample % VM.CBSMethodSampleStride;
-            t.countdownCBSMethod = t.firstCBSMethodSample;
-            t.numCBSMethodSamples = VM.CBSMethodSamplesPerTick;
-          }
-        }
-
-        if (VM.BuildForAdaptiveSystem) {
-          RuntimeMeasurements.takeTimerSample(whereFrom,
-              yieldpointServiceMethodFP);
-        }
-        if (VM.BuildForAdaptiveSystem) {
-          OSRListener
-              .checkForOSRPromotion(whereFrom, yieldpointServiceMethodFP);
-        }
-      }
-
-      if (t.yieldForCBSCall) {
-        if (!(whereFrom == BACKEDGE || whereFrom == OSROPT)) {
-          if (--t.countdownCBSCall <= 0) {
-            if (VM.BuildForAdaptiveSystem) {
-              // take CBS sample
-              RuntimeMeasurements.takeCBSCallSample(whereFrom,
-                  yieldpointServiceMethodFP);
-            }
-            t.countdownCBSCall = VM.CBSCallSampleStride;
-            t.numCBSCallSamples--;
-            if (t.numCBSCallSamples <= 0) {
-              t.yieldForCBSCall = false;
-            }
-          }
-        }
-        if (t.yieldForCBSCall) {
-          t.takeYieldpoint = -1;
-        }
-      }
-
-      if (t.yieldForCBSMethod) {
-        if (--t.countdownCBSMethod <= 0) {
-          if (VM.BuildForAdaptiveSystem) {
-            // take CBS sample
-            RuntimeMeasurements.takeCBSMethodSample(whereFrom,
-                yieldpointServiceMethodFP);
-          }
-          t.countdownCBSMethod = VM.CBSMethodSampleStride;
-          t.numCBSMethodSamples--;
-          if (t.numCBSMethodSamples <= 0) {
-            t.yieldForCBSMethod = false;
-          }
-        }
-        if (t.yieldForCBSMethod) {
-          t.takeYieldpoint = 1;
-        }
-      }
-
-      if (VM.BuildForAdaptiveSystem && t.yieldToOSRRequested) {
-        t.yieldToOSRRequested = false;
-        OSRListener.handleOSRFromOpt(yieldpointServiceMethodFP);
-      }
+//      if (t.yieldForCBSCall) {
+//        if (!(whereFrom == BACKEDGE || whereFrom == OSROPT)) {
+//          if (--t.countdownCBSCall <= 0) {
+//            if (VM.BuildForAdaptiveSystem) {
+//              // take CBS sample
+//              RuntimeMeasurements.takeCBSCallSample(whereFrom,
+//                  yieldpointServiceMethodFP);
+//            }
+//            t.countdownCBSCall = VM.CBSCallSampleStride;
+//            t.numCBSCallSamples--;
+//            if (t.numCBSCallSamples <= 0) {
+//              t.yieldForCBSCall = false;
+//            }
+//          }
+//        }
+//        if (t.yieldForCBSCall) {
+//          t.takeYieldpoint = -1;
+//        }
+//      }
+//
+//      if (t.yieldForCBSMethod) {
+//        if (--t.countdownCBSMethod <= 0) {
+//          if (VM.BuildForAdaptiveSystem) {
+//            // take CBS sample
+//            RuntimeMeasurements.takeCBSMethodSample(whereFrom,
+//                yieldpointServiceMethodFP);
+//          }
+//          t.countdownCBSMethod = VM.CBSMethodSampleStride;
+//          t.numCBSMethodSamples--;
+//          if (t.numCBSMethodSamples <= 0) {
+//            t.yieldForCBSMethod = false;
+//          }
+//        }
+//        if (t.yieldForCBSMethod) {
+//          t.takeYieldpoint = 1;
+//        }
+//      }
+//
+//      if (VM.BuildForAdaptiveSystem && t.yieldToOSRRequested) {
+//        t.yieldToOSRRequested = false;
+//        OSRListener.handleOSRFromOpt(yieldpointServiceMethodFP);
+//      }
 
       // what is the reason for this? and what was the reason for doing
       // a thread switch following the suspension in the OSR trigger code?
@@ -3792,7 +3808,7 @@ private Address sp;
         t.asyncThrowable = null;
       }
     }
-    t.monitor().unlock();
+    // t.monitor().unlock();
     t.atYieldpoint = false;
     if (throwThis != null) {
       throwFromUninterruptible(throwThis);
@@ -4137,7 +4153,14 @@ private Address sp;
    * Should this thread run concurrently with STW GC and ignore handshakes?
    */
   public boolean ignoreHandshakesAndGC() {
-    if (systemThread == null) return false;
+    if(this==idleThread)
+    {
+      return true;
+    }
+    if (systemThread == null) 
+    {
+      return false;
+    }
     return systemThread instanceof TimerThread;
   }
 
@@ -4274,11 +4297,7 @@ private Address sp;
       case NEW:
         return Thread.State.NEW;
       case IN_JAVA:
-      case IN_NATIVE:
-      case IN_JNI:
       case IN_JAVA_TO_BLOCK:
-      case BLOCKED_IN_NATIVE:
-      case BLOCKED_IN_JNI:
         if (isAboutToTerminate) {
           return Thread.State.TERMINATED;
         }
@@ -4910,8 +4929,7 @@ private Address sp;
     } else {
       try {
         VM.sysWriteln("-- Stack --");
-        while (Magic.getCallerFramePointer(fp).NE(
-            StackframeLayoutConstants.STACKFRAME_SENTINEL_FP)) {
+        while (fp.plus(12).NE(t.sentinelFp)) {
 
           // if code is outside of RVM heap, assume it to be native code,
           // skip to next frame
