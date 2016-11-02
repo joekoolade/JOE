@@ -43,8 +43,15 @@ public class ThreadQueue {
       VM.sysWriteln("enqueueing ", t.getThreadSlot(), " onto ",
           Magic.objectAsAddress(this));
     }
-    if (VM.VerifyAssertions)
-      VM._assert(t.queuedOn == null);
+    /*
+     * If it is already queuedon, the don't schedule
+     */
+    if(t.queuedOn!=null)
+    {
+      return;
+    }
+//    if (VM.VerifyAssertions)
+//      VM._assert(t.queuedOn == null);
     t.next = null;
     if (tail == null) {
       head = t;
