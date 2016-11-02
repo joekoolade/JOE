@@ -281,14 +281,14 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     if (verbosity >= 2) dumpTopFrameInfo(verbosity);
 
     /* scan each frame if a non-empty stack */
-    if (fp.NE(ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP)) {
+    if (fp.plus(12).NE(thread.sentinelFp)) {
       prevFp = Address.zero();
       reinstallReturnBarrier = Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue();
       /* At start of loop:
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
-      while (Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
-        if (false) {
+      while (fp.plus(12).NE(thread.sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
+        if (true) {
           VM.sysWriteln("Thread ",RVMThread.getCurrentThreadSlot()," at fp = ",fp);
         }
         prevFp = scanFrame(verbosity);
