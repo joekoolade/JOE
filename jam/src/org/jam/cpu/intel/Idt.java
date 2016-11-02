@@ -15,6 +15,7 @@ import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.pragma.InterruptHandler;
 import org.vmmagic.pragma.NoBoundsCheck;
 import org.vmmagic.pragma.NoNullCheck;
@@ -391,6 +392,8 @@ public final class Idt implements SegmentDescriptorTypes {
            // Switch to the interrupt stack
            Magic.switchStack(Platform.scheduler.getHandlerStack());
 //           VM.sysWriteln("int48/yield");
+           RVMThread.isInterrupted = true;
+           RVMThread.yieldpoint(0, null);
            Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context
            Magic.restoreThreadContext();
