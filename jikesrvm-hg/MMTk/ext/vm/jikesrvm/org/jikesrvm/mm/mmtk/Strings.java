@@ -59,7 +59,7 @@ public final class Strings extends org.mmtk.vm.Strings {
                                     int dstBegin, int dstEnd) {
     if (VM.VerifyAssertions) VM._assert(VM.runningVM);
     // FIXME Why do we need to disable thread switching here, in uninterruptible code??
-    RVMThread.getCurrentThread().disableYieldpoints();
+//    RVMThread.getCurrentThread().disableYieldpoints();
     char[] str_backing = java.lang.JikesRVMSupport.getBackingCharArray(str);
     int str_length = java.lang.JikesRVMSupport.getStringLength(str);
     int str_offset = java.lang.JikesRVMSupport.getStringOffset(str);
@@ -67,7 +67,7 @@ public final class Strings extends org.mmtk.vm.Strings {
     for (int i = 0; i < n; i++) {
       Services.setArrayNoBarrier(dst, dstBegin + i, str_backing[str_offset+i]);
     }
-    RVMThread.getCurrentThread().enableYieldpoints();
+//    RVMThread.getCurrentThread().enableYieldpoints();
     return n;
   }
   /**
