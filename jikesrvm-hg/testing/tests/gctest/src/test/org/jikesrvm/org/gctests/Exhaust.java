@@ -35,8 +35,8 @@ public class Exhaust {
         long mhs = MemoryManager.getMaxHeapSize().toLong();
 
         o.println("Max heap size: " + mhs + " bytes");
-        if (mhs > 1024 * 1024) o.println("  that's " + mhs / (1024.0 * 1024.0) + " megabytes");
-        if (mhs > 1024 * 1024 * 1024) o.println("  that's " + mhs / (1024.0 * 1024 * 1024) + " gigabytes");
+        if (mhs > 1024 * 1024) o.println("  that's " + mhs / (1024 * 1024) + " megabytes");
+        if (mhs > 1024 * 1024 * 1024) o.println("  that's " + mhs / (1024 * 1024 * 1024) + " gigabytes");
 //        try
 //        {
 //            Thread.sleep(1000);
