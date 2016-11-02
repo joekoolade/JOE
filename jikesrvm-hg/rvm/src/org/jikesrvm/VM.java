@@ -129,7 +129,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     runningVM = true;
     verboseBoot = 2; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
-    
     /*
      * Setup the serial port
      */
@@ -167,7 +166,6 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   @Interruptible
   private static void finishBooting() {
-
     // fixme: should be configurable
     RVMThread.availableProcessors = 1;
 
@@ -375,7 +373,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.util.logging.Level");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");
-      runClassInitializer("java.lang.reflect.Proxy");
+     runClassInitializer("java.lang.reflect.Proxy");
       runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
     // runClassInitializer("java.util.logging.Logger");
@@ -450,7 +448,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     testThread.start();
     
     VM.sysWriteln("Main thread started");
-    
+    // terminate boot thread
+    RVMThread.getCurrentThread().terminate();    
     // Say good bye to the boot thread
     Magic.yield();
     
@@ -993,6 +992,10 @@ public class VM extends Properties implements Constants, ExitStatus {
             	digitBuffer[i] = ' ';
             }
             digitBuffer[63] = '0';
+            if(val < 0)
+            {
+              val = -val;
+            }
             for(i=63; val > 0; i--) {
           	  digitBuffer[i] = hexDigits[(int)(val%10)];
           	  val/=10;
