@@ -349,6 +349,9 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int41()
        {
+           Platform.masterPic.interruptMask(0xFF);
+           Magic.disableInterrupts();
+           Magic.halt();
            VM.sysFail("TRAP_ARRAY_BOUNDS");
        }
        @InterruptHandler
@@ -395,6 +398,7 @@ public final class Idt implements SegmentDescriptorTypes {
            RVMThread.isInterrupted = true;
            RVMThread.yieldpoint(0, null);
            Platform.scheduler.nextThread();
+           RVMThread.isInterrupted = false;
            // Restore back to the interrupt stack and context
            Magic.restoreThreadContext();
            // The interrupt handler annotation will emit the IRET
