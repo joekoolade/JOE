@@ -57,16 +57,16 @@ public interface ArchEntrypoints {
       (VM.BuildForPowerPC) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",
                                       "lr",
                                       "Lorg/vmmagic/unboxed/Address;") : null;
-  RVMField registersFPField =
-      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",
-                                   "fp",
-                                   "Lorg/vmmagic/unboxed/Address;") : null;
   RVMField framePointerField =
       (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;",
                                    "framePointer",
                                    "Lorg/vmmagic/unboxed/Address;") : null;
   RVMField hiddenSignatureIdField =
       (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hiddenSignatureId", "I") : null;
+  RVMField registersFPField =
+  (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",
+                               "fp",
+                               "Lorg/vmmagic/unboxed/Address;") : null;
   RVMField arrayIndexTrapParamField =
       (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "arrayIndexTrapParam", "I") : null;
 }
