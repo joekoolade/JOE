@@ -33,6 +33,7 @@ import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mminterface.Selected;
+import org.jikesrvm.runtime.ArchEntrypoints;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.ExitStatus;
@@ -405,6 +406,9 @@ public class VM extends Properties implements Constants, ExitStatus {
 //      runClassInitializer("java.lang.ClassLoader$StaticData");
 //    }
 
+    VM.sysWriteln("contextRegister offset ", Entrypoints.threadContextRegistersField.getOffset());
+    VM.sysWriteln("gprs offset ", ArchEntrypoints.registersGPRsField.getOffset());
+    VM.sysWriteln("sp offset ", Entrypoints.stackPointerField.getOffset());
     /*
      * Need to initialize the platform here because
      * we need the scheduler to start threads.
@@ -438,15 +442,14 @@ public class VM extends Properties implements Constants, ExitStatus {
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
+//  mainThread.start();
 //    Sleep sleep = new Sleep();
+//    new Thread(sleep).start();
     
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
-//    mainThread.start();
-//    new Thread(sleep).start();
     Thread testThread = new TestThread();
     testThread.start();
-    
     VM.sysWriteln("Main thread started");
     // terminate boot thread
     RVMThread.getCurrentThread().terminate();    
