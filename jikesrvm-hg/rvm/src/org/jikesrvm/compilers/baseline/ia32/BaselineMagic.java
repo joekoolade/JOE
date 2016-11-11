@@ -39,6 +39,8 @@ import static org.jikesrvm.ia32.RegisterConstants.ECX;
 import static org.jikesrvm.ia32.RegisterConstants.EDI;
 import static org.jikesrvm.ia32.RegisterConstants.EDX;
 import static org.jikesrvm.ia32.RegisterConstants.ESI;
+import static org.jikesrvm.ia32.RegisterConstants.ESP;
+import static org.jikesrvm.ia32.RegisterConstants.EBP;
 import static org.jikesrvm.ia32.RegisterConstants.FP0;
 import static org.jikesrvm.ia32.RegisterConstants.XMM0;
 import static org.jikesrvm.ia32.RegisterConstants.XMM1;
@@ -50,6 +52,7 @@ import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_METHOD_ID_O
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET;
 import static org.jikesrvm.objectmodel.TIBLayoutConstants.TIB_TYPE_INDEX;
 import static org.jikesrvm.runtime.EntrypointHelper.getMethodReference;
+import static org.jikesrvm.runtime.EntrypointHelper.getField;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.ArchitectureSpecific.Assembler;
@@ -2478,6 +2481,52 @@ final class BaselineMagic {
            * Save stack pointer into RVMThread.sp, RVMThtread.sp = ESP
            */
           asm.emitMOV_RegDisp_Reg(ESI, Entrypoints.stackPointerField.getOffset(), SP);
+          /*
+           * Save the registers into threads contextRegisters
+           */
+          Offset stackOffset = Offset.zero();
+          Offset contextRegistersOffset = Entrypoints.threadContextRegistersField.getOffset();
+          Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
+          /*
+           * Set EBX to the rvmthread contextRegister field
+           */
+          asm.emitMOV_Reg_RegDisp(EBX, ESI, contextRegistersOffset);
+          /*
+           * Set EBX to the contextRegister gprs field
+           */
+          asm.emitMOV_Reg_RegDisp(EBX, EBX, gprsOffset);
+          gprsOffset = Offset.zero();
+          // EDI
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(EDI.value()<<2), EAX);
+          // ESI
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(ESI.value()<<2), EAX);
+          // EBP
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(EBP.value()<<2), EAX);
+          // ESP
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(ESP.value()<<2), EAX);
+          // EBX
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(EBX.value()<<2), EAX);
+          // EDX
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(EDX.value()<<2), EAX);
+          // ECX
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(ECX.value()<<2), EAX);
+          // EAX
+          stackOffset = stackOffset.plus(4);
+          asm.emitMOV_Reg_RegDisp(EAX, SP, stackOffset);
+          asm.emitMOV_RegDisp_Reg(EBX, gprsOffset.plus(EAX.value()<<2), EAX);
       }
   }
   static
