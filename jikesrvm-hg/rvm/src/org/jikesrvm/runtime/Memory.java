@@ -432,6 +432,7 @@ public class Memory {
    * @param cnt   Number of bytes to copy
    */
   public static void memcopy(Address dst, Address src, Extent cnt) {
+    // VM.sysWrite("memcopy d:", dst); VM.sysWrite(" s:", src); VM.sysWriteln(" cnt: ", cnt.toInt());
     Address srcEnd = src.plus(cnt);
     Address dstEnd = dst.plus(cnt);
     boolean overlap = !srcEnd.LE(dst) && !dstEnd.LE(src);
@@ -439,16 +440,16 @@ public class Memory {
     	Offset i = Offset.fromIntZeroExtend(cnt.toInt()-1);
     	for( ; cnt.GT(Extent.zero()); ) {
     		dst.store(src.loadByte(i), i);
-    		i.minus(1);
-    		cnt.minus(1);
+    		i= i.minus(1);
+    		cnt = cnt.minus(1);
     	}
     } else {
       Offset i = Offset.zero();
       Extent cnt0 = Extent.zero();
       for( ; cnt0.LT(cnt);) {
     	  dst.store(src.loadByte(i), i);
-    	  i.plus(1);
-    	  cnt0.plus(1);
+    	  i = i.plus(1);
+    	  cnt0 = cnt0.plus(1);
       }
     }
   }
