@@ -56,11 +56,17 @@ public class GenerateX86Startup {
 		asm.emitImm16((3*8)-1, 0x40);
 		asm.emitImm32(gdtTablePtr.toInt(), 0x42);
 		// descriptor 0 is null
-		// decscriptor 1 is the code segment
-		asm.emitImm32(0x5000, 0x58);
+		/*
+		 * descriptor 1 is the code segment
+		 * 128MB segment, base 0, 32bit segment, DPL 0, code execute/read seg type
+		 */
+		asm.emitImm32(0x8000, 0x58);
 		asm.emitImm32(0xc09a00, 0x5c);
-		// descriptor 2 is the data segment
-		asm.emitImm32(0x6000, 0x60);
+		/*
+		 * descriptor 2 is the data segment
+     * 128MB segment, base 0, 32bit segment, DPL 0, data read/write seg type
+		 */
+		asm.emitImm32(0x8000, 0x60);
 		asm.emitImm32(0xc09200, 0x64);
 		// IDT table pointer
 		// should be at 0x100 for the multibootEntry

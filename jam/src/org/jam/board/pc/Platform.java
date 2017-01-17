@@ -12,12 +12,14 @@ import org.jam.driver.serial.PcSerialPort;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RoundRobin;
 import org.jikesrvm.scheduler.Scheduler;
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.ObjectReference;
 
 /**
  * @author Joe Kulig
  *
  */
+@NonMoving
 public class Platform {
     public static PcSystemTimer timer;
     public static PcSerialPort serialPort;

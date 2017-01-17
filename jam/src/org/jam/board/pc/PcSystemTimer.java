@@ -10,14 +10,18 @@ package org.jam.board.pc;
 import java.util.TreeMap;
 
 import org.jikesrvm.VM;
+import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.scheduler.RVMThread;
+import org.jikesrvm.scheduler.ThreadQueue;
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 
 /**
  * @author joe
  *
  */
+@NonMoving
 public class PcSystemTimer
 {
 
@@ -33,6 +37,7 @@ public class PcSystemTimer
     private final static int STACK_SIZE = 512;
     private static final int TICKSPERNSECS = 1000000;
     private TreeMap<Long, RVMThread> timerQueue;
+    private ThreadQueue threadQueue;
     
     /*
      * how many ticks to wait to reschedule
@@ -49,7 +54,7 @@ public class PcSystemTimer
         /*
          * Allocate irq handler stack
          */
-        stack = new int[STACK_SIZE];
+        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE); // new int[STACK_SIZE];
         /*
          * Put in the sentinel
          */
@@ -64,6 +69,7 @@ public class PcSystemTimer
          */
         stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
         timerQueue = new TreeMap<Long, RVMThread>();
+        threadQueue = new ThreadQueue();
     }
 
     public final long getTime()
@@ -149,6 +155,7 @@ public class PcSystemTimer
          */
 //        VM.sysWriteln("Timer expired!");
         RVMThread thread = timerQueue.remove(timerExpiration);
+        threadQueue.remove(thread);
 //        VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
         Platform.scheduler.addThread(thread);
     }
@@ -172,6 +179,7 @@ public class PcSystemTimer
          * set expiration time and put on the queue
          */
         timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
+        threadQueue.enqueue(RVMThread.getCurrentThread());
         /*
          * give it up and schedule a new thread
          */

@@ -13,10 +13,10 @@
 package org.mmtk.plan;
 
 import org.mmtk.utility.Constants;
-
+import org.mmtk.utility.Log;
+import org.mmtk.utility.options.Options;
 import org.mmtk.vm.Monitor;
 import org.mmtk.vm.VM;
-
 import org.vmmagic.pragma.*;
 
 /**
@@ -79,6 +79,11 @@ public class ParallelCollectorGroup implements Constants {
   public void initGroup(int size, Class<? extends ParallelCollector> klass) {
     this.lock = VM.newHeavyCondLock("CollectorContextGroup");
     this.triggerCount = 1;
+    if(Options.verbose.getValue() >= 7) {
+      Log.write("[[ParallelCollectors init ", size);
+      Log.write(" "); Log.write(klass.getName());
+      Log.write(" "); Log.writeln(name);
+    }
     this.contexts = new ParallelCollector[size];
     for(int i = 0; i < size; i++) {
       try {
@@ -99,6 +104,13 @@ public class ParallelCollectorGroup implements Constants {
     lock.lock();
     triggerCount++;
     contextsParked = 0;
+    if (Options.verbose.getValue() >= 7) 
+    { 
+      Log.write("[[Trigger cycle: ");
+      Log.write(Thread.currentThread().getName());
+      Log.writeln(" ", triggerCount);
+    }
+
     lock.broadcast();
     lock.unlock();
   }
@@ -127,7 +139,20 @@ public class ParallelCollectorGroup implements Constants {
   public void waitForCycle() {
     lock.lock();
     while (contextsParked < contexts.length) {
+      if (Options.verbose.getValue() >= 7) {
+        Log.write(Thread.currentThread().getName());
+        Log.write(": wait ", contextsParked);
+        Log.write(" ", contexts.length);
+        Log.write(" "); Log.writeln(name);
+      }
+
       lock.await();
+    }
+    if (Options.verbose.getValue() >= 7) {
+      Log.write(Thread.currentThread().getName());
+      Log.write(": wait done ", contextsParked);
+      Log.write(" ", contexts.length);
+      Log.write(" "); Log.writeln(name);
     }
     lock.unlock();
   }
@@ -140,15 +165,31 @@ public class ParallelCollectorGroup implements Constants {
   public void park(ParallelCollector context) {
     if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(isMember(context));
     lock.lock();
+
     context.lastTriggerCount++;
     if (context.lastTriggerCount == triggerCount) {
       contextsParked++;
+      if (Options.verbose.getValue() >= 7) {
+        Log.write(Thread.currentThread().getName());
+        Log.write(": park broadcast ", contextsParked);
+        Log.write(" ", context.workerOrdinal);
+        Log.write(" "); Log.writeln(name);
+      }
       if (contextsParked == contexts.length) {
         aborted = false;
       }
       lock.broadcast();
       while (context.lastTriggerCount == triggerCount) {
         lock.await();
+      }
+    }
+    else
+    {
+      if (Options.verbose.getValue() >= 7) {
+        Log.write(Thread.currentThread().getName());
+        Log.write(": park ", triggerCount);
+        Log.write(" ", context.lastTriggerCount);  Log.writeln(" ", context.workerOrdinal);
+        Log.write(" "); Log.writeln(name);
       }
     }
     lock.unlock();
@@ -179,10 +220,22 @@ public class ParallelCollectorGroup implements Constants {
     int i = currentRendezvousCounter;
     int me = rendezvousCounter[i]++;
     if (me == contexts.length-1) {
+      if (Options.verbose.getValue() >= 7) {
+        Log.write(Thread.currentThread().getName());
+        Log.write(": rendevous broadcast ", i);
+        Log.write(" ", me);
+        Log.write(" "); Log.writeln(name);
+      }
       currentRendezvousCounter ^= 1;
       rendezvousCounter[currentRendezvousCounter] = 0;
       lock.broadcast();
     } else {
+      if (Options.verbose.getValue() >= 7) {
+        Log.write(Thread.currentThread().getName());
+        Log.write(": rendevous wait ", i);
+        Log.write(" ", me);
+        Log.write(" "); Log.writeln(name);
+      }
       while(rendezvousCounter[i] < contexts.length) {
         lock.await();
       }

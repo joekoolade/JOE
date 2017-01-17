@@ -93,7 +93,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
    * MULTIPLE GC THREADS WILL PRODUCE SCRAMBLED OUTPUT so only
    * use these when running with PROCESSORS=1
    */
-  private static final int DEFAULT_VERBOSITY = 0 /*0*/;
+  private static final int DEFAULT_VERBOSITY = 1 /*0*/;
   private static final int FAILURE_VERBOSITY = 4;
 
   /***********************************************************************
@@ -144,6 +144,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
 
     Address ip=regs.getInnermostInstructionAddress();
     Address fp=regs.getInnermostFramePointer();
+    VM.sysWriteln("scanning fp ", fp);
     regs.clear();
     regs.setInnermost(ip,fp);
 
@@ -262,7 +263,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
    * performing the scan.
    */
   private void scanThreadInternal(Address gprs, int verbosity, Address sentinelFp) {
-    if (false) {
+    if (true) {
       VM.sysWriteln("Scanning thread ",thread.getThreadSlot()," from thread ",RVMThread.getCurrentThreadSlot());
     }
     if (verbosity >= 2) {
@@ -273,7 +274,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     if (VM.VerifyAssertions) assertImmovableInCurrentCollection();
 
     /* first find any references to exception handlers in the registers */
-    getHWExceptionRegisters();
+    // getHWExceptionRegisters();
 
     /* reinitialize the stack iterator group */
     iteratorGroup.newStackWalk(thread, gprs);
@@ -289,7 +290,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
          ip -> instruction pointer in the method (normally a call site) */
       while (fp.plus(12).NE(thread.sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
         if (true) {
-          VM.sysWriteln("Thread ",RVMThread.getCurrentThreadSlot()," at fp = ",fp);
+          VM.sysWriteln("Thread ",thread.getThreadSlot()," at fp = ",fp);
         }
         prevFp = scanFrame(verbosity);
         ip = Magic.getReturnAddress(fp, thread);
@@ -298,7 +299,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     }
 
     /* If a thread started via createVM or attachVM, base may need scaning */
-    checkJNIBase();
+    //checkJNIBase();
 
     if (verbosity >= 2) Log.writeln("--- End Of Stack Scan ---\n");
   }
@@ -390,19 +391,19 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
 
     iterator.cleanupPointers();
 
-    if (compiledMethodType != CompiledMethod.TRAP) {
-      /* skip preceding native frames if this frame is a native bridge */
-      if (compiledMethod.getMethod().getDeclaringClass().hasBridgeFromNativeAnnotation()) {
-        fp = RuntimeEntrypoints.unwindNativeStackFrameForGC(fp);
-        if (verbosity >= 2) Log.write("scanFrame skipping native C frames\n");
-      }
-
-      /* reinstall the return barrier if necessary (and verbosity indicates that this is a regular scan) */
-      if (reinstallReturnBarrier && verbosity == DEFAULT_VERBOSITY) {
-        thread.installStackTrampolineBridge(fp);
-        reinstallReturnBarrier = false;
-      }
-    }
+//    if (compiledMethodType != CompiledMethod.TRAP) {
+//      /* skip preceding native frames if this frame is a native bridge */
+//      if (compiledMethod.getMethod().getDeclaringClass().hasBridgeFromNativeAnnotation()) {
+//        fp = RuntimeEntrypoints.unwindNativeStackFrameForGC(fp);
+//        if (verbosity >= 2) Log.write("scanFrame skipping native C frames\n");
+//      }
+//
+//      /* reinstall the return barrier if necessary (and verbosity indicates that this is a regular scan) */
+//      if (reinstallReturnBarrier && verbosity == DEFAULT_VERBOSITY) {
+//        thread.installStackTrampolineBridge(fp);
+//        reinstallReturnBarrier = false;
+//      }
+//    }
     return fp;
   }
 

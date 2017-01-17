@@ -90,7 +90,7 @@ public class Properties extends Options {
   public static final boolean TraceFileSystem = false;
   public static final boolean TraceThreads = false;
   public static final boolean TraceStackTrace = false;
-  public static final boolean TraceExceptionDelivery = false;
+  public static final boolean TraceExceptionDelivery = true;
 
   // Baseline compiler reference map tracing.
   //

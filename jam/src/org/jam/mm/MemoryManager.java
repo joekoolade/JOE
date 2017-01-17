@@ -2,6 +2,7 @@ package org.jam.mm;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.BootRecord;
+import org.jikesrvm.runtime.Memory;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
@@ -28,8 +29,7 @@ public class MemoryManager {
 			VM.sysWriteln("PANIC: ", cursor.toInt(), " ", size.toInt());
 			VM.sysFail("Out of Memory");
 		}
-		VM.sysWrite("Memory Manager: allocating=", cursor, " size=", size.toInt());
-		VM.sysWriteln();
+		Memory.zero(false, address,  size);
 		return cursor;
 	}
 }

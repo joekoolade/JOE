@@ -50,7 +50,7 @@ public final class MonotonePageResource extends PageResource {
   private Address currentChunk = Address.zero();
   private volatile Address zeroingCursor;
   private Address zeroingSentinel;
-
+  final private static boolean DEBUG = true;
   /**
    * Constructor
    *
@@ -70,6 +70,11 @@ public final class MonotonePageResource extends PageResource {
     this.zeroingCursor = this.sentinel;
     this.zeroingSentinel = start;
     this.metaDataPagesPerRegion = metaDataPagesPerRegion;
+    if(DEBUG)
+    {
+      Log.write("MPR["); Log.write(space.getName());
+      Log.write("]/", start ); Log.write("/", sentinel); Log.writeln("/", metaDataPagesPerRegion);
+    }
   }
 
   /**
@@ -88,6 +93,11 @@ public final class MonotonePageResource extends PageResource {
     this.cursor = Address.zero();
     this.sentinel = Address.zero();
     this.metaDataPagesPerRegion = metaDataPagesPerRegion;
+    if(DEBUG)
+    {
+      Log.write("MPR["); Log.write(space.getName());
+      Log.writeln("]/", metaDataPagesPerRegion);
+    }
   }
 
 
@@ -118,8 +128,6 @@ public final class MonotonePageResource extends PageResource {
     boolean newChunk = false;
     lock();
     Address rtn = cursor;
-//    Log.write("MonotonePageResource.allocPages: "); Log.write(cursor); Log.write(' '); Log.write(currentChunk);
-//    Log.write(' '); Log.writeln(sentinel);
     if (Space.chunkAlign(rtn, true).NE(currentChunk)) {
       newChunk = true;
       currentChunk = Space.chunkAlign(rtn, true);
@@ -134,6 +142,11 @@ public final class MonotonePageResource extends PageResource {
         requiredPages += Conversions.bytesToPages(regionDelta) + metaDataPagesPerRegion;
         rtn = regionStart.plus(Conversions.pagesToBytes(metaDataPagesPerRegion));
       }
+      if(DEBUG)
+      {
+        Log.write(">>MonotonePageResources metaDataPagesPerRegion ", regionDelta.toInt());
+        Log.write(" ", metaDataPagesPerRegion); Log.writeln(" ", cursor); Log.writeln(" ", rtn);
+      }
     }
     Extent bytes = Conversions.pagesToBytes(requiredPages);
     Address tmp = cursor.plus(bytes);
@@ -145,8 +158,12 @@ public final class MonotonePageResource extends PageResource {
       sentinel = cursor.plus(chunk.isZero() ? 0 : requiredChunks<<Space.LOG_BYTES_IN_CHUNK);
       rtn = cursor;
       tmp = cursor.plus(bytes);
-      // Log.write("!contiguous: "); Log.write(cursor); Log.write(' '); Log.write(sentinel); Log.write(' '); Log.writeln(requiredChunks); 
-     newChunk = true;
+      if(DEBUG)
+      {
+        Log.write("MPR.allocPages["); Log.write(space.getName());
+        Log.write("]/", reservedPages); Log.write("/", requiredPages); Log.write("/", rtn); Log.writeln("/", sentinel);
+      }
+      newChunk = true;
     }
     if (VM.VERIFY_ASSERTIONS)
       VM.assertions._assert(rtn.GE(cursor) && rtn.LT(cursor.plus(bytes)));

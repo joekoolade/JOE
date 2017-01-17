@@ -189,7 +189,7 @@ public final class VM {
     MAX_BYTES_PADDING = Memory.maxBytesPaddingTrapdoor(memory);
     ALIGNMENT_VALUE = Memory.alignmentValueTrapdoor(memory);
     ARRAY_BASE_OFFSET = ObjectModel.arrayBaseOffsetTrapdoor(objectModel);
-    DEBUG = Debug.isEnabledTrapdoor(debugging);
+    DEBUG = true; // Debug.isEnabledTrapdoor(debugging);
   }
 
   /**

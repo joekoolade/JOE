@@ -19,6 +19,7 @@ import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.pragma.InterruptHandler;
 import org.vmmagic.pragma.NoBoundsCheck;
 import org.vmmagic.pragma.NoNullCheck;
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -29,6 +30,7 @@ import org.vmmagic.unboxed.Offset;
  *         A table of 256 vectors that associates each exception/interrupt with a gate descriptor to
  *         a procedure used to service the associated exception/interrupt
  */
+@NonMoving
 public final class Idt implements SegmentDescriptorTypes {
     private static Idt       idt                            = new Idt(49);
     int                      codeSegment;
@@ -46,10 +48,10 @@ public final class Idt implements SegmentDescriptorTypes {
     /**
      *  Memory location of of the IDTR register memory location
      * 
-     *  						0       2      6
-     *  						+-------+------+
+     *  						          0       2      6
+     *  						          +-------+------+
      *  idtTableRegister -->	|limit  | base |
-     *  						+-------+------+
+     *  						          +-------+------+
      */
 	// formatter:on
     private Address idtTableRegister;
@@ -86,7 +88,7 @@ public final class Idt implements SegmentDescriptorTypes {
 		Offset offset = Offset.zero();
 		for(int i=0; i < 0x1000; i += 4)
 		{
-		    addr.store(0xfaf4faf4, offset.plus(i));
+		    addr.store(0, offset.plus(i));
 		}
 	}
   
@@ -115,6 +117,7 @@ public final class Idt implements SegmentDescriptorTypes {
 	 * This class provides static methods that can be dispatched from the IDT vector table
 	 * 
 	 */
+	@NonMoving
 	static class InterruptVectors {
 	    @InterruptHandler
 	    public static void int0()
@@ -144,22 +147,27 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int5()
         {
+          Magic.halt();
             VM.sysFail("BOUND range exceeded");
         }
         @InterruptHandler
         public static void int6()
         {
-            VM.sysFail("Invalid Opcode");
+          Magic.saveContext();
+          // Magic.halt();
+          VM.sysFailTrap("Invalid Opcode");
         }
         @InterruptHandler
         public static void int7()
         {
+          Magic.halt();
             VM.sysFail("Device Not Available");
         }
         @InterruptHandler
         public static void int8()
         {
-//            Magic.saveContext();
+          Magic.halt();
+            Magic.saveContext();
 //            Magic.halt();
 //            VM.write("Double Fault");
             VM.sysFail("Double Fault");
@@ -167,31 +175,38 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int9()
         {
+          Magic.halt();
             VM.sysFail("Coprocessor Segment Overrun");
         }
         @InterruptHandler
         public static void int10()
         {
+          Magic.halt();
             VM.sysFail("Invalid TSS");
         }
        @InterruptHandler
         public static void int11()
         {
+         Magic.halt();
             VM.sysFail("Segment Not Present");
         }
        @InterruptHandler
        public static void int12()
        {
+         Magic.halt();
            VM.sysFail("Stack Segment Fault");
        }
        @InterruptHandler
        public static void int13()
        {
+         Magic.halt();
+           Magic.saveContext();
            VM.sysFailTrap("General Protection");
        }
        @InterruptHandler
        public static void int14()
        {
+         Magic.halt();
            VM.sysFail("Page Fault");
        }
        @InterruptHandler
@@ -202,11 +217,13 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int16()
        {
+         Magic.halt();
            VM.sysFail("x87 FPU Floating-Point Error");
        }
        @InterruptHandler
        public static void int17()
        {
+         Magic.halt();
            VM.sysFail("Alignment Check");
        }
        @InterruptHandler
@@ -217,11 +234,13 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int19()
        {
+         Magic.halt();
            VM.sysFail("SIMD Floating Point Exception");
        }
        @InterruptHandler
        public static void int20()
        {
+         Magic.halt();
            VM.sysFail("Virtualization Exception");
        }
        @InterruptHandler
@@ -344,15 +363,16 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int40()
        {
-           VM.sysFail("TRAP_NULL_POINTER");
+         Magic.saveContext();
+         VM.sysFailTrap("TRAP_NULL_POINTER");
        }
        @InterruptHandler
        public static void int41()
        {
-           Platform.masterPic.interruptMask(0xFF);
-           Magic.disableInterrupts();
-           Magic.halt();
-           VM.sysFail("TRAP_ARRAY_BOUNDS");
+//           Platform.masterPic.interruptMask(0xFF);
+//           Magic.disableInterrupts();
+         Magic.saveContext();
+         VM.sysFailTrap("TRAP_ARRAY_BOUNDS");
        }
        @InterruptHandler
        public static void int42()
@@ -396,7 +416,8 @@ public final class Idt implements SegmentDescriptorTypes {
            Magic.switchStack(Platform.scheduler.getHandlerStack());
 //           VM.sysWriteln("int48/yield");
            RVMThread.isInterrupted = true;
-           RVMThread.yieldpoint(0, null);
+           // RVMThread.yieldpoint(0, null);
+           Platform.scheduler.addThread(Magic.getThreadRegister());
            Platform.scheduler.nextThread();
            RVMThread.isInterrupted = false;
            // Restore back to the interrupt stack and context
@@ -699,6 +720,7 @@ public final class Idt implements SegmentDescriptorTypes {
 		this.limit = limit;
 	}
 	
+	@NonMoving
 	class IrqVector {
 	    IrqHandler vector;
 	    byte[]  stack;

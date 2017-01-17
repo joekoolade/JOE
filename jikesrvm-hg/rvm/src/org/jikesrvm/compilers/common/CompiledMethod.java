@@ -185,7 +185,7 @@ public abstract class CompiledMethod implements SizeConstants {
    */
   @Uninterruptible
   public final Offset getInstructionOffset(Address ip) {
-    return getInstructionOffset(ip, true);
+    return getInstructionOffset(ip, false);
   }
 
   /**

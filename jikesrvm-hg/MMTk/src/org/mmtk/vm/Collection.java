@@ -123,4 +123,14 @@ import org.vmmagic.pragma.*;
    * Fail with an out of memory error.
    */
   public abstract void outOfMemory();
+  
+  /**
+   * Enable interrupts
+   */
+  public abstract void enableInterrupts();
+  
+  /**
+   * Disable interrupts
+   */
+  public abstract void disableInterrupts();
 }

@@ -5,11 +5,13 @@ package org.jam.board.pc;
 
 import org.jam.driver.console.PcConsoleDevice;
 import org.jam.runtime.Platform;
+import org.vmmagic.pragma.NonMoving;
 
 /**
  * @author jkulig
  * Copyright Joe Kulig 2013
  */
+@NonMoving
 public class GenericPc implements Platform {
 	PcConsoleDevice console;
 	

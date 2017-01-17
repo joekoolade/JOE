@@ -48,10 +48,11 @@ public class ThreadQueue {
      */
     if(t.queuedOn!=null)
     {
+      VM.sysWriteln("Already scheduled ", t.getThreadSlot());
       return;
     }
-//    if (VM.VerifyAssertions)
-//      VM._assert(t.queuedOn == null);
+    if (VM.VerifyAssertions)
+      VM._assert(t.queuedOn == null);
     t.next = null;
     if (tail == null) {
       head = t;

@@ -63,7 +63,7 @@ import org.vmmagic.unboxed.Word;
 @Uninterruptible
 @NonMoving
 public class Monitor {
-  public static boolean trace = true;
+  public static boolean trace = false;
   Word monitor;
   int holderSlot=-1; // use the slot so that we're even more GC safe
   int recCount;
@@ -111,11 +111,11 @@ public class Monitor {
         /*
          * Wait on the locking queue
          */
-        VM.sysWrite("LockQueue(No HS)", Magic.objectAsAddress(this));
-        VM.sysWrite("/T#", mySlot);
-        VM.sysWrite("/H", holderSlot);
-        VM.sysWrite("/R", recCount);
-        VM.sysWriteln("/A", acquireCount);
+//        VM.sysWrite("LockQueue(No HS)", Magic.objectAsAddress(this));
+//        VM.sysWrite("/T#", mySlot);
+//        VM.sysWrite("/H", holderSlot);
+//        VM.sysWrite("/R", recCount);
+//        VM.sysWriteln("/A", acquireCount);
         locking.enqueue(RVMThread.getCurrentThread());
         Magic.yield();
       }
@@ -291,10 +291,10 @@ public class Monitor {
       }
       // sysCall.sysMonitorExit(monitor);
     }
-    VM.sysWrite("Unlock/", Magic.objectAsAddress(this));
-    VM.sysWrite("/T#", holderSlot);
-    VM.sysWrite("/R", recCount);
-    VM.sysWriteln("/A", acquireCount);
+//    VM.sysWrite("Unlock/", Magic.objectAsAddress(this));
+//    VM.sysWrite("/T#", holderSlot);
+//    VM.sysWrite("/R", recCount);
+//    VM.sysWriteln("/A", acquireCount);
  }
   /**
    * Completely release the lock, ignoring recursion.  Returns the
@@ -361,6 +361,17 @@ public class Monitor {
       VM.sysWriteln("T#", thread.threadSlot);
     }
     /*
+     * Wakeup next thread trying to get the lock
+     */
+    RVMThread waitingThread = locking.dequeue();
+    if(waitingThread != null)
+    {
+      /*
+       * schedule thread trying to acquire the monitor
+       */
+      Platform.scheduler.addThread(waitingThread);
+    }
+    /*
      * Time to give up the processor
      */
     Magic.yield();
@@ -408,9 +419,12 @@ public class Monitor {
     /*
      * start a timer for this monitor
      */
-    VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
-    VM.sysWrite("/T#", monitorThread.threadSlot);
-    VM.sysWriteln("/", whenWakeupNanos);
+    if(trace)
+    {
+      VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
+      VM.sysWrite("/T#", monitorThread.threadSlot);
+      VM.sysWriteln("/", whenWakeupNanos);
+    }
     Platform.timer.startTimer(whenWakeupNanos);
     /*
      * Release the monitor
@@ -418,6 +432,17 @@ public class Monitor {
     if(!Magic.attemptInt(this, monitorOffset, 1, 0))
     {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
+    }
+    /*
+     * Wakeup next thread trying to get the lock
+     */
+    RVMThread waitingThread = locking.dequeue();
+    if(waitingThread != null)
+    {
+      /*
+       * schedule thread trying to acquire the monitor
+       */
+      Platform.scheduler.addThread(waitingThread);
     }
     /*
      * Time to give up the processor
@@ -560,24 +585,21 @@ public class Monitor {
      * Get the waiting thread
      */
     RVMThread waitingThread = waiting.dequeue();
-    if(waitingThread != null)
+    while(waitingThread != null)
     {
-      /*
-       * Schedule thread to be run
-       * 
-       * Do not have to unlock monitor since that is being done at
-       * a higher level
-       */
-      if(trace) 
-      {
-        VM.sysWrite("Broadcast/", Magic.objectAsAddress(this));
-        VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
-      }
-      Platform.scheduler.addThread(waitingThread);
-    }
-    else 
-    {
-      VM.sysWriteln("Broadcast/", Magic.objectAsAddress(this));
+        /*
+         * Schedule thread to be run
+         * 
+         * Do not have to unlock monitor since that is being done at
+         * a higher level
+         */
+        if(trace) 
+        {
+          VM.sysWrite("Broadcast/", Magic.objectAsAddress(this));
+          VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
+        }
+        Platform.scheduler.addThread(waitingThread);
+        waitingThread = waiting.dequeue();
     }
     // sysCall.sysMonitorBroadcast(monitor);
   }

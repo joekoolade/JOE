@@ -186,7 +186,7 @@ public class Entrypoints {
              org.jikesrvm.scheduler.RVMThread.class);
 
   public static final RVMField stackPointerField = getField(org.jikesrvm.scheduler.RVMThread.class, "sp", org.vmmagic.unboxed.Address.class);
-  
+  public static final RVMField fxStateField = getField(org.jikesrvm.scheduler.RVMThread.class,"fxStateAddress", org.vmmagic.unboxed.Address.class);
   public static final RVMField scratchStorageField =
       getField(org.jikesrvm.scheduler.RVMThread.class, "scratchStorage", double.class);
   public static final RVMField takeYieldpointField =
@@ -196,10 +196,6 @@ public class Entrypoints {
 
   public static final RVMField referenceReferentField =
       getField(java.lang.ref.Reference.class, "_referent", org.vmmagic.unboxed.Address.class);
-
-  /** Used in deciding which stack frames we can elide when printing. */
-  public static final NormalMethod mainThreadRunMethod =
-      getMethod(org.jikesrvm.scheduler.MainThread.class, "run", "()V");
 
   public static final NormalMethod yieldpointFromPrologueMethod =
       getMethod(org.jikesrvm.scheduler.RVMThread.class, "yieldpointFromPrologue", "()V");

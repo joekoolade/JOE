@@ -19,6 +19,7 @@ import org.jikesrvm.ArchitectureSpecific;
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mminterface.Selected;
+import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.mm.mminterface.CollectorThread;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.scheduler.FinalizerThread;
@@ -38,6 +39,17 @@ public class Collection extends org.mmtk.vm.Collection implements org.mmtk.utili
    * Class variables
    */
 
+  @Override
+  public void enableInterrupts()
+  {
+    Magic.enableInterrupts();
+  }
+  
+  @Override
+  public void disableInterrupts()
+  {
+    Magic.disableInterrupts();
+  }
   /**
    * {@inheritDoc}
    */
@@ -168,5 +180,6 @@ public class Collection extends org.mmtk.vm.Collection implements org.mmtk.utili
       FinalizerThread.schedule();
     }
   }
+  
 }
 

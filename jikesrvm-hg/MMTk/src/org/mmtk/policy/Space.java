@@ -54,7 +54,7 @@ public abstract class Space implements Constants {
   /**
    *
    */
-  private static boolean DEBUG = false;
+  private static boolean DEBUG = true;
 
   // the following is somewhat arbitrary for the 64 bit system at this stage
   public static final int LOG_ADDRESS_SPACE = (BYTES_IN_ADDRESS == 4) ? 32 : 40;
@@ -131,7 +131,7 @@ public abstract class Space implements Constants {
     this.nameLength = name.length();  // necessary to avoid calling length() in uninterruptible code
     this.movable = movable;
     this.immortal = immortal;
-    this.zeroed = zeroed;
+    this.zeroed = true;
     this.vmRequest = vmRequest;
     this.index = spaceCount++;
     spaces[index] = this;
@@ -286,6 +286,7 @@ public abstract class Space implements Constants {
    */
   @Inline
   public static boolean isMappedObject(ObjectReference object) {
+    
     return !object.isNull() && (getSpaceForObject(object) != null) && Mmapper.objectIsMapped(object);
   }
 

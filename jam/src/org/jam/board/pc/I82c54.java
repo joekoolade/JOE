@@ -7,12 +7,14 @@
  */
 package org.jam.board.pc;
 
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 
 /**
  * @author Joe Kulig
  * 
  */
+@NonMoving
 public class I82c54 {
   Address counter0;
   Address counter1;

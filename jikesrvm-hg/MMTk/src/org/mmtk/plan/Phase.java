@@ -370,6 +370,7 @@ public abstract class Phase implements Constants {
    * end of the previous phase before the sync point.
    */
   private static short stopComplexTimer;
+  private static int loop;
 
   /**
    * Place a phase on the phase stack and begin processing.
@@ -404,8 +405,8 @@ public abstract class Phase implements Constants {
     int order = collector.rendezvous();
     final boolean primary = order == 0;
 
-    boolean log = Options.verbose.getValue() >= 6;
-    boolean logDetails = Options.verbose.getValue() >= 7;
+    boolean log = true; // Options.verbose.getValue() >= 6;
+    boolean logDetails = true; // Options.verbose.getValue() >= 7;
 
     if (primary && resume) {
       if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!Phase.isPhaseStackEmpty());
@@ -437,6 +438,11 @@ public abstract class Phase implements Constants {
       short phaseId = getPhaseId(scheduledPhase);
       Phase p = getPhase(phaseId);
 
+      if(VM.objectModel==null)
+      {
+        Log.writeln("0: Object Model is null! ", phaseId);
+        VM.assertions._assert(false);
+      }
       /* Start the timer(s) */
       if (primary) {
         if (resume) {
@@ -473,6 +479,7 @@ public abstract class Phase implements Constants {
           if (VM.DEBUG) VM.debugging.collectorPhase(phaseId,order,true);
           collector.collectionPhase(phaseId, primary);
           if (VM.DEBUG) VM.debugging.collectorPhase(phaseId,order,false);
+          if (logDetails) Log.writeln(" as Collector ... finished");
           break;
         }
 
@@ -516,11 +523,19 @@ public abstract class Phase implements Constants {
       if (primary) {
         /* Set the next phase by processing the stack */
         int next = getNextPhase();
+        // if (logDetails) Log.writeln("Next phase = ", next);
         boolean needsResetRendezvous = (next > 0) && (schedule == SCHEDULE_MUTATOR && getSchedule(next) == SCHEDULE_MUTATOR);
         setNextPhase(isEvenPhase, next, needsResetRendezvous);
+        if (logDetails) {
+          Log.writeln("loop ", loop++);
+        }
       }
 
       /* Sync point after execution of a phase */
+//      if (logDetails) {
+//        Log.write(Thread.currentThread().getName());
+//        Log.writeln(": Collector rendezvous");
+//      }
       collector.rendezvous();
 
       /* Mutator phase reset */

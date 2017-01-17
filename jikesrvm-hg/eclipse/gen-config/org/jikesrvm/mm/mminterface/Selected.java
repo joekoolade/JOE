@@ -14,8 +14,6 @@ package org.jikesrvm.mm.mminterface;
 
 import org.jikesrvm.scheduler.RVMThread;
 
-import org.mmtk.utility.Log;
-
 import org.vmmagic.pragma.*;
 
 public class Selected {

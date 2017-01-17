@@ -38,7 +38,7 @@ import org.vmmagic.pragma.*;
    public static boolean MeasureCompilationPhases      = false; // Time all compilation sub-phases and report on exit
    public static boolean stackTraceFull                = false; // Stack traces to consist of VM and application frames
    public static boolean stackTraceAtExit              = false; // Dump a stack trace (via VM.syswrite) upon exit
-   public static boolean TraceClassLoading             = true; // More detailed tracing then -verbose:class
+   public static boolean TraceClassLoading             = false; // More detailed tracing then -verbose:class
    public static boolean ErrorsFatal                   = false; // Exit when non-fatal errors are detected; used for regression testing
    public static boolean traceJNI                      = false; // Trace when calls into JNI happen
    public static boolean countThreadTransitions        = false; // Count, and report, the number of thread state transitions.  This works better on IA32 than on PPC at the moment.

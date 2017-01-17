@@ -15,8 +15,8 @@ package org.mmtk.plan.semispace;
 import org.mmtk.policy.CopySpace;
 import org.mmtk.policy.Space;
 import org.mmtk.plan.*;
+import org.mmtk.utility.Log;
 import org.mmtk.utility.heap.VMRequest;
-
 import org.vmmagic.pragma.*;
 import org.vmmagic.unboxed.*;
 
@@ -50,11 +50,11 @@ public class SS extends StopTheWorld {
   public static boolean hi = false;
 
   /** One of the two semi spaces that alternate roles at each collection */
-  public static final CopySpace copySpace0 = new CopySpace("ss0", false, VMRequest.create());
+  public static final CopySpace copySpace0 = new CopySpace("ss0", false, VMRequest.create(Address.fromIntZeroExtend(0x5000000), Extent.fromIntZeroExtend(0x1000000)));
   public static final int SS0 = copySpace0.getDescriptor();
 
   /** One of the two semi spaces that alternate roles at each collection */
-  public static final CopySpace copySpace1 = new CopySpace("ss1", true, VMRequest.create());
+  public static final CopySpace copySpace1 = new CopySpace("ss1", true, VMRequest.create(Address.fromIntZeroExtend(0x6000000), Extent.fromIntZeroExtend(0x1000000)));
   public static final int SS1 = copySpace1.getDescriptor();
 
   public final Trace ssTrace;
@@ -110,6 +110,8 @@ public class SS extends StopTheWorld {
   @Override
   @Inline
   public void collectionPhase(short phaseId) {
+    Log.write("SS.collectionPhase ");
+    Log.writeln(phaseId);
     if (phaseId == SS.PREPARE) {
       hi = !hi; // flip the semi-spaces
       // prepare each of the collected regions

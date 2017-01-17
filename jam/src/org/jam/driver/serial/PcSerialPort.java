@@ -5,10 +5,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayDeque;
 import org.jam.board.pc.Platform;
+import org.jikesrvm.VM;
+import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
+@NonMoving
 public class PcSerialPort {
 	Address comPort;
 	/*
@@ -104,7 +108,7 @@ public class PcSerialPort {
         /*
          * Allocate irq handler stack
          */
-        stack = new int[STACK_SIZE];
+        stack = MemoryManager.newContiguousIntArray(STACK_SIZE); // new int[STACK_SIZE];
         /*
          * Put in the sentinel
          */
@@ -121,6 +125,8 @@ public class PcSerialPort {
         
         outputStream = new SerialOutputStream(this);
         printStream = new PrintStream(outputStream);
+        VM.sysWriteln("output stream: ", Magic.objectAsAddress(outputStream));
+        VM.sysWriteln("print stream: ", Magic.objectAsAddress(printStream));
 	}
 	
 	private class SerialOutputStream extends OutputStream {

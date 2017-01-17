@@ -51,9 +51,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
   /** iterator for opt compiled frames */
   private final GCMapIterator optIterator;
 
-  /** iterator for HardwareTrap stackframes */
-  private final GCMapIterator hardwareTrapIterator;
-
   public GCMapIteratorGroup() {
     registerLocations = WordArray.create(ArchitectureSpecific.ArchConstants.NUM_GPRS);
 
@@ -63,7 +60,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
     } else {
       optIterator = null;
     }
-    hardwareTrapIterator = new HardwareTrapGCMapIterator(registerLocations);
   }
 
   /**
@@ -89,7 +85,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
     if (VM.BuildForOptCompiler) {
       optIterator.newStackWalk(thread);
     }
-    hardwareTrapIterator.newStackWalk(thread);
   }
 
   /**
@@ -104,8 +99,6 @@ public final class GCMapIteratorGroup implements SizeConstants {
   @Uninterruptible
   public GCMapIterator selectIterator(CompiledMethod compiledMethod) {
     switch (compiledMethod.getCompilerType()) {
-      case CompiledMethod.TRAP:
-        return hardwareTrapIterator;
       case CompiledMethod.BASELINE:
         return baselineIterator;
       case CompiledMethod.OPT:

@@ -14,15 +14,14 @@ package org.jikesrvm.mm.mmtk;
 
 import org.mmtk.policy.ImmortalSpace;
 import org.mmtk.utility.Constants;
+import org.mmtk.utility.Log;
 import org.mmtk.utility.heap.VMRequest;
-
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.HeapLayoutConstants;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.objectmodel.JavaHeader;
 import org.jikesrvm.SizeConstants;
-
 import org.vmmagic.unboxed.*;
 import org.vmmagic.pragma.*;
 
@@ -104,6 +103,7 @@ import org.vmmagic.pragma.*;
 
   @Override
   public final int dzmmap(Address start, int size) {
+    Log.write("dzmap ", start); Log.writeln(" ", size);
     Address result = org.jikesrvm.runtime.Memory.dzmmap(start, Extent.fromIntZeroExtend(size));
     if (result.EQ(start)) return 0;
     if (result.GT(Address.fromIntZeroExtend(127))) {

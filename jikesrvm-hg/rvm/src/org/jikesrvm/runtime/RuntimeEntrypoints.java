@@ -78,7 +78,7 @@ import org.vmmagic.unboxed.Offset;
  */
 public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.StackframeLayoutConstants {
 
-  private static final boolean traceAthrow = false;
+  private static final boolean traceAthrow = true;
   // Trap codes for communication with C trap handler.
   //
   public static final int TRAP_UNKNOWN = -1;
@@ -652,8 +652,8 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
   @Unpreemptible("Deliver exception possibly from unpreemptible code")
   public static void athrow(Throwable exceptionObject) {
     if (traceAthrow) {
-      VM.sysWriteln("in athrow.");
-      RVMThread.dumpStack();
+      VM.sysWriteln("in athrow -> ", Magic.getFramePointer());
+      // RVMThread.dumpStack();
     }
     RVMThread myThread = RVMThread.getCurrentThread();
     Registers exceptionRegisters = myThread.getExceptionRegisters();
@@ -894,6 +894,7 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
         leapfroggedReturnBarrier = true;
       }
       int compiledMethodId = Magic.getCompiledMethodID(fp);
+      VM.sysWrite("deliverException: ", fp); VM.sysWriteln(",", compiledMethodId);
       if (compiledMethodId != INVISIBLE_METHOD_ID) {
         CompiledMethod compiledMethod = CompiledMethods.getCompiledMethod(compiledMethodId);
         ExceptionDeliverer exceptionDeliverer = compiledMethod.getExceptionDeliverer();

@@ -34,7 +34,7 @@ import org.vmmagic.pragma.NonMoving;
 @NonMoving
 public class FinalizerThread extends SystemThread {
 
-  private static final int verbose = 0; // currently goes up to 2
+  private static final int verbose = 2; // currently goes up to 2
 
   private final Object[] none = new Object[0];
   private static boolean shouldRun;

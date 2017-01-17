@@ -128,7 +128,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = 2; // BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
      * Setup the serial port
@@ -369,7 +369,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     VM.fullyBooted = true;
     MemoryManager.fullyBootedVM();
     BaselineCompiler.fullyBootedVM();
-    TraceEngine.engine.fullyBootedVM();
+//    TraceEngine.engine.fullyBootedVM();
 
     runClassInitializer("java.util.logging.Level");
     if (VM.BuildForGnuClasspath) {
@@ -406,6 +406,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //      runClassInitializer("java.lang.ClassLoader$StaticData");
 //    }
 
+    
     VM.sysWriteln("contextRegister offset ", Entrypoints.threadContextRegistersField.getOffset());
     VM.sysWriteln("gprs offset ", ArchEntrypoints.registersGPRsField.getOffset());
     VM.sysWriteln("sp offset ", Entrypoints.stackPointerField.getOffset());
@@ -443,11 +444,17 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
 //  mainThread.start();
+    /*
+     * Sleep test
+     */
 //    Sleep sleep = new Sleep();
 //    new Thread(sleep).start();
     
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
+    /*
+     * Exhaust class test
+     */
     Thread testThread = new TestThread();
     testThread.start();
     VM.sysWriteln("Main thread started");
@@ -648,15 +655,15 @@ public class VM extends Properties implements Constants, ExitStatus {
   private static Offset sysWriteLockOffset = Offset.max();
 
   private static void swLock() {
-    if (sysWriteLockOffset.isMax()) return;
-    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
-      ;
-    }
+//    if (sysWriteLockOffset.isMax()) return;
+//    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
+//      ;
+//    }
   }
 
   private static void swUnlock() {
-    if (sysWriteLockOffset.isMax()) return;
-    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
+//    if (sysWriteLockOffset.isMax()) return;
+//    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
   }
 
   /**

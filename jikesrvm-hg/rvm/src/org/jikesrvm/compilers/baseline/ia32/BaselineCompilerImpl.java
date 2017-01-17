@@ -2896,6 +2896,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     Offset objectOffset =
       Offset.fromIntZeroExtend(methodRefparameterWords << LG_WORDSIZE).minus(WORDSIZE); // object offset into stack
     stackMoveHelper(T1, objectOffset);                               // T1 has "this" parameter
+    genNullCheck(asm, T1);
     baselineEmitLoadTIB(asm, S0, T1);                                // S0 has TIB
     genParameterRegisterLoad(methodRef, true);
     asm.emitCALL_RegDisp(S0, methodRefOffset);                       // call virtual method

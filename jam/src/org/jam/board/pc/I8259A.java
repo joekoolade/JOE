@@ -7,12 +7,14 @@
  */
 package org.jam.board.pc;
 
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 
 /**
  * @author joe
  *
  */
+@NonMoving
 public class I8259A {
   /*
    * ICW1 initialization word

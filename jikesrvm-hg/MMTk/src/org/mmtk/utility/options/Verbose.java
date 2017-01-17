@@ -19,12 +19,16 @@ public final class Verbose extends org.vmutil.options.IntOption {
   /**
    * Create the option.
    */
-  public Verbose() {
+  public Verbose(int setting) {
     super(Options.set, "Verbose",
           "GC verbosity level",
-          0);
+          setting);
   }
 
+  public Verbose()
+  {
+    this(0);
+  }
   /**
    * Only accept non-negative values.
    */

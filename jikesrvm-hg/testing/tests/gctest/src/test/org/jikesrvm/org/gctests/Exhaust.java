@@ -62,23 +62,24 @@ public class Exhaust {
             last = next;
             tot += size;
             wasAllocating = 0;
+            if((tot & 0xfffff)==0)
+              System.out.println("size is "+tot);
         }
     }
 
     @NoInline
     public static void runTest()
     {
-        PrintStream o = System.out;
         int size = itemSize;
         for (int i = 1; i <= rounds; i++)
         {
-            o.println("Starting round " + i + " with size = " + size);
+          System.out.println("Starting round " + i + " with size = " + size);
 
             first = new Object[1];
             last = first;
             tot = 0;
 
-            o.println("  Allocating until exception thrown");
+            System.out.println("  Allocating until exception thrown");
             try
             {
                 doInner(size);
@@ -86,11 +87,11 @@ public class Exhaust {
             catch (OutOfMemoryError e)
             {
                 first = last = null;  // kills everything
-                o.println("  Caught OutOfMemory - freeing now");  // this allocates; must follow nulling
+                System.out.println("  Caught OutOfMemory - freeing now");  // this allocates; must follow nulling
 
                 // o.println("  Maximum size reached is " + size);
 
-                o.println("  Had " + tot + " bytes allocated; failed trying to allocate " + wasAllocating + " bytes");
+                System.out.println("  Had " + tot + " bytes allocated; failed trying to allocate " + wasAllocating + " bytes");
             }
 
             size *= growthFactor;

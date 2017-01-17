@@ -1082,15 +1082,8 @@ Check to make sure all required properties are specified. This includes properti
     <condition property="pp_address.method" value="fromIntZeroExtend" else="fromLong">
       <equals arg1="${target.address.size}" arg2="32"/>
     </condition>
-    <copy file="${basedir}/rvm/src-generated/vm-configuration/HeapLayoutConstants.template"
+    <copy file="${basedir}/rvm/src/org/jikesrvm/HeapLayoutConstants.java"
           tofile="${generated.config.java}/org/jikesrvm/HeapLayoutConstants.java">
-      <filterset>
-        <filter token="_BOOTIMAGE_DATA_ADDRESS_" value="${target.bootimage.data.address}"/>
-        <filter token="_BOOTIMAGE_CODE_ADDRESS_" value="${target.bootimage.code.address}"/>
-        <filter token="_BOOTIMAGE_RMAP_ADDRESS_" value="${target.bootimage.rmap.address}"/>
-        <filter token="_MAXIMUM_MAPPABLE_ADDRESS_" value="${target.max-mappable.address}"/>
-        <filter token="_ADDRESS_METHOD_" value="${pp_address.method}"/>
-      </filterset>
     </copy>
 
   </target>

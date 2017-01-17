@@ -107,6 +107,8 @@ public class Map {
       }
       descriptorMap[index] = descriptor;
       VM.barriers.objectArrayStoreNoGCBarrier(spaceMap, index, space);
+      Log.write("SpaceMap: ", index); Log.write("/"); Log.write(space.getName());
+      Log.write("/", start); Log.writeln("/", extent.toInt());
       e = e.plus(Space.BYTES_IN_CHUNK);
     }
   }
@@ -251,8 +253,10 @@ public class Map {
   public static void finalizeStaticSpaceMap() {
     /* establish bounds of discontiguous space */
     Address startAddress = Space.getDiscontigStart();
+    Log.writeln("Map: startAddress=", startAddress);
     int firstChunk = getChunkIndex(startAddress);
     int lastChunk = getChunkIndex(Space.getDiscontigEnd());
+    Log.write("Map: chunk0=", firstChunk); Log.writeln(" chunkN=", lastChunk);
     int unavailStartChunk = lastChunk + 1;
     int trailingChunks = Space.MAX_CHUNKS - unavailStartChunk;
     int pages = (1 + lastChunk - firstChunk) * Space.PAGES_IN_CHUNK;
@@ -270,12 +274,18 @@ public class Map {
     /* set up the global page map and place chunks on free list */
     int firstPage = 0;
     for (int chunkIndex = firstChunk; chunkIndex <= lastChunk; chunkIndex++) {
-      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(spaceMap[chunkIndex] == null);
+//      if(spaceMap[chunkIndex] != null)
+//      {
+//        // firstPage += Space.PAGES_IN_CHUNK;
+//        continue;
+//      }
+      // if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(spaceMap[chunkIndex] == null, "chunk="+chunkIndex);
       totalAvailableDiscontiguousChunks++;
       regionMap.free(chunkIndex);  // put this chunk on the free list
       globalPageMap.setUncoalescable(firstPage);
       int allocedPages = globalPageMap.alloc(Space.PAGES_IN_CHUNK); // populate the global page map
-      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(allocedPages == firstPage);
+      // if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(allocedPages == firstPage);
+      Log.write("Map Free Chunk", chunkIndex); Log.writeln("/", firstPage);
       firstPage += Space.PAGES_IN_CHUNK;
     }
 

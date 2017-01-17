@@ -1074,7 +1074,7 @@ private static boolean jamming=false;
     bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImage.getCodeSize());
     bootRecord.bootImageRMapStart = bootImageRMapAddress;
     bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
-    bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x2000000);
+    bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x4000000);
     
     // Update field of boot record now by re-copying
     //

@@ -157,7 +157,7 @@ public abstract class Plan implements Constants {
    */
   public Plan() {
     /* Create base option instances */
-    Options.verbose = new Verbose();
+    Options.verbose = new Verbose(6);
     Options.verboseTiming = new VerboseTiming();
     Options.stressFactor = new StressFactor();
     Options.noFinalizer = new NoFinalizer();
@@ -480,6 +480,7 @@ public abstract class Plan implements Constants {
    * @param s The new GC status.
    */
   public static void setGCStatus(int s) {
+    Log.writeln("setGCStatus: ", s);
     if (gcStatus == NOT_IN_GC) {
       /* From NOT_IN_GC to any phase */
       stacksPrepared = false;

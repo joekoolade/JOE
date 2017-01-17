@@ -59,35 +59,8 @@ public abstract class BaselineGCMapIterator extends GCMapIterator implements Bas
   /** have we reported the base ptr of the edge counter array? */
   private boolean counterArrayBase;
 
-  /*
-   *  Additional iterator state for mapping dynamic bridge stackframes.
-   */
-  /** place to keep info returned by CompiledMethod.getDynamicLink */
-  private final DynamicLink dynamicLink;
-  /** method to be invoked via dynamic bridge (null: current frame is not a dynamic bridge) */
-  private MethodReference bridgeTarget;
-  /** parameter types passed by that method */
-  private TypeReference[] bridgeParameterTypes;
-  /** have all bridge parameters been mapped yet? */
-  private boolean bridgeParameterMappingRequired;
-  /** do we need to map spilled params (baseline compiler = no, opt = yes) */
-  private boolean bridgeSpilledParameterMappingRequired;
-  /** have the register location been updated */
-  private boolean bridgeRegistersLocationUpdated;
   /** have we processed all the values in the regular map yet? */
   private boolean finishedWithRegularMap;
-  /** first parameter to be mapped (-1 == "this") */
-  private int bridgeParameterInitialIndex;
-  /** current parameter being mapped (-1 == "this") */
-  private int bridgeParameterIndex;
-  /** gpr register it lives in */
-  private int bridgeRegisterIndex;
-  /** memory address at which that register was saved */
-  private Address bridgeRegisterLocation;
-  /** current spilled param location */
-  private Address bridgeSpilledParamLocation;
-  /** starting offset to stack location for param0 */
-  private int bridgeSpilledParamInitialOffset;
 
   /**
    * Constructor. Remember the location array for registers. This array needs to
@@ -98,7 +71,6 @@ public abstract class BaselineGCMapIterator extends GCMapIterator implements Bas
    */
   public BaselineGCMapIterator(WordArray registerLocations) {
     this.registerLocations = registerLocations; // (in superclass)
-    dynamicLink = new DynamicLink();
   }
 
   /*
@@ -161,38 +133,6 @@ public abstract class BaselineGCMapIterator extends GCMapIterator implements Bas
       VM.sysWrite(".\n");
     }
 
-    // setup dynamic bridge mapping
-    //
-    bridgeTarget = null;
-    bridgeParameterTypes = null;
-    bridgeParameterMappingRequired = false;
-    bridgeRegistersLocationUpdated = false;
-    bridgeParameterIndex = 0;
-    bridgeRegisterIndex = 0;
-    bridgeRegisterLocation = Address.zero();
-    bridgeSpilledParamLocation = Address.zero();
-
-    if (currentMethod.getDeclaringClass().hasDynamicBridgeAnnotation()) {
-      Address ip = Magic.getReturnAddressUnchecked(fp);
-      fp = Magic.getCallerFramePointer(fp);
-      int callingCompiledMethodId = Magic.getCompiledMethodID(fp);
-      CompiledMethod callingCompiledMethod = CompiledMethods.getCompiledMethod(callingCompiledMethodId);
-      Offset callingInstructionOffset = callingCompiledMethod.getInstructionOffset(ip);
-
-      callingCompiledMethod.getDynamicLink(dynamicLink, callingInstructionOffset);
-      bridgeTarget = dynamicLink.methodRef();
-      bridgeParameterTypes = bridgeTarget.getParameterTypes();
-      if (dynamicLink.isInvokedWithImplicitThisParameter()) {
-        bridgeParameterInitialIndex = -1;
-        bridgeSpilledParamInitialOffset = 2*WORDSIZE; // this + return addr
-      } else {
-        bridgeParameterInitialIndex = 0;
-        bridgeSpilledParamInitialOffset = WORDSIZE; // return addr
-      }
-      bridgeSpilledParamInitialOffset += (bridgeTarget.getParameterWords() << LG_WORDSIZE);
-      bridgeSpilledParameterMappingRequired = callingCompiledMethod.getCompilerType() != CompiledMethod.BASELINE;
-    }
-
     reset();
   }
 
@@ -207,14 +147,6 @@ public abstract class BaselineGCMapIterator extends GCMapIterator implements Bas
 
     // setup map to report EBX if this method is holding the base of counter array in it.
     counterArrayBase = currentCompiledMethod.hasCounterArray();
-
-    if (bridgeTarget != null) {
-      bridgeParameterMappingRequired = true;
-      bridgeParameterIndex = bridgeParameterInitialIndex;
-      bridgeRegisterIndex = 0;
-      bridgeRegisterLocation = framePtr.plus(STACKFRAME_FIRST_PARAMETER_OFFSET); // top of frame
-      bridgeSpilledParamLocation = framePtr.plus(bridgeSpilledParamInitialOffset);
-    }
   }
 
   /**
@@ -257,129 +189,43 @@ public abstract class BaselineGCMapIterator extends GCMapIterator implements Bas
         mapIndex = maps.getNextRefIndex(mapIndex, mapId);
       }
 
-      if (mapIndex != 0) {
+      if (mapIndex != 0)
+      {
         int mapOffset = convertIndexToOffset(mapIndex);
-        if (VM.TraceStkMaps || TRACE_ALL) {
+        if (VM.TraceStkMaps || TRACE_ALL)
+        {
           VM.sysWrite("BaselineGCMapIterator getNextReferenceOffset = ");
           VM.sysWriteHex(mapOffset);
           VM.sysWrite(".\n");
           VM.sysWrite("Reference is ");
         }
-        if (bridgeParameterMappingRequired) {
-          if (VM.TraceStkMaps || TRACE_ALL) {
-            VM.sysWriteHex(framePtr.plus(mapOffset - BRIDGE_FRAME_EXTRA_SIZE).loadAddress());
-            VM.sysWrite(".\n");
-            if (mapId < 0) {
-              VM.sysWrite("Offset is a JSR return address ie internal pointer.\n");
-            }
+        if (VM.TraceStkMaps || TRACE_ALL)
+        {
+          VM.sysWriteHex(framePtr.plus(mapOffset).loadAddress());
+          VM.sysWrite(".\n");
+          if (mapId < 0)
+          {
+            VM.sysWrite("Offset is a JSR return address ie internal pointer.\n");
           }
-
-          // TODO  clean this
-          return (framePtr.plus(mapOffset - BRIDGE_FRAME_EXTRA_SIZE));
-        } else {
-          if (VM.TraceStkMaps || TRACE_ALL) {
-            VM.sysWriteHex(framePtr.plus(mapOffset).loadAddress());
-            VM.sysWrite(".\n");
-            if (mapId < 0) {
-              VM.sysWrite("Offset is a JSR return address ie internal pointer.\n");
-            }
-          }
-          return (framePtr.plus(mapOffset));
         }
-      } else {
+        return (framePtr.plus(mapOffset));
+      }
+      else
+      {
         // remember that we are done with the map for future calls, and then
         //   drop down to the code below
         finishedWithRegularMap = true;
       }
     }
 
-    if (bridgeParameterMappingRequired) {
-      if (VM.TraceStkMaps || TRACE_ALL || TRACE_DL) {
-        VM.sysWrite("getNextReferenceAddress: bridgeTarget=");
-        VM.sysWrite(bridgeTarget);
-        VM.sysWrite("\n");
-      }
 
-      if (!bridgeRegistersLocationUpdated) {
-        // point registerLocations[] to our callers stackframe
-        //
-        registerLocations.set(EDI.value(), framePtr.plus(EDI_SAVE_OFFSET).toWord());
-        registerLocations.set(T0.value(), framePtr.plus(T0_SAVE_OFFSET).toWord());
-        registerLocations.set(T1.value(), framePtr.plus(T1_SAVE_OFFSET).toWord());
-        registerLocations.set(EBX.value(), framePtr.plus(EBX_SAVE_OFFSET).toWord());
-
-        bridgeRegistersLocationUpdated = true;
-      }
-
-      // handle implicit "this" parameter, if any
-      //
-      if (bridgeParameterIndex == -1) {
-        bridgeParameterIndex += 1;
-        bridgeRegisterIndex += 1;
-        bridgeRegisterLocation = bridgeRegisterLocation.minus(WORDSIZE);
-        bridgeSpilledParamLocation = bridgeSpilledParamLocation.minus(WORDSIZE);
-
-        if (VM.TraceStkMaps || TRACE_ALL || TRACE_DL) {
-          VM.sysWrite("BaselineGCMapIterator getNextReferenceOffset = dynamic link GPR this ");
-          VM.sysWrite(bridgeRegisterLocation.plus(WORDSIZE));
-          VM.sysWrite(".\n");
-        }
-        return bridgeRegisterLocation.plus(WORDSIZE);
-      }
-
-      // now the remaining parameters
-      //
-      while (bridgeParameterIndex < bridgeParameterTypes.length) {
-        TypeReference bridgeParameterType = bridgeParameterTypes[bridgeParameterIndex++];
-
-        if (bridgeParameterType.isReferenceType()) {
-          bridgeRegisterIndex += 1;
-          bridgeRegisterLocation = bridgeRegisterLocation.minus(WORDSIZE);
-          bridgeSpilledParamLocation = bridgeSpilledParamLocation.minus(WORDSIZE);
-
-          if (bridgeRegisterIndex <= NUM_PARAMETER_GPRS) {
-            if (VM.TraceStkMaps || TRACE_ALL || TRACE_DL) {
-              VM.sysWrite("BaselineGCMapIterator getNextReferenceOffset = dynamic link GPR parameter ");
-              VM.sysWrite(bridgeRegisterLocation.plus(WORDSIZE));
-              VM.sysWrite(".\n");
-            }
-            return bridgeRegisterLocation.plus(WORDSIZE);
-          } else {
-            if (bridgeSpilledParameterMappingRequired) {
-              if (VM.TraceStkMaps || TRACE_ALL || TRACE_DL) {
-                VM.sysWrite("BaselineGCMapIterator getNextReferenceOffset = dynamic link spilled parameter ");
-                VM.sysWrite(bridgeSpilledParamLocation.plus(WORDSIZE));
-                VM.sysWrite(".\n");
-              }
-              return bridgeSpilledParamLocation.plus(WORDSIZE);
-            } else {
-              break;
-            }
-          }
-        } else if (bridgeParameterType.isLongType()) {
-          bridgeRegisterIndex += VM.BuildFor32Addr ? 2 : 1;
-          bridgeRegisterLocation = bridgeRegisterLocation.minus(2*WORDSIZE);
-          bridgeSpilledParamLocation = bridgeSpilledParamLocation.minus(2*WORDSIZE);
-        } else if (bridgeParameterType.isDoubleType()) {
-          bridgeSpilledParamLocation = bridgeSpilledParamLocation.minus(2*WORDSIZE);
-        } else if (bridgeParameterType.isFloatType()) {
-          bridgeSpilledParamLocation = bridgeSpilledParamLocation.minus(WORDSIZE);
-        } else {
-          // boolean, byte, char, short, int
-          bridgeRegisterIndex += 1;
-          bridgeRegisterLocation = bridgeRegisterLocation.minus(WORDSIZE);
-          bridgeSpilledParamLocation = bridgeSpilledParamLocation.minus(WORDSIZE);
-        }
-      }
-    } else {
       // point registerLocations[] to our callers stackframe
       //
       registerLocations.set(EDI.value(), framePtr.plus(EDI_SAVE_OFFSET).toWord());
       registerLocations.set(EBX.value(), framePtr.plus(EBX_SAVE_OFFSET).toWord());
-      if (currentMethod.hasBaselineSaveLSRegistersAnnotation()) {
-        registerLocations.set(EBP.value(), framePtr.plus(EBP_SAVE_OFFSET).toWord());
-      }
-    }
+//      if (currentMethod.hasBaselineSaveLSRegistersAnnotation()) {
+//        registerLocations.set(EBP.value(), framePtr.plus(EBP_SAVE_OFFSET).toWord());
+//      }
 
     return Address.zero();
   }
@@ -415,8 +261,6 @@ public abstract class BaselineGCMapIterator extends GCMapIterator implements Bas
     if (mapId < 0) {
       ReferenceMaps.jsrLock.unlock();
     }
-    bridgeTarget = null;
-    bridgeParameterTypes = null;
   }
 
   @Override

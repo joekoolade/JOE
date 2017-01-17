@@ -479,8 +479,8 @@ public class Memory {
 	  Extent ext = Extent.zero();
 	  for( ; ext.LT(len) ; ) {
 		  start.store(0, index);
-		  index = index.plus(1);
-		  ext=ext.plus(1);
+		  index = index.plus(BYTES_IN_INT);
+		  ext=ext.plus(BYTES_IN_INT);
 	  }
   }
 

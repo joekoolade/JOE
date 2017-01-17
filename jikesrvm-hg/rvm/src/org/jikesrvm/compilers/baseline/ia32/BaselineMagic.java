@@ -2477,7 +2477,12 @@ final class BaselineMagic {
            *    EDI  <-- ESP
            */
           asm.emitPUSHAD();
-          /**
+          /*
+           * Store floating point/sse/xmm registers
+           */
+          asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+          asm.emitFXSAVE_Reg(EAX);
+          /*
            * Save stack pointer into RVMThread.sp, RVMThtread.sp = ESP
            */
           asm.emitMOV_RegDisp_Reg(ESI, Entrypoints.stackPointerField.getOffset(), SP);
@@ -2554,6 +2559,12 @@ final class BaselineMagic {
            */
           asm.emitPOP_Reg(GPR.EAX);
           /*
+           * restore floating point/sse/xmm registers
+           */
+          asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+          asm.emitFXRSTOR_Reg(EAX);
+
+          /*
            * Now restore the interrrupted threads context
            */
           asm.emitPOPAD();
@@ -2577,6 +2588,11 @@ final class BaselineMagic {
            * restore the stack pointer from the RVMThread sp field
            */
           asm.emitMOV_Reg_RegDisp(SP, ESI, Entrypoints.stackPointerField.getOffset());
+          /*
+           * restore floating point/sse/xmm registers
+           */
+          asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+          asm.emitFXRSTOR_Reg(EAX);
           /*
            * Need to pop the interrupt thread stack
            */

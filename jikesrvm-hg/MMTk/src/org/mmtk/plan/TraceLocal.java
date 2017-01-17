@@ -95,6 +95,12 @@ public abstract class TraceLocal extends TransitiveClosure implements Constants 
   @Inline
   public final void processEdge(ObjectReference source, Address slot) {
     ObjectReference object = VM.activePlan.global().loadObjectReference(slot);
+    if(object.toAddress().toInt() == 1)
+    {
+      Log.write("processEdge: ", object.toAddress());
+      Log.writeln("/", slot);
+    }
+      
     ObjectReference newObject = traceObject(object, false);
     if (overwriteReferenceDuringTrace()) {
       VM.activePlan.global().storeObjectReference(slot, newObject);
@@ -484,18 +490,40 @@ public abstract class TraceLocal extends TransitiveClosure implements Constants 
   public void completeTrace() {
     logMessage(4, "Processing GC in parallel");
     if (!rootLocations.isEmpty()) {
+//      VM.collection.disableInterrupts();
       processRoots();
+//      VM.collection.enableInterrupts();
+    }
+    if(VM.objectModel==null)
+    {
+      Log.writeln("1: Object Model is null! ");
+      VM.assertions._assert(false);
     }
     logMessage(5, "processing gray objects");
     assertMutatorRemsetsFlushed();
+    if(VM.objectModel==null)
+    {
+      Log.writeln("3: Object Model is null! ");
+      VM.assertions._assert(false);
+    }
     do {
+//      VM.collection.disableInterrupts();
       while (!values.isEmpty()) {
-        ObjectReference v = values.pop();
+        ObjectReference v = values.pop(), vprev=null;
+        if(VM.objectModel==null)
+        {
+          Log.writeln("2: Object Model is null! ", vprev.toAddress());
+          VM.assertions._assert(false);
+        }
         scanObject(v);
+        vprev = v;
       }
       processRememberedSets();
+//      VM.collection.enableInterrupts();
     } while (!values.isEmpty());
+    logMessage(5, "finished processing gray objects");
     assertMutatorRemsetsFlushed();
+    logMessage(5, "finish completeTrace");
   }
 
   /**

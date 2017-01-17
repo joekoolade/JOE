@@ -7,6 +7,7 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
+import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 
@@ -23,7 +24,7 @@ implements Scheduler {
     
     public RoundRobin()
     {
-        stack = new int[STACK_SIZE];
+        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE);
         /*
          * Put in the sentinel
          */
@@ -44,7 +45,7 @@ implements Scheduler {
     {
         RVMThread nextThread;
         
-        RVMThread currentThread = Magic.getThreadRegister();
+//        RVMThread currentThread = Magic.getThreadRegister();
         if(runQueue.peek() == null)
         {
             nextThread = RVMThread.idleThread;
@@ -80,7 +81,7 @@ implements Scheduler {
          * See if thread is already queued somewhere else
          * like a monitor
          */
-        if(thread.queuedOn==null)
+        if(thread.queuedOn==null && !thread.isTerminated())
         {
           runQueue.enqueue(thread);
         }

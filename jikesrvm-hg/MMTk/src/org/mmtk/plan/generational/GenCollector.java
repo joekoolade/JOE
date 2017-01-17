@@ -14,10 +14,9 @@ package org.mmtk.plan.generational;
 
 import org.mmtk.plan.*;
 import org.mmtk.policy.LargeObjectLocal;
+import org.mmtk.utility.Log;
 import org.mmtk.utility.deque.*;
-
 import org.mmtk.vm.VM;
-
 import org.vmmagic.pragma.*;
 
 /**
@@ -85,6 +84,7 @@ import org.vmmagic.pragma.*;
   @NoInline
   public void collectionPhase(short phaseId, boolean primary) {
 
+    Log.write("collection phase "); Log.write(phaseId); Log.writeln(" primary: ", primary);
     if (phaseId == Gen.PREPARE) {
       los.prepare(true);
       global().arrayRemsetPool.prepareNonBlocking();
@@ -98,6 +98,7 @@ import org.vmmagic.pragma.*;
       return;
     }
     if (phaseId == StopTheWorld.ROOTS) {
+      Log.writeln("STW roots");
       VM.scanning.computeGlobalRoots(getCurrentTrace());
       if (!Gen.USE_NON_HEAP_OBJECT_REFERENCE_WRITE_BARRIER || global().traceFullHeap()) {
         VM.scanning.computeStaticRoots(getCurrentTrace());

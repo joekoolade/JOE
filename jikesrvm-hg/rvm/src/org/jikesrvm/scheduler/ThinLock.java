@@ -21,6 +21,7 @@ import org.vmmagic.pragma.NoInline;
 import org.vmmagic.pragma.NoNullCheck;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.Unpreemptible;
+import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
@@ -187,6 +188,8 @@ public final class ThinLock implements ThinLockConstants {
           setDedicatedU16(o, lockOffset, old.minus(TL_LOCK_COUNT_UNIT));
           return;
         } else {
+          VM.sysWrite("thinlock.unlock: ", ObjectReference.fromObject(o).toAddress());
+          VM.sysWrite("/", old); VM.sysWriteln("/", stat);
           RVMThread.raiseIllegalMonitorStateException("biased unlocking: we don't own this object", o);
         }
       } else if (stat.EQ(TL_STAT_THIN)) {

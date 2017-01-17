@@ -127,7 +127,7 @@ import org.vmmagic.pragma.*;
     int endChunk = Conversions.addressToMmapChunksUp(start.plus(Conversions.pagesToBytes(pages)));
     if(verbose)
    	{
-    	Log.write("Chunks: "); Log.write(startChunk); Log.write("-"); Log.writeln(endChunk);
+    	Log.write("Map Chunks: ", startChunk); Log.writeln("-", endChunk);
    	}
     for (int chunk = startChunk; chunk < endChunk; chunk++) {
       if (mapped[chunk] == MAPPED) continue;
@@ -144,8 +144,8 @@ import org.vmmagic.pragma.*;
           VM.assertions.fail("Can't get more space with mmap()");
         } else {
           if (verbose) {
-            Log.write("mmap succeeded at chunk "); Log.write(chunk);  Log.write("  "); Log.write(mmapStart);
-            Log.write(" with len = "); Log.writeln(MMAP_CHUNK_BYTES);
+            Log.write("mmap succeeded at chunk ", chunk);  Log.write("  ", mmapStart);
+            Log.writeln(" with len = ", MMAP_CHUNK_BYTES);
           }
         }
       }
@@ -161,6 +161,7 @@ import org.vmmagic.pragma.*;
         }
       }
       mapped[chunk] = MAPPED;
+      Log.writeln("Mapped Chunk ", chunk);
       lock.release();
     }
 

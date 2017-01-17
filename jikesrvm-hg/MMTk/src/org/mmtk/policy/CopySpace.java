@@ -197,8 +197,17 @@ import org.vmmagic.pragma.*;
       /* Somebody else got to it first. */
 
       /* We must wait (spin) if the object is not yet fully forwarded */
+      int i=0;
       while (ForwardingWord.stateIsBeingForwarded(forwardingWord))
+      {
         forwardingWord = VM.objectModel.readAvailableBitsWord(object);
+        if(i++ > 1000)
+        {
+          Log.writeln("traceObject forwarding stuck: ", object.toAddress());
+          while(true)
+            ;
+        }
+      }
 
       /* Now extract the object reference from the forwarding word and return it */
       return ForwardingWord.extractForwardingPointer(forwardingWord);
@@ -209,6 +218,7 @@ import org.vmmagic.pragma.*;
       trace.processNode(newObject); // Scan it later
 
       if (VM.VERIFY_ASSERTIONS && Options.verbose.getValue() >= 9) {
+//      if (Options.verbose.getValue() >= 9) {
         Log.write("C["); Log.write(object); Log.write("/");
         Log.write(getName()); Log.write("] -> ");
         Log.write(newObject); Log.write("/");

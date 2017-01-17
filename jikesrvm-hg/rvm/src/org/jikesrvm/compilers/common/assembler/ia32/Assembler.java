@@ -2464,6 +2464,22 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
         setMachineCodes(mi++, (byte)0xBD);
         emitRegRegOperands(src, dst);
     }
+    
+    public final void emitFXSAVE_Reg(GPR dst)
+    {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0xAE);
+      setMachineCodes(mi++, regIndirectRegModRM(dst, GPR.getForOpcode(0)));
+    }
+
+    public final void emitFXRSTOR_Reg(GPR dst)
+    {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0xAE);
+      setMachineCodes(mi++, regIndirectRegModRM(dst, GPR.getForOpcode(1)));
+    }
 
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.

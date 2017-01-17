@@ -169,7 +169,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   protected static final boolean traceBind = false;
 
   /** Trace thread start/stop */
-  protected static final boolean traceAcct = true;
+  protected static final boolean traceAcct = false;
 
   /** Trace execution */
   protected static final boolean trace = false;
@@ -253,31 +253,6 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   public static final int IN_JAVA_TO_BLOCK = 4;
 
-  /**
-   * thread is in native code, and is to block before returning to Java code.
-   * the transition from IN_NATIVE to BLOCKED_IN_NATIVE happens as a result
-   * of an asynchronous call by the GC or any other internal VM code that
-   * requires this thread to perform an asynchronous activity (another example
-   * is the request to do an isync on PPC).  as well, code entering privileged
-   * code that would otherwise go from IN_JAVA to IN_NATIVE will go to
-   * BLOCKED_IN_NATIVE instead, if the state was IN_JAVA_TO_BLOCK.
-   * <p>
-   * the point of this state is that the thread is guaranteed not to execute
-   * any Java code until:
-   * <ol>
-   * <li>The state changes to IN_NATIVE, and
-   * <li>The thread gets a broadcast on its monitor.
-   * </ol>
-   * Observe that it is always safe to conservatively change IN_NATIVE to
-   * BLOCKED_IN_NATIVE.
-   */
-  //public static final int BLOCKED_IN_NATIVE = 5;
-
-  /**
-   * like BLOCKED_IN_NATIVE, but indicates that the thread is in JNI rather than
-   * VM native code.
-   */
-  //public static final int BLOCKED_IN_JNI = 6;
 
   /**
    * Thread has died. As in, it's no longer executing any Java code and will
@@ -627,10 +602,18 @@ public final class RVMThread extends ThreadContext implements Constants {
   public static Monitor handshakeLock;
 
   /**
+   * Place where floating point, MMX, and SSE state and registers
+   * are saved on a context switch
+   * 
+   * WARNING! Architecture specific! Need to place somewhere else
+   */
+  final private static int FXSTATESIZE = 128;  // in integers; size in bytes is 512
+  private Address fxStateAddress;
+  private int[] fxStateRegisters;
+  
+  /**
    * Place to save register state when this thread is not actually running.
    */
-  @Entrypoint
-  @Untraced
   public final Registers contextRegisters;
   @SuppressWarnings("unused")
   private final Registers contextRegistersShadow;
@@ -638,8 +621,6 @@ public final class RVMThread extends ThreadContext implements Constants {
   /**
    * Place to save register state when this thread is not actually running.
    */
-  @Entrypoint
-  @Untraced
   public final Registers contextRegistersSave;
   @SuppressWarnings("unused")
   private final Registers contextRegistersSaveShadow;
@@ -1105,7 +1086,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    * <li>???</li>
    * </ol>
    */
-  private static final NoYieldpointsMonitor[] monitorBySlot = new NoYieldpointsMonitor[MAX_THREADS];
+  private static final Monitor[] monitorBySlot = new NoYieldpointsMonitor[MAX_THREADS];
 
   private static final Monitor[] communicationLockBySlot = new Monitor[MAX_THREADS];
 
@@ -1120,17 +1101,17 @@ public final class RVMThread extends ThreadContext implements Constants {
    * <li>numThreads, numActiveThreads, numActiveDaemons static fields of RVMThread</li>
    * </ul>
    */
-  public static NoYieldpointsMonitor acctLock;
+  public static Monitor acctLock;
 
   /**
    * Lock (mutex) used for servicing debug requests.
    */
-  public static NoYieldpointsMonitor debugLock;
+  public static Monitor debugLock;
 
   /**
    * Lock used for generating debug output.
    */
-  private static NoYieldpointsMonitor outputLock;
+  private static Monitor outputLock;
 
   /**
    * Thread slots of threads that are about to terminate.  This must be
@@ -1213,8 +1194,8 @@ public Address sentinelFp;
   /**
    * Get a NoYieldpointsCondLock for a given thread slot.
    */
-  static NoYieldpointsMonitor monitorForSlot(int slot) {
-    NoYieldpointsMonitor result = monitorBySlot[slot];
+  static Monitor monitorForSlot(int slot) {
+    Monitor result = monitorBySlot[slot];
     if (VM.VerifyAssertions)
       VM._assert(result != null);
     return result;
@@ -1223,7 +1204,7 @@ public Address sentinelFp;
   /**
    * Get the NoYieldpointsCondLock for this thread.
    */
-  public NoYieldpointsMonitor monitor() {
+  public Monitor monitor() {
     return monitorForSlot(threadSlot);
   }
 
@@ -1565,16 +1546,33 @@ public Address sentinelFp;
       contextRegisters.gprs.set(Registers.ESI.value(), Magic.objectAsAddress(this).toWord());
       VM.sysWrite("ip: ", ip);
       VM.sysWrite(" sp: ", sp);
-      VM.sysWrite(" esi: ", contextRegisters.gprs.get(Registers.ESI.value()));
-      VM.write('\n');
+      VM.sysWriteln(" esi: ", contextRegisters.gprs.get(Registers.ESI.value()));
+      VM.sysWriteln("Java Thread: ", Magic.objectAsAddress(thread));
       // Initialize the a thread stack as if "startoff" method had been called
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       Configuration.archHelper.initializeStack(contextRegisters, ip, sp);
       sentinelFp = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
-      VM.sysWrite("rvmthread sp: ", this.sp);
-      VM.write('\n');
+      VM.sysWriteln("rvmthread sp: ", this.sp);
       
+      /*
+       * Set up the FP/SSE/MMX state area
+       */
+//      fxStateRegisters = new int[FXSTATESIZE+4];  // creates 516 byte area
+      fxStateRegisters = MemoryManager.newNonMovingIntArray(FXSTATESIZE+4);  // creates 516 byte area
+      /*
+       * Align to a sixteen byte boundary
+       */
+      fxStateAddress = Magic.objectAsAddress(fxStateRegisters);
+      VM.sysWriteln("FX STATE0: ", fxStateAddress);
+      if((fxStateAddress.toInt() & 0xF) != 0)
+      {
+        /*
+         * Align to a 16 byte boundary
+         */
+        fxStateAddress = Address.fromIntSignExtend(fxStateAddress.plus(16).toInt() & ~0xF);
+      }
+      VM.sysWriteln("FX STATE1: ", fxStateAddress);
       VM.enableGC();
 
       assignThreadSlot();
@@ -1879,7 +1877,6 @@ public Address sentinelFp;
   @BaselineSaveLSRegisters
   @Unpreemptible("May block if asked to do so, but otherwise does not actions that would block")
   void checkBlock() {
-    saveThreadState();
     checkBlockNoSaveContext();
   }
 
@@ -2082,17 +2079,6 @@ public Address sentinelFp;
     endPairWithCurrent();
   }
 
-  /**
-   * Save the current thread state.  Call this prior to calling enterNative().  You must
-   * be in a method that is marked BaselineSaveLSRegisters.
-   */
-  @NoInline
-  public static void saveThreadState() {
-    Address curFP=Magic.getFramePointer();
-    getCurrentThread().contextRegisters.setInnermost(Magic.getReturnAddressUnchecked(curFP),
-                                                     Magic.getCallerFramePointer(curFP));
-  }
-
   public void unblock(BlockAdapter ba) {
     if (traceBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
@@ -2230,6 +2216,23 @@ public Address sentinelFp;
    */
   @Interruptible
   public void setupBootJavaThread() {
+    /*
+     * Set up the FP/SSE/MMX state area
+     */
+    fxStateRegisters = new int[FXSTATESIZE+4];  // creates 516 byte area
+    /*
+     * Align to a sixteen byte boundary
+     */
+    fxStateAddress = Magic.objectAsAddress(fxStateRegisters);
+    VM.sysWriteln("Boot STATE0: ", fxStateAddress);
+    if((fxStateAddress.toInt() & 0xF) != 0)
+    {
+      /*
+       * Align to a 16 byte boundary
+       */
+      fxStateAddress = Address.fromIntSignExtend(fxStateAddress.plus(16).toInt() & ~0xF);
+    }
+    VM.sysWriteln("Boot STATE1: ", fxStateAddress);
     thread = java.lang.JikesRVMSupport.createThread(this,
         "Jikes_RVM_Boot_Thread");
   }
@@ -2414,7 +2417,7 @@ public Address sentinelFp;
     if (VM.VerifyAssertions)
       VM._assert(getCurrentThread() == this);
     boolean terminateSystem = false;
-    if (traceTermination) {
+    if (false) {
       VM.disableGC();
       VM.sysWriteln("[ BEGIN Verbosely dumping stack at time of thread termination");
       dumpStack();
@@ -2575,8 +2578,13 @@ public Address sentinelFp;
     finishThreadTermination();
   }
 
+  public boolean isTerminated()
+  {
+    return execStatus == TERMINATED;
+  }
   /** Uninterruptible final portion of thread termination. */
   void finishThreadTermination() {
+    execStatus = TERMINATED;
     Magic.yield();
     if (VM.VerifyAssertions)
       VM._assert(VM.NOT_REACHED);
@@ -3439,6 +3447,7 @@ public Address sentinelFp;
   @NoCheckStore
   @Unpreemptible
   public static void blockAllMutatorsForGC() {
+    VM.sysWriteln("blockAllMutatorsGC: starting ", getCurrentThreadSlot());
     RVMThread.handshakeLock.lockNoHandshake();
     while (true) {
       // (1) Find all the threads that need to be blocked for GC
@@ -3450,6 +3459,7 @@ public Address sentinelFp;
           RVMThread.handshakeThreads[numToHandshake++] = t;
         }
       }
+      VM.sysWriteln("blockAllMutatorsGC: Handshake thread: ", numToHandshake);
       RVMThread.acctLock.unlock();
 
       // (2) Remove any threads that have already been blocked from the list.
@@ -3458,12 +3468,13 @@ public Address sentinelFp;
         t.monitor().lockNoHandshake();
         if (t.blockedFor(RVMThread.gcBlockAdapter) || RVMThread.notRunning(t.asyncBlock(RVMThread.gcBlockAdapter))) {
           // Already blocked or not running, remove.
+          VM.sysWriteln("blockAllMutatorsGC: removing: ", t.threadSlot);
           RVMThread.handshakeThreads[i--] = RVMThread.handshakeThreads[--numToHandshake];
           RVMThread.handshakeThreads[numToHandshake] = null; // help GC
         }
         t.monitor().unlock();
       }
-
+      VM.sysWriteln("blockAllMutatorsGC: Unblocked handshake threads: ", numToHandshake);
       // (3) Quit trying to block threads if all threads are either blocked
       //     or not running (a thread is "not running" if it is NEW or TERMINATED;
       //     in the former case it means that the thread has not had start()
@@ -3475,12 +3486,13 @@ public Address sentinelFp;
 
       // (4) Request a block for GC from all other threads.
       for (int i = 0; i < numToHandshake; i++) {
-        if (false) VM.sysWriteln("Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
+        if (true) VM.sysWriteln("blockAllMutatorsGC: Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
         RVMThread t = RVMThread.handshakeThreads[i];
         RVMThread.observeExecStatusAtSTW(t.block(RVMThread.gcBlockAdapter));
         RVMThread.handshakeThreads[i] = null; // help GC
       }
     }
+    VM.sysWriteln("blockAllMutatorsGC: finished ", getCurrentThreadSlot());
     RVMThread.handshakeLock.unlock();
 
     // Deal with terminating threads to ensure that all threads are either dead to MMTk or stopped above.
@@ -4679,8 +4691,7 @@ public Address sentinelFp;
     offset = Services.sprintf(dest, offset, "-");
     offset = Services.sprintf(dest, offset, getExecStatus());
     offset = Services.sprintf(dest, offset, "-");
-    offset = Services.sprintf(dest, offset, java.lang.JikesRVMSupport
-        .getEnumName(waiting));
+    offset = Services.sprintf(dest, offset, java.lang.JikesRVMSupport.getEnumName(waiting));
     if (hasInterrupt || asyncThrowable != null) {
       offset = Services.sprintf(dest, offset, "-interrupted");
     }
@@ -4856,8 +4867,8 @@ public Address sentinelFp;
       VM.sysWriteln("Thread #", getCurrentThreadSlot());
       Address framePointer = Magic.getCallerFramePointer(Magic.getFramePointer());
       VM.sysWriteln(framePointer);
-      dumpExceptionStack(framePointer.plus(12));
-      dumpStack(framePointer);
+      dumpExceptionStack(framePointer.plus(10*4));
+      dumpStack(framePointer.minus(14*4));
   }
   
   static void tracebackWithoutLock() {
