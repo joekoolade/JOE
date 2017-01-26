@@ -16,6 +16,7 @@ import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
+import org.jam.board.pc.I8259A;
 import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
@@ -422,13 +423,12 @@ public class VM extends Properties implements Constants, ExitStatus {
         VM.sysWriteln("Idle Thread");
     }
     new IdleThread().start();
-    Magic.enableInterrupts();
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
 
     System.setOut(Platform.serialPort.getPrintStream());
-    System.out.println("System.out is working!");
+//     System.out.println("System.out is working!");
     
     if (verboseBoot >= 1)
     {
@@ -437,7 +437,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     }
     MemoryManager.enableCollection();
 
-    LdivTests.test1();
+//    LdivTests.test1();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.
@@ -461,6 +461,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     // terminate boot thread
     RVMThread.getCurrentThread().terminate();    
     // Say good bye to the boot thread
+    Magic.enableInterrupts();
+    Platform.masterPic.setInterrupt(I8259A.COM1);
+    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
     Magic.yield();
     
     VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");
@@ -2632,7 +2635,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   @Inline
   @Unpreemptible("We may boost the size of the stack with GC disabled and may get preempted doing this")
   public static void disableGC() {
-    disableGC(false);           // Recursion is not allowed in this context.
+    // disableGC(false);           // Recursion is not allowed in this context.
   }
 
   /**
@@ -2697,7 +2700,7 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   @Inline
   public static void enableGC() {
-    enableGC(false);            // recursion not OK.
+    // enableGC(false);            // recursion not OK.
   }
 
   /**

@@ -216,10 +216,6 @@ public class Entrypoints {
       getField(org.jikesrvm.scheduler.RVMThread.class,
                "contextRegisters",
                org.jikesrvm.ArchitectureSpecific.Registers.class);
-  public static final RVMField threadContextRegistersSaveField =
-      getField(org.jikesrvm.scheduler.RVMThread.class,
-               "contextRegistersSave",
-               org.jikesrvm.ArchitectureSpecific.Registers.class);
   public static final RVMField threadExceptionRegistersField =
       getField(org.jikesrvm.scheduler.RVMThread.class,
                "exceptionRegisters",

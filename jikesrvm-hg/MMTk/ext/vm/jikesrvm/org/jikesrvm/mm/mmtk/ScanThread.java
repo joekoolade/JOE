@@ -144,11 +144,11 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
 
     Address ip=regs.getInnermostInstructionAddress();
     Address fp=regs.getInnermostFramePointer();
-    VM.sysWriteln("scanning fp ", fp);
+    VM.sysWrite("scanning fp ", fp); VM.sysWriteln(" ip ", ip);
     regs.clear();
     regs.setInnermost(ip,fp);
 
-    scanThread(thread, trace, processCodeLocations, gprs, Address.zero(), newRootsSufficient);
+    scanThread(thread, trace, processCodeLocations, gprs, fp, newRootsSufficient);
   }
 
   /**
@@ -197,12 +197,13 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     ScanThread scanner = RVMThread.getCurrentThread().getCollectorThread().getThreadScanner();
 
     /* Expicitly establish the stopping point for this scan (not necessarily the bottom of stack) */
-    Address sentinalFp = newRootsSufficent && Options.useShortStackScans.getValue() ? thread.getNextUnencounteredFrame() : ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
+//    Address sentinalFp = thread.sentinelFp; //  newRootsSufficent && Options.useShortStackScans.getValue() ? thread.getNextUnencounteredFrame() : ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
+    Address sentinalFp = ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
 
     /* stack trampoline will be freshly reinstalled at end of thread scan */
-    if (Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue()) {
-      thread.deInstallStackTrampoline();
-    }
+//    if (Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue()) {
+//      thread.deInstallStackTrampoline();
+//    }
 
     /* scan the stack */
     scanner.startScan(trace, processCodeLocations, thread, gprs, ip, fp, initialIPLoc, topFrame, sentinalFp);
@@ -241,6 +242,8 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     this.fp = fp;
     this.initialIPLoc = initialIPLoc;
     this.topFrame = topFrame;
+    VM.sysWrite("start scan: ", Magic.objectAsAddress(thread)); VM.sysWrite("/", ip); VM.sysWrite("/", fp); VM.sysWrite("/", topFrame);
+    VM.sysWriteln("/", initialIPLoc);
     scanThreadInternal(gprs, DEFAULT_VERBOSITY, sentinelFp);
     if (failed) {
        /* reinitialize and rescan verbosely on failure */
@@ -266,6 +269,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     if (true) {
       VM.sysWriteln("Scanning thread ",thread.getThreadSlot()," from thread ",RVMThread.getCurrentThreadSlot());
     }
+    verbosity=2;
     if (verbosity >= 2) {
       Log.writeln("--- Start Of Stack Scan ---\n");
       Log.write("Thread #");
@@ -273,22 +277,19 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     }
     if (VM.VerifyAssertions) assertImmovableInCurrentCollection();
 
-    /* first find any references to exception handlers in the registers */
-    // getHWExceptionRegisters();
-
     /* reinitialize the stack iterator group */
     iteratorGroup.newStackWalk(thread, gprs);
 
-    if (verbosity >= 2) dumpTopFrameInfo(verbosity);
+//    if (verbosity >= 2) dumpTopFrameInfo(verbosity);
 
     /* scan each frame if a non-empty stack */
-    if (fp.plus(12).NE(thread.sentinelFp)) {
+    if (fp.NE(sentinelFp)) {
       prevFp = Address.zero();
       reinstallReturnBarrier = Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue();
       /* At start of loop:
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
-      while (fp.plus(12).NE(thread.sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
+      while (fp.NE(sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
         if (true) {
           VM.sysWriteln("Thread ",thread.getThreadSlot()," at fp = ",fp);
         }
@@ -302,6 +303,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     //checkJNIBase();
 
     if (verbosity >= 2) Log.writeln("--- End Of Stack Scan ---\n");
+    verbosity=1;
   }
 
   /**

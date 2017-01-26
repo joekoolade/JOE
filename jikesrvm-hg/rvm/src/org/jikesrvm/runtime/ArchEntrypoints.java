@@ -47,7 +47,7 @@ public interface ArchEntrypoints {
         EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "trampolineRegisters", "Lorg/jikesrvm/ArchitectureSpecific$Registers;");
   RVMField hijackedReturnAddressField =
     EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hijackedReturnAddress", "Lorg/vmmagic/unboxed/Address;");
-   RVMField registersIPField =
+  RVMField registersIPField =
       EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "ip", "Lorg/vmmagic/unboxed/Address;");
   RVMField registersFPRsField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "fprs", "[D");
   RVMField registersGPRsField =

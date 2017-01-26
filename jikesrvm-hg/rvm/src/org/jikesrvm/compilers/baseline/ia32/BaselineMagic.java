@@ -2490,12 +2490,22 @@ final class BaselineMagic {
            * Save the registers into threads contextRegisters
            */
           Offset stackOffset = Offset.zero();
-          Offset contextRegistersOffset = Entrypoints.threadContextRegistersField.getOffset();
           Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
+          
           /*
            * Set EBX to the rvmthread contextRegister field
            */
-          asm.emitMOV_Reg_RegDisp(EBX, ESI, contextRegistersOffset);
+          asm.emitMOV_Reg_RegDisp(EBX, ESI, Entrypoints.threadContextRegistersField.getOffset());
+          /*
+           * Save the interrupted IP address
+           */
+          asm.emitMOV_Reg_RegDisp(EAX, SP, Offset.fromIntZeroExtend(-(4*8)));
+          asm.emitMOV_RegDisp_Reg(EBX, ArchEntrypoints.registersIPField.getOffset(), EAX);
+          /*
+           * Save the frame pointer
+           */
+          asm.emitMOV_Reg_RegDisp(EAX, ESI, ArchEntrypoints.framePointerField.getOffset());
+          asm.emitMOV_RegDisp_Reg(EBX, ArchEntrypoints.registersFPField.getOffset(), EAX);
           /*
            * Set EBX to the contextRegister gprs field
            */
@@ -2594,9 +2604,14 @@ final class BaselineMagic {
           asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
           asm.emitFXRSTOR_Reg(EAX);
           /*
-           * Need to pop the interrupt thread stack
+           * Restore the frame pointer
            */
-          //asm.emitPOP_Reg(GPR.EAX);
+          // get the context register address
+          asm.emitMOV_Reg_RegDisp(EBX, ESI, Entrypoints.threadContextRegistersField.getOffset());
+          // Move contextreg.fp into eax
+          asm.emitMOV_Reg_RegDisp(EAX, EBX, ArchEntrypoints.registersFPField.getOffset());
+          // back into the rvmthread.framepointer
+          asm.emitMOV_RegDisp_Reg(ESI, ArchEntrypoints.framePointerField.getOffset(), EAX);
           /*
            * Now restore the interrrupted threads context
            */
@@ -2625,17 +2640,6 @@ final class BaselineMagic {
           // The new stack parameter is still on the old stack
           // remember to pop when restoring
           asm.emitPOP_Reg(SP);
-          /*
-           * ISR is running on new stack.
-           * Push the previous SP from the interrupted thread/isr onto it
-           */
-          //asm.emitPUSH_Reg(S0);
-          /*
-           * Save interrupted thread's stack pointer into
-           * current thread's frame pointer field
-           */
-          //asm.emitPUSH_Reg(S0);
-          //asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());
       }
   }
   

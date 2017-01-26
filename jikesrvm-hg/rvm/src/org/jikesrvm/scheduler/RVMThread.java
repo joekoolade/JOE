@@ -615,15 +615,6 @@ public final class RVMThread extends ThreadContext implements Constants {
    * Place to save register state when this thread is not actually running.
    */
   public final Registers contextRegisters;
-  @SuppressWarnings("unused")
-  private final Registers contextRegistersShadow;
-
-  /**
-   * Place to save register state when this thread is not actually running.
-   */
-  public final Registers contextRegistersSave;
-  @SuppressWarnings("unused")
-  private final Registers contextRegistersSaveShadow;
 
   /**
    * Place to save register state during hardware(C signal trap handler) or
@@ -632,8 +623,6 @@ public final class RVMThread extends ThreadContext implements Constants {
   @Entrypoint
   @Untraced
   private final Registers exceptionRegisters;
-  @SuppressWarnings("unused")
-  private final Registers exceptionRegistersShadow;
 
   /** Count of recursive uncaught exceptions, we need to bail out at some point */
   private int uncaughtExceptionCount = 0;
@@ -1492,9 +1481,8 @@ public Address sentinelFp;
     this.priority = priority;
     this.systemThread = systemThread;
 
-    this.contextRegisters = this.contextRegistersShadow = new Registers();
-    this.contextRegistersSave = this.contextRegistersSaveShadow = new Registers();
-    this.exceptionRegisters = this.exceptionRegistersShadow = new Registers();
+    this.contextRegisters = new Registers();
+    this.exceptionRegisters = new Registers();
 
     if (VM.runningVM) {
       feedlet = TraceEngine.engine.makeFeedlet(name, name);
@@ -1552,6 +1540,8 @@ public Address sentinelFp;
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       Configuration.archHelper.initializeStack(contextRegisters, ip, sp);
       sentinelFp = contextRegisters.fp;
+      // Points to framepointer sentinel
+      this.framePointer = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
       VM.sysWriteln("rvmthread sp: ", this.sp);
       
@@ -1588,6 +1578,8 @@ public Address sentinelFp;
       } else {
         onStackReplacementEvent = null;
       }
+      VM.sysWrite(this.name);
+      VM.sysWriteln(" slot: ", threadSlot);
 
       if (thread == null) {
         // create wrapper Thread if doesn't exist
@@ -2321,7 +2313,7 @@ public Address sentinelFp;
   // Called by back-door methods.
   private static void startoff() {
     RVMThread currentThread = getCurrentThread();
-
+    VM.sysWriteln("startoff framePointer: ", currentThread.framePointer);
     currentThread.enableYieldpoints();
     if (traceAcct) {
       VM.sysWriteln("Thread #", currentThread.threadSlot);
@@ -5261,5 +5253,10 @@ public Address sentinelFp;
     public Address getStackPointer()
     {
         return sp;
+    }
+    
+    public Address getFramePointer()
+    {
+      return framePointer;
     }
 }

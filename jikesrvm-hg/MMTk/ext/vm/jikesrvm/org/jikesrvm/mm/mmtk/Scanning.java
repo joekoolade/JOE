@@ -16,7 +16,7 @@ import org.mmtk.plan.CollectorContext;
 import org.mmtk.plan.TraceLocal;
 import org.mmtk.plan.TransitiveClosure;
 import org.mmtk.utility.Constants;
-
+import org.mmtk.utility.Log;
 import org.jikesrvm.VM;
 import org.jikesrvm.compilers.common.CompiledMethods;
 import org.jikesrvm.mm.mminterface.AlignmentEncoding;
@@ -154,6 +154,7 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
       if (threadIndex > RVMThread.numThreads) break;
 
       RVMThread thread = RVMThread.threads[threadIndex];
+      Log.write("thread slot: ", thread.threadSlot); Log.writeln("/", threadIndex);
       if (thread == null || thread.isCollectorThread()) continue;
 
       /* scan the thread (stack etc.) */

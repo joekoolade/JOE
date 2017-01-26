@@ -88,6 +88,8 @@ public final class ThinLock implements ThinLockConstants {
     for (int cnt=0;;cnt++) {
       Word old = Magic.getWordAtOffset(o, lockOffset);
       Word stat = old.and(TL_STAT_MASK);
+//      VM.sysWrite("Thinlock.lock: ", Magic.objectAsAddress(o));
+//      VM.sysWrite("/", old); VM.sysWriteln("/", stat);
       boolean tryToInflate=false;
       if (stat.EQ(TL_STAT_BIASABLE)) {
         Word id = old.and(TL_THREAD_ID_MASK);
@@ -179,6 +181,8 @@ public final class ThinLock implements ThinLockConstants {
     for (int cnt=0;;cnt++) {
       Word old = Magic.getWordAtOffset(o, lockOffset);
       Word stat = old.and(TL_STAT_MASK);
+//      VM.sysWrite("Thinlock.unlock: ", Magic.objectAsAddress(o));
+//      VM.sysWrite("/", old); VM.sysWriteln("/", stat);
       if (stat.EQ(TL_STAT_BIASABLE)) {
         Word id = old.and(TL_THREAD_ID_MASK);
         if (id.EQ(threadId)) {
@@ -188,8 +192,8 @@ public final class ThinLock implements ThinLockConstants {
           setDedicatedU16(o, lockOffset, old.minus(TL_LOCK_COUNT_UNIT));
           return;
         } else {
-          VM.sysWrite("thinlock.unlock: ", ObjectReference.fromObject(o).toAddress());
-          VM.sysWrite("/", old); VM.sysWriteln("/", stat);
+//          VM.sysWrite("thinlock.unlock: ", Magic.objectAsAddress(o));
+//          VM.sysWrite("/", old); VM.sysWriteln("/", stat);
           RVMThread.raiseIllegalMonitorStateException("biased unlocking: we don't own this object", o);
         }
       } else if (stat.EQ(TL_STAT_THIN)) {

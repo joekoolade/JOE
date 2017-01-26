@@ -136,11 +136,11 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
    */
   @Uninterruptible
   private static int getFirstLocalOffset(NormalMethod method) {
-    if (method.hasBaselineSaveLSRegistersAnnotation()) {
-      return STACKFRAME_BODY_OFFSET - (SAVED_GPRS_FOR_SAVE_LS_REGISTERS << LG_WORDSIZE);
-    } else {
+//    if (method.hasBaselineSaveLSRegistersAnnotation()) {
+//      return STACKFRAME_BODY_OFFSET - (SAVED_GPRS_FOR_SAVE_LS_REGISTERS << LG_WORDSIZE);
+//    } else {
       return STACKFRAME_BODY_OFFSET - (SAVED_GPRS << LG_WORDSIZE);
-    }
+//    }
   }
 
   @Uninterruptible
@@ -3492,9 +3492,10 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
        * The third word of the header contains the compiled method id of the called method.
        */
       asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store caller's frame pointer
-      ThreadLocalState.emitMoveRegToField(asm,
-                                          ArchEntrypoints.framePointerField.getOffset(),
-                                          SP); // establish new frame
+      asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.framePointerField.getOffset(), SP);
+//      ThreadLocalState.emitMoveRegToField(asm,
+//                                          ArchEntrypoints.framePointerField.getOffset(),
+//                                          SP); // establish new frame
       /*
        * NOTE: until the end of the prologue SP holds the framepointer.
        */
@@ -3511,13 +3512,13 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
 
       int savedRegistersSize;
 
-      if (method.hasBaselineSaveLSRegistersAnnotation()) {
-        if (VM.VerifyAssertions) VM._assert(EBP_SAVE_OFFSET.toInt() == -4*WORDSIZE);
-        asm.emitPUSH_Reg(EBP);
-        savedRegistersSize = SAVED_GPRS_FOR_SAVE_LS_REGISTERS << LG_WORDSIZE;
-      } else {
+//      if (method.hasBaselineSaveLSRegistersAnnotation()) {
+//        if (VM.VerifyAssertions) VM._assert(EBP_SAVE_OFFSET.toInt() == -4*WORDSIZE);
+//        asm.emitPUSH_Reg(EBP);
+//        savedRegistersSize = SAVED_GPRS_FOR_SAVE_LS_REGISTERS << LG_WORDSIZE;
+//      } else {
         savedRegistersSize= SAVED_GPRS << LG_WORDSIZE;       // default
-      }
+//      }
 
       /* handle "dynamic brige" methods:
        * save all registers except FP, SP, TR, S0 (scratch), and
@@ -3621,16 +3622,16 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       asm.emitIRET();
     } else {
       // normal method
-      if (method.hasBaselineSaveLSRegistersAnnotation()) {
-        // There is one more word out of the total that is for callee-saves, hense 4 * WORDSIZE here rather than 3 * WORDSIZE below.
-        int spaceToRelease = fp2spOffset(NO_SLOT).toInt() - bytesPopped - (4 * WORDSIZE);
-        adjustStack(spaceToRelease, true);
-        if (VM.VerifyAssertions) VM._assert(EBP_SAVE_OFFSET.toInt() == -(4 * WORDSIZE));
-        asm.emitPOP_Reg(EBP);             // restore nonvolatile EBP register
-      } else {
+//      if (method.hasBaselineSaveLSRegistersAnnotation()) {
+//        // There is one more word out of the total that is for callee-saves, hense 4 * WORDSIZE here rather than 3 * WORDSIZE below.
+//        int spaceToRelease = fp2spOffset(NO_SLOT).toInt() - bytesPopped - (4 * WORDSIZE);
+//        adjustStack(spaceToRelease, true);
+//        if (VM.VerifyAssertions) VM._assert(EBP_SAVE_OFFSET.toInt() == -(4 * WORDSIZE));
+//        asm.emitPOP_Reg(EBP);             // restore nonvolatile EBP register
+//      } else {
         int spaceToRelease = fp2spOffset(NO_SLOT).toInt() - bytesPopped - (3 * WORDSIZE);
         adjustStack(spaceToRelease, true);
-      }
+//      }
       if (VM.VerifyAssertions) VM._assert(EBX_SAVE_OFFSET.toInt() == -(3 * WORDSIZE));
       asm.emitPOP_Reg(EBX);  // restore non-volatile EBX register
       if (VM.VerifyAssertions) VM._assert(EDI_SAVE_OFFSET.toInt() == -(2 * WORDSIZE));
