@@ -3439,7 +3439,7 @@ public Address sentinelFp;
   @NoCheckStore
   @Unpreemptible
   public static void blockAllMutatorsForGC() {
-    VM.sysWriteln("blockAllMutatorsGC: starting ", getCurrentThreadSlot());
+    // VM.sysWriteln("blockAllMutatorsGC: starting ", getCurrentThreadSlot());
     RVMThread.handshakeLock.lockNoHandshake();
     while (true) {
       // (1) Find all the threads that need to be blocked for GC
@@ -3451,7 +3451,7 @@ public Address sentinelFp;
           RVMThread.handshakeThreads[numToHandshake++] = t;
         }
       }
-      VM.sysWriteln("blockAllMutatorsGC: Handshake thread: ", numToHandshake);
+      //VM.sysWriteln("blockAllMutatorsGC: Handshake thread: ", numToHandshake);
       RVMThread.acctLock.unlock();
 
       // (2) Remove any threads that have already been blocked from the list.
@@ -3460,13 +3460,13 @@ public Address sentinelFp;
         t.monitor().lockNoHandshake();
         if (t.blockedFor(RVMThread.gcBlockAdapter) || RVMThread.notRunning(t.asyncBlock(RVMThread.gcBlockAdapter))) {
           // Already blocked or not running, remove.
-          VM.sysWriteln("blockAllMutatorsGC: removing: ", t.threadSlot);
+          //VM.sysWriteln("blockAllMutatorsGC: removing: ", t.threadSlot);
           RVMThread.handshakeThreads[i--] = RVMThread.handshakeThreads[--numToHandshake];
           RVMThread.handshakeThreads[numToHandshake] = null; // help GC
         }
         t.monitor().unlock();
       }
-      VM.sysWriteln("blockAllMutatorsGC: Unblocked handshake threads: ", numToHandshake);
+      //VM.sysWriteln("blockAllMutatorsGC: Unblocked handshake threads: ", numToHandshake);
       // (3) Quit trying to block threads if all threads are either blocked
       //     or not running (a thread is "not running" if it is NEW or TERMINATED;
       //     in the former case it means that the thread has not had start()
@@ -3478,13 +3478,13 @@ public Address sentinelFp;
 
       // (4) Request a block for GC from all other threads.
       for (int i = 0; i < numToHandshake; i++) {
-        if (true) VM.sysWriteln("blockAllMutatorsGC: Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
+        //if (true) VM.sysWriteln("blockAllMutatorsGC: Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
         RVMThread t = RVMThread.handshakeThreads[i];
         RVMThread.observeExecStatusAtSTW(t.block(RVMThread.gcBlockAdapter));
         RVMThread.handshakeThreads[i] = null; // help GC
       }
     }
-    VM.sysWriteln("blockAllMutatorsGC: finished ", getCurrentThreadSlot());
+    //VM.sysWriteln("blockAllMutatorsGC: finished ", getCurrentThreadSlot());
     RVMThread.handshakeLock.unlock();
 
     // Deal with terminating threads to ensure that all threads are either dead to MMTk or stopped above.

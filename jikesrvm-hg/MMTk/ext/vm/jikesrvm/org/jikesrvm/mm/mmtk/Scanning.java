@@ -39,6 +39,7 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
 
   /** Counter to track index into thread table for root tracing.  */
   private static final SynchronizedCounter threadCounter = new SynchronizedCounter();
+  private static final boolean DEBUG = false;
 
   /**
    * Scanning of a object, processing each pointer field encountered.
@@ -154,7 +155,11 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
       if (threadIndex > RVMThread.numThreads) break;
 
       RVMThread thread = RVMThread.threads[threadIndex];
-      Log.write("thread slot: ", thread.threadSlot); Log.writeln("/", threadIndex);
+      if (DEBUG)
+      {
+        Log.write("thread slot: ", thread.threadSlot);
+        Log.writeln("/", threadIndex);
+      }
       if (thread == null || thread.isCollectorThread()) continue;
 
       /* scan the thread (stack etc.) */

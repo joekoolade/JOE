@@ -133,7 +133,12 @@ import org.vmmagic.pragma.*;
       if (mapped[chunk] == MAPPED) continue;
       Address mmapStart = Conversions.mmapChunksToAddress(chunk);
       lock.acquire();
-      Log.write(chunk); Log.write("  "); Log.writeln(mmapStart);
+      if (verbose)
+      {
+        Log.write(chunk);
+        Log.write("  ");
+        Log.writeln(mmapStart);
+      }
       // might have become MAPPED here
       if (mapped[chunk] == UNMAPPED) {
         int errno = VM.memory.dzmmap(mmapStart, MMAP_CHUNK_BYTES);
@@ -161,7 +166,10 @@ import org.vmmagic.pragma.*;
         }
       }
       mapped[chunk] = MAPPED;
-      Log.writeln("Mapped Chunk ", chunk);
+      if (verbose)
+      {
+        Log.writeln("Mapped Chunk ", chunk);
+      }
       lock.release();
     }
 

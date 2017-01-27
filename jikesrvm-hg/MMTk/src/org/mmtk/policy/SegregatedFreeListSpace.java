@@ -48,6 +48,7 @@ public abstract class SegregatedFreeListSpace extends Space implements Constants
   /**
    *
    */
+  private static final boolean DEBUG = false;
   protected static final boolean LAZY_SWEEP = true;
   private static final boolean COMPACT_SIZE_CLASSES = false;
   protected static final int MIN_CELLS = 6;
@@ -152,8 +153,15 @@ public abstract class SegregatedFreeListSpace extends Space implements Constants
    */
   public void returnBlock(Address block, int sizeClass, Address freeCell) {
     if (VM.VERIFY_ASSERTIONS) {
-    	Log.write(getName()); Log.write(' '); Log.write(sizeClass); Log.write(' '); Log.writeln(freeCell);
       VM.assertions._assert(BlockAllocator.getNext(block).isZero());
+    }
+    if (DEBUG)
+    {
+      Log.write(getName());
+      Log.write(' ');
+      Log.write(sizeClass);
+      Log.write(' ');
+      Log.writeln(freeCell);
     }
     if (preserveFreeList()) {
       setFreeList(block, freeCell);

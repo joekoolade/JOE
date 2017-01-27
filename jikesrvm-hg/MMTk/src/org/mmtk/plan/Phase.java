@@ -405,8 +405,8 @@ public abstract class Phase implements Constants {
     int order = collector.rendezvous();
     final boolean primary = order == 0;
 
-    boolean log = true; // Options.verbose.getValue() >= 6;
-    boolean logDetails = true; // Options.verbose.getValue() >= 7;
+    boolean log =  (Options.verbose.getValue() >= 6);
+    boolean logDetails = (Options.verbose.getValue() >= 7);
 
     if (primary && resume) {
       if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!Phase.isPhaseStackEmpty());

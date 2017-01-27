@@ -17,6 +17,7 @@ import org.mmtk.policy.Space;
 import org.mmtk.plan.*;
 import org.mmtk.utility.Log;
 import org.mmtk.utility.heap.VMRequest;
+import org.mmtk.utility.options.Options;
 import org.vmmagic.pragma.*;
 import org.vmmagic.unboxed.*;
 
@@ -110,8 +111,11 @@ public class SS extends StopTheWorld {
   @Override
   @Inline
   public void collectionPhase(short phaseId) {
-    Log.write("SS.collectionPhase ");
-    Log.writeln(phaseId);
+    if (Options.verbose.getValue() >= 7)
+    {
+      Log.write("SS.collectionPhase ");
+      Log.writeln(phaseId);
+    }
     if (phaseId == SS.PREPARE) {
       hi = !hi; // flip the semi-spaces
       // prepare each of the collected regions

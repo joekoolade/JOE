@@ -58,7 +58,8 @@ import org.vmmagic.pragma.*;
   /* FIXME the following was established via trial and error :-( */
   //  private static int BOOT_SEGMENT_MB = 4+(BOOT_IMAGE_SIZE.toInt()>>LOG_BYTES_IN_MBYTE);
   private static int BOOT_SEGMENT_MB = (BOOT_IMAGE_RMAP_START.toInt()>>LOG_BYTES_IN_MBYTE);
-
+  private static boolean DEBUG = false;
+  
   /**
    * Return the space associated with/reserved for the VM.  In the
    * case of Jikes RVM this is the boot image space.<p>
@@ -103,7 +104,11 @@ import org.vmmagic.pragma.*;
 
   @Override
   public final int dzmmap(Address start, int size) {
-    Log.write("dzmap ", start); Log.writeln(" ", size);
+    if (DEBUG)
+    {
+      Log.write("dzmap ", start);
+      Log.writeln(" ", size);
+    }
     Address result = org.jikesrvm.runtime.Memory.dzmmap(start, Extent.fromIntZeroExtend(size));
     if (result.EQ(start)) return 0;
     if (result.GT(Address.fromIntZeroExtend(127))) {

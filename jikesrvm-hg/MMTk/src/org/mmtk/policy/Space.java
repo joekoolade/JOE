@@ -54,7 +54,7 @@ public abstract class Space implements Constants {
   /**
    *
    */
-  private static boolean DEBUG = true;
+  private static boolean DEBUG = false;
 
   // the following is somewhat arbitrary for the 64 bit system at this stage
   public static final int LOG_ADDRESS_SPACE = (BYTES_IN_ADDRESS == 4) ? 32 : 40;

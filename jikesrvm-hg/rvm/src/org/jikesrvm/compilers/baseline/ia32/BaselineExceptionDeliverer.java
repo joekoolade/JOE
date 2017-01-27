@@ -103,9 +103,6 @@ public abstract class BaselineExceptionDeliverer extends ExceptionDeliverer impl
     if (VM.VerifyAssertions) VM._assert(SAVED_GPRS == 2);
     registers.gprs.set(EDI.value(), fp.plus(EDI_SAVE_OFFSET).loadWord());
     registers.gprs.set(EBX.value(), fp.plus(EBX_SAVE_OFFSET).loadWord());
-//    if (method.hasBaselineSaveLSRegistersAnnotation()) {
-//      registers.gprs.set(EBP.value(), fp.plus(EBP_SAVE_OFFSET).toWord());
-//    }
 
     registers.unwindStackFrame();
   }

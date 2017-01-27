@@ -190,8 +190,11 @@ public abstract class Simple extends Plan implements Constants {
   @Override
   @Inline
   public void collectionPhase(short phaseId) {
-    Log.write("Simple.collectionPhase ");
-    Log.writeln(phaseId);
+    if(Options.verbose.getValue() >= 7)
+    {
+      Log.write("Simple.collectionPhase ");
+      Log.writeln(phaseId);
+    }
     if (phaseId == SET_COLLECTION_KIND) {
       collectionAttempt = Plan.isUserTriggeredCollection() ? 1 : Allocator.determineCollectionAttempts();
       emergencyCollection = !Plan.isInternalTriggeredCollection() &&

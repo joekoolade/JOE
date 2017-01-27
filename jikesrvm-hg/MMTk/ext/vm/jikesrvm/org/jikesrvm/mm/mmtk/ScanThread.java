@@ -93,7 +93,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
    * MULTIPLE GC THREADS WILL PRODUCE SCRAMBLED OUTPUT so only
    * use these when running with PROCESSORS=1
    */
-  private static final int DEFAULT_VERBOSITY = 1 /*0*/;
+  private static final int DEFAULT_VERBOSITY = 0;
   private static final int FAILURE_VERBOSITY = 4;
 
   /***********************************************************************
@@ -144,7 +144,11 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
 
     Address ip=regs.getInnermostInstructionAddress();
     Address fp=regs.getInnermostFramePointer();
-    VM.sysWrite("scanning fp ", fp); VM.sysWriteln(" ip ", ip);
+    if (DEFAULT_VERBOSITY >= 1)
+    {
+      VM.sysWrite("scanning fp ", fp);
+      VM.sysWriteln(" ip ", ip);
+    }
     regs.clear();
     regs.setInnermost(ip,fp);
 
@@ -200,11 +204,6 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
 //    Address sentinalFp = thread.sentinelFp; //  newRootsSufficent && Options.useShortStackScans.getValue() ? thread.getNextUnencounteredFrame() : ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
     Address sentinalFp = ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
 
-    /* stack trampoline will be freshly reinstalled at end of thread scan */
-//    if (Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue()) {
-//      thread.deInstallStackTrampoline();
-//    }
-
     /* scan the stack */
     scanner.startScan(trace, processCodeLocations, thread, gprs, ip, fp, initialIPLoc, topFrame, sentinalFp);
   }
@@ -242,8 +241,14 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     this.fp = fp;
     this.initialIPLoc = initialIPLoc;
     this.topFrame = topFrame;
-    VM.sysWrite("start scan: ", Magic.objectAsAddress(thread)); VM.sysWrite("/", ip); VM.sysWrite("/", fp); VM.sysWrite("/", topFrame);
-    VM.sysWriteln("/", initialIPLoc);
+    if (DEFAULT_VERBOSITY >= 1)
+    {
+      VM.sysWrite("start scan: ", Magic.objectAsAddress(thread));
+      VM.sysWrite("/", ip);
+      VM.sysWrite("/", fp);
+      VM.sysWrite("/", topFrame);
+      VM.sysWriteln("/", initialIPLoc);
+    }
     scanThreadInternal(gprs, DEFAULT_VERBOSITY, sentinelFp);
     if (failed) {
        /* reinitialize and rescan verbosely on failure */
@@ -266,10 +271,9 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
    * performing the scan.
    */
   private void scanThreadInternal(Address gprs, int verbosity, Address sentinelFp) {
-    if (true) {
+    if (DEFAULT_VERBOSITY >= 1) {
       VM.sysWriteln("Scanning thread ",thread.getThreadSlot()," from thread ",RVMThread.getCurrentThreadSlot());
     }
-    verbosity=2;
     if (verbosity >= 2) {
       Log.writeln("--- Start Of Stack Scan ---\n");
       Log.write("Thread #");
@@ -280,7 +284,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     /* reinitialize the stack iterator group */
     iteratorGroup.newStackWalk(thread, gprs);
 
-//    if (verbosity >= 2) dumpTopFrameInfo(verbosity);
+    if (verbosity >= 2) dumpTopFrameInfo(verbosity);
 
     /* scan each frame if a non-empty stack */
     if (fp.NE(sentinelFp)) {
@@ -290,7 +294,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
       while (fp.NE(sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
-        if (true) {
+        if (DEFAULT_VERBOSITY >= 1) {
           VM.sysWriteln("Thread ",thread.getThreadSlot()," at fp = ",fp);
         }
         prevFp = scanFrame(verbosity);
@@ -299,43 +303,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
       }
     }
 
-    /* If a thread started via createVM or attachVM, base may need scaning */
-    //checkJNIBase();
-
     if (verbosity >= 2) Log.writeln("--- End Of Stack Scan ---\n");
-    verbosity=1;
-  }
-
-  /**
-   * When an exception occurs, registers are saved temporarily.  If
-   * the stack being scanned is in this state, we need to scan those
-   * registers for code pointers.  If the codeLocations deque is null,
-   * then scanning for code pointers is not required, so we don't need
-   * to do anything. (SB: Why only code pointers?).
-   *
-   * Dave G:  The contents of the GPRs of the exceptionRegisters
-   * are handled during normal stack scanning
-   * (@see org.jikesrvm.runtime.compilers.common.HardwareTrapCompiledMethod.
-   * It looks to me like the main goal of this method is to ensure that the
-   * method in which the trap happened isn't treated as dead code and collected
-   * (if it's been marked as obsolete, we are setting its activeOnStackFlag below).
-   *
-   */
-  private void getHWExceptionRegisters() {
-    ArchitectureSpecific.Registers exReg = thread.getExceptionRegisters();
-    if (processCodeLocations && exReg.inuse) {
-      Address ip = exReg.ip;
-      CompiledMethod compiledMethod = CompiledMethods.findMethodForInstruction(ip);
-      if (VM.VerifyAssertions) {
-        VM._assert(compiledMethod != null);
-        VM._assert(compiledMethod.containsReturnAddress(ip));
-      }
-      compiledMethod.setActiveOnStack();
-      ObjectReference code = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());
-      Address ipLoc = exReg.getIPLocation();
-      if (VM.VerifyAssertions) VM._assert(ip == ipLoc.loadAddress());
-      processCodeLocation(code, ipLoc);
-    }
   }
 
   /**
@@ -393,19 +361,6 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
 
     iterator.cleanupPointers();
 
-//    if (compiledMethodType != CompiledMethod.TRAP) {
-//      /* skip preceding native frames if this frame is a native bridge */
-//      if (compiledMethod.getMethod().getDeclaringClass().hasBridgeFromNativeAnnotation()) {
-//        fp = RuntimeEntrypoints.unwindNativeStackFrameForGC(fp);
-//        if (verbosity >= 2) Log.write("scanFrame skipping native C frames\n");
-//      }
-//
-//      /* reinstall the return barrier if necessary (and verbosity indicates that this is a regular scan) */
-//      if (reinstallReturnBarrier && verbosity == DEFAULT_VERBOSITY) {
-//        thread.installStackTrampolineBridge(fp);
-//        reinstallReturnBarrier = false;
-//      }
-//    }
     return fp;
   }
 
@@ -569,26 +524,6 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
          !retaddrLoc.isZero();
          retaddrLoc = iterator.getNextReturnAddressAddress())
       processCodeLocation(code, retaddrLoc);
-  }
-
-
-  /**
-   * AIX-specific code.<p>
-   *
-   * If we are scanning the stack of a thread that entered the VM via
-   * a createVM or attachVM then the "bottom" of the stack had native
-   * C frames instead of the usual java frames.  The JNIEnv for the
-   * thread may still contain jniRefs that have been returned to the
-   * native C code, but have not been reported for GC.  calling
-   * getNextReferenceAddress without first calling setup... will
-   * report the remaining jniRefs in the current "frame" of the
-   * jniRefs stack.  (this should be the bottom frame)<p>
-   *
-   * FIXME: SB: Why is this AIX specific?  Why depend on the
-   * preprocessor?
-   *
-   */
-  private void checkJNIBase() {
   }
 
 

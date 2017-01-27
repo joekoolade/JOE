@@ -56,6 +56,8 @@ public class Map {
   private static boolean finalized = false;
 
   private static final Lock lock = VM.newLock("Map lock");
+  
+  private static final boolean VERBOSE = false;
 
   /****************************************************************************
    *
@@ -107,8 +109,14 @@ public class Map {
       }
       descriptorMap[index] = descriptor;
       VM.barriers.objectArrayStoreNoGCBarrier(spaceMap, index, space);
-      Log.write("SpaceMap: ", index); Log.write("/"); Log.write(space.getName());
-      Log.write("/", start); Log.writeln("/", extent.toInt());
+      if (VERBOSE)
+      {
+        Log.write("SpaceMap: ", index);
+        Log.write("/");
+        Log.write(space.getName());
+        Log.write("/", start);
+        Log.writeln("/", extent.toInt());
+      }
       e = e.plus(Space.BYTES_IN_CHUNK);
     }
   }
@@ -253,10 +261,17 @@ public class Map {
   public static void finalizeStaticSpaceMap() {
     /* establish bounds of discontiguous space */
     Address startAddress = Space.getDiscontigStart();
-    Log.writeln("Map: startAddress=", startAddress);
+    if (VERBOSE)
+    {
+      Log.writeln("Map: startAddress=", startAddress);
+    }
     int firstChunk = getChunkIndex(startAddress);
     int lastChunk = getChunkIndex(Space.getDiscontigEnd());
-    Log.write("Map: chunk0=", firstChunk); Log.writeln(" chunkN=", lastChunk);
+    if (VERBOSE)
+    {
+      Log.write("Map: chunk0=", firstChunk);
+      Log.writeln(" chunkN=", lastChunk);
+    }
     int unavailStartChunk = lastChunk + 1;
     int trailingChunks = Space.MAX_CHUNKS - unavailStartChunk;
     int pages = (1 + lastChunk - firstChunk) * Space.PAGES_IN_CHUNK;
@@ -284,8 +299,12 @@ public class Map {
       regionMap.free(chunkIndex);  // put this chunk on the free list
       globalPageMap.setUncoalescable(firstPage);
       int allocedPages = globalPageMap.alloc(Space.PAGES_IN_CHUNK); // populate the global page map
-      // if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(allocedPages == firstPage);
-      Log.write("Map Free Chunk", chunkIndex); Log.writeln("/", firstPage);
+      if (VERBOSE)
+      {
+        // if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(allocedPages == firstPage);
+        Log.write("Map Free Chunk", chunkIndex);
+        Log.writeln("/", firstPage);
+      }
       firstPage += Space.PAGES_IN_CHUNK;
     }
 
