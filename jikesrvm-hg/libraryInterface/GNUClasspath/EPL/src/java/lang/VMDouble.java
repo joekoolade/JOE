@@ -12,6 +12,7 @@
  */
 package java.lang;
 
+import org.jam.utilities.Dragon4;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.Pure;
 
@@ -35,7 +36,11 @@ final class VMDouble {
   }
 
   @Pure
-  public static native String toString(double d, boolean isFloat);
+  public static String toString(double d, boolean isFloat)
+  {
+    return Dragon4.doubleToString(d);
+    //return "Double to String not implemented";
+  }
 
   public static native void initIDs();
 

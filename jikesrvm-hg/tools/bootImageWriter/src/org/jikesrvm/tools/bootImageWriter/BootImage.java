@@ -387,7 +387,16 @@ public class BootImage extends BootImageWriterMessages
       idx = address.diff(BOOT_IMAGE_DATA_START).toInt();
       data = bootImageData;
     }
-    data.put(idx, (byte)value);
+    try
+    {
+      data.put(idx, (byte)value);
+    }
+    catch (Exception e)
+    {
+      // TODO Auto-generated catch block
+      System.out.println("idx=0x"+Integer.toHexString(address.toInt())+"/0x"+Integer.toHexString(idx));
+      e.printStackTrace();
+    }
   }
 
 

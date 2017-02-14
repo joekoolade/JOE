@@ -92,7 +92,7 @@ class VMMath {
   }
   @Pure
   public static double ceil(double a) {
-    return mathMagic(BootRecord.the_boot_record.sysVMMathCeilIP, a);
+    return Magic.dceil(a);
   }
   @Pure
   public static double floor(double a) {

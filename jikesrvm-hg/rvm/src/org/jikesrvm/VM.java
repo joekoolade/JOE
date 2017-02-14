@@ -61,6 +61,8 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
+import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
+
 /**
  * A virtual machine.
  */
@@ -129,7 +131,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = 2; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
      * Setup the serial port
@@ -319,16 +321,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.io.PrintStream"); // Uses System.getProperty
     runClassInitializer("java.util.Locale");
     runClassInitializer("java.util.ResourceBundle");
-    runClassInitializer("java.util.zip.CRC32");
-    if (VM.BuildForHarmony) {
-      System.loadLibrary("hyarchive");
-    }
-    runClassInitializer("java.util.zip.Inflater");
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.util.zip.DeflaterHuffman");
-      runClassInitializer("java.util.zip.InflaterDynHeader");
-      runClassInitializer("java.util.zip.InflaterHuffmanTree");
-    }
     // Run class initializers that require JNI
     if (verboseBoot >= 1) VM.sysWriteln("Running late class initializers");
     runClassInitializer("java.lang.Math");
@@ -338,14 +330,10 @@ public class VM extends Properties implements Constants, ExitStatus {
 //      runClassInitializer("gnu.java.nio.FileChannelImpl");
     }
     runClassInitializer("java.io.FileDescriptor");
-//    runClassInitializer("java.util.jar.JarFile");
-//    if (VM.BuildForGnuClasspath) {
-//      runClassInitializer("java.util.zip.ZipFile$PartialInputStream");
-//    }
-//    runClassInitializer("java.util.zip.ZipFile");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.lang.VMDouble");
     }
+    runClassInitializer("java.math.BigInteger");
     runClassInitializer("java.util.PropertyPermission");
     runClassInitializer("org.jikesrvm.classloader.RVMAnnotation");
     runClassInitializer("java.lang.annotation.RetentionPolicy");
@@ -402,11 +390,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     // tree yet.
     // java.security.JikesRVMSupport.fullyBootedVM();
 
-//    if (VM.BuildForGnuClasspath) {
-//      runClassInitializer("java.lang.ClassLoader$StaticData");
-//    }
-
-    
     VM.sysWriteln("contextRegister offset ", Entrypoints.threadContextRegistersField.getOffset());
     VM.sysWriteln("gprs offset ", ArchEntrypoints.registersGPRsField.getOffset());
     VM.sysWriteln("sp offset ", Entrypoints.stackPointerField.getOffset());

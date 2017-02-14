@@ -69,7 +69,8 @@ public class MagicNames {
   public static final Atom pause = Atom.findOrCreateAsciiAtom("pause");
   public static final Atom sqrt  = Atom.findOrCreateAsciiAtom("sqrt");
   public static final Atom yield = Atom.findOrCreateAsciiAtom("yield");
-
+  public static final Atom dceil = Atom.findOrCreateAsciiAtom("dceil");
+  
   public static final Atom getInlineDepth = Atom.findOrCreateAsciiAtom("getInlineDepth");
   public static final Atom isConstantParameter = Atom.findOrCreateAsciiAtom("isConstantParameter");
 

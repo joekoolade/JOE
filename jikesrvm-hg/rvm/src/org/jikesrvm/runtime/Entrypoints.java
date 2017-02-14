@@ -79,7 +79,9 @@ public class Entrypoints {
   public static final RVMField dumpBufferLockField =
       getField(org.jikesrvm.Services.class, "dumpBufferLock", int.class);
 
-  public static final NormalMethod unexpectedAbstractMethodCallMethod =
+  public static final NormalMethod raiseClassCastException =
+  getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseClassCastException", "()V");
+public static final NormalMethod unexpectedAbstractMethodCallMethod =
       getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "unexpectedAbstractMethodCall", "()V");
   public static final NormalMethod raiseNullPointerException =
       getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseNullPointerException", "()V");

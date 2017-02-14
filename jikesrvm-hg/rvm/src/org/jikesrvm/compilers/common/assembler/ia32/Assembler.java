@@ -2481,6 +2481,14 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
       setMachineCodes(mi++, regIndirectRegModRM(dst, GPR.getForOpcode(1)));
     }
 
+    public final void emitFRNDINT(FPR dst)
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi, (byte)0xD9);
+      setMachineCodes(mi++, (byte)0xFC);
+      if(lister != null) lister.R(miStart, "FRNDINT", dst);
+    }
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *

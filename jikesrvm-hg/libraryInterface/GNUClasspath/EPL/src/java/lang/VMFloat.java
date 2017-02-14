@@ -12,6 +12,7 @@
  */
 package java.lang;
 
+import org.jam.utilities.Dragon4;
 import org.jikesrvm.runtime.Magic;
 
 /**
@@ -34,7 +35,7 @@ final class VMFloat {
   }
 
   static String toString(float f) {
-    return VMDouble.toString(f, true);
+    return Dragon4.floatToString(f);
   }
 
   static float parseFloat(String str) {

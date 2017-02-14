@@ -1306,4 +1306,14 @@ public final class Magic {
             VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
         }
     }
+
+    /**
+     * @param a
+     * @return
+     */
+    public static double dceil(double a)
+    {
+      // TODO Auto-generated method stub
+      return 0.0;
+    }
 }

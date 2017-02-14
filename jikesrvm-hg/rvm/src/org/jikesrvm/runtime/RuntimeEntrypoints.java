@@ -693,6 +693,16 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
   }
 
   /**
+   * Create and throw java.lang.ClassCastException.
+   * Used when checkcast trap is raised
+   */
+  @NoInline
+  @Entrypoint
+  static void raiseClassCastException()
+  {
+    throw new java.lang.ClassCastException();
+  }
+  /**
    * Create and throw a java.lang.ArrayIndexOutOfBoundsException.
    * Used (rarely) by the opt compiler when it has determined that
    * an array access will unconditionally raise an array bounds check

@@ -37,8 +37,6 @@ exception statement from your version. */
 
 package java.lang;
 
-import gnu.classpath.Configuration;
-
 /*
  * This class is a reference version, mainly for compiling a class library
  * jar.  It is likely that VM implementers replace this with their own
@@ -51,17 +49,6 @@ import gnu.classpath.Configuration;
  */
 final class VMFloat
 {
-
-  /**
-   * Load native routines necessary for this class.
-   */
-  static
-  {
-    if (Configuration.INIT_LOAD_LIBRARY)
-      {
-        System.loadLibrary("javalang");
-      }
-  }
 
   /**
    * Convert the float to the IEEE 754 floating-point "single format" bit
@@ -99,7 +86,7 @@ final class VMFloat
    */
   static String toString(float f)
   {
-    return VMDouble.toString(f, true);
+    return "Not implemented";
   }
 
   /**

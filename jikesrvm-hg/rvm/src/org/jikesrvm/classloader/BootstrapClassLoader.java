@@ -175,7 +175,11 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
       loaded.put(className, ans);
       return ans.getClassForType();
     } else {
-      if (!VM.fullyBooted) {
+      /*
+       * todo: This is were we do a networked class load!
+       */
+//      if (!VM.fullyBooted) {
+      if (true) {
         VM.sysWrite("Trying to load a class (");
         VM.sysWrite(className);
         VM.sysWrite(") too early in the booting process, before dynamic");

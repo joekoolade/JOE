@@ -2424,6 +2424,36 @@ final class BaselineMagic {
   }
 
   /**
+   * double ceiling
+   */
+  private static final class Dceil extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      // Store FPU control word at top of the stack
+      Offset CWOFF = Offset.fromIntSignExtend(-WORDSIZE);
+      asm.emitFLDCW_RegDisp(SP, CWOFF);
+      asm.emitMOV_Reg_RegDisp(S0, SP, CWOFF);
+      // Set FPU to round up
+      asm.emitAND_RegDisp_Imm(SP, CWOFF, ~0xc00);
+      asm.emitOR_RegDisp_Imm(SP, CWOFF, 0x800);
+      asm.emitFSTCW_RegDisp(SP, CWOFF);
+      // Load parameter to FPU stack
+      asm.emitFLD_Reg_RegInd(FP0, SP);
+      asm.emitFRNDINT(FP0);
+      asm.emitFST_RegInd_Reg(SP, FP0);
+      // restore the fpu cw
+      asm.emitMOV_RegDisp_Reg(SP, CWOFF, S0);
+      asm.emitFSTCW_RegDisp(SP, CWOFF);
+    }
+  }
+  static
+  {
+    MagicGenerator g = new Dceil();
+    generators.put(getMethodReference(Magic.class, MagicNames.dceil, double.class, double.class),  g);
+  }
+  /**
    * Return the current inlining depth (always 0 for baseline)
    */
   private static final class GetInlineDepth extends MagicGenerator {

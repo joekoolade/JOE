@@ -12,7 +12,7 @@
  */
 package test.org.jikesrvm.basic.core.bytecode;
 
-class TestArrayAccess {
+public class TestArrayAccess {
   public static void main(String[] args) {
     boolean_array();
     byte_array();
@@ -136,7 +136,8 @@ class TestArrayAccess {
     for (int i = 0; i < outer; ++i) {
       for (int j = 0; j < middle; ++j) {
         for (int k = 0; k < inner; ++k) {
-          System.out.printf(" %4d", ary[i][j][k]);
+//          System.out.printf(" %4d", ary[i][j][k]);
+          System.out.print(" " + ary[i][j][k]);
         }
         System.out.println();
       }
@@ -163,7 +164,8 @@ class TestArrayAccess {
     for (int i = 0; i < outer; ++i) {
       for (int j = 0; j < middle; ++j) {
         for (int k = 0; k < inner; ++k) {
-          System.out.printf(" %4d", ary[i][j][k]);
+//          System.out.printf(" %4d", ary[i][j][k]);
+          System.out.print(" " +ary[i][j][k]);
         }
         System.out.println();
       }
@@ -182,7 +184,8 @@ class TestArrayAccess {
     System.out.println("Partial Multi-dimensional int Array");
     for (int i = 0; i < outer; ++i) {
       for (int j = 0; j < middle; ++j) {
-        System.out.printf(" %5s", String.valueOf(ary[i][j]));
+//        System.out.printf(" %5s", String.valueOf(ary[i][j]));
+        System.out.print(" " + String.valueOf(ary[i][j]));
       }
       System.out.println();
     }

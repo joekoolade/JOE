@@ -12,7 +12,7 @@
  */
 package test.org.jikesrvm.basic.core.bytecode;
 
-class TestArithmetic {
+public class TestArithmetic {
   private static int int_3 = -3;
   private static int int1 = 1;
   private static int int3 = 3;
@@ -29,6 +29,13 @@ class TestArithmetic {
   private static long long0xBEEFBEEFCAFEBABE = 0xBEEFBEEFCAFEBABEL;
 
   public static void main(String[] args) {
+//    float two = 2.0f;
+//    System.out.println(two);
+//    System.out.println(4.2f);
+//    return;
+//  }
+//  
+//  private void a() {
     System.out.println();
     System.out.println("-- itest --");
     itest();
@@ -795,7 +802,7 @@ class TestArithmetic {
   private static void rem(final double a, final double b) {
     System.out.println(a + "  /  " + b + "=" + Long.toHexString(Double.doubleToLongBits(a / b)));
     System.out.println(a + "  %  " + b + "=" + Long.toHexString(Double.doubleToLongBits(a % b)));
-    System.out.println(a + " rem " + b + "=" + Long.toHexString(Double.doubleToLongBits(Math.IEEEremainder(a, b))));
+//    System.out.println(a + " rem " + b + "=" + Long.toHexString(Double.doubleToLongBits(Math.IEEEremainder(a, b))));
     System.out.println();
   }
 }
