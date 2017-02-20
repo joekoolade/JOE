@@ -12,7 +12,7 @@
  */
 package test.org.jikesrvm.basic.core.bytecode;
 
-class TestFloatingRem {
+public class TestFloatingRem {
    public static void main(String[] args) {
       System.out.println("\n-- frem --");
       // easy cases

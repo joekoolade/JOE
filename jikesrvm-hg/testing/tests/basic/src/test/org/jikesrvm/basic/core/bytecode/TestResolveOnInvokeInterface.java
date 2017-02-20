@@ -29,6 +29,8 @@ public class TestResolveOnInvokeInterface {
       doInvoke(null);
     } catch (final NullPointerException npe) {
       System.out.println("Got NPE");
+    } catch (final IncompatibleClassChangeError icce) {
+      System.out.println("Got ICCE");
     }
   }
 

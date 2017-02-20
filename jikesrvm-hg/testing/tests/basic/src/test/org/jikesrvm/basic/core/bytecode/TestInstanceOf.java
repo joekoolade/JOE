@@ -14,7 +14,7 @@ package test.org.jikesrvm.basic.core.bytecode;
 
 import java.io.Serializable;
 
-class TestInstanceOf {
+public class TestInstanceOf {
 
   static class Science {}
   static class Magic extends Science {}

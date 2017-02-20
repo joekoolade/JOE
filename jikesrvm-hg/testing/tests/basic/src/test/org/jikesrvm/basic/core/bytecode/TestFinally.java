@@ -12,13 +12,14 @@
  */
 package test.org.jikesrvm.basic.core.bytecode;
 
-class TestFinally {
+public class TestFinally {
   @SuppressWarnings({"ReturnInsideFinallyBlock", "finally"})
   private static int foo() {
     try {
-      int a = 1;
-      int b = 0;
-      return a / b;
+//      int a = 1;
+//      int b = 0;
+//      return a / b;
+      throw new Exception("Testfinally throw");
     } catch (Exception e) {
       return 1;
     } finally {

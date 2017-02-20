@@ -12,7 +12,7 @@
  */
 package test.org.jikesrvm.basic.core.bytecode;
 
-class TestClone implements Cloneable {
+public class TestClone implements Cloneable {
   String id;
 
   TestClone(String id) {

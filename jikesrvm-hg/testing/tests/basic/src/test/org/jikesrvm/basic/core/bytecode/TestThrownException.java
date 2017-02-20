@@ -14,7 +14,7 @@ package test.org.jikesrvm.basic.core.bytecode;
 
 import java.io.IOException;
 
-class TestThrownException {
+public class TestThrownException {
   private static void testHardwareException() {
     System.out.println("testHardwareException");
     int i = 1;
@@ -63,8 +63,8 @@ class TestThrownException {
   }
 
   static void trouble(int choice) throws Exception {
-    if (choice == 1) testHardwareException();
-    if (choice == 2) testSoftwareException();
+//    if (choice == 1) testHardwareException();
+//    if (choice == 2) testSoftwareException();
     if (choice == 3) testUserException();
     if (choice == 4) testRethrownException();
     if (choice == 5) testNullException();
