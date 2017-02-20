@@ -43,7 +43,7 @@ abstract class XThread extends Thread {
   }
 
   private static int maxId = 1;
-  static boolean holdMessages = !"false".equals(System.getProperty("tests.DeterministicOutput"));
+  static boolean holdMessages = false;
 
   private final ThreadRecord record;
   private final int id;

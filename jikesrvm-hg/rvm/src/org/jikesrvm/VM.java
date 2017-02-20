@@ -131,7 +131,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
-    verboseBoot = 2; // BootRecord.the_boot_record.verboseBoot;
+    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
      * Setup the serial port
@@ -362,7 +362,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.util.logging.Level");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");
-     runClassInitializer("java.lang.reflect.Proxy");
+      runClassInitializer("java.lang.reflect.Proxy");
       runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
     // runClassInitializer("java.util.logging.Logger");
@@ -437,6 +437,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     /*
      * Exhaust class test
      */
+    runClassInitializer("test.org.jikesrvm.basic.core.threads.XThread");
     Thread testThread = new TestThread();
     testThread.start();
     VM.sysWriteln("Main thread started");

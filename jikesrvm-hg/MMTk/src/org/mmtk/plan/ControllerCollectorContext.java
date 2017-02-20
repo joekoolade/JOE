@@ -146,6 +146,7 @@ public class ControllerCollectorContext extends CollectorContext {
       requestFlag = true;
       requestCount++;
       lock.broadcast();
+//      Log.writeln("GC controller request broadcast");
     }
     lock.unlock();
   }

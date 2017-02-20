@@ -36,6 +36,7 @@ public class PcSystemTimer
     Address stackTop;
     private final static int STACK_SIZE = 512;
     private static final int TICKSPERNSECS = 1000000;
+    private static final boolean trace = false;
     private TreeMap<Long, RVMThread> timerQueue;
     private ThreadQueue threadQueue;
     
@@ -121,20 +122,11 @@ public class PcSystemTimer
          * Current thread has had its time allotment so put it on queue 
          * and schedule a new thread
          */
-        if(((int)tick % BOLT) == 0 && !currentThread.isIdleThread())
+        if(((int)tick % BOLT) == 0)
         {
             Platform.scheduler.addThread(currentThread);
             Platform.scheduler.nextThread();
         }
-        else if(currentThread.isIdleThread())
-        {
-            /*
-             * There is a runnable thread and the idle thread is running
-             * so schedule a new thread
-             */
-            Platform.scheduler.nextThread();
-        }
-        
     }
     
     private void checkTimers()
@@ -153,10 +145,10 @@ public class PcSystemTimer
         /*
          * Remove the thread from the timer and schedule it
          */
-//        VM.sysWriteln("Timer expired!");
+        if(trace) VM.sysWriteln("Timer expired!");
         RVMThread thread = timerQueue.remove(timerExpiration);
         threadQueue.remove(thread);
-//        VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
+        if(trace) VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
         Platform.scheduler.addThread(thread);
     }
     

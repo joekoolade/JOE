@@ -425,7 +425,6 @@ public class Monitor {
       VM.sysWrite("/T#", monitorThread.threadSlot);
       VM.sysWriteln("/", whenWakeupNanos);
     }
-    Platform.timer.startTimer(whenWakeupNanos);
     /*
      * Release the monitor
      */
@@ -433,6 +432,8 @@ public class Monitor {
     {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
     }
+    Platform.timer.startTimer(whenWakeupNanos);
+    Platform.timer.removeTimer(whenWakeupNanos);
     /*
      * Wakeup next thread trying to get the lock
      */
@@ -444,19 +445,19 @@ public class Monitor {
        */
       Platform.scheduler.addThread(waitingThread);
     }
-    /*
-     * Time to give up the processor
-     */
-    Magic.yield();
+//    /*
+//     * Time to give up the processor
+//     */
+//    Magic.yield();
     /*
      * loop trying to acquire the monitor or when time expires
      */
-    while(!Magic.attemptInt(this, monitorOffset, 0, 1) && Time.nanoTime() < whenWakeupNanos)
+//    while(!Magic.attemptInt(this, monitorOffset, 0, 1) && Time.nanoTime() < whenWakeupNanos)
+    while(!Magic.attemptInt(this, monitorOffset, 0, 1))
     {
         Magic.yield();
     }
-    Platform.timer.removeTimer(whenWakeupNanos);
-    Platform.scheduler.addThread(monitorThread);
+//    Platform.scheduler.addThread(monitorThread);
     // sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
@@ -567,7 +568,6 @@ public class Monitor {
   @Unpreemptible
   @NoOptCompile
   private void timedWaitRelativeWithHandshakeImpl(long delayNanos) {
-    timedWaitRelativeNoHandshake(delayNanos);
     int recCount=unlockCompletely();
     relockWithHandshakeImpl(recCount);
   }

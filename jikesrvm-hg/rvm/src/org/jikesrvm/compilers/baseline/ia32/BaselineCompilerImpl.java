@@ -2995,7 +2995,8 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
             }
             asm.emitBranchLikelyNextInstruction();
             ForwardReference fr = asm.forwardJcc(Assembler.LGT);
-            asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT);
+//            asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT);
+            asm.emitCALL_Abs(Magic.getTocPointer().plus(Entrypoints.raiseIncompatibleClassChangeError.getOffset()));
             fr.resolve(asm);
           }
 
@@ -3007,7 +3008,8 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
           }
           asm.emitBranchLikelyNextInstruction();
           ForwardReference fr = asm.forwardJcc(Assembler.NE);
-          asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT);
+//          asm.emitINT_Imm(RuntimeEntrypoints.TRAP_MUST_IMPLEMENT);
+          asm.emitCALL_Abs(Magic.getTocPointer().plus(Entrypoints.raiseIncompatibleClassChangeError.getOffset()));
           fr.resolve(asm);
         }
       }
@@ -3701,7 +3703,8 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     asm.emitBranchLikelyNextInstruction();
     ForwardReference fr = asm.forwardJcc(Assembler.NE);
     // trap
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_NULL_POINTER);
+//    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_NULL_POINTER);
+    asm.emitCALL_Abs(Magic.getTocPointer().plus(Entrypoints.raiseNullPointerException.getOffset()));
     fr.resolve(asm);
   }
 
@@ -3725,9 +3728,12 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
     asm.emitBranchLikelyNextInstruction();
     ForwardReference fr = asm.forwardJcc(Assembler.LGT);
     // "pass" index param to C trap handler
-    ThreadLocalState.emitMoveRegToField(asm, ArchEntrypoints.arrayIndexTrapParamField.getOffset(), indexReg);
-    // trap
-    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_ARRAY_BOUNDS);
+//    ThreadLocalState.emitMoveRegToField(asm, ArchEntrypoints.arrayIndexTrapParamField.getOffset(), indexReg);
+//    // trap
+//    asm.emitINT_Imm(RuntimeEntrypoints.TRAP_ARRAY_BOUNDS);
+    asm.emitPUSH_Reg(indexReg);
+    genParameterRegisterLoad(asm, 1);                     // pass 2 parameter words
+    asm.emitCALL_Abs(Magic.getTocPointer().plus(Entrypoints.raiseArrayBoundsException.getOffset()));
     fr.resolve(asm);
   }
 

@@ -771,6 +771,12 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
     throw new java.lang.IllegalAccessError();
   }
 
+  @NoInline
+  @Entrypoint
+  static void raiseIncompatibleClassChangeError() {
+    throw new java.lang.IncompatibleClassChangeError();
+  }
+
   //----------------//
   // implementation //
   //----------------//

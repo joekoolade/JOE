@@ -28,10 +28,11 @@ public class ThreadQueue {
   protected static final boolean trace = false;
 
   @Untraced RVMThread head;
-
   @Untraced RVMThread tail;
-
-  public ThreadQueue() {
+  int size;
+  
+  public ThreadQueue() {  
+    size = 0;
   }
 
   public boolean isEmpty() {
@@ -48,19 +49,31 @@ public class ThreadQueue {
      */
     if(t.queuedOn!=null)
     {
-      VM.sysWriteln("Already scheduled ", t.getThreadSlot());
+      VM.sysWrite("Already scheduled ", t.getThreadSlot());
+      VM.sysWrite(" tail: ", Magic.objectAsAddress(tail)); VM.sysWrite(" head: ", Magic.objectAsAddress(head));
+      VM.sysWrite(" next: ", Magic.objectAsAddress(t.next)); VM.sysWriteln(" prev: ", Magic.objectAsAddress(t.prev));
       return;
     }
     if (VM.VerifyAssertions)
       VM._assert(t.queuedOn == null);
     t.next = null;
+    /*
+     * Queue is empty?
+     */
     if (tail == null) {
+      /*
+       * Yes, so set the head
+       */
       head = t;
+      t.prev = null;
     } else {
       tail.next = t;
+      t.prev = tail;
     }
+    // Set the tail
     tail = t;
     t.queuedOn = this;
+    size++;
   }
 
   public RVMThread peek() {
@@ -73,11 +86,19 @@ public class ThreadQueue {
       head = result.next;
       if (head == null) {
         tail = null;
+        result.prev = null;
+      }
+      else
+      {
+        head.prev = null;
       }
       if (VM.VerifyAssertions)
+      {
         VM._assert(result.queuedOn == this);
+      }
       result.next = null;
       result.queuedOn = null;
+      size--;
     }
     if (trace) {
       if (result == null) {
@@ -126,36 +147,54 @@ public class ThreadQueue {
    * does nothing (and returns in O(1)) if the thread is on a different queue.
    */
   public boolean remove(RVMThread t) {
-    if (t.queuedOn != this)
+    if (t.queuedOn != this || t.queuedOn == null)
       return false;
     if (trace) {
       VM.sysWriteln("removing ", t.getThreadSlot(), " from ",
           Magic.objectAsAddress(this));
     }
-    for (RVMThread cur = null; cur != tail; cur = getNext(cur)) {
-      if (getNext(cur) == t) {
-        if (trace) {
-          VM.sysWriteln("found!  before:");
-          dump();
-        }
-        setNext(cur, t.next);
-        if (tail == t) {
-          tail = cur;
-        }
-        if (trace) {
-          VM.sysWriteln("after:");
-          dump();
-        }
-        t.next = null;
+    
+    /*
+     * thread is only one on the queue
+     */
+    if(size==1)
+    {
+      head = null;
+      tail = null;
+      t.queuedOn = null;
+      size--;
+      return true;
+    }
+    else
+    {
+      if(t.prev==null)
+      {
+        head = t.next;
+        head.prev = null;
         t.queuedOn = null;
+        size--;
         return true;
       }
+      if(t.next == null)
+      {
+        tail = t.prev;
+        tail.next = null;
+        t.queuedOn = null;
+        size--;
+        return true;
+      }
+      t.prev.next = t.next;
+      t.next.prev = t.prev;
+      t.queuedOn = null;
+      size--;
+      return true;
     }
-    VM.sysWriteln("Could not remove Thread #", t.getThreadSlot(),
-        " from queue!");
-    dump();
-    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
-    return false; // make javac happy
+    
+//    VM.sysWriteln("Could not remove Thread #", t.getThreadSlot(),
+//        " from queue!");
+//    dump();
+//    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
+//    return false; // make javac happy
   }
 
   public boolean isQueued(RVMThread t) {

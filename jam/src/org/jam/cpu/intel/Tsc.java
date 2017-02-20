@@ -29,7 +29,7 @@ public class Tsc {
     public static void calibrate(int calibrateTimeMs)
     {
         long tsc, t1, t2, delta;
-        long tscmin, tscmax, tscavg;
+        long tscmin, tscmax;
         int pitcnt = 0;
         
         I82c54 timer = Platform.timer.timer;
@@ -48,13 +48,14 @@ public class Tsc {
          * Convert to a latch time
          */
         int latch = 1193182/(1000/calibrateTimeMs);
-        timer.counter2(I82c54.MODE0, latch);
         
         tsc = t1 = t2 = getCycles();
         tscmax = 0;
         tscmin = Long.MAX_VALUE;
+        timer.counter2(I82c54.MODE0, latch);
         keyboardControllerValue = keyboardController.ioLoadByte();
-        while((keyboardControllerValue & 0x20) == 0)
+        VM.sysWrite("cycles: ", t1); VM.sysWriteln(" ", keyboardControllerValue);
+        while((keyboardControllerValue & 0x20) != 0)
         {
             t2 = getCycles();
             delta = t2 - tsc;
