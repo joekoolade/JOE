@@ -12,7 +12,7 @@
  */
 package test.org.jikesrvm.basic.core.threads;
 
-class TestTimeSlicing {
+public class TestTimeSlicing {
 
   private static final int LAST_COUNT = 10; // threads count to ten in step
 
