@@ -43,7 +43,6 @@ public class NoYieldpointsMonitor extends Monitor {
   @NoInline
   @NoOptCompile
   public void lockNoHandshake() {
-    VM.disableYieldpoints();
     super.lockNoHandshake();
   }
 
@@ -53,7 +52,6 @@ public class NoYieldpointsMonitor extends Monitor {
   @NoInline
   @NoOptCompile
   public void lockWithHandshake() {
-    VM.disableYieldpoints();
     super.lockWithHandshake();
   }
 
@@ -62,7 +60,6 @@ public class NoYieldpointsMonitor extends Monitor {
   @NoOptCompile
   public void unlock() {
     super.unlock();
-    VM.enableYieldpoints();
   }
 }
 

@@ -2580,9 +2580,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     RVMThread.init();
   }
 
-  public static void disableYieldpoints() { RVMThread.getCurrentThread().disableYieldpoints(); }
-  public static void enableYieldpoints() { RVMThread.getCurrentThread().enableYieldpoints(); }
-
   /**
    * The disableGC() and enableGC() methods are for use as guards to protect
    * code that must deal with raw object addresses in a collection-safe manner

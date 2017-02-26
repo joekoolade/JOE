@@ -114,7 +114,7 @@ public final class SpinLock implements Constants {
    */
   public void lock() {
     if (!VM.runningVM) return;
-    VM.disableYieldpoints();
+//    VM.disableYieldpoints();
     RVMThread i = RVMThread.getCurrentThread();
     RVMThread p;
     int attempts = 0;
@@ -158,7 +158,7 @@ public final class SpinLock implements Constants {
    */
   public boolean tryLock() {
     if (!VM.runningVM) return true;
-    VM.disableYieldpoints();
+//    VM.disableYieldpoints();
     Offset latestContenderOffset = Entrypoints.latestContenderField.getOffset();
     if (Magic.prepareAddress(this, latestContenderOffset).isZero()) {
       Address cp = Magic.objectAsAddress(RVMThread.getCurrentThread());
@@ -167,7 +167,7 @@ public final class SpinLock implements Constants {
         return true;
       }
     }
-    VM.enableYieldpoints();
+//    VM.enableYieldpoints();
     return false;
   }
 
@@ -181,7 +181,7 @@ public final class SpinLock implements Constants {
     RVMThread i = RVMThread.getCurrentThread();
     if (!MCS_Locking) {
       Magic.setObjectAtOffset(this, latestContenderOffset, null);  // latestContender = null;
-      VM.enableYieldpoints();
+//      VM.enableYieldpoints();
       return;
     }
     RVMThread p;
@@ -214,7 +214,7 @@ public final class SpinLock implements Constants {
         Magic.setObjectAtOffset(this, latestContenderOffset, p); // other contenders can get at the lock
       }
     }
-    VM.enableYieldpoints();
+//    VM.enableYieldpoints();
   }
 
   /**
