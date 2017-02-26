@@ -24,7 +24,7 @@ package test.org.jikesrvm.basic.core.threads;
  * notifyAll
  */
 
-class TestTimedWait {
+public class TestTimedWait {
   public static void main(String[] args) {
     Flag.timedWait = true;
 

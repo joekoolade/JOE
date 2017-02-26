@@ -595,6 +595,7 @@ Ljava/math/BigInteger;
 Lgnu/java/math/MPN;
 
 # Ltest/org/jikesrvm/org/gctests/Exhaust;
+Ltest/org/jikesrvm/basic/core/threads/TestTimedWait;
 Ltest/org/jikesrvm/basic/core/threads/TestSuspend;
 Ltest/org/jikesrvm/basic/core/threads/TestStop;
 Ltest/org/jikesrvm/basic/core/threads/TestStop$Worker;

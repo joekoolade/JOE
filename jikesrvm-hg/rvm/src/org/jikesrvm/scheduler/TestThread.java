@@ -15,6 +15,7 @@ import test.org.jikesrvm.basic.core.threads.TestInterruptedWait;
 import test.org.jikesrvm.basic.core.threads.TestNotification;
 import test.org.jikesrvm.basic.core.threads.TestStop;
 import test.org.jikesrvm.basic.core.threads.TestSuspend;
+import test.org.jikesrvm.basic.core.threads.TestTimedWait;
 
 /**
  * @author Joe Kulig
@@ -58,6 +59,7 @@ public class TestThread extends Thread {
 //      TestInterruptedWait.main(null);
 //      TestNotification.main(null);
 //      TestStop.main(null);
-      TestSuspend.main(null);
+//      TestSuspend.main(null);
+      TestTimedWait.main(null);
     }
 }
