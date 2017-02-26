@@ -14,6 +14,7 @@ import test.org.jikesrvm.basic.core.threads.TestInterruptedSleep2;
 import test.org.jikesrvm.basic.core.threads.TestInterruptedWait;
 import test.org.jikesrvm.basic.core.threads.TestNotification;
 import test.org.jikesrvm.basic.core.threads.TestStop;
+import test.org.jikesrvm.basic.core.threads.TestSuspend;
 
 /**
  * @author Joe Kulig
@@ -56,6 +57,7 @@ public class TestThread extends Thread {
 //      TestInterruptedSleep2.main(null);
 //      TestInterruptedWait.main(null);
 //      TestNotification.main(null);
-      TestStop.main(null);
+//      TestStop.main(null);
+      TestSuspend.main(null);
     }
 }
