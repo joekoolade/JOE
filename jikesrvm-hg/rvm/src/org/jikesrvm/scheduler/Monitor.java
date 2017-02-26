@@ -431,7 +431,7 @@ public class Monitor {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
     }
     Platform.timer.startTimer(whenWakeupNanos);
-//    Platform.timer.removeTimer(whenWakeupNanos);
+    Platform.timer.removeTimer(whenWakeupNanos);
     /*
      * Wakeup next thread trying to get the lock
      */

@@ -41,7 +41,6 @@ public class TimerThread extends SystemThread {
   // TODO: consider allowing GC to be sampled to enable profile-directed optimization of MMTk.
   @Override
   public void run() {
-    VM.disableYieldpoints();
     if (verbose>=1) VM.sysWriteln("TimerThread run routine entered");
     try {
       for (;;) {

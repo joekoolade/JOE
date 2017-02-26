@@ -2432,8 +2432,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     handlePossibleRecursiveShutdown();
 
     if (VM.VerifyAssertions) VM._assert(VM.runningVM);
-    Magic.halt();
-    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
+    VM.sysWriteln("VM is shutting down!");
+    while(true) Magic.halt();
+//    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
   private static int inSysFail = 0;

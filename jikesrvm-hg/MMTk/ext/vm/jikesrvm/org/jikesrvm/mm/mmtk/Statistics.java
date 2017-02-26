@@ -30,7 +30,7 @@ public final class Statistics extends org.mmtk.vm.Statistics implements Constant
 	  /*
 	   * FIXME: 
 	   */
-    return Time.cycles();
+    return Time.nanoTime();
   }
 
   /**

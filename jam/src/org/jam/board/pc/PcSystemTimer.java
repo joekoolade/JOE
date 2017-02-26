@@ -7,6 +7,7 @@
  */
 package org.jam.board.pc;
 
+import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import org.jikesrvm.VM;
@@ -35,7 +36,7 @@ public class PcSystemTimer
     private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;
-    private static final int TICKSPERNSECS = 1000000;
+    private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
     private TreeMap<Long, RVMThread> timerQueue;
     private ThreadQueue threadQueue;
@@ -145,10 +146,9 @@ public class PcSystemTimer
         /*
          * Remove the thread from the timer and schedule it
          */
-        if(trace) VM.sysWriteln("Timer expired!");
+        if(trace) VM.sysWriteln("Timer expired! ", timerExpiration);
         RVMThread thread = timerQueue.remove(timerExpiration);
         threadQueue.remove(thread);
-        if(trace) VM.sysWriteln("Running thread: ", Magic.objectAsAddress(thread));
         Platform.scheduler.addThread(thread);
     }
     
@@ -163,8 +163,8 @@ public class PcSystemTimer
         /*
          * convert to ticks (milliseconds)
          */
-        timerTicks = time_ns / TICKSPERNSECS;
-//        VM.sysWriteln("timer ticks: ", timerTicks);
+        timerTicks = time_ns / TIMERTICKSPERNSECS;
+        if(trace) VM.sysWriteln("timer ticks: ", timerTicks);
 //        VM.sysWriteln("time_ns: ", time_ns);
 //        VM.sysWriteln("expire: ", timerTicks+tick);
         /*
@@ -186,5 +186,13 @@ public class PcSystemTimer
     public RVMThread removeTimer(long timeKey)
     {
       return timerQueue.remove(timeKey);
+    }
+    
+    /**
+     * Remove timer associated with thread
+     */
+    public void removeTimer(RVMThread thr)
+    {
+      
     }
 }
