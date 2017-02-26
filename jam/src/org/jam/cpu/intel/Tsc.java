@@ -18,7 +18,7 @@ import org.vmmagic.unboxed.Address;
  */
 public class Tsc {
     public static long cyclesPerSecond;
-    public static int cyclesPer1000Ns;
+    public static int cyclesPer1000Ns=2500;
     public final static long NSPERSEC=1000000000;
     
     public static long getCycles()
@@ -48,14 +48,15 @@ public class Tsc {
          * Convert to a latch time
          */
         int latch = 1193182/(1000/calibrateTimeMs);
-        
-        tsc = t1 = t2 = getCycles();
+                
         tscmax = 0;
         tscmin = Long.MAX_VALUE;
         timer.counter2(I82c54.MODE0, latch);
-        keyboardControllerValue = keyboardController.ioLoadByte();
-        VM.sysWrite("cycles: ", t1); VM.sysWriteln(" ", keyboardControllerValue);
-        while((keyboardControllerValue & 0x20) != 0)
+        tsc = t1 = t2 = getCycles();
+        // Wait for the gate to go active
+        while((keyboardController.ioLoadByte() & 0x20) != 0)
+          ;
+        while((keyboardController.ioLoadByte() & 0x20) == 0)
         {
             t2 = getCycles();
             delta = t2 - tsc;
@@ -72,10 +73,10 @@ public class Tsc {
                 }
             }
             pitcnt++;
-            keyboardControllerValue = keyboardController.ioLoadByte();
         }
         Magic.enableInterrupts();
         keyboardController.ioStore(0);
+        VM.sysWrite("t1 t2: ", t1); VM.sysWriteln(" ", t2);
         VM.sysWrite("cycles: ", t2-t1);
         VM.sysWrite("  min: ", tscmin);
         VM.sysWrite("  max: ", tscmax);

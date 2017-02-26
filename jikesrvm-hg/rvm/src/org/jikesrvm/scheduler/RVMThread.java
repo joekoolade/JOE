@@ -857,7 +857,11 @@ public final class RVMThread extends ThreadContext implements Constants {
     /** The thread is waiting without a timeout. */
     WAITING,
     /** The thread is waiting with a timeout. */
-    TIMED_WAITING
+    TIMED_WAITING,
+    /** The thread is sleeping */
+    SLEEPING,
+    /** Thread is parking */
+    PARKING,
   }
 
   /**
@@ -1537,7 +1541,7 @@ public Address sentinelFp;
       VM.sysWrite("ip: ", ip);
       VM.sysWrite(" sp: ", sp);
       VM.sysWriteln(" esi: ", contextRegisters.gprs.get(Registers.ESI.value()));
-      VM.sysWriteln("Java Thread: ", Magic.objectAsAddress(thread));
+//      VM.sysWriteln("Java Thread: ", Magic.objectAsAddress(thread));
       // Initialize the a thread stack as if "startoff" method had been called
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       Configuration.archHelper.initializeStack(contextRegisters, ip, sp);
@@ -1545,7 +1549,7 @@ public Address sentinelFp;
       // Points to framepointer sentinel
       this.framePointer = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
-      VM.sysWriteln("rvmthread sp: ", this.sp);
+//      VM.sysWriteln("rvmthread sp: ", this.sp);
       
       /*
        * Set up the FP/SSE/MMX state area
@@ -1556,7 +1560,7 @@ public Address sentinelFp;
        * Align to a sixteen byte boundary
        */
       fxStateAddress = Magic.objectAsAddress(fxStateRegisters);
-      VM.sysWriteln("FX STATE0: ", fxStateAddress);
+//      VM.sysWriteln("FX STATE0: ", fxStateAddress);
       if((fxStateAddress.toInt() & 0xF) != 0)
       {
         /*
@@ -1564,7 +1568,7 @@ public Address sentinelFp;
          */
         fxStateAddress = Address.fromIntSignExtend(fxStateAddress.plus(16).toInt() & ~0xF);
       }
-      VM.sysWriteln("FX STATE1: ", fxStateAddress);
+//      VM.sysWriteln("FX STATE1: ", fxStateAddress);
       VM.enableGC();
 
       assignThreadSlot();
@@ -2307,7 +2311,7 @@ public Address sentinelFp;
   // Called by back-door methods.
   private static void startoff() {
     RVMThread currentThread = getCurrentThread();
-    VM.sysWriteln("startoff framePointer: ", currentThread.framePointer);
+//    VM.sysWriteln("startoff framePointer: ", currentThread.framePointer);
     currentThread.enableYieldpoints();
     if (traceAcct) {
       VM.sysWriteln("Thread #", currentThread.threadSlot);
@@ -2849,13 +2853,27 @@ public Address sentinelFp;
   public static void yieldNoHandshake() {
     Platform.scheduler.addThread(Magic.getThreadRegister());
     Magic.yield();
-    getCurrentThread().checkBlock();
+    RVMThread t = getCurrentThread();
+    Throwable throwThis = null;
+    if (t.asyncThrowable != null) {
+      throwThis = t.asyncThrowable;
+      t.asyncThrowable = null;
+      RuntimeEntrypoints.athrow(throwThis);
+    }
+    t.checkBlock();
   }
 
   public static void yieldWithHandshake() {
     Platform.scheduler.addThread(Magic.getThreadRegister());
     Magic.yield();
-    getCurrentThread().checkBlock();
+    RVMThread t = getCurrentThread();
+    Throwable throwThis = null;
+    if (t.asyncThrowable != null) {
+      throwThis = t.asyncThrowable;
+      t.asyncThrowable = null;
+      RuntimeEntrypoints.athrow(throwThis);
+    }
+    t.checkBlock();
   }
   /**
    * Suspend execution of current thread for specified number of seconds (or
@@ -2865,12 +2883,16 @@ public Address sentinelFp;
   public static void sleep(long ns) throws InterruptedException {
     // VM.sysWriteln("sleep: ", ns);
     RVMThread t = getCurrentThread();
-    t.waiting = Waiting.TIMED_WAITING;
+    t.waiting = Waiting.SLEEPING;
     long atStart = Magic.getTimeBase(); // sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
     
-    Platform.timer.startTimer(ns);
+//    Platform.timer.startTimer(ns);
+    t.monitor().lockNoHandshake();
+    t.monitor().timedWaitAbsoluteNoHandshake(whenEnd);
+    t.monitor().unlock();
     
+    t.waiting = Waiting.RUNNABLE;
     t.checkBlock();
     boolean throwInterrupt = false;
     Throwable throwThis = null;
@@ -2921,31 +2943,55 @@ public Address sentinelFp;
       Lock l = ObjectModel.getHeavyLock(o, true);
 
       // release the lock
-      l.mutex.lock();
+//      l.mutex.lock();
       // this thread is supposed to own the lock on o
       if (VM.VerifyAssertions) VM._assert(l.getOwnerId() == getLockingId());
-      RVMThread toAwaken = l.entering.dequeue();
+//      RVMThread toAwaken = l.entering.dequeue();
       waitObject = l.getLockedObject();
       waitCount = l.getRecursionCount();
       l.setOwnerId(0);
-      l.waiting.enqueue(this);
-      l.mutex.unlock();
+//      l.waiting.enqueue(this);
 
       // if there was a thread waiting, awaken it
-      if (toAwaken != null) {
-        // is this where the problem is coming from?
-        toAwaken.monitor().lockedBroadcastNoHandshake();
-      }
-      // block
+//      if (toAwaken != null) {
+//        // is this where the problem is coming from?
+//        Platform.scheduler.addThread(toAwaken);
+//      }
+//      
+//      l.mutex.unlock();
+      
+      /*
+       * Give up the processor
+       */
+//      Magic.yield();
+      /*
+       * Keeping looping until notified
+       */
+//      while(l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null)
+//      {
+//        Magic.yield();
+//      }
+      
+//      // block
+//      monitor().lockNoHandshake();
+//      while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
+//             (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos)) {
+//        if (hasTimeout) {
+//          monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
+//        } else {
+//          monitor().waitWithHandshake();
+//        }
+//      }
       monitor().lockNoHandshake();
-      while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
-             (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos)) {
-        if (hasTimeout) {
-          monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
-        } else {
-          monitor().waitWithHandshake();
-        }
+      if (hasTimeout)
+      {
+        monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
       }
+      else
+      {
+        monitor().waitWithHandshake();
+      }
+      
       // figure out if anything special happened while we were blocked
       if (hasInterrupt) {
         throwInterrupt = true;
@@ -2956,18 +3002,18 @@ public Address sentinelFp;
         asyncThrowable = null;
       }
       monitor().unlock();
-      if (l.waiting.isQueued(this)) {
-        l.mutex.lock();
-        l.waiting.remove(this); /*
-                                 * in case we got here due to an interrupt or a
-                                 * stop() rather than a notify
-                                 */
-        l.mutex.unlock();
-        // Note that the above must be done before attempting to acquire
-        // the lock, since acquiring the lock may require queueing the thread.
-        // But we cannot queue the thread if it is already on another
-        // queue.
-      }
+//      if (l.waiting.isQueued(this)) {
+//        l.mutex.lock();
+//        l.waiting.remove(this); /*
+//                                 * in case we got here due to an interrupt or a
+//                                 * stop() rather than a notify
+//                                 */
+//        l.mutex.unlock();
+//        // Note that the above must be done before attempting to acquire
+//        // the lock, since acquiring the lock may require queueing the thread.
+//        // But we cannot queue the thread if it is already on another
+//        // queue.
+//      }
       // reacquire the lock, restoring the recursion count
       ObjectModel.genericLock(o);
       waitObject = null;
@@ -2976,6 +3022,8 @@ public Address sentinelFp;
         l2.setRecursionCount(waitCount);
       }
       waiting = Waiting.RUNNABLE;
+      checkBlock();
+
     }
     // check if we should exit in a special way
     if (throwThis != null) {
@@ -3047,19 +3095,20 @@ public Address sentinelFp;
     // word and *then* initialize its state.  but fortunately, we do so while holding
     // the lock's mutex.  thus acquiring the lock's mutex is the only way to ensure that
     // we see the lock's state after initialization.
-    l.mutex.lock();
+//    l.mutex.lock();
     int owner=l.getOwnerId();
-    l.mutex.unlock();
+//    l.mutex.unlock();
     int me=getCurrentThread().getLockingId();
     if (owner != me) {
       raiseIllegalMonitorStateException("notifying (expected lock to be held by "+me+"("+getCurrentThread().getLockingId()+") but was held by "+owner+"("+l.getOwnerId()+")) ", o);
     }
-    l.mutex.lock();
-    RVMThread toAwaken = l.waiting.dequeue();
-    l.mutex.unlock();
-    if (toAwaken != null) {
-      toAwaken.monitor().lockedBroadcastNoHandshake();
-    }
+//    l.mutex.lock();
+//    RVMThread toAwaken = l.waiting.dequeue();
+//    l.mutex.unlock();
+//    if (toAwaken != null) {
+//      Platform.scheduler.addThread(toAwaken);
+//    }
+    getCurrentThread().monitor().notify1();
   }
 
   /**
@@ -3075,26 +3124,27 @@ public Address sentinelFp;
     Lock l = ObjectModel.getHeavyLock(o, false);
     if (l == null)
       return;
-    l.mutex.lock();
+//    l.mutex.lock();
     int owner=l.getOwnerId();
-    l.mutex.unlock();
+//    l.mutex.unlock();
     if (owner != getCurrentThread().getLockingId()) {
       raiseIllegalMonitorStateException("notifying all (expected lock to be held by "+getCurrentThread().getLockingId()+" but was held by "+l.getOwnerId()+") ", o);
     }
-    for (;;) {
-      l.mutex.lock();
-      RVMThread toAwaken = l.waiting.dequeue();
-      l.mutex.unlock();
-      if (toAwaken == null)
-        break;
-      toAwaken.monitor().lockedBroadcastNoHandshake();
-    }
+//    for (;;) {
+//      l.mutex.lock();
+//      RVMThread toAwaken = l.waiting.dequeue();
+//      l.mutex.unlock();
+//      if (toAwaken == null)
+//        break;
+//      toAwaken.monitor().lockedBroadcastNoHandshake();
+//    }
+    getCurrentThread().monitor().broadcast();
   }
 
   public void stop(Throwable cause) {
     monitor().lockNoHandshake();
     asyncThrowable = cause;
-    takeYieldpoint = 1;
+//    takeYieldpoint = 1;
     monitor().broadcast();
     monitor().unlock();
   }
@@ -3120,11 +3170,11 @@ public Address sentinelFp;
     if (isAbsolute) {
       whenWakeupNanos = time;
     } else {
-      whenWakeupNanos = Magic.getTimeBase(); //sysCall.sysNanoTime() + time;
+      whenWakeupNanos = Magic.getTimeBase() + time; //sysCall.sysNanoTime() + time;
     }
     Throwable throwThis = null;
     monitor().lockNoHandshake();
-    waiting = hasTimeout ? Waiting.TIMED_WAITING : Waiting.WAITING;
+    waiting = Waiting.PARKING; // hasTimeout ? Waiting.TIMED_WAITING : Waiting.WAITING;
     while (!parkingPermit && !hasInterrupt && asyncThrowable == null &&
            (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos)) {
       if (hasTimeout) {
@@ -4225,11 +4275,12 @@ public Address sentinelFp;
    * @see java.lang.Thread#interrupt()
    */
   @Interruptible
-  public void interrupt() {
-    monitor().lockNoHandshake();
-    hasInterrupt = true;
-    monitor().broadcast();
-    monitor().unlock();
+  public void interrupt() 
+  {
+      monitor().lockNoHandshake();
+      hasInterrupt = true;
+      monitor().broadcast();
+      monitor().unlock();
   }
 
   /**
