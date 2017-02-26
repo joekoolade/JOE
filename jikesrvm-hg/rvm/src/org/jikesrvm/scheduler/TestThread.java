@@ -8,6 +8,12 @@ package org.jikesrvm.scheduler;
 import test.org.jikesrvm.org.gctests.Exhaust;
 import test.org.jikesrvm.basic.core.bytecode.*;
 import test.org.jikesrvm.basic.core.threads.TestDispatch;
+import test.org.jikesrvm.basic.core.threads.TestInterruptAndSpin;
+import test.org.jikesrvm.basic.core.threads.TestInterruptedSleep;
+import test.org.jikesrvm.basic.core.threads.TestInterruptedSleep2;
+import test.org.jikesrvm.basic.core.threads.TestInterruptedWait;
+import test.org.jikesrvm.basic.core.threads.TestNotification;
+import test.org.jikesrvm.basic.core.threads.TestStop;
 
 /**
  * @author Joe Kulig
@@ -44,6 +50,12 @@ public class TestThread extends Thread {
 //        TestSwitch.main(null);
 //        TestFloatingRem.main(null);
 //        TestThrownException.main(null);
-        TestDispatch.main(null);
+//        TestDispatch.main(null);
+//      TestInterruptAndSpin.main(null);
+//      TestInterruptedSleep.main(null);
+//      TestInterruptedSleep2.main(null);
+//      TestInterruptedWait.main(null);
+//      TestNotification.main(null);
+      TestStop.main(null);
     }
 }

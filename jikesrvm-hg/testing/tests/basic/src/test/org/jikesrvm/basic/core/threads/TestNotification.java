@@ -22,7 +22,7 @@ package test.org.jikesrvm.basic.core.threads;
  * notify
  * notifyAll
  */
-class TestNotification {
+public class TestNotification {
   public static void main(String[] args) {
     int count = 20;
     Mailbox mailbox = new Mailbox(count);
@@ -33,6 +33,17 @@ class TestNotification {
       tasks[i] = new Task(mailbox, flag, i);
     }
 
+    try
+    {
+      System.out.println("going to sleep");
+      Thread.sleep(1000);
+      System.out.println("waking up");
+    }
+    catch (InterruptedException e1)
+    {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     for (Task task : tasks) {
       task.start();
       //Have to wait for the messages to be sent
