@@ -150,7 +150,6 @@ public class Monitor {
       locking.enqueue(RVMThread.getCurrentThread());
       Magic.yield();
     }
-    // sysCall.sysMonitorEnter(monitor);
     if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
     if (VM.VerifyAssertions) VM._assert(this.recCount == 0);
     holderSlot = RVMThread.getCurrentThreadSlot();
@@ -259,10 +258,10 @@ public class Monitor {
 //        RVMThread.leaveNative();
 //      }
 //    }
-    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
-    if (VM.VerifyAssertions) VM._assert(this.recCount==0);
-    holderSlot=RVMThread.getCurrentThreadSlot();
-    this.recCount=recCount;
+//    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
+//    if (VM.VerifyAssertions) VM._assert(this.recCount==0);
+//    holderSlot=RVMThread.getCurrentThreadSlot();
+//    this.recCount=recCount;
   }
   /**
    * Release the lock.  This method should (in principle) be non-blocking,
@@ -337,11 +336,11 @@ public class Monitor {
   @NoOptCompile
   public void waitNoHandshake()
   {
-    RVMThread thread = RVMThread.getCurrentThread();
-    /*
-     * put thread onto the wait queue
-     */
-    waiting.enqueue(thread);
+//    RVMThread thread = RVMThread.getCurrentThread();
+//    /*
+//     * put thread onto the wait queue
+//     */
+//    waiting.enqueue(thread);
     /*
      * Save current monitor state
      * and reset
@@ -358,7 +357,7 @@ public class Monitor {
     }
     if(trace) {
       VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
-      VM.sysWriteln("T#", thread.threadSlot);
+//      VM.sysWriteln("T#", thread.threadSlot);
     }
     /*
      * Wakeup next thread trying to get the lock
@@ -382,7 +381,6 @@ public class Monitor {
     {
       Magic.yield();
     }
-    // sysCall.sysMonitorWait(monitor);
     if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
     if (VM.VerifyAssertions) VM._assert(this.recCount == 0);
     /*
@@ -414,15 +412,15 @@ public class Monitor {
     /*
      * put thread onto the wait queue
      */
-    RVMThread monitorThread = RVMThread.getCurrentThread();
-    waiting.enqueue(monitorThread);
+//    RVMThread monitorThread = RVMThread.getCurrentThread();
+//    waiting.enqueue(monitorThread);
     /*
      * start a timer for this monitor
      */
     if(trace)
     {
       VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
-      VM.sysWrite("/T#", monitorThread.threadSlot);
+//      VM.sysWrite("/T#", monitorThread.threadSlot);
       VM.sysWriteln("/", whenWakeupNanos);
     }
     /*
@@ -433,7 +431,7 @@ public class Monitor {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
     }
     Platform.timer.startTimer(whenWakeupNanos);
-    Platform.timer.removeTimer(whenWakeupNanos);
+//    Platform.timer.removeTimer(whenWakeupNanos);
     /*
      * Wakeup next thread trying to get the lock
      */
@@ -573,6 +571,32 @@ public class Monitor {
   }
 
   /**
+   * Notify just the first thread waiting on this lock
+   */
+  @NoInline
+  @NoOptCompile
+  public void notify1() {
+    /*
+     * Get the waiting thread
+     */
+    RVMThread waitingThread = waiting.dequeue();
+    if(waitingThread != null)
+    {
+        /*
+         * Schedule thread to be run
+         * 
+         * Do not have to unlock monitor since that is being done at
+         * a higher level
+         */
+        if(trace) 
+        {
+          VM.sysWrite("Notify1/", Magic.objectAsAddress(this));
+          VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
+        }
+        Platform.scheduler.addThread(waitingThread);
+    }
+  }
+  /**
    * Send a broadcast, which should awaken anyone who is currently blocked
    * in any of the wait methods.  This method should (in principle) be
    * non-blocking, and, as such, it does not notify the threading subsystem
@@ -601,7 +625,6 @@ public class Monitor {
         Platform.scheduler.addThread(waitingThread);
         waitingThread = waiting.dequeue();
     }
-    // sysCall.sysMonitorBroadcast(monitor);
   }
   /**
    * Send a broadcast after first acquiring the lock.  Release the lock

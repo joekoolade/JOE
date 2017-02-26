@@ -52,6 +52,7 @@ public class ThreadQueue {
       VM.sysWrite("Already scheduled ", t.getThreadSlot());
       VM.sysWrite(" tail: ", Magic.objectAsAddress(tail)); VM.sysWrite(" head: ", Magic.objectAsAddress(head));
       VM.sysWrite(" next: ", Magic.objectAsAddress(t.next)); VM.sysWriteln(" prev: ", Magic.objectAsAddress(t.prev));
+      t.dumpStack();
       return;
     }
     if (VM.VerifyAssertions)
