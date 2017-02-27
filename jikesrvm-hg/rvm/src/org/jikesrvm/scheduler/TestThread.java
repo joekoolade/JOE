@@ -17,6 +17,7 @@ import test.org.jikesrvm.basic.core.threads.TestStop;
 import test.org.jikesrvm.basic.core.threads.TestSuspend;
 import test.org.jikesrvm.basic.core.threads.TestTimeSlicing;
 import test.org.jikesrvm.basic.core.threads.TestTimedWait;
+import test.org.jikesrvm.basic.core.threads.TestVolatileDoubles;
 
 /**
  * @author Joe Kulig
@@ -62,6 +63,7 @@ public class TestThread extends Thread {
 //      TestStop.main(null);
 //      TestSuspend.main(null);
 //      TestTimedWait.main(null);
-      TestTimeSlicing.main(null);
+//      TestTimeSlicing.main(null);
+      TestVolatileDoubles.main(null);
     }
 }

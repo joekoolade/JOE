@@ -12,7 +12,7 @@
  */
 package test.org.jikesrvm.basic.core.threads;
 
-class TestVolatileDoubles extends XThread {
+public class TestVolatileDoubles extends XThread {
 
   public static void main(String[] args) {
     VolatileDoubleField vdf = new VolatileDoubleField();
