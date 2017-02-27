@@ -1,4 +1,0 @@
-export PROJ_SRC_ROOT=/home/jkulig/git/jei/vmkit
-export PROJ_OBJ_ROOT=/home/jkulig/git/jei/vmkit
-export LLVM_SRC_ROOT=/home/jkulig/git/jei/vmkit
-export LLVM_OBJ_ROOT=/home/jkulig/git/jei/vmkit
