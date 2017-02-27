@@ -1,7 +1,0 @@
-.source_list
-bootclasspath
-*.class
-buddy.dll
-target
-velocity.log
-maven.log
