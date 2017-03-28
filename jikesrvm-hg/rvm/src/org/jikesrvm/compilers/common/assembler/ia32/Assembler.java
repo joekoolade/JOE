@@ -2485,9 +2485,17 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     {
       int miStart = mi;
       
-      setMachineCodes(mi, (byte)0xD9);
+      setMachineCodes(mi++, (byte)0xD9);
       setMachineCodes(mi++, (byte)0xFC);
       if(lister != null) lister.R(miStart, "FRNDINT", dst);
+    }
+    
+    public final void emitCPUID()
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0xA2);
     }
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.

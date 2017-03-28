@@ -362,9 +362,11 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.util.logging.Level");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");
-      runClassInitializer("java.lang.reflect.Proxy");
-      runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
+//      runClassInitializer("java.lang.reflect.Proxy");
+//      runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
+//    runClassInitializer("org.jam.board.pc.PciCapId");
+    
     // runClassInitializer("java.util.logging.Logger");
     // Initialize compiler that compiles dynamically loaded classes.
     //
@@ -397,7 +399,7 @@ public class VM extends Properties implements Constants, ExitStatus {
      * Need to initialize the platform here because
      * we need the scheduler to start threads.
      */
-    Platform.init();
+    Platform.boot();
     
     // Put the IdleThread on the queue
     if(verboseBoot >= 1)
@@ -448,7 +450,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     Platform.masterPic.setInterrupt(I8259A.COM1);
     Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
     Magic.yield();
-    
+    VM.shutdown(1);
     VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");
     // As one suspects this should never be reached
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);

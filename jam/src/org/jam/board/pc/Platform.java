@@ -6,9 +6,12 @@
  */
 package org.jam.board.pc;
 
+import org.jam.cpu.intel.CpuId;
 import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.Tsc;
+import org.jam.driver.net.VirtioNet;
 import org.jam.driver.serial.PcSerialPort;
+import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RoundRobin;
 import org.jikesrvm.scheduler.Scheduler;
@@ -26,6 +29,7 @@ public class Platform {
     public static Scheduler scheduler;
     public static I8259A masterPic;
     public static I8259A slavePic;
+    public static VirtioNet net;
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -35,17 +39,30 @@ public class Platform {
     final private static int COM3 = 0x3E8;
     final private static int COM4 = 0x2E8;
     
-    public static void init()
+    public static void boot()
     {
-        timer = new PcSystemTimer();
-        Tsc.calibrate(50);
-        serialPort = new PcSerialPort(COM1);
-        VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
-        scheduler = new RoundRobin();
-        Idt.init();
-        masterPic = new I8259A(MASTERPICPORT);
-        masterPic.pcSetup();
-        slavePic = new I8259A(SLAVEPICPORT, true);
-        slavePic.pcSetup();
+      CpuId.boot();
+      Pci.boot();
+      Pci.enumeratePci();
+      timer = new PcSystemTimer();
+      Tsc.calibrate(50);
+      serialPort = new PcSerialPort(COM1);
+//      VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
+      scheduler = new RoundRobin();
+      Idt.init();
+      masterPic = new I8259A(MASTERPICPORT);
+      masterPic.pcSetup();
+      slavePic = new I8259A(SLAVEPICPORT, true);
+      slavePic.pcSetup();
+      try
+      {
+        net = new VirtioNet();
+      }
+      catch (NoDeviceFoundException e)
+      {
+        // TODO Auto-generated catch block
+        VM.sysWriteln("No VirtioNet device found!");
+      }
+      net.boot();
     }
 }

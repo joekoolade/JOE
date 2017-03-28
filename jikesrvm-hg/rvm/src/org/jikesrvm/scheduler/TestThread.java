@@ -64,6 +64,6 @@ public class TestThread extends Thread {
 //      TestSuspend.main(null);
 //      TestTimedWait.main(null);
 //      TestTimeSlicing.main(null);
-      TestVolatileDoubles.main(null);
+//      TestVolatileDoubles.main(null);
     }
 }

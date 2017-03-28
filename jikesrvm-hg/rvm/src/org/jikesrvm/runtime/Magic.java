@@ -1316,4 +1316,12 @@ public final class Magic {
       // TODO Auto-generated method stub
       return 0.0;
     }
+    
+    public static void cpuId(int val, int[] registers)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+    }
 }

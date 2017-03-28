@@ -1090,6 +1090,7 @@ public class GenerateAssembler {
     excludedOpcodes.add("FXSAVE");
     excludedOpcodes.add("FXRSTOR");
     excludedOpcodes.add("FRNDINT");
+    excludedOpcodes.add("CPUID");
   }
 
   /**

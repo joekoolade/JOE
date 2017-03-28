@@ -2809,4 +2809,36 @@ final class BaselineMagic {
       MagicGenerator g = new SetCS();
       generators.put(getMethodReference(Magic.class, MagicNames.setCS, int.class, void.class), g);
   }
+  
+  /*
+   * Generate a CPUID instruction
+   */
+  private static final class CpuId extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      asm.emitMOV_Reg_RegDisp(EAX, ESP, ONE_SLOT);
+      // int[] is at the top of the stack
+      asm.emitCPUID();
+      /*
+       * Push EAX, EBX, ECX, and EDX into the array
+       */
+      asm.emitPOP_Reg(EBP);
+      asm.emitMOV_RegDisp_Reg(EBP, NO_SLOT, EAX);
+      asm.emitMOV_RegDisp_Reg(EBP, ONE_SLOT, EBX);
+      asm.emitMOV_RegDisp_Reg(EBP, TWO_SLOTS, ECX);
+      asm.emitMOV_RegDisp_Reg(EBP, THREE_SLOTS, EDX);
+      /*
+       * Pop the int[] off
+       */
+      asm.emitPOP_Reg(EAX);
+    }
+  }
+  
+  static
+  {
+    MagicGenerator g = new CpuId();
+    generators.put(getMethodReference(Magic.class, MagicNames.cpuId, int.class, int[].class, void.class), g);
+  }
 }

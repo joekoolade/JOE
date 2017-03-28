@@ -222,4 +222,5 @@ public class MagicNames {
   
   // Segment register manipulations
   public static final Atom setCS = Atom.findOrCreateAsciiAtom("setCS");
+  public static final Atom cpuId = Atom.findOrCreateAsciiAtom("cpuId");
 }
