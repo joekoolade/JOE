@@ -19,6 +19,75 @@ public class CpuId {
   public static char[] vendorId = new char[12];
   public static char[] processorBrand = new char[48];
   static int[] regs = new int[4];
+  private static int extendedFamilyId;
+  private static int extendedModelId;
+  private static int processorType;
+  private static int familyId;
+  private static int model;
+  private static int steppingId;
+  private static int brandIndex;
+  private static int cflushLineSize;
+  private static int maxApicIds;
+  private static int apicId;
+  private static boolean hasFPU;
+  private static boolean hasVME;
+  private static boolean hasDE;
+  private static boolean hasPSE;
+  private static boolean hasTSC;
+  private static boolean hasMSR;
+  private static boolean hasPAE;
+  private static boolean hasMCE;
+  private static boolean hasCX8;
+  private static boolean hasAPIC;
+  private static boolean hasSEP;
+  private static boolean hasMTRR;
+  private static boolean hasPGE;
+  private static boolean hasMCA;
+  private static boolean hasCMOV;
+  private static boolean hasPAT;
+  private static boolean hasPSE36;
+  private static boolean hasPSN;
+  private static boolean hasCLFSH;
+  private static boolean hasDS;
+  private static boolean hasACPI;
+  private static boolean hasMMX;
+  private static boolean hasFXSR;
+  private static boolean hasSSE;
+  private static boolean hasSSE2;
+  private static boolean hasSS;
+  private static boolean hasHTT;
+  private static boolean hasTM;
+  private static boolean hasPBE;
+  private static boolean hasSSE3;
+  private static boolean hasPCLMUQDQ;
+  private static boolean hasDTES64;
+  private static boolean hasMONITOR;
+  private static boolean hasDSCPL;
+  private static boolean hasVMX;
+  private static boolean hasSMX;
+  private static boolean hasEIST;
+  private static boolean hasTM2;
+  private static boolean hasSSSE3;
+  private static boolean hasCNXTID;
+  private static boolean hasSDBG;
+  private static boolean hasFMA;
+  private static boolean hasCMPXCHG16B;
+  private static boolean hasXTPR;
+  private static boolean hasPDCM;
+  private static boolean hasPCID;
+  private static boolean hasDCA;
+  private static boolean hasSSE41;
+  private static boolean hasSSE42;
+  private static boolean hasX2APIC;
+  private static boolean hasMOVBE;
+  private static boolean hasPOPCNT;
+  private static boolean hasTSCDEADLINE;
+  private static boolean hasAESNI;
+  private static boolean hasOSXSAVE;
+  private static boolean hasXSAVE;
+  private static boolean hasAVX;
+  private static boolean hasF16C;
+  private static boolean hasDRAND;
   public static final boolean trace = true;
   
   public static void boot()
@@ -58,18 +127,96 @@ public class CpuId {
       Magic.cpuId(1, regs);
       if(trace)
       {
-        VM.sysWrite("CPUID 1: ", regs[0]);
-        VM.sysWrite(" ", regs[1]);
-        VM.sysWrite(" ", regs[2]);
-        VM.sysWriteln(" ", regs[3]);
+        VM.sysWrite("CPUID 1: ", VM.intAsHexString(regs[0]));
+        VM.sysWrite(" ", VM.intAsHexString(regs[1]));
+        VM.sysWrite(" ", VM.intAsHexString(regs[2]));
+        VM.sysWriteln(" ", VM.intAsHexString(regs[3]));
       }
+      
+      // EAX
+      extendedFamilyId = (regs[0] >> 20) & 0xFF;
+      extendedModelId = (regs[0] >> 16) & 0xF;
+      processorType = (regs[0] >> 12) & 0x3;
+      familyId = (regs[0] >> 8) & 0xF;
+      model = (regs[0] >> 4) & 0xF;
+      steppingId = regs[0] & 0xF;
+      
+      // EBX
+      brandIndex = regs[1] & 0xFF;
+      cflushLineSize = ((regs[1] >> 8) & 0xFF) * 8;
+      maxApicIds = (regs[1] >> 16) & 0xFF;
+      apicId = (regs[1] >> 24) & 0xFF;
+      
+      // ECX
+      hasSSE3 = (regs[2] & 0x00000001) != 0;
+      hasPCLMUQDQ = (regs[2] & 0x00000002) != 0;
+      hasDTES64 = (regs[2] & 0x00000004) != 0;
+      hasMONITOR = (regs[2] & 0x00000008) != 0;
+      hasDSCPL = (regs[2] & 0x00000010) != 0;
+      hasVMX = (regs[2] & 0x00000020) != 0;
+      hasSMX = (regs[2] & 0x00000040) != 0;
+      hasEIST = (regs[2] & 0x00000080) != 0;
+      hasTM2 = (regs[2] & 0x00000100) != 0;
+      hasSSSE3 = (regs[2] & 0x00000200) != 0;
+      hasCNXTID = (regs[2] & 0x00000400) != 0;
+      hasSDBG = (regs[2] & 0x00000800) != 0;
+      hasFMA = (regs[2] & 0x00001000) != 0;
+      hasCMPXCHG16B = (regs[2] & 0x00002000) != 0;
+      hasXTPR = (regs[2] & 0x00004000) != 0;
+      hasPDCM = (regs[2] & 0x00008000) != 0;
+      hasPCID = (regs[2] & 0x00020000) != 0;
+      hasDCA = (regs[2] & 0x00040000) != 0;
+      hasSSE41 = (regs[2] & 0x00080000) != 0;
+      hasSSE42 = (regs[2] & 0x00100000) != 0;
+      hasX2APIC = (regs[2] & 0x00200000) != 0;
+      hasMOVBE = (regs[2] & 0x00400000) != 0;
+      hasPOPCNT = (regs[2] & 0x00800000) != 0;
+      hasTSCDEADLINE = (regs[2] & 0x01000000) != 0;
+      hasAESNI = (regs[2] & 0x02000000) != 0;
+      hasXSAVE = (regs[2] & 0x04000000) != 0;
+      hasOSXSAVE = (regs[2] & 0x08000000) != 0;
+      hasAVX = (regs[2] & 0x10000000) != 0;
+      hasF16C = (regs[2] & 0x20000000) != 0;
+      hasDRAND = (regs[2] & 0x40000000) != 0;
+      
+      // EDX
+      hasFPU = (regs[3] & 0x00000001) != 0;
+      hasVME = (regs[3] & 0x00000002) != 0;
+      hasDE  = (regs[3] & 0x00000004) != 0;
+      hasPSE = (regs[3] & 0x00000008) != 0;
+      hasTSC = (regs[3] & 0x00000010) != 0;
+      hasMSR = (regs[3] & 0x00000020) != 0;
+      hasPAE = (regs[3] & 0x00000040) != 0;
+      hasMCE = (regs[3] & 0x00000080) != 0;
+      hasCX8 = (regs[3] & 0x00000100) != 0;
+      hasAPIC = (regs[3] & 0x00000200) != 0;
+      hasSEP = (regs[3] & 0x00000800) != 0;
+      hasMTRR = (regs[3] & 0x00001000) != 0;
+      hasPGE = (regs[3] & 0x00002000) != 0;
+      hasMCA = (regs[3] & 0x00004000) != 0;
+      hasCMOV = (regs[3] & 0x00008000) != 0;
+      hasPAT = (regs[3] & 0x00010000) != 0;
+      hasPSE36 = (regs[3] & 0x00020000) != 0;
+      hasPSN = (regs[3] & 0x00040000) != 0;
+      hasCLFSH = (regs[3] & 0x00080000) != 0;
+      hasDS = (regs[3] & 0x00200000) != 0;
+      hasACPI = (regs[3] & 0x00400000) != 0;
+      hasMMX = (regs[3] & 0x00800000) != 0;
+      hasFXSR = (regs[3] & 0x01000000) != 0;
+      hasSSE = (regs[3] & 0x02000000) != 0;
+      hasSSE2 = (regs[3] & 0x04000000) != 0;
+      hasSS = (regs[3] & 0x08000000) != 0;
+      hasHTT = (regs[3] & 0x10000000) != 0;
+      hasTM = (regs[3] & 0x20000000) != 0;
+      hasPBE = (regs[3] & 0x80000000) != 0;
     }
+    
     static void extendedCpuId0()
     {
       Magic.cpuId(0x80000000, regs);
       if(trace)
       {
-        VM.sysWriteln("Extened CPUID 0: ", regs[0]);
+        VM.sysWriteln("Extened CPUID 0: ", VM.intAsHexString(regs[0]));
       }
     }
     
@@ -136,5 +283,70 @@ public class CpuId {
       {
         VM.sysWriteln("Processor Brand: ", new String(processorBrand));
       }
+    }
+    
+    public static void print()
+    {
+      VM.sysWriteln("CPUID:");
+      if(hasFPU) VM.sysWrite("FPU ");
+      if(hasVME) VM.sysWrite("VME ");
+      if(hasDE) VM.sysWrite("DE ");
+      if(hasPSE) VM.sysWrite("PSE ");
+      if(hasTSC) VM.sysWrite("TSC ");
+      if(hasMSR) VM.sysWrite("MSR ");
+      if(hasPAE) VM.sysWrite("PAE ");
+      if(hasMCE) VM.sysWrite("MCE ");
+      if(hasCX8) VM.sysWrite("CX8 ");
+      if(hasAPIC) VM.sysWrite("APIC ");
+      if(hasSEP) VM.sysWrite("SEP ");
+      if(hasMTRR) VM.sysWrite("MTRR ");
+      if(hasPGE) VM.sysWrite("PGE ");
+      if(hasMCA) VM.sysWrite("MCA ");
+      if(hasCMOV) VM.sysWrite("CMOV ");
+      if(hasPAT) VM.sysWrite("PAT ");
+      if(hasPSE36) VM.sysWrite("PSE36 " );
+      if(hasPSN) VM.sysWrite("PSN ");
+      if(hasCLFSH) VM.sysWrite("CLFSH ");
+      if(hasDS) VM.sysWrite("DS ");
+      if(hasACPI) VM.sysWrite("ACPI ");
+      if(hasMMX) VM.sysWrite("MMX ");
+      if(hasFXSR) VM.sysWrite("FXSR ");
+      if(hasSSE) VM.sysWrite("SSE ");
+      if(hasSSE2) VM.sysWrite("SSE2 ");
+      if(hasSS) VM.sysWrite("SS ");
+      if(hasHTT) VM.sysWrite("HTT ");
+      if(hasTM) VM.sysWrite("TM ");
+      if(hasPBE) VM.sysWrite("PBE ");
+      if(hasSSE3) VM.sysWrite("SSE3 ");
+      if(hasPCLMUQDQ) VM.sysWrite("PCLMUQDQ ");
+      if(hasDTES64) VM.sysWrite("DTES64 ");
+      if(hasMONITOR) VM.sysWrite("MONITOR ");
+      if(hasDSCPL) VM.sysWrite("DSCPL ");
+      if(hasVMX) VM.sysWrite("VMX ");
+      if(hasSMX) VM.sysWrite("SMX ");
+      if(hasEIST) VM.sysWrite("EIST ");
+      if(hasTM2) VM.sysWrite("TM2 ");
+      if(hasSSSE3) VM.sysWrite("SSSE3 ");
+      if(hasCNXTID) VM.sysWrite("CNXTID ");
+      if(hasSDBG) VM.sysWrite("SDBG ");
+      if(hasFMA) VM.sysWrite("FMA ");
+      if(hasCMPXCHG16B) VM.sysWrite("CMPXCHG16B ");
+      if(hasXTPR) VM.sysWrite("XTPR ");
+      if(hasPDCM) VM.sysWrite("PDCM ");
+      if(hasPCID) VM.sysWrite("PCID ");
+      if(hasDCA) VM.sysWrite("DCA ");
+      if(hasSSE41) VM.sysWrite("SSE41 ");
+      if(hasSSE42) VM.sysWrite("SSE42 ");
+      if(hasX2APIC) VM.sysWrite("X2APIC ");
+      if(hasMOVBE) VM.sysWrite("MOVBE ");
+      if(hasPOPCNT) VM.sysWrite("POPCNT ");
+      if(hasTSCDEADLINE) VM.sysWrite("TSCDEADLINE ");
+      if(hasAESNI) VM.sysWrite("AESNI ");
+      if(hasOSXSAVE) VM.sysWrite("OSXSAVE ");
+      if(hasXSAVE) VM.sysWrite("XSAVE ");
+      if(hasAVX) VM.sysWrite("AVX ");
+      if(hasF16C) VM.sysWrite("F16C ");
+      if(hasDRAND) VM.sysWrite("DRAND ");
+      VM.sysWriteln();
     }
 }

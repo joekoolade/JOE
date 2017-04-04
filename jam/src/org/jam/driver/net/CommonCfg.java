@@ -174,4 +174,28 @@ public class CommonCfg extends VirtioPciCap {
   {
     return (getDeviceStatus() & FEATURES_OK) != 0;
   }
+
+  /**
+   * @param queue
+   */
+  public void setDescQueue(Address queue)
+  {
+    commonCfg.store(queue, QUEUE_DESC_OFFSET);
+  }
+
+  /**
+   * @param virtAvail
+   */
+  public void setAvailQueue(Address queue)
+  {
+    commonCfg.store(queue, QUEUE_AVAIL_OFFSET);
+  }
+
+  /**
+   * @param virtUsed
+   */
+  public void setUsedQueue(Address queue)
+  {
+    commonCfg.store(queue, QUEUE_USED_OFFSET);
+  }
 }

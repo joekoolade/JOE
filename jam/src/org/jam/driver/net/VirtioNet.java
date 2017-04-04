@@ -53,6 +53,14 @@ public class VirtioNet {
   final private static int ANY_LAYOUT          = 0x08000000;
   final private static int RING_INDIRECT_DESC  = 0x10000000;
   final private static int RING_EVENT_IDX      = 0x20000000;
+  private static final int RECVIEVE_VIRTQ_INDEX = 0;
+  private static final int TRANSMIT_VIRTQ_INDEX = 1;
+  private static final int CONTROL_VIRTQ_INDEX = 2;
+  
+  private Virtq receiveVirtq;
+  private Virtq transmitVirtq;
+  private Virtq controlVirtq;
+  private NetDeviceCfg deviceCfg;
   
   public VirtioNet() throws NoDeviceFoundException
   {
@@ -82,7 +90,6 @@ public class VirtioNet {
   
   private void findCapabilities()
   {
-    caps = new ArrayList<VirtioPciCap>();
     int capPointer = pci.getCapabilityPointer();
     for( ; capPointer != 0; )
     {
@@ -102,7 +109,10 @@ public class VirtioNet {
           {
             cfg = (CommonCfg) cap;
           }
-          caps.add(cap);
+          else if(cap instanceof NetDeviceCfg)
+          {
+            deviceCfg = (NetDeviceCfg) cap;
+          }
           VM.sysWriteln(cap.toString());
         }
       }
@@ -119,23 +129,6 @@ public class VirtioNet {
       capPointer = pci.capNextPointer(capPointer);
     }
   }
-  /**
-   * @param cap
-   * @return
-   */
-//  private VirtioPciCap createVirtioCap(PciCapability cap)
-//  {
-//    int val, capOffset;
-//    int type, bar, offset, length;
-//    
-//    capOffset = cap.getOffset();
-//    val = pci.readConfig32(capOffset);
-//    type = (val >> 24) & 0xFF;
-//    bar = pci.readConfig32(capOffset+4) & 0xFF;
-//    offset = pci.readConfig32(capOffset+8);
-//    length = pci.readConfig32(capOffset+12);
-//    return new VirtioPciCap(cap, type, bar, offset, length);
-//  }
 
   public void boot()
   {
@@ -172,5 +165,15 @@ public class VirtioNet {
       }
       VM.sysWrite("VQueue ", i); VM.sysWriteln(" size ", queueSize);
     }
+    cfg.setQueueSelect(RECVIEVE_VIRTQ_INDEX);
+    receiveVirtq = new Virtq(cfg.getQueueSize());
+    receiveVirtq.allocate(true);
+    cfg.setDescQueue(receiveVirtq.virtDescTable);
+    cfg.setAvailQueue(receiveVirtq.virtAvail);
+    cfg.setUsedQueue(receiveVirtq.virtUsed);
+    cfg.setQueueSelect(TRANSMIT_VIRTQ_INDEX);
+    transmitVirtq = new Virtq(cfg.getQueueSize());
+    cfg.setQueueSelect(CONTROL_VIRTQ_INDEX);
+    controlVirtq = new Virtq(cfg.getQueueSize());
   }
 }

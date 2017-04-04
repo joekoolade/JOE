@@ -30,6 +30,7 @@ public class Platform {
     public static I8259A masterPic;
     public static I8259A slavePic;
     public static VirtioNet net;
+    public static IOApic ioApic;
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -42,6 +43,7 @@ public class Platform {
     public static void boot()
     {
       CpuId.boot();
+      CpuId.print();
       Pci.boot();
       Pci.enumeratePci();
       timer = new PcSystemTimer();
@@ -50,6 +52,8 @@ public class Platform {
 //      VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
       scheduler = new RoundRobin();
       Idt.init();
+      ioApic = new IOApic();
+      VM.sysWrite(ioApic.toString());
       masterPic = new I8259A(MASTERPICPORT);
       masterPic.pcSetup();
       slavePic = new I8259A(SLAVEPICPORT, true);

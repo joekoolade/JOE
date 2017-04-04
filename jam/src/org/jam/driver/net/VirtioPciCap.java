@@ -66,9 +66,9 @@ abstract public class VirtioPciCap extends PciCapability {
     {
       return new IsrCfg(device, capPointer, capInfo);
     }
-    else if(type == DEVICE_CFG)
+    else if(type == DEVICE_CFG && device.isEthernetController())
     {
-      return new DeviceCfg(device, capPointer, capInfo);
+      return new NetDeviceCfg(device, capPointer, capInfo);
     }
     else if(type == PCI_CFG)
     {

@@ -43,7 +43,7 @@ public class PciDevice {
     this.slot = slot;
     this.function = function;
     bar = new int[6];
-    classCode = Pci.getClass(bus, slot, vendorId);
+    classCode = Pci.getClass(bus, slot, function);
     subClassCode = Pci.getSubClass(bus, slot, function);
     ifCode = Pci.getIfCode(bus, slot, function);
     headerType = Pci.getHeaderType(bus, slot, function);
@@ -134,7 +134,7 @@ public class PciDevice {
     str = str + "bar4: " + Integer.toHexString(bar[4]) + "\n";
     str = str + "bar5: " + Integer.toHexString(bar[5]) + "\n";
     str = str + "Interrupt pin " + interruptPin + " line " + interruptLine + "\n";
-    str = str + "class " + classCode + " subclass " + subClassCode + "\n";
+    str = str + "class " + classCode + " subclass " + subClassCode +  " Interface " + ifCode + "\n";
     str = str + "Subsystem Vendor " + Integer.toHexString(subsystemVendorId) + " id " + Integer.toHexString(subsystemId);
     return str;
   }
@@ -169,5 +169,10 @@ public class PciDevice {
   public void writeConfig16(int offset, short value)
   {
     Pci.pciConfigWrite16(bus, slot, function, offset, value);
+  }
+  
+  public boolean isEthernetController()
+  {
+    return (classCode==2) && (subClassCode==0);
   }
 }

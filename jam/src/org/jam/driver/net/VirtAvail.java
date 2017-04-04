@@ -16,6 +16,7 @@ import org.vmmagic.unboxed.Offset;
 public class VirtAvail {
   final Address ring;
   final int size;
+  private int shadowIdx;
   
   public static final int FLAG_NO_INTERRUPT = 0x01;
   private static final int RING_OFFSET = 4;
@@ -30,14 +31,18 @@ public class VirtAvail {
   {
     ring = table;
     this.size = size;
+    shadowIdx = 0;
   }
 
-  public void setRing(int index, short value)
+  public void setAvailable(short value)
   {
-    ring.store(value, Offset.fromIntZeroExtend(index * 2 + RING_OFFSET));
+    int avail = shadowIdx & (size-1);
+    ring.store(value, Offset.fromIntZeroExtend(avail * 2 + RING_OFFSET));
+    avail++;
+    setIdx((short)avail);
   }
   
-  public int getRing(int index)
+  public int getAvail(int index)
   {
     int value = ring.loadShort(Offset.fromIntZeroExtend(RING_OFFSET + (index * 2)));
     return value & 0xFFFF;
@@ -54,10 +59,9 @@ public class VirtAvail {
     return flags & 0xFFFF;
   }
   
-  public int getIdx()
+  public short getIdx()
   {
-    int idx = ring.loadShort(Offset.fromIntZeroExtend(IDX_OFFSET));
-    return idx & 0xFFFF;
+    return ring.loadShort(Offset.fromIntZeroExtend(IDX_OFFSET));
   }
   
   public void setIdx(short idx)

@@ -6,6 +6,7 @@
  */
 package org.jam.driver.net;
 
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -16,6 +17,7 @@ import org.vmmagic.unboxed.Offset;
 public class VirtDescTable {
   final private Address table;
   final private int size;
+  final private int numFree;
   
   static final private Offset ADDR  = Offset.fromIntZeroExtend(0);
   static final private Offset LEN   = Offset.fromIntZeroExtend(8);
@@ -36,8 +38,18 @@ public class VirtDescTable {
   {
     this.size = size;
     this.table = table;
+    numFree = size;
   }
 
+  public int getSize()
+  {
+    return size;
+  }
+  
+  public Address getTableAddress()
+  {
+    return table;
+  }
   /**
    * Set the buffer of a virt desc table entry
    * @param index virt desc entry
@@ -83,6 +95,12 @@ public class VirtDescTable {
     table.store(flags, FLAGS.plus(index*ENTRY_SIZE));
   }
   
+  public void makeWriteable(int index)
+  {
+    int flags = getFlags(index);
+    flags |= FLAG_WRITE;
+    setFlags(index, (short)flags);
+  }
   public int getFlags(int index)
   {
     int flag = table.loadShort(FLAGS.plus(index*ENTRY_SIZE));
@@ -92,11 +110,25 @@ public class VirtDescTable {
   public void setNext(int index, short next)
   {
     table.store(next, NEXT.plus(index*ENTRY_SIZE));
+    int flags = getFlags(index);
+    flags |= FLAG_NEXT;
+    setFlags(index, (short)flags);
   }
   
   public int getNext(int index)
   {
     int next = table.loadShort(NEXT.plus(index*ENTRY_SIZE));
     return next & 0xFFFF;
+  }
+  
+  public void allocate(int index, int size, boolean write)
+  {
+    byte buffer[] = new byte[size];
+    setAddress(index, Magic.objectAsAddress(buffer));
+    setLen(index, buffer.length);
+    if(write)
+    {
+      makeWriteable(index);
+    }
   }
 }

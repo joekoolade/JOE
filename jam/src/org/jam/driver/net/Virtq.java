@@ -21,11 +21,15 @@ public class Virtq {
   final VirtDescTable descTable;
   final VirtAvail availTable;
   final VirtUsed usedTable;
+  final int size;
+  
+  private final static int MAX_BUFFER = 1526;
   
   public Virtq(int size)
   {
     int ALIGNMENT = (16+4+2);
     int space = (26 * size) + 12 + ALIGNMENT;
+    this.size = size;
     buffer = new byte[space];
     /*
      * Align on a 16 byte boundary
@@ -46,5 +50,19 @@ public class Virtq {
     align = (align + 9 + (size * 2)) & ~0x4; 
     virtUsed = Address.fromIntZeroExtend(align);
     usedTable = new VirtUsed(virtUsed, size);
+  }
+  
+  /**
+   * Allocates buffers to virt queues.
+   */
+  public void allocate(boolean writeable)
+  {
+    int index;
+    
+    for(index=0; index < size; index++)
+    {
+      descTable.allocate(index, MAX_BUFFER, writeable);
+      availTable.setAvailable((short)index);
+    }
   }
 }
