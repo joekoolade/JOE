@@ -1313,11 +1313,31 @@ public final class Magic {
      */
     public static double dceil(double a)
     {
-      // TODO Auto-generated method stub
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
       return 0.0;
     }
     
     public static void cpuId(int val, int[] registers)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+    }
+    
+    public static long readMSR(int msrRegister)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
+    
+    public static void writeMSR(int msrRegister, long value)
     {
       if (VM.runningVM && VM.VerifyAssertions)
       {

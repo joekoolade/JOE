@@ -2497,6 +2497,22 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
       setMachineCodes(mi++, (byte)0x0F);
       setMachineCodes(mi++, (byte)0xA2);
     }
+    
+    public final void emitRDMSR()
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0x32);
+    }
+    
+    public final void emitWRMSR()
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0x30);
+    }
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *

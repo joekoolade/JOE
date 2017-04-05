@@ -969,6 +969,7 @@ Check to make sure all required properties are specified. This includes properti
         <pathelement location="${build.vmmagic-stub.classes}"/>
       </classpath>
     </javac>
+    <!--
     <java classname="GenerateAssembler" failonerror="true" fork="true">
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -976,6 +977,7 @@ Check to make sure all required properties are specified. This includes properti
       </classpath>
       <jvmarg value="-DgenerateToDir=${generated.ia32.java}/org/jikesrvm/compilers/opt/mir2mc/ia32"/>
     </java>
+    -->
     <touch file="${generated.dir}/IA32-Assembler-uptodate"/>  	
   </target>
 

@@ -1112,16 +1112,19 @@ public class GenerateAssembler {
         int posOf_ = name.indexOf('_');
         if (posOf_ != -1) {
           String opcode = name.substring(4, posOf_);
-          if (!excludedOpcodes.contains(opcode)) {
-            s.add(opcode);
-          }
+          s.add(opcode);
+//          if (!excludedOpcodes.contains(opcode)) {
+//            s.add(opcode);
+//          }
         } else {
           String opcode = name.substring(4);
+          
           // make sure it is an opcode
           if (opcode.equals(opcode.toUpperCase(Locale.getDefault()))) {
-            if (!excludedOpcodes.contains(opcode)) {
-              s.add(opcode);
-            }
+            s.add(opcode);
+//            if (!excludedOpcodes.contains(opcode)) {
+//              s.add(opcode);
+//            }
           }
         }
       }

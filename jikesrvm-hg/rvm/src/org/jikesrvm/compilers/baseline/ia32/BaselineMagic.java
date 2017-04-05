@@ -2841,4 +2841,49 @@ final class BaselineMagic {
     MagicGenerator g = new CpuId();
     generators.put(getMethodReference(Magic.class, MagicNames.cpuId, int.class, int[].class, void.class), g);
   }
+  
+  /*
+   * Generate a RDMSR instruction
+   */
+  private static final class RdMsr extends MagicGenerator {
+
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      // load the MSR register
+      asm.emitPOP_Reg(ECX);
+      asm.emitRDMSR();
+      // push the value onto the stack
+      asm.emitPUSH_Reg(EDX);
+      asm.emitPUSH_Reg(EAX);
+    }
+  }
+  
+  static
+  {
+    MagicGenerator g = new RdMsr();
+    generators.put(getMethodReference(Magic.class, MagicNames.rdMsr, int.class, long.class), g);
+  }
+  
+  /*
+   * Generate a WRMSR instruction
+   */
+  final static private class WrMsr extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      // load the value
+      asm.emitPOP_Reg(EDX);
+      asm.emitPOP_Reg(EAX);
+      asm.emitPOP_Reg(ECX);
+      asm.emitWRMSR();
+    }
+  }
+  static
+  {
+    MagicGenerator g = new WrMsr();
+    generators.put(getMethodReference(Magic.class, MagicNames.wrMsr, int.class, long.class, void.class), g);
+  }
+  
 }

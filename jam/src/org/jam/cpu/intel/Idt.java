@@ -32,7 +32,7 @@ import org.vmmagic.unboxed.Offset;
  */
 @NonMoving
 public final class Idt implements SegmentDescriptorTypes {
-    private static Idt       idt                            = new Idt(49);
+    private static Idt       idt                            = new Idt(96);
     int                      codeSegment;
     int                      limit;
     final private static int MAX_VECTORS                    = 256;
@@ -95,14 +95,14 @@ public final class Idt implements SegmentDescriptorTypes {
 	public static Idt getInstance() {
 	    if(idt == null)
 	    {
-	        idt = new Idt(49);
+	        idt = new Idt(96);
 	    }
 		return idt;
 	}
 
 	public static void init()
 	{
-	    idt = new Idt(49);
+	    idt = new Idt(96);
 	}
 	
 	public void init(Address irqTable, int size) {
@@ -148,7 +148,7 @@ public final class Idt implements SegmentDescriptorTypes {
         public static void int5()
         {
           Magic.halt();
-            VM.sysFail("BOUND range exceeded");
+          VM.sysFail("BOUND range exceeded");
         }
         @InterruptHandler
         public static void int6()
@@ -425,6 +425,245 @@ public final class Idt implements SegmentDescriptorTypes {
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
+       
+       @InterruptHandler
+       public static void int49()
+       {
+         VM.sysFailTrap("int49");
+       }
+       @InterruptHandler
+       public static void int50()
+       {
+         VM.sysFailTrap("int50");
+       }
+       @InterruptHandler
+       public static void int51()
+       {
+         VM.sysFailTrap("int51");
+       }
+       @InterruptHandler
+       public static void int52()
+       {
+         VM.sysFailTrap("int52");
+       }
+       @InterruptHandler
+       public static void int53()
+       {
+         VM.sysFailTrap("int53");
+       }
+       @InterruptHandler
+       public static void int54()
+       {
+         VM.sysFailTrap("int54");
+       }
+       @InterruptHandler
+       public static void int55()
+       {
+         VM.sysFailTrap("int55");
+       }
+       @InterruptHandler
+       public static void int56()
+       {
+         VM.sysFailTrap("int56");
+       }
+       @InterruptHandler
+       public static void int57()
+       {
+         VM.sysFailTrap("int57");
+       }
+       @InterruptHandler
+       public static void int58()
+       {
+         VM.sysFailTrap("int58");
+       }
+       @InterruptHandler
+       public static void int59()
+       {
+         VM.sysFailTrap("int59");
+       }
+       @InterruptHandler
+       public static void int60()
+       {
+         VM.sysFailTrap("int60");
+       }
+       @InterruptHandler
+       public static void int61()
+       {
+         VM.sysFailTrap("int61");
+       }
+       @InterruptHandler
+       public static void int62()
+       {
+         VM.sysFailTrap("int62");
+       }
+       @InterruptHandler
+       public static void int63()
+       {
+         VM.sysFailTrap("int63");
+       }
+       @InterruptHandler
+       public static void int64()
+       {
+         VM.sysFailTrap("int64");
+       }
+       
+       @InterruptHandler
+       public static void int65()
+       {
+         VM.sysFailTrap("int65");
+       }
+       @InterruptHandler
+       public static void int66()
+       {
+         VM.sysFailTrap("int66");
+       }
+       @InterruptHandler
+       public static void int67()
+       {
+         VM.sysFailTrap("int67");
+       }
+       @InterruptHandler
+       public static void int68()
+       {
+         VM.sysFailTrap("int68");
+       }
+       @InterruptHandler
+       public static void int69()
+       {
+         VM.sysFailTrap("int69");
+       }
+       @InterruptHandler
+       public static void int70()
+       {
+         VM.sysFailTrap("int70");
+       }
+       @InterruptHandler
+       public static void int71()
+       {
+         VM.sysFailTrap("int71");
+       }
+       @InterruptHandler
+       public static void int72()
+       {
+         VM.sysFailTrap("int72");
+       }
+       @InterruptHandler
+       public static void int73()
+       {
+         VM.sysFailTrap("int73");
+       }
+       @InterruptHandler
+       public static void int74()
+       {
+         VM.sysFailTrap("int74");
+       }
+       @InterruptHandler
+       public static void int75()
+       {
+         VM.sysFailTrap("int75");
+       }
+       @InterruptHandler
+       public static void int76()
+       {
+         VM.sysFailTrap("int76");
+       }
+       @InterruptHandler
+       public static void int77()
+       {
+         VM.sysFailTrap("int77");
+       }
+       @InterruptHandler
+       public static void int78()
+       {
+         VM.sysFailTrap("int78");
+       }
+       @InterruptHandler
+       public static void int79()
+       {
+         VM.sysFailTrap("int79");
+       }
+       @InterruptHandler
+       public static void int80()
+       {
+         VM.sysFailTrap("int80");
+       }
+       
+       @InterruptHandler
+       public static void int81()
+       {
+         VM.sysFailTrap("int81");
+       }
+       @InterruptHandler
+       public static void int82()
+       {
+         VM.sysFailTrap("int82");
+       }
+       @InterruptHandler
+       public static void int83()
+       {
+         VM.sysFailTrap("int83");
+       }
+       @InterruptHandler
+       public static void int84()
+       {
+         VM.sysFailTrap("int84");
+       }
+       @InterruptHandler
+       public static void int85()
+       {
+         VM.sysFailTrap("int85");
+       }
+       @InterruptHandler
+       public static void int86()
+       {
+         VM.sysFailTrap("int86");
+       }
+       @InterruptHandler
+       public static void int87()
+       {
+         VM.sysFailTrap("int87");
+       }
+       @InterruptHandler
+       public static void int88()
+       {
+         VM.sysFailTrap("int88");
+       }
+       @InterruptHandler
+       public static void int89()
+       {
+         VM.sysFailTrap("int89");
+       }
+       @InterruptHandler
+       public static void int90()
+       {
+         VM.sysFailTrap("int90");
+       }
+       @InterruptHandler
+       public static void int91()
+       {
+         VM.sysFailTrap("int91");
+       }
+       @InterruptHandler
+       public static void int92()
+       {
+         VM.sysFailTrap("int92");
+       }
+       @InterruptHandler
+       public static void int93()
+       {
+         VM.sysFailTrap("int93");
+       }
+       @InterruptHandler
+       public static void int94()
+       {
+         VM.sysFailTrap("int94");
+       }
+       @InterruptHandler
+       public static void int95()
+       {
+         VM.sysFailTrap("int95");
+       }
+       
 	}
 	/**
 	 * Installs irq route at interrupt vector
@@ -662,6 +901,36 @@ public final class Idt implements SegmentDescriptorTypes {
          */
         irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int48"));
         storeVector(48, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int49"));
+        storeVector(49, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int50"));
+        storeVector(50, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int51"));
+        storeVector(51, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int52"));
+        storeVector(52, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int53"));
+        storeVector(53, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int54"));
+        storeVector(54, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int55"));
+        storeVector(55, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int56"));
+        storeVector(56, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int57"));
+        storeVector(57, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int58"));
+        storeVector(58, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int59"));
+        storeVector(59, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int60"));
+        storeVector(60, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int61"));
+        storeVector(61, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int62"));
+        storeVector(62, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int63"));
+        storeVector(63, irqAddress);
 	}
 
     /**
