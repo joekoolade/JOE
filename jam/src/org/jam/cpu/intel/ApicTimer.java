@@ -1,0 +1,91 @@
+/**
+ * Created on Apr 12, 2017
+ *
+ * Copyright (C) Joe Kulig, 2017
+ * All rights reserved.
+ */
+package org.jam.cpu.intel;
+
+import org.jam.board.pc.I82c54;
+import org.jam.board.pc.Platform;
+import org.jikesrvm.VM;
+import org.jikesrvm.runtime.Magic;
+import org.vmmagic.unboxed.Address;
+
+/**
+ * @author Joe Kulig
+ *
+ */
+public class ApicTimer extends Apic 
+{
+  int frequency;
+  
+  final protected static int LVT_PERIODIC = 1<<17;
+  final protected static int LVT_DEADLINE = 2<<17;
+  final protected static int LVT_MASK = 1<<16;
+  final protected static int LVT_PENDING = 1<<12;
+  
+  final protected static int TDR_DIV_1 = 0x0B;
+  final protected static int TDR_DIV_2 = 0x00;
+  final protected static int TDR_DIV_4 = 0x01;
+  final protected static int TDR_DIV_8 = 0x02;
+  final protected static int TDR_DIV_16 = 0x03;
+  final protected static int TDR_DIV_32 = 0x08;
+  final protected static int TDR_DIV_64 = 0x09;
+  final protected static int TDR_DIV_128 = 0x0A;
+  
+  final protected static int MAX_ICR = 0xFFFFFFFF;
+  
+  public ApicTimer()
+  {
+    super();
+    registers.store(LVT_MASK, TIMER);
+    registers.store(TDR_DIV_64, TIMERDCR);
+  }
+  
+  public final void calibrate()
+  {
+    int pitcnt = 0;
+    int t2;
+    
+    I82c54 timer = Platform.timer.timer;
+    Address keyboardController = Address.fromIntZeroExtend(0x61);
+    
+    Magic.disableInterrupts();
+    /*
+     * Enable timer2 gate, disable speaker
+     */
+    int keyboardControllerValue = keyboardController.ioLoadByte();
+    keyboardControllerValue &= ~0x2;
+    keyboardControllerValue |= 0x1;
+    keyboardController.ioStore(keyboardControllerValue);
+    
+    int calibrateTimeMs=100;
+    /*
+     * Convert to a latch time
+     */
+    int latch = 1193182/(1000/calibrateTimeMs);
+            
+    timer.counter2(I82c54.MODE0, latch);
+    registers.store(0xFFFFFFFF, TIMERICR);
+    // Wait for the gate to go active
+    while((keyboardController.ioLoadByte() & 0x20) != 0)
+      ;
+    while((keyboardController.ioLoadByte() & 0x20) == 0)
+    {
+        pitcnt++;
+    }
+    t2 = registers.loadInt(TIMERCCR);
+    Magic.enableInterrupts();
+    // disable the timer
+    registers.store(0, TIMERICR);
+    keyboardController.ioStore(0);
+    VM.sysWriteln("t2: ", t2);
+    long apicCycles = (long)MAX_ICR-t2;
+    VM.sysWrite("cycles: ", apicCycles);
+    VM.sysWriteln("  loops: ", pitcnt);
+    frequency = (int)apicCycles*(1000/calibrateTimeMs);
+    VM.sysWriteln("APIC frequency = ", frequency);
+  }
+  
+}

@@ -7,6 +7,7 @@
 package org.jam.board.pc;
 
 import org.jam.cpu.intel.Apic;
+import org.jam.cpu.intel.ApicTimer;
 import org.jam.cpu.intel.CpuId;
 import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.Tsc;
@@ -32,7 +33,7 @@ public class Platform {
     public static I8259A slavePic;
     public static VirtioNet net;
     public static IOApic ioApic;
-    public static Apic apic;
+    public static ApicTimer apicTimer;
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -50,8 +51,8 @@ public class Platform {
       Pci.enumeratePci();
       timer = new PcSystemTimer();
       Tsc.calibrate(50);
-      apic = new Apic();
-      apic.calibrate();
+      apicTimer = new ApicTimer();
+      apicTimer.calibrate();
 //      Tsc.rtcCalibrate();
       serialPort = new PcSerialPort(COM1);
 //      VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
