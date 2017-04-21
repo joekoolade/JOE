@@ -97,7 +97,7 @@ public class Tsc {
         long tscmin, tscmax;
         int pitcnt = 0;
         
-        I82c54 timer = Platform.timer.timer;
+        I82c54 timer = Platform.pit.timer;
         Address keyboardController = Address.fromIntZeroExtend(0x61);
         
         Magic.disableInterrupts();

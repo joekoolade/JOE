@@ -431,8 +431,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     /*
      * Sleep test
      */
-//    Sleep sleep = new Sleep();
-//    new Thread(sleep).start();
+    Sleep sleep = new Sleep();
+    new Thread(sleep).start();
     
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");

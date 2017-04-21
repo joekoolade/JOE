@@ -7,7 +7,6 @@
  */
 package org.jam.board.pc;
 
-import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import org.jikesrvm.VM;
@@ -17,6 +16,7 @@ import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.scheduler.ThreadQueue;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
+import org.jam.interfaces.Timer;
 
 /**
  * @author joe
@@ -24,6 +24,7 @@ import org.vmmagic.unboxed.Address;
  */
 @NonMoving
 public class PcSystemTimer
+implements Timer
 {
 
     public I82c54 timer;

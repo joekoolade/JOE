@@ -13,6 +13,7 @@ import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.Tsc;
 import org.jam.driver.net.VirtioNet;
 import org.jam.driver.serial.PcSerialPort;
+import org.jam.interfaces.Timer;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RoundRobin;
@@ -26,7 +27,8 @@ import org.vmmagic.unboxed.ObjectReference;
  */
 @NonMoving
 public class Platform {
-    public static PcSystemTimer timer;
+    //public static PcSystemTimer timer;
+    public static PcSystemTimer pit;
     public static PcSerialPort serialPort;
     public static Scheduler scheduler;
     public static I8259A masterPic;
@@ -34,6 +36,7 @@ public class Platform {
     public static VirtioNet net;
     public static IOApic ioApic;
     public static ApicTimer apicTimer;
+    public static Timer timer;
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -49,7 +52,9 @@ public class Platform {
       CpuId.print();
       Pci.boot();
       Pci.enumeratePci();
-      timer = new PcSystemTimer();
+      pit = new PcSystemTimer();
+      timer = pit;
+      new PcSystemTimer();
       Tsc.calibrate(50);
       apicTimer = new ApicTimer();
       apicTimer.calibrate();

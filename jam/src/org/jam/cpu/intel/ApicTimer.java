@@ -8,17 +8,22 @@ package org.jam.cpu.intel;
 
 import org.jam.board.pc.I82c54;
 import org.jam.board.pc.Platform;
+import org.jam.interfaces.Timer;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.unboxed.Address;
 
 /**
  * @author Joe Kulig
  *
  */
-public class ApicTimer extends Apic 
+public class ApicTimer extends Apic
+implements Timer
 {
   int frequency;
+
+  private long tick;
   
   final protected static int LVT_PERIODIC = 1<<17;
   final protected static int LVT_DEADLINE = 2<<17;
@@ -48,7 +53,7 @@ public class ApicTimer extends Apic
     int pitcnt = 0;
     int t2;
     
-    I82c54 timer = Platform.timer.timer;
+    I82c54 timer = Platform.pit.timer;
     Address keyboardController = Address.fromIntZeroExtend(0x61);
     
     Magic.disableInterrupts();
@@ -86,6 +91,56 @@ public class ApicTimer extends Apic
     VM.sysWriteln("  loops: ", pitcnt);
     frequency = (int)apicCycles*(1000/calibrateTimeMs);
     VM.sysWriteln("APIC frequency = ", frequency);
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.interfaces.Timer#getTime()
+   */
+  @Override
+  public long getTime()
+  {
+    // TODO Auto-generated method stub
+    return tick;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.interfaces.Timer#handler()
+   */
+  @Override
+  public void handler()
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.interfaces.Timer#startTimer(long)
+   */
+  @Override
+  public void startTimer(long timeNs)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.interfaces.Timer#removeTimer(long)
+   */
+  @Override
+  public RVMThread removeTimer(long timeKey)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.interfaces.Timer#getHandlerStack()
+   */
+  @Override
+  public Address getHandlerStack()
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }
