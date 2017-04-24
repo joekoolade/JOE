@@ -2881,10 +2881,10 @@ public Address sentinelFp;
    */
   @Interruptible
   public static void sleep(long ns) throws InterruptedException {
-    // VM.sysWriteln("sleep: ", ns);
+//    VM.sysWriteln("sleep: ", ns);
     RVMThread t = getCurrentThread();
     t.waiting = Waiting.SLEEPING;
-    long atStart = Magic.getTimeBase(); // sysCall.sysNanoTime();
+    long atStart = Time.nanoTime(); // Magic.getTimeBase(); // sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
     
 //    Platform.timer.startTimer(ns);

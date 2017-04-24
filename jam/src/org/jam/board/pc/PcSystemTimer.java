@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.runtime.Time;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.scheduler.ThreadQueue;
 import org.vmmagic.pragma.NonMoving;
@@ -45,7 +46,7 @@ implements Timer
     /*
      * how many ticks to wait to reschedule
      */
-    public int  scheduleTick   = 20;
+    public int  scheduleTick = 20;
 
     public PcSystemTimer()
     {
@@ -139,7 +140,7 @@ implements Timer
         }
         Long timerExpiration = timerQueue.firstKey();
         
-        if(tick < timerExpiration)
+        if(Time.nanoTime() < timerExpiration)
         {
             return;
         }
@@ -164,14 +165,18 @@ implements Timer
         /*
          * convert to ticks (milliseconds)
          */
-        timerTicks = time_ns / TIMERTICKSPERNSECS;
-        if(trace) VM.sysWriteln("timer ticks: ", timerTicks);
-//        VM.sysWriteln("time_ns: ", time_ns);
-//        VM.sysWriteln("expire: ", timerTicks+tick);
+//        timerTicks = time_ns / TIMERTICKSPERNSECS;
+        if(trace)
+        {
+//          VM.sysWriteln("timer ticks: ", timerTicks);
+          VM.sysWriteln("time_ns: ", time_ns);
+//          VM.sysWriteln("expire: ", timerTicks+tick);
+        }
         /*
          * set expiration time and put on the queue
          */
-        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
+//        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
+        timerQueue.put(time_ns, RVMThread.getCurrentThread());
         threadQueue.enqueue(RVMThread.getCurrentThread());
         /*
          * give it up and schedule a new thread
