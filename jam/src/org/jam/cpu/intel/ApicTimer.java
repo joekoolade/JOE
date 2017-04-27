@@ -44,10 +44,38 @@ implements Timer
   public ApicTimer()
   {
     super();
-    registers.store(LVT_MASK, TIMER);
-    registers.store(TDR_DIV_64, TIMERDCR);
+    setTimerVector(LVT_MASK);
+    divideBy64();
   }
   
+  public final void mask()
+  {
+    int timerVectorValue = getTimerVector();
+    timerVectorValue |= LVT_MASK;
+    setTimerVector(timerVectorValue);
+  }
+  
+  public final boolean isPending()
+  {
+    int timerVector = getTimerVector();
+    return (timerVector & LVT_PENDING) != 0;
+  }
+  
+  public final boolean isDelivered()
+  {
+    int timerVector = getTimerVector();
+    return (timerVector & LVT_PENDING) == 0;
+  }
+  
+  public final void divideBy64()
+  {
+    setTimerDcr(TDR_DIV_64);
+  }
+  
+  public final void disableTimer()
+  {
+    setTimerIcr(0);
+  }
   public final void calibrate()
   {
     int pitcnt = 0;
@@ -72,7 +100,7 @@ implements Timer
     int latch = 1193182/(1000/calibrateTimeMs);
             
     timer.counter2(I82c54.MODE0, latch);
-    registers.store(0xFFFFFFFF, TIMERICR);
+    setTimerIcr(0xFFFFFFFF);
     // Wait for the gate to go active
     while((keyboardController.ioLoadByte() & 0x20) != 0)
       ;
@@ -80,10 +108,10 @@ implements Timer
     {
         pitcnt++;
     }
-    t2 = registers.loadInt(TIMERCCR);
+    t2 = getTimerCcr();
     Magic.enableInterrupts();
     // disable the timer
-    registers.store(0, TIMERICR);
+    disableTimer();
     keyboardController.ioStore(0);
     VM.sysWriteln("t2: ", t2);
     long apicCycles = (long)MAX_ICR-t2;

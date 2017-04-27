@@ -47,6 +47,7 @@ public class Apic {
   final protected static Offset TIMERICR = Offset.fromIntSignExtend(0x380);
   final protected static Offset TIMERCCR = Offset.fromIntSignExtend(0x390);
   final protected static Offset TIMERDCR = Offset.fromIntSignExtend(0x3E0);
+  private static final int SUPRESS_EIO_BROADCASTS = 1<<24;
   
   public Apic()
   {
@@ -60,4 +61,85 @@ public class Apic {
     }
   }
   
+  public int getVersion()
+  {
+    int value = registers.loadInt(VERSION);
+    return value & 0xFF;
+  }
+  
+  public int getMaxLvtEntries()
+  {
+    int value = registers.loadInt(VERSION);
+    return (value >> 16) & 0xFF;
+  }
+  
+  public boolean canSuppressEOIBroadcasts()
+  {
+    int value = registers.loadInt(VERSION);
+    return (value & SUPRESS_EIO_BROADCASTS) != 0;
+  }
+  
+  public int getId()
+  {
+    int value = registers.loadInt(ID);
+    return (value >> 24) & 0xFF;
+  }
+  
+  protected int getTimerVector()
+  {
+    return registers.loadInt(TIMER);
+  }
+  
+  protected void setTimerVector(int timerVectorValue)
+  {
+    registers.store(timerVectorValue, TIMER);
+  }
+  
+  /**
+   * Return contents of the APIC Timer divide configuration register
+   * @return dcr register contents
+   */
+  protected int getTimerDcr()
+  {
+    return registers.loadInt(TIMERDCR);
+  }
+  
+  /**
+   * Set the APIC Timer divide configuration register
+   * @param dcrValue new DCR value
+   */
+  protected void setTimerDcr(int dcrValue)
+  {
+    registers.store(dcrValue, TIMERDCR);
+  }
+  
+  protected void setTimerIcr(int icrValue)
+  {
+    registers.store(0xFFFFFFFF, TIMERICR);
+  }
+  
+  protected int getTimerCcr()
+  {
+    return registers.loadInt(TIMERCCR);
+  }
+  
+  public void setTaskPriority(int priority)
+  {
+    registers.store(priority, TPR);
+  }
+  
+  public int getTaskPriority()
+  {
+    return registers.loadInt(TPR);
+  }
+  
+  public String toString()
+  {
+    String apicString = "APIC ver: " + getVersion() + " lvts: " + getMaxLvtEntries() + " id: " + getId();
+    if(canSuppressEOIBroadcasts())
+    {
+      apicString += " EIO SUPRESSION";
+    }
+    return apicString;
+  }
 }

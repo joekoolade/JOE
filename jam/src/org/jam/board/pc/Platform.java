@@ -34,7 +34,7 @@ public class Platform {
     public static I8259A masterPic;
     public static I8259A slavePic;
     public static VirtioNet net;
-    public static IOApic ioApic;
+    public static QemuIoApic ioApic;
     public static ApicTimer apicTimer;
     public static Timer timer;
     // Interrupt ports
@@ -58,12 +58,14 @@ public class Platform {
       Tsc.calibrate(50);
       apicTimer = new ApicTimer();
       apicTimer.calibrate();
+      VM.sysWriteln(apicTimer.toString());
 //      Tsc.rtcCalibrate();
       serialPort = new PcSerialPort(COM1);
 //      VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
       scheduler = new RoundRobin();
       Idt.init();
-      ioApic = new IOApic();
+      ioApic = new QemuIoApic();
+      ioApic.boot();
       VM.sysWrite(ioApic.toString());
       masterPic = new I8259A(MASTERPICPORT);
       masterPic.pcSetup();
