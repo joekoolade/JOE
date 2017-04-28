@@ -212,7 +212,7 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int15()
        {
-           VM.sysFail("INT15, reserved");
+           VM.sysWriteln("Spurious Interrupt");
        }
        @InterruptHandler
        public static void int16()

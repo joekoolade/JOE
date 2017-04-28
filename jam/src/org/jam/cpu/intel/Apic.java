@@ -48,6 +48,7 @@ public class Apic {
   final protected static Offset TIMERCCR = Offset.fromIntSignExtend(0x390);
   final protected static Offset TIMERDCR = Offset.fromIntSignExtend(0x3E0);
   private static final int SUPRESS_EIO_BROADCASTS = 1<<24;
+  private static final int APIC_SW_ENABLE = 1<<8;
   
   public Apic()
   {
@@ -61,6 +62,10 @@ public class Apic {
     }
   }
   
+  public void boot()
+  {
+    setSpuriousVector(15);
+  }
   public int getVersion()
   {
     int value = registers.loadInt(VERSION);
@@ -133,6 +138,33 @@ public class Apic {
     return registers.loadInt(TPR);
   }
   
+  public void setSpuriousVector(int vector)
+  {
+    int registerValue = registers.loadInt(SPVR);
+    registerValue &= ~0xFF;
+    registerValue |= vector;
+    registers.store(registerValue, SPVR);
+  }
+  
+  /**
+   * Enable the local apic
+   */
+  public void enable()
+  {
+    int registerValue = registers.loadInt(SPVR);
+    registerValue |= APIC_SW_ENABLE;
+    registers.store(registerValue, SPVR);
+  }
+  
+  /**
+   * Disable the local apic
+   */
+  public void disable()
+  {
+    int registerValue = registers.loadInt(SPVR);
+    registerValue &= ~APIC_SW_ENABLE;
+    registers.store(registerValue, SPVR);
+  }
   public String toString()
   {
     String apicString = "APIC ver: " + getVersion() + " lvts: " + getMaxLvtEntries() + " id: " + getId();
