@@ -17,6 +17,7 @@ import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
 import org.jam.board.pc.I8259A;
+import org.jam.board.pc.IMCR;
 import org.jam.board.pc.Platform;
 import org.jikesrvm.ArchitectureSpecific.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
@@ -447,8 +448,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     RVMThread.getCurrentThread().terminate();    
     // Say good bye to the boot thread
     Magic.enableInterrupts();
-    Platform.masterPic.setInterrupt(I8259A.COM1);
-    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
+//    Platform.masterPic.setInterrupt(I8259A.COM1);
+//    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
+//    IMCR.enableIRQS();
     Magic.yield();
     VM.shutdown(1);
     VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");

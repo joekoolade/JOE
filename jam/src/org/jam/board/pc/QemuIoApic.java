@@ -62,11 +62,13 @@ public class QemuIoApic extends IOApic {
     // PIT interrupt
     setLogicalDestination(2, 0xFF);
     setInterruptVector(2, 0x5F);
+    unmaskInterrupt(2);
     // COM2
 //    setLogicalDestination(3, 0xFF);
 //    setInterruptVector(3, 0x58);
     // COM1
-    setLogicalDestination(3, 0xFF);
-    setLogicalDestination(4, 0x57);
+    setLogicalDestination(4, 0xFF);
+    setInterruptVector(4, 0x57);
+    unmaskInterrupt(4);
   }
 }

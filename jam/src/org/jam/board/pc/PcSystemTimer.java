@@ -103,7 +103,7 @@ implements Timer
 
         checkTimers();
         schedule();
-        Platform.masterPic.eoi();
+//        Platform.masterPic.eoi();
     }
     
     final private void schedule()

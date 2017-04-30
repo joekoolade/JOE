@@ -340,6 +340,7 @@ public final class Idt implements SegmentDescriptorTypes {
            // Switch to the interrupt stack
            Magic.switchStack(Platform.timer.getHandlerStack());
            Platform.serialPort.handler();
+           Platform.apic.eoi();
            // Restore back to the interrupt stack and context
            Magic.restoreThreadContext();
            // The interrupt handler annotation will emit the IRET
@@ -621,7 +622,15 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int87()
        {
-         VM.sysFailTrap("int87");
+         // Save registers on the interrupted stack
+         Magic.saveContext();
+         // Switch to the interrupt stack
+         Magic.switchStack(Platform.timer.getHandlerStack());
+         Platform.serialPort.handler();
+         // Restore back to the interrupt stack and context
+         Magic.restoreThreadContext();
+         // The interrupt handler annotation will emit the IRET
+         // good bye
        }
        @InterruptHandler
        public static void int88()
@@ -661,7 +670,16 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int95()
        {
-         VM.sysFailTrap("int95");
+         // Save registers on the interrupted stack
+         Magic.saveContext();
+         // Switch to the interrupt stack
+         Magic.switchStack(Platform.timer.getHandlerStack());
+         Platform.timer.handler();
+         Platform.apic.eoi();
+         // Restore back to the interrupt stack and context
+         Magic.restoreThreadContext();
+         // The interrupt handler annotation will emit the IRET
+         // good bye
        }
        
 	}
@@ -931,6 +949,71 @@ public final class Idt implements SegmentDescriptorTypes {
         storeVector(62, irqAddress);
         irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int63"));
         storeVector(63, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int64"));
+        storeVector(64, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int65"));
+        storeVector(65, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int66"));
+        storeVector(66, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int67"));
+        storeVector(67, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int68"));
+        storeVector(68, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int69"));
+        storeVector(69, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int70"));
+        storeVector(70, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int71"));
+        storeVector(71, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int72"));
+        storeVector(72, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int73"));
+        storeVector(73, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int74"));
+        storeVector(74, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int75"));
+        storeVector(75, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int76"));
+        storeVector(76, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int77"));
+        storeVector(77, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int78"));
+        storeVector(78, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int79"));
+        storeVector(79, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int80"));
+        storeVector(80, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int81"));
+        storeVector(81, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int82"));
+        storeVector(82, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int83"));
+        storeVector(83, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int84"));
+        storeVector(84, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int85"));
+        storeVector(85, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int86"));
+        storeVector(86, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int87"));
+        storeVector(87, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int88"));
+        storeVector(88, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int89"));
+        storeVector(89, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int90"));
+        storeVector(90, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int91"));
+        storeVector(91, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int92"));
+        storeVector(92, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int93"));
+        storeVector(93, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int94"));
+        storeVector(94, irqAddress);
+        irqAddress = getIrqAddress(Atom.findOrCreateAsciiAtom("int95"));
+        storeVector(95, irqAddress);
+
 	}
 
     /**

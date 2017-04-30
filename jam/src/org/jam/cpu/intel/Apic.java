@@ -26,7 +26,7 @@ public class Apic {
   final protected static Offset TPR = Offset.fromIntSignExtend(0x80);
   final protected static Offset APR = Offset.fromIntSignExtend(0x90);
   final protected static Offset PPR = Offset.fromIntSignExtend(0xA0);
-  final protected static Offset EIO = Offset.fromIntSignExtend(0xB0);
+  final protected static Offset EOI = Offset.fromIntSignExtend(0xB0);
   final protected static Offset RRD = Offset.fromIntSignExtend(0xC0);
   final protected static Offset LDR = Offset.fromIntSignExtend(0xD0);
   final protected static Offset DFR = Offset.fromIntSignExtend(0xE0);
@@ -65,6 +65,9 @@ public class Apic {
   public void boot()
   {
     setSpuriousVector(15);
+    setFlatModel();
+    setLogicalDestination(1);
+    //setTaskPriority(0);
   }
   public int getVersion()
   {
@@ -146,6 +149,16 @@ public class Apic {
     registers.store(registerValue, SPVR);
   }
   
+  public void setLogicalDestination(int logicalId)
+  {
+    logicalId <<= 24;
+    registers.store(logicalId, LDR);
+  }
+  
+  public void setFlatModel()
+  {
+    registers.store(0xFFFFFFFF, DFR);
+  }
   /**
    * Enable the local apic
    */
@@ -165,6 +178,12 @@ public class Apic {
     registerValue &= ~APIC_SW_ENABLE;
     registers.store(registerValue, SPVR);
   }
+  
+  public void eoi()
+  {
+    registers.store(0, EOI);
+  }
+  
   public String toString()
   {
     String apicString = "APIC ver: " + getVersion() + " lvts: " + getMaxLvtEntries() + " id: " + getId();

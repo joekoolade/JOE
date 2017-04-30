@@ -215,7 +215,7 @@ public class PcSerialPort {
 	        // reset the interrupt
 	        comPort.ioLoadByte(MSR);
 	    }
-	    Platform.masterPic.eoi();
+//	    Platform.masterPic.eoi();
 	}
 	
     /**
