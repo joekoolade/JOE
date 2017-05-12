@@ -186,14 +186,19 @@ public class Pci {
     return pciConfigRead32(bus, slot, function, BAR5_OFFSET);
   }
   
-  final static int getStatus(int bus, int slot, int function)
+  final static short getStatus(int bus, int slot, int function)
   {
     return pciConfigRead16(bus, slot, function, STATUS_OFFSET);
   }
   
-  final static int getCommand(int bus, int slot, int function)
+  final static short getCommand(int bus, int slot, int function)
   {
     return pciConfigRead16(bus, slot, function, COMMAND_OFFSET);
+  }
+  
+  final static void setCommand(int bus, int slot, int function, short value)
+  {
+    pciConfigWrite16(bus, slot, function, COMMAND_OFFSET, value);
   }
   
   final static int getSubSystemId(int bus, int slot, int function)
@@ -242,8 +247,9 @@ public class Pci {
   {
     int address = (bus<<16) | (slot<<11) | (function<<8) | (offset&0xFC) | PCI_CONFIG_ENABLE;
     
+    int intValue = value << ((offset & 2) * 8);
     configAddress.ioStore(address);
-    configData.ioStore(value);
+    configData.ioStore(intValue);
   }
 
   /**

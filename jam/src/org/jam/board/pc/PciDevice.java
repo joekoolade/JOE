@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.jikesrvm.VM;
+import org.vmmagic.unboxed.Address;
 
 /**
  * @author Joe Kulig
@@ -139,18 +140,13 @@ public class PciDevice {
     return str;
   }
 
-  /**
-   * @param bar2
-   * @return
-   * @throws BarIndexException 
-   */
-  public int getBar(int barIndex)
+  public Address getBar(int barIndex)
   {
     if(barIndex < 0 || barIndex > 5)
     {
       VM.sysFail("Bad Bar Index:" + barIndex);
     }
-    return bar[barIndex];
+    return Address.fromIntZeroExtend(bar[barIndex]&0xFFFFFFF0);
   }
 
   /**
@@ -159,10 +155,18 @@ public class PciDevice {
    */
   public short readConfig16(int offset)
   {
-    // TODO Auto-generated method stub
     return Pci.pciConfigRead16(bus, slot, function, offset);
   }
 
+  public short getCommand()
+  {
+    return Pci.getCommand(bus, slot, function);
+  }
+  
+  public short getStatus()
+  {
+    return Pci.getStatus(bus, slot, function);
+  }
   /**
    * @param i
    */
@@ -171,6 +175,12 @@ public class PciDevice {
     Pci.pciConfigWrite16(bus, slot, function, offset, value);
   }
   
+  public void disableInterrupt()
+  {
+    short cmd = Pci.getCommand(bus, slot, function);
+    cmd |= (1<<10);
+    Pci.setCommand(bus, slot, function, cmd);
+  }
   public boolean isEthernetController()
   {
     return (classCode==2) && (subClassCode==0);

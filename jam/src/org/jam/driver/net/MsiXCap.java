@@ -8,6 +8,7 @@ package org.jam.driver.net;
 
 import org.jam.board.pc.PciCapability;
 import org.jam.board.pc.PciDevice;
+import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Offset;
 
 /**
@@ -24,8 +25,8 @@ public class MsiXCap extends PciCapability {
   final Offset pbaOffset;
   final int pbaBar;
   
-  private static final int MSIX_ENABLED  = 0x8000;
-  private static final int FUNCTION_MASK = 0x4000;
+  private static final int MSIX_ENABLED  = 1<<15;
+  private static final int FUNCTION_MASK = 1<<14;
 
   /**
    * @param pci
@@ -51,12 +52,39 @@ public class MsiXCap extends PciCapability {
   {
     short control = device.readConfig16(offset+2);
     control |= MSIX_ENABLED;
+    enabled = true;
+//    VM.sysWriteln("msix control: ", Integer.toHexString(control));
     device.writeConfig16(offset+2, control);
+  }
+  
+  public short getControl()
+  {
+    return device.readConfig16(offset+2);
   }
   
   public String toString()
   {
     return (enabled?" ENABLED ":"") + (functionMasked?" MASKED ":"") + " size " + tableSize + " table " +
     tableBar + "/" + Integer.toHexString(tableOffset.toInt()) + " pba " + pbaBar + "/" + Integer.toHexString(pbaOffset.toInt());
+  }
+  
+  public void setMessageAddress(int entry, int address)
+  {
+    
+  }
+  
+  public void setUpperMessageAddress(int entry, int address)
+  {
+    
+  }
+  
+  public void setMessageData(int entry, int data)
+  {
+    
+  }
+  
+  public void enableInterrupt(int entry)
+  {
+    
   }
 }

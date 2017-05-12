@@ -17,7 +17,7 @@ import org.jikesrvm.VM;
 abstract public class VirtioPciCap extends PciCapability {
   int type;
   int bar;
-  int offset;
+  int virtioCapOffset;
   int length;
   int capLength;
   
@@ -34,17 +34,17 @@ abstract public class VirtioPciCap extends PciCapability {
   public VirtioPciCap(PciDevice device, int capPointer)
   {
     super(device, capPointer);
-    int val = device.readConfig32(capPointer);
+    int val = device.readConfig32(offset);
     capLength = (val >> 16) & 0xFF;
     type = (val >> 24) & 0xFF;
-    bar = device.readConfig32(capPointer+4) & 0xFF;
-    offset = device.readConfig32(capPointer+8);
-    length = device.readConfig32(capPointer+12);
+    bar = device.readConfig32(offset+4) & 0xFF;
+    virtioCapOffset = device.readConfig32(offset+8);
+    length = device.readConfig32(offset+12);
   }
 
   public String toString()
   {
-    String str = "virtio cap type " + type + " caplen " + capLength + " bar " + bar +  " " + offset + "/" + length;
+    String str = "virtio cap type " + type + " caplen " + capLength + " bar " + bar +  " " + Integer.toHexString(virtioCapOffset) + "/" + Integer.toHexString(length);
     return str;
   }
   

@@ -48,7 +48,7 @@ public abstract class PciCapability {
   {
     int val = device.readConfig32(capPointer);
     id = val & 0xFF;
-    offset = (val >> 8) & 0xFF;
+    offset = capPointer;
     this.device = device;
   }
 

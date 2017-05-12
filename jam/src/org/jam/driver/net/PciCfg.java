@@ -22,7 +22,7 @@ public class PciCfg extends VirtioPciCap {
   public PciCfg(PciDevice device, int capPointer, int capInfo)
   {
     super(device, capPointer);
-    data = device.readConfig32(capPointer+16);
+    data = device.readConfig32(offset+16);
   }
 
   public String toString()

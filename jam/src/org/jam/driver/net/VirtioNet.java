@@ -18,6 +18,7 @@ import org.jikesrvm.VM;
 /**
  * @author Joe Kulig
  *
+ *
  */
 public class VirtioNet {
   final PciDevice pci;
@@ -69,7 +70,10 @@ public class VirtioNet {
     {
       throw new NoDeviceFoundException("VirtioNet");
     }
+    pci.disableInterrupt();
     VM.sysWriteln(pci.toString());
+    VM.sysWrite("status ", Integer.toHexString(pci.getStatus()));
+    VM.sysWriteln(" command ", Integer.toHexString(pci.getCommand()));
     if(pci.hasCapabilities())
     {
       findCapabilities();
@@ -120,6 +124,9 @@ public class VirtioNet {
       {
         VM.sysWriteln("CAP MSIX ", VM.intAsHexString(capField));
         msixCap = new MsiXCap(pci, capField, capPointer);
+        msixCap.enableInterrupts();
+        short control = msixCap.getControl();
+        VM.sysWriteln("CAP MSIX ", VM.intAsHexString(control));
         VM.sysWriteln(msixCap.toString());
       }
       else if(PciCapability.isMsi(capField & 0xFF))
@@ -143,6 +150,7 @@ public class VirtioNet {
     }
     VM.sysWriteln("Features have been accepted!");
     queueSetup();
+    cfg.setMsiXconfig((short) 0);
   }
   
   void negotiate()

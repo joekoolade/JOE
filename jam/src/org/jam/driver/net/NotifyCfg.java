@@ -7,6 +7,7 @@
 package org.jam.driver.net;
 
 import org.jam.board.pc.PciDevice;
+import org.jikesrvm.VM;
 
 /**
  * @author Joe Kulig
@@ -23,6 +24,7 @@ public class NotifyCfg extends VirtioPciCap {
   NotifyCfg(PciDevice device, int capPointer, int capInfo)
   {
     super(device, capPointer);
-    offsetMultiplier = device.readConfig32(capPointer+16);
+    offsetMultiplier = device.readConfig32(offset+16);
+    VM.sysWriteln("offset multiplier ", VM.intAsHexString(offsetMultiplier));
   }
 }

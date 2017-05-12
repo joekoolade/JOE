@@ -26,7 +26,7 @@ public class IsrCfg extends VirtioPciCap {
   public IsrCfg(PciDevice device, int capPointer, int capInfo)
   {
     super(device, capPointer);
-    isr = Address.fromIntSignExtend(device.getBar(bar) + offset);
+    isr = device.getBar(bar).plus(virtioCapOffset);
   }
 
   public int getStatus()

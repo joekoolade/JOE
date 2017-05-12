@@ -655,7 +655,8 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int92()
        {
-         VM.sysFailTrap("int92");
+//         VM.sysFailTrap("int92");
+         VM.sysWriteln("virtio net interrupt");
        }
        @InterruptHandler
        public static void int93()

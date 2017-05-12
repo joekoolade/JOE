@@ -25,7 +25,7 @@ abstract public class DeviceCfg extends VirtioPciCap {
   public DeviceCfg(PciDevice device, int capPointer, int capInfo)
   {
     super(device, capPointer);
-    deviceCfg = Address.fromIntSignExtend((device.getBar(bar) & 0xFFFFFFF0)+offset);
+    deviceCfg = device.getBar(bar).plus(virtioCapOffset);
   }
 
   public byte getByte(int offset)

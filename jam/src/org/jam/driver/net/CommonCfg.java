@@ -53,7 +53,7 @@ public class CommonCfg extends VirtioPciCap {
   {
     super(device, capPointer);
     pci = device;
-    commonCfg = Address.fromIntZeroExtend((pci.getBar(bar) & 0xFFFFFFF0)+offset);
+    commonCfg = pci.getBar(bar).plus(virtioCapOffset);
     VM.sysWriteln("commoncfg: ", commonCfg);
   }
   
@@ -97,9 +97,9 @@ public class CommonCfg extends VirtioPciCap {
     return commonCfg.loadShort(MSIX_CONFIG_OFFSET);
   }
   
-  public void setMsiXconfig(short value)
+  public void setMsiXconfig(short vector)
   {
-    commonCfg.store(value, MSIX_CONFIG_OFFSET);
+    commonCfg.store(vector, MSIX_CONFIG_OFFSET);
   }
   
   public short getNumQueues()
