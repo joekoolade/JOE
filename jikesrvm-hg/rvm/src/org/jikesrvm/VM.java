@@ -429,6 +429,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
 //  mainThread.start();
+    Magic.enableInterrupts();
+    Platform.net.receive();
     /*
      * Sleep test
      */

@@ -57,6 +57,15 @@ public class MsiXCap extends PciCapability {
     device.writeConfig16(offset+2, control);
   }
   
+  public void disableInterrupts()
+  {
+    short control = device.readConfig16(offset+2);
+    control &= ~MSIX_ENABLED;
+    enabled = true;
+//    VM.sysWriteln("msix control: ", Integer.toHexString(control));
+    device.writeConfig16(offset+2, control);
+  }
+  
   public short getControl()
   {
     return device.readConfig16(offset+2);
@@ -68,7 +77,7 @@ public class MsiXCap extends PciCapability {
     tableBar + "/" + Integer.toHexString(tableOffset.toInt()) + " pba " + pbaBar + "/" + Integer.toHexString(pbaOffset.toInt());
   }
   
-  public void setMessageAddress(int entry, int address)
+  public void setMessageAddress(int entry, int destinationId)
   {
     
   }

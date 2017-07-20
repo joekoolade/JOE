@@ -16,6 +16,7 @@ import org.vmmagic.unboxed.Offset;
 public class VirtUsed {
   final Address ring;
   final int size;
+  private int lastUsedIndex;    // The next buffer that driver expects to see data in
   
   public static final int FLAG_NO_INTERRUPT = 0x01;
   private static final int ID_OFFSET   = 4;
@@ -27,8 +28,26 @@ public class VirtUsed {
   {
     this.ring = ring;
     this.size = size;
+    lastUsedIndex = 0;
   }
 
+  public int getNextBufferDescriptor()
+  {
+    return getId(lastUsedIndex);
+  }
+  
+  public int getNextBufferLen()
+  {
+    return getLen(lastUsedIndex);
+  }
+  
+  public final void next()
+  {
+    // Advance the lastUsedIndex to the next entry
+    lastUsedIndex++;
+    lastUsedIndex &= (size-1);
+  }
+  
   public int getId(int index)
   {
     return ring.loadInt(Offset.fromIntZeroExtend(index*8 + ID_OFFSET));
@@ -70,5 +89,17 @@ public class VirtUsed {
   {
     ring.store(idx, Offset.fromIntZeroExtend(IDX_OFFSET));
   }
+
+  /**
+   * @return
+   */
+  public boolean hasBuffer()
+  {
+    return lastUsedIndex != getIdx();
+  }
   
+  public boolean hasNoBuffers()
+  {
+    return lastUsedIndex == getIdx();
+  }
 }

@@ -13,6 +13,8 @@ import org.vmmagic.unboxed.Offset;
 /**
  * @author Joe Kulig
  *
+ * This class contains all the buffers used by virtio device. During initialization
+ * the driver will allocate buffers in the descriptor table.
  */
 public class VirtDescTable {
   final private Address table;
@@ -24,9 +26,9 @@ public class VirtDescTable {
   static final private Offset FLAGS = Offset.fromIntZeroExtend(12);
   static final private Offset NEXT  = Offset.fromIntZeroExtend(14);
   
-  static final public int    FLAG_NEXT     = 0x01;
-  static final public int    FLAG_WRITE    = 0x02;
-  static final public int    FLAG_INDIRECT = 0x04;
+  static final public short    FLAG_NEXT     = 0x01;
+  static final public short    FLAG_WRITE    = 0x02;
+  static final public short    FLAG_INDIRECT = 0x04;
 
   static final private int ENTRY_SIZE = 16;
 
@@ -70,6 +72,11 @@ public class VirtDescTable {
     return table.loadAddress(ADDR.plus(index*ENTRY_SIZE));
   }
   
+  public byte[] getBuffer(int index)
+  {
+    return Magic.addressAsByteArray(getAddress(index));
+  }
+  
   /**
    * Get the length of a virt desc entry
    * @param index
@@ -101,18 +108,15 @@ public class VirtDescTable {
     flags |= FLAG_WRITE;
     setFlags(index, (short)flags);
   }
-  public int getFlags(int index)
+  public short getFlags(int index)
   {
-    int flag = table.loadShort(FLAGS.plus(index*ENTRY_SIZE));
-    return flag & 0xFFFF;
+    short flag = table.loadShort(FLAGS.plus(index*ENTRY_SIZE));
+    return flag;
   }
   
   public void setNext(int index, short next)
   {
     table.store(next, NEXT.plus(index*ENTRY_SIZE));
-    int flags = getFlags(index);
-    flags |= FLAG_NEXT;
-    setFlags(index, (short)flags);
   }
   
   public int getNext(int index)
@@ -128,7 +132,7 @@ public class VirtDescTable {
     setLen(index, buffer.length);
     if(write)
     {
-      makeWriteable(index);
+      setFlags(index, FLAG_WRITE);
     }
   }
 }

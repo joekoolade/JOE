@@ -54,14 +54,18 @@ public class VirtioNet {
   final private static int ANY_LAYOUT          = 0x08000000;
   final private static int RING_INDIRECT_DESC  = 0x10000000;
   final private static int RING_EVENT_IDX      = 0x20000000;
-  private static final int RECVIEVE_VIRTQ_INDEX = 0;
-  private static final int TRANSMIT_VIRTQ_INDEX = 1;
-  private static final int CONTROL_VIRTQ_INDEX = 2;
+  private static final short RECEIVE_VIRTQ_INDEX = 0;
+  private static final short TRANSMIT_VIRTQ_INDEX = 1;
+  private static final short CONTROL_VIRTQ_INDEX = 2;
   
   private Virtq receiveVirtq;
+  private short rxNotifyOffset;
   private Virtq transmitVirtq;
+  private short txNotifyOffset;
   private Virtq controlVirtq;
+  private short ctlNotifyOffset;
   private NetDeviceCfg deviceCfg;
+  private NotifyCfg notifyCfg;
   
   public VirtioNet() throws NoDeviceFoundException
   {
@@ -70,7 +74,7 @@ public class VirtioNet {
     {
       throw new NoDeviceFoundException("VirtioNet");
     }
-    pci.disableInterrupt();
+    //pci.disableInterrupt();
     VM.sysWriteln(pci.toString());
     VM.sysWrite("status ", Integer.toHexString(pci.getStatus()));
     VM.sysWriteln(" command ", Integer.toHexString(pci.getCommand()));
@@ -78,18 +82,6 @@ public class VirtioNet {
     {
       findCapabilities();
     }
-//    caps = new ArrayList<VirtioPciCap>();
-//    Iterator<PciCapability> capsIter = pci.getCapsIter();
-//    while(capsIter.hasNext())
-//    {
-//      PciCapability cap = capsIter.next();
-//      if(cap.isVendorSpecific())
-//      {
-//        VirtioPciCap virtioCap = createVirtioCap(cap);
-//        caps.add(virtioCap);
-//        VM.sysWriteln(virtioCap.toString());
-//      }
-//    }
   }
   
   private void findCapabilities()
@@ -117,6 +109,10 @@ public class VirtioNet {
           {
             deviceCfg = (NetDeviceCfg) cap;
           }
+          else if(cap instanceof NotifyCfg)
+          {
+            notifyCfg = (NotifyCfg) cap;
+          }
           VM.sysWriteln(cap.toString());
         }
       }
@@ -124,7 +120,7 @@ public class VirtioNet {
       {
         VM.sysWriteln("CAP MSIX ", VM.intAsHexString(capField));
         msixCap = new MsiXCap(pci, capField, capPointer);
-        msixCap.enableInterrupts();
+        msixCap.disableInterrupts();
         short control = msixCap.getControl();
         VM.sysWriteln("CAP MSIX ", VM.intAsHexString(control));
         VM.sysWriteln(msixCap.toString());
@@ -149,21 +145,23 @@ public class VirtioNet {
       System.exit(0);
     }
     VM.sysWriteln("Features have been accepted!");
+    cfg.configMsixNoVector();
     queueSetup();
-    cfg.setMsiXconfig((short) 0);
+    cfg.driverOK();
+    VM.sysWriteln("Device Status: ", deviceCfg.getStatus());
   }
   
   void negotiate()
   {
     cfg.setDriverFeatureSelect(0);
-    cfg.setDriverFeature(MAC | STATUS | CTRL_VQ | CTRL_RX | CTRL_RX_EXTRA);
+    cfg.setDriverFeature(MAC | STATUS | CTRL_VQ | CTRL_RX);
   }
   
   private void queueSetup()
   {
     int numOfQueues = cfg.getNumQueues();
     VM.sysWriteln("# of VQueues ", numOfQueues);
-    for(int i=0; i < numOfQueues; i++)
+    for(short i=0; i < numOfQueues; i++)
     {
       cfg.setQueueSelect(i);
       int queueSize = cfg.getQueueSize();
@@ -173,15 +171,83 @@ public class VirtioNet {
       }
       VM.sysWrite("VQueue ", i); VM.sysWriteln(" size ", queueSize);
     }
-    cfg.setQueueSelect(RECVIEVE_VIRTQ_INDEX);
-    receiveVirtq = new Virtq(cfg.getQueueSize());
+    /*
+     * Setup the rx virtq
+     */
+    cfg.setQueueSelect(RECEIVE_VIRTQ_INDEX);
+    int queueSize = cfg.getQueueSize();
+    receiveVirtq = new Virtq(queueSize);
+    /*
+     * Allocates the rx virtq descriptor table
+     */
     receiveVirtq.allocate(true);
-    cfg.setDescQueue(receiveVirtq.virtDescTable);
-    cfg.setAvailQueue(receiveVirtq.virtAvail);
-    cfg.setUsedQueue(receiveVirtq.virtUsed);
+    receiveVirtq.availTable.noInterrupts();
+    VM.sysWrite("RX virtq: "); VM.sysWriteln(receiveVirtq.toString());
+    /*
+     * Configure device with rx virtq
+     */
+    VM.sysWriteln("RX virtq size:", queueSize);
+//    cfg.setQueueSize((short)queueSize);
+    cfg.setDescQueue(RECEIVE_VIRTQ_INDEX, receiveVirtq.virtDescTable);
+    cfg.setAvailQueue(RECEIVE_VIRTQ_INDEX, receiveVirtq.virtAvail);
+    cfg.setUsedQueue(RECEIVE_VIRTQ_INDEX, receiveVirtq.virtUsed);
+    cfg.queueMsixNoVector();
+    rxNotifyOffset = cfg.getQueueNotifyOffset();
+    cfg.displayQueues();
+    notifyCfg.notify(rxNotifyOffset, RECEIVE_VIRTQ_INDEX);
+    
+    /*
+     * Setup the tx virtq
+     */
     cfg.setQueueSelect(TRANSMIT_VIRTQ_INDEX);
-    transmitVirtq = new Virtq(cfg.getQueueSize());
+    queueSize = cfg.getQueueSize();
+    VM.sysWriteln("TX virtq size:", queueSize);
+    transmitVirtq = new Virtq(queueSize);
+    transmitVirtq.allocate(false);
+    cfg.setDescQueue(TRANSMIT_VIRTQ_INDEX, transmitVirtq.virtDescTable);
+    cfg.setAvailQueue(TRANSMIT_VIRTQ_INDEX, transmitVirtq.virtAvail);
+    cfg.setUsedQueue(TRANSMIT_VIRTQ_INDEX, transmitVirtq.virtUsed);
+    cfg.queueMsixNoVector();
+    cfg.displayQueues();
+
+    /*
+     * Setup the control virtq
+     */
     cfg.setQueueSelect(CONTROL_VIRTQ_INDEX);
-    controlVirtq = new Virtq(cfg.getQueueSize());
+    queueSize = cfg.getQueueSize();
+    VM.sysWriteln("CTL virtq size:", queueSize);
+    controlVirtq = new Virtq(queueSize);
+    controlVirtq.allocate(false);
+    cfg.setDescQueue(CONTROL_VIRTQ_INDEX, controlVirtq.virtDescTable);
+    cfg.setAvailQueue(CONTROL_VIRTQ_INDEX, controlVirtq.virtAvail);
+    cfg.setUsedQueue(CONTROL_VIRTQ_INDEX, controlVirtq.virtUsed);
+    cfg.queueMsixNoVector();
+    cfg.displayQueues();
+
+    cfg.enableQueue(RECEIVE_VIRTQ_INDEX);
+    cfg.enableQueue(TRANSMIT_VIRTQ_INDEX);
+    cfg.enableQueue(CONTROL_VIRTQ_INDEX);
+
+  }
+  
+  /*
+   * Simple receive. Allocates a buffer and waits for it
+   * to receive data
+   */
+  public void receive()
+  {
+    receiveVirtq.initializeAvailableBuffers();
+    while(true)
+    {
+      byte[] buffer = receiveVirtq.waitForBuffer();
+      for(int i=0; i<4; i++)
+      {
+        for(int j=0; j<16; j++)
+        {
+          VM.sysWrite(" ", Integer.toHexString(buffer[i*16 + j]));
+        }
+        VM.sysWriteln();
+      }
+    }
   }
 }

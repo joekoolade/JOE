@@ -18,7 +18,7 @@ public class VirtAvail {
   final int size;
   private int shadowIdx;
   
-  public static final int FLAG_NO_INTERRUPT = 0x01;
+  public static final short FLAG_NO_INTERRUPT = 0x01;
   private static final int RING_OFFSET = 4;
   private static final int FLAG_OFFSET = 0;
   private static final int IDX_OFFSET  = 2;
@@ -34,12 +34,29 @@ public class VirtAvail {
     shadowIdx = 0;
   }
 
-  public void setAvailable(short value)
+  public void setAvailable(short descTableBuffer)
   {
-    int avail = shadowIdx & (size-1);
-    ring.store(value, Offset.fromIntZeroExtend(avail * 2 + RING_OFFSET));
-    avail++;
-    setIdx((short)avail);
+    ring.store(descTableBuffer, Offset.fromIntZeroExtend(shadowIdx * 2 + RING_OFFSET));
+    shadowIdx++;
+    shadowIdx &= (size-1);
+    setIdx((short)shadowIdx);
+  }
+  
+  /**
+   * Makes buffers from bufferStart to bufferEnd inclusively available
+   * 
+   * @param bufferStart
+   * @param bufferEnd
+   */
+  public void setAvailable(short bufferStart, short bufferEnd)
+  {
+    for(int buffer=bufferStart; buffer <= bufferEnd; buffer++)
+    {
+      ring.store(buffer, Offset.fromIntZeroExtend(shadowIdx * 2 + RING_OFFSET));
+      shadowIdx++;
+      shadowIdx &= (size-1);
+    }
+    setIdx((short)shadowIdx);
   }
   
   public int getAvail(int index)
@@ -48,15 +65,20 @@ public class VirtAvail {
     return value & 0xFFFF;
   }
   
+  public void noInterrupts()
+  {
+    setFlags(FLAG_NO_INTERRUPT);
+  }
+  
   public void setFlags(short flags)
   {
     ring.store(flags);
   }
   
-  public int getFlags()
+  
+  public short getFlags()
   {
-    int flags = ring.loadShort();
-    return flags & 0xFFFF;
+    return ring.loadShort();
   }
   
   public short getIdx()

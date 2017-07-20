@@ -47,22 +47,52 @@ public class Virtq {
     /*
      * Align virt used on a 4 byte boundary
      */
-    align = (align + 9 + (size * 2)) & ~0x4; 
+    align = (align + 9 + (size * 2)) & ~0x3; 
     virtUsed = Address.fromIntZeroExtend(align);
     usedTable = new VirtUsed(virtUsed, size);
   }
   
   /**
-   * Allocates buffers to virt queues.
+   * Allocates buffers to the descriptor table.
    */
   public void allocate(boolean writeable)
   {
-    int index;
+    int buffer;
     
-    for(index=0; index < size; index++)
+    for(buffer=0; buffer < size; buffer++)
     {
-      descTable.allocate(index, MAX_BUFFER, writeable);
-      availTable.setAvailable((short)index);
+      descTable.allocate(buffer, MAX_BUFFER, writeable);
     }
+  }
+  
+  /**
+   * Add buffers from descritpor table to the available queue
+   */
+  public void initializeAvailableBuffers()
+  {
+    availTable.setAvailable((short)0, (short)(size-1));
+  }
+  
+  /*
+   * Waits for a buffer to become available
+   */
+  public byte[] waitForBuffer()
+  {
+    byte[] buffer=null;
+    
+    while(usedTable.hasNoBuffers())
+    {
+      // Just spin until a buffer is received
+    }
+    int bufferDescriptor = usedTable.getNextBufferDescriptor();
+    usedTable.next();
+    return descTable.getBuffer(bufferDescriptor);
+  }
+  
+  public String toString()
+  {
+    return Integer.toHexString(virtDescTable.toInt()) + "/"
+    + Integer.toHexString(virtAvail.toInt()) + "/"
+    + Integer.toHexString(virtUsed.toInt());
   }
 }

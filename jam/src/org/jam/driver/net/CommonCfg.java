@@ -42,6 +42,8 @@ public class CommonCfg extends VirtioPciCap {
   private static final byte   DEVICE_NEEDS_RESET           = 0x40;
   private static final byte   FAILED                       = (byte) 0x80;
   
+  private static final short  MSI_NO_VECTOR                = (short)0xFFFF;
+  
   final PciDevice pci;
   final Address commonCfg;
   /**
@@ -92,14 +94,22 @@ public class CommonCfg extends VirtioPciCap {
     commonCfg.store(value, DRIVER_FEATURE_OFFSET);
   }
   
-  public short getMsiXconfig()
+  public short getConfigMsix()
   {
     return commonCfg.loadShort(MSIX_CONFIG_OFFSET);
   }
   
-  public void setMsiXconfig(short vector)
+  public void setConfigMsix(short vector)
   {
     commonCfg.store(vector, MSIX_CONFIG_OFFSET);
+  }
+  
+  /**
+   * Set MSI-X config to NO_VECTOR
+   */
+  public void configMsixNoVector()
+  {
+    commonCfg.store(MSI_NO_VECTOR, MSIX_CONFIG_OFFSET);
   }
   
   public short getNumQueues()
@@ -122,7 +132,7 @@ public class CommonCfg extends VirtioPciCap {
     return commonCfg.loadByte(CONFIG_GENERATION_OFFSET);
   }
 
-  public void setQueueSelect(int queueIndex)
+  public void setQueueSelect(short queueIndex)
   {
     commonCfg.store(queueIndex, QUEUE_SELECT_OFFSET);
   }
@@ -137,6 +147,11 @@ public class CommonCfg extends VirtioPciCap {
   {
     int size = commonCfg.loadShort(QUEUE_SIZE_OFFSET);
     return size & 0xFFFF;
+  }
+  
+  public void setQueueSize(short size)
+  {
+    commonCfg.store(size, QUEUE_SIZE_OFFSET);
   }
   
   public void resetDevice()
@@ -163,6 +178,13 @@ public class CommonCfg extends VirtioPciCap {
     setDeviceStatus(status);
   }
   
+  public void driverOK()
+  {
+    byte status = getDeviceStatus();
+    status |= DRIVER_OK;
+    setDeviceStatus(status);
+  }
+  
   public void featuresOK()
   {
     byte status = getDeviceStatus();
@@ -178,24 +200,88 @@ public class CommonCfg extends VirtioPciCap {
   /**
    * @param queue
    */
-  public void setDescQueue(Address queue)
+  public void setDescQueue(short queueIndex, Address queue)
   {
+    setQueueSelect(queueIndex);
+    commonCfg.store(0, QUEUE_DESC_OFFSET.plus(4));
     commonCfg.store(queue, QUEUE_DESC_OFFSET);
   }
 
   /**
    * @param virtAvail
    */
-  public void setAvailQueue(Address queue)
+  public void setAvailQueue(short queueIndex, Address queue)
   {
+    setQueueSelect(queueIndex);
+    commonCfg.store(0, QUEUE_AVAIL_OFFSET.plus(4));
     commonCfg.store(queue, QUEUE_AVAIL_OFFSET);
   }
 
   /**
    * @param virtUsed
    */
-  public void setUsedQueue(Address queue)
+  public void setUsedQueue(short queueIndex, Address queue)
   {
+    setQueueSelect(queueIndex);
+    commonCfg.store(0, QUEUE_USED_OFFSET.plus(4));
     commonCfg.store(queue, QUEUE_USED_OFFSET);
+  }
+  /**
+   * Enables the currently selected queue
+   */
+  public void enableQueue(short queueIndex)
+  {
+    setQueueSelect(queueIndex);
+    commonCfg.store((short)1, QUEUE_ENABLE_OFFSET);
+  }
+
+  public short getQueueEnable()
+  {
+    return commonCfg.loadShort(QUEUE_ENABLE_OFFSET);
+  }
+  
+  public short getQueueMsix()
+  {
+    return commonCfg.loadShort(QUEUE_MSIX_VECTOR_OFFSET);
+  }
+  
+  public void setQueueMsix(short vector)
+  {
+    commonCfg.store(vector, QUEUE_MSIX_VECTOR_OFFSET);
+  }
+  
+  /**
+   * Set MSI-X config to NO_VECTOR
+   */
+  public void queueMsixNoVector()
+  {
+    commonCfg.store(MSI_NO_VECTOR, QUEUE_MSIX_VECTOR_OFFSET);
+  }
+  
+  public short getQueueNotifyOffset()
+  {
+    return commonCfg.loadShort(QUEUE_NOTIFY_OFFSET);
+  }
+  
+  /**
+   * Display queue specific parameters
+   */
+  public void displayQueues()
+  {
+    int lo,hi;
+    
+    lo = commonCfg.loadShort(QUEUE_NOTIFY_OFFSET);
+    VM.sysWriteln("NOTIFY: ", lo);
+    lo = commonCfg.loadInt(QUEUE_DESC_OFFSET);
+    hi = commonCfg.loadInt(QUEUE_DESC_OFFSET.plus(4));
+    VM.sysWrite("DESC: ", hi); VM.sysWriteln(" ", lo);
+    lo = commonCfg.loadInt(QUEUE_AVAIL_OFFSET);
+    hi = commonCfg.loadInt(QUEUE_AVAIL_OFFSET.plus(4));
+    VM.sysWrite("AVAIL: ", hi); VM.sysWriteln(" ", lo);
+    lo = commonCfg.loadInt(QUEUE_USED_OFFSET);
+    hi = commonCfg.loadInt(QUEUE_USED_OFFSET.plus(4));
+    VM.sysWrite("USED: ", hi); VM.sysWriteln(" ", lo);
+    VM.sysWriteln("MSIX: ", commonCfg.loadShort(QUEUE_MSIX_VECTOR_OFFSET) & 0xFFFF);
+    VM.sysWriteln("ENABLED: ", getQueueEnable());
   }
 }
