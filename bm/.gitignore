@@ -1,0 +1,10 @@
+CVS
+.project
+.classpath
+.cvsignore
+*.class
+*~
+.settings
+*.o
+baremetal/build
+*.a

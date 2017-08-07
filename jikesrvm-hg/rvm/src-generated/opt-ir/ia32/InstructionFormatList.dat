@@ -1,0 +1,216 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+#//OperatorTypeList.dat
+#
+NAME
+# structure of SIZES: NUMDEFS NUMDEFUSES NUMUSES NUMVAR VARDORU NUMALT
+SIZES
+# structure of SIG: { "D/DU/U NAME TYPE [opt]" }
+SIG
+# structure of VARSIG: NAME TYPE [PLURAL]
+#                                use PLURAL if NAME"s" is not plural for NAME
+VARSIG
+
+# backend support for tableswitch
+MIR_LowTableSwitch
+0 1 1 2 U -1
+"DU Index RegisterOperand" "U MethodStart RegisterOperand"
+"Target BranchOperand" "BranchProfile BranchProfileOperand"
+
+#
+# IA32 MIR instruction formats
+# Move
+MIR_Move
+1 0 1
+"D Result Operand" "U Value Operand"
+
+
+# Conditional Move
+MIR_CondMove
+0 1 2
+"DU Result Operand" "U Value Operand" "U Cond IA32ConditionOperand"
+
+
+# Move
+MIR_Lea
+1 0 1
+"D Result RegisterOperand" "U Value MemoryOperand"
+
+
+# Accumulating Binary: result = result op value
+MIR_BinaryAcc
+0 1 1
+"DU Result Operand" "U Value Operand"
+
+
+# IA32 divide/rem is somewhat funky
+MIR_Divide
+0 2 2
+"DU Result1 Operand" "DU Result2 Operand" "U Value Operand" "U Guard Operand"
+
+
+# the IA32 "mul" format used by IA32_MUL and IA32_IMUL1
+MIR_Multiply
+1 1 1
+"D Result1 Operand" "DU Result2 Operand" "U Value Operand"
+
+
+# The format used by the Intel CDQ instruction
+MIR_ConvertDW2QW
+1 1 0
+"D Result1 Operand" "DU Result2 Operand"
+
+
+# Accumulating Unary: result = op result
+MIR_UnaryAcc
+0 1 0
+"DU Result Operand"
+
+
+# Compare two values and set flags
+MIR_Compare
+0 0 2
+"U Val1 Operand" "U Val2 Operand"
+
+
+# Compare OldValue to [MemAddr] and set flags.
+#   If equal, set [MemAddr] = NewValue.
+#   If not equal set OldValue to [MemAddr]
+# OldValue should always be held in EAX
+MIR_CompareExchange
+0 2 1
+"DU OldValue RegisterOperand" "DU MemAddr MemoryOperand" "U NewValue RegisterOperand"
+
+
+# Compare OldValue to [MemAddr] and set flags.  
+#   If equal, set [MemAddr] = NewValue.
+#   If not equal set OldValue to [MemAddr]
+# OldValue should always be held in EDX:EAX, NewValue in ECX:EBX
+MIR_CompareExchange8B
+0 3 2
+"DU OldValueHigh RegisterOperand" "DU OldValueLow RegisterOperand" "DU MemAddr MemoryOperand" "U NewValueHigh RegisterOperand" "U NewValueLow RegisterOperand"
+
+
+# Trap
+MIR_Trap
+1 0 1
+"D GuardResult RegisterOperand" "U TrapCode TrapCodeOperand"
+
+
+# TrapIf
+# A pseduo-op on IA32 (will be expanded in final assembly to
+# a compare and conditional branch to an INT instruction)
+MIR_TrapIf
+1 0 4
+"D GuardResult RegisterOperand" "U Val1 Operand" "U Val2 Operand" \
+"U Cond IA32ConditionOperand" "U TrapCode TrapCodeOperand"
+
+
+# Unconditional Branch
+MIR_Branch
+0 0 1
+"U Target BranchOperand"
+
+
+# Conditional Branch
+MIR_CondBranch
+0 0 3
+"U Cond IA32ConditionOperand" "U Target BranchOperand opt" "U BranchProfile BranchProfileOperand"
+
+
+# Conditional Branch
+MIR_CondBranch2
+0 0 6
+"U Cond1 IA32ConditionOperand" "U Target1 BranchOperand opt" "U BranchProfile1 BranchProfileOperand" \
+"U Cond2 IA32ConditionOperand" "U Target2 BranchOperand opt" "U BranchProfile2 BranchProfileOperand"
+
+
+# Call (branch and link)
+# Target can be one of BranchOperand, IntConstantOperand (relative offset),
+#                      RegisterOperand/MemoryOperand (indirect call),
+#                      RelativeCallOperand or MilliCallOperand (absolute)
+# TODO: above comment is out of date...only a subset of these cases are
+# actually used. Figure out which and update comment! --dave
+MIR_Call
+2 0 2 1 U 1
+"D Result RegisterOperand" "D Result2 RegisterOperand" \
+"U Target Operand opt" "U Method MethodOperand opt"
+"Param Operand"
+
+# Instruction with no operands.
+MIR_Empty
+0 0 0
+
+
+
+# Return
+MIR_Return
+0 0 3
+"U PopBytes IntConstantOperand" "U Val Operand" "U Val2 Operand"
+
+
+MIR_Set
+1 0 1
+"D Result Operand" "U Cond IA32ConditionOperand"
+
+
+MIR_Test
+0 0 2
+"U Val1 Operand" "U Val2 Operand"
+
+
+MIR_Nullary
+1 0 0
+"D Result Operand"
+
+
+MIR_UnaryNoRes
+0 0 1
+"U Val Operand"
+
+
+MIR_Unary
+1 0 1
+"D Result Operand" "U Val Operand"
+
+
+MIR_XChng
+0 2 0
+"DU Val1 Operand" "DU Val2 Operand"
+
+
+MIR_DoubleShift
+0 1 2
+"DU Result Operand" "U Source RegisterOperand" "U BitsToShift Operand"
+
+
+MIR_CaseLabel
+0 0 2
+"U Index IntConstantOperand" "U Target Operand"
+
+
+MIR_FSave
+0 0 1
+"U Destination Operand"
+
+
+MIR_RDTSC
+2 0 0
+"D Dest1 RegisterOperand" "D Dest2 RegisterOperand"
+
+
+MIR_CacheOp
+0 0 1
+"U Address Operand"
+
+

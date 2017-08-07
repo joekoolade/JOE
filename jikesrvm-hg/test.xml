@@ -1,0 +1,426 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="TestDriver" default="report" basedir=".">
+
+  <property name="jikesrvm.dir" location="."/>
+  <import file="${jikesrvm.dir}/build/base.xml"/>
+  <import file="${jikesrvm.dir}/build/tasks.xml"/>
+
+  <property name="test-run.name" value="pre-commit"/>
+  <property name="test-run.variant" value="${test-run.name}"/>
+
+  <property name="test-run.file" value="${jikesrvm.dir}/build/test-runs/${test-run.name}.properties"/>
+  <property file="${test-run.file}"/>
+
+  <property name="require.checkstyle" value="false"/>
+  <property name="test.tests" value=""/>
+  <property name="test.mode" value=""/>
+  <property name="driver.scratch.dir" location="${build.dir}/test-driver"/>
+  <property name="build.results.dir" location="${driver.scratch.dir}/results"/>
+
+  <property name="test.results.dir" value="${results.dir}/tests/${test-run.name}"/>
+  <property name="test.build.dir" value="${build.dir}/tests/${test-run.name}"/>
+
+  <property name="test.results.file" value="${test.results.dir}/Results.xml"/>
+  <property name="build.results.file" value="${test.results.dir}/BuildResults.xml"/>
+  <property name="test.report.file" value="${test.results.dir}/Report.xml"/>
+  <property name="test.report.html" value="${test.results.dir}/Report.html"/>
+  <property name="temp.aggregate.file" value="${test.results.dir}/Aggregate.xml"/>
+
+  <property name="test.scripts.dir" value="${jikesrvm.dir}/testing/tests"/>
+
+  <property name="results.archive" location="${results.dir}/archive"/>
+
+  <!-- properties defining where to upload -->
+  <property name="cattrack.upload.account" value="regression@jikesrvm.anu.edu.au"/>
+  <property name="cattrack.upload.incoming.dir" value="/home/regression/incoming"/>
+
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                      Macro for setup test properties                     * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <macrodef name="testRunPropertyInit">
+    <attribute name="tag"/>
+    <sequential>
+      <property name="test.config.@{tag}.configuration" value="@{tag}"/>
+      <setBuildName property="test.config.@{tag}.build.name" config="${test.config.@{tag}.configuration}"/>
+      <property name="test.config.@{tag}.target" value="main"/>
+      <property name="test.config.@{tag}.rvm.dir" location="${dist.dir}/${test.config.@{tag}.build.name}"/>
+      <property name="test.config.@{tag}.tests" value="${test.tests}"/>
+      <property name="test.config.@{tag}.name" value="default"/>
+      <property name="test.config.@{tag}.mode" value="${test.mode}"/>
+      <property name="test.config.@{tag}.extra.rvm.args" value=""/>
+    </sequential>
+  </macrodef>
+
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                      Macro for setup test properties                     * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <presetdef name="bres">
+    <echo file="${build.results.file}" append="true"/>
+  </presetdef>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                          Setup test-run start time                       * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="init" depends="prepare-ant-tasks">
+    <tstamp prefix="test-run.start">
+        <format property="time" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timezone="UTC"/>
+        <format property="time-stamp" pattern="yyyyMMddHHmmss" timezone="UTC"/>
+    </tstamp>
+    <hostname property="local.hostname"/>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                          Task to actually run tests                      * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="test" depends="init">
+    <delete dir="${driver.scratch.dir}"/>
+    <delete dir="${test.build.dir}"/>
+    <delete dir="${test.results.dir}"/>
+
+    <mkdir dir="${driver.scratch.dir}"/>
+
+    <mkdir dir="${test.results.dir}"/>
+    <bres append="false"><![CDATA[<buildresults>
+<build-target>
+<name>${target.name}</name>
+<parameters>]]></bres>
+    <property file="${target.file}" prefix="build-target"/>
+    <forEach list="target.arch target.address.size target.os target.bootimage.code.address target.bootimage.data.address target.bootimage.rmap.address target.max-mappable.address target.arch.sse2" property="parameter">
+      <sequential>
+        <bres append="true"><![CDATA[
+<parameter key="@{parameter}" value="${build-target.@{parameter}}"/>]]></bres>
+      </sequential>
+    </forEach>
+    <bres append="true"><![CDATA[
+</parameters>]]></bres>
+
+  	<forEach list="${test.configs}" property="tag">
+      <sequential>
+        <testRunPropertyInit tag="@{tag}"/>
+        <propertycopy name="test.config.@{tag}.build.done" from="${test.config.@{tag}.configuration}.built"/>
+        <if>
+          <conditions>
+            <not>
+              <or>
+                <equals arg1="${test.config.@{tag}.build.done}" arg2="true"/>
+                <isset property="skip.build"/>
+              </or>
+            </not>
+          </conditions>
+          <sequential>
+            <echo message="Building ${test.config.@{tag}.configuration}"/>
+            <delete dir="${test.config.@{tag}.rvm.dir}"/>
+            <timer property="${test.config.@{tag}.configuration}.build.time"/>
+            <erant antfile="${jikesrvm.dir}/build.xml"
+                   target="${test.config.@{tag}.target}"
+                   failonerror="false"
+                   failonerrorProperty="${test.config.@{tag}.configuration}.build.error"
+                   output="${driver.scratch.dir}/Build-${test.config.@{tag}.configuration}.txt">
+              <property name="config.name" value="${test.config.@{tag}.configuration}"/>
+              <property name="require.checkstyle" value="${require.checkstyle}"/>
+              <property name="require.rvm-unit-tests" value="${require.rvm-unit-tests}"/>
+            </erant>
+            <timer property="${test.config.@{tag}.configuration}.build.time" stop="true"/>
+            <property name="${test.config.@{tag}.configuration}.built" value="true"/>
+
+            <propertycopy name="test.config.@{tag}.build.time" from="${test.config.@{tag}.configuration}.build.time.duration"/>
+            <propertycopy name="test.config.@{tag}.build.error" from="${test.config.@{tag}.configuration}.build.error"/>
+            <condition property="test.config.@{tag}.build.status" value="FAILURE" else="SUCCESS">
+              <equals arg1="${test.config.@{tag}.build.error}" arg2="true"/>
+            </condition>
+
+            <bres><![CDATA[
+<build-configuration>
+<name>${test.config.@{tag}.configuration}</name>
+<parameters>]]></bres>
+            <property prefix="@{tag}" file="${test.config.@{tag}.rvm.dir}/constants.properties"/>
+
+            <property name="properties.config"
+                      value="config.name config.runtime.compiler config.bootimage.compiler config.mmtk.plan config.include.aos config.include.gcspy config.include.gcspy-client config.assertions config.default-heapsize.initial config.default-heapsize.maximum config.bootimage.compiler.args config.stress-gc-interval config.alignment-checking"/>
+              <forEach list="${properties.config}" property="property">
+                <sequential>
+                  <bres><![CDATA[
+<parameter key="@{property}" value="${@{tag}.@{property}}"/>]]></bres>
+                </sequential>
+              </forEach>
+            <bres><![CDATA[
+</parameters>
+<duration>${test.config.@{tag}.build.time}</duration>
+<result>${test.config.@{tag}.build.status}</result>
+<output><![CDATA[]]></bres>
+            <concat destfile="${build.results.file}" append="true">
+              <path path="${driver.scratch.dir}/Build-${test.config.@{tag}.configuration}.txt"/>
+            </concat>
+            <bres>]<![CDATA[]></output>
+</build-configuration>]]></bres>
+
+          </sequential>
+        </if>
+        <if>
+          <conditions>
+            <and>
+              <not>
+                <isset property="${test.config.@{tag}.configuration}.built"/>
+              </not>
+              <isset property="skip.build"/>
+            </and>
+          </conditions>
+          <sequential>
+            <property name="${test.config.@{tag}.configuration}.built" value="true"/>
+            <bres><![CDATA[
+<build-configuration>
+<name>${test.config.@{tag}.configuration}</name>
+<parameters></parameters>
+<duration>0</duration>
+<result>SUCCESS</result>
+<output>Builds are being skipped</output>
+</build-configuration>]]></bres>
+          </sequential>
+        </if>
+        <propertycopy name="test.config.@{tag}.build.error" from="${test.config.@{tag}.configuration}.build.error"/>
+        <if>
+          <conditions>
+            <not>
+              <equals arg1="${test.config.@{tag}.build.error}" arg2="true"/>
+            </not>
+          </conditions>
+          <sequential>
+            <echo message="Testing Run @{tag}"/>
+            <echo message="    rvm.dir:        ${test.config.@{tag}.rvm.dir}"/>
+            <echo message="    Configuration:  ${test.config.@{tag}.configuration}"/>
+            <echo message="    Tests:          ${test.config.@{tag}.tests}"/>
+            <echo message="    Run Name:       ${test.config.@{tag}.name}"/>
+            <echo message="    Mode:           ${test.config.@{tag}.mode}"/>
+            <echo message="    Extra RVM Args: ${test.config.@{tag}.extra.rvm.args}"/>
+            <forEach list="${test.config.@{tag}.tests}" property="test">
+              <sequential>
+                <subant target="test" failonerror="false" output="${driver.scratch.dir}/Test-@{tag}-@{test}.txt">
+                  <filelist dir="${test.scripts.dir}" files="@{test}/build.xml"/>
+                  <property name="config.name" value="${test.config.@{tag}.configuration}"/>
+                  <property name="test-run.file" value="${test-run.file}"/>
+                  <property name="test.results.dir" value="${test.results.dir}/@{tag}"/>
+                  <property name="test.build.dir" value="${test.build.dir}/@{tag}"/>
+                  <property name="test.rvm.dir" location="${test.config.@{tag}.rvm.dir}"/>
+                  <property name="test.mode" value="${test.config.@{tag}.mode}"/>
+                  <property name="test.group.name" value="@{test}"/>
+                  <property name="test.config.${test.config.@{tag}.configuration}.extra.rvm.args" value="${test.config.@{tag}.extra.rvm.args}"/>
+                  <propertyset>
+                    <propertyref prefix="exclude."/>
+                  </propertyset>
+                </subant>
+              </sequential>
+            </forEach>
+          </sequential>
+        </if>
+      </sequential>
+    </forEach>
+
+    <bres><![CDATA[
+</build-target>
+</buildresults>
+]]></bres>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                       Targets for generating results                     * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="gen-xml-results" depends="test,get-hg-version">
+    <mkdir dir="${build.results.dir}"/>
+    <mkdir dir="${test.results.dir}"/>
+    <tstamp prefix="test-run.end">
+      <format property="time" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timezone="UTC"/>
+    </tstamp>
+    <echo file="${test.results.file}" append="false"><![CDATA[<results version="1.1">
+<name>${test-run.name}</name>
+<variant>${test-run.variant}</variant>
+<revision>${hg.revision}</revision>
+<start-time>${test-run.start.time}</start-time>
+<end-time>${test-run.end.time}</end-time>
+<parameters>
+</parameters>
+<host>
+<name>${local.hostname}</name>
+<parameters>
+</parameters>
+</host>]]></echo>
+    <forEach list="${test.configs}" property="tag">
+      <sequential>
+        <testRunPropertyInit tag="@{tag}"/>
+        <property prefix="@{tag}" file="${test.config.@{tag}.rvm.dir}/constants.properties"/>
+        <echo file="${build.results.dir}/@{tag}.xml" append="false"><![CDATA[
+<test-configuration>
+<build-configuration>${test.config.@{tag}.configuration}</build-configuration>
+<name>${test.config.@{tag}.name}</name>
+<parameters>
+<parameter key="mode" value="${test.config.@{tag}.rvm.dir}"/>
+<parameter key="mode" value="${test.config.@{tag}.mode}"/>
+</parameters>
+]]></echo>
+        <forEach list="${test.config.@{tag}.tests}" property="test">
+          <sequential>
+            <erxmlvalidate lenient="true" failonerrorproperty="@{tag}.@{test}.Results.xml.valid">
+              <fileset dir="${test.results.dir}" includes="@{tag}/@{test}/Results.xml"/>
+            </erxmlvalidate>
+            <if>
+              <conditions>
+                <not>
+                  <isset property="@{tag}.@{test}.Results.xml.valid"/>
+                </not>
+              </conditions>
+              <sequential>
+                <concat destfile="${build.results.dir}/@{tag}.xml" append="true">
+                  <fileset dir="${test.results.dir}" includes="@{tag}/@{test}/Results.xml"/>
+                </concat>
+              </sequential>
+            </if>
+          </sequential>
+        </forEach>
+        <echo file="${build.results.dir}/@{tag}.xml" append="true"><![CDATA[
+</test-configuration>]]></echo>
+        <erxmlvalidate lenient="true" failonerrorproperty="@{tag}.xml.valid">
+          <fileset dir="${build.results.dir}" includes="@{tag}.xml"/>
+        </erxmlvalidate>
+        <if>
+          <conditions>
+            <not>
+              <isset property="@{tag}.xml.valid"/>
+            </not>
+          </conditions>
+          <sequential>
+            <concat destfile="${test.results.file}" append="true">
+              <fileset dir="${build.results.dir}" includes="@{tag}.xml"/>
+            </concat>
+          </sequential>
+        </if>
+      </sequential>
+    </forEach>
+    <echo file="${test.results.file}" append="true"><![CDATA[
+</results>
+]]></echo>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                           Generate XML report                            * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="gen-xml-report" depends="gen-xml-results">
+    <echo file="${temp.aggregate.file}" append="false"><![CDATA[<aggregate>
+]]></echo>
+  	<concat destfile="${temp.aggregate.file}" append="true">
+      <filelist dir="${test.results.dir}" files="BuildResults.xml,Results.xml"/>
+    </concat>
+    <echo file="${temp.aggregate.file}" append="true"><![CDATA[
+</aggregate>]]></echo>
+    <xslt in="${temp.aggregate.file}"
+          out="${test.report.file}"
+          style="${jikesrvm.dir}/build/results2report.xsl"
+          force="true">
+      <outputproperty name="method" value="xml"/>
+      <outputproperty name="standalone" value="yes"/>
+      <outputproperty name="encoding" value="US-ASCII"/>
+      <outputproperty name="indent" value="yes"/>
+      <outputproperty name="omit-xml-declaration" value="yes"/>
+    </xslt>
+    <delete file="${temp.aggregate.file}"/>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                  Targets for archiving results and report                * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="archive" depends="gen-xml-report">
+    <mkdir dir="${results.archive}"/>
+    <property name="archive.filename" value="${local.hostname}_${test-run.variant}_${test-run.start.time-stamp}_r${hg.revision}_${target.name}_Report.xml"/>
+    <gzip src="${test.report.file}" destfile="${results.archive}/${archive.filename}.gz"/>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                  Targets for generating a simple report                  * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="gen-report-html" depends="archive">
+    <xslt in="${test.report.file}"
+          out="${test.report.html}"
+          style="${jikesrvm.dir}/build/testing/report2html.xsl"
+          force="true">
+      <outputproperty name="method" value="html"/>
+      <outputproperty name="standalone" value="yes"/>
+      <outputproperty name="encoding" value="US-ASCII"/>
+      <outputproperty name="indent" value="yes"/>
+    </xslt>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                  Target for uploading results to cattrack.               * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="upload-results" depends="archive" if="upload.results">
+    <exec executable="ssh" failonerror="true">
+      <arg value="${cattrack.upload.account}"/>
+      <arg value="mkdir"/>
+      <arg value="-p"/>
+      <arg value="${cattrack.upload.incoming.dir}"/>
+    </exec>
+    <exec executable="scp" failonerror="true">
+      <arg value="${results.archive}/${archive.filename}.gz"/>
+      <arg value="${cattrack.upload.account}:${cattrack.upload.incoming.dir}/${archive.filename}.gz_tmp"/>
+    </exec>
+    <exec executable="ssh" failonerror="true">
+      <arg value="${cattrack.upload.account}"/>
+      <arg value="chmod"/>
+      <arg value="go+rw"/>
+      <arg value="${cattrack.upload.incoming.dir}/${archive.filename}.gz_tmp"/>
+    </exec>
+    <exec executable="ssh" failonerror="true">
+      <arg value="${cattrack.upload.account}"/>
+      <arg value="mv"/>
+      <arg value="${cattrack.upload.incoming.dir}/${archive.filename}.gz_tmp"/>
+      <arg value="${cattrack.upload.incoming.dir}/${archive.filename}.gz"/>
+    </exec>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                          Meta-target for reporting                       * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="report" depends="test,upload-results,gen-report-html"/>
+
+</project>

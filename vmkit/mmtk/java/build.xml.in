@@ -1,9 +1,0 @@
-<project name="MMTK-VMKit" default="main" basedir=".">
-  <target name="main">
-    <mkdir dir="classes"/>
-    <javac srcdir="@abs_top_srcdir@/mmtk/java/src:./src" destdir="classes" source="1.5"/>
-    <jar jarfile="mmtk-vmkit.jar">
-      <fileset dir="classes"/>
-    </jar>
-  </target>
-</project>

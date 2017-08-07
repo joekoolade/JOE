@@ -1,0 +1,50 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="tasks">
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                           Build the ant tasks                            * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <property name="tasks.dir" location="${build.dir}/tasks"/>
+  <property name="tasks.classes" location="${tasks.dir}/classes"/>
+  <property name="tasks.java.version" value="1.6"/>
+
+  <target name="prepare-ant-tasks">
+    <mkdir dir="${tasks.classes}"/>
+    <javac srcdir="${jikesrvm.dir}/tools/ant-tasks/src" destdir="${tasks.classes}" debug="true" classpath="${ant.jar}" source="${tasks.java.version}" target="${tasks.java.version}" includeantruntime="true"/>
+    <!-- forEach is used in the test harness -->
+    <taskdef name="forEach" classname="org.jikesrvm.tools.ant.ForEachTask" classpath="${tasks.classes}"/>
+    <!-- selectRegex is used to get results from some benchmark tests -->
+    <taskdef name="selectRegex" classname="org.jikesrvm.tools.ant.SelectRegexTask" classpath="${tasks.classes}"/>
+    <!-- timer used recording the duration of rvm run -->
+    <taskdef name="timer" classname="org.jikesrvm.tools.ant.TimerTask" classpath="${tasks.classes}"/>
+    <!-- Task that makes it easier for conditional task execution within macros. -->
+    <taskdef name="if" classname="org.jikesrvm.tools.ant.IfTask" classpath="${tasks.classes}"/>
+    <!-- Task that makes determining whether an ant build failed easier. Used in test infrastructure. -->
+    <taskdef name="erant" classname="org.jikesrvm.tools.ant.ErrorRecordingAntTask" classpath="${tasks.classes}"/>
+    <!-- Task that makes determining whether an xml validation failed easier. Used in test infrastructure. -->
+    <taskdef name="erxmlvalidate" classname="org.jikesrvm.tools.ant.ErrorRecordingXMLValidateTask" classpath="${tasks.classes}"/>
+    <!-- Task that copys a file while replacing non-ascii chars with ? -->
+    <taskdef name="toAscii" classname="org.jikesrvm.tools.ant.ToAsciiTask" classpath="${tasks.classes}"/>
+    <!-- Task to get hostname -->
+    <taskdef name="hostname" classname="org.jikesrvm.tools.ant.HostnameTask" classpath="${tasks.classes}"/>
+    <!-- Truncate a file (used in testing) -->
+    <taskdef name="truncate" classname="org.jikesrvm.tools.ant.TruncateTask" classpath="${tasks.classes}"/>
+    <!-- Filter out lines -->
+    <taskdef name="lineFilter" classname="org.jikesrvm.tools.ant.LineFilterTask" classpath="${tasks.classes}"/>
+  </target>
+
+</project>

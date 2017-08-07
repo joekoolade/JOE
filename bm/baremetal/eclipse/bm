@@ -1,0 +1,31 @@
+#!/bin/bash
+# set -x
+GCJ=/home/jom/local/bin/gcj
+GCJ_FLAGS="-static -O2 -march=pentium -time -save-temps -fno-use-divide-subroutine -Wno-deprecated"
+CLASSPATH="--bootclasspath=../baremetal/build --classpath=.:../baremetal/build:../baremetal/kernel:../baremetal/platforms/x86"
+LDFLAGS="-Xlinker -e -Xlinker main -static -L/home/jom/w/baremetal/glibc -Xlinker --script=/home/jom/w/baremetal/elf_i386.x"
+SOOTPATH=/home/jom/wj/w/soot-2.1.0
+SOOT=$SOOTPATH/sootclasses-2.1.0.jar:$SOOTPATH/polyglot-1.1.0.jar:$SOOTPATH/jasmineclasses-sable-1.2.7.jar
+
+if [ $# = 0 ]
+then
+  echo "Usage: bm class class-files"
+  exit
+fi
+
+BMCLASS=$1
+shift
+java -Dlib.dir=/home/jom/w/baremetal/build -Dprune.file=/home/jom/w/baremetal/prune.properties -cp .:$SOOT:/home/jom/w/baremetal/prune.jar Prune $BMCLASS
+$GCJ $GCJ_FLAGS $CLASSPATH $LDFLAGS --main=$BMCLASS -o bm $* metal.zip
+if [ $? -gt 0 ]
+then
+  exit
+fi
+
+mcopy -o bm c:/
+nm -nC bm >bm.map
+objdump -dC bm >bm.s
+cat bm.map | cut -c 1-8 >bm.addr
+cat bm.map | cut -c 12-100 >bm.names
+paste -d ' ' bm.addr bm.names >bm.sym
+strip -o bm.strip bm

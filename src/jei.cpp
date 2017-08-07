@@ -36,13 +36,16 @@
 #include "llvm/Support/Signals.h"
 #include "llvm/Target/TargetData.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm-c/Target.h"
 
 #include "j3/JavaAOTCompiler.h"
+#include "ClassLoader.h"
 
 #include <iostream>
 #include <fstream>
 #include <memory>
 #include <string>
+#include <assert.h>
 
 using namespace j3;
 using namespace llvm;
@@ -99,7 +102,7 @@ WithClinit("with-clinit", cl::desc("Classes to clinit"), cl::ZeroOrMore,
            cl::CommaSeparated);
 
 int main(int argc, char **argv) {
-    llvm_shutdown_obj X;  // Call llvm_shutdown() on exit.
+    printf("Starting JEI\n");
     cl::ParseCommandLineOptions(argc, argv, "jei .class -> .ll compiler\n");
     sys::PrintStackTraceOnErrorSignal();
 
@@ -110,6 +113,11 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    LLVMInitializeX86TargetInfo();
+    LLVMInitializeX86Target();
+    LLVMInitializeX86TargetMC();
+    LLVMInitializeX86AsmParser();
+    LLVMInitializeX86AsmPrinter();
     JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
     if (DisableExceptions)
@@ -118,8 +126,7 @@ int main(int argc, char **argv) {
         Comp->generateStubs = false;
     if (AssumeCompiled)
         Comp->assumeCompiled = true;
-    if (DisableCooperativeGC)
-        Comp->disableCooperativeGC();
+    Comp->disableCooperativeGC();
 
 //    for (std::vector<std::string>::iterator i = Properties.begin(), e =
 //            Properties.end(); i != e; ++i) {
