@@ -4952,6 +4952,7 @@ public Address sentinelFp;
    * @param ip instruction pointer for first frame to dump
    * @param fp frame pointer for first frame to dump
    */
+  @SuppressWarnings("unused")
   public static void dumpStack(Address ip, Address fp) {
     boolean b = Monitor.lockNoHandshake(dumpLock);
     RVMThread t = getCurrentThread();

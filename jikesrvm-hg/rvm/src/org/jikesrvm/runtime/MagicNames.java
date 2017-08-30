@@ -225,4 +225,6 @@ public class MagicNames {
   public static final Atom cpuId = Atom.findOrCreateAsciiAtom("cpuId");
   public static final Atom rdMsr = Atom.findOrCreateAsciiAtom("readMSR");
   public static final Atom wrMsr = Atom.findOrCreateAsciiAtom("writeMSR");
+  
+  public static final Atom byteSwap = Atom.findOrCreateAsciiAtom("byteSwap");
 }

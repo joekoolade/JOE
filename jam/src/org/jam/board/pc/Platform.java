@@ -11,6 +11,7 @@ import org.jam.cpu.intel.ApicTimer;
 import org.jam.cpu.intel.CpuId;
 import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.Tsc;
+import org.jam.driver.net.I82559c;
 import org.jam.driver.net.VirtioNet;
 import org.jam.driver.serial.PcSerialPort;
 import org.jam.interfaces.Timer;
@@ -33,7 +34,7 @@ public class Platform {
     public static Scheduler scheduler;
     public static I8259A masterPic;
     public static I8259A slavePic;
-    public static VirtioNet net;
+    public static I82559c net;
     public static QemuIoApic ioApic;
     public static ApicTimer apicTimer;
     public static Apic apic;
@@ -76,7 +77,7 @@ public class Platform {
 //      slavePic.pcSetup();
       try
       {
-        net = new VirtioNet();
+        net =  new I82559c();
       }
       catch (NoDeviceFoundException e)
       {

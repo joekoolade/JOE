@@ -23,7 +23,8 @@ public class Virtq {
   final VirtUsed usedTable;
   final int size;
   
-  private final static int MAX_BUFFER = 1526;
+  private final static int MAX_BUFFER = 1528;
+  private static final byte GSO_NONE = 0;
   
   public Virtq(int size)
   {
@@ -43,6 +44,7 @@ public class Virtq {
     align = align + (size * 16);
     virtAvail = Address.fromIntZeroExtend(align);
     availTable = new VirtAvail(virtAvail, size);
+    availTable.noInterrupts();
     
     /*
      * Align virt used on a 4 byte boundary
@@ -50,6 +52,7 @@ public class Virtq {
     align = (align + 9 + (size * 2)) & ~0x3; 
     virtUsed = Address.fromIntZeroExtend(align);
     usedTable = new VirtUsed(virtUsed, size);
+    usedTable.noInterrupts();
   }
   
   /**
@@ -63,6 +66,7 @@ public class Virtq {
     {
       descTable.allocate(buffer, MAX_BUFFER, writeable);
     }
+    Magic.fence();
   }
   
   /**
@@ -89,6 +93,51 @@ public class Virtq {
     return descTable.getBuffer(bufferDescriptor);
   }
   
+  public int getFreeBuffer()
+  {
+    return availTable.getFreeBuffer();
+  }
+  
+  public void send(byte packet[])
+  {
+    int next=availTable.getFreeBuffer();
+    byte transmitBuffer[] = descTable.getBuffer(next);
+    int i=1;
+    
+    /*
+     * Create and fill in virtio net header
+     */
+    // flags
+    transmitBuffer[i++] = 0;    
+    // gso_type
+    transmitBuffer[i++] = GSO_NONE;
+    // hdr_len
+    transmitBuffer[i++] = 0;
+    transmitBuffer[i++] = 0;
+    // gso_size
+    transmitBuffer[i++] = 0;
+    transmitBuffer[i++] = 0;
+    // csum_start
+    transmitBuffer[i++] = 0;
+    transmitBuffer[i++] = 0;
+    // csum_offset
+    transmitBuffer[i++] = 0;
+    transmitBuffer[i++] = 0;
+    // num_buffers
+    transmitBuffer[i++] = 0;
+    transmitBuffer[i++] = 0;
+
+    /*
+     * Copy the packet
+     */
+    for(int packetIndex=0; i < packet.length; i++, packetIndex++)
+    {
+      transmitBuffer[i] = packet[packetIndex];
+    }
+    
+    availTable.setAvailable((short)next);
+  }
+
   public String toString()
   {
     return Integer.toHexString(virtDescTable.toInt()) + "/"

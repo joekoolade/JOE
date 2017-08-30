@@ -224,7 +224,7 @@ public class Pci {
    * @param deviceId  pci device id
    * @return  PciDevice object if found otherwise NULL
    */
-  public static PciDevice find(int vendorId, int deviceId)
+  public static PciDevice find(short vendorId, short deviceId)
   {
     for(int slot=0; slot < deviceIndex; slot++)
     {

@@ -1344,4 +1344,21 @@ public final class Magic {
           VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
       }
     }
+    
+    public static short byteSwap(short value)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
+    public static int byteSwap(int value)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
 }

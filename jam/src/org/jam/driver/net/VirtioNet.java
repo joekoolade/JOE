@@ -9,9 +9,13 @@ package org.jam.driver.net;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.jam.board.pc.MessageAddressRegister;
+import org.jam.board.pc.MessageDataRegister;
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciCapability;
 import org.jam.board.pc.PciDevice;
+import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.Packet;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 
@@ -69,7 +73,7 @@ public class VirtioNet {
   
   public VirtioNet() throws NoDeviceFoundException
   {
-    pci = Pci.find(0x1AF4, 0x1000);
+    pci = Pci.find((short)0x1AF4, (short)0x1000);
     if(pci == null)
     {
       throw new NoDeviceFoundException("VirtioNet");
@@ -120,7 +124,7 @@ public class VirtioNet {
       {
         VM.sysWriteln("CAP MSIX ", VM.intAsHexString(capField));
         msixCap = new MsiXCap(pci, capField, capPointer);
-        msixCap.disableInterrupts();
+        msixCap.enableInterrupts();
         short control = msixCap.getControl();
         VM.sysWriteln("CAP MSIX ", VM.intAsHexString(control));
         VM.sysWriteln(msixCap.toString());
@@ -135,17 +139,8 @@ public class VirtioNet {
 
   public void boot()
   {
-    cfg.acknowledge();
-    cfg.driver();
     negotiate();
-    cfg.featuresOK();
-    if(!cfg.areFeaturesOk())
-    {
-      VM.sysWriteln("Features not accepted! ", cfg.getDeviceStatus());
-      System.exit(0);
-    }
-    VM.sysWriteln("Features have been accepted!");
-    cfg.configMsixNoVector();
+//    cfg.configMsixNoVector();
     queueSetup();
     cfg.driverOK();
     VM.sysWriteln("Device Status: ", deviceCfg.getStatus());
@@ -153,8 +148,23 @@ public class VirtioNet {
   
   void negotiate()
   {
+    cfg.resetDevice();
+    cfg.acknowledge();
+    cfg.driver();
     cfg.setDriverFeatureSelect(0);
-    cfg.setDriverFeature(MAC | STATUS | CTRL_VQ | CTRL_RX);
+    cfg.setDriverFeature(MAC | STATUS | CTRL_VQ);
+    cfg.featuresOK();
+    if(!cfg.areFeaturesOk())
+    {
+      VM.sysWriteln("Features not accepted! ", cfg.getDeviceStatus() & 0xFF);
+      System.exit(0);
+    }
+    if(cfg.deviceNeedsReset())
+    {
+      VM.sysWriteln("Device needs to be reset! ", cfg.getDeviceStatus() & 0xFF);
+      System.exit(0);
+    }
+    VM.sysWriteln("Features have been accepted!");
   }
   
   private void queueSetup()
@@ -181,6 +191,7 @@ public class VirtioNet {
      * Allocates the rx virtq descriptor table
      */
     receiveVirtq.allocate(true);
+    receiveVirtq.initializeAvailableBuffers();
     receiveVirtq.availTable.noInterrupts();
     VM.sysWrite("RX virtq: "); VM.sysWriteln(receiveVirtq.toString());
     /*
@@ -188,13 +199,18 @@ public class VirtioNet {
      */
     VM.sysWriteln("RX virtq size:", queueSize);
 //    cfg.setQueueSize((short)queueSize);
-    cfg.setDescQueue(RECEIVE_VIRTQ_INDEX, receiveVirtq.virtDescTable);
-    cfg.setAvailQueue(RECEIVE_VIRTQ_INDEX, receiveVirtq.virtAvail);
-    cfg.setUsedQueue(RECEIVE_VIRTQ_INDEX, receiveVirtq.virtUsed);
-    cfg.queueMsixNoVector();
+    cfg.setDescQueue(receiveVirtq.virtDescTable);
+    cfg.setAvailQueue(receiveVirtq.virtAvail);
+    cfg.setUsedQueue(receiveVirtq.virtUsed);
+    cfg.setQueueMsix(RECEIVE_VIRTQ_INDEX);
+    MessageDataRegister mdr=MessageDataRegister.lowPriorityEdgeVector(94);
+    MessageAddressRegister mar=MessageAddressRegister.logicalDestination(0xFF);
+    msixCap.setMessageData(RECEIVE_VIRTQ_INDEX, mdr);
+    msixCap.setMessageAddress(RECEIVE_VIRTQ_INDEX, mar);
+    msixCap.enableInterrupt(RECEIVE_VIRTQ_INDEX);
     rxNotifyOffset = cfg.getQueueNotifyOffset();
     cfg.displayQueues();
-    notifyCfg.notify(rxNotifyOffset, RECEIVE_VIRTQ_INDEX);
+//    notifyCfg.notify(rxNotifyOffset, RECEIVE_VIRTQ_INDEX);
     
     /*
      * Setup the tx virtq
@@ -204,10 +220,15 @@ public class VirtioNet {
     VM.sysWriteln("TX virtq size:", queueSize);
     transmitVirtq = new Virtq(queueSize);
     transmitVirtq.allocate(false);
-    cfg.setDescQueue(TRANSMIT_VIRTQ_INDEX, transmitVirtq.virtDescTable);
-    cfg.setAvailQueue(TRANSMIT_VIRTQ_INDEX, transmitVirtq.virtAvail);
-    cfg.setUsedQueue(TRANSMIT_VIRTQ_INDEX, transmitVirtq.virtUsed);
-    cfg.queueMsixNoVector();
+    cfg.setDescQueue(transmitVirtq.virtDescTable);
+    cfg.setAvailQueue(transmitVirtq.virtAvail);
+    cfg.setUsedQueue(transmitVirtq.virtUsed);
+    cfg.setQueueMsix(TRANSMIT_VIRTQ_INDEX);
+    mdr=MessageDataRegister.lowPriorityEdgeVector(93);
+    msixCap.setMessageData(TRANSMIT_VIRTQ_INDEX, mdr);
+    msixCap.setMessageAddress(TRANSMIT_VIRTQ_INDEX, mar);
+    msixCap.enableInterrupt(TRANSMIT_VIRTQ_INDEX);
+    rxNotifyOffset = cfg.getQueueNotifyOffset();
     cfg.displayQueues();
 
     /*
@@ -218,10 +239,14 @@ public class VirtioNet {
     VM.sysWriteln("CTL virtq size:", queueSize);
     controlVirtq = new Virtq(queueSize);
     controlVirtq.allocate(false);
-    cfg.setDescQueue(CONTROL_VIRTQ_INDEX, controlVirtq.virtDescTable);
-    cfg.setAvailQueue(CONTROL_VIRTQ_INDEX, controlVirtq.virtAvail);
-    cfg.setUsedQueue(CONTROL_VIRTQ_INDEX, controlVirtq.virtUsed);
-    cfg.queueMsixNoVector();
+    cfg.setDescQueue(controlVirtq.virtDescTable);
+    cfg.setAvailQueue(controlVirtq.virtAvail);
+    cfg.setUsedQueue(controlVirtq.virtUsed);
+    cfg.setQueueMsix(CONTROL_VIRTQ_INDEX);
+    mdr=MessageDataRegister.lowPriorityEdgeVector(92);
+    msixCap.setMessageData(CONTROL_VIRTQ_INDEX, mdr);
+    msixCap.setMessageAddress(CONTROL_VIRTQ_INDEX, mar);
+    msixCap.enableInterrupt(CONTROL_VIRTQ_INDEX);
     cfg.displayQueues();
 
     cfg.enableQueue(RECEIVE_VIRTQ_INDEX);
@@ -236,7 +261,6 @@ public class VirtioNet {
    */
   public void receive()
   {
-    receiveVirtq.initializeAvailableBuffers();
     while(true)
     {
       byte[] buffer = receiveVirtq.waitForBuffer();
@@ -249,5 +273,20 @@ public class VirtioNet {
         VM.sysWriteln();
       }
     }
+  }
+  
+  public void transmit(Packet packet)
+  {
+    transmit(packet.getArray());
+  }
+  public void transmit(byte data[])
+  {
+    VM.hexDump(data);
+    transmitVirtq.send(data);
+  }
+  
+  public EthernetAddr getEthernetAddress()
+  {
+    return deviceCfg.getEthernetAddress();
   }
 }

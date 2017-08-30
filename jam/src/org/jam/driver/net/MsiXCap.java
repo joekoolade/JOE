@@ -6,9 +6,12 @@
  */
 package org.jam.driver.net;
 
+import org.jam.board.pc.MessageAddressRegister;
+import org.jam.board.pc.MessageDataRegister;
 import org.jam.board.pc.PciCapability;
 import org.jam.board.pc.PciDevice;
 import org.jikesrvm.VM;
+import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
 /**
@@ -24,6 +27,8 @@ public class MsiXCap extends PciCapability {
   final int tableBar;
   final Offset pbaOffset;
   final int pbaBar;
+  final Address msixTable;
+  final Address pbaTable;
   
   private static final int MSIX_ENABLED  = 1<<15;
   private static final int FUNCTION_MASK = 1<<14;
@@ -46,6 +51,8 @@ public class MsiXCap extends PciCapability {
     value = device.readConfig32(capPointer+8);
     pbaBar = value & 0x7;
     pbaOffset = Offset.fromIntZeroExtend((value >> 3) & 0x1FFFFFFF);
+    msixTable = device.getBar(tableBar).plus(tableOffset);
+    pbaTable = device.getBar(pbaBar).plus(pbaOffset);
   }
 
   public void enableInterrupts()
@@ -73,27 +80,34 @@ public class MsiXCap extends PciCapability {
   
   public String toString()
   {
-    return (enabled?" ENABLED ":"") + (functionMasked?" MASKED ":"") + " size " + tableSize + " table " +
+    String str = (enabled?" ENABLED ":"") + (functionMasked?" MASKED ":"") + " size " + tableSize + " table " +
     tableBar + "/" + Integer.toHexString(tableOffset.toInt()) + " pba " + pbaBar + "/" + Integer.toHexString(pbaOffset.toInt());
+    str += "\nMSIX: " + Integer.toHexString(msixTable.toInt()) + " PBA: " + Integer.toHexString(pbaTable.toInt());
+    return str;
   }
   
-  public void setMessageAddress(int entry, int destinationId)
+  public void setMessageAddress(int entry, MessageAddressRegister messageAddress)
   {
-    
+    msixTable.store(messageAddress.toRegister(), Offset.zero().plus(entry<<4));
   }
   
-  public void setUpperMessageAddress(int entry, int address)
+  public void setUpperMessageAddress(int entry, int upperAddress)
   {
-    
+    msixTable.store(upperAddress, Offset.zero().plus((entry<<4) + 4));
   }
   
-  public void setMessageData(int entry, int data)
+  public void setMessageData(int entry, MessageDataRegister messageData)
   {
-    
+    msixTable.store(messageData.toRegister(), Offset.zero().plus((entry<<4) + 8));
   }
   
   public void enableInterrupt(int entry)
   {
-    
+    msixTable.store(0, Offset.zero().plus((entry<<4) + 12));
+  }
+
+  public void disableInterrupt(int entry)
+  {
+    msixTable.store(1, Offset.zero().plus((entry<<4) + 12));
   }
 }

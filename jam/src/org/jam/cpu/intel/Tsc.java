@@ -151,4 +151,17 @@ public class Tsc {
         cyclesPer1000Ns = (int)(cyclesPerSecond/1000000);
         VM.sysWriteln("TSC cycles per 1000 NS = ", cyclesPer1000Ns);
     }
+    
+    /**
+     * Delay for a set amount of microseconds
+     * @param microseconds microseconds to delay
+     */
+    public static void udelay(int microseconds)
+    {
+      long end = getCycles() + (microseconds * cyclesPer1000Ns);
+      while(getCycles() < end)
+      {
+        // just spin here
+      }
+    }
 }

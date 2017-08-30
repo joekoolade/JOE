@@ -1949,11 +1949,24 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /** Suggest to process that a a compare for a spin lock has just failed */
   public final void emitPAUSE () {
     int miStart = mi;
-    setMachineCodes(mi++, (byte) 0xF3);
+    setMachineCodes(mi++,(byte) 0xF3);
     setMachineCodes(mi++,(byte) 0x90);
     if (lister != null) lister.OP(miStart, "PAUSE");
   }
 
+  /**
+   * 8bit exchange of the contents of registers 1 and 2
+   * 
+   * @param reg1
+   * @param reg2
+   */
+  @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
+  public final void emitXCHG_Reg_Reg(GPR reg1, GPR reg2)
+  {
+    int miStart = mi;
+    setMachineCodes(mi++,(byte)0x86);
+    emitRegRegOperands(reg1, reg2);
+  }
   /**
    * Compare and exchange 8 bytes
    * <PRE>

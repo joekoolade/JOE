@@ -14,6 +14,10 @@ package org.jikesrvm;
 
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.net.ethernet.Ethernet;
+import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.Arp;
+import org.jam.net.inet4.InetAddress;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
 import org.jam.board.pc.I8259A;
@@ -430,7 +434,17 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    mainThread = new MainThread(null);
 //  mainThread.start();
     Magic.enableInterrupts();
-    Platform.net.receive();
+    
+    /*
+     * Send an arp request
+     */
+//    InetAddress senderIp = new InetAddress(192, 168, 100, 2);
+//    InetAddress targetIp = new InetAddress(192, 168, 100, 1);
+//    Arp arp = new Arp(Platform.net.getEthernetAddress(), senderIp, targetIp);
+//    arp.request();
+//    Ethernet arpRequest = new Ethernet(Platform.net.getEthernetAddress(), EthernetAddr.BROADCAST_ADDRESS, Ethernet.PROTO_ARP, arp.getPacket().getArray());
+//    Platform.net.transmit(arpRequest.getFrame());
+//    Platform.net.receive();
     /*
      * Sleep test
      */
@@ -2730,6 +2744,34 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   public static boolean buildForSSE2() {
     return BuildForSSE2;
+  }
+  
+  public static void hexDump(byte data[])
+  {
+    int size = data.length;
+    int i;
+    
+    for(i=0; i < size; i++)
+    {
+      if(i!=0 && (i%16) == 0)
+      {
+        VM.sysWriteln();
+        if(data[i] < 0x10 && data[i] >=0)
+        {
+          VM.sysWrite('0');
+        }
+        VM.sysWrite(Integer.toHexString(data[i]&0xff), " ");
+      }
+      else
+      {
+        if(data[i] < 0x10 && data[i] >=0)
+        {
+          VM.sysWrite('0');
+        }
+        VM.sysWrite(Integer.toHexString(data[i]&0xff), " ");
+      }
+    }
+    VM.sysWriteln();
   }
 }
 

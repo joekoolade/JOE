@@ -6,6 +6,7 @@
  */
 package org.jam.driver.net;
 
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -42,6 +43,10 @@ public class VirtAvail {
     setIdx((short)shadowIdx);
   }
   
+  public int getFreeBuffer()
+  {
+    return shadowIdx;
+  }
   /**
    * Makes buffers from bufferStart to bufferEnd inclusively available
    * 
@@ -57,6 +62,7 @@ public class VirtAvail {
       shadowIdx &= (size-1);
     }
     setIdx((short)shadowIdx);
+    Magic.fence();
   }
   
   public int getAvail(int index)

@@ -7,6 +7,8 @@
 package org.jam.driver.net;
 
 import org.jam.board.pc.PciDevice;
+import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.InetAddress;
 
 /**
  * @author Joe Kulig
@@ -14,7 +16,8 @@ import org.jam.board.pc.PciDevice;
  */
 public class NetDeviceCfg extends DeviceCfg {
   final byte macAddress[];
-  
+  final private EthernetAddr ethernetAddress;
+
   /**
    * @param device
    * @param capPointer
@@ -28,6 +31,7 @@ public class NetDeviceCfg extends DeviceCfg {
     {
       macAddress[i] = getByte(i);
     }
+    ethernetAddress = new EthernetAddr(macAddress);
   }
 
   public int getStatus()
@@ -44,6 +48,11 @@ public class NetDeviceCfg extends DeviceCfg {
   public byte[] getMacAddress()
   {
     return macAddress;
+  }
+  
+  public EthernetAddr getEthernetAddress()
+  {
+    return ethernetAddress;
   }
   
   public String toString()

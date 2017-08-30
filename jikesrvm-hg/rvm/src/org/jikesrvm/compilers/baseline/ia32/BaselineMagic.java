@@ -2886,4 +2886,51 @@ final class BaselineMagic {
     generators.put(getMethodReference(Magic.class, MagicNames.wrMsr, int.class, long.class, void.class), g);
   }
   
+  /*
+   * Generate an integer byte swap
+   */
+  final static private class ByteSwap32 extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      asm.emitPOP_Reg(S0);
+      asm.emitBSWAP_Reg(S0);
+      asm.emitPUSH_Reg(S0);
+    }
+  }
+  static
+  {
+    MagicGenerator g = new ByteSwap32();
+    generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, int.class, int.class), g);
+  }
+  
+  /*
+   * Generate an short byte swap
+   */
+  final static private class ByteSwap16 extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      /*
+       * This is the ECX but it contains a short in the CX
+       */
+      asm.emitPOP_Reg(S0);
+      /*
+       * This is an 8bit instruction so really 
+       * the registers are CL, CH
+       */
+      asm.emitXCHG_Reg_Reg(S0, EBP);
+      /*
+       * The byte swapped result is contained the CX
+       */
+      asm.emitPUSH_Reg(S0);
+    }
+  }
+  static
+  {
+    MagicGenerator g = new ByteSwap16();
+    generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, short.class, short.class), g);
+  }
 }
