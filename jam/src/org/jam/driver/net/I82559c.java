@@ -44,6 +44,12 @@ public class I82559c {
   // number of eeprom address bits
   private int eepromAddrLength;
   
+  private static final short MDI_READ = 2;
+  private static final short MDI_WRITE = 1;
+  private static final int   MDI_READY = (1<<28);
+  private final int phyAddress;
+  private int phyId;
+  
   public I82559c() throws NoDeviceFoundException
   {
     pci = Pci.find((short)0x8086, (short)0x1229);
@@ -58,6 +64,7 @@ public class I82559c {
     eeprom = new short[256];
     eepromAddrLength = 8;
     eepromSize = 0;
+    phyAddress = 1;
   }
   
   private void scbIrq(ScbIrqMasks mask)
@@ -95,13 +102,75 @@ public class I82559c {
     
   }
 
+  
   /**
    * 
    */
   private void phyInit()
   {
-    // TODO Auto-generated method stub
+    short bmcr, stat;
     
+    bmcr = bmcr();
+    stat = bmsr();
+    if(bmcr==0xFFFF || (bmcr==0 && stat==0))
+    {
+      VM.sysWriteln("PHY is unavailabe! ", phyAddress);
+      // Should throw an exception
+      return;
+    }
+    VM.sysWrite("status: ", VM.intAsHexString(stat)); VM.sysWriteln(" ", VM.intAsHexString(bmcr));
+    short idLo = physId1();
+    short idHi = physId2();
+    phyId = (int)idHi<<16 | (int)idLo & 0xFFFF;
+    VM.sysWriteln("phy ID = ", VM.intAsHexString(phyId));
+  }
+
+  /**
+   * @return
+   */
+  private short physId2()
+  {
+    return mdioRead(MdiRegister.PHY2);
+  }
+
+  /**
+   * @return
+   */
+  private short physId1()
+  {
+    return mdioRead(MdiRegister.PHY1);
+  }
+
+  /**
+   * @return
+   */
+  private short bmsr()
+  {
+    return mdioRead(MdiRegister.STATUS);
+  }
+
+  /**
+   * @return
+   */
+  private short bmcr()
+  {
+    return mdioRead(MdiRegister.CONTROL);
+  }
+
+  /**
+   * @param control
+   * @return
+   */
+  private short mdioRead(MdiRegister register)
+  {
+    int ctrl = (MDI_READ<<26) | (phyAddress<<21) | (register.ordinal()<<16);
+    csr.store(ctrl, MDI);
+    int data = csr.loadInt(MDI);
+    while((data & MDI_READY) == 0)
+    {
+      data = csr.loadInt(MDI);
+    }
+    return (short)data;
   }
 
   /**
