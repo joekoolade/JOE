@@ -43,6 +43,12 @@ public class Pci {
   private static final short NO_VENDOR_ID = (short)0xffff;
   
   private static final int MAX_PCI_DEVICES = 32;
+  
+  public static final short    CMD_IO_SPACE      = 1;
+  public static final short    CMD_MEM_SPACE     = 1 << 1;
+  public static final short    CMD_BUS_MASTER    = 1 << 2;
+  public static final short    CMD_DISABLE_INT   = 1 << 10;
+  
   private static int deviceIndex = 0;
   private static PciDevice devices[];
   

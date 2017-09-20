@@ -175,10 +175,19 @@ public class PciDevice {
     Pci.pciConfigWrite16(bus, slot, function, offset, value);
   }
   
+  /**
+   * Make device a bus master
+   */
+  public void busMaster()
+  {
+    short cmd = Pci.getCommand(bus, slot, function);
+    cmd |= Pci.CMD_BUS_MASTER;
+    Pci.setCommand(bus, slot, function, cmd);
+  }
   public void disableInterrupt()
   {
     short cmd = Pci.getCommand(bus, slot, function);
-    cmd |= (1<<10);
+    cmd |= Pci.CMD_DISABLE_INT;
     Pci.setCommand(bus, slot, function, cmd);
   }
   public boolean isEthernetController()

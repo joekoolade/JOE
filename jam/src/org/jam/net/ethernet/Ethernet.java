@@ -19,11 +19,13 @@ import org.vmmagic.unboxed.Offset;
  * can be transmitted by a ethernet device
  */
 public class Ethernet {
-  public final static short PROTO_IP = 0x800;
-  public final static short PROTO_ARP = 0x806;
-  private final static int MAX_PAYLOAD = 1500;
-  private final static int MIN_PAYLOAD = 46;
-  private final static int MIN_ETHERNET_PACKET = 64;
+  public final static short  PROTO_IP            = 0x800;
+  public final static short  PROTO_ARP           = 0x806;
+  private final static int   MAX_PAYLOAD         = 1500;
+  private final static int   MIN_PAYLOAD         = 46;
+  public final static int    FRAME_LENGTH        = 1518;   // does not include FCS
+  public final static int    FCS_LENGTH          = 4;
+  private final static int   MIN_ETHERNET_PACKET = 64;
   
   final private EthernetAddr src;
   final private EthernetAddr dst;
