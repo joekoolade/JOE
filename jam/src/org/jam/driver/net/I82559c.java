@@ -136,6 +136,7 @@ public class I82559c {
   private static final int       RFD_COUNT         = 256;
   private static final int       WAIT_SCB_TIMEOUT  = 20000;        // 100ms wait
   private static final int       WAIT_SCB_FAST     = 20;           // Try 20 iterations first before delay
+  private static final boolean DEBUG_CONFIG = false;
 
   private final int phyAddress;
   private int phyId;
@@ -282,12 +283,8 @@ public class I82559c {
    */
   private void configure()
   {
-    int cmdBlock[] = new int[8+4];
+    int cmdBlock[] = new int[8];
     Address cmdPtr = Magic.objectAsAddress(cmdBlock);
-    if((cmdPtr.toInt() & 0xF) != 0)
-    {
-      cmdPtr = Address.fromIntZeroExtend((cmdPtr.toInt() + 16) & ~0xF);
-    }
     Address configurePtr = Magic.objectAsAddress(cmdPtr).plus(8);
     
     configurePtr.store((byte)CFG_BYTE_COUNT); 
@@ -313,23 +310,24 @@ public class I82559c {
     configurePtr.store((byte)(CFG_IA_MULTIPLE|CFG_PRIORITY_FC_LOC|0x1F), Offset.zero().plus(20));
     configurePtr.store((byte)CFG_MULTICAST|0x5, Offset.zero().plus(21));
     
-//    cmdBlock[0] = CB_EL|CB_CONFIGURE;
-//    cmdBlock[1] = 0;
-    cmdPtr.store(CB_EL|CB_CONFIGURE);
-    cmdPtr.store(0, Offset.zero().plus(4));
+    cmdBlock[0] = CB_EL|CB_CONFIGURE;
+    cmdBlock[1] = 0;
     
-    for(int i=0; i<CFG_BYTE_COUNT; i++)
+    if(DEBUG_CONFIG)
     {
-      VM.sysWrite("config ", i); VM.sysWriteln(" = ", VM.intAsHexString(configurePtr.loadByte(Offset.zero().plus(i))));
+      for(int i=0; i<CFG_BYTE_COUNT; i++)
+      {
+        VM.sysWrite("config ", i); VM.sysWriteln(" = ", VM.intAsHexString(configurePtr.loadByte(Offset.zero().plus(i))));
+      }
     }
     scbWait();
-    scbPointer(Magic.objectAsAddress(cmdPtr).toInt());
+    scbPointer(Magic.objectAsAddress(cmdBlock).toInt());
     scbCommand(CucCommand.START);
-    while((cmdPtr.loadInt() & CB_C) == 0)
+    while((cmdBlock[0] & CB_C) == 0)
     {
       Tsc.udelay(100);
     }
-    if((cmdPtr.loadInt() & CB_OK) == 0)
+    if((cmdBlock[0] & CB_OK) == 0)
     {
       VM.sysWriteln("Configure status: ", cmdBlock[0]);
     }
