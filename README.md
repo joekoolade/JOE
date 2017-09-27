@@ -1,6 +1,6 @@
 # JOE
 
-## Java On Every
+## Java On Everything
 
 JOE is a new application virtualization technology that can virtualize Java programs and allow them to run on any machine. It does this by virtualizing the Java API library and the operating system that it depends on. The virtualization of the operating system is accomplished by creating the objects for the operating system components like the scheduler, locks, synchronization, network interfaces, and hardware devices. The JNI library interface used by the Java API library is changed to use these system objects. Thus an end-to-end virtualization is achieved which will allow the Java programs to run on any machine. To restate the previous statement in another way, the JOE applications run without an operating system.
 
