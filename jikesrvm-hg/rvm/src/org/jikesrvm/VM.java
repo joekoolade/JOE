@@ -444,7 +444,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    arp.request();
 //    Ethernet arpRequest = new Ethernet(Platform.net.getEthernetAddress(), EthernetAddr.BROADCAST_ADDRESS, Ethernet.PROTO_ARP, arp.getPacket().getArray());
 //    Platform.net.transmit(arpRequest.getFrame());
-//    Platform.net.receive();
+    Platform.net.receive();
     /*
      * Sleep test
      */
@@ -2748,10 +2748,19 @@ public class VM extends Properties implements Constants, ExitStatus {
   
   public static void hexDump(byte data[])
   {
-    int size = data.length;
+    hexDump(data, 0, data.length);
+  }
+  
+  /**
+   * Print data from array at offset
+   * @param data
+   * @param offset
+   */
+  public static void hexDump(byte data[], int offset, int size)
+  {
     int i;
     
-    for(i=0; i < size; i++)
+    for(i=offset; i < size; i++)
     {
       if(i!=0 && (i%16) == 0)
       {

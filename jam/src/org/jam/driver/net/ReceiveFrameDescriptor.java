@@ -7,6 +7,10 @@
 package org.jam.driver.net;
 
 import org.jam.net.ethernet.Ethernet;
+import org.jikesrvm.VM;
+import org.jikesrvm.runtime.Magic;
+import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.Offset;
 
 /**
  * @author Joe Kulig
@@ -23,11 +27,21 @@ public class ReceiveFrameDescriptor {
   private static final int FINISHED        = (1 << 14);
   private static final int RFD_SIZE        = 16;
   
+  private static final Offset LINK_ADDR       = Offset.zero().plus(4);
+  private static final Offset INFO            = Offset.zero().plus(12);
+  private static final Offset SIZE            = Offset.zero().plus(14);
+
+  private static final int    ACTUAL_SIZE_MASK = 0x3FF;
+  private static final int    STATUS_MASK      = 0x1FF;
+  
   private byte buffer[];
+  private Address rfdAddr;
   
   public ReceiveFrameDescriptor(int bufferSize)
   {
     buffer = new byte[bufferSize];
+    rfdAddr = Magic.objectAsAddress(buffer);
+    size(bufferSize-RFD_SIZE);
   }
   
   public ReceiveFrameDescriptor()
@@ -36,38 +50,63 @@ public class ReceiveFrameDescriptor {
   }
   
   /**
-   * Set the link address field
-   * @param linkAddress
-   */
-  public void setLinkAddress()
-  {
-    
-  }
-
-  /**
    * @param receiveFrameDescriptor
    */
   public void link(ReceiveFrameDescriptor receiveFrameDescriptor)
   {
-    // TODO Auto-generated method stub
-    
+    // set the link address field
+    rfdAddr.store(receiveFrameDescriptor.rfdAddr, LINK_ADDR);
+  }
+
+  /**
+   * Set the EL bit
+   */
+  public void endLink()
+  {
+    int value = rfdAddr.loadInt();
+    value |= EL;
+    rfdAddr.store(value);
+  }
+
+  /**
+   * Set the size of buffer
+   * @param size
+   */
+  public void size(int size)
+  {
+    rfdAddr.store((short)size, SIZE);
+  }
+  
+  public Address getAddress()
+  {
+    return rfdAddr;
+  }
+
+  /**
+   * @return
+   */
+  public int actualSize()
+  {
+    return rfdAddr.loadInt(INFO) & ACTUAL_SIZE_MASK;
+  }
+
+  public int getStatus()
+  {
+    return rfdAddr.loadInt() & STATUS_MASK;
+  }
+  /**
+   * @return
+   */
+  public boolean notComplete()
+  {
+    return (rfdAddr.loadInt() & COMPLETE)==0;
   }
 
   /**
    * 
    */
-  public void endLink()
+  public void dump()
   {
-    // TODO Auto-generated method stub
-    
-  }
-
-  /**
-   * @param i
-   */
-  public void size(int i)
-  {
-    // TODO Auto-generated method stub
-    
+    VM.hexDump(buffer, 16, actualSize());
   }
 }

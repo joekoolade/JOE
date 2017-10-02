@@ -71,7 +71,7 @@ public class I82559c {
   public static int CFG_IGNORE_UL                = 0<<4;      // byte 15. 0=consider U/L bit
   public static int CFG_WAIT_AFTER_WIN           = 0<<2;      // byte 15. 0=disabled
   public static int CFG_BROADCAST_DISABLED       = 0<<1;      // byte 15. 0=receive broadcasts
-  public static int CFG_PROMICUOUS_MODE          = 0;         // byte 15. 0=disabled
+  public static int CFG_PROMICUOUS_MODE          = 1;         // byte 15. 0=disabled
   public static int CFG_FC_DELAY_LO              = 0;         // byte 16
   public static int CFG_FC_DELAY_HI              = 0;         // byte 17
   public static int CFG_LONG_RECV_OK             = 0<<3;      // byte 18. 0=disabled
@@ -137,6 +137,7 @@ public class I82559c {
   private static final int       WAIT_SCB_TIMEOUT  = 20000;        // 100ms wait
   private static final int       WAIT_SCB_FAST     = 20;           // Try 20 iterations first before delay
   private static final boolean DEBUG_CONFIG = false;
+  private static final boolean DEBUG = true;
 
   private final int phyAddress;
   private int phyId;
@@ -208,8 +209,11 @@ public class I82559c {
    */
   private void startReceiver()
   {
-    // TODO Auto-generated method stub
+    if(running != RuState.SUSPENDED) return;
     
+    scbWait();
+    scbPointer(rfds[rfdToUse].getAddress());
+    scbCommand(RucCommand.START);
   }
 
   /**
@@ -266,7 +270,7 @@ public class I82559c {
       VM.sysWrite("ia setup ", i); VM.sysWriteln(" = ", VM.intAsHexString(cmdBlock[i]));
     }
     scbWait();
-    scbPointer(Magic.objectAsAddress(cmdBlock).toInt());
+    scbPointer(Magic.objectAsAddress(cmdBlock));
     scbCommand(CucCommand.START);
     while((cmdBlock[0] & CB_C) == 0)
     {
@@ -321,7 +325,7 @@ public class I82559c {
       }
     }
     scbWait();
-    scbPointer(Magic.objectAsAddress(cmdBlock).toInt());
+    scbPointer(Magic.objectAsAddress(cmdBlock));
     scbCommand(CucCommand.START);
     while((cmdBlock[0] & CB_C) == 0)
     {
@@ -348,7 +352,7 @@ public class I82559c {
   private void rucLoadBase()
   {
     scbWait();
-    scbPointer(0);
+    scbPointer(Address.zero());
     scbCommand(RucCommand.LOAD_BASE);
   }
 
@@ -358,7 +362,7 @@ public class I82559c {
   private void cucLoadBase()
   {
     scbWait();
-    scbPointer(0);
+    scbPointer(Address.zero());
     scbCommand(CucCommand.LOAD_BASE);
   }
 
@@ -426,9 +430,9 @@ public class I82559c {
    * Writer pointer value into the SCB_POINTER register
    * @param pointer
    */
-  private void scbPointer(int pointer)
+  private void scbPointer(Address pointer)
   {
-    csr.store(pointer, SCB_GENERAL_PTR);
+    csr.store(pointer.toInt(), SCB_GENERAL_PTR);
   }
 
   /**
@@ -519,6 +523,44 @@ public class I82559c {
    rfdToUse = rfdToClean = 0;
   }
 
+  /**
+   * Process any buffers that have received packets
+   */
+  private void rxProcessBuffer()
+  {
+    int actualSize = rfds[rfdToClean].actualSize();
+    
+    if(DEBUG)
+    {
+      rfds[rfdToClean].dump();
+    }
+  }
+  
+  public void receive()
+  {
+    while(true)
+    {
+      rxClean();
+      Tsc.udelay(10000);
+    }
+  }
+  /**
+   * find RFDS to clean
+   */
+  private void rxClean()
+  {
+    /*
+     * Keep processing buffers until one that is not complete
+     */
+    for(; ; rfdToClean++)
+    {
+      if(rfds[rfdToClean].notComplete())
+      {
+        break;
+      }
+      rxProcessBuffer();
+    }
+  }
   /**
    * 
    */
