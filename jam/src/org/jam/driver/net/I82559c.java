@@ -27,70 +27,6 @@ public class I82559c {
   
   // Configure command parameters
   public static int CFG_BYTE_COUNT               = 0x16;      // byte 0. 22 bytes in the configure command
-  public static int CFG_RX_FIFO_LIMIT            = 8;         // byte 1
-  public static int CFG_TX_FIFO_LIMIT            = 0<<4;      // byte 1
-  public static int CFG_ADAPTIVE_IFS             = 0;         // byte 2
-  public static int CFG_MWI_ENABLE               = 1;         // byte 3
-  public static int CFG_TYPE_ENABLE              = 0<<1;      // byte 3
-  public static int CFG_READ_ALIGN_ENABLE        = 0<<2;      // byte 3
-  public static int CFG_TERM_WRITE_CACHE_LINE    = 0<<3;      // byte 3
-  public static int CFG_RX_DMA_MAX_COUNT         = 0;         // byte 4
-  public static int CFG_TX_DMA_MAX_COUNT         = 0;         // byte 5
-  public static int CFG_DMA_MAX_COUNT_ENABLE     = 0<<7;      // byte 5
-  public static int CFG_LATE_SCB_UPDATE          = 0;         // byte 6
-  public static int CFG_DIRECT_RX_DMA            = 1<<1;      // byte 6
-  public static int CFG_TCO_STATS                = 1<<2;      // byte 6
-  public static int CFG_CI_INTR                  = 0<<3;      // byte 6
-  public static int CFG_STANDARD_TCB             = 1<<4;      // byte 6
-  public static int CFG_STANDARD_STAT_COUNTER    = 1<<5;      // byte 6
-  public static int CFG_RX_SAVE_OVERRUNS         = 0<<6;      // byte 6
-  public static int CFG_RX_SAVE_BAD_FRAMES       = 0<<7;      // byte 6
-  public static int CFG_RX_DISCARD_SHORT_FRAMES  = 1;         // byte 7
-  public static int CFG_TX_UNDERRUN_RETRY        = 3<<1;      // byte 7
-  public static int CFG_RX_EXTENDED_RFD          = 0;         // byte 7
-  public static int CFG_TX_TWO_FRAMES_IN_FIFO    = 0<<6;      // byte 7
-  public static int CFG_TX_DYNAMIC_TDB           = 0<<7;      // byte 7
-  public static int CFG_MII_MODE                 = 1;         // byte 8
-  public static int CFG_CSMA_DISABLED            = 0<<7;      // byte 8
-  public static int CFG_RX_TCPUDP_CHECKSUM       = 0;         // byte 9
-  public static int CFG_VLAN_ARP_TCO             = 0<<4;      // byte 9
-  public static int CFG_LINK_STATUS_WAKE         = 0<<5;      // byte 9
-  public static int CFG_ARP_WAKE                 = 0<<6;      // byte 9
-  public static int CFG_MCMATCH_WAKE             = 0<<7;      // byte 9
-  public static int CFG_RESERVED10               = 6;          // byte 10
-  public static int CFG_NO_SOURCE_ADDR_INSERTION = 1<<3;      // byte 10. 1=no
-  public static int CFG_PREAMBLE_LENGTH          = 2<<4;      // byte 10. 2=7bits
-  public static int CFG_LOOPBACK                 = 0<<6;      // byte 10
-  public static int CFG_LINEAR_PRIORITY          = 0;         // byte 11
-  public static int CFG_LINEAR_PRIORITY_MODE     = 1;         // byte 12
-  public static int CFG_IFS                      = 6<<4;      // byte 12
-  public static int CFG_IP_ADDR_LO               = 0;         // byte 13
-  public static int CFG_IP_ADDR_HI               = 0;         // byte 14
-  public static int CFG_CRS_OR_CDT               = 1<<7;      // byte 15. 1=both
-  public static int CFG_CRC16                    = 0<<6;      // byte 15. 0=crc 32, 1=crc 16
-  public static int CFG_IGNORE_UL                = 0<<4;      // byte 15. 0=consider U/L bit
-  public static int CFG_WAIT_AFTER_WIN           = 0<<2;      // byte 15. 0=disabled
-  public static int CFG_BROADCAST_DISABLED       = 0<<1;      // byte 15. 0=receive broadcasts
-  public static int CFG_PROMICUOUS_MODE          = 1;         // byte 15. 0=disabled
-  public static int CFG_FC_DELAY_LO              = 0;         // byte 16
-  public static int CFG_FC_DELAY_HI              = 0;         // byte 17
-  public static int CFG_LONG_RECV_OK             = 0<<3;      // byte 18. 0=disabled
-  public static int CFG_RCV_CRC_TRANSFER         = 0<<2;      // byte 18. 0=don't transfer crc
-  public static int CFG_PADDING_ENABLED          = 1<<1;      // byte 18. 1=padding bytes are added
-  public static int CFG_STRIPPING_ENABLED        = 1;         // byte 18. 1=enabled
-  public static int CFG_PRIORITY_FC_THRESHOLD    = 7<<4;      // byte 18. 7=disabled
-  public static int CFG_FD_PIN_ENABLE            = 1<<7;         // byte 19. 1=enabled
-  public static int CFG_FD_FORCE                 = 0<<6;         // byte 19. 0=off
-  public static int CFG_REJECT_FC                = 0<<5;         // byte 19. 0=off
-  public static int CFG_FD_RESTART_FC            = 0<<4;         // byte 19. 0=off
-  public static int CFG_FD_RESTOP_FC             = 0<<3;         // byte 19. 0=off
-  public static int CFG_FD_XMIT_FC_DISABLE       = 0<<2;         // byte 19. 0=enabled
-  public static int CFG_MP_WAKEUP_DISABLE        = 0<<1;         // byte 19. 0=enabled
-  public static int CFG_IA_WAKEUP_ENABLE         = 0;         // byte 19. 0=enabled
-  public static int CFG_IA_MULTIPLE              = 0<<6;         // byte 20. 0=disabled
-  public static int CFG_PRIORITY_FC_LOC          = 1<<5;         // byte 20. 1=byte 31
-  public static int CFG_MULTICAST                = 0<<3;         // byte 21. 0=disabled  
-  
   // Command bits
   private static final int       CB_EL                        = 1 << 31;
   private static final int       CB_S                         = 1 << 30;
@@ -136,8 +72,9 @@ public class I82559c {
   private static final int       RFD_COUNT         = 256;
   private static final int       WAIT_SCB_TIMEOUT  = 20000;        // 100ms wait
   private static final int       WAIT_SCB_FAST     = 20;           // Try 20 iterations first before delay
+  
   private static final boolean DEBUG_CONFIG = false;
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG_RX = true;
 
   private final int phyAddress;
   private int phyId;
@@ -146,6 +83,37 @@ public class I82559c {
   private RuState running;
   private int rfdToClean;  // next buffer that needs to be processed
   private int rfdToUse;    // next buffer to allocate
+  
+/*
+ * I82559C parameters
+
+
+ */
+  
+  private final byte i82559c_parameters[] = {
+/* 0 */    (byte)22,   //  22 configuration bytes
+/* 1 */    (byte)8,    //  tx/rx fifo limits
+/* 2 */    (byte)0,    //  adaptive IFS
+/* 3 */    (byte)1,    // mwi enabled
+/* 4 */    (byte)0,    // recveive dma maximum byte count
+/* 5 */    (byte)0,    // xmit dma max byte count,dma max count disabled
+/* 6 */    (byte)0x36, // std stat counters, std txcb, CNA interrupt, TCO stats
+/* 7 */    (byte)0x07, // 3 retrys, discard short frames
+/* 8 */    (byte)1,    // MII mode
+/* 9 */    (byte)0,
+/* 10 */   (byte)0x26, // 7 byte preamble
+/* 11 */   (byte)0,
+/* 12 */   (byte)0x61, // 96bit IFS
+/* 13 */   (byte)0,
+/* 14 */   (byte)0,
+/* 15 */   (byte)0xC8, // CRS and CDT
+/* 16 */   (byte)0,
+/* 17 */   (byte)0,
+/* 18 */   (byte)0xF3, // padding/stripping enabled, priority FC disabled
+/* 19 */   (byte)0x80, // FD pin enabled
+/* 20 */   (byte)0x3F, // priority FC field byte 31
+/* 21 */   (byte)0x05,
+};
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -291,29 +259,10 @@ public class I82559c {
     Address cmdPtr = Magic.objectAsAddress(cmdBlock);
     Address configurePtr = Magic.objectAsAddress(cmdPtr).plus(8);
     
-    configurePtr.store((byte)CFG_BYTE_COUNT); 
-    configurePtr.store((byte)(CFG_TX_FIFO_LIMIT|CFG_RX_FIFO_LIMIT), Offset.zero().plus(1));
-    configurePtr.store((byte)CFG_ADAPTIVE_IFS, Offset.zero().plus(2));
-    configurePtr.store((byte)(CFG_TERM_WRITE_CACHE_LINE|CFG_READ_ALIGN_ENABLE|CFG_TYPE_ENABLE|CFG_MWI_ENABLE), Offset.zero().plus(3));
-    configurePtr.store((byte)CFG_RX_DMA_MAX_COUNT, Offset.zero().plus(4));
-    configurePtr.store((byte)(CFG_DMA_MAX_COUNT_ENABLE|CFG_TX_DMA_MAX_COUNT), Offset.zero().plus(5));
-    configurePtr.store((byte)(CFG_RX_SAVE_BAD_FRAMES|CFG_RX_SAVE_OVERRUNS|CFG_STANDARD_STAT_COUNTER|CFG_STANDARD_TCB|CFG_CI_INTR|CFG_TCO_STATS|CFG_DIRECT_RX_DMA|CFG_LATE_SCB_UPDATE), Offset.zero().plus(6));
-    configurePtr.store((byte)(CFG_TX_DYNAMIC_TDB|CFG_TX_TWO_FRAMES_IN_FIFO|CFG_TX_UNDERRUN_RETRY|CFG_RX_DISCARD_SHORT_FRAMES), Offset.zero().plus(7));
-    configurePtr.store((byte)(CFG_CSMA_DISABLED|CFG_MII_MODE), Offset.zero().plus(8));
-    configurePtr.store((byte)(CFG_MCMATCH_WAKE|CFG_ARP_WAKE|CFG_LINK_STATUS_WAKE|CFG_VLAN_ARP_TCO|CFG_RX_TCPUDP_CHECKSUM), Offset.zero().plus(9));
-    configurePtr.store((byte)(CFG_NO_SOURCE_ADDR_INSERTION|CFG_PREAMBLE_LENGTH|CFG_LOOPBACK|CFG_RESERVED10), Offset.zero().plus(10));
-    configurePtr.store((byte)CFG_LINEAR_PRIORITY, Offset.zero().plus(11));
-    configurePtr.store((byte)(CFG_IFS|CFG_LINEAR_PRIORITY_MODE), Offset.zero().plus(12));
-    configurePtr.store((byte)CFG_IP_ADDR_LO, Offset.zero().plus(13));
-    configurePtr.store((byte)CFG_IP_ADDR_HI, Offset.zero().plus(14));
-    configurePtr.store((byte)(CFG_CRS_OR_CDT|CFG_CRC16|CFG_IGNORE_UL|CFG_WAIT_AFTER_WIN|CFG_BROADCAST_DISABLED|CFG_PROMICUOUS_MODE|0x48), Offset.zero().plus(15));
-    configurePtr.store((byte)CFG_FC_DELAY_LO, Offset.zero().plus(16));
-    configurePtr.store((byte)CFG_FC_DELAY_HI, Offset.zero().plus(17));
-    configurePtr.store((byte)(CFG_PRIORITY_FC_THRESHOLD|CFG_LONG_RECV_OK|CFG_RCV_CRC_TRANSFER|CFG_PADDING_ENABLED|CFG_STRIPPING_ENABLED|0x80), Offset.zero().plus(18));
-    configurePtr.store((byte)(CFG_FD_PIN_ENABLE|CFG_FD_FORCE|CFG_REJECT_FC), Offset.zero().plus(19));
-    configurePtr.store((byte)(CFG_IA_MULTIPLE|CFG_PRIORITY_FC_LOC|0x1F), Offset.zero().plus(20));
-    configurePtr.store((byte)CFG_MULTICAST|0x5, Offset.zero().plus(21));
-    
+    for(int i=0; i < CFG_BYTE_COUNT; i++)
+    {
+      configurePtr.store(i82559c_parameters[i], Offset.zero().plus(i));
+    }
     cmdBlock[0] = CB_EL|CB_CONFIGURE;
     cmdBlock[1] = 0;
     
@@ -530,7 +479,7 @@ public class I82559c {
   {
     int actualSize = rfds[rfdToClean].actualSize();
     
-    if(DEBUG)
+    if(DEBUG_RX)
     {
       rfds[rfdToClean].dump();
     }
