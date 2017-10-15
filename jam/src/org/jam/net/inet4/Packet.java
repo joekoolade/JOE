@@ -21,6 +21,8 @@ public class Packet {
   private byte buffer[];
   private int length;
   private Address bufferAddr;
+  private int offset;
+  private int headroom;
   
   /*
    * Used to prepend and append other packets
@@ -30,26 +32,35 @@ public class Packet {
   /*
    * Create packet from an array
    */
-  public Packet(byte[] buffer)
+  public Packet(byte[] buffer, int offset)
   {
     this.buffer = buffer;
     length = buffer.length;
+    this.offset = offset;
+    headroom = offset;
     bufferAddr = Magic.objectAsAddress(buffer);
-    initPacketList();
   }
   
-  private final void initPacketList()
+  public Packet(byte[] buffer)
   {
-    packetList = new LinkedList<Packet>();
-    packetList.add(this);
+    this(buffer, 0);
   }
   
-  public Packet(int length)
+  public Packet(int size)
   {
-    buffer = new byte[length];
-    this.length = length;
-    bufferAddr = Magic.objectAsAddress(buffer);
-    initPacketList();
+    this(size, 0);
+  }
+  
+  /**
+   * Create a packet that starts at offset
+   * @param size
+   * @param offset
+   */
+  public Packet(int size, int offset)
+  {
+    this.offset = offset;
+    headroom = offset;
+    buffer = new byte[size];
   }
   
   public byte[] getArray()
@@ -57,9 +68,18 @@ public class Packet {
     return buffer;
   }
   
+  /**
+   * Gets current addres of the packet
+   * @return packet address
+   */
   public Address getAddress()
   {
-    return bufferAddr;
+    return bufferAddr.plus(offset);
+  }
+  
+  public int getOffset()
+  {
+    return offset;
   }
   
   public int getSize()
@@ -71,6 +91,16 @@ public class Packet {
   {
     packetList.add(packet);
     length += packet.length;
+  }
+  
+  /**
+   * Returns space before current buffer
+   * @param size space before the current buffer
+   * @return address pointer
+   */
+  public Address prepend(int size)
+  {
+    return null;
   }
   
   public void prepend(Packet packet)

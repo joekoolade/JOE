@@ -443,7 +443,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    Arp arp = new Arp(Platform.net.getEthernetAddress(), senderIp, targetIp);
 //    arp.request();
 //    Ethernet arpRequest = new Ethernet(Platform.net.getEthernetAddress(), EthernetAddr.BROADCAST_ADDRESS, Ethernet.PROTO_ARP, arp.getPacket().getArray());
-//    Platform.net.transmit(arpRequest.getFrame());
+//    Platform.net.transmit(arpRequest);
     Platform.net.receive();
     /*
      * Sleep test

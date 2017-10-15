@@ -6,9 +6,12 @@
  */
 package org.jam.driver.net;
 
+import static org.jam.driver.net.CucCommand.*;
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
 import org.jam.cpu.intel.Tsc;
+import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.Packet;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -75,6 +78,7 @@ public class I82559c {
   
   private static final boolean DEBUG_CONFIG = false;
   private static final boolean DEBUG_RX = true;
+  private static final int CBD_COUNT = 256;
 
   private final int phyAddress;
   private int phyId;
@@ -84,10 +88,76 @@ public class I82559c {
   private int rfdToClean;  // next buffer that needs to be processed
   private int rfdToUse;    // next buffer to allocate
   
+  private CommandBlockDescriptor cbdToUse;
+  private CommandBlockDescriptor cbdToSend;
+  private int cbdAvailable;
+  private CommandBlockDescriptor cbdToClean;
+  private CucCommand cucCommand;
+  
 /*
  * I82559C parameters
-
-
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| BYTE | D7       | D6       | D5          | D4       | D3          | D2         | D1        | D0          |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 0    | 0        | 0        | byte count                                                                  |
++------+----------+----------+-----------------------------------------------------------------------------+
+| 1    | 0        | Transmit FIFO Limit               | Receive FIFO Limit                                 |
++------+----------+-----------------------------------+----------------------------------------------------+
+| 2    | Adaptive Interframe Spacing                                                                       |
++------+---------------------------------------------------------------------------------------------------+
+| 3    | 0        | 0        | 0           | 0        | Term Write  | Read AI    | Type      | MWI         |
+|      |          |          |             |          | on CL       | Enable     | Enable    | Enable      |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 4    | 0        | Receive DMA Minimum Byte Count                                                         |
++------+----------+----------------------------------------------------------------------------------------+
+| 5    | DMBC     | Transmit DMA Maximum Byte Count                                                        |
+|      | Enable   |                                                                                        |
++------+----------+----------------------------------------------------------------------------------------+
+| 6    | Save Bad | Discard  | Ext. Stat.  | Extended | CI          | TCO        | 1         | 0           |
+|      | Frames   | Overruns | Count       | TxCB     | Interrupt   | Statistics |           |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 7    | Dynamic  | 2 Frames | 0           | 0        | 0           | Underrun Retry         | Discard     |
+|      | TBD      | in FIFO  |             |          |             |                        | Short       |
+|      |          |          |             |          |             |                        | Receive     |
++------+----------+----------+-------------+----------+-------------+------------------------+-------------+
+| 8    | CSMA     | 0        | 0           | 0        | 0           | 0          | 0         | 1           |
+|      | Disable  |          |             |          |             |            |           |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 9    | 0        | 0        | Link        | VLAN     | 0           | 0          | 0         | TCP/UDP     |
+|      |          |          | Wake-up     | TCO      |             |            |           | Checksum    |
+|      |          |          | Enable      |          |             |            |           |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 10   | Loopback            | Preamble Length        | NSAI        | 1          | 1         | 0           |
++------+---------------------+------------------------+-------------+------------+-----------+-------------+
+| 11   | 0        | 0        | 0           | 0        | 0           | 0          | 0         | 0           |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 12   | Interframe Spacing                           | 0           | 0          | 0         | 1           |
++------+----------------------------------------------+-------------+------------+-----------+-------------+
+| 13   | IP Address Low                                                                                    |
++------+---------------------------------------------------------------------------------------------------+
+| 14   | IP Address High                                                                                   |
++------+---------------------------------------------------------------------------------------------------+
+| 15   | CRS and  | 1        | CRC16       | Ignore   | 1           | Wait after | Broadcast | Promiscuous |
+|      | CDT      |          |             | U/L      |             | Win        | Disable   |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 16   | FC Delay Least Significant Byte                                                                   |
++------+---------------------------------------------------------------------------------------------------+
+| 17   | FC Delay Most Significant Byte                                                                    |
++------+---------------------------------------------------------------------------------------------------+
+| 18   | 1        | Priority FC Threshold             | Long Recv   | Receive    | Padding   | Stripping   |
+|      |          |                                   | OK          | CRC        | Enable    | Enable      |
+|      |          |                                   |             | Transfer   |           |             |
++------+----------+-----------------------------------+-------------+------------+-----------+-------------+
+| 19   | Auto     | Force    | Reject FC   | Receive  | Receive     | Transmit   | Magic     | Reserved    |
+|      | FDX      | FDX      |             | FC       | FC          | FC         | Packet    |             |
+|      |          |          |             | Location | Restop      |            | Wakeup    |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 20   | 0        | Multiple | Priority FC | 1        | 1           | 1          | 1         | 1           |
+|      |          | IA       | Location    |          |             |            |           |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
+| 21   | 0        | 0        | 0           | 0        | Multicast   | 1          | 0         | 1           |
+|      |          |          |             |          | All         |            |           |             |
++------+----------+----------+-------------+----------+-------------+------------+-----------+-------------+
  */
   
   private final byte i82559c_parameters[] = {
@@ -114,6 +184,8 @@ public class I82559c {
 /* 20 */   (byte)0x3F, // priority FC field byte 31
 /* 21 */   (byte)0x05,
 };
+  private EthernetAddr macAddress;
+  private CommandBlockDescriptor[] cbds;
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -154,10 +226,21 @@ public class I82559c {
   {
     hwReset();
     eepromLoad();
+    initEthernetMac();
     VM.sysWrite("Ethernet Address: ", VM.intAsHexString(eeprom[0]&0xFFFF));
     VM.sysWrite(":", VM.intAsHexString(eeprom[1]&0xFFFF));
     VM.sysWriteln(":", VM.intAsHexString(eeprom[2]&0xFFFF));
     up();
+  }
+
+  /**
+   * 
+   */
+  private void initEthernetMac()
+  {
+    macAddress = new EthernetAddr((byte)(eeprom[0]>>8), (byte)eeprom[0],
+                                  (byte)(eeprom[1]>>8), (byte)eeprom[1],
+                                  (byte)(eeprom[2]>>8), (byte)eeprom[2]);
   }
 
   /**
@@ -251,9 +334,94 @@ public class I82559c {
   }
 
   /**
+   * Executes a command block. Returns true if command executed, false otherwise
+   * @param cmd
+   * @return true = command executed; false = command did not execute
+   */
+  private boolean execCommand(CommandBlockDescriptor cmd)
+  {
+    /**
+     * see if it is working on another command. Return true if 
+     * it could not 
+     */
+    if(!scbWait())
+    {
+      return false;
+    }
+    /*
+     * Set the SCB pointer if the command is START
+     */
+    if(cucCommand == START)
+    {
+      scbPointer(cmd);
+    }
+    scbCommand(cucCommand);
+    while(cmd.notComplete())
+    {
+      Tsc.udelay(100);
+    }
+    if(cmd.notOk())
+    {
+      VM.sysWriteln("Configure status: ", cmd.getSatus());
+    }
+    return true;
+  }
+
+  /**
+   * @param cbd
+   */
+  private void execute(CommandBlockDescriptor cbd)
+  {
+    // set SUSPEND on the new command
+    cbd.suspend();
+    // unset SUSPEND on the previous command
+    cbd.previous().unsetSuspend();
+    while(moreToSend())
+    {
+      if(execCommand(cbdToSend))
+      {
+        cucCommand = RESUME;
+        cbdToSend = cbdToSend.next();
+      }
+      else
+      {
+        VM.sysWriteln("Command did not execute!");
+      }
+    }
+  }
+
+  /**
+   * @return
+   */
+  private boolean moreToSend()
+  {
+    return cbdToSend != cbdToUse;
+  }
+
+  /**
+   * Returns a command block descriptor; maintains command block count and next
+   * available command block
+   * @return an available command block descriptor 
+   */
+  private CommandBlockDescriptor getCommandBlock()
+  {
+    CommandBlockDescriptor availableCbd = cbdToUse;
+    cbdToUse = cbdToUse.next();
+    cbdAvailable--;
+    return availableCbd;
+  }
+
+  private void configure()
+  {
+    CommandBlockDescriptor cbd = getCommandBlock();
+    cbd.configureParameters(i82559c_parameters);
+    execute(cbd);
+  }
+
+  /**
    * 
    */
-  private void configure()
+  private void configure2()
   {
     int cmdBlock[] = new int[8];
     Address cmdPtr = Magic.objectAsAddress(cmdBlock);
@@ -337,9 +505,10 @@ public class I82559c {
   }
 
   /**
-   * 
+   * Waits for previous command to be accepted
+   * @return false if timeout occurred waiting for command, true if command accepted
    */
-  private void scbWait()
+  private boolean scbWait()
   {
     int iters;
     
@@ -357,9 +526,10 @@ public class I82559c {
     }
     if(iters == WAIT_SCB_TIMEOUT)
     {
-      VM.sysWriteln("SCB loadbase timeout!");
-      return;
+      VM.sysWriteln("SCB wait timeout! ", scbCommand());
+      return false;
     }
+    return true;
   }
 
   /**
@@ -376,6 +546,14 @@ public class I82559c {
   }
 
   /**
+   * @return
+   */
+  private byte scbCommand()
+  {
+    return csr.loadByte(SCB_CMD);
+  }
+
+  /**
    * Writer pointer value into the SCB_POINTER register
    * @param pointer
    */
@@ -385,12 +563,11 @@ public class I82559c {
   }
 
   /**
-   * @return
+   * @param cmd
    */
-  private int scbCommand()
+  private final void scbPointer(CommandBlockDescriptor cmd)
   {
-    // TODO Auto-generated method stub
-    return 0;
+    csr.store(cmd.getScbPointer(), SCB_GENERAL_PTR);
   }
 
   /**
@@ -435,7 +612,26 @@ public class I82559c {
    */
   private void allocateCommandBlocks()
   {
+    CommandBlockDescriptor cbd=null, cbdPrevious;
     
+    /*
+     * Allocate
+     */
+    cbdPrevious = cbdToUse = cbdToSend = cbdToClean = new CommandBlockDescriptor();
+    int commandBlockIndex;
+    for(commandBlockIndex=0; commandBlockIndex < CBD_COUNT-1; commandBlockIndex++)
+    {
+      cbd = new CommandBlockDescriptor();
+      cbdPrevious.next(cbd);
+      cbdPrevious.link(cbd);
+      cbd.previous(cbdPrevious);
+      cbdPrevious = cbd;
+    }
+    cbd.next(cbdToUse);
+    cbd.link(cbdToUse);
+    cbdToUse.previous(cbd);
+    cbdAvailable = CBD_COUNT;
+    cucCommand = START;
   }
 
   /**
@@ -510,6 +706,21 @@ public class I82559c {
       rxProcessBuffer();
     }
   }
+  
+  public void transmitFrame(Packet packet)
+  {
+    
+  }
+  /**
+   * public interface for transmitting a packet
+   * @param frame
+   */
+  public void transmit(Packet packet)
+  {
+    // queue packet for transmission
+    transmitFrame(packet);
+  }
+
   /**
    * 
    */
@@ -703,5 +914,13 @@ public class I82559c {
   private byte scbStatus()
   {
     return csr.loadByte(SCB_STATUS);
+  }
+
+  /**
+   * @return
+   */
+  public EthernetAddr getEthernetAddress()
+  {
+    return macAddress;
   }
 }

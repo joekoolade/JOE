@@ -26,6 +26,7 @@ public class Ethernet {
   public final static int    FRAME_LENGTH        = 1518;   // does not include FCS
   public final static int    FCS_LENGTH          = 4;
   private final static int   MIN_ETHERNET_PACKET = 64;
+  public final static int    HEADER_SIZE         = 14;
   
   final private EthernetAddr src;
   final private EthernetAddr dst;

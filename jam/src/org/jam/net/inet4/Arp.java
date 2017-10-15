@@ -18,7 +18,7 @@ import org.vmmagic.unboxed.Offset;
  *
  */
 public class Arp {
-  private final static int SIZE = 28;
+  public final static int SIZE = 28;
   private final static short HT_ETHERNET = 1;
 
   private final static short OP_REQUEST  = 1;
@@ -35,17 +35,28 @@ public class Arp {
   private byte protoAddrLen;
   
   /**
-   * Default constructor creates 
+   * Create an ARP request
    */
   public Arp(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
   {
     hwType = HT_ETHERNET;
     protocolType = Ethernet.PROTO_IP;
+    opCode = OP_REQUEST;
     senderHa = senderEther.asArray();
     senderPa = sendIp.asArray();
     targetPa = targetIp.asArray();
     hwAddressLen = 6;
     protoAddrLen = 4;
+  }
+  
+  /**
+   * Create an ARP reply
+   * @param request
+   * @param senderHa
+   */
+  public Arp(Arp request, Ethernet senderHa)
+  {
+    
   }
   public Arp(short hwType, short protocolType)
   {
@@ -60,26 +71,26 @@ public class Arp {
   public Packet getPacket()
   {
     int packetIndex = 0;
-    byte data[] = new byte[SIZE];
-    Address dataAddr = Magic.objectAsAddress(data);
-    dataAddr.store(ByteOrder.hostToNetwork(hwType));
-    dataAddr.store(ByteOrder.hostToNetwork(protocolType), Offset.zero().plus(2));
-    dataAddr.store(hwAddressLen, Offset.zero().plus(4));
-    dataAddr.store(protoAddrLen, Offset.zero().plus(5));
-    dataAddr.store(ByteOrder.hostToNetwork(opCode), Offset.zero().plus(6));
+    ArpPacket packet = new ArpPacket();
+    Address packetAddr = packet.getAddress();
+    packetAddr.store(ByteOrder.hostToNetwork(hwType));
+    packetAddr.store(ByteOrder.hostToNetwork(protocolType), Offset.zero().plus(2));
+    packetAddr.store(hwAddressLen, Offset.zero().plus(4));
+    packetAddr.store(protoAddrLen, Offset.zero().plus(5));
+    packetAddr.store(ByteOrder.hostToNetwork(opCode), Offset.zero().plus(6));
     for(packetIndex=0; packetIndex<senderHa.length; packetIndex++)
     {
-      dataAddr.store(senderHa[packetIndex], Offset.zero().plus(8+packetIndex));
+      packetAddr.store(senderHa[packetIndex], Offset.zero().plus(8+packetIndex));
     }
     for(packetIndex=0; packetIndex<senderPa.length; packetIndex++)
     {
-      dataAddr.store(senderPa[packetIndex], Offset.zero().plus(14+packetIndex));
+      packetAddr.store(senderPa[packetIndex], Offset.zero().plus(14+packetIndex));
     }
     for(packetIndex=0; packetIndex<targetPa.length; packetIndex++)
     {
-      dataAddr.store(targetPa[packetIndex], Offset.zero().plus(24+packetIndex));
+      packetAddr.store(targetPa[packetIndex], Offset.zero().plus(24+packetIndex));
     }
 
-    return new Packet(data);
+    return packet;
   }
 }
