@@ -235,13 +235,13 @@ public class I82559c {
   }
 
   /**
-   * 
+   * Store the device's mac address
    */
   private void initEthernetMac()
   {
-    macAddress = new EthernetAddr((byte)(eeprom[0]>>8), (byte)eeprom[0],
-                                  (byte)(eeprom[1]>>8), (byte)eeprom[1],
-                                  (byte)(eeprom[2]>>8), (byte)eeprom[2]);
+    macAddress = new EthernetAddr((byte)eeprom[0], (byte)(eeprom[0]>>8), 
+                                  (byte)eeprom[1], (byte)(eeprom[1]>>8), 
+                                  (byte)eeprom[2], (byte)(eeprom[2]>>8));
   }
 
   /**
