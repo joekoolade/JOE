@@ -61,6 +61,8 @@ public class Packet {
     this.offset = offset;
     headroom = offset;
     buffer = new byte[size];
+    length = size;
+    bufferAddr = Magic.objectAsAddress(buffer);
   }
   
   public byte[] getArray()
@@ -142,5 +144,18 @@ public class Packet {
       }
     }
     return data;
+  }
+
+  /**
+   * Sets the offset by size bytes
+   * @param size
+   */
+  public void setHeadroom(int size)
+  {
+    if(size > offset)
+    {
+      throw new RuntimeException("Not enought headroom");
+    }
+    offset -= size;
   }
 }

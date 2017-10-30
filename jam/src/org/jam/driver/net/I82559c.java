@@ -10,6 +10,7 @@ import static org.jam.driver.net.CucCommand.*;
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
 import org.jam.cpu.intel.Tsc;
+import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Packet;
 import org.jam.system.NoDeviceFoundException;
@@ -267,6 +268,12 @@ public class I82559c {
     scbCommand(RucCommand.START);
   }
 
+  private void xmitFrame(Packet packet)
+  {
+    CommandBlockDescriptor cbd = getCommandBlock();
+    cbd.configureTransmitPacket(packet);
+    execute(cbd);
+  }
   /**
    * 
    */
@@ -300,37 +307,6 @@ public class I82559c {
   {
     // TODO Auto-generated method stub
     
-  }
-
-  /**
-   * 
-   */
-  private void setupIaAddress()
-  {
-    int cmdBlock[] = new int[4];
-    Address configurePtr = Magic.objectAsAddress(cmdBlock).plus(8);
-    configurePtr.store(eeprom[0]);
-    configurePtr.store(eeprom[1], Offset.zero().plus(2));
-    configurePtr.store(eeprom[2], Offset.zero().plus(4));
-
-    cmdBlock[0] = CB_EL|CB_IA_SETUP;
-    cmdBlock[1] = 0;
-    
-    for(int i=0; i<4; i++)
-    {
-      VM.sysWrite("ia setup ", i); VM.sysWriteln(" = ", VM.intAsHexString(cmdBlock[i]));
-    }
-    scbWait();
-    scbPointer(Magic.objectAsAddress(cmdBlock));
-    scbCommand(CucCommand.START);
-    while((cmdBlock[0] & CB_C) == 0)
-    {
-      Tsc.udelay(100);
-    }
-    if((cmdBlock[0] & CB_OK) == 0)
-    {
-      VM.sysWriteln("Configure status: ", cmdBlock[0]);
-    }
   }
 
   /**
@@ -405,10 +381,23 @@ public class I82559c {
    */
   private CommandBlockDescriptor getCommandBlock()
   {
-    CommandBlockDescriptor availableCbd = cbdToUse;
+    CommandBlockDescriptor newCbd = cbdToUse;
     cbdToUse = cbdToUse.next();
     cbdAvailable--;
-    return availableCbd;
+    VM.sysWrite("Get cmd block: ", Magic.objectAsAddress(newCbd)); 
+    VM.sysWrite(" ", VM.intAsHexString(newCbd.getScbPointer()));
+    VM.sysWriteln(" ", cbdAvailable);
+    return newCbd;
+  }
+
+  /**
+   * 
+   */
+  private void setupIaAddress()
+  {
+    CommandBlockDescriptor cbd = getCommandBlock();
+    cbd.configureMacAddress(eeprom);
+    execute(cbd);
   }
 
   private void configure()
@@ -416,42 +405,6 @@ public class I82559c {
     CommandBlockDescriptor cbd = getCommandBlock();
     cbd.configureParameters(i82559c_parameters);
     execute(cbd);
-  }
-
-  /**
-   * 
-   */
-  private void configure2()
-  {
-    int cmdBlock[] = new int[8];
-    Address cmdPtr = Magic.objectAsAddress(cmdBlock);
-    Address configurePtr = Magic.objectAsAddress(cmdPtr).plus(8);
-    
-    for(int i=0; i < CFG_BYTE_COUNT; i++)
-    {
-      configurePtr.store(i82559c_parameters[i], Offset.zero().plus(i));
-    }
-    cmdBlock[0] = CB_EL|CB_CONFIGURE;
-    cmdBlock[1] = 0;
-    
-    if(DEBUG_CONFIG)
-    {
-      for(int i=0; i<CFG_BYTE_COUNT; i++)
-      {
-        VM.sysWrite("config ", i); VM.sysWriteln(" = ", VM.intAsHexString(configurePtr.loadByte(Offset.zero().plus(i))));
-      }
-    }
-    scbWait();
-    scbPointer(Magic.objectAsAddress(cmdBlock));
-    scbCommand(CucCommand.START);
-    while((cmdBlock[0] & CB_C) == 0)
-    {
-      Tsc.udelay(100);
-    }
-    if((cmdBlock[0] & CB_OK) == 0)
-    {
-      VM.sysWriteln("Configure status: ", cmdBlock[0]);
-    }
   }
 
   /**
@@ -709,16 +662,16 @@ public class I82559c {
   
   public void transmitFrame(Packet packet)
   {
-    
+    xmitFrame(packet);
   }
   /**
    * public interface for transmitting a packet
    * @param frame
    */
-  public void transmit(Packet packet)
+  public void transmit(Ethernet packet)
   {
     // queue packet for transmission
-    transmitFrame(packet);
+    transmitFrame(packet.getPacket());
   }
 
   /**

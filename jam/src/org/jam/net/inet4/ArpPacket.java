@@ -13,10 +13,10 @@ import org.jam.net.ethernet.Ethernet;
  *
  */
 public class ArpPacket extends Packet {
-  private final static int SIZE = Arp.SIZE + Ethernet.HEADER_SIZE + 16;
+  private final static int SIZE = Arp.SIZE + Ethernet.HEADER_SIZE;
   
   public ArpPacket()
   {
-    super(SIZE, Ethernet.HEADER_SIZE+16);
+    super(SIZE, Ethernet.HEADER_SIZE);
   }
 }

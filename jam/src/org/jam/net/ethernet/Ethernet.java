@@ -7,9 +7,12 @@
 package org.jam.net.ethernet;
 
 import org.jam.net.ByteOrder;
+import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.Packet;
+import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 
 /**
@@ -27,65 +30,47 @@ public class Ethernet {
   public final static int    FCS_LENGTH          = 4;
   private final static int   MIN_ETHERNET_PACKET = 64;
   public final static int    HEADER_SIZE         = 14;
+  private static final Offset typeOffset = Offset.zero().plus(12);
+  private static final short IP4_PROTO = 0x800;
+  private static final short ARP_PROTO = 0x806;
   
-  final private EthernetAddr src;
-  final private EthernetAddr dst;
-  final private short type;
   private byte[] frame;
+  private byte[] packetArray;
+  private Address packetAddress;
+  private Packet packet;
  
-  public Ethernet(EthernetAddr src, EthernetAddr dst, short type, byte payload[])
+  /*
+   * Ethernet frame
+   * | Destination | Source | Type | Payload | FCS |
+   */
+  public Ethernet(EthernetAddr dst, Arp arpPacket)
   {
-    this.src = src;
-    this.dst = dst;
-    this.type = type;
-    send(payload);
-  }
-  
-  public void send(byte payload[])
-  {
-    int srcIndex, targetIndex=0;
-    if(payload.length < MIN_PAYLOAD)
-    {
-      frame = new byte[MIN_ETHERNET_PACKET];
-    }
-    else
-    {
-      frame = new byte[payload.length + 18];
-    }
-    
     // Copy destination address
+    int srcIndex, targetIndex=0;
+    packet = arpPacket.getPacket();
+    packet.setHeadroom(HEADER_SIZE);
+    packetArray = packet.getArray();
+    packetAddress = Magic.objectAsAddress(packetArray);
     byte[] ethAddress = dst.asArray();
     for(srcIndex=0, targetIndex=0; srcIndex < ethAddress.length; srcIndex++, targetIndex++)
     {
-      frame[targetIndex] = ethAddress[srcIndex];
+      packetArray[targetIndex] = ethAddress[srcIndex];
     }
-    
-    // copy source address
-    ethAddress = src.asArray();
-    for(srcIndex=0, targetIndex=6; srcIndex < ethAddress.length; srcIndex++, targetIndex++)
-    {
-      frame[targetIndex] = ethAddress[srcIndex];
-    }
-    
-    // copy ethernet type
-    Address dataAddr = Magic.objectAsAddress(frame);
-    dataAddr.store(ByteOrder.hostToNetwork(type), Offset.zero().plus(12));
-    
-    // copy the data/payload
-    for(srcIndex=0, targetIndex=14; srcIndex < payload.length; srcIndex++, targetIndex++)
-    {
-      frame[targetIndex] = payload[srcIndex];
-    }
-    
-    // zero out the rest
-    for( ; targetIndex < frame.length; targetIndex++)
-    {
-      frame[targetIndex] = 0;
-    }
+    // ARP type
+    packetAddress.store(ByteOrder.hostToNetwork(ARP_PROTO), Offset.zero().plus(12));
+    VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
   
   public byte[] getFrame()
   {
     return frame;
+  }
+
+  /**
+   * @return
+   */
+  public Packet getPacket()
+  {
+    return packet;
   }
 }

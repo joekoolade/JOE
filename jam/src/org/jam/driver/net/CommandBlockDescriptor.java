@@ -6,6 +6,7 @@
  */
 package org.jam.driver.net;
 
+import org.jam.net.inet4.Packet;
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.runtime.Magic;
@@ -20,6 +21,7 @@ import org.vmmagic.unboxed.Offset;
 public class CommandBlockDescriptor {
   private final static int SIZE = 64;
   private static final boolean DEBUG_CONFIG = true;
+  private static final boolean DEBUG_IASETUP = true;
   private byte[] buffer;
   private Address bufferAddr;
   private CommandBlockDescriptor next,previous;
@@ -39,7 +41,7 @@ public class CommandBlockDescriptor {
 
   private static final byte      COMPLETE             = (byte) 0x80;
   private static final byte      OK                   = 0x20;
-  
+  private static final byte SF = 0x8;
   private static final Offset LINK_OFFSET = Offset.zero().plus(4);
   
   public CommandBlockDescriptor()
@@ -87,6 +89,31 @@ public class CommandBlockDescriptor {
       {
         VM.sysWrite("config ", i); VM.sysWriteln(" = ", VM.intAsHexString(buffer[i+8]));
       }
+    }
+  }
+
+  /**
+   * @param eeprom
+   */
+  public void configureMacAddress(short[] mac)
+  {
+    buffer[2] = INTERNET_ADDR_SETUP;
+    
+    buffer[8] = (byte) (mac[0] & 0xFF);
+    buffer[9] = (byte) (mac[0] >> 8);
+    buffer[10] = (byte) (mac[1] & 0xFF);
+    buffer[11] = (byte) (mac[1] >> 8);
+    buffer[12] = (byte) (mac[2] & 0xFF);
+    buffer[13] = (byte) (mac[2] >> 8);
+    
+    if(DEBUG_IASETUP)
+    {
+      VM.sysWrite("IA ADDRESS: ");
+      for(int i=8; i<14; i++)
+      {
+        VM.sysWrite(" ", VM.intAsHexString(buffer[i] & 0xFF));
+      }
+      VM.sysWriteln();
     }
   }
 
@@ -151,4 +178,23 @@ public class CommandBlockDescriptor {
   {
     return Magic.objectAsAddress(buffer).toInt();
   }
+
+  /**
+   * @param packet
+   */
+  public void configureTransmitPacket(Packet packet)
+  {
+    bufferAddr.store(0, Offset.zero().plus(12));
+    buffer[0] = 0;
+    buffer[1] = 0;
+    buffer[2] = TRANSMIT | SF;
+    buffer[15] = 1;  // tbd count
+    buffer[14] = (byte) 0xe0;  // transmit threshold
+    // setup the transmit buffer descriptor address
+    bufferAddr.store(bufferAddr.plus(16), Offset.zero().plus(8));
+    bufferAddr.store(packet.getAddress(), Offset.zero().plus(16));
+    bufferAddr.store(packet.getSize(), Offset.zero().plus(20));
+    VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWriteln(" ", packet.getAddress());
+  }
+  
 }

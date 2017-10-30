@@ -438,12 +438,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     /*
      * Send an arp request
      */
-//    InetAddress senderIp = new InetAddress(192, 168, 100, 2);
-//    InetAddress targetIp = new InetAddress(192, 168, 100, 1);
-//    Arp arp = new Arp(Platform.net.getEthernetAddress(), senderIp, targetIp);
-//    arp.request();
-//    Ethernet arpRequest = new Ethernet(Platform.net.getEthernetAddress(), EthernetAddr.BROADCAST_ADDRESS, Ethernet.PROTO_ARP, arp.getPacket().getArray());
-//    Platform.net.transmit(arpRequest);
+    InetAddress senderIp = new InetAddress(192, 168, 100, 2);
+    InetAddress targetIp = new InetAddress(192, 168, 100, 1);
+    Arp arp = new Arp(Platform.net.getEthernetAddress(), senderIp, targetIp);
+    arp.request();
+    Ethernet arpRequest = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, arp);
+    Platform.net.transmit(arpRequest);
     Platform.net.receive();
     /*
      * Sleep test
