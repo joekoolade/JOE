@@ -15,7 +15,6 @@ import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciCapability;
 import org.jam.board.pc.PciDevice;
 import org.jam.net.ethernet.EthernetAddr;
-import org.jam.net.inet4.Packet;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 
@@ -275,7 +274,7 @@ public class VirtioNet {
     }
   }
   
-  public void transmit(Packet packet)
+  public void transmit(PacketBuffer packet)
   {
     transmit(packet.getArray());
   }

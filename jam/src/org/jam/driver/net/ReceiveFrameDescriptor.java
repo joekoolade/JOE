@@ -16,7 +16,7 @@ import org.vmmagic.unboxed.Offset;
  * @author Joe Kulig
  *
  */
-public class ReceiveFrameDescriptor {
+public class ReceiveFrameDescriptor implements Packet {
   private static final int EL              = (1 << 31);
   private static final int SUSPEND         = (1 << 30);
   private static final int HEADER          = (1 << 20);
@@ -36,12 +36,16 @@ public class ReceiveFrameDescriptor {
   
   private byte buffer[];
   private Address rfdAddr;
+  private BufferFree bufferFree;
+  private int headroom;
+  private int offset;
   
   public ReceiveFrameDescriptor(int bufferSize)
   {
     buffer = new byte[bufferSize];
     rfdAddr = Magic.objectAsAddress(buffer);
     size(bufferSize-RFD_SIZE);
+    offset = headroom = RFD_SIZE;
   }
   
   public ReceiveFrameDescriptor()
@@ -108,5 +112,108 @@ public class ReceiveFrameDescriptor {
   public void dump()
   {
     VM.hexDump(buffer, 16, actualSize());
+  }
+
+  /**
+   * @return
+   */
+  public Packet packet()
+  {
+    // TODO Auto-generated method stub
+    return this;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#getArray()
+   */
+  @Override
+  public byte[] getArray()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#getOffset()
+   */
+  @Override
+  public int getOffset()
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#getSize()
+   */
+  @Override
+  public int getSize()
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#append(org.jam.driver.net.Packet)
+   */
+  @Override
+  public void append(Packet packet)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#prepend(int)
+   */
+  @Override
+  public Address prepend(int size)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#prepend(org.jam.driver.net.Packet)
+   */
+  @Override
+  public void prepend(Packet packet)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.Packet#setHeadroom(int)
+   */
+  @Override
+  public void setHeadroom(int size)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * Set so that a RNR is generated
+   */
+  public void setStopPoint()
+  {
+    size(0);
+    endLink();
+  }
+  
+  /**
+   * Set RFD to receive buffers
+   */
+  public void resetStopPoint()
+  {
+    /*
+     * Set new size
+     */
+    size(Ethernet.FRAME_LENGTH + Ethernet.FCS_LENGTH);
+    /*
+     * Reset EL bit
+     */
+    rfdAddr.store(0);
   }
 }

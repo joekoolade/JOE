@@ -6,13 +6,14 @@
  */
 package org.jam.net.inet4;
 
+import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ethernet.Ethernet;
 
 /**
  * @author Joe Kulig
  *
  */
-public class ArpPacket extends Packet {
+public class ArpPacket extends PacketBuffer {
   private final static int SIZE = Arp.SIZE + Ethernet.HEADER_SIZE;
   
   public ArpPacket()

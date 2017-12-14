@@ -6,7 +6,6 @@
  */
 package org.jam.driver.net;
 
-import org.jam.net.inet4.Packet;
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.runtime.Magic;
@@ -182,7 +181,7 @@ public class CommandBlockDescriptor {
   /**
    * @param packet
    */
-  public void configureTransmitPacket(Packet packet)
+  public void configureTransmitPacket(PacketBuffer packet)
   {
     bufferAddr.store(0, Offset.zero().plus(12));
     buffer[0] = 0;

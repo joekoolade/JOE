@@ -6,6 +6,7 @@
  */
 package org.jam.net.inet4;
 
+import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
@@ -68,7 +69,7 @@ public class Arp {
     opCode = OP_REQUEST;
   }
   
-  public Packet getPacket()
+  public PacketBuffer getPacket()
   {
     int packetIndex = 0;
     ArpPacket packet = new ArpPacket();

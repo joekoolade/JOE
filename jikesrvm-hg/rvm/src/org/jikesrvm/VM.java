@@ -12,6 +12,7 @@
  */
 package org.jikesrvm;
 
+import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.net.ethernet.Ethernet;
@@ -438,19 +439,22 @@ public class VM extends Properties implements Constants, ExitStatus {
     /*
      * Send an arp request
      */
-    InetAddress senderIp = new InetAddress(192, 168, 100, 2);
-    InetAddress targetIp = new InetAddress(192, 168, 100, 1);
-    Arp arp = new Arp(Platform.net.getEthernetAddress(), senderIp, targetIp);
-    arp.request();
-    Ethernet arpRequest = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, arp);
-    Platform.net.transmit(arpRequest);
-    Platform.net.receive();
+//    InetAddress senderIp = new InetAddress(192, 168, 100, 2);
+//    InetAddress targetIp = new InetAddress(192, 168, 100, 1);
+//    Arp arp = new Arp(Platform.net.getEthernetAddress(), senderIp, targetIp);
+//    arp.request();
+//    Ethernet arpRequest = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, arp);
+//    Platform.net.transmit(arpRequest);
+//    Platform.net.receive();
     /*
      * Sleep test
      */
-    Sleep sleep = new Sleep();
-    new Thread(sleep).start();
+//    Sleep sleep = new Sleep();
+//    new Thread(sleep).start();
     
+    Thread napiThread = new Thread(new NapiManager());
+    napiThread.setName("NAPI Manager");
+    napiThread.start();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     /*

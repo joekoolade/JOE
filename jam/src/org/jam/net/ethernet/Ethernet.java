@@ -6,9 +6,9 @@
  */
 package org.jam.net.ethernet;
 
+import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
 import org.jam.net.inet4.Arp;
-import org.jam.net.inet4.Packet;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
@@ -37,7 +37,7 @@ public class Ethernet {
   private byte[] frame;
   private byte[] packetArray;
   private Address packetAddress;
-  private Packet packet;
+  private PacketBuffer packet;
  
   /*
    * Ethernet frame
@@ -69,7 +69,7 @@ public class Ethernet {
   /**
    * @return
    */
-  public Packet getPacket()
+  public PacketBuffer getPacket()
   {
     return packet;
   }

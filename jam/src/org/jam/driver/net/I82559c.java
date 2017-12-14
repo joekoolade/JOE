@@ -7,12 +7,15 @@
 package org.jam.driver.net;
 
 import static org.jam.driver.net.CucCommand.*;
+import static org.jam.driver.net.RuState.*;
+
+import java.util.LinkedList;
+
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
 import org.jam.cpu.intel.Tsc;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
-import org.jam.net.inet4.Packet;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -23,7 +26,7 @@ import org.vmmagic.unboxed.Offset;
  * @author Joe Kulig
  *
  */
-public class I82559c {
+public class I82559c implements NapiInterface, BufferFree {
   final PciDevice pci;
   final Address csr;
   private int eepromSize;
@@ -48,6 +51,9 @@ public class I82559c {
   private static final int       CB_LOAD_UCODE                = 5<<16;
   private static final int       CB_DUMP                      = 6<<16;
   private static final int       CB_DIAGNOSE                  = 7<<16;
+  
+  // RU status
+  private static final int       SCB_STAT_RNR                 = 1<<4;
   
   private final static Offset    SCB_STATUS                   = Offset.fromIntZeroExtend(1);
   private final static Offset    SCB_CMD                      = Offset.fromIntZeroExtend(2);
@@ -80,6 +86,9 @@ public class I82559c {
   private static final boolean DEBUG_CONFIG = false;
   private static final boolean DEBUG_RX = true;
   private static final int CBD_COUNT = 256;
+  private static final boolean DEBUG_ACKS = false;
+  private static final int NAPI_WORK = 16;
+  private static final int NAPI_SCHEDULE = 10;  // in milliseconds
 
   private final int phyAddress;
   private int phyId;
@@ -88,12 +97,17 @@ public class I82559c {
   private RuState running;
   private int rfdToClean;  // next buffer that needs to be processed
   private int rfdToUse;    // next buffer to allocate
-  
+  private LinkedList<ReceiveFrameDescriptor> rfdFreeList;
   private CommandBlockDescriptor cbdToUse;
   private CommandBlockDescriptor cbdToSend;
   private int cbdAvailable;
   private CommandBlockDescriptor cbdToClean;
   private CucCommand cucCommand;
+  
+  private NetworkQueue txQueue;
+  private NetworkQueue rxQueue;
+  
+  private static final RuntimeException freePacketException = new RuntimeException("i82559c:free()");
   
 /*
  * I82559C parameters
@@ -187,6 +201,15 @@ public class I82559c {
 };
   private EthernetAddr macAddress;
   private CommandBlockDescriptor[] cbds;
+  private boolean transmitting;
+  private int napiWork=NAPI_WORK;
+  private int napiSchedule=NAPI_SCHEDULE;
+  
+  // Statistics
+  private int statsBuffersCleaned=0;
+  private int statsFreeListEmpty=0;
+  private int statsBufferFilled=0;
+  private int statsStopPointMoved=0;
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -205,6 +228,10 @@ public class I82559c {
     eepromSize = 0;
     phyAddress = 1;
     rfds = new ReceiveFrameDescriptor[RFD_COUNT];
+    rfdFreeList = new LinkedList<ReceiveFrameDescriptor>();
+    transmitting = false;
+    txQueue = new NetworkQueue();
+    rxQueue = new NetworkQueue();
   }
   
   private void scbIrq(ScbIrqMasks mask)
@@ -255,9 +282,45 @@ public class I82559c {
     startReceiver();
   }
 
+  private void interrupt()
+  {
+    byte status = scbStatus();
+    if(status == 0 || status == 0xFF)
+    {
+      return;
+    }
+    if((status & SCB_STAT_RNR) != 0)
+    {
+      running = SUSPENDED;
+    }
+    // todo: Schedule driver polling to process packets
+  }
   
+  public int work()
+  {
+    return napiWork;
+  }
+  
+  public int schedule()
+  {
+    return napiSchedule;
+  }
+  public void poll()
+  {
+    rxClean();
+    txClean();
+  }
   /**
    * 
+   */
+  private void txClean()
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * Start the chip and the timer
    */
   private void startReceiver()
   {
@@ -266,9 +329,12 @@ public class I82559c {
     scbWait();
     scbPointer(rfds[rfdToUse].getAddress());
     scbCommand(RucCommand.START);
+    
+    // Start the timer
+    NapiManager.addInterface(this);
   }
 
-  private void xmitFrame(Packet packet)
+  private void xmitFrame(PacketBuffer packet)
   {
     CommandBlockDescriptor cbd = getCommandBlock();
     cbd.configureTransmitPacket(packet);
@@ -440,14 +506,16 @@ public class I82559c {
   /**
    * Acknowledge all interrupts
    */
-  private void scbAck()
+  @SuppressWarnings("unused")
+  private byte scbAck()
   {
     byte status = scbStatus();
-    if((status & 0xFF) != 0)
+    if(DEBUG_ACKS && ((status & 0xFF) != 0))
     {
       VM.sysWriteln("ACKing ", VM.intAsHexString(status&0xFF));
     }
     scbStatus(status);
+    return status;
   }
   /**
    * @param status
@@ -455,6 +523,14 @@ public class I82559c {
   private void scbStatus(byte status)
   {
     csr.store(status, SCB_STATUS);
+  }
+
+  /**
+   * Return the SCB status
+   */
+  private byte scbStatus()
+  {
+    return csr.loadByte(SCB_STATUS);
   }
 
   /**
@@ -619,19 +695,28 @@ public class I82559c {
    rfds[RFD_COUNT-2].size(0);
    running = RuState.SUSPENDED;
    rfdToUse = rfdToClean = 0;
+   /*
+    * Setup the free list
+    */
+   for(bufferNumber=0; bufferNumber<RFD_COUNT; bufferNumber++)
+   {
+     rfdFreeList.add(new ReceiveFrameDescriptor());
+   }
   }
 
   /**
    * Process any buffers that have received packets
    */
-  private void rxProcessBuffer()
+  final private void rxProcessBuffer()
   {
     int actualSize = rfds[rfdToClean].actualSize();
     
-    if(DEBUG_RX)
-    {
-      rfds[rfdToClean].dump();
-    }
+    if(DEBUG_RX) rfds[rfdToClean].dump();
+    
+    ReceiveFrameDescriptor rfd = rfds[rfdToClean];
+//    rxQueue.put(rfd.packet());
+    rfds[rfdToClean] = null;
+    free(rfd);
   }
   
   public void receive()
@@ -642,11 +727,41 @@ public class I82559c {
       Tsc.udelay(10000);
     }
   }
+  
+  final private int advanceRfdIndex(int index, int step)
+  {
+    return (index+step) & (RFD_COUNT-1);
+  }
+  /**
+   * Fill a new rx buffer
+   */
+  final private void rxFillBuffers()
+  {
+    /*
+     * fill it only when it is null
+     */
+    for( ;rfds[rfdToUse]==null; rfdToUse++)
+    {
+      if(rfds[rfdToUse] == null)
+      {
+        if(rfdFreeList.isEmpty())
+        {
+          VM.sysWriteln("RFD free list empty!");
+          statsFreeListEmpty++;
+          return;
+        }
+        ReceiveFrameDescriptor nuBuffer = rfdFreeList.getFirst();
+        rfds[rfdToUse] = nuBuffer;
+        statsBufferFilled++;
+      }
+    }
+  }
   /**
    * find RFDS to clean
    */
   private void rxClean()
   {
+    boolean restartRequired = false;
     /*
      * Keep processing buffers until one that is not complete
      */
@@ -657,12 +772,55 @@ public class I82559c {
         break;
       }
       rxProcessBuffer();
+      statsBuffersCleaned++;
+    }
+    
+    int oldStoppingPoint = advanceRfdIndex(rfdToUse, -2);
+    rxFillBuffers();
+    int newStoppingPoint = advanceRfdIndex(rfdToUse, -2);
+    
+    /*
+     * See if we need to set an new stopping point
+     */
+    if(oldStoppingPoint != newStoppingPoint)
+    {
+      /* Set the el-bit on the buffer that is before the last buffer.
+       * This lets us update the next pointer on the last buffer
+       * without worrying about hardware touching it.
+       * We set the size to 0 to prevent hardware from touching this
+       * buffer.
+       * When the hardware hits the before last buffer with el-bit
+       * and size of 0, it will RNR interrupt, the RUS will go into
+       * the No Resources state.  It will not complete nor write to
+       * this buffer. 
+       */
+      /*
+       * Set the new stop point
+       */
+      rfds[newStoppingPoint].setStopPoint();
+      /*
+       * Clear the old stopping point
+       */
+      rfds[oldStoppingPoint].resetStopPoint();
+      statsStopPointMoved++;
+      
+    }
+    if(running == SUSPENDED)
+    {
+      restartRequired = true;
     }
   }
   
-  public void transmitFrame(Packet packet)
+  public void transmitFrame(PacketBuffer packet)
   {
-    xmitFrame(packet);
+    if(transmitting)
+    {
+      txQueue.put(packet);
+    }
+    else
+    {
+      xmitFrame(packet);
+    }
   }
   /**
    * public interface for transmitting a packet
@@ -671,7 +829,9 @@ public class I82559c {
   public void transmit(Ethernet packet)
   {
     // queue packet for transmission
+    transmitting = true;
     transmitFrame(packet.getPacket());
+    transmitting =false;
   }
 
   /**
@@ -862,18 +1022,33 @@ public class I82559c {
   }
 
   /**
-   * Return the SCB status
-   */
-  private byte scbStatus()
-  {
-    return csr.loadByte(SCB_STATUS);
-  }
-
-  /**
    * @return
    */
   public EthernetAddr getEthernetAddress()
   {
     return macAddress;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jam.driver.net.BufferFree#free(org.jam.net.inet4.Packet)
+   * 
+   * The parameter class must be a ReceiveFrameDescriptor
+   */
+  @Override
+  public void free(Packet packet)
+  {
+    if(!(packet instanceof ReceiveFrameDescriptor))
+    {
+      throw freePacketException;
+    }
+    rfdFreeList.add((ReceiveFrameDescriptor) packet);
+  }
+  
+  final public void printStats()
+  {
+    VM.sysWrite("cleaned  ", statsBuffersCleaned);
+    VM.sysWrite(" filled ", statsBufferFilled);
+    VM.sysWrite(" moved ", statsStopPointMoved);
+    VM.sysWriteln(" empty ", statsFreeListEmpty);
   }
 }

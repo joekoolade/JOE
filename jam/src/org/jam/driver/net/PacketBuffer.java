@@ -4,11 +4,12 @@
  * Copyright (C) Joe Kulig, 2017
  * All rights reserved.
  */
-package org.jam.net.inet4;
+package org.jam.driver.net;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.jam.net.inet4.CleanPacket;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 
@@ -16,13 +17,14 @@ import org.vmmagic.unboxed.Address;
  * @author Joe Kulig
  *
  */
-public class Packet {
+public class PacketBuffer implements Packet {
 
   private byte buffer[];
   private int length;
   private Address bufferAddr;
   private int offset;
   private int headroom;
+  private CleanPacket cleaner;
   
   /*
    * Used to prepend and append other packets
@@ -32,7 +34,7 @@ public class Packet {
   /*
    * Create packet from an array
    */
-  public Packet(byte[] buffer, int offset)
+  public PacketBuffer(byte[] buffer, int offset)
   {
     this.buffer = buffer;
     length = buffer.length;
@@ -41,12 +43,12 @@ public class Packet {
     bufferAddr = Magic.objectAsAddress(buffer);
   }
   
-  public Packet(byte[] buffer)
+  public PacketBuffer(byte[] buffer)
   {
     this(buffer, 0);
   }
   
-  public Packet(int size)
+  public PacketBuffer(int size)
   {
     this(size, 0);
   }
@@ -56,7 +58,7 @@ public class Packet {
    * @param size
    * @param offset
    */
-  public Packet(int size, int offset)
+  public PacketBuffer(int size, int offset)
   {
     this.offset = offset;
     headroom = offset;
@@ -92,7 +94,7 @@ public class Packet {
   public void append(Packet packet)
   {
     packetList.add(packet);
-    length += packet.length;
+    length += packet.getSize();
   }
   
   /**
@@ -108,7 +110,7 @@ public class Packet {
   public void prepend(Packet packet)
   {
     packetList.addFirst(packet);
-    length += packet.length;
+    length += packet.getSize();
   }
   
   /**
@@ -157,5 +159,15 @@ public class Packet {
       throw new RuntimeException("Not enought headroom");
     }
     offset -= size;
+  }
+  
+  public void setCleaner(CleanPacket cleaner)
+  {
+    this.cleaner = cleaner;
+  }
+  
+  public void free()
+  {
+    
   }
 }
