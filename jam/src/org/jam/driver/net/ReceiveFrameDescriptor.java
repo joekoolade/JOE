@@ -28,6 +28,7 @@ public class ReceiveFrameDescriptor implements Packet {
   private static final int RFD_SIZE        = 16;
   
   private static final Offset LINK_ADDR       = Offset.zero().plus(4);
+  private static final Offset RESERVED        = Offset.zero().plus(8);
   private static final Offset INFO            = Offset.zero().plus(12);
   private static final Offset SIZE            = Offset.zero().plus(14);
 
@@ -126,7 +127,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#getArray()
    */
-  @Override
   public byte[] getArray()
   {
     // TODO Auto-generated method stub
@@ -136,7 +136,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#getOffset()
    */
-  @Override
   public int getOffset()
   {
     // TODO Auto-generated method stub
@@ -146,7 +145,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#getSize()
    */
-  @Override
   public int getSize()
   {
     // TODO Auto-generated method stub
@@ -156,7 +154,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#append(org.jam.driver.net.Packet)
    */
-  @Override
   public void append(Packet packet)
   {
     // TODO Auto-generated method stub
@@ -166,7 +163,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#prepend(int)
    */
-  @Override
   public Address prepend(int size)
   {
     // TODO Auto-generated method stub
@@ -176,7 +172,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#prepend(org.jam.driver.net.Packet)
    */
-  @Override
   public void prepend(Packet packet)
   {
     // TODO Auto-generated method stub
@@ -186,7 +181,6 @@ public class ReceiveFrameDescriptor implements Packet {
   /* (non-Javadoc)
    * @see org.jam.driver.net.Packet#setHeadroom(int)
    */
-  @Override
   public void setHeadroom(int size)
   {
     // TODO Auto-generated method stub
@@ -215,5 +209,22 @@ public class ReceiveFrameDescriptor implements Packet {
      * Reset EL bit
      */
     rfdAddr.store(0);
+  }
+  
+  /**
+   * reset the RFD fields
+   */
+  public void reset()
+  {
+    rfdAddr.store(0);
+    rfdAddr.store((short)0, INFO);
+  }
+  
+  public String toString()
+  {
+    return Integer.toHexString(rfdAddr.toInt()) + ": " + Integer.toHexString(rfdAddr.loadInt()) + " "
+      + Integer.toHexString(rfdAddr.loadInt(LINK_ADDR)) + " " + Integer.toHexString(rfdAddr.loadInt(RESERVED))
+      + " " + Integer.toHexString(rfdAddr.loadInt(INFO));
+      
   }
 }

@@ -79,7 +79,7 @@ public class I82559c implements NapiInterface, BufferFree {
   private static final short     MDI_READ          = 2;
   private static final short     MDI_WRITE         = 1;
   private static final int       MDI_READY         = (1 << 28);
-  private static final int       RFD_COUNT         = 256;
+  private static final int       RFD_COUNT         = 16;
   private static final int       WAIT_SCB_TIMEOUT  = 20000;        // 100ms wait
   private static final int       WAIT_SCB_FAST     = 20;           // Try 20 iterations first before delay
   
@@ -709,11 +709,16 @@ public class I82559c implements NapiInterface, BufferFree {
    */
   final private void rxProcessBuffer()
   {
-    int actualSize = rfds[rfdToClean].actualSize();
-    
-    if(DEBUG_RX) rfds[rfdToClean].dump();
-    
     ReceiveFrameDescriptor rfd = rfds[rfdToClean];
+    int actualSize = rfd.actualSize();
+    
+    if(DEBUG_RX) 
+    { 
+      VM.sysWrite("rxProcess: "); 
+      VM.sysWriteln(rfd.toString()); 
+      rfd.dump();
+    }
+    
 //    rxQueue.put(rfd.packet());
     rfds[rfdToClean] = null;
     free(rfd);
@@ -732,6 +737,12 @@ public class I82559c implements NapiInterface, BufferFree {
   {
     return (index+step) & (RFD_COUNT-1);
   }
+  
+  final private int advanceRfdIndex(int index)
+  {
+    return advanceRfdIndex(index, 1);
+  }
+  
   /**
    * Fill a new rx buffer
    */
@@ -740,7 +751,7 @@ public class I82559c implements NapiInterface, BufferFree {
     /*
      * fill it only when it is null
      */
-    for( ;rfds[rfdToUse]==null; rfdToUse++)
+    for( ;rfds[rfdToUse]==null; )
     {
       if(rfds[rfdToUse] == null)
       {
@@ -750,10 +761,15 @@ public class I82559c implements NapiInterface, BufferFree {
           statsFreeListEmpty++;
           return;
         }
-        ReceiveFrameDescriptor nuBuffer = rfdFreeList.getFirst();
+        ReceiveFrameDescriptor nuBuffer = rfdFreeList.remove();
+        rfds[advanceRfdIndex(rfdToUse, -1)].link(nuBuffer);
+        nuBuffer.link(rfds[advanceRfdIndex(rfdToUse)]);
         rfds[rfdToUse] = nuBuffer;
+        nuBuffer.reset();
+        if(DEBUG_RX) { VM.sysWrite("rxFill: "); VM.sysWriteln(nuBuffer.toString()); }
         statsBufferFilled++;
       }
+      rfdToUse = advanceRfdIndex(rfdToUse);
     }
   }
   /**
@@ -762,10 +778,11 @@ public class I82559c implements NapiInterface, BufferFree {
   private void rxClean()
   {
     boolean restartRequired = false;
+    boolean printstats =false;
     /*
      * Keep processing buffers until one that is not complete
      */
-    for(; ; rfdToClean++)
+    for(; ; )
     {
       if(rfds[rfdToClean].notComplete())
       {
@@ -773,6 +790,8 @@ public class I82559c implements NapiInterface, BufferFree {
       }
       rxProcessBuffer();
       statsBuffersCleaned++;
+      rfdToClean = advanceRfdIndex(rfdToClean);
+      printstats = true;
     }
     
     int oldStoppingPoint = advanceRfdIndex(rfdToUse, -2);
@@ -808,6 +827,13 @@ public class I82559c implements NapiInterface, BufferFree {
     if(running == SUSPENDED)
     {
       restartRequired = true;
+    }
+    if(printstats && DEBUG_RX)
+    {
+      VM.sysWrite(" rxClean: ", rfdToClean);
+      VM.sysWrite(" ", rfdToUse);
+      VM.sysWrite(" ", oldStoppingPoint);
+      VM.sysWriteln(" ", newStoppingPoint);
     }
   }
   
@@ -1034,7 +1060,6 @@ public class I82559c implements NapiInterface, BufferFree {
    * 
    * The parameter class must be a ReceiveFrameDescriptor
    */
-  @Override
   public void free(Packet packet)
   {
     if(!(packet instanceof ReceiveFrameDescriptor))

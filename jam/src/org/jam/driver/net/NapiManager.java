@@ -134,6 +134,11 @@ public class NapiManager implements Runnable {
         else
         {
           networkInterface = networkInterfaces.get(interfaceSlot);
+          // just check
+          if(networkInterface.timer != 10)
+          {
+            VM.sysWriteln("timer is not 10ms! ", networkInterface.timer);
+          }
           Thread.sleep(networkInterface.timer);
           networkInterface.netIf.poll();
           int size = networkInterfaces.size();
