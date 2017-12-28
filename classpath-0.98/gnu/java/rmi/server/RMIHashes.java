@@ -87,7 +87,7 @@ public class RMIHashes
         for (int i=0; i < len; i++)
             result += (long)(sha[i] & 0xFF) << (8 * i);
         return result;
-    }catch(Exception _){
+    }catch(Exception e){
         return -1L;
         }
   }

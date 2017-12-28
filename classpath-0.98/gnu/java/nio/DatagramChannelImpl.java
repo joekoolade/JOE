@@ -38,7 +38,6 @@ exception statement from your version. */
 
 package gnu.java.nio;
 
-import gnu.java.net.PlainDatagramSocketImpl;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -55,7 +54,6 @@ import java.nio.channels.spi.SelectorProvider;
 public final class DatagramChannelImpl extends DatagramChannel
   implements VMChannelOwner
 {
-  private NIODatagramSocket socket;
   private VMChannel channel;
   
   /**
@@ -64,11 +62,12 @@ public final class DatagramChannelImpl extends DatagramChannel
    */
   private boolean inChannelOperation;
 
+  private DatagramSocket socket;
+
   protected DatagramChannelImpl (SelectorProvider provider)
     throws IOException
   {
     super (provider);
-    socket = new NIODatagramSocket (new PlainDatagramSocketImpl(), this);
     channel = new VMChannel();
     channel.initSocket(false);
     configureBlocking(true);

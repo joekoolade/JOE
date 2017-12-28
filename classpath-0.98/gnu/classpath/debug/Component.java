@@ -157,7 +157,7 @@ public final class Component extends Level
 	  return null;
 	return (Component) f.get (null);
       }
-    catch (Throwable _)
+    catch (Throwable t)
       {
 	return null;
       }

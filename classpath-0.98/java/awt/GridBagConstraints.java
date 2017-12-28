@@ -195,7 +195,7 @@ public class GridBagConstraints implements Cloneable, Serializable
 	g.insets = (Insets) insets.clone ();
 	return g;
       }
-    catch (CloneNotSupportedException _)
+    catch (CloneNotSupportedException e)
       {
 	// Can't happen.
 	return null;

@@ -231,7 +231,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable
       {
 	return super.clone ();
       }
-    catch (CloneNotSupportedException _)
+    catch (CloneNotSupportedException e)
       {
 	return null;
       }

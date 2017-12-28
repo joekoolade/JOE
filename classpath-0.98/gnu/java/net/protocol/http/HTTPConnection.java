@@ -405,7 +405,7 @@ public class HTTPConnection
                             {
                               Pool.this.wait(waitTime);
                             }
-                          catch (InterruptedException _)
+                          catch (InterruptedException e)
                             {
                               // Ignore the interrupt.
                             }
@@ -424,7 +424,7 @@ public class HTTPConnection
                       {
                         Pool.this.wait(connectionTTL);
                       }
-                    catch (InterruptedException _)
+                    catch (InterruptedException e)
                       {
                         // Ignore the interrupt.
                       }
@@ -490,7 +490,7 @@ public class HTTPConnection
             if (v >= 0)
               connectionTTL = v;
           }
-        catch (NumberFormatException _)
+        catch (NumberFormatException e)
           {
             // Ignore.
           }
@@ -504,7 +504,7 @@ public class HTTPConnection
             if (v > 0)
               maxConnections = v;
           }
-        catch (NumberFormatException _)
+        catch (NumberFormatException e)
           {
             // Ignore.
           }
@@ -525,7 +525,7 @@ public class HTTPConnection
                   {
                     c.socket.setSoTimeout(timeout);
                   }
-                catch (SocketException _)
+                catch (SocketException e)
                   {
                     // Ignore.
                   }

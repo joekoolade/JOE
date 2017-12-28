@@ -38,7 +38,7 @@ exception statement from your version. */
 
 package gnu.java.nio;
 
-import gnu.java.net.PlainSocketImpl;
+import org.jam.java.net.PlainSocketImpl;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -54,7 +54,6 @@ public class NIOSocketImpl extends PlainSocketImpl
   NIOSocketImpl(SocketChannelImpl channel) throws IOException
   {
     this.channel = channel;
-    impl.getState().setChannelFD(channel.getVMChannel().getState());
   }
 
   /* (non-Javadoc)

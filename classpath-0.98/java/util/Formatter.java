@@ -395,7 +395,7 @@ public final class Formatter
 	if (out instanceof Closeable)
 	  ((Closeable) out).close();
       }
-    catch (IOException _)
+    catch (IOException e)
       {
 	// FIXME: do we ignore these or do we set ioException?
 	// The docs seem to indicate that we should ignore.
@@ -419,7 +419,7 @@ public final class Formatter
 	if (out instanceof Flushable)
 	  ((Flushable) out).flush();
       }
-    catch (IOException _)
+    catch (IOException e)
       {
 	// FIXME: do we ignore these or do we set ioException?
 	// The docs seem to indicate that we should ignore.

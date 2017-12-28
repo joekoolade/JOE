@@ -1029,10 +1029,10 @@ public class ZoneInfo extends TimeZone
 	  }
       }
 
-    catch (IndexOutOfBoundsException _)
+    catch (IndexOutOfBoundsException e)
       {
       }
-    catch (NumberFormatException _)
+    catch (NumberFormatException e)
       {
       }
 

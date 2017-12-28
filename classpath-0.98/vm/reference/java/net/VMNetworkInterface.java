@@ -76,7 +76,7 @@ final class VMNetworkInterface
       {
         addresses.add(InetAddress.getByName("0.0.0.0"));
       }
-    catch (UnknownHostException _)
+    catch (UnknownHostException e)
       {
         // Cannot happen.
       }

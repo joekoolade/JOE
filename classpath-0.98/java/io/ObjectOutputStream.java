@@ -1303,21 +1303,21 @@ public class ObjectOutputStream extends OutputStream
       {
         writeFields(obj,fields);
       }
-    catch (IllegalArgumentException _)
+    catch (IllegalArgumentException e0)
       {
         InvalidClassException e = new InvalidClassException
           ("writing fields of class " + osc.forClass().getName());
-        e.initCause(_);
+        e.initCause(e0);
         throw e;
       }
     catch (IOException e)
       {
         throw e;
       }
-    catch (Exception _)
+    catch (Exception e0)
       {
-        IOException e = new IOException("Unexpected exception " + _);
-        e.initCause(_);
+        IOException e = new IOException("Unexpected exception " + e0);
+        e.initCause(e0);
         throw(e);
       }    
 
@@ -1433,7 +1433,7 @@ public class ObjectOutputStream extends OutputStream
 	else
 	  System.out.print (obj);
       }
-    catch (Exception _)
+    catch (Exception e)
       {
       }
     finally

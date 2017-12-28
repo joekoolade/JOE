@@ -97,7 +97,7 @@ static {
                 //localhost = InetAddress.getLocalHost().getHostName();
                 localhost = InetAddress.getLocalHost().getHostAddress();
         }
-        catch (UnknownHostException _) {
+        catch (UnknownHostException e) {
                 localhost = "localhost";
         }
         
@@ -204,7 +204,7 @@ public static synchronized UnicastConnectionManager getInstance(String host, int
 	// change host name to host address to avoid name resolving issues
 	try{
     	host = InetAddress.getByName(host).getHostAddress();
-    }catch(Exception _){}
+    }catch(Exception e){}
     
 	TripleKey key = new TripleKey(host, port, csf);
 	UnicastConnectionManager man = (UnicastConnectionManager)clients.get(key);
@@ -370,7 +370,7 @@ public void stopServer() {
     	    serverThread = null;
     	    try{
     	        ssock.close();
-    	    }catch(Exception _){}
+    	    }catch(Exception e){}
     	}
     }
 }

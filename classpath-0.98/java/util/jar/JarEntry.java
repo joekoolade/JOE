@@ -110,7 +110,7 @@ public class JarEntry extends ZipEntry
       {
 	attr = entry.getAttributes();
       }
-    catch (IOException _)
+    catch (IOException e)
       {
       }
     jarfile = entry.jarfile;

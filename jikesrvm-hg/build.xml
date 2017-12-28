@@ -454,11 +454,11 @@ Check to make sure all required properties are specified. This includes properti
   
   <target name="compile-classpath" description="Compile GNU classpath">
     <mkdir dir="${classpath.dir}/classes"/>
-    <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" destdir="${classpath.dir}/classes"
+    <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs:${jam.java}" destdir="${classpath.dir}/classes"
       classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
-      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/vm/reference/gnu,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
-      includes="java/**,javax/**,gnu/**,sun/**,org/**,vm/reference/**,external/**,org/jikesrvm/**"
-      excludes="gnu/java/awt/peer/x/**"
+      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${jam.java},${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
+      includes="java/**,javax/**,gnu/**,sun/**,org/jam/java/**,org/jam/net/Socket.java,org/omg/**,vm/reference/**,external/**,org/jikesrvm/**"
+      excludes="gnu/java/awt/peer/x/**,vm/reference/gnu/java/net/**,gnu/java/net/*PlainSocketImpl.java,gnu/java/net/*PlainDatagramSocketImpl.java"
       includeantruntime="no"
       source="${rvm.java.version}"
       target="${rvm.java.version}"
@@ -473,6 +473,11 @@ Check to make sure all required properties are specified. This includes properti
       <include name="external/relaxngDatatype/**/*.java"/>
       <include name="external/sax/**/*.java"/>
       <include name="external/w3c_dom/**/*.java"/>
+      <exclude name="vm/reference/gnu/java/net/*.java"/>
+    </jar>
+    <jar file="${classpath.dir}/src.jar" basedir="${jam.java}" update="true">
+      <include name="org/jam/java/net/*.java"/>
+      <include name="org/jam/net/Socket.java"/>
     </jar>
     <jar file="${classpath.dir}/classpath.jar" basedir="${classpath.dir}/classes">
       <exclude name="org/jikesrvm/**"/>

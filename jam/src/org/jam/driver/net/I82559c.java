@@ -315,7 +315,6 @@ public class I82559c implements NapiInterface, BufferFree {
    */
   private void txClean()
   {
-    // TODO Auto-generated method stub
     
   }
 

@@ -138,7 +138,7 @@ public static void main(String[] args) {
 		try {
 			port = Integer.parseInt(args[0]);
 		}
-		catch (NumberFormatException _) {
+		catch (NumberFormatException e) {
 			System.err.println("Bad port number - using default");
 		}
 	}
@@ -146,7 +146,7 @@ public static void main(String[] args) {
 	try {
 		Registry impl = LocateRegistry.createRegistry(port);
 	}
-	catch (RemoteException _) {
+	catch (RemoteException e) {
 		System.err.println("Registry failed");
 	}
 }

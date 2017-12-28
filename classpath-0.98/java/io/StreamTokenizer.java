@@ -410,7 +410,7 @@ public class StreamTokenizer
 	  {
 	    nval = Double.valueOf(tokbuf.toString()).doubleValue();
 	  }
-	catch (NumberFormatException _)
+	catch (NumberFormatException e)
 	  {
 	    nval = 0.0;
 	  }

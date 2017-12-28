@@ -390,7 +390,7 @@ public class Package
         Class pkgInfo = Class.forName(name + ".package-info", false, loader);
         return pkgInfo.getDeclaredAnnotations();
       }
-    catch (ClassNotFoundException _)
+    catch (ClassNotFoundException e)
       {
         return new Annotation[0];
       }

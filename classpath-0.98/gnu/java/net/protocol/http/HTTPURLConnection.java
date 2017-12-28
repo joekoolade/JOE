@@ -110,7 +110,7 @@ public class HTTPURLConnection
                 proxyPort = Integer.parseInt(port);
                 proxyHostname = proxy;
               }
-            catch (NumberFormatException _)
+            catch (NumberFormatException e)
               {
                 // Ignore.
               }
@@ -227,7 +227,7 @@ public class HTTPURLConnection
                   {
                     connection.close();
                   }
-                catch (IOException _)
+                catch (IOException e)
                   {
                     // Ignore.
                   }

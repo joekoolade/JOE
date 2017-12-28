@@ -40,12 +40,9 @@ package java.net;
 
 import gnu.classpath.SystemProperties;
 
-import gnu.java.net.PlainDatagramSocketImpl;
-import gnu.java.nio.DatagramChannelImpl;
+import org.jam.java.net.PlainDatagramSocketImpl;
 
 import java.io.IOException;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.IllegalBlockingModeException;
 
 
 /**
@@ -265,15 +262,6 @@ public class DatagramSocket
 	impl = null;
       }
 
-    try
-      {
-	if (getChannel() != null)
-	  getChannel().close();
-      }
-    catch (IOException e)
-      {
-	// Do nothing.
-      }
   }
 
   /**
@@ -594,10 +582,6 @@ public class DatagramSocket
       throw new IOException
 	("Socket connected to a multicast address my not receive");
 
-    if (getChannel() != null && ! getChannel().isBlocking()
-        && ! ((DatagramChannelImpl) getChannel()).isInChannelOperation())
-      throw new IllegalBlockingModeException();
-
     DatagramPacket p2 = new DatagramPacket(p.getData(), p.getOffset(), p.maxlen);
     getImpl().receive(p2);
     p.length = p2.length;
@@ -649,12 +633,6 @@ public class DatagramSocket
 	  throw new IllegalArgumentException
 	    ("DatagramPacket address does not match remote address");
       }
-
-    // FIXME: if this is a subclass of MulticastSocket,
-    // use getTimeToLive for TTL val.
-    if (getChannel() != null && ! getChannel().isBlocking()
-        && ! ((DatagramChannelImpl) getChannel()).isInChannelOperation())
-      throw new IllegalBlockingModeException();
 
     getImpl().send(p);
   }
@@ -727,18 +705,6 @@ public class DatagramSocket
   public boolean isClosed()
   {
     return impl == null;
-  }
-
-  /**
-   * Returns the datagram channel assoziated with this datagram socket.
-   *
-   * @return The associated <code>DatagramChannel</code> object or null
-   *
-   * @since 1.4
-   */
-  public DatagramChannel getChannel()
-  {
-    return null;
   }
 
   /**

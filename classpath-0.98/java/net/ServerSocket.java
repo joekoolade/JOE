@@ -38,7 +38,7 @@ exception statement from your version. */
 
 package java.net;
 
-import gnu.java.net.PlainSocketImpl;
+import org.jam.java.net.PlainSocketImpl;
 
 import java.io.IOException;
 import java.nio.channels.IllegalBlockingModeException;
@@ -261,7 +261,7 @@ public class ServerSocket
             if (local == null)
 	      close();
           }
-        catch (IOException _)
+        catch (IOException e)
           {
           }
       }

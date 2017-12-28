@@ -87,7 +87,7 @@ public class LayoutQueue
 	      {
 		list.wait();
 	      }
-	    catch (InterruptedException _)
+	    catch (InterruptedException e)
 	      {
 		// This seemed like a good idea, but it has not been
 		// tested on the JDK.

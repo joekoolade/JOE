@@ -288,7 +288,7 @@ public class Level implements Serializable
         ResourceBundle b = ResourceBundle.getBundle(resourceBundleName);
 	localizedName = b.getString(name);
       }
-      catch (Exception _)
+      catch (Exception e)
       {
       }
     }
@@ -355,7 +355,7 @@ public class Level implements Serializable
 	if (num == knownLevels[i].value)
 	  return knownLevels[i];
     }
-    catch (NumberFormatException _)
+    catch (NumberFormatException e)
     {
     }
 

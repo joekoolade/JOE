@@ -122,7 +122,7 @@ public class FileBasedPreferences
         // We release the lock and close the stream in the 'finally'
         // clause.
       }
-    catch (IOException _)
+    catch (IOException e)
       {
         // We don't mind; this means we're making a new node.
         newNode = true;
@@ -237,7 +237,7 @@ public class FileBasedPreferences
                     if (lock != null)
                       lock.release();
                   }
-                catch (IOException _)
+                catch (IOException e)
                   {
                     // Ignore.
                   }
@@ -246,7 +246,7 @@ public class FileBasedPreferences
                     if (fos != null)
                       fos.close();
                   }
-                catch (IOException _)
+                catch (IOException e)
                   {
                     // Ignore.
                   }

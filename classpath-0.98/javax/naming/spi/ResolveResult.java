@@ -90,7 +90,7 @@ public class ResolveResult implements Serializable
       {
 	remainingName.add (remaining);
       }
-    catch (InvalidNameException _)
+    catch (InvalidNameException e)
       {
       }
   }
@@ -149,7 +149,7 @@ public class ResolveResult implements Serializable
       {
 	remainingName.addAll(name);
       }
-    catch (InvalidNameException _)
+    catch (InvalidNameException e)
       {
       }
   }
@@ -165,7 +165,7 @@ public class ResolveResult implements Serializable
       {
 	remainingName.add(name);
       }
-    catch (InvalidNameException _)
+    catch (InvalidNameException e)
       {
       }
   }
