@@ -36,10 +36,15 @@ obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 
 
-package java.net;
+package org.jam.java.net;
 
 import gnu.classpath.Configuration;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,10 +59,10 @@ import java.util.Set;
  * @author Michael Koch (konqueror@gmx.de)
  * @since 1.4
  */
-final class VMNetworkInterface
+final public class VMNetworkInterface
 {
-  String name;
-  Set addresses;
+  public String name;
+  public Set addresses;
 
   VMNetworkInterface(String name)
   {
@@ -82,24 +87,17 @@ final class VMNetworkInterface
       }
   }
   
-  static
-  {
-    if (Configuration.INIT_LOAD_LIBRARY)
-      System.loadLibrary("javanet");
-    
-    initIds();
-  }
-  
-  private static native void initIds();
-
   /**
    * Return a list of VM network interface objects.
    *
    * @return The list of network interfaces.
    * @throws SocketException
    */
-  public static native VMNetworkInterface[] getVMInterfaces()
-    throws SocketException;
+  public static VMNetworkInterface[] getVMInterfaces()
+    throws SocketException
+    {
+    return null;
+    }
   
   private void addAddress(ByteBuffer addr)
     throws SocketException, UnknownHostException
@@ -120,12 +118,24 @@ final class VMNetworkInterface
       throw new SocketException("invalid interface address");
   }
 
-  static native boolean isUp(String name) throws SocketException;
+  public static boolean isUp(String name) throws SocketException
+  {
+    return false;
+  }
 
-  static native boolean isLoopback(String name) throws SocketException;
+  public static boolean isLoopback(String name) throws SocketException
+  {
+    return false;
+  }
 
-  static native boolean isPointToPoint(String name) throws SocketException;
+  public static boolean isPointToPoint(String name) throws SocketException
+  {
+    return false;
+  }
 
-  static native boolean supportsMulticast(String name) throws SocketException;
+  public static boolean supportsMulticast(String name) throws SocketException
+  {
+    return false;
+  }
 
 }

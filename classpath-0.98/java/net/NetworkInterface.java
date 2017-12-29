@@ -46,6 +46,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.jam.java.net.VMNetworkInterface;
+
 /**
  * This class models a network interface on the host computer.  A network
  * interface contains a name (typically associated with a specific

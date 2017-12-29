@@ -45,6 +45,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import org.jam.java.net.VMInetAddress;
+
 /**
  * This class models an Internet address.  It does not have a public
  * constructor.  Instead, new instances of this objects are created

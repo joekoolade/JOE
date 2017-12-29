@@ -1,5 +1,5 @@
-/* VMInetAddress.java -- Class to model an Internet address
-   Copyright (C) 2005  Free Software Foundation, Inc.
+/* VMURLConnection - VM code for URLConnection
+   Copyright (C) 2006  Free Software Foundation, Inc.
 
 This file is part of GNU Classpath.
 
@@ -36,62 +36,43 @@ obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 
 
-package java.net;
+package org.jam.java.net;
 
 import gnu.classpath.Configuration;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.InputStream;
 
-class VMInetAddress implements Serializable
+final public class VMURLConnection
 {
-  static
+  public static final int LENGTH = 1024;
+
+  private static void init()
   {
-    if (Configuration.INIT_LOAD_LIBRARY)
-      System.loadLibrary("javanet");
+    return;
+  }
+
+  private static String guessContentTypeFromBuffer(byte[] b, int valid)
+  {
+    return null;
   }
 
   /**
-   * This method looks up the hostname of the local machine
-   * we are on.  If the actual hostname cannot be determined, then the
-   * value "localhost" will be used.  This native method wrappers the
-   * "gethostname" function.
-   *
-   * @return The local hostname.
+   * This is called from URLConnection to guess the mime type of a
+   * stream.  This method may return null to indicate that it could
+   * not guess a type.
    */
-  public static native String getLocalHostname();
-
-  /**
-   * Returns the value of the special address INADDR_ANY
-   */
-  public static native byte[] lookupInaddrAny() throws UnknownHostException;
-
-  /**
-   * This method returns the hostname for a given IP address.  It will
-   * throw an UnknownHostException if the hostname cannot be determined.
-   *
-   * @param ip The IP address as a byte array
-   *
-   * @return The hostname
-   *
-   * @exception UnknownHostException If the reverse lookup fails
-   */
-  public static native String getHostByAddr(byte[] ip)
-    throws UnknownHostException;
-
-  /**
-   * Returns a list of all IP addresses for a given hostname.  Will throw
-   * an UnknownHostException if the hostname cannot be resolved.
-   */
-  public static native byte[][] getHostByName(String hostname)
-    throws UnknownHostException;
-
-  /**
-   * Return the IP address represented by a literal address.
-   * Will return null if the literal address is not valid.
-   *
-   * @param address the name of the host
-   *
-   * @return The IP address as a byte array
-   */
-  public static native byte[] aton(String address);
+  public static String guessContentTypeFromStream(InputStream is)
+    throws IOException
+  {
+    if (! is.markSupported())
+      return null;
+    is.mark(LENGTH);
+    byte[] bytes = new byte[LENGTH];
+    int r = is.read(bytes);
+    if (r < 0)
+      return null;
+    is.reset();
+    return guessContentTypeFromBuffer(bytes, r);
+  }
 }
