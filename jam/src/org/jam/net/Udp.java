@@ -20,8 +20,13 @@ import java.net.SocketTimeoutException;
  * @author Joe Kulig
  *
  */
-public class Socket {
+/**
+ * @author Joe Kulig
+ *
+ */
+public class Udp {
 
+  
   /**
    * @param inetSocketAddress
    */

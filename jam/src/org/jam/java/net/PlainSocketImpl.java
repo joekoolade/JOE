@@ -54,7 +54,7 @@ import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
-import org.jam.net.Socket;
+import org.jam.net.Udp;
 
 /**
  * Written using on-line Java Platform 1.2 API Specification, as well
@@ -78,7 +78,7 @@ public class PlainSocketImpl extends SocketImpl
   /**
    * The underlying plain socket VM implementation.
    */
-  protected Socket impl;
+  protected Udp impl;
 
   /**
    * A cached copy of the in stream for reading from the socket.
@@ -128,7 +128,7 @@ public class PlainSocketImpl extends SocketImpl
    */
   public PlainSocketImpl()
   {
-    this.impl = new Socket();
+    this.impl = new Udp();
   }
 
   /**

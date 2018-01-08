@@ -50,7 +50,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-import org.jam.net.Socket;
+import org.jam.net.Udp;
 
 /**
  * Written using on-line Java Platform 1.2 API Specification, as well
@@ -68,7 +68,7 @@ import org.jam.net.Socket;
  */
 public final class PlainDatagramSocketImpl extends DatagramSocketImpl
 {
-  private final Socket socket;
+  private final Udp udp;
   
   /**
    * Lock object to serialize threads wanting to receive 
@@ -85,7 +85,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   public PlainDatagramSocketImpl() throws IOException
   {
-    socket = new Socket();
+    udp = new Udp();
   }
 
   protected void finalize() throws Throwable
@@ -105,7 +105,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   {
     try
     {
-      socket.bind(new InetSocketAddress(addr, port));
+      udp.bind(new InetSocketAddress(addr, port));
     }
     catch (SocketException se)
     {
@@ -129,7 +129,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected void connect(InetAddress addr, int port) throws SocketException
   {
-    socket.connect(new InetSocketAddress(addr, port), 0);
+    udp.connect(new InetSocketAddress(addr, port), 0);
   }
 
   /**
@@ -141,7 +141,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized void setTimeToLive(int ttl) throws IOException
   {
-    socket.setTimeToLive(ttl);
+    udp.setTimeToLive(ttl);
   }
 
   /**
@@ -153,16 +153,16 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized int getTimeToLive() throws IOException
   {
-    return socket.getTimeToLive();
+    return udp.getTimeToLive();
   }
 
   protected int getLocalPort()
   {
-    if (socket == null) return -1;
+    if (udp == null) return -1;
 
     try
     {
-      InetSocketAddress local = socket.getLocalAddress();
+      InetSocketAddress local = udp.getLocalAddress();
       if (local == null) return -1;
       return local.getPort();
     }
@@ -190,7 +190,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       {
         try
         {
-          socket.send(packet);
+          udp.send(packet);
           break;
         }
         catch (InterruptedIOException ioe)
@@ -218,7 +218,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
           {
             try
               {
-                addr = socket.receive(packet);
+                addr = udp.receive(packet);
                 break;
               }
             catch (SocketTimeoutException ste)
@@ -251,7 +251,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       {
         case IP_MULTICAST_IF:
         case IP_MULTICAST_IF2:
-          socket.setMulticastInterface(optionId, (InetAddress) value);
+          udp.setMulticastInterface(optionId, (InetAddress) value);
           break;
 
         case IP_MULTICAST_LOOP:
@@ -265,7 +265,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
         case SO_SNDBUF:
         case SO_TIMEOUT:
         case SO_REUSEADDR:
-          socket.setOption(optionId, value);
+          udp.setOption(optionId, value);
           return;
 
       default:
@@ -288,7 +288,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
     {
       try
       {
-        InetSocketAddress local = socket.getLocalAddress();
+        InetSocketAddress local = udp.getLocalAddress();
         if (local == null) return null;
         return local.getAddress();
       }
@@ -303,9 +303,9 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
         throw se;
       }
     }
-    if (optionId == IP_MULTICAST_IF || optionId == IP_MULTICAST_IF2) return socket.getMulticastInterface(optionId);
+    if (optionId == IP_MULTICAST_IF || optionId == IP_MULTICAST_IF2) return udp.getMulticastInterface(optionId);
 
-    return socket.getOption(optionId);
+    return udp.getOption(optionId);
   }
 
   /**
@@ -315,7 +315,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   {
     try
     {
-      socket.close();
+      udp.close();
     }
     catch (IOException ioe)
     {
@@ -359,7 +359,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized void join(InetAddress addr) throws IOException
   {
-    socket.join(addr);
+    udp.join(addr);
   }
 
   /**
@@ -371,7 +371,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized void leave(InetAddress addr) throws IOException
   {
-    socket.leave(addr);
+    udp.leave(addr);
   }
 
   /**
@@ -395,7 +395,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       throw new NullPointerException();
     if (!(address instanceof InetSocketAddress))
       throw new SocketException("unknown address type");
-    socket.joinGroup((InetSocketAddress) address, netIf);
+    udp.joinGroup((InetSocketAddress) address, netIf);
   }
 
   public void leaveGroup(SocketAddress address, NetworkInterface netIf)
@@ -405,7 +405,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       throw new NullPointerException();
     if (!(address instanceof InetSocketAddress))
       throw new SocketException("unknown address type");
-    socket.leaveGroup((InetSocketAddress) address, netIf);
+    udp.leaveGroup((InetSocketAddress) address, netIf);
   }
 
   /* (non-Javadoc)
