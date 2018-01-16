@@ -25,15 +25,18 @@ import java.net.SocketTimeoutException;
  *
  */
 public class Udp {
-
-  
+	InetAddress localAddress;
+	InetAddress remoteAddress;
+	int localPort;
+	int remotePort;
+	
   /**
    * @param inetSocketAddress
    */
   public void bind(InetSocketAddress inetSocketAddress) throws SocketException, IOException
   {
-    // TODO Auto-generated method stub
-    
+	  localAddress = inetSocketAddress.getAddress();
+	  localPort = inetSocketAddress.getPort();
   }
 
   /**
