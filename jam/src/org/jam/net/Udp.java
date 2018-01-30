@@ -12,9 +12,12 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.NoRouteToHostException;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+
+import org.jam.driver.net.Packet;
 
 /**
  * @author Joe Kulig
@@ -25,18 +28,20 @@ import java.net.SocketTimeoutException;
  *
  */
 public class Udp {
-	InetAddress localAddress;
-	InetAddress remoteAddress;
-	int localPort;
-	int remotePort;
+	InetSocketAddress localAddress;
+	InetSocketAddress remoteAddress;
+	int ttl;
+	private Connection connection;
+	private int pseudoHeaderSum;
+	private int offset;
+	private InetPacket packet;
 	
   /**
    * @param inetSocketAddress
    */
   public void bind(InetSocketAddress inetSocketAddress) throws SocketException, IOException
   {
-	  localAddress = inetSocketAddress.getAddress();
-	  localPort = inetSocketAddress.getPort();
+	  localAddress = inetSocketAddress;
   }
 
   /**
@@ -45,8 +50,9 @@ public class Udp {
    */
   public void connect(InetSocketAddress inetSocketAddress, int i)
   {
-    // TODO Auto-generated method stub
-    
+    remoteAddress = inetSocketAddress;
+    // check if address is routable
+    // Create a new connection
   }
 
   /**
@@ -54,8 +60,7 @@ public class Udp {
    */
   public void setTimeToLive(int ttl)
   {
-    // TODO Auto-generated method stub
-    
+	  this.ttl = ttl;
   }
 
   /**
@@ -63,8 +68,7 @@ public class Udp {
    */
   public int getTimeToLive()
   {
-    // TODO Auto-generated method stub
-    return 0;
+    return ttl;
   }
 
   /**
@@ -72,19 +76,56 @@ public class Udp {
    */
   public InetSocketAddress getLocalAddress() throws IOException
   {
-    // TODO Auto-generated method stub
-    return null;
+    return localAddress;
   }
 
   /**
    * @param packet
+ * @throws IOException 
    */
-  public void send(DatagramPacket packet) throws InterruptedIOException
+  public void send(DatagramPacket packet) throws IOException
   {
-    // TODO Auto-generated method stub
-    
+	  /*
+	   * Get a new connection
+	   */
+	  if(connection == null)
+	  {
+		  connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
+		  computePseudoHeaderSum();
+	  }
+	  if(packet.getLength() > 0xFFFF)
+	  {
+		  throw new IOException("Packet too big");
+	  }
+	  
   }
 
+  /**
+   * The is the 16 bit sum of the source, destination, and protocol
+   * values
+   */
+  private void computePseudoHeaderSum() {
+	  // Sum up the source IP address
+	  byte[] inetAddressBytes = localAddress.getAddress().getAddress();
+	  pseudoHeaderSum = (inetAddressBytes[0]<<8) + inetAddressBytes[1];
+	  pseudoHeaderSum += (inetAddressBytes[2]<<8) + inetAddressBytes[3];
+	  // Add in the destination IP address
+	  inetAddressBytes = remoteAddress.getAddress().getAddress();
+	  pseudoHeaderSum = (inetAddressBytes[0]<<8) + inetAddressBytes[1];
+	  pseudoHeaderSum += (inetAddressBytes[2]<<8) + inetAddressBytes[3];
+	  // Add in the protocol
+	  pseudoHeaderSum += IpProto.UDP.ordinal();
+	  // Add any carry overs
+	  int carryOver = (pseudoHeaderSum>>16) & 0xFFFF;
+	  pseudoHeaderSum += carryOver;
+  }
+
+  private int computeChecksum()
+  {
+	  int csum = 0;
+	  
+	  return csum;
+  }
   /**
    * @param packet
    * @return
