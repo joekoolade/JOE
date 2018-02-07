@@ -18,6 +18,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import org.jam.driver.net.Packet;
+import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.Offset;
 
 /**
  * @author Joe Kulig
@@ -28,14 +30,24 @@ import org.jam.driver.net.Packet;
  *
  */
 public class Udp {
+	private static final Offset DESTINATION_PORT = Offset.fromIntSignExtend(2);
+	private static final Offset LENGTH = Offset.fromIntSignExtend(4);
+	private static final Offset CHECKSUM = Offset.fromIntSignExtend(6);
+	
 	InetSocketAddress localAddress;
 	InetSocketAddress remoteAddress;
 	int ttl;
 	private Connection connection;
 	private int pseudoHeaderSum;
 	private int offset;
-	private InetPacket packet;
+	private InetPacket packet;	
+	private Ip ip;
+	private short packetChecksum;
 	
+	public Udp()
+	{
+		ip = new Ip();
+	}
   /**
    * @param inetSocketAddress
    */
@@ -97,7 +109,20 @@ public class Udp {
 	  {
 		  throw new IOException("Packet too big");
 	  }
-	  
+	  this.packet = new InetPacket(packet, connection);
+	  computeChecksum();
+	  Address udpPacket = this.packet.getAddress();
+	  // Setup the udp packet header
+	  // source port
+	  udpPacket.store((short)localAddress.getPort());
+	  // desination port
+	  udpPacket.store((short)remoteAddress.getPort(), DESTINATION_PORT);
+	  // packet length
+	  udpPacket.store((short)this.packet.getSize(), LENGTH);
+	  // packet checksum
+	  udpPacket.store(packetChecksum, CHECKSUM);
+	  // send it on for IP processing
+	  ip.send(this.packet);
   }
 
   /**
@@ -120,11 +145,25 @@ public class Udp {
 	  pseudoHeaderSum += carryOver;
   }
 
-  private int computeChecksum()
+  private short computeChecksum()
   {
 	  int csum = 0;
 	  
-	  return csum;
+	  Address data = packet.getAddress();
+	  for(int words=packet.getSize()>>1; words > 0; words--)
+	  {
+		  csum += (data.loadShort() & 0xFFFF);
+		  data = data.plus(2);
+	  }
+	  if((packet.getSize() & 0x1) != 0)
+	  {
+		  csum += (data.loadShort() & 0x00FF);
+	  }
+	  // Add pseudo header checksum
+	  csum += pseudoHeaderSum;
+	  // Add the carry overs
+	  csum = (csum>>16) + (csum & 0xFFFF);
+	  packetChecksum = (short) ~csum;
   }
   /**
    * @param packet

@@ -17,4 +17,8 @@ public class Connection {
 		protocol = udp;
 	}
 
+	public byte getProtocol() {
+		return (byte)protocol.ordinal();
+	}
+
 }

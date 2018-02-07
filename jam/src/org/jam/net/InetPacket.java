@@ -1,28 +1,57 @@
 package org.jam.net;
 
+import java.net.DatagramPacket;
+
 import org.jam.driver.net.Packet;
+import org.jikesrvm.classloader.RVMArray;
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.ObjectReference;
 
 public class InetPacket implements Packet {
+	private int offset;
+	private byte buffer[];
+	private static int HEADER_SIZE = 44;		// size of the udp, ip, and ethernet headers
+	private int packetSize;
+	private Connection connection;
+
+	public InetPacket(DatagramPacket packet, Connection connection) {
+		int bufferSize = packet.getLength()+HEADER_SIZE;
+		byte[] srcBuffer = packet.getData();
+		buffer = new byte[bufferSize];
+		RVMArray.arraycopy(srcBuffer, packet.getOffset(), buffer, HEADER_SIZE, packet.getLength());
+		offset = HEADER_SIZE;
+		packetSize = packet.getLength();
+		this.connection = connection;
+	}
 
 	public byte[] getArray() {
-		// TODO Auto-generated method stub
-		return null;
+		return buffer;
 	}
 
+	/**
+	 * Returns the address of a packet's header beginning
+	 */
 	public Address getAddress() {
-		// TODO Auto-generated method stub
-		return null;
+		return Magic.objectAsAddress(buffer).plus(offset);
 	}
 
+	/*
+	 * Returns the address of the packet's buffer
+	 */
+	public Address getBufferAddress()
+	{
+		return Magic.objectAsAddress(buffer);
+	}
 	public int getOffset() {
-		// TODO Auto-generated method stub
-		return 0;
+		return offset;
 	}
 
+	/**
+	 * returns data size of packet
+	 */
 	public int getSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return packetSize;
 	}
 
 	public void append(Packet packet) {
@@ -41,8 +70,15 @@ public class InetPacket implements Packet {
 	}
 
 	public void setHeadroom(int size) {
-		// TODO Auto-generated method stub
+		if(size > offset)
+		{
+			throw new RuntimeException("No Headroom");
+		}
+		offset -= size;
+	}
 
+	public byte getProtocol() {
+		return connection.getProtocol();
 	}
 
 }
