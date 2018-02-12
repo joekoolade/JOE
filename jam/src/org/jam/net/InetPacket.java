@@ -1,6 +1,7 @@
 package org.jam.net;
 
 import java.net.DatagramPacket;
+import java.net.NetworkInterface;
 
 import org.jam.driver.net.Packet;
 import org.jikesrvm.classloader.RVMArray;
@@ -14,7 +15,8 @@ public class InetPacket implements Packet {
 	private static int HEADER_SIZE = 44;		// size of the udp, ip, and ethernet headers
 	private int packetSize;
 	private Connection connection;
-
+	private NetworkInterface netInterface;
+	
 	public InetPacket(DatagramPacket packet, Connection connection) {
 		int bufferSize = packet.getLength()+HEADER_SIZE;
 		byte[] srcBuffer = packet.getData();
@@ -79,6 +81,26 @@ public class InetPacket implements Packet {
 
 	public byte getProtocol() {
 		return connection.getProtocol();
+	}
+
+	public boolean needToFragment() {
+		return false;
+	}
+
+	public int getLocalAddress() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getRemoteAddress() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void send() {
+		/*
+		 * Need to find the route and the next hop to send the packet
+		 */
 	}
 
 }

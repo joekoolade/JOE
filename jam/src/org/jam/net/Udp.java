@@ -145,7 +145,7 @@ public class Udp {
 	  pseudoHeaderSum += carryOver;
   }
 
-  private short computeChecksum()
+  private void computeChecksum()
   {
 	  int csum = 0;
 	  
