@@ -94,4 +94,9 @@ public class Arp {
 
     return packet;
   }
+
+public static void hasDevice(int remoteAddress) {
+	// TODO Auto-generated method stub
+	
+}
 }

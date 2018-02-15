@@ -4,6 +4,7 @@ import java.net.DatagramPacket;
 import java.net.NetworkInterface;
 
 import org.jam.driver.net.Packet;
+import org.jam.net.inet4.Arp;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
@@ -101,6 +102,7 @@ public class InetPacket implements Packet {
 		/*
 		 * Need to find the route and the next hop to send the packet
 		 */
+		Arp.hasDevice(getRemoteAddress());
 	}
 
 }
