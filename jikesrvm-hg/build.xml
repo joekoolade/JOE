@@ -454,10 +454,10 @@ Check to make sure all required properties are specified. This includes properti
   
   <target name="compile-classpath" description="Compile GNU classpath">
     <mkdir dir="${classpath.dir}/classes"/>
-    <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs:${jam.java}" destdir="${classpath.dir}/classes"
-      classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
-      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${jam.java},${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
-      includes="java/**,javax/**,gnu/**,sun/**,org/jam/java/**,org/jam/net/Socket.java,org/omg/**,vm/reference/**,external/**,org/jikesrvm/**"
+    <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" destdir="${classpath.dir}/classes"
+      classpath="${classpath.dir}/classes:${build.vmmagic-stub.classes}:${build.classes}" bootclasspath="${classpath.dir}/classes"
+      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
+      includes="java/**,javax/**,gnu/**,sun/**,org/jam/**,org/omg/**,vm/reference/**,external/**,org/jikesrvm/**,org/vmmagic/**"
       excludes="gnu/java/awt/peer/x/**,vm/reference/gnu/java/net/**,vm/reference/java/net/**,gnu/java/net/*PlainSocketImpl.java,gnu/java/net/*PlainDatagramSocketImpl.java"
       includeantruntime="no"
       source="${rvm.java.version}"
@@ -1123,7 +1123,7 @@ Check to make sure all required properties are specified. This includes properti
   </target>
 
   <target name="do-gen-config-source" depends="gen-config-source">
-    <touch file="${generated.config.dir}/SourceGenerated"/>
+<!--    <touch file="${generated.config.dir}/SourceGenerated"/> -->
   </target>
 
   <target name="gen-config-source-check" depends="check-properties">
@@ -1388,7 +1388,7 @@ Check to make sure all required properties are specified. This includes properti
   </target>
 
   <!-- <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-harmony"/> -->
-  <target name="package" depends="compile-vmmagic,package-classpath,package-harmony"/>
+  <target name="package" depends="compile-vmmagic,package-classpath"/>
 
   <target name="package-harmony" if="harmony.classlib">
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
@@ -1409,7 +1409,7 @@ Check to make sure all required properties are specified. This includes properti
     </jar>
   </target>
 
-  <target name="package-classpath" if="classpath.classlib">
+  <target name="package-classpath">
     <!-- create a rt.jar for the RVM -->
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false"> 
       <include name="java/**"/>
