@@ -11,7 +11,8 @@ package org.jam.net.inet4;
  *
  */
 public class InetAddress {
-  private static final int BROADCAST_ADDR_INT = 0xFFFFFFFF;
+  private static final int BROADCAST_ADDR = 0xFFFFFFFF;
+  private static final int HOST_ADDR = 0;
   final private byte addrBytes[];
   private String string=null;
   final private int addrInt;
@@ -29,6 +30,10 @@ public class InetAddress {
     addrBytes[3] = (byte) (addr & 0xFF);
   }
   
+  public InetAddress(java.net.InetAddress inetAddress)
+  {
+      this(inetAddress.getAddress());
+  }
   /*
    * Create ip from four octets
    */
@@ -42,14 +47,29 @@ public class InetAddress {
     addrInt = (octet1<<24) | (octet2<<16) | (octet3<<8) | octet4;
   }
   
+  public InetAddress(byte[] address)
+  {
+    addrBytes = address;
+    addrInt = (addrBytes[0]<<24) | ((addrBytes[1]&0xFF)<<16) | ((addrBytes[2]&0xFF)<<8) | (addrBytes[3]&0xFF);
+  }
+
   public boolean isBroadcast()
   {
-    return addrInt == BROADCAST_ADDR_INT;
+    return addrInt == BROADCAST_ADDR;
   }
   
-  public byte[] asArray()
+  public boolean isHost()
+  {
+      return addrInt == HOST_ADDR;
+  }
+  final public byte[] asArray()
   {
     return addrBytes;
+  }
+  
+  final public int inet4()
+  {
+      return addrInt;
   }
   public String toString()
   {
