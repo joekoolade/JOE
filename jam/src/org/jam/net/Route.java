@@ -45,6 +45,10 @@ public class Route {
 	    this.gateway = gateway;
 	    this.networkIf = net;
 	}
+	public Route() 
+	{
+	}
+
 	/**
 	 * Convert a cidr prefix to a netmask value
 	 * @return netmask
@@ -53,6 +57,7 @@ public class Route {
 	{
 	    int netmask;
 	    
+	    if(prefix < 0 || prefix > 32) throw new RuntimeException("Invalid prefix " + prefix);
 	    netmask = 0x80000000;
 	    if(prefix==0) netmask=0;
 	    else
@@ -123,22 +128,7 @@ public class Route {
     final public static void addRoute(NetworkInterface net)
     {
         Route newRoute = new Route(net);
-        // if empty then just add it
-        if(routeTable.isEmpty()) routeTable.add(newRoute);
-        else
-        {
-            ListIterator<Route> routeIter = routeTable.listIterator();
-            while(routeIter.hasNext())
-            {
-                Route route = routeIter.next();
-                if(newRoute.prefix >= route.prefix)
-                {
-                    routeIter.add(newRoute);
-                    return;
-                }
-            }
-            routeTable.add(newRoute);
-        }
+        addRoute(newRoute);
     }
     
 	final public static void addRoute(InetAddress destination, InetAddress gateway, int netmask, NetworkInterface net)
@@ -148,6 +138,27 @@ public class Route {
 	final public static void addRoute(int prefix, InetAddress destination, InetAddress gateway, NetworkInterface net)
 	{
         Route newRoute = new Route(prefix, destination, gateway, net);
+        // if empty then just add it
+        addRoute(newRoute);
+	}
+
+	private static void addRoute(Route newRoute) {
+		if(routeTable.isEmpty()) routeTable.add(newRoute);
+        else
+        {
+            ListIterator<Route> routeIter = routeTable.listIterator();
+            while(routeIter.hasNext())
+            {
+                Route route = routeIter.next();
+                if(newRoute.prefix > route.prefix)
+                {
+                		routeIter.previous();
+                    routeIter.add(newRoute);
+                    return;
+                }
+            }
+            routeTable.add(newRoute);
+        }
 	}
 	
     final public static void addRoute(InetAddress destination, InetAddress gateway, int netmask, int metric, NetworkInterface net)
