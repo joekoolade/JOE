@@ -6,6 +6,10 @@
  */
 package org.jam.net.inet4;
 
+import java.net.UnknownHostException;
+
+import org.jam.java.net.VMInetAddress;
+
 /**
  * @author Joe Kulig
  *
@@ -28,6 +32,11 @@ public class InetAddress {
     addrBytes[1] = (byte) ((addr>>16) & 0xFF);
     addrBytes[2] = (byte) ((addr>>8) & 0xFF);
     addrBytes[3] = (byte) (addr & 0xFF);
+  }
+  
+  public InetAddress(String inet4String) throws UnknownHostException
+  {
+      this(VMInetAddress.aton(inet4String));
   }
   
   public InetAddress(java.net.InetAddress inetAddress)

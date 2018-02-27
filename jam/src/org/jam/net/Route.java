@@ -112,6 +112,21 @@ public class Route {
         return prefix;
     }
 
+    public NetworkInterface getNetworkIf()
+    {
+        return networkIf;
+    }
+
+    public InetAddress getDestination()
+    {
+        return destination;
+    }
+
+    public InetAddress getGateway()
+    {
+        return gateway;
+    }
+
     public int getNetmask()
     {
         return netmask;

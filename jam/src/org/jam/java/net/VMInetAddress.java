@@ -38,8 +38,6 @@ exception statement from your version. */
 
 package org.jam.java.net;
 
-import gnu.classpath.Configuration;
-
 import java.io.Serializable;
 import java.net.UnknownHostException;
 
@@ -102,6 +100,15 @@ public class VMInetAddress implements Serializable
    */
   public static byte[] aton(String address)
   {
-    return null;
+      int octetParts[] = new int[4];
+      int partIndex=0;
+      int value=0;
+      int base=10;
+      
+      for(char c: address.toCharArray())
+      {
+          
+      }
+      return null;
   }
 }
