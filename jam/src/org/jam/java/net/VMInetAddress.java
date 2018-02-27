@@ -107,8 +107,26 @@ public class VMInetAddress implements Serializable
       
       for(char c: address.toCharArray())
       {
-          
+          if(Character.isDigit(c))
+          {
+        	  	value = (value * base) + (c - '0');
+        	  	continue;
+          }
+          if(c == '.')
+          {
+        	  	if(partIndex > 3 || value > 0xFF)
+        	  	{
+        	  		return null;
+        	  	}
+        	  	octetParts[partIndex++] = value;
+        	  	value = 0;
+          }
       }
-      return null;
+      byte[] inet = new byte[4];
+      inet[0] = (byte)octetParts[0];
+      inet[1] = (byte)octetParts[1];
+      inet[2] = (byte)octetParts[2];
+      inet[3] = (byte)octetParts[3];
+      return inet;
   }
 }
