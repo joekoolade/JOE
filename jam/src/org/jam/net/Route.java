@@ -16,10 +16,6 @@ public class Route {
 	
 	private static ArrayList<Route> routeTable = new ArrayList<Route>();
 	
-	public Route(InetAddress address) throws NoRouteToHostException 
-	{
-	}
-
 	public Route(NetworkInterface net)
 	{
 	    networkIf = net;

@@ -122,6 +122,11 @@ public class VMInetAddress implements Serializable
         	  	value = 0;
           }
       }
+      if(value > 255)
+      {
+    	  	return null;
+      }
+      octetParts[partIndex] = value;
       byte[] inet = new byte[4];
       inet[0] = (byte)octetParts[0];
       inet[1] = (byte)octetParts[1];
