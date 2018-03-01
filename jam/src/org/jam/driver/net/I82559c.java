@@ -14,8 +14,11 @@ import java.util.LinkedList;
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
 import org.jam.cpu.intel.Tsc;
+import org.jam.net.NetworkInterface;
+import org.jam.net.Route;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.InetAddress;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -26,7 +29,7 @@ import org.vmmagic.unboxed.Offset;
  * @author Joe Kulig
  *
  */
-public class I82559c implements NapiInterface, BufferFree {
+public class I82559c implements NetworkInterface, NapiInterface, BufferFree {
   final PciDevice pci;
   final Address csr;
   private int eepromSize;
@@ -211,6 +214,10 @@ public class I82559c implements NapiInterface, BufferFree {
   private int statsBufferFilled=0;
   private int statsStopPointMoved=0;
   
+  private InetAddress ipAddress;
+  private int netmask;
+  private int mtu;
+  
   public I82559c() throws NoDeviceFoundException
   {
     pci = Pci.find((short)0x8086, (short)0x1229);
@@ -232,6 +239,14 @@ public class I82559c implements NapiInterface, BufferFree {
     transmitting = false;
     txQueue = new NetworkQueue();
     rxQueue = new NetworkQueue();
+  }
+  
+  public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
+  {
+      this();
+      ipAddress = inet;
+      this.netmask = netmask;
+      Route.addRoute(ipAddress, InetAddress.HOST, netmask, this);
   }
   
   private void scbIrq(ScbIrqMasks mask)
@@ -1075,4 +1090,39 @@ public class I82559c implements NapiInterface, BufferFree {
     VM.sysWrite(" moved ", statsStopPointMoved);
     VM.sysWriteln(" empty ", statsFreeListEmpty);
   }
+
+public InetAddress getInetAddress()
+{
+    return ipAddress;
+}
+
+public int getNetMask()
+{
+    return netmask;
+}
+
+public void send(Packet packet)
+{
+    
+}
+
+public int getMtu()
+{
+    return mtu;
+}
+
+public void setMtu(int mtu)
+{
+    this.mtu = mtu;
+}
+
+public void setNetMask(int mask)
+{
+    netmask = mask;
+}
+
+public void setInetAddress(InetAddress inetAddress)
+{
+    ipAddress = inetAddress;
+}
 }

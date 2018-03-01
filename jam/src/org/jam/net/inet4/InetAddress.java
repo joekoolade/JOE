@@ -20,6 +20,8 @@ public class InetAddress {
   final private byte addrBytes[];
   private String string=null;
   final private int addrInt;
+  public static final InetAddress HOST = new InetAddress(HOST_ADDR);
+  public static final InetAddress BROADCAST = new InetAddress(BROADCAST_ADDR);
   
   /*
    * Create ip from an integer
