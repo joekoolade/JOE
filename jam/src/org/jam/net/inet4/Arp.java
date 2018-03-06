@@ -36,8 +36,6 @@ public class Arp {
     private byte hwAddressLen;
     private byte protoAddrLen;
 
-    static private ConcurrentHashMap<Integer, byte[]> arpTable = new ConcurrentHashMap<Integer, byte[]>();
-    
     /**
      * Create an ARP request
      */
@@ -101,10 +99,4 @@ public class Arp {
         return packet;
     }
 
-    public static void hasDevice(int remoteAddress)
-    {
-        // this is the easy case
-        if(arpTable.containsKey(remoteAddress))  return;
-        
-    }
 }

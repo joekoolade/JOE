@@ -100,9 +100,10 @@ public class InetPacket implements Packet {
 
 	public void send() {
 		/*
-		 * Need to find the route and the next hop to send the packet
+		 * At this point the packet has a route. We just need
+		 * to get the mac  address of the destination
 		 */
-		Arp.hasDevice(getRemoteAddress());
+		Arp.getMac(getRemoteAddress());
 	}
 
 }
