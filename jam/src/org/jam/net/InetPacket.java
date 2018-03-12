@@ -1,7 +1,6 @@
 package org.jam.net;
 
 import java.net.DatagramPacket;
-import java.net.NetworkInterface;
 
 import org.jam.driver.net.Packet;
 import org.jam.net.inet4.Arp;
@@ -89,13 +88,11 @@ public class InetPacket implements Packet {
 	}
 
 	public int getLocalAddress() {
-		// TODO Auto-generated method stub
-		return 0;
+		return connection.getLocalInet();
 	}
 
 	public int getRemoteAddress() {
-		// TODO Auto-generated method stub
-		return 0;
+		return connection.getRemoteInet();
 	}
 
 	public void send() {
@@ -103,7 +100,7 @@ public class InetPacket implements Packet {
 		 * At this point the packet has a route. We just need
 		 * to get the mac  address of the destination
 		 */
-		Arp.getMac(getRemoteAddress());
+		netInterface.arp(getRemoteAddress());
 	}
 
 }

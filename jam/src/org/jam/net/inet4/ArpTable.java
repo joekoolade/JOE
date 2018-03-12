@@ -24,4 +24,10 @@ public class ArpTable {
     {
         
     }
+
+    public boolean hasInet(int inet)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

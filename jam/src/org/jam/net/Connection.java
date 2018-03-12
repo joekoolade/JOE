@@ -23,4 +23,26 @@ public class Connection {
 		return (byte)protocol.ordinal();
 	}
 
+    public InetAddress getLocal()
+    {
+        return local;
+    }
+
+    public InetAddress getRemote()
+    {
+        return remote;
+    }
+
+    public int getLocalInet()
+    {
+        return local.inet4();
+    }
+
+    public int getRemoteInet()
+    {
+        return remote.inet4();
+    }
+
+
+
 }

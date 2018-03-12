@@ -1,6 +1,7 @@
 package org.jam.net;
 
 import org.jam.net.inet4.InetAddress;
+import org.jam.driver.net.I82559c;
 import org.jam.net.NetworkInterface;
 import java.net.NoRouteToHostException;
 import java.util.ArrayList;
@@ -142,10 +143,6 @@ public class Route {
         addRoute(newRoute);
     }
     
-	final public static void addRoute(InetAddress destination, InetAddress gateway, int netmask, NetworkInterface net)
-	{
-	}
-	
 	final public static void addRoute(int prefix, InetAddress destination, InetAddress gateway, NetworkInterface net)
 	{
         Route newRoute = new Route(prefix, destination, gateway, net);
@@ -193,5 +190,11 @@ public class Route {
     {
         
         return (address.inet4() & netmask) == destination.inet4();
+    }
+
+    public static void addRoute(InetAddress ipAddress, InetAddress host, int netmask2, NetworkInterface i82559c)
+    {
+        // TODO Auto-generated method stub
+        
     }
 }
