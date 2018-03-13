@@ -1,6 +1,7 @@
 package org.jam.driver.net;
 
 import org.jam.net.NetworkInterface;
+import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpTable;
 import org.jam.net.inet4.InetAddress;
 
@@ -13,10 +14,6 @@ public class InetNetworkInterface
     protected ArpTable arpTable;
     private NetworkInterface networkInterface;
     
-    public InetNetworkInterface(NetworkInterface networkInterface)
-    {
-        this.networkInterface = networkInterface;
-    }
     public InetAddress getInetAddress()
     {
         return ipAddress;
@@ -47,16 +44,24 @@ public class InetNetworkInterface
         ipAddress = inetAddress;
     }
 
-    public void arp(int inet)
+    public void arp(InetAddress inet)
     {
         /*
          * The easy case. arp table has the mac address
          * then just return
          */
-        if(arpTable.hasInet(inet))
+        if(arpTable.hasInet(inet.inet4()))
         {
             return;
         }
+        /*
+         * Lets generate the ARP request
+         */
+        Arp arpRequest = new Arp(networkInterface.getEthernetAddress(), ipAddress, inet);
+        networkInterface.send(arpRequest);
     }
-
+    protected void setNetworkInterface(NetworkInterface networkInterface)
+    {
+        this.networkInterface = networkInterface;
+    }
 }

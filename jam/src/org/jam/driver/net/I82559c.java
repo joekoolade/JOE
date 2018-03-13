@@ -20,6 +20,7 @@ import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.ArpTable;
 import org.jam.net.inet4.InetAddress;
+import org.jam.net.inet4.SendPacket;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -239,6 +240,7 @@ implements NetworkInterface, NapiInterface, BufferFree
     txQueue = new NetworkQueue();
     rxQueue = new NetworkQueue();
     arpTable = new ArpTable();
+    setNetworkInterface(this);
   }
   
   public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
@@ -1069,6 +1071,10 @@ implements NetworkInterface, NapiInterface, BufferFree
     return macAddress;
   }
 
+  public void setEthernetAddress(EthernetAddr macAddress)
+  {
+      this.macAddress = macAddress;
+  }
   /* (non-Javadoc)
    * @see org.jam.driver.net.BufferFree#free(org.jam.net.inet4.Packet)
    * 
@@ -1093,6 +1099,12 @@ implements NetworkInterface, NapiInterface, BufferFree
 
     public void send(Packet packet)
     {
+        
+    }
+
+    public void send(SendPacket packet)
+    {
+        // TODO Auto-generated method stub
         
     }
 }

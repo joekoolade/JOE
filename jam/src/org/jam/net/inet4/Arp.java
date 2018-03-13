@@ -19,7 +19,9 @@ import org.vmmagic.unboxed.Offset;
  * @author Joe Kulig
  *
  */
-public class Arp {
+public class Arp 
+implements SendPacket 
+{
     public final static int SIZE = 28;
     private final static short HT_ETHERNET = 1;
 
