@@ -9,6 +9,7 @@ public interface NetworkInterface {
     InetAddress getInetAddress();
     int getNetMask();
     void send(SendPacket packet);
+    void send(Packet packet);
     int getMtu();
     void setMtu(int mtu);
     void setNetMask(int mask);

@@ -5,13 +5,10 @@
  */
 package org.jam.net.inet4;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
-import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -41,7 +38,7 @@ implements SendPacket
     /**
      * Create an ARP request
      */
-    public Arp(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
+    private Arp(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
     {
         hwType = HT_ETHERNET;
         protocolType = Ethernet.PROTO_IP;
@@ -75,6 +72,11 @@ implements SendPacket
         opCode = OP_REQUEST;
     }
 
+    static final public Arp request(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
+    {
+        return new Arp(senderEther, sendIp, targetIp);
+    }
+    
     public PacketBuffer getPacket()
     {
         int packetIndex = 0;
