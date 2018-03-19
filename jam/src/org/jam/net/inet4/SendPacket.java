@@ -5,4 +5,5 @@ import org.jam.driver.net.PacketBuffer;
 public interface SendPacket
 {
     PacketBuffer getPacket();
+    short getProto();
 }

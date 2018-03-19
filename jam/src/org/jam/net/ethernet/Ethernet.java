@@ -6,6 +6,7 @@
  */
 package org.jam.net.ethernet;
 
+import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
 import org.jam.net.inet4.Arp;
@@ -61,6 +62,24 @@ public class Ethernet {
     VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
   
+  public Ethernet(EthernetAddr dst, PacketBuffer packet, short protocol)
+  {
+      // Copy destination address
+      int srcIndex, targetIndex=0;
+      packet.setHeadroom(HEADER_SIZE);
+      packetArray = packet.getArray();
+      packetAddress = Magic.objectAsAddress(packetArray);
+      byte[] ethAddress = dst.asArray();
+      targetIndex = packet.getOffset();
+      VM.sysWriteln("Ethernet new: targetIndex: ", targetIndex);
+      for(srcIndex=0; srcIndex < ethAddress.length; srcIndex++, targetIndex++)
+      {
+        packetArray[targetIndex] = ethAddress[srcIndex];
+      }
+      // ARP type
+      packetAddress.store(ByteOrder.hostToNetwork(protocol), Offset.zero().plus(12));
+      VM.sysWriteln("ethernet packetaddr ", packetAddress);
+  }
   public byte[] getFrame()
   {
     return frame;

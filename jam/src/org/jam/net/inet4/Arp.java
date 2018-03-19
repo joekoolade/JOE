@@ -103,4 +103,9 @@ implements SendPacket
         return packet;
     }
 
+    public short getProto()
+    {
+        return Ethernet.PROTO_ARP;
+    }
+
 }

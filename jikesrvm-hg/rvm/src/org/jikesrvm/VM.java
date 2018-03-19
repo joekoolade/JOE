@@ -19,8 +19,13 @@ import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.InetAddress;
+import org.jam.tests.EchoClient;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
+
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 import org.jam.board.pc.I8259A;
 import org.jam.board.pc.IMCR;
 import org.jam.board.pc.Platform;
@@ -457,13 +462,24 @@ public class VM extends Properties implements Constants, ExitStatus {
     napiThread.start();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
+    try
+    {
+        Thread echoTest = new Thread(new EchoClient());
+        echoTest.start();
+    } catch (SocketException e)
+    {
+        e.printStackTrace();
+    } catch (UnknownHostException e)
+    {
+        e.printStackTrace();
+    }
     /*
      * Exhaust class test
      */
-    runClassInitializer("test.org.jikesrvm.basic.core.threads.XThread");
-    Thread testThread = new TestThread();
-    testThread.start();
-    VM.sysWriteln("Main thread started");
+//    runClassInitializer("test.org.jikesrvm.basic.core.threads.XThread");
+//    Thread testThread = new TestThread();
+//    testThread.start();
+//    VM.sysWriteln("Main thread started");
     // terminate boot thread
     RVMThread.getCurrentThread().terminate();    
     // Say good bye to the boot thread

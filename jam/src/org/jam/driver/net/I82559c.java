@@ -1104,7 +1104,7 @@ implements NetworkInterface, NapiInterface, BufferFree
 
     public void send(SendPacket packet)
     {
-        // TODO Auto-generated method stub
-        
+        Ethernet frame = new Ethernet(macAddress, packet.getPacket(), packet.getProto());
+        transmit(frame);
     }
 }
