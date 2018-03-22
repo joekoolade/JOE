@@ -100,6 +100,7 @@ public class Udp {
 	  /*
 	   * Get a new connection
 	   */
+      System.out.println("udp send");
 	  if(connection == null)
 	  {
 		  connection = new Connection(localAddress, remoteAddress, IpProto.UDP);

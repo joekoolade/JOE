@@ -38,8 +38,6 @@ exception statement from your version. */
 
 package java.net;
 
-import gnu.classpath.SystemProperties;
-
 import org.jam.java.net.PlainDatagramSocketImpl;
 
 import java.io.IOException;
@@ -169,77 +167,44 @@ public class DatagramSocket
    *
    * @since 1.4
    */
-  public DatagramSocket(SocketAddress address) throws SocketException
-  {
-    String propVal = SystemProperties.getProperty("impl.prefix");
-    if (propVal == null || propVal.equals(""))
-      {
-        if (factory != null)
-          impl = factory.createDatagramSocketImpl();
-        else
-          {
-            try
-              {
-                impl = new PlainDatagramSocketImpl();
-              }
-            catch (IOException ioe)
-              {
-                SocketException se = new SocketException();
-                se.initCause(ioe);
-                throw se;
-              }
-          }
-      }
-    else
-      try
+    public DatagramSocket(SocketAddress address) throws SocketException
+    {
+        try
         {
-	  impl =
-	    (DatagramSocketImpl) Class.forName("java.net." + propVal
-	                                       + "DatagramSocketImpl")
-	                              .newInstance();
+            impl = new PlainDatagramSocketImpl();
         }
-      catch (Exception e)
+        catch (IOException ioe)
         {
-	  System.err.println("Could not instantiate class: java.net."
-	                     + propVal + "DatagramSocketImpl");
-          try
-            {
-              impl = new PlainDatagramSocketImpl();
-            }
-          catch (IOException ioe)
-            {
-              SocketException se = new SocketException();
-              se.initCause(ioe);
-              throw se;
-            }
+            SocketException se = new SocketException();
+            se.initCause(ioe);
+            throw se;
         }
 
-    if (address != null)
-      bind(address);
-  }
+        if (address != null) bind(address);
+    }
 
   // This needs to be accessible from java.net.MulticastSocket
-  DatagramSocketImpl getImpl() throws SocketException
-  {
-    try
-      {
-	if (! implCreated)
-	  {
-	    impl.create();
-	    implCreated = true;
-	  }
+    DatagramSocketImpl getImpl() throws SocketException
+    {
+        try
+        {
+            if (!implCreated)
+            {
+                impl.create();
+                implCreated = true;
+            }
 
-	return impl;
-      }
-    catch (IOException e)
-      {
-	SocketException se = new SocketException();
-	se.initCause(e);
-	throw se;
-      }
-  }
+            return impl;
+        }
+        catch (IOException e)
+        {
+            SocketException se = new SocketException();
+            se.initCause(e);
+            throw se;
+        }
+    }
 
-  /**
+    /**
    * Closes this datagram socket.
    */
   public void close()

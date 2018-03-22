@@ -414,7 +414,5 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   @Override
   protected void create() throws SocketException
   {
-    // TODO Auto-generated method stub
-    
   }
 }
