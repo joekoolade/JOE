@@ -176,6 +176,7 @@ public class Route {
 
     public static Route find(InetAddress address)
     {
+        System.out.println("routing");
         for(Route route: routeTable)
         {
             if(route.canRoute(address))
@@ -183,6 +184,7 @@ public class Route {
                 return route;
             }
         }
+        System.out.println("Cannot find a route");
         throw new RuntimeException("No Route Found");
     }
 
@@ -192,9 +194,8 @@ public class Route {
         return (address.inet4() & netmask) == destination.inet4();
     }
 
-    public static void addRoute(InetAddress ipAddress, InetAddress host, int netmask2, NetworkInterface i82559c)
+    public static void addRoute(InetAddress destination, InetAddress gateway, int netmask, NetworkInterface netIf)
     {
-        // TODO Auto-generated method stub
         
     }
 }

@@ -100,6 +100,7 @@ public class InetPacket implements Packet {
 		 * At this point the packet has a route. We just need
 		 * to get the mac  address of the destination
 		 */
+	    System.out.println("Inet send");
 		netInterface.arp(connection.getRemote());
 	}
 

@@ -22,6 +22,7 @@ public class Ip {
 	private byte ttl = (byte)255; 
 	
 	public void send(InetPacket packet) {
+	    System.out.println("IP send");
 		Address ipHeader = packet.getAddress();
 		ipHeader.store((byte)((VERSION<<4) | HEADER_LEN));
 		ipHeader.store(tos, TOS_FIELD);

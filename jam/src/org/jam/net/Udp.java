@@ -100,9 +100,10 @@ public class Udp {
 	  /*
 	   * Get a new connection
 	   */
-      System.out.println("udp send");
+      System.out.println("udp send0");
 	  if(connection == null)
 	  {
+	      System.out.println("udp send1");
 		  connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
 		  computePseudoHeaderSum();
 	  }
@@ -110,7 +111,9 @@ public class Udp {
 	  {
 		  throw new IOException("Packet too big");
 	  }
+	  System.out.println("get new inet packet");
 	  this.packet = new InetPacket(packet, connection);
+	  System.out.println("New inet packet");
 	  computeChecksum();
 	  Address udpPacket = this.packet.getAddress();
 	  // Setup the udp packet header
