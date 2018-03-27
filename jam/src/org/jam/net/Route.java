@@ -1,6 +1,7 @@
 package org.jam.net;
 
 import org.jam.net.inet4.InetAddress;
+import org.jikesrvm.VM;
 import org.jam.driver.net.I82559c;
 import org.jam.net.NetworkInterface;
 import java.net.NoRouteToHostException;
@@ -196,6 +197,12 @@ public class Route {
 
     public static void addRoute(InetAddress destination, InetAddress gateway, int netmask, NetworkInterface netIf)
     {
-        
+        Route route = new Route(destination, netmask, gateway, netIf);
+        addRoute(route);
+    }
+    
+    public String toString()
+    {
+        return null;
     }
 }

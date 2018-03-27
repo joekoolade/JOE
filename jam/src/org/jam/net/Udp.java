@@ -107,6 +107,7 @@ public class Udp {
 		  connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
 		  computePseudoHeaderSum();
 	  }
+	  System.out.println("udp length: "+packet.getLength());
 	  if(packet.getLength() > 0xFFFF)
 	  {
 		  throw new IOException("Packet too big");

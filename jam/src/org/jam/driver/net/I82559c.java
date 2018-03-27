@@ -248,7 +248,8 @@ implements NetworkInterface, NapiInterface, BufferFree
       this();
       ipAddress = inet;
       this.netmask = netmask;
-      Route.addRoute(ipAddress, InetAddress.HOST, netmask, this);
+      Route.addRoute(ipAddress, InetAddress.HOST, 0xffffffff, this);
+      Route.addRoute(new InetAddress(ipAddress.inet4()&netmask), InetAddress.HOST, netmask, this);
   }
   
   private void scbIrq(ScbIrqMasks mask)
