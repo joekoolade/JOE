@@ -15,7 +15,11 @@ public class Connection {
 		// look up the route
 	    remote = new InetAddress(remoteAddress.getAddress());
 		route = Route.find(remote);
+		System.out.println("getting local address ");
+		byte[] addr = localAddress.getAddress().getAddress();
+		System.out.println("connection " + ((int)addr[0]&0xff) + "." + ((int)addr[1]&0xff) + "." + ((int)addr[2]&0xff)+ "." + ((int)addr[3]&0xff));
 		local = new InetAddress(localAddress.getAddress());
+		System.out.println("got local address");
 		protocol = proto;
 	}
 

@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 public class Route {
-	NetworkInterface networkIf;
+	private static final boolean DEBUG = false;
+    NetworkInterface networkIf;
 	InetAddress destination;
 	InetAddress gateway;
 	int netmask;
@@ -177,11 +178,13 @@ public class Route {
 
     public static Route find(InetAddress address)
     {
-        System.out.println("routing");
+        if(DEBUG) System.out.println("routing " + address);
         for(Route route: routeTable)
         {
+            if(DEBUG) System.out.println("route "+route);
             if(route.canRoute(address))
             {
+                if(DEBUG) System.out.println("route found: "+route);
                 return route;
             }
         }
@@ -203,6 +206,6 @@ public class Route {
     
     public String toString()
     {
-        return null;
+        return destination + "/" + prefix + " " + Integer.toHexString(netmask) + " " + gateway;
     }
 }

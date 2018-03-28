@@ -371,6 +371,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    TraceEngine.engine.fullyBootedVM();
 
     runClassInitializer("java.util.logging.Level");
+    runClassInitializer("java.net.InetAddress");
     runClassInitializer("org.jam.net.Route");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");

@@ -33,6 +33,8 @@ public class Udp {
 	private static final Offset DESTINATION_PORT = Offset.fromIntSignExtend(2);
 	private static final Offset LENGTH = Offset.fromIntSignExtend(4);
 	private static final Offset CHECKSUM = Offset.fromIntSignExtend(6);
+
+	private static final boolean DEBUG_PSEUDOHEADER = true;
 	
 	InetSocketAddress localAddress;
 	InetSocketAddress remoteAddress;
@@ -40,7 +42,7 @@ public class Udp {
 	private Connection connection;
 	private int pseudoHeaderSum;
 	private int offset;
-	private InetPacket packet;	
+	private InetPacket packet;
 	private Ip ip;
 	private short packetChecksum;
 	
@@ -63,6 +65,10 @@ public class Udp {
   public void connect(InetSocketAddress inetSocketAddress, int i)
   {
     remoteAddress = inetSocketAddress;
+    if(localAddress == null)
+    {
+        localAddress = new InetSocketAddress(10000);
+    }
     // check if address is routable
     // Create a new connection
   }
@@ -135,6 +141,7 @@ public class Udp {
    * values
    */
   private void computePseudoHeaderSum() {
+      if(DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum");
 	  // Sum up the source IP address
 	  byte[] inetAddressBytes = localAddress.getAddress().getAddress();
 	  pseudoHeaderSum = (inetAddressBytes[0]<<8) + inetAddressBytes[1];
