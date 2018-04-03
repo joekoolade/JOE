@@ -116,6 +116,7 @@ public class NapiManager implements Runnable {
   public void run()
   {
     interfaceSlot = 0;
+    int debugTimer=0;
     NapiEntry networkInterface = null;
     VM.sysWriteln("Starting NAPI manager");
     while (true)
@@ -136,6 +137,7 @@ public class NapiManager implements Runnable {
           networkInterface = networkInterfaces.get(interfaceSlot);
           Thread.sleep(networkInterface.timer);
           networkInterface.netIf.poll();
+          if(DEBUG && ((++debugTimer%100)==0)) VM.sysWrite('*');
           int size = networkInterfaces.size();
           interfaceSlot++;
           interfaceSlot = interfaceSlot % size;

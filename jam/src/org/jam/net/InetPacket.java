@@ -25,6 +25,7 @@ public class InetPacket implements Packet {
 		offset = HEADER_SIZE;
 		packetSize = packet.getLength();
 		this.connection = connection;
+		netInterface = connection.getNetworkInterface();
 	}
 
 	public byte[] getArray() {

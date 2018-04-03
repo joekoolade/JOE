@@ -17,7 +17,7 @@ implements Runnable
     public EchoClient() throws SocketException, UnknownHostException
     {
         socket = new DatagramSocket();
-        socket.connect(InetAddress.getByName("192.168.1.1"), 7);
+        socket.connect(InetAddress.getByName("10.0.2.2"), 7);
     }
     public void run()
     {

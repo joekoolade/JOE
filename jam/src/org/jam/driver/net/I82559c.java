@@ -872,7 +872,7 @@ implements NetworkInterface, NapiInterface, BufferFree
   public void transmit(Ethernet packet)
   {
     // queue packet for transmission
-    transmitting = true;
+    transmitting = false;
     transmitFrame(packet.getPacket());
     transmitting =false;
   }
@@ -1105,7 +1105,8 @@ implements NetworkInterface, NapiInterface, BufferFree
 
     public void send(SendPacket packet)
     {
-        Ethernet frame = new Ethernet(macAddress, packet.getPacket(), packet.getProto());
+        System.out.println("eepro100 send");
+        Ethernet frame = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, packet.getPacket(), packet.getProto());
         transmit(frame);
     }
 }

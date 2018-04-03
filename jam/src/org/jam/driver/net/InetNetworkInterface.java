@@ -52,12 +52,15 @@ public class InetNetworkInterface
          */
         if(arpTable.hasInet(inet.inet4()))
         {
+            System.out.println("arp have inet: " + inet);
             return;
         }
         /*
          * Lets generate the ARP request
          */
+        System.out.println("Create arp request: "+inet);
         Arp arpRequest = Arp.request(networkInterface.getEthernetAddress(), ipAddress, inet);
+        System.out.println("Send arp request");
         networkInterface.send(arpRequest);
     }
     protected void setNetworkInterface(NetworkInterface networkInterface)

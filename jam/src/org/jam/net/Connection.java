@@ -47,6 +47,13 @@ public class Connection {
         return remote.inet4();
     }
 
+    public Route getRoute()
+    {
+        return route;
+    }
 
-
+    public NetworkInterface getNetworkInterface()
+    {
+        return route.getNetworkIf();
+    }
 }

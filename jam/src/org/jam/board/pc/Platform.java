@@ -79,7 +79,7 @@ public class Platform {
         // slavePic.pcSetup();
         try
         {
-            InetAddress inet = new InetAddress("192.168.1.100");
+            InetAddress inet = new InetAddress("10.0.2.1");
             net = new I82559c(inet, 0xffffff00);
         }
         catch (NoDeviceFoundException e)
