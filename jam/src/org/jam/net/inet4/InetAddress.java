@@ -91,7 +91,7 @@ public class InetAddress
     public String toString()
     {
         if (string == null)
-            string = ((int)addrBytes[0]&0xFF) + "." + ((int)addrBytes[1]&0xFF) + "." + ((int)addrBytes[2]&0xFF) + "." + ((int)addrBytes[3]&0xFF);
+            string = (addrBytes[0]&0xFF) + "." + (addrBytes[1]&0xFF) + "." + (addrBytes[2]&0xFF) + "." + (addrBytes[3]&0xFF);
         return string;
     }
 }
