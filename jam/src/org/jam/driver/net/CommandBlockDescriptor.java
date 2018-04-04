@@ -191,6 +191,8 @@ public class CommandBlockDescriptor {
     buffer[14] = (byte) 0xe0;  // transmit threshold
     // setup the transmit buffer descriptor address
     bufferAddr.store(bufferAddr.plus(16), Offset.zero().plus(8));
+    // transmit buffer 0 address
+//    VM.sysWrite("packet: ", packet.getAddress()); VM.sysWriteln(" ",packet.getSize());
     bufferAddr.store(packet.getAddress(), Offset.zero().plus(16));
     bufferAddr.store(packet.getSize(), Offset.zero().plus(20));
     VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWriteln(" ", packet.getAddress());

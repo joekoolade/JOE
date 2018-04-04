@@ -77,6 +77,7 @@ public class Ethernet {
       }
       // ARP type
       packetAddress.store(ByteOrder.hostToNetwork(protocol), Offset.zero().plus(12));
+      this.packet = packet;
       VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
   public byte[] getFrame()

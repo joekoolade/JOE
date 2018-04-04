@@ -356,6 +356,7 @@ implements NetworkInterface, NapiInterface, BufferFree
     CommandBlockDescriptor cbd = getCommandBlock();
     cbd.configureTransmitPacket(packet);
     execute(cbd);
+    VM.sysWriteln("xmit packet done!");
   }
   /**
    * 
@@ -719,6 +720,7 @@ implements NetworkInterface, NapiInterface, BufferFree
    {
      rfdFreeList.add(new ReceiveFrameDescriptor());
    }
+   VM.sysWriteln("rfd 0: ", rfds[0].toString());
   }
 
   /**
