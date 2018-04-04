@@ -32,9 +32,8 @@ public class Ethernet {
   private final static int   MIN_ETHERNET_PACKET = 64;
   public final static int    HEADER_SIZE         = 14;
   private static final Offset typeOffset = Offset.zero().plus(12);
-  private static final short IP4_PROTO = 0x800;
-  private static final short ARP_PROTO = 0x806;
-  
+  public static final short IP4_PROTO = 0x800;
+  public static final short ARP_PROTO = 0x806;
   private byte[] frame;
   private byte[] packetArray;
   private Address packetAddress;
@@ -78,6 +77,7 @@ public class Ethernet {
       }
       // ARP type
       packetAddress.store(ByteOrder.hostToNetwork(protocol), Offset.zero().plus(12));
+      this.packet = packet;
       VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
   public byte[] getFrame()
