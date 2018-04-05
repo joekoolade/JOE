@@ -92,4 +92,13 @@ public class Ethernet {
   {
     return packet;
   }
+  
+  public void setSource(EthernetAddr mac)
+  {
+      byte[] macArray = mac.asArray();
+      for(int srcIndex=0; srcIndex<6; srcIndex++)
+      {
+          packetArray[srcIndex+6] = macArray[srcIndex];
+      }
+  }
 }

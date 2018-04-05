@@ -96,14 +96,18 @@ public class CommandBlockDescriptor {
    */
   public void configureMacAddress(short[] mac)
   {
+    buffer[0] = 0;
+    buffer[1] = 0;
     buffer[2] = INTERNET_ADDR_SETUP;
-    
+    buffer[3] = 0;
     buffer[8] = (byte) (mac[0] & 0xFF);
     buffer[9] = (byte) (mac[0] >> 8);
     buffer[10] = (byte) (mac[1] & 0xFF);
     buffer[11] = (byte) (mac[1] >> 8);
     buffer[12] = (byte) (mac[2] & 0xFF);
     buffer[13] = (byte) (mac[2] >> 8);
+    buffer[14] = 0;
+    buffer[15] = 0;
     
     if(DEBUG_IASETUP)
     {

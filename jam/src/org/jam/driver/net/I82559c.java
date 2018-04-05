@@ -1109,6 +1109,8 @@ implements NetworkInterface, NapiInterface, BufferFree
     {
         System.out.println("eepro100 send");
         Ethernet frame = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, packet.getPacket(), packet.getProto());
+        // Set the src address
+        frame.setSource(macAddress);
         transmit(frame);
     }
 }
