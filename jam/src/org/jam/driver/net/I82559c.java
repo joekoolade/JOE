@@ -110,6 +110,7 @@ implements NetworkInterface, NapiInterface, BufferFree
   private int cbdAvailable;
   private CommandBlockDescriptor cbdToClean;
   private CucCommand cucCommand;
+  private boolean txCleaned=false;
   
   private NetworkQueue txQueue;
   private NetworkQueue rxQueue;
@@ -217,6 +218,9 @@ implements NetworkInterface, NapiInterface, BufferFree
   private int statsFreeListEmpty=0;
   private int statsBufferFilled=0;
   private int statsStopPointMoved=0;
+  
+  private long txPackets=0;
+  private long txBytes=0;
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -329,11 +333,22 @@ implements NetworkInterface, NapiInterface, BufferFree
     txClean();
   }
   /**
-   * 
+   * Return used tx blocks
    */
   private void txClean()
   {
-    
+      CommandBlockDescriptor toClean;
+      for(toClean=cbdToClean; toClean.isComplete();)
+      {
+          if(toClean.hasBuffer())
+          {
+              txPackets++;
+              txBytes += toClean.transmitBytes();
+              toClean.cleanCbd();
+              txCleaned = true;
+          }
+          toClean = cbdToClean = toClean.next();
+      }
   }
 
   /**

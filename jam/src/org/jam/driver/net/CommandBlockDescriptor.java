@@ -201,5 +201,25 @@ public class CommandBlockDescriptor {
     bufferAddr.store(packet.getSize(), Offset.zero().plus(20));
     VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWriteln(" ", packet.getAddress());
   }
+
+    public boolean isComplete()
+    {
+        return (buffer[1] & COMPLETE) != 0;
+    }
+    
+    public void cleanCbd()
+    {
+        bufferAddr.store(0, Offset.zero().plus(16));
+    }
+
+    public boolean hasBuffer()
+    {
+        return false;
+    }
+
+    public long transmitBytes()
+    {
+        return 0;
+    }
   
 }
