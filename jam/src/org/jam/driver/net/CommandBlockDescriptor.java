@@ -214,12 +214,12 @@ public class CommandBlockDescriptor {
 
     public boolean hasBuffer()
     {
-        return false;
+        return bufferAddr.loadInt(Offset.zero().plus(16)) != 0;
     }
 
-    public long transmitBytes()
+    public int transmitBytes()
     {
-        return 0;
+        return bufferAddr.loadInt(Offset.zero().plus(20)) & 0x7FFF;
     }
   
 }

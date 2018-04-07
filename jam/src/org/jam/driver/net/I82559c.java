@@ -116,6 +116,7 @@ implements NetworkInterface, NapiInterface, BufferFree
   private NetworkQueue rxQueue;
   
   private static final RuntimeException freePacketException = new RuntimeException("i82559c:free()");
+private static final boolean DEBUG_TX = true;
   
 /*
  * I82559C parameters
@@ -340,6 +341,7 @@ implements NetworkInterface, NapiInterface, BufferFree
       CommandBlockDescriptor toClean;
       for(toClean=cbdToClean; toClean.isComplete();)
       {
+          if(DEBUG_TX) VM.sysWriteln("Cleaning "+VM.addressAsHexString(Magic.objectAsAddress(toClean)));
           if(toClean.hasBuffer())
           {
               txPackets++;
@@ -348,6 +350,11 @@ implements NetworkInterface, NapiInterface, BufferFree
               txCleaned = true;
           }
           toClean = cbdToClean = toClean.next();
+      }
+      
+      if(txCleaned)
+      {
+          
       }
   }
 

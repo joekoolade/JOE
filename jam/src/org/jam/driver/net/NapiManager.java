@@ -29,7 +29,7 @@ public class NapiManager implements Runnable {
     }
   }
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
 
   private static LinkedList<NapiEntry> networkInterfaces = new LinkedList<NapiEntry>();
 
