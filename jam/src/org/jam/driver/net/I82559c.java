@@ -13,7 +13,9 @@ import java.util.LinkedList;
 
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
+import org.jam.board.pc.Platform;
 import org.jam.cpu.intel.Tsc;
+import org.jam.net.InetProtocolProcessor;
 import org.jam.net.NetworkInterface;
 import org.jam.net.Route;
 import org.jam.net.ethernet.Ethernet;
@@ -113,7 +115,6 @@ implements NetworkInterface, NapiInterface, BufferFree
   private boolean txCleaned=false;
   
   private NetworkQueue txQueue;
-  private NetworkQueue rxQueue;
   
   private static final RuntimeException freePacketException = new RuntimeException("i82559c:free()");
 private static final boolean DEBUG_TX = true;
@@ -243,7 +244,6 @@ private static final boolean DEBUG_TX = true;
     rfdFreeList = new LinkedList<ReceiveFrameDescriptor>();
     transmitting = false;
     txQueue = new NetworkQueue();
-    rxQueue = new NetworkQueue();
     arpTable = new ArpTable();
     setNetworkInterface(this);
   }
@@ -761,6 +761,7 @@ private static final boolean DEBUG_TX = true;
     }
     
 //    rxQueue.put(rfd.packet());
+    Platform.inet4.put(rfd.packet());
     rfds[rfdToClean] = null;
     free(rfd);
   }

@@ -197,7 +197,7 @@ public class CommandBlockDescriptor {
     bufferAddr.store(bufferAddr.plus(16), Offset.zero().plus(8));
     // transmit buffer 0 address
 //    VM.sysWrite("packet: ", packet.getAddress()); VM.sysWriteln(" ",packet.getSize());
-    bufferAddr.store(packet.getAddress(), Offset.zero().plus(16));
+    bufferAddr.store(packet.getPacketAddress(), Offset.zero().plus(16));
     bufferAddr.store(packet.getSize(), Offset.zero().plus(20));
     VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWriteln(" ", packet.getAddress());
   }

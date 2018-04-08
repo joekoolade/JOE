@@ -36,16 +36,9 @@ public class InetPacket implements Packet {
 	 * Returns the address of a packet's header beginning
 	 */
 	public Address getAddress() {
-		return Magic.objectAsAddress(buffer).plus(offset);
-	}
-
-	/*
-	 * Returns the address of the packet's buffer
-	 */
-	public Address getBufferAddress()
-	{
 		return Magic.objectAsAddress(buffer);
 	}
+
 	public int getOffset() {
 		return offset;
 	}
@@ -104,5 +97,15 @@ public class InetPacket implements Packet {
 	    System.out.println("Inet send");
 		netInterface.arp(connection.getRemote());
 	}
+
+    public Address getPacketAddress()
+    {
+        return Magic.objectAsAddress(buffer).plus(offset);
+    }
+
+    public int getBufferSize()
+    {
+        return buffer.length;
+    }
 
 }

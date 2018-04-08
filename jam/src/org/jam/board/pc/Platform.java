@@ -16,6 +16,7 @@ import org.jam.driver.net.I82559c;
 import org.jam.driver.net.VirtioNet;
 import org.jam.driver.serial.PcSerialPort;
 import org.jam.interfaces.Timer;
+import org.jam.net.InetProtocolProcessor;
 import org.jam.net.inet4.InetAddress;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
@@ -41,6 +42,7 @@ public class Platform {
     public static ApicTimer apicTimer;
     public static Apic apic;
     public static Timer timer;
+    public static InetProtocolProcessor inet4;
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -73,10 +75,7 @@ public class Platform {
         ioApic = new QemuIoApic();
         ioApic.boot();
         VM.sysWrite(ioApic.toString());
-        // masterPic = new I8259A(MASTERPICPORT);
-        // masterPic.pcSetup();
-        // slavePic = new I8259A(SLAVEPICPORT, true);
-        // slavePic.pcSetup();
+        inet4 = new InetProtocolProcessor();
         try
         {
             InetAddress inet = new InetAddress("10.0.2.1");

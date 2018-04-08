@@ -23,7 +23,7 @@ public class Ip {
 	
 	public void send(InetPacket packet) {
 	    System.out.println("IP send");
-		Address ipHeader = packet.getAddress();
+		Address ipHeader = packet.getPacketAddress();
 		ipHeader.store((byte)((VERSION<<4) | HEADER_LEN));
 		ipHeader.store(tos, TOS_FIELD);
 		ipHeader.store(ttl, TTL_FIELD);
@@ -51,7 +51,7 @@ public class Ip {
 		/*
 		 * Assumes a 20 byte IP header with no options
 		 */
-		Address headerAddress = packet.getAddress();
+		Address headerAddress = packet.getPacketAddress();
 		csum += headerAddress.loadShort();
 		csum += (headerAddress.loadShort(Offset.fromIntZeroExtend(2)) & 0xffff);
 		csum += (headerAddress.loadShort(Offset.fromIntZeroExtend(4)) & 0xffff);

@@ -227,4 +227,14 @@ public class ReceiveFrameDescriptor implements Packet {
       + " " + Integer.toHexString(rfdAddr.loadInt(INFO));
       
   }
+
+    public Address getPacketAddress()
+    {
+        return rfdAddr.plus(offset);
+    }
+
+    public int getBufferSize()
+    {
+        return buffer.length;
+    }
 }

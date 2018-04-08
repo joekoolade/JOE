@@ -81,7 +81,7 @@ implements SendPacket
     {
         int packetIndex = 0;
         ArpPacket packet = new ArpPacket();
-        Address packetAddr = packet.getAddress();
+        Address packetAddr = packet.getPacketAddress();
         packetAddr.store(ByteOrder.hostToNetwork(hwType));
         packetAddr.store(ByteOrder.hostToNetwork(protocolType), Offset.zero().plus(2));
         packetAddr.store(hwAddressLen, Offset.zero().plus(4));

@@ -9,6 +9,7 @@ package org.jam.net.ethernet;
 import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
+import org.jam.net.InetPacket;
 import org.jam.net.inet4.Arp;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -22,7 +23,8 @@ import org.vmmagic.unboxed.Offset;
  * Implements the ethernet framing. Takes data and creates an ethernet packet that 
  * can be transmitted by a ethernet device
  */
-public class Ethernet {
+public class Ethernet 
+{
   public final static short  PROTO_IP            = 0x800;
   public final static short  PROTO_ARP           = 0x806;
   private final static int   MAX_PAYLOAD         = 1500;
@@ -101,4 +103,9 @@ public class Ethernet {
           packetArray[srcIndex+6] = macArray[srcIndex];
       }
   }
+
+public static boolean isArp(Packet packet2)
+{
+    return false;
+}
 }

@@ -122,7 +122,7 @@ public class Udp {
 	  this.packet = new InetPacket(packet, connection);
 	  System.out.println("New inet packet");
 	  computeChecksum();
-	  Address udpPacket = this.packet.getAddress();
+	  Address udpPacket = this.packet.getPacketAddress();
 	  // Setup the udp packet header
 	  // source port
 	  udpPacket.store((short)localAddress.getPort());
@@ -161,7 +161,7 @@ public class Udp {
   {
 	  int csum = 0;
 	  
-	  Address data = packet.getAddress();
+	  Address data = packet.getPacketAddress();
 	  for(int words=packet.getSize()>>1; words > 0; words--)
 	  {
 		  csum += (data.loadShort() & 0xFFFF);

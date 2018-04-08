@@ -12,13 +12,42 @@ import org.vmmagic.unboxed.Address;
  * @author Joe Kulig
  *
  */
-public interface Packet {
-  byte[] getArray();
-  Address getAddress();
-  int getOffset();
-  int getSize();
-  void append(Packet packet);
-  Address prepend(int size);
-  void prepend(Packet packet);
-  void setHeadroom(int size);
+public interface Packet
+{
+    /*
+     * The buffer array
+     */
+    byte[] getArray();
+
+    /*
+     * The buffer address
+     */
+    Address getAddress();
+
+    /*
+     * Index to the start of the packet data
+     */
+    int getOffset();
+
+    /*
+     * Size of the packet
+     */
+    int getSize();
+
+    /*
+     * Address where packet data starts
+     * getAddress() + getOffset()
+     */
+    Address getPacketAddress();
+    /*
+     * Size of the whole buffer
+     */
+    int getBufferSize();
+    void append(Packet packet);
+
+    Address prepend(int size);
+
+    void prepend(Packet packet);
+
+    void setHeadroom(int size);
 }
