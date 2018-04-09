@@ -50,4 +50,10 @@ public interface Packet
     void prepend(Packet packet);
 
     void setHeadroom(int size);
+    
+    /**
+     * Advance offset by size bytes
+     * @param size
+     */
+    void pull(int size);
 }

@@ -5,6 +5,7 @@
  */
 package org.jam.net.inet4;
 
+import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
 import org.jam.net.ethernet.Ethernet;
@@ -34,7 +35,9 @@ implements SendPacket
     private byte targetPa[];
     private byte hwAddressLen;
     private byte protoAddrLen;
-
+    
+    private Packet packet;
+    
     /**
      * Create an ARP request
      */
@@ -65,6 +68,11 @@ implements SendPacket
     {
         this.hwType = hwType;
         this.protocolType = protocolType;
+    }
+
+    public Arp(Packet packet)
+    {
+        this.packet = packet;
     }
 
     public void request()
@@ -106,6 +114,15 @@ implements SendPacket
     public short getProto()
     {
         return Ethernet.PROTO_ARP;
+    }
+
+    /*
+     * Processes arp as a reply packet
+     */
+    public void reply()
+    {
+        if(packet == null) return;
+        
     }
 
 }

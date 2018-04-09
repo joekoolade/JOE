@@ -189,4 +189,13 @@ public class PacketBuffer implements Packet
         // TODO Auto-generated method stub
         return bufferAddr;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.jam.driver.net.Packet#pull(int)
+     */
+    public void pull(int size)
+    {
+        offset += size;
+    }
 }

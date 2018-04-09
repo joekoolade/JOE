@@ -108,4 +108,9 @@ public class InetPacket implements Packet {
         return buffer.length;
     }
 
+    public void pull(int size)
+    {
+       offset += size;
+    }
+
 }
