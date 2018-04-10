@@ -8,6 +8,7 @@ package org.jam.net.inet4;
 import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
+import org.jam.net.EtherType;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.vmmagic.unboxed.Address;
@@ -26,6 +27,10 @@ implements SendPacket
     private final static short OP_REQUEST = 1;
     private final static short OP_REPLY = 2;
 
+    private final static Offset PROTO_OFFSET = Offset.zero().plus(2);
+    private static final Offset HLEN_OFFSET = Offset.zero().plus(4);
+    private static final Offset PLEN_OFFSET = Offset.zero().plus(5);
+    
     private byte senderHa[];
     private short hwType;
     private short protocolType;
@@ -113,7 +118,7 @@ implements SendPacket
 
     public short getProto()
     {
-        return Ethernet.PROTO_ARP;
+        return EtherType.ARP.type;
     }
 
     /*
@@ -122,6 +127,18 @@ implements SendPacket
     public void reply()
     {
         if(packet == null) return;
+        Address arpPacket = packet.getPacketAddress();
+        // hw type should be ethernet
+        if(ByteOrder.networkToHost(arpPacket.loadShort()) != HT_ETHERNET) return;
+        // protocol must be IPv4
+        if(ByteOrder.networkToHost(arpPacket.loadShort(PROTO_OFFSET)) != EtherType.IPV4.type) return;
+        // check hw length; must be 6
+        if(arpPacket.loadByte(HLEN_OFFSET) != 6) return;
+        // check protocol length; must be 4
+        if(arpPacket.loadByte(PLEN_OFFSET) != 4) return;
+        /*
+         * Make sure it is for me
+         */
         
     }
 
