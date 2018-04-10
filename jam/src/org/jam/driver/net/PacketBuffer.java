@@ -44,6 +44,11 @@ public class PacketBuffer implements Packet
         bufferAddr = Magic.objectAsAddress(buffer);
     }
 
+    public PacketBuffer(Packet packet)
+    {
+       this(packet.getArray(), packet.getOffset());
+    }
+    
     public PacketBuffer(byte[] buffer)
     {
         this(buffer, 0);

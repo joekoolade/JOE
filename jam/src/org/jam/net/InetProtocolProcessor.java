@@ -4,6 +4,7 @@ import org.jam.driver.net.NetworkQueue;
 import org.jam.driver.net.Packet;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.inet4.Arp;
+import org.jam.net.inet4.ArpPacket;
 
 public class InetProtocolProcessor
 implements Runnable
