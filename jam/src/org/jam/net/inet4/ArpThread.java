@@ -11,6 +11,7 @@ package org.jam.net.inet4;
 public class ArpThread 
 implements Runnable
 {
+    private static ArpTable arpTable;
     
     public void run()
     {
@@ -25,8 +26,8 @@ implements Runnable
         
     }
     
-    public Arp request(Arp arpPacket)
+    static void request(Arp arpPacket)
     {
-        return null;
+        
     }
 }

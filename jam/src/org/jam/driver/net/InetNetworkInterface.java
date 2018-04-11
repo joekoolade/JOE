@@ -59,7 +59,7 @@ public class InetNetworkInterface
          * Lets generate the ARP request
          */
         System.out.println("Create arp request: "+inet);
-        Arp arpRequest = Arp.request(networkInterface.getEthernetAddress(), ipAddress, inet);
+        Arp arpRequest = Arp.request(networkInterface, ipAddress, inet);
         System.out.println("Send arp request");
         networkInterface.send(arpRequest);
     }

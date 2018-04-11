@@ -9,6 +9,7 @@ import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
 import org.jam.net.ByteOrder;
 import org.jam.net.EtherType;
+import org.jam.net.NetworkInterface;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.vmmagic.unboxed.Address;
@@ -85,9 +86,10 @@ implements SendPacket
         opCode = OP_REQUEST;
     }
 
-    static final public Arp request(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
+    static final public void request(NetworkInterface networkInterface, InetAddress sendIp, InetAddress targetIp)
     {
-        return new Arp(senderEther, sendIp, targetIp);
+        Arp arp = new Arp(networkInterface.getEthernetAddress(), sendIp, targetIp);
+        
     }
     
     public PacketBuffer getPacket()
