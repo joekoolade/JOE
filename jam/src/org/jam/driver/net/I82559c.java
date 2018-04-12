@@ -21,6 +21,7 @@ import org.jam.net.Route;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.ArpTable;
+import org.jam.net.inet4.ArpThread;
 import org.jam.net.inet4.InetAddress;
 import org.jam.net.inet4.SendPacket;
 import org.jam.system.NoDeviceFoundException;
@@ -223,6 +224,9 @@ private static final boolean DEBUG_TX = true;
   
   private long txPackets=0;
   private long txBytes=0;
+  
+  private InetProtocolProcessor inet4;
+  private ArpThread arp;
   
   public I82559c() throws NoDeviceFoundException
   {

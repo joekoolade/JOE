@@ -5,15 +5,23 @@ import org.jam.driver.net.Packet;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpPacket;
+import org.jam.net.inet4.ArpThread;
 
 public class InetProtocolProcessor
 implements Runnable
 {
     private NetworkQueue rxQueue;
+    private ArpThread arp;
+    private static int QUEUE_SIZE = 256;
     
+    public InetProtocolProcessor(ArpThread arp)
+    {
+        this.arp = arp;
+        rxQueue = new NetworkQueue(QUEUE_SIZE);
+    }
     public void run()
     {
-        
+        processPackets();
     }
 
     private void processPackets()
