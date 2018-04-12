@@ -20,7 +20,7 @@ public class ArpTable {
         return null;
     }
     
-    public void addDevice(int inet, byte[] mac)
+    public void addDevice(int inet, Arp arpRequest)
     {
         
     }

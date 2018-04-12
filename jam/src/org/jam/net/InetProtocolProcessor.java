@@ -18,6 +18,7 @@ implements Runnable
 
     private void processPackets()
     {
+        System.out.println("INET protocol processor started");
         while(true)
         {
             try

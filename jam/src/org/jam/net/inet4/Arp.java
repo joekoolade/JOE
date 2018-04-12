@@ -47,7 +47,7 @@ implements SendPacket
     /**
      * Create an ARP request
      */
-    private Arp(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
+    Arp(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
     {
         hwType = HT_ETHERNET;
         protocolType = Ethernet.PROTO_IP;
@@ -86,12 +86,6 @@ implements SendPacket
         opCode = OP_REQUEST;
     }
 
-    static final public void request(NetworkInterface networkInterface, InetAddress sendIp, InetAddress targetIp)
-    {
-        Arp arp = new Arp(networkInterface.getEthernetAddress(), sendIp, targetIp);
-        
-    }
-    
     public PacketBuffer getPacket()
     {
         int packetIndex = 0;

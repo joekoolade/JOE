@@ -3,6 +3,7 @@ package org.jam.driver.net;
 import org.jam.net.NetworkInterface;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpTable;
+import org.jam.net.inet4.ArpThread;
 import org.jam.net.inet4.InetAddress;
 
 public class InetNetworkInterface
@@ -13,6 +14,7 @@ public class InetNetworkInterface
     int mtu;
     protected ArpTable arpTable;
     private NetworkInterface networkInterface;
+    private ArpThread arp;
     
     public InetAddress getInetAddress()
     {
@@ -59,12 +61,19 @@ public class InetNetworkInterface
          * Lets generate the ARP request
          */
         System.out.println("Create arp request: "+inet);
-        Arp arpRequest = Arp.request(networkInterface, ipAddress, inet);
-        System.out.println("Send arp request");
-        networkInterface.send(arpRequest);
+        arp.request(ipAddress, inet);
     }
     protected void setNetworkInterface(NetworkInterface networkInterface)
     {
         this.networkInterface = networkInterface;
+    }
+    
+    protected void boot()
+    {
+        /*
+         * Start the arp processing
+         */
+        arp = new ArpThread(networkInterface);
+        new Thread(arp).start();
     }
 }
