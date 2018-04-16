@@ -42,7 +42,6 @@ public class Platform {
     public static ApicTimer apicTimer;
     public static Apic apic;
     public static Timer timer;
-    public static InetProtocolProcessor inet4;
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -75,7 +74,6 @@ public class Platform {
         ioApic = new QemuIoApic();
         ioApic.boot();
         VM.sysWrite(ioApic.toString());
-        inet4 = new InetProtocolProcessor();
         try
         {
             InetAddress inet = new InetAddress("10.0.2.1");

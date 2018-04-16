@@ -462,6 +462,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     napiThread.start();
+    Platform.net.inetBoot();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     try

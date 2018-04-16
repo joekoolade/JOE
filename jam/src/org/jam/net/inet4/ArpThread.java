@@ -46,8 +46,10 @@ implements Runnable
     public void request(InetAddress senderIp, InetAddress targetIp)
     {
         Arp arpRequest = new Arp(netIf.getEthernetAddress(), senderIp, targetIp);
+        System.out.println("at: arp request");
         arpTable.addDevice(targetIp.inet4(), arpRequest);
-        netIf.send(arpRequest.getPacket());
+        System.out.println("at: added device");
+        netIf.send(arpRequest);
         try
         {
             /*

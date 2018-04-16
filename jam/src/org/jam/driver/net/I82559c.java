@@ -15,6 +15,7 @@ import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
 import org.jam.board.pc.Platform;
 import org.jam.cpu.intel.Tsc;
+import org.jam.net.EtherType;
 import org.jam.net.InetProtocolProcessor;
 import org.jam.net.NetworkInterface;
 import org.jam.net.Route;
@@ -224,9 +225,6 @@ private static final boolean DEBUG_TX = true;
   
   private long txPackets=0;
   private long txBytes=0;
-  
-  private InetProtocolProcessor inet4;
-  private ArpThread arp;
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -765,7 +763,7 @@ private static final boolean DEBUG_TX = true;
     }
     
 //    rxQueue.put(rfd.packet());
-    Platform.inet4.put(rfd.packet());
+    inet4.put(rfd.packet());
     rfds[rfdToClean] = null;
     free(rfd);
   }
@@ -1129,7 +1127,11 @@ private static final boolean DEBUG_TX = true;
 
     public void send(Packet packet)
     {
-        
+        System.out.println("eepro100 send 1");
+        //Ethernet frame = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, packet.ge, EtherType.IPV4.type);
+        // Set the src address
+//        frame.setSource(macAddress);
+//        transmit(frame);
     }
 
     public void send(SendPacket packet)

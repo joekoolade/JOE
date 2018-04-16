@@ -1,5 +1,6 @@
 package org.jam.driver.net;
 
+import org.jam.net.InetProtocolProcessor;
 import org.jam.net.NetworkInterface;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpTable;
@@ -14,7 +15,10 @@ public class InetNetworkInterface
     int mtu;
     protected ArpTable arpTable;
     private NetworkInterface networkInterface;
-    private ArpThread arp;
+    protected ArpThread arp;
+    protected InetProtocolProcessor inet4;
+    private Thread arpThread;
+    private Thread inetThread;
     
     public InetAddress getInetAddress()
     {
@@ -68,12 +72,16 @@ public class InetNetworkInterface
         this.networkInterface = networkInterface;
     }
     
-    protected void boot()
+    public void inetBoot()
     {
         /*
          * Start the arp processing
          */
         arp = new ArpThread(networkInterface);
-        new Thread(arp).start();
+        arpThread = new Thread(arp);
+        inet4 = new InetProtocolProcessor(arp);
+        inetThread = new Thread(inet4);
+        arpThread.start();
+        inetThread.start();
     }
 }
