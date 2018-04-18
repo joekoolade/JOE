@@ -63,7 +63,8 @@ import org.vmmagic.unboxed.Word;
 @Uninterruptible
 @NonMoving
 public class Monitor {
-  public static boolean trace = false;
+  private static final boolean DEBUG_UNLOCK = false;
+public static boolean trace = false;
   Word monitor;
   int holderSlot=-1; // use the slot so that we're even more GC safe
   int recCount;
@@ -119,7 +120,6 @@ public class Monitor {
         locking.enqueue(RVMThread.getCurrentThread());
         Magic.yield();
       }
-      // sysCall.sysMonitorEnter(monitor);
       if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
       if (VM.VerifyAssertions) VM._assert(recCount == 0);
       holderSlot = mySlot;
@@ -288,12 +288,14 @@ public class Monitor {
          */
         Platform.scheduler.addThread(waitingThread);
       }
-      // sysCall.sysMonitorExit(monitor);
     }
-//    VM.sysWrite("Unlock/", Magic.objectAsAddress(this));
-//    VM.sysWrite("/T#", holderSlot);
-//    VM.sysWrite("/R", recCount);
-//    VM.sysWriteln("/A", acquireCount);
+    if(DEBUG_UNLOCK)
+    {
+        VM.sysWrite("Unlock/", Magic.objectAsAddress(this));
+        VM.sysWrite("/T#", holderSlot);
+        VM.sysWrite("/R", recCount);
+        VM.sysWriteln("/A", acquireCount);
+    }
  }
   /**
    * Completely release the lock, ignoring recursion.  Returns the
@@ -320,7 +322,6 @@ public class Monitor {
        */
       Platform.scheduler.addThread(waitingThread);
     }
-    // sysCall.sysMonitorExit(monitor);
     return result;
   }
   /**
@@ -336,11 +337,11 @@ public class Monitor {
   @NoOptCompile
   public void waitNoHandshake()
   {
-//    RVMThread thread = RVMThread.getCurrentThread();
-//    /*
-//     * put thread onto the wait queue
-//     */
-//    waiting.enqueue(thread);
+    RVMThread thread = RVMThread.getCurrentThread();
+    /*
+     * put thread onto the wait queue
+     */
+    waiting.enqueue(thread);
     /*
      * Save current monitor state
      * and reset
@@ -412,8 +413,8 @@ public class Monitor {
     /*
      * put thread onto the wait queue
      */
-//    RVMThread monitorThread = RVMThread.getCurrentThread();
-//    waiting.enqueue(monitorThread);
+    RVMThread monitorThread = RVMThread.getCurrentThread();
+    waiting.enqueue(monitorThread);
     /*
      * start a timer for this monitor
      */
@@ -497,7 +498,6 @@ public class Monitor {
   @BaselineSaveLSRegisters
   @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
   public void waitWithHandshake() {
-//    RVMThread.saveThreadState();
     waitWithHandshakeImpl();
   }
   @NoInline

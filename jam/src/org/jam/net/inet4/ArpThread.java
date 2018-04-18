@@ -20,6 +20,7 @@ implements Runnable
     public ArpThread(NetworkInterface networkInterface)
     {
         netIf = networkInterface;
+        arpTable = new ArpTable();
     }
 
     public void run()
@@ -40,7 +41,7 @@ implements Runnable
 
     public void reply(Arp arpPacket)
     {
-        
+        System.out.println("received reply packet");
     }
     
     public void request(InetAddress senderIp, InetAddress targetIp)

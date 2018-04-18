@@ -764,8 +764,8 @@ private static final boolean DEBUG_TX = true;
     
 //    rxQueue.put(rfd.packet());
     inet4.put(rfd.packet());
-    rfds[rfdToClean] = null;
-    free(rfd);
+//    rfds[rfdToClean] = null;
+//    free(rfd);
   }
   
   public void receive()

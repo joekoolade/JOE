@@ -16,7 +16,7 @@ import org.jikesrvm.runtime.Magic;
 public class NetworkQueue {
   // size must be a factor of 2
   final static int SIZE=256;
-  final Packet queue[];
+  Packet queue[];
   int head,tail;
   
   public NetworkQueue()
@@ -24,11 +24,11 @@ public class NetworkQueue {
     this(SIZE);
   }
   /**
-   * @param size2
+   * @param size
    */
   public NetworkQueue(int size)
   {
-    queue = new PacketBuffer[size];
+    queue = new Packet[size];
     head = 0;
     tail = 0;
   }

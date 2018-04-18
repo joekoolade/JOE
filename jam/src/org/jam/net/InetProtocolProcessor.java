@@ -6,6 +6,7 @@ import org.jam.net.ethernet.Ethernet;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpPacket;
 import org.jam.net.inet4.ArpThread;
+import org.jikesrvm.VM;
 
 public class InetProtocolProcessor
 implements Runnable
@@ -17,7 +18,7 @@ implements Runnable
     public InetProtocolProcessor(ArpThread arp)
     {
         this.arp = arp;
-        rxQueue = new NetworkQueue(QUEUE_SIZE);
+        rxQueue = new NetworkQueue();
     }
     public void run()
     {
@@ -34,13 +35,18 @@ implements Runnable
                 /*
                  * Wait for packets to be added to queue
                  */
-                wait();
+                System.out.println("inetpp waiting for rx");
+                synchronized (this)
+                {
+                    wait();
+                }
+                System.out.println("inetpp got rx");
                 Packet packet = rxQueue.get();
                 if(Ethernet.isArp(packet))
                 {
                     packet.pull(Ethernet.HEADER_SIZE);
                     Arp arp = new Arp(packet);
-                    arp.reply();
+                    this.arp.reply(arp);
                 }
             } catch (InterruptedException e)
             {
@@ -55,6 +61,7 @@ implements Runnable
          * Add packet to queue and notify
          */
         rxQueue.put(packet);
+        VM.sysWriteln("inetpp notify");
         notify();
     }
 }
