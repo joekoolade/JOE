@@ -411,11 +411,6 @@ public static boolean trace = false;
     this.recCount=0;
     holderSlot=-1;
     /*
-     * put thread onto the wait queue
-     */
-    RVMThread monitorThread = RVMThread.getCurrentThread();
-    waiting.enqueue(monitorThread);
-    /*
      * start a timer for this monitor
      */
     if(trace)
@@ -431,33 +426,19 @@ public static boolean trace = false;
     {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
     }
+    /*
+     * Puts thread on a timer. No need to put on a wait queue.
+     * May have implications when sending a stop or an exception to the sleep thread
+     */
     Platform.timer.startTimer(whenWakeupNanos);
     Platform.timer.removeTimer(whenWakeupNanos);
     /*
-     * Wakeup next thread trying to get the lock
+     * Re-acquire the lock
      */
-    RVMThread waitingThread = locking.dequeue();
-    if(waitingThread != null)
-    {
-      /*
-       * schedule thread trying to acquire the monitor
-       */
-      Platform.scheduler.addThread(waitingThread);
-    }
-//    /*
-//     * Time to give up the processor
-//     */
-//    Magic.yield();
-    /*
-     * loop trying to acquire the monitor or when time expires
-     */
-//    while(!Magic.attemptInt(this, monitorOffset, 0, 1) && Time.nanoTime() < whenWakeupNanos)
     while(!Magic.attemptInt(this, monitorOffset, 0, 1))
     {
         Magic.yield();
     }
-//    Platform.scheduler.addThread(monitorThread);
-    // sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
     if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
     if (VM.VerifyAssertions) VM._assert(this.recCount==0);
     this.recCount=recCount;

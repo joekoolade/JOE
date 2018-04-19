@@ -13,6 +13,7 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
+import org.jam.board.pc.Platform;
 import org.jikesrvm.Callbacks;
 import org.jikesrvm.Constants;
 import org.jikesrvm.Services;
@@ -197,7 +198,7 @@ public final class Lock implements Constants {
   /** Queue for entering the lock, guarded by mutex. */
   ThreadQueue entering;
   /** Queue for waiting on a notify, guarded by mutex as well. */
-  ThreadQueue waiting;
+  ThreadWaitQueue waiting;
 
   /**
    * A heavy weight lock to handle extreme contention and wait/notify
@@ -206,7 +207,7 @@ public final class Lock implements Constants {
   public Lock() {
     mutex = new SpinLock();
     entering = new ThreadQueue();
-    waiting = new ThreadQueue();
+    waiting = new ThreadWaitQueue();
   }
 
   /**
@@ -243,14 +244,21 @@ public final class Lock implements Constants {
       ownerId = threadId;
       recursionCount = 1;
     } else {
+        /*
+         * queue thread
+         */
       entering.enqueue(me);
       mutex.unlock();
-      me.monitor().lockNoHandshake();
-      while (entering.isQueued(me)) {
-        me.monitor().waitWithHandshake(); // this may spuriously return
-      }
-      me.monitor().unlock();
-      return false;
+      /*
+       * give up processor and wait for the unlock
+       */
+      Magic.yield();
+//      me.monitor().lockNoHandshake();
+//      while (entering.isQueued(me)) {
+//        me.monitor().waitWithHandshake(); // this may spuriously return
+//      }
+//      me.monitor().unlock();
+      return true;
     }
     mutex.unlock(); // thread-switching benign
     return true;
@@ -293,7 +301,11 @@ public final class Lock implements Constants {
     }
     mutex.unlock(); // does a Magic.sync();  (thread-switching benign)
     if (toAwaken != null) {
-      toAwaken.monitor().lockedBroadcastNoHandshake();
+      //toAwaken.monitor().lockedBroadcastNoHandshake();
+        /*
+         * Schedule the locked thread
+         */
+        Platform.scheduler.addThread(toAwaken);
     }
   }
 

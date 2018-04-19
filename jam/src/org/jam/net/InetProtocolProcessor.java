@@ -7,6 +7,7 @@ import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpPacket;
 import org.jam.net.inet4.ArpThread;
 import org.jikesrvm.VM;
+import org.jikesrvm.scheduler.RVMThread;
 
 public class InetProtocolProcessor
 implements Runnable
@@ -62,6 +63,6 @@ implements Runnable
          */
         rxQueue.put(packet);
         VM.sysWriteln("inetpp notify");
-        notify();
+        RVMThread.nosyncNotify(this);
     }
 }
