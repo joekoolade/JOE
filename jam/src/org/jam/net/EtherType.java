@@ -7,10 +7,15 @@ public enum EtherType
     RARP((short)0x8035),
     IPV6((short)0x86DD);
     
-    public short type;
+    final private short type;
     
     EtherType(short type)
     {
         this.type = type;
+    }
+    
+    public short type()
+    {
+        return type;
     }
 }

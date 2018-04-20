@@ -57,7 +57,6 @@ implements Runnable
     {
         Arp arpRequest = new Arp(netIf.getEthernetAddress(), senderIp, targetIp);
         System.out.println("at: arp request");
-        arpTable.addDevice(targetIp.inet4(), arpRequest);
         netIf.send(arpRequest);
         Arp arpReply = null;
         try
@@ -71,6 +70,27 @@ implements Runnable
                 arpReply = arpReplies.getFirst();
             }
             System.out.println("request -> Got ARP reply");
+            /*
+             * Verify the packet
+             */
+            if(!arpReply.verifyEthernet() || !arpReply.verifyIpv4()) 
+            {
+                // ignore packet
+                System.out.println("ARP is not ethernet or inet");
+                return;
+            }
+            /*
+             * See if it is for me
+             */
+            if(arpReply.targetInet() != netIf.getInetAddress().inet4() || arpReply.senderInet() != targetIp.inet4())
+            {
+                // ignore packet
+                System.out.println("ARP is not for me");
+            }
+            /*
+             * Put it into the arp table
+             */
+            arpTable.addDevice(arpReply.senderInet(), arpReply.senderMac());
         }
         catch (IllegalMonitorStateException e)
         {

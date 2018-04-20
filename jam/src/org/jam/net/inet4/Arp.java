@@ -28,9 +28,14 @@ implements SendPacket
     private final static short OP_REQUEST = 1;
     private final static short OP_REPLY = 2;
 
-    private final static Offset PROTO_OFFSET = Offset.zero().plus(2);
-    private static final Offset HLEN_OFFSET = Offset.zero().plus(4);
-    private static final Offset PLEN_OFFSET = Offset.zero().plus(5);
+    private final static Offset PROTO_OFFSET = Offset.fromIntSignExtend(2);
+    private static final Offset HLEN_OFFSET = Offset.fromIntSignExtend(4);
+    private static final Offset PLEN_OFFSET = Offset.fromIntSignExtend(5);
+    private static final Offset OPCODE_OFFSET = Offset.fromIntSignExtend(6);
+    private static final Offset SENDER_HW_OFFSET = Offset.fromIntSignExtend(8);
+    private static final Offset SENDER_PROTO_OFFSET = Offset.fromIntSignExtend(14);
+    private static final Offset TARGET_HW_OFFSET = Offset.fromIntSignExtend(18);
+    private static final Offset TARGET_PROTO_OFFSET = Offset.fromIntSignExtend(24);
     
     private byte senderHa[];
     private short hwType;
@@ -41,8 +46,9 @@ implements SendPacket
     private byte targetPa[];
     private byte hwAddressLen;
     private byte protoAddrLen;
-    
     private Packet packet;
+    private int senderInet;
+    private int targetInet;
     
     /**
      * Create an ARP request
@@ -82,6 +88,28 @@ implements SendPacket
     public Arp(Packet packet)
     {
         this.packet = packet;
+        Address packetAddr = packet.getPacketAddress();
+        hwType = ByteOrder.networkToHost(packetAddr.loadShort());
+        protocolType = ByteOrder.networkToHost(packetAddr.loadShort(PROTO_OFFSET));
+        hwAddressLen = packetAddr.loadByte(HLEN_OFFSET);
+        protoAddrLen = packetAddr.loadByte(PLEN_OFFSET);
+        opCode = ByteOrder.networkToHost(packetAddr.loadShort(OPCODE_OFFSET));
+        senderHa = new byte[6];
+        targetHa = new byte[6];
+        senderPa = new byte[4];
+        targetPa = new byte[4];
+        for(int addressIndex=0; addressIndex < 6; addressIndex++)
+        {
+            senderHa[addressIndex] = packetAddr.loadByte(SENDER_HW_OFFSET.plus(addressIndex));
+            targetHa[addressIndex] = packetAddr.loadByte(TARGET_HW_OFFSET.plus(addressIndex));
+        }
+        for(int addressIndex=0; addressIndex < 4; addressIndex++)
+        {
+            senderPa[addressIndex] = packetAddr.loadByte(SENDER_PROTO_OFFSET.plus(addressIndex));
+            targetPa[addressIndex] = packetAddr.loadByte(TARGET_PROTO_OFFSET.plus(addressIndex));
+        }
+        senderInet = ByteOrder.networkToHost(packetAddr.loadInt(SENDER_PROTO_OFFSET));
+        targetInet = ByteOrder.networkToHost(packetAddr.loadInt(TARGET_PROTO_OFFSET));
     }
 
     public void request()
@@ -95,50 +123,74 @@ implements SendPacket
         ArpPacket packet = new ArpPacket();
         Address packetAddr = packet.getPacketAddress();
         packetAddr.store(ByteOrder.hostToNetwork(hwType));
-        packetAddr.store(ByteOrder.hostToNetwork(protocolType), Offset.zero().plus(2));
-        packetAddr.store(hwAddressLen, Offset.zero().plus(4));
-        packetAddr.store(protoAddrLen, Offset.zero().plus(5));
-        packetAddr.store(ByteOrder.hostToNetwork(opCode), Offset.zero().plus(6));
+        packetAddr.store(ByteOrder.hostToNetwork(protocolType), PROTO_OFFSET);
+        packetAddr.store(hwAddressLen, HLEN_OFFSET);
+        packetAddr.store(protoAddrLen, PLEN_OFFSET);
+        packetAddr.store(ByteOrder.hostToNetwork(opCode), OPCODE_OFFSET);
         for (packetIndex = 0; packetIndex < senderHa.length; packetIndex++)
         {
-            packetAddr.store(senderHa[packetIndex], Offset.zero().plus(8 + packetIndex));
+            packetAddr.store(senderHa[packetIndex], SENDER_HW_OFFSET.plus(packetIndex));
         }
         for (packetIndex = 0; packetIndex < senderPa.length; packetIndex++)
         {
-            packetAddr.store(senderPa[packetIndex], Offset.zero().plus(14 + packetIndex));
+            packetAddr.store(senderPa[packetIndex], SENDER_PROTO_OFFSET.plus(packetIndex));
         }
         for (packetIndex = 0; packetIndex < targetPa.length; packetIndex++)
         {
-            packetAddr.store(targetPa[packetIndex], Offset.zero().plus(24 + packetIndex));
+            packetAddr.store(targetPa[packetIndex], TARGET_PROTO_OFFSET.plus(packetIndex));
         }
-
         return packet;
     }
 
+    /*
+     * return true if hw type is ethernet and hw len is 6
+     */
+    public boolean verifyEthernet()
+    {
+        return ( hwType == HT_ETHERNET ) && ( hwAddressLen == 6 );
+    }
+    
+    /*
+     * return true if protocol type is IPv4 and protocol len is 4
+     */
+    public boolean verifyIpv4()
+    {
+        return (protocolType == EtherType.IPV4.type()) && (protoAddrLen==4);
+    }
+    
+    /*
+     * return sender's ipv4 address
+     */
+    public int senderInet()
+    {
+        return senderInet;
+    }
+    
+    /*
+     * return target's ipv4 address
+     */
+    public int targetInet()
+    {
+        return targetInet;
+    }
+    
+    /*
+     * return target's mac address
+     */
+    public byte[] targetMac()
+    {
+        return targetHa;
+    }
+    
+    /*
+     * return sender's mac address
+     */
+    public byte[] senderMac()
+    {
+        return senderHa;
+    }
     public short getProto()
     {
-        return EtherType.ARP.type;
+        return EtherType.ARP.type();
     }
-
-    /*
-     * Processes arp as a reply packet
-     */
-    public void reply()
-    {
-        if(packet == null) return;
-        Address arpPacket = packet.getPacketAddress();
-        // hw type should be ethernet
-        if(ByteOrder.networkToHost(arpPacket.loadShort()) != HT_ETHERNET) return;
-        // protocol must be IPv4
-        if(ByteOrder.networkToHost(arpPacket.loadShort(PROTO_OFFSET)) != EtherType.IPV4.type) return;
-        // check hw length; must be 6
-        if(arpPacket.loadByte(HLEN_OFFSET) != 6) return;
-        // check protocol length; must be 4
-        if(arpPacket.loadByte(PLEN_OFFSET) != 4) return;
-        /*
-         * Make sure it is for me
-         */
-        
-    }
-
 }
