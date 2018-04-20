@@ -1,5 +1,7 @@
 package org.jam.net.inet4;
 
+import java.util.LinkedList;
+
 import org.jam.driver.net.InetNetworkInterface;
 import org.jam.net.NetworkInterface;
 
@@ -16,11 +18,13 @@ implements Runnable
 {
     private ArpTable arpTable;
     private NetworkInterface netIf;
+    private LinkedList<Arp> arpReplies;
     
     public ArpThread(NetworkInterface networkInterface)
     {
         netIf = networkInterface;
         arpTable = new ArpTable();
+        arpReplies = new LinkedList<Arp>();
     }
 
     public void run()
@@ -42,6 +46,11 @@ implements Runnable
     public void reply(Arp arpPacket)
     {
         System.out.println("received reply packet");
+        synchronized(arpReplies)
+        {
+            arpReplies.add(arpPacket);
+            arpReplies.notify();
+        }
     }
     
     public void request(InetAddress senderIp, InetAddress targetIp)
@@ -49,14 +58,18 @@ implements Runnable
         Arp arpRequest = new Arp(netIf.getEthernetAddress(), senderIp, targetIp);
         System.out.println("at: arp request");
         arpTable.addDevice(targetIp.inet4(), arpRequest);
-        System.out.println("at: added device");
         netIf.send(arpRequest);
+        Arp arpReply = null;
         try
         {
             /*
              * Wait for the reply
              */
-            arpRequest.wait();
+            synchronized(arpReplies)
+            {
+                arpReplies.wait();
+                arpReply = arpReplies.getFirst();
+            }
             System.out.println("request -> Got ARP reply");
         }
         catch (IllegalMonitorStateException e)
@@ -69,5 +82,6 @@ implements Runnable
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+        
     }
 }

@@ -40,7 +40,8 @@ public class Ethernet
   private byte[] packetArray;
   private Address packetAddress;
   private PacketBuffer packet;
- 
+  private final static Offset PROTO_OFFSET = Offset.fromIntSignExtend(12);
+  
   /*
    * Ethernet frame
    * | Destination | Source | Type | Payload | FCS |
@@ -59,7 +60,7 @@ public class Ethernet
       packetArray[targetIndex] = ethAddress[srcIndex];
     }
     // ARP type
-    packetAddress.store(ByteOrder.hostToNetwork(ARP_PROTO), Offset.zero().plus(12));
+    packetAddress.store(ByteOrder.hostToNetwork(ARP_PROTO), PROTO_OFFSET);
     VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
   
@@ -78,7 +79,7 @@ public class Ethernet
         packetArray[targetIndex] = ethAddress[srcIndex];
       }
       // ARP type
-      packetAddress.store(ByteOrder.hostToNetwork(protocol), Offset.zero().plus(12));
+      packetAddress.store(ByteOrder.hostToNetwork(protocol), PROTO_OFFSET);
       this.packet = packet;
       VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
@@ -104,8 +105,8 @@ public class Ethernet
       }
   }
 
-public static boolean isArp(Packet packet2)
-{
-    return false;
-}
+    public static boolean isArp(Packet packet)
+    {
+        return packet.getPacketAddress().loadShort(PROTO_OFFSET) == ByteOrder.networkToHost(PROTO_ARP);
+    }
 }

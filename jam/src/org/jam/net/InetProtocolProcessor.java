@@ -36,7 +36,6 @@ implements Runnable
                 /*
                  * Wait for packets to be added to queue
                  */
-                System.out.println("inetpp waiting for rx");
                 synchronized (this)
                 {
                     wait();
@@ -45,6 +44,7 @@ implements Runnable
                 Packet packet = rxQueue.get();
                 if(Ethernet.isArp(packet))
                 {
+                    System.out.println("inetpp arp packet");
                     packet.pull(Ethernet.HEADER_SIZE);
                     Arp arp = new Arp(packet);
                     this.arp.reply(arp);

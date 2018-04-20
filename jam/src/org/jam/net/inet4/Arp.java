@@ -76,6 +76,9 @@ implements SendPacket
         this.protocolType = protocolType;
     }
 
+    /*
+     * Fills in the arp fields from the packet
+     */
     public Arp(Packet packet)
     {
         this.packet = packet;
