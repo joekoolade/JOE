@@ -18,13 +18,13 @@ implements Runnable
 {
     private ArpTable arpTable;
     private NetworkInterface netIf;
-    private LinkedList<Arp> arpReplies;
+    private LinkedList<Arp> arpRequests;
     
     public ArpThread(NetworkInterface networkInterface)
     {
         netIf = networkInterface;
         arpTable = new ArpTable();
-        arpReplies = new LinkedList<Arp>();
+        arpRequests = new LinkedList<Arp>(); // make map sendingip, arprequest
     }
 
     public void run()
@@ -46,10 +46,10 @@ implements Runnable
     public void reply(Arp arpPacket)
     {
         System.out.println("received reply packet");
-        synchronized(arpReplies)
+        synchronized(arpRequests)
         {
-            arpReplies.add(arpPacket);
-            arpReplies.notify();
+            arpRequests.add(arpPacket);
+            arpRequests.notify();
         }
     }
     
@@ -64,10 +64,10 @@ implements Runnable
             /*
              * Wait for the reply
              */
-            synchronized(arpReplies)
+            synchronized(arpRequests)
             {
-                arpReplies.wait();
-                arpReply = arpReplies.getFirst();
+                arpRequests.wait();
+                arpReply = arpRequests.getFirst();
             }
             System.out.println("request -> Got ARP reply");
             /*
