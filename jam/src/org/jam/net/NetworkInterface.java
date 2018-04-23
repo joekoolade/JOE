@@ -9,12 +9,12 @@ public interface NetworkInterface {
     InetAddress getInetAddress();
     int getNetMask();
     void send(SendPacket packet);
-    void send(Packet packet);
+    void send(EthernetAddr destination, Packet packet, short protocol);
     int getMtu();
     void setMtu(int mtu);
     void setNetMask(int mask);
     void setInetAddress(InetAddress inetAddress);
-    void arp(InetAddress inet);
+    EthernetAddr arp(InetAddress inet);
     EthernetAddr getEthernetAddress();
     void setEthernetAddress(EthernetAddr macAddress);
 }

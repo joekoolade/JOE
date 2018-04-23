@@ -2,6 +2,7 @@ package org.jam.driver.net;
 
 import org.jam.net.InetProtocolProcessor;
 import org.jam.net.NetworkInterface;
+import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpTable;
 import org.jam.net.inet4.ArpThread;
@@ -50,22 +51,22 @@ public class InetNetworkInterface
         ipAddress = inetAddress;
     }
 
-    public void arp(InetAddress inet)
+    public EthernetAddr arp(InetAddress inet)
     {
         /*
          * The easy case. arp table has the mac address
          * then just return
          */
-        if(arpTable.hasInet(inet.inet4()))
+        if(!arpTable.hasInet(inet.inet4()))
         {
-            System.out.println("arp have inet: " + inet);
-            return;
+            System.out.println("Create arp request: "+inet);
+            arp.request(ipAddress, inet);
         }
         /*
-         * Lets generate the ARP request
+         * If this point is reached then the 
+         * arp entry should be present
          */
-        System.out.println("Create arp request: "+inet);
-        arp.request(ipAddress, inet);
+        return arpTable.findDevice(inet.inet4());        
     }
     protected void setNetworkInterface(NetworkInterface networkInterface)
     {

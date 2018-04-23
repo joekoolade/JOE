@@ -83,7 +83,7 @@ public class Ethernet
       this.packet = packet;
       VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
-  public byte[] getFrame()
+public byte[] getFrame()
   {
     return frame;
   }

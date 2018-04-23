@@ -1,5 +1,6 @@
 package org.jam.net.inet4;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.jam.driver.net.InetNetworkInterface;
@@ -18,13 +19,13 @@ implements Runnable
 {
     private ArpTable arpTable;
     private NetworkInterface netIf;
-    private LinkedList<Arp> arpRequests;
+    private HashMap<Integer, Arp> arpRequests;
     
     public ArpThread(NetworkInterface networkInterface)
     {
         netIf = networkInterface;
         arpTable = new ArpTable();
-        arpRequests = new LinkedList<Arp>(); // make map sendingip, arprequest
+        arpRequests = new HashMap<Integer, Arp>(); // make map sendingip, arprequest
     }
 
     public void run()
@@ -46,10 +47,13 @@ implements Runnable
     public void reply(Arp arpPacket)
     {
         System.out.println("received reply packet");
-        synchronized(arpRequests)
+        /*
+         * Need to sync up on the original request packet
+         */
+        Arp request = arpRequests.get(arpPacket.targetInet());
+        synchronized(request)
         {
-            arpRequests.add(arpPacket);
-            arpRequests.notify();
+            request.notify();
         }
     }
     
@@ -64,10 +68,13 @@ implements Runnable
             /*
              * Wait for the reply
              */
-            synchronized(arpRequests)
+            synchronized(arpRequest)
             {
-                arpRequests.wait();
-                arpReply = arpRequests.getFirst();
+                /*
+                 * the reply needs the request so it can send the notify
+                 */
+                arpRequests.put(senderIp.inet4(), arpRequest);
+                arpRequest.wait();
             }
             System.out.println("request -> Got ARP reply");
             /*

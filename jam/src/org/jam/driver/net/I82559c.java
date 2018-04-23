@@ -1125,13 +1125,13 @@ private static final boolean DEBUG_TX = true;
     VM.sysWriteln(" empty ", statsFreeListEmpty);
   }
 
-    public void send(Packet packet)
+    public void send(EthernetAddr destinationMac, Packet packet, short proto)
     {
         System.out.println("eepro100 send 1");
-        //Ethernet frame = new Ethernet(EthernetAddr.BROADCAST_ADDRESS, packet.ge, EtherType.IPV4.type);
+        Ethernet frame = null ; // Ínew Ethernet(destinationMac, packet, proto);
         // Set the src address
-//        frame.setSource(macAddress);
-//        transmit(frame);
+        frame.setSource(macAddress);
+        transmit(frame);
     }
 
     public void send(SendPacket packet)

@@ -3,6 +3,7 @@ package org.jam.net;
 import java.net.DatagramPacket;
 
 import org.jam.driver.net.Packet;
+import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.runtime.Magic;
@@ -95,7 +96,8 @@ public class InetPacket implements Packet {
 		 * to get the mac  address of the destination
 		 */
 	    System.out.println("Inet send");
-		netInterface.arp(connection.getRemote());
+		EthernetAddr destinationMac = netInterface.arp(connection.getRemote());
+		//netInterface.send(destinationMac, this);
 	}
 
     public Address getPacketAddress()
