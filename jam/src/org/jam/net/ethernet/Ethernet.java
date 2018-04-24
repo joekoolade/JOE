@@ -39,7 +39,7 @@ public class Ethernet
   private byte[] frame;
   private byte[] packetArray;
   private Address packetAddress;
-  private PacketBuffer packet;
+  private Packet packet;
   private final static Offset PROTO_OFFSET = Offset.fromIntSignExtend(12);
   
   /*
@@ -83,7 +83,26 @@ public class Ethernet
       this.packet = packet;
       VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
-public byte[] getFrame()
+  public Ethernet(EthernetAddr dst, Packet packet, short protocol)
+  {
+      // Copy destination address
+      int srcIndex, targetIndex=0;
+      packet.setHeadroom(HEADER_SIZE);
+      packetArray = packet.getArray();
+      packetAddress = Magic.objectAsAddress(packetArray);
+      byte[] ethAddress = dst.asArray();
+      targetIndex = packet.getOffset();
+      VM.sysWriteln("Ethernet new: targetIndex: ", targetIndex);
+      for(srcIndex=0; srcIndex < ethAddress.length; srcIndex++, targetIndex++)
+      {
+        packetArray[targetIndex] = ethAddress[srcIndex];
+      }
+      // ARP type
+      packetAddress.store(ByteOrder.hostToNetwork(protocol), PROTO_OFFSET);
+      this.packet = packet;
+      VM.sysWriteln("ethernet packetaddr ", packetAddress);
+  }
+  public byte[] getFrame()
   {
     return frame;
   }
@@ -91,7 +110,7 @@ public byte[] getFrame()
   /**
    * @return
    */
-  public PacketBuffer getPacket()
+  public Packet getPacket()
   {
     return packet;
   }

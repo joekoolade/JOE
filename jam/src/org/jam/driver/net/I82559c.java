@@ -375,7 +375,7 @@ private static final boolean DEBUG_TX = true;
     NapiManager.addInterface(this);
   }
 
-  private void xmitFrame(PacketBuffer packet)
+  private void xmitFrame(Packet packet)
   {
     CommandBlockDescriptor cbd = getCommandBlock();
     cbd.configureTransmitPacket(packet);
@@ -881,7 +881,7 @@ private static final boolean DEBUG_TX = true;
     }
   }
   
-  public void transmitFrame(PacketBuffer packet)
+  public void transmitFrame(Packet packet)
   {
     if(transmitting)
     {
@@ -1128,7 +1128,7 @@ private static final boolean DEBUG_TX = true;
     public void send(EthernetAddr destinationMac, Packet packet, short proto)
     {
         System.out.println("eepro100 send 1");
-        Ethernet frame = null ; // Ínew Ethernet(destinationMac, packet, proto);
+        Ethernet frame = new Ethernet(destinationMac, packet, proto);
         // Set the src address
         frame.setSource(macAddress);
         transmit(frame);

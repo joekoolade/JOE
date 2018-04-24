@@ -185,7 +185,7 @@ public class CommandBlockDescriptor {
   /**
    * @param packet
    */
-  public void configureTransmitPacket(PacketBuffer packet)
+  public void configureTransmitPacket(Packet packet)
   {
     bufferAddr.store(0, Offset.zero().plus(12));
     buffer[0] = 0;
