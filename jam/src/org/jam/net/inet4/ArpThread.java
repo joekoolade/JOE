@@ -48,9 +48,12 @@ implements Runnable
     {
         System.out.println("received reply packet");
         /*
-         * Need to sync up on the original request packet
+         * Need to sync up on the original request packet. This will get
+         * the request() restarted.
          */
         Arp request = arpRequests.get(arpPacket.targetInet());
+        // Replace the request with the reply
+        arpRequests.put(arpPacket.targetInet(), arpPacket);
         synchronized(request)
         {
             request.notify();
@@ -66,7 +69,7 @@ implements Runnable
         try
         {
             /*
-             * Wait for the reply
+             * Wait for the reply from reply()
              */
             synchronized(arpRequest)
             {
@@ -77,6 +80,10 @@ implements Runnable
                 arpRequest.wait();
             }
             System.out.println("request -> Got ARP reply");
+            /*
+             * get the reply
+             */
+            arpReply = arpRequests.get(senderIp.inet4());
             /*
              * Verify the packet
              */

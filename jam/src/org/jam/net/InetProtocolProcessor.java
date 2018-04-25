@@ -34,7 +34,7 @@ implements Runnable
             try
             {
                 /*
-                 * Wait for packets to be added to queue
+                 * Wait for packets to be added to queue.
                  */
                 synchronized (this)
                 {
@@ -59,7 +59,9 @@ implements Runnable
     public void put(Packet packet)
     {
         /*
-         * Add packet to queue and notify
+         * Add packet to queue and notify processPackets(). 
+         * This is called from an interrupt so there is no synchronization
+         * on 'this'
          */
         rxQueue.put(packet);
         VM.sysWriteln("inetpp notify");

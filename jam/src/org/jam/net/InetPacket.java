@@ -98,6 +98,7 @@ public class InetPacket implements Packet {
 		 */
 	    System.out.println("Inet send");
 		EthernetAddr destinationMac = netInterface.arp(connection.getRemote());
+		System.out.println("Arp done");
 		netInterface.send(destinationMac, this, EtherType.IPV4.type());
 	}
 

@@ -19,6 +19,7 @@ public class ArpTable {
     
     public EthernetAddr findDevice(int inet)
     {
+        System.out.println("Finding arp dev "+Integer.toHexString(inet));
         return table.get(inet);
     }
     
