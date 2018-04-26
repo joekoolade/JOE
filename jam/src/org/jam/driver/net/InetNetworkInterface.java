@@ -66,7 +66,8 @@ public class InetNetworkInterface
          * If this point is reached then the 
          * arp entry should be present
          */
-        return arpTable.findDevice(inet.inet4());        
+        System.out.println("arp.findDevice");
+        return arp.findDevice(inet.inet4());        
     }
     protected void setNetworkInterface(NetworkInterface networkInterface)
     {

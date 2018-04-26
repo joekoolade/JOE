@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import org.jam.driver.net.InetNetworkInterface;
 import org.jam.net.NetworkInterface;
+import org.jam.net.ethernet.EthernetAddr;
 
 /**
  * 
@@ -117,5 +118,10 @@ implements Runnable
             e.printStackTrace();
         }
         
+    }
+
+    public EthernetAddr findDevice(int inet)
+    {
+        return arpTable.findDevice(inet);
     }
 }

@@ -1,15 +1,16 @@
 package org.jam.net.inet4;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jam.net.ethernet.EthernetAddr;
 
 public class ArpTable {
-    private ConcurrentHashMap<Integer, EthernetAddr> table;
+    private HashMap<Integer, EthernetAddr> table;
     
     public ArpTable()
     {
-        table = new ConcurrentHashMap<Integer, EthernetAddr>();
+        table = new HashMap<Integer, EthernetAddr>();
     }
     
     public boolean hasDevice(int inet)
@@ -31,7 +32,7 @@ public class ArpTable {
     public void addDevice(int senderInet, byte[] senderMac)
     {
         EthernetAddr mac = new EthernetAddr(senderMac);
-        System.out.println("arptable adding " + Integer.toHexString(senderInet));
         table.put(senderInet, mac);
+        System.out.println("arptable added " + Integer.toHexString(senderInet));
     }
 }
