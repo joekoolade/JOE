@@ -1225,6 +1225,8 @@ Check to make sure all required properties are specified. This includes properti
           <include name="sun/**/*.java"/>
           <include name="java/**/*.java"/>
           <include name="org/jam/**/*.java"/>
+          <include name="org/xbill/DNS/*.java"/>
+          <include name="org/xbill/DNS/utils/*.java"/>
           <include name="${arch-helper-class}"/>
           <include name="com/ibm/tuningfork/**/*.java"/>
           <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
