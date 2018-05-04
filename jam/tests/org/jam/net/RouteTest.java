@@ -5,8 +5,10 @@ import static org.junit.Assert.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import org.jam.net.inet4.InetAddress;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -160,8 +162,10 @@ public class RouteTest {
     }
 
     @Test
-    public void testFind()
+    public void testFind() throws UnknownHostException
     {
+        InetAddress gw = new InetAddress("10.0.2.2");
+        Route defaultRoute = new Route(InetAddress.DEFAULT, 0, gw, null);
         fail("Not yet implemented");
     }
 

@@ -23,7 +23,8 @@ public class InetAddress
     final private int               addrInt;
     public static final InetAddress HOST           = new InetAddress(HOST_ADDR);
     public static final InetAddress BROADCAST      = new InetAddress(BROADCAST_ADDR);
-
+    public static final InetAddress DEFAULT        = HOST;
+    
     /*
      * Create ip from an integer
      */
