@@ -1,6 +1,7 @@
 package org.jam.net;
 
 import static org.junit.Assert.*;
+import static org.easymock.EasyMock.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -165,8 +166,16 @@ public class RouteTest {
     public void testFind() throws UnknownHostException
     {
         InetAddress gw = new InetAddress("10.0.2.2");
-        Route defaultRoute = new Route(InetAddress.DEFAULT, 0, gw, null);
-        fail("Not yet implemented");
+        // Just mock this class
+        NetworkInterface netIf = mock(NetworkInterface.class);
+        // Add default route: *  -> 10.0.2.2 netIf
+        Route.addRoute(0, InetAddress.DEFAULT, gw, netIf);
+        // 
+        InetAddress testAddress = new InetAddress("10.0.0.1");
+        Route route = Route.find(testAddress);
+        assertEquals(netIf, route.getNetworkIf());
+        assertEquals(0, route.getNetmask());
+        assertEquals(0, route.getPrefix());
     }
 
 }
