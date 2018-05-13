@@ -27,6 +27,7 @@ public class RouteTest {
     		toPrefixMethod.setAccessible(true);
     		routeTableField = Route.class.getDeclaredField("routeTable");
     		routeTableField.setAccessible(true);
+    		((ArrayList<Route>)routeTableField.get(null)).clear();
     }
 
     @Test   
@@ -170,12 +171,20 @@ public class RouteTest {
         NetworkInterface netIf = mock(NetworkInterface.class);
         // Add default route: *  -> 10.0.2.2 netIf
         Route.addRoute(0, InetAddress.DEFAULT, gw, netIf);
-        // 
+        // route 10.0.0.1
         InetAddress testAddress = new InetAddress("10.0.0.1");
         Route route = Route.find(testAddress);
         assertEquals(netIf, route.getNetworkIf());
         assertEquals(0, route.getNetmask());
         assertEquals(0, route.getPrefix());
+        assertEquals(gw, route.getGateway());
+        
+        testAddress = new InetAddress("200.0.10.10");
+        route = Route.find(testAddress);
+        assertEquals(netIf, route.getNetworkIf());
+        assertEquals(0, route.getNetmask());
+        assertEquals(0, route.getPrefix());
+        assertEquals(gw, route.getGateway());
     }
 
 }

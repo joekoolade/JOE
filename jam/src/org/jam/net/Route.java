@@ -48,6 +48,10 @@ public class Route {
 	{
 	}
 
+	final public void deleteAll()
+	{
+	    routeTable.clear();
+	}
 	/**
 	 * Convert a cidr prefix to a netmask value
 	 * @return netmask
