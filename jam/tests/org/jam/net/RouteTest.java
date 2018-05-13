@@ -21,13 +21,34 @@ public class RouteTest {
     @Before
     public void setUp() throws Exception
     {
-    		toNetmaskMethod = Route.class.getDeclaredMethod("toNetmask", int.class);
-    		toNetmaskMethod.setAccessible(true);
-    		toPrefixMethod = Route.class.getDeclaredMethod("toPrefix", int.class);
-    		toPrefixMethod.setAccessible(true);
-    		routeTableField = Route.class.getDeclaredField("routeTable");
-    		routeTableField.setAccessible(true);
-    		((ArrayList<Route>)routeTableField.get(null)).clear();
+    		makeToNetmaskMethodAccessible();
+    		makeToPrefixMethodAccessible();
+    		makeRouteTablePublic();
+    		clearRouteTable();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void clearRouteTable() throws IllegalAccessException
+    {
+        ((ArrayList<Route>)routeTableField.get(null)).clear();
+    }
+
+    private void makeRouteTablePublic() throws NoSuchFieldException
+    {
+        routeTableField = Route.class.getDeclaredField("routeTable");
+        routeTableField.setAccessible(true);
+    }
+
+    private void makeToPrefixMethodAccessible() throws NoSuchMethodException
+    {
+        toPrefixMethod = Route.class.getDeclaredMethod("toPrefix", int.class);
+        toPrefixMethod.setAccessible(true);
+    }
+
+    private void makeToNetmaskMethodAccessible() throws NoSuchMethodException
+    {
+        toNetmaskMethod = Route.class.getDeclaredMethod("toNetmask", int.class);
+        toNetmaskMethod.setAccessible(true);
     }
 
     @Test   
