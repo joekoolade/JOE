@@ -165,8 +165,21 @@ public class RouteTest {
     }
     @Test
     public void testAddRouteInetAddressInetAddressIntNetworkInterface()
+    throws UnknownHostException
     {
-        fail("Not yet implemented");
+        InetAddress destination = new InetAddress("192.168.1.0");
+        InetAddress gateway = new InetAddress("10.0.2.2");
+        int netmask = 0xFFFFFF00;
+        //  mock this class
+        NetworkInterface netIf = mock(NetworkInterface.class);
+
+        Route.addRoute(destination, gateway, netmask, netIf);
+        InetAddress address = new InetAddress("192.168.1.252");
+        Route route = Route.find(address);
+        assertEquals(netIf, route.getNetworkIf());
+        assertEquals(netmask, route.getNetmask());
+        assertEquals(24, route.getPrefix());
+        assertEquals(gateway, route.getGateway());
     }
 
     @Test
@@ -188,7 +201,7 @@ public class RouteTest {
     public void testFind() throws UnknownHostException
     {
         InetAddress gw = new InetAddress("10.0.2.2");
-        // Just mock this class
+        //  mock this class
         NetworkInterface netIf = mock(NetworkInterface.class);
         // Add default route: *  -> 10.0.2.2 netIf
         Route.addRoute(0, InetAddress.DEFAULT, gw, netIf);
