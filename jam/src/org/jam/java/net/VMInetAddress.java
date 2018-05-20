@@ -35,103 +35,112 @@ this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 
-
 package org.jam.java.net;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import org.xbill.DNS.Address;
 
 public class VMInetAddress implements Serializable
 {
-  /**
-   * This method looks up the hostname of the local machine
-   * we are on.  If the actual hostname cannot be determined, then the
-   * value "localhost" will be used.  This native method wrappers the
-   * "gethostname" function.
-   *
-   * @return The local hostname.
-   */
-  public static String getLocalHostname()
-  {
-    return null;
-  }
-
-  /**
-   * Returns the value of the special address INADDR_ANY
-   */
-  public static byte[] lookupInaddrAny() throws UnknownHostException
-  {
-    return null;
-  }
-
-  /**
-   * This method returns the hostname for a given IP address.  It will
-   * throw an UnknownHostException if the hostname cannot be determined.
-   *
-   * @param ip The IP address as a byte array
-   *
-   * @return The hostname
-   *
-   * @exception UnknownHostException If the reverse lookup fails
-   */
-  public static String getHostByAddr(byte[] ip)
-    throws UnknownHostException
+    /**
+     * This method looks up the hostname of the local machine we are on. If the
+     * actual hostname cannot be determined, then the value "localhost" will be
+     * used. This native method wrappers the "gethostname" function.
+     *
+     * @return The local hostname.
+     */
+    public static String getLocalHostname()
     {
-    return null;
+        return null;
     }
 
-  /**
-   * Returns a list of all IP addresses for a given hostname.  Will throw
-   * an UnknownHostException if the hostname cannot be resolved.
-   */
-  public static byte[][] getHostByName(String hostname)
-    throws UnknownHostException
+    /**
+     * Returns the value of the special address INADDR_ANY
+     */
+    public static byte[] lookupInaddrAny() throws UnknownHostException
     {
-    return null;
+        return null;
     }
 
-  /**
-   * Return the IP address represented by a literal address.
-   * Will return null if the literal address is not valid.
-   *
-   * @param address the name of the host
-   *
-   * @return The IP address as a byte array
-   */
-  public static byte[] aton(String address)
-  {
-      int octetParts[] = new int[4];
-      int partIndex=0;
-      int value=0;
-      int base=10;
-      
-      for(char c: address.toCharArray())
-      {
-          if(Character.isDigit(c))
-          {
-        	  	value = (value * base) + (c - '0');
-        	  	continue;
-          }
-          if(c == '.')
-          {
-        	  	if(partIndex > 3 || value > 0xFF)
-        	  	{
-        	  		return null;
-        	  	}
-        	  	octetParts[partIndex++] = value;
-        	  	value = 0;
-          }
-      }
-      if(value > 255)
-      {
-    	  	return null;
-      }
-      octetParts[partIndex] = value;
-      byte[] inet = new byte[4];
-      inet[0] = (byte)octetParts[0];
-      inet[1] = (byte)octetParts[1];
-      inet[2] = (byte)octetParts[2];
-      inet[3] = (byte)octetParts[3];
-      return inet;
-  }
+    /**
+     * This method returns the hostname for a given IP address. It will throw an
+     * UnknownHostException if the hostname cannot be determined.
+     *
+     * @param ip
+     *            The IP address as a byte array
+     *
+     * @return The hostname
+     *
+     * @exception UnknownHostException
+     *                If the reverse lookup fails
+     */
+    public static String getHostByAddr(byte[] ip) throws UnknownHostException
+    {
+        return null;
+    }
+
+    /**
+     * Returns a list of all IP addresses for a given hostname. Will throw an
+     * UnknownHostException if the hostname cannot be resolved.
+     */
+    public static byte[][] getHostByName(String hostname) throws UnknownHostException
+    {
+        InetAddress ipAddrs[] = Address.getAllByName(hostname);
+        byte[][] byteAddrs = new byte[ipAddrs.length][];
+        int index = 0;
+        for(; index < ipAddrs.length; index++)
+        {
+            byteAddrs[index] = ipAddrs[index].getAddress();
+        }
+        return byteAddrs;
+    }
+
+    /**
+     * Return the IP address represented by a literal address. Will return null if
+     * the literal address is not valid.
+     *
+     * @param address
+     *            the name of the host
+     *
+     * @return The IP address as a byte array
+     */
+    public static byte[] aton(String address)
+    {
+        int octetParts[] = new int[4];
+        int partIndex = 0;
+        int value = 0;
+        int base = 10;
+
+        for (char c : address.toCharArray())
+        {
+            if (Character.isDigit(c))
+            {
+                value = (value * base) + (c - '0');
+                continue;
+            }
+            if (c == '.')
+            {
+                if (partIndex > 3 || value > 0xFF)
+                {
+                    return null;
+                }
+                octetParts[partIndex++] = value;
+                value = 0;
+            }
+        }
+        if (value > 255)
+        {
+            return null;
+        }
+        octetParts[partIndex] = value;
+        byte[] inet = new byte[4];
+        inet[0] = (byte) octetParts[0];
+        inet[1] = (byte) octetParts[1];
+        inet[2] = (byte) octetParts[2];
+        inet[3] = (byte) octetParts[3];
+        return inet;
+    }
 }
