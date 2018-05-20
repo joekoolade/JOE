@@ -79,7 +79,8 @@ public class VMInetAddress implements Serializable
      */
     public static String getHostByAddr(byte[] ip) throws UnknownHostException
     {
-        return null;
+        InetAddress addr = InetAddress.getByAddress(ip);
+        return Address.getHostName(addr);
     }
 
     /**
