@@ -47,25 +47,25 @@ public
 ResolverConfig() {
 	if (findProperty())
 		return;
-	if (findSunJVM())
-		return;
+//	if (findSunJVM())
+//		return;
 	if (servers == null || searchlist == null) {
-		String OS = System.getProperty("os.name");
-		String vendor = System.getProperty("java.vendor");
-		if (OS.indexOf("Windows") != -1) {
-			if (OS.indexOf("95") != -1 ||
-			    OS.indexOf("98") != -1 ||
-			    OS.indexOf("ME") != -1)
-				find95();
-			else
-				findNT();
-		} else if (OS.indexOf("NetWare") != -1) {
-			findNetware();
-		} else if (vendor.indexOf("Android") != -1) {
-			findAndroid();
-		} else {
-			findUnix();
-		}
+//		String OS = System.getProperty("os.name");
+//		String vendor = System.getProperty("java.vendor");
+//		if (OS.indexOf("Windows") != -1) {
+//			if (OS.indexOf("95") != -1 ||
+//			    OS.indexOf("98") != -1 ||
+//			    OS.indexOf("ME") != -1)
+//				find95();
+//			else
+//				findNT();
+//		} else if (OS.indexOf("NetWare") != -1) {
+//			findNetware();
+//		} else if (vendor.indexOf("Android") != -1) {
+//			findAndroid();
+//		} else {
+//			findUnix();
+//		}
 	}
 }
 

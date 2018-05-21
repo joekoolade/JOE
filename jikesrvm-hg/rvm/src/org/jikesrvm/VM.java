@@ -453,6 +453,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     napiThread.setName("NAPI Manager");
     napiThread.start();
     Platform.net.inetBoot();
+    System.setProperty("dnsjava.options", "verbose,verbosemsg");
+    System.setProperty("dns.server", "192.168.1.254");
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     try
