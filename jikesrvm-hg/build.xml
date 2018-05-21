@@ -1615,6 +1615,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="-m"/>
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>
+      <arg value="-trace"/>
 	  <arg value="-profile"/>
       <!-- <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->

@@ -383,6 +383,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     // runClassInitializer("java.util.logging.Logger");
     // Initialize compiler that compiles dynamically loaded classes.
     //
+    runClassInitializer("org.xbill.DNS.Name");
+    runClassInitializer("org.xbill.DNS.ResolverConfig");
+    runClassInitializer("org.xbill.DNS.Lookup");
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
     RuntimeCompiler.boot();
 
@@ -453,8 +456,22 @@ public class VM extends Properties implements Constants, ExitStatus {
     napiThread.setName("NAPI Manager");
     napiThread.start();
     Platform.net.inetBoot();
+    System.out.println("DNS options");
     System.setProperty("dnsjava.options", "verbose,verbosemsg");
-    System.setProperty("dns.server", "192.168.1.254");
+    System.setProperty("dns.server", "8.8.8.8");
+    try
+    {
+        System.out.println("DNS requests");
+        java.net.InetAddress addr = org.xbill.DNS.Address.getByName("google.com");
+        System.out.println("request "+addr);
+        addr = org.xbill.DNS.Address.getByName("viasat.com");
+        System.out.println("request "+addr);
+    }
+    catch (UnknownHostException e1)
+    {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+    }
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     try

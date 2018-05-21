@@ -2,7 +2,11 @@ package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
+import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 
+@Uninterruptible
+@NonMoving
 public class ThreadWaitQueue extends ThreadQueue {
 
     private static final boolean DEBUG = false;
