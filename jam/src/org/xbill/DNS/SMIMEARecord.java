@@ -60,7 +60,10 @@ private int selector;
 private int matchingType;
 private byte [] certificateAssociationData;
 
-SMIMEARecord() {}
+SMIMEARecord()
+{
+    certificateAssociationData = new byte[0];
+}
 
 Record
 getObject() {

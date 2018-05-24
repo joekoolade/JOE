@@ -25,7 +25,11 @@ private int flags;
 private byte [] tag;
 private byte [] value;
 
-CAARecord() {} 
+CAARecord()
+{
+    tag = new byte[0];
+    value = new byte[0];
+}
 
 Record
 getObject() {

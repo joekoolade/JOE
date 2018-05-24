@@ -19,7 +19,13 @@ private int order, preference;
 private byte [] flags, service, regexp;
 private Name replacement;
 
-NAPTRRecord() {}
+NAPTRRecord()
+{
+    flags = new byte[0];
+    service = new byte[0];
+    regexp = new byte[0];
+    replacement = Name.empty;
+}
 
 Record
 getObject() {

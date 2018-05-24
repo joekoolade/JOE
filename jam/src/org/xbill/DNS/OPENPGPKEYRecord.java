@@ -18,7 +18,10 @@ private static final long serialVersionUID = -1277262990243423062L;
 
 private byte [] cert;
 
-OPENPGPKEYRecord() {}
+OPENPGPKEYRecord()
+{
+    cert = new byte[0];
+}
 
 Record
 getObject() {

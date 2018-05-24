@@ -110,7 +110,10 @@ private int certType, keyTag;
 private int alg;
 private byte [] cert;
 
-CERTRecord() {}
+CERTRecord() 
+{
+    cert = new byte[0];
+}
 
 Record
 getObject() {

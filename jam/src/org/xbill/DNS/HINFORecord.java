@@ -16,7 +16,11 @@ private static final long serialVersionUID = -4732870630947452112L;
 	
 private byte [] cpu, os;
 
-HINFORecord() {}
+HINFORecord() 
+{
+    cpu = new byte[0];
+    os = new byte[0];
+}
 
 Record
 getObject() {

@@ -58,7 +58,10 @@ private int selector;
 private int matchingType;
 private byte [] certificateAssociationData;
 
-TLSARecord() {}
+TLSARecord()
+{
+    certificateAssociationData = new byte[0];
+}
 
 Record
 getObject() {

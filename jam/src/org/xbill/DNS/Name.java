@@ -74,6 +74,7 @@ static {
 	root.appendSafe(emptyLabel, 0, 1);
 	empty = new Name();
 	empty.name = new byte[0];
+	empty.appendSafe(emptyLabel, 0, 1);
 	wild = new Name();
 	wild.appendSafe(wildLabel, 0, 1);
 }
@@ -552,7 +553,7 @@ isAbsolute() {
 	int nlabels = labels();
 	if (nlabels == 0)
 		return false;
-        return name[offset(nlabels - 1)] == 0;
+    return name[offset(nlabels - 1)] == 0;
 }
 
 /**

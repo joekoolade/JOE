@@ -18,7 +18,10 @@ private static final long serialVersionUID = -18595042501413L;
 protected Name singleName;
 
 protected
-SingleNameBase() {}
+SingleNameBase() 
+{
+    singleName = Name.empty;
+}
 
 protected
 SingleNameBase(Name name, int type, int dclass, long ttl) {

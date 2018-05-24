@@ -18,7 +18,11 @@ private int preference;
 private Name map822;
 private Name mapX400;
 
-PXRecord() {}
+PXRecord()
+{
+    map822 = Name.empty;
+    mapX400 = Name.empty;
+}
 
 Record
 getObject() {

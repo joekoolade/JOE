@@ -44,7 +44,10 @@ private int alg;
 private int digestid;
 private byte [] digest;
 
-DSRecord() {}
+DSRecord()
+{
+    digest = new byte[0];
+}
 
 Record
 getObject() {

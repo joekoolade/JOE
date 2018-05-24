@@ -55,7 +55,12 @@ private TypeBitmap types;
 private static final base32 b32 = new base32(base32.Alphabet.BASE32HEX,
 					     false, false);
 
-NSEC3Record() {}
+NSEC3Record() 
+{
+    salt = new byte[0];
+    next = new byte[0];
+    types = new TypeBitmap(new int[0]);
+}
 
 Record getObject() {
 	return new NSEC3Record();

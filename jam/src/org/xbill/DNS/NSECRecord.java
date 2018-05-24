@@ -23,7 +23,11 @@ private static final long serialVersionUID = -5165065768816265385L;
 private Name next;
 private TypeBitmap types;
 
-NSECRecord() {}
+NSECRecord() 
+{
+    next = Name.empty;
+    types = new TypeBitmap(new int[0]);
+}
 
 Record
 getObject() {

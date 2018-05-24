@@ -32,7 +32,10 @@ private int alg;
 private int digestType;
 private byte [] fingerprint;
 
-SSHFPRecord() {} 
+SSHFPRecord()
+{
+    fingerprint = new byte[0];
+}
 
 Record
 getObject() {

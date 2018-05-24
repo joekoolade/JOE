@@ -17,7 +17,10 @@ private static final long serialVersionUID = 4267576252335579764L;
 
 private byte [] address;
 
-X25Record() {}
+X25Record() 
+{
+    address = new byte[0];
+}
 
 Record
 getObject() {

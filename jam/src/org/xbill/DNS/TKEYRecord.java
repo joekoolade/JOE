@@ -40,7 +40,14 @@ public static final int RESOLVERASSIGNED	= 4;
 /** The key should be deleted */
 public static final int DELETE			= 5;
 
-TKEYRecord() {}
+TKEYRecord()
+{
+    key = new byte[0];
+    other = new byte[0];
+    timeInception = new Date(0);
+    timeExpire = new Date(0);
+    alg = Name.empty;
+}
 
 Record
 getObject() {

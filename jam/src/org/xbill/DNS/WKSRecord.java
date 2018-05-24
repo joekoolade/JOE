@@ -578,7 +578,11 @@ private byte [] address;
 private int protocol;
 private int [] services;
 
-WKSRecord() {}
+WKSRecord() 
+{
+    address = new byte[0];
+    services = new int[0];
+}
 
 Record
 getObject() {
@@ -707,13 +711,16 @@ void
 rrToWire(DNSOutput out, Compression c, boolean canonical) {
 	out.writeByteArray(address);
 	out.writeU8(protocol);
-	int highestPort = services[services.length - 1];
-	byte [] array = new byte[highestPort / 8 + 1];
-	for (int i = 0; i < services.length; i++) {
-		int port = services[i];
-		array[port / 8] |= (1 << (7 - port % 8));
+	if(services.length > 0)
+	{
+    	int highestPort = services[services.length - 1];
+    	byte [] array = new byte[highestPort / 8 + 1];
+    	for (int i = 0; i < services.length; i++) {
+    		int port = services[i];
+    		array[port / 8] |= (1 << (7 - port % 8));
+    	}
+    	out.writeByteArray(array);
 	}
-	out.writeByteArray(array);
 }
 
 }

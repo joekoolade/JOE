@@ -17,7 +17,11 @@ private static final long serialVersionUID = -8730801385178968798L;
 private byte [] address;
 private byte [] subAddress;
 
-ISDNRecord() {}
+ISDNRecord()
+{
+    address = new byte[0];
+    subAddress = new byte[0];
+}
 
 Record
 getObject() {

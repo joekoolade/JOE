@@ -25,7 +25,13 @@ protected Name signer;
 protected byte [] signature;
 
 protected
-SIGBase() {}
+SIGBase() 
+{
+    signer = Name.empty;
+    signature = new byte[0];
+    expire = new Date(0);
+    timeSigned = expire;
+}
 
 public
 SIGBase(Name name, int type, int dclass, long ttl, int covered, int alg,

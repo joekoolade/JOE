@@ -17,7 +17,10 @@ private static final long serialVersionUID = -1037209403185658593L;
 
 private byte [] address;
 
-NSAPRecord() {}
+NSAPRecord() 
+{
+    address = new byte[0];
+}
 
 Record
 getObject() {

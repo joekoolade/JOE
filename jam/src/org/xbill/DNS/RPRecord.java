@@ -19,7 +19,11 @@ private static final long serialVersionUID = 8124584364211337460L;
 private Name mailbox;
 private Name textDomain;
 
-RPRecord() {}
+RPRecord()
+{
+    mailbox = Name.empty;
+    textDomain = Name.empty;
+}
 
 Record
 getObject() {

@@ -19,7 +19,19 @@ private int prefixBits;
 private InetAddress suffix;
 private Name prefix;
 
-A6Record() {}
+A6Record()
+{
+    try
+    {
+        suffix = InetAddress.getByName("0::0");
+    }
+    catch (UnknownHostException e)
+    {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    prefix = Name.empty;
+}
 
 Record
 getObject() {

@@ -16,7 +16,12 @@ private static final long serialVersionUID = -6349714958085750705L;
 
 private byte [] latitude, longitude, altitude;
 
-GPOSRecord() {}
+GPOSRecord() 
+{
+    latitude = new byte[0];
+    longitude = new byte[0];
+    altitude = new byte[0];
+}
 
 Record
 getObject() {

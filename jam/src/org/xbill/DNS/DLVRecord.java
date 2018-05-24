@@ -27,7 +27,10 @@ private int alg;
 private int digestid;
 private byte [] digest;
 
-DLVRecord() {}
+DLVRecord() 
+{
+    digest = new byte[0];
+}
 
 Record
 getObject() {

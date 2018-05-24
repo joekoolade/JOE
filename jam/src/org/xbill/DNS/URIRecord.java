@@ -20,7 +20,7 @@ private int priority, weight;
 private byte[] target;
 
 URIRecord() {
-	target = new byte[]{};
+	target = new byte[0];
 }
 
 Record

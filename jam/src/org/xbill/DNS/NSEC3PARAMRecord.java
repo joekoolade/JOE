@@ -27,7 +27,10 @@ private int flags;
 private int iterations;
 private byte salt[];
 
-NSEC3PARAMRecord() {}
+NSEC3PARAMRecord()
+{
+    salt = new byte[0];
+}
 
 Record getObject() {
 	return new NSEC3PARAMRecord();

@@ -17,7 +17,11 @@ private static final long serialVersionUID = 1049740098229303931L;
 private Name host, admin;
 private long serial, refresh, retry, expire, minimum;
 
-SOARecord() {}
+SOARecord() 
+{
+    host = Name.empty;
+    admin = Name.empty;
+}
 
 Record
 getObject() {

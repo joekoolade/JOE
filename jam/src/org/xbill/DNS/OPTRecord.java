@@ -26,8 +26,10 @@ private static final long serialVersionUID = -6254521894809367938L;
 
 private List options;
 
-OPTRecord() {}
-
+OPTRecord() 
+{
+    options = new ArrayList();
+}
 Record
 getObject() {
 	return new OPTRecord();

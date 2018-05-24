@@ -23,7 +23,10 @@ protected int footprint = -1;
 protected PublicKey publicKey = null;
 
 protected
-KEYBase() {}
+KEYBase()
+{
+    key = new byte[0];
+}
 
 public
 KEYBase(Name name, int type, int dclass, long ttl, int flags, int proto,

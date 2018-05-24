@@ -17,7 +17,10 @@ private static final long serialVersionUID = -5796493183235216538L;
 
 private byte [] data;
 
-NULLRecord() {}
+NULLRecord()
+{
+    data = new byte[0];
+}
 
 Record
 getObject() {

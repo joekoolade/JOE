@@ -38,7 +38,10 @@ private int algorithmType;
 private Object gateway;
 private byte [] key;
 
-IPSECKEYRecord() {} 
+IPSECKEYRecord() 
+{
+    key = new byte[0];
+}
 
 Record
 getObject() {

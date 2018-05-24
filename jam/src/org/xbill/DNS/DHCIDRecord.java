@@ -17,7 +17,10 @@ private static final long serialVersionUID = -8214820200808997707L;
 
 private byte [] data;
 
-DHCIDRecord() {}
+DHCIDRecord()
+{
+    data = new byte[0];
+}
 
 Record
 getObject() {

@@ -19,7 +19,10 @@ protected int u16Field;
 protected Name nameField;
 
 protected
-U16NameBase() {}
+U16NameBase()
+{
+    nameField = Name.empty;
+}
 
 protected
 U16NameBase(Name name, int type, int dclass, long ttl) {

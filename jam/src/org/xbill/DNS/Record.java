@@ -29,7 +29,10 @@ static {
 }
 
 protected
-Record() {}
+Record() 
+{
+    name = Name.empty;
+}
 
 Record(Name name, int type, int dclass, long ttl) {
 	if (!name.isAbsolute())

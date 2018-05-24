@@ -271,7 +271,7 @@ public class BootImageMap extends BootImageWriterMessages
             }
             catch (Exception e)
             {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
                 System.out.println("Problem class: "+jdkObject.getClass().getName());
             }
         }

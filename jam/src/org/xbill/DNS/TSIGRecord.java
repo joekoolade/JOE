@@ -28,7 +28,13 @@ private int originalID;
 private int error;
 private byte [] other;
 
-TSIGRecord() {} 
+TSIGRecord() 
+{
+    alg = Name.empty;
+    timeSigned = new Date(0);
+    signature = new byte[0];
+    other = new byte[0];
+}
 
 Record
 getObject() {
