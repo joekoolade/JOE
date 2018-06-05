@@ -15,7 +15,9 @@ EOF
 dd if=jam.img of=mbr.img bs=512 count=2047
 dd if=jam.img of=fs.img bs=512 skip=2047
 disk=$(hdiutil attach -nomount fs.img)
+# Get disk device that was mounted
 number=$(echo $disk | cut -c 10-)
+# create the rdisk equivalent
 rdisk="/dev/rdisk$number"
 newfs_msdos -F 32 $rdisk
 hdiutil detach $disk
