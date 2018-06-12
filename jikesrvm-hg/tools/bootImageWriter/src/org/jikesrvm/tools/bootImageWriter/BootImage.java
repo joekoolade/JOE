@@ -234,6 +234,11 @@ public class BootImage extends BootImageWriterMessages
     ScanBootImage.encodingStats();
   }
 
+  public void writeMultiboot() throws IOException
+  {
+      
+  }
+
   /**
    * Get image data size, in bytes.
    * @return image size

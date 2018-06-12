@@ -93,8 +93,14 @@ public class GenerateX86Startup {
 		// io delay
 		asm.emitOUTB(0x80);
 		
+        // enable protected mode; not needed for qemu -kernel option
 		// setup gdt
 		asm.emitLGDT(gdtDesc);
+        // Set cr0.MP
+        asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
+        asm.emitMOVCR(GPR.EAX, CR.CR0);
+        asm.emitJMPFAR_label(2, CODE_SEGMENT);
+        asm.resolveForwardReferences(2);
 		// asm.emitLIDT(idtTablePtr);
 		// Load the data segment registers
 		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
@@ -104,10 +110,6 @@ public class GenerateX86Startup {
 		asm.emitMOVSEG(SEG.GS, GPR.EAX);
 		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 
-		// enable protected mode; not needed for qemu -kernel option
-		// Set cr0.MP
-		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
-		asm.emitMOVCR(GPR.EAX, CR.CR0);
 		// Set cr4.OSFXSR
 		asm.emitMOV_Reg_Imm(GPR.EAX, 0x200);
 		asm.emitMOVCR(GPR.EAX, CR.CR4);

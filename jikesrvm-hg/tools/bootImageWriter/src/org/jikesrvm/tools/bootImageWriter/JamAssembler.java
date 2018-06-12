@@ -1,6 +1,7 @@
 package org.jikesrvm.tools.bootImageWriter;
 
 import org.jikesrvm.compilers.baseline.ia32.BaselineCompilerImpl;
+import org.jikesrvm.compilers.common.assembler.ForwardReference;
 import org.jikesrvm.compilers.common.assembler.ia32.Assembler;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
@@ -301,10 +302,18 @@ public class JamAssembler extends Assembler {
 //		setMachineCodes(mi++, (byte)0x66);
 		setMachineCodes(mi++, (byte)0x9a);
 		emitImm32(abs);
-		emitImm16(selector);
 		if(lister != null) lister.I(miStart, "CALL", abs.toInt());
 	}
 	
+	public void emitJMPFAR_label(int label, int selector)
+	{
+	    int miStart = mi;
+	    ForwardReference r = new ForwardReference.UnconditionalBranch(mi, label);
+	    setMachineCodes(mi++, (byte)0xea);
+	    mi += 4;
+        emitImm16(selector);
+        if (lister != null) lister.I(miStart, "JMP", label);
+	}
 	/**
 	 * Move control register to a general purpose register; only handles 32bit case
 	 * 
