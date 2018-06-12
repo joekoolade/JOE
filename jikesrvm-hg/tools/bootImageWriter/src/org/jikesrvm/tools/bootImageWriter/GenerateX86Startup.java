@@ -97,7 +97,7 @@ public class GenerateX86Startup {
 		// setup gdt
 		asm.emitLGDT(gdtDesc);
         // Set cr0.MP
-        asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
+		asm.emitOR_Reg_Imm(GPR.EAX, 0x1);
         asm.emitMOVCR(GPR.EAX, CR.CR0);
         asm.emitJMPFAR_label(2, CODE_SEGMENT);
         asm.resolveForwardReferences(2);

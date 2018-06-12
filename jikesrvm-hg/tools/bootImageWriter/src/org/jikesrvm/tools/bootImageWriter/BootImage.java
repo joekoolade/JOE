@@ -234,9 +234,16 @@ public class BootImage extends BootImageWriterMessages
     ScanBootImage.encodingStats();
   }
 
-  public void writeMultiboot() throws IOException
+  public void writeMultiboot(byte[] startUpCode) throws IOException
   {
-      
+      RandomAccessFile jamOut = new RandomAccessFile(jamoutFile, "rw");
+      // set file pointer to end
+      jamOut.write(startUpCode);
+      jamOut.write(bootImageData.array());
+      jamOut.write(bootImageCode.array());
+      jamOut.write(bootImageRMap);
+      say("Create jam.out multiboot!");
+      jamOut.close();
   }
 
   /**

@@ -817,7 +817,7 @@ private static boolean jamming=false;
     	  if (++i >= args.length)
     		  fail("Need to specify jam files");
     	  bootImageStartupName = args[i];
-    	  System.out.print("JAMMING to "+bootImageStartupName);
+    	  say("JAMMING to "+bootImageStartupName);
     	  jamming = true;
     	  continue;
       }
@@ -1109,7 +1109,7 @@ private static boolean jamming=false;
     			Integer.toHexString(bootRecord.ipRegister.toInt()));
     	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
     	startup = new GenerateX86Startup(bootRecord);
-    	say("Done!\n Writing the image ...");
+    	say("Done!\n Writing the image ..." + bootImageStartupName);
     	startup.writeImage(bootImageStartupName);
     	say("Done!");
     }
@@ -1121,7 +1121,8 @@ private static boolean jamming=false;
     	say("writing image files");
       bootImage.write();
     	say("writing elf file");
-      bootImage.writeElfFile(startup.getArray());
+      //bootImage.writeElfFile(startup.getArray());
+    	bootImage.writeMultiboot(startup.getArray());
       say("File writing done");
     } catch (IOException e) {
       fail("unable to write bootImage: "+e);
