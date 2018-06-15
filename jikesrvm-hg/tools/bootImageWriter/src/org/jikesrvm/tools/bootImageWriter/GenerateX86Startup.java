@@ -28,6 +28,7 @@ public class GenerateX86Startup {
 	 */
 	public GenerateX86Startup(BootRecord bootRecord) {
 		int multibootEntry=1;
+		asm.setOrigin(X86_LOADADDR);
 		asm.emitJMP_Label(multibootEntry);
 		asm.align(4);
 		// Insert multiboot header
@@ -97,10 +98,14 @@ public class GenerateX86Startup {
 		// setup gdt
 		asm.emitLGDT(gdtDesc);
         // Set cr0.MP
-		asm.emitOR_Reg_Imm(GPR.EAX, 0x1);
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
         asm.emitMOVCR(GPR.EAX, CR.CR0);
+        /****
+         * !!!!!! Any changes to above then the addres here needs to be recomputed!
+         */
+ //       asm.emitJMPFAR_label(0x100135, CODE_SEGMENT);
         asm.emitJMPFAR_label(2, CODE_SEGMENT);
-        asm.resolveForwardReferences(2);
+        asm.resolveForwardReferencesAbs(2);
 		// asm.emitLIDT(idtTablePtr);
 		// Load the data segment registers
 		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);

@@ -1119,10 +1119,10 @@ private static boolean jamming=false;
     if (profile) startTime = System.currentTimeMillis();
     try {
     	say("writing image files");
-      bootImage.write();
+    	bootImage.write();
     	say("writing elf file");
-      //bootImage.writeElfFile(startup.getArray());
-    	bootImage.writeMultiboot(startup.getArray());
+        bootImage.writeElfFile(startup.getArray());
+    	// bootImage.writeMultiboot(startup.getArray());
       say("File writing done");
     } catch (IOException e) {
       fail("unable to write bootImage: "+e);

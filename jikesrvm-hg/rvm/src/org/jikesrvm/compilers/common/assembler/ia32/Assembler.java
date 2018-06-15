@@ -198,7 +198,12 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
    * The current end of the generated machine code
    */
   protected int mi;
-
+  
+  /**
+   * The current address
+   */
+  private int origin;
+  
   /**
    * Create an assembler with a given machine code buffer size that
    * will not print the machine code as it generates it.
@@ -878,6 +883,15 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     setMachineCodes(mi++, (byte) (opCode | cond));
   }
 
+  public final void setOrigin(int address)
+  {
+      origin = address;
+  }
+  
+  public final int getOrigin()
+  {
+      return origin;
+  }
   /**
    * Generate a locking prefix word into the generated code.  Locking
    * operations on IA32 are expressed by writing a locking byte before
@@ -1065,6 +1079,10 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     forwardRefs = ForwardReference.resolveMatching(this, forwardRefs, label);
   }
 
+  public final void resolveForwardReferencesAbs(int label) {
+      if (forwardRefs == null) return; // premature optimization
+      forwardRefs = ForwardReference.resolveMatching(this, forwardRefs, label);
+  }
   /**
    * Set up a code sequence to push a return address. This involves pushing the
    * current instruction address, and setting up an ADD that gets resolved later.

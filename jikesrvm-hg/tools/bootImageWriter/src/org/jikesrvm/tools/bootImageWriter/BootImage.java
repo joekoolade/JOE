@@ -176,7 +176,7 @@ public class BootImage extends BootImageWriterMessages
 	  elf.addProgramHeader(programHeader);
 	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x2000000, 0x1000, bootImageCode.array(), getCodeSize(), 0x2000000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x4000000, 0x1000, bootImageRMap, getRMapSize(), 0x40000);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x4000000, 0x1000, bootImageRMap, getRMapSize(), 0x50000);
 	  elf.addProgramHeader(programHeader);
 	  elf.write();
 	  execFile.close();
