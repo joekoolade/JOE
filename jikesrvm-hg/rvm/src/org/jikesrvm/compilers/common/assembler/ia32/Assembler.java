@@ -1168,6 +1168,17 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     emitImm32(relOffset, sourceIndex);
   }
 
+  public final void patchUnconditionalAbsoluteBranch(int sourceIndex)
+  {
+      if (VM.AlignmentChecking || isHotCode()) {
+          // force 4byte alignment here
+          emitNOP((4 - mi) & 3);
+        }
+        if (lister != null) lister.comefrom(mi+origin, sourceIndex);
+        sourceIndex++; // skip the op code
+        emitImm32(mi+origin, sourceIndex);
+      
+  }
   /**
    * Make the given conditional branch branch to the current
    * generated instruction.  It is the client's responsibility to

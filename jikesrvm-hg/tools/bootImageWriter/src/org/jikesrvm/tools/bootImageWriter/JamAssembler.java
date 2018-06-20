@@ -306,13 +306,16 @@ public class JamAssembler extends Assembler {
 		if(lister != null) lister.I(miStart, "CALL", abs.toInt());
 	}
 	
-	public void emitJMPFAR_label(int address, int selector)
+	public void emitJMPFAR_label(int label, int selector)
 	{
 	    int miStart = mi;
+	      ForwardReference r =
+	        new ForwardReference.UnconditionalAbsoluteBranch(mi, label);
+	      forwardRefs = ForwardReference.enqueue(forwardRefs, r);
 	    setMachineCodes(mi++, (byte)0xea);
-	    emitImm32(address);
+	    mi += 4;
         emitImm16(selector);
-        if (lister != null) lister.I(miStart, "JMP", address);
+        if (lister != null) lister.I(miStart, "JMP", label);
 	}
 	/**
 	 * Move control register to a general purpose register; only handles 32bit case

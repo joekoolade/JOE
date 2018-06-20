@@ -109,7 +109,7 @@ public abstract class ForwardReference {
     return r;
   }
 
-  public static final class UnconditionalBranch extends ForwardReference {
+ public static final class UnconditionalBranch extends ForwardReference {
 
     public UnconditionalBranch(int source, int btarget) {
       super(source, btarget);
@@ -120,6 +120,18 @@ public abstract class ForwardReference {
       asm.patchUnconditionalBranch(sourceMachinecodeIndex);
     }
   }
+
+ public static final class UnconditionalAbsoluteBranch extends ForwardReference {
+
+     public UnconditionalAbsoluteBranch(int source, int btarget) {
+       super(source, btarget);
+     }
+
+     @Override
+     public void resolve(AbstractAssembler asm) {
+       asm.patchUnconditionalAbsoluteBranch(sourceMachinecodeIndex);
+     }
+   }
 
   public static final class ConditionalBranch extends ForwardReference {
 

@@ -105,7 +105,7 @@ public class GenerateX86Startup {
          */
  //       asm.emitJMPFAR_label(0x100135, CODE_SEGMENT);
         asm.emitJMPFAR_label(2, CODE_SEGMENT);
-        asm.resolveForwardReferencesAbs(2);
+        asm.resolveForwardReferences(2);
 		// asm.emitLIDT(idtTablePtr);
 		// Load the data segment registers
 		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
