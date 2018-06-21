@@ -473,6 +473,9 @@ Ljava/lang/Math;
 Ljava/io/Serializable;
 Ljava/util/Locale;
 
+Ljava/text/DecimalFormatSymbols;
+Ljava/text/DecimalFormat;
+
 ## No longer needed for class loading from Jars as of Classpath CVS head
 ## of Jan 23, 2005
 Ljava/lang/Cloneable;
