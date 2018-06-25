@@ -383,6 +383,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     // runClassInitializer("java.util.logging.Logger");
     // Initialize compiler that compiles dynamically loaded classes.
     //
+    runClassInitializer("java.util.Currency");
     runClassInitializer("java.text.DecimalFormatSymbols");
     runClassInitializer("java.text.DecimalFormat");
     runClassInitializer("org.xbill.DNS.Name");
