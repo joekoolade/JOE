@@ -473,6 +473,7 @@ Ljava/lang/Math;
 Ljava/io/Serializable;
 Ljava/util/Locale;
 
+Lgnu/java/locale/LocaleInformation_en_US;
 Ljava/text/DecimalFormatSymbols;
 Ljava/text/DecimalFormat;
 Ljava/util/Currency;

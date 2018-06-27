@@ -331,6 +331,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     System.setProperty("line.separator", "\n");
     runClassInitializer("java.io.PrintStream"); // Uses System.getProperty
     runClassInitializer("java.util.Locale");
+    runClassInitializer("gnu.java.locale.LocaleInformation_en_US");
     runClassInitializer("java.util.ResourceBundle");
     // Run class initializers that require JNI
     if (verboseBoot >= 1) VM.sysWriteln("Running late class initializers");
