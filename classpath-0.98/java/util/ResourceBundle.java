@@ -137,7 +137,7 @@ public abstract class ResourceBundle
   
   static
   {
-      bundleCache.put(new BundleKey(Locale.getDefault(), "LocaleInformation", Locale.getDefault(), ClassLoader.getSystemClassLoader()), 
+      bundleCache.put(new BundleKey(Locale.getDefault(), "gnu.java.locale.LocaleInformation", Locale.getDefault(), ClassLoader.getSystemClassLoader()), 
                       new LocaleInformation_en_US()) ;
   }
 

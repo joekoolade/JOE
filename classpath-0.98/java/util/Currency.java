@@ -411,7 +411,7 @@ public final class Currency
    */
   public String getSymbol(Locale locale)
   {
-    String property = "currenciesSymbol." + currencyCode;
+    String property = "currencySymbol";
     try
       {
         return ResourceBundle.getBundle("gnu.java.locale.LocaleInformation",
