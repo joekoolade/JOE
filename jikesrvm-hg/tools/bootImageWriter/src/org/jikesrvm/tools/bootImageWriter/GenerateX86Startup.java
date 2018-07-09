@@ -18,7 +18,6 @@ public class GenerateX86Startup {
 	@SuppressWarnings("unused")
 	private static final int CODE_SEGMENT = 1<<3;
 	private static final int DATA_SEGMENT = 2<<3;
-	
 	/**
 	 * 
 	 * @param stack top of stack
@@ -123,6 +122,13 @@ public class GenerateX86Startup {
 		asm.emitMOV_Reg_Abs(GPR.ESI, bootRecord.tocRegister.plus(bootRecord.bootThreadOffset));
 		// setup top of stack pointer
 		asm.emitLEA_Reg_Abs(GPR.ESP, bootRecord.spRegister);
+		// Put JTOC, SP, and ESI at 0x1000E0
+		asm.emitLEA_Reg_Abs(GPR.EAX, bootRecord.tocRegister);
+		Address parameterStorage = Address.fromIntSignExtend(0x1000E0);
+		asm.emitMOV_Abs_Reg(parameterStorage, GPR.EAX);
+		asm.emitMOV_Abs_Reg(parameterStorage.plus(4), GPR.ESP);
+        asm.emitMOV_Abs_Reg(parameterStorage.plus(8), GPR.ESI);
+		
 		// setup the thread register's frame pointer
 		asm.emitMOV_Reg_Reg(GPR.EAX, GPR.ESP);
 		asm.emitSUB_Reg_Imm_Byte(GPR.EAX, 8);
