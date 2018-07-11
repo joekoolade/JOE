@@ -5,6 +5,8 @@ package org.xbill.DNS;
 import java.net.*;
 import java.net.Inet6Address;
 
+import org.jikesrvm.VM;
+
 /**
  * Routines dealing with IP addresses.  Includes functions similar to
  * those in the java.net.InetAddress class.
@@ -234,7 +236,9 @@ toDottedQuad(int [] addr) {
 private static Record []
 lookupHostName(String name, boolean all) throws UnknownHostException {
 	try {
+        VM.sysWriteln("lookupHostName: start");
 		Lookup lookup = new Lookup(name, Type.A);
+		VM.sysWriteln("lookupHostName: lookup");
 		Record [] a = lookup.run();
 		if (a == null) {
 			if (lookup.getResult() == Lookup.TYPE_NOT_FOUND) {
@@ -279,8 +283,10 @@ addrFromRecord(String name, Record r) throws UnknownHostException {
 public static InetAddress
 getByName(String name) throws UnknownHostException {
 	try {
+	    VM.sysWriteln("Address: start");
 		return getByAddress(name);
 	} catch (UnknownHostException e) {
+	    VM.sysWriteln("Address: lookupHostName");
 		Record [] records = lookupHostName(name, false);
 		return addrFromRecord(name, records[0]);
 	}

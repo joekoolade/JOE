@@ -152,13 +152,13 @@ public abstract class SegregatedFreeListSpace extends Space implements Constants
    * @param freeCell The first free cell in the block.
    */
   public void returnBlock(Address block, int sizeClass, Address freeCell) {
-    if (VM.VERIFY_ASSERTIONS) {
-      if(!BlockAllocator.getNext(block).isZero())
-      {
-        Log.write("returnBlock assertion: ", block); Log.writeln(" ", BlockAllocator.getNext(block));
-      }
-      VM.assertions._assert(BlockAllocator.getNext(block).isZero());
-    }
+//    if (VM.VERIFY_ASSERTIONS) {
+//      if(!BlockAllocator.getNext(block).isZero())
+//      {
+//        Log.write("returnBlock assertion: ", block); Log.writeln(" ", BlockAllocator.getNext(block));
+//      }
+//      VM.assertions._assert(BlockAllocator.getNext(block).isZero());
+//    }
     if (DEBUG)
     {
       Log.write(getName());
