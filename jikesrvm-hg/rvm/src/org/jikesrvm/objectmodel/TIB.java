@@ -103,7 +103,6 @@ public final class TIB implements RuntimeTable<Object>, TIBLayoutConstants, Size
     this.data = new Object[size];
   }
 
-  @Override
   public Object[] getBacking() {
     if (VM.VerifyAssertions) VM._assert(!VM.runningVM);
     return data;
@@ -132,7 +131,6 @@ public final class TIB implements RuntimeTable<Object>, TIBLayoutConstants, Size
    * @param index The index of the entry to get
    * @return The value of that entry
    */
-  @Override
   @Intrinsic
   public Object get(int index) {
     if (VM.VerifyAssertions && VM.runningVM) VM._assert(VM.NOT_REACHED);
@@ -145,7 +143,6 @@ public final class TIB implements RuntimeTable<Object>, TIBLayoutConstants, Size
    * @param index The index of the entry to set
    * @param value The value to set the entry to.
    */
-  @Override
   @Intrinsic
   @UninterruptibleNoWarn("Interruptible code not reachable at runtime")
   public void set(int index, Object value) {
@@ -156,7 +153,6 @@ public final class TIB implements RuntimeTable<Object>, TIBLayoutConstants, Size
   /**
    * Return the length of the TIB
    */
-  @Override
   @Intrinsic
   public int length() {
     return data.length;

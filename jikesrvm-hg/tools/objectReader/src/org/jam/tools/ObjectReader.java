@@ -1,29 +1,24 @@
 package org.jam.tools;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 public class ObjectReader
 {
 
-    String memoryDump;
+    private static ObjectReader reader;
+    private byte[] memory;
     
-    class Options
-    {
-        
-    }
     public static void main(String[] args)
     {
-       processArgs(args);
-
-    }
-
-    private static void processArgs(String[] args)
-    {
-       if(args.length != 1)
-       {
-           System.out.println("Need memory dump!");
-           usage();
-           System.exit(1);
-       }
-        
+        // process arguments
+        if(args.length != 1)
+        {
+            System.out.println("Need memory dump!");
+            usage();
+            System.exit(1);
+        }
+        reader = new ObjectReader(args[0]);
     }
 
     private static void usage()
@@ -33,6 +28,17 @@ public class ObjectReader
 
     public ObjectReader(String file)
     {
-        memoryDump = file;
+        
+        try
+        {
+            RandomAccessFile memoryDump = new RandomAccessFile(file, "r");
+            memory = new byte[(int) memoryDump.length()];
+            
+        } catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }
