@@ -2,12 +2,16 @@ package org.jam.tools;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 
 public class ObjectReader
 {
 
     private static ObjectReader reader;
-    private byte[] memory;
+    private MemoryReader memory;
+    private FileChannel memoryChannel;
     
     public static void main(String[] args)
     {
@@ -28,17 +32,6 @@ public class ObjectReader
 
     public ObjectReader(String file)
     {
-        
-        try
-        {
-            RandomAccessFile memoryDump = new RandomAccessFile(file, "r");
-            memory = new byte[(int) memoryDump.length()];
-            
-        } catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.exit(1);
-        }
+        memory = new MemoryReader(file);
     }
 }
