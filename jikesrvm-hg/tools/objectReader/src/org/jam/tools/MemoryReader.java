@@ -34,4 +34,19 @@ public class MemoryReader
     {
         return mappedBuffer.getInt(address);
     }
+    
+    public char readChar(int address)
+    {
+        return mappedBuffer.getChar(address);
+    }
+    
+    public long readLong(int address)
+    {
+        return mappedBuffer.getLong(address);
+    }
+    
+    public byte readByte(int address)
+    {
+        return mappedBuffer.get(address);
+    }
 }
