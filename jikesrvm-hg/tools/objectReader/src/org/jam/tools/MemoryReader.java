@@ -3,6 +3,7 @@ package org.jam.tools;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -20,6 +21,7 @@ public class MemoryReader
             memoryDump = new RandomAccessFile(file, "r");
             memoryChannel = memoryDump.getChannel();
             mappedBuffer = memoryChannel.map(MapMode.READ_ONLY, 0, memoryDump.length());
+            mappedBuffer.order(ByteOrder.LITTLE_ENDIAN);
         } catch (IOException e)
         {
             // TODO Auto-generated catch block
@@ -30,6 +32,6 @@ public class MemoryReader
     
     public int read(int address)
     {
-        return 0;
+        return mappedBuffer.getInt(address);
     }
 }

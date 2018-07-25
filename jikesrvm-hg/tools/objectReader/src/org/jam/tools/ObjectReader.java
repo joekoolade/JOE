@@ -23,6 +23,7 @@ public class ObjectReader
             System.exit(1);
         }
         reader = new ObjectReader(args[0]);
+        reader.run();
     }
 
     private static void usage()
@@ -33,5 +34,10 @@ public class ObjectReader
     public ObjectReader(String file)
     {
         memory = new MemoryReader(file);
+    }
+    
+    public void run()
+    {
+        System.out.println(Integer.toHexString(memory.read(0x100008)));
     }
 }
