@@ -50,7 +50,8 @@ public class ObjectReader
         System.out.println(sb);
         sb.setLength(0);
         sb.append("boot thread tib ").append(Integer.toHexString(bootThreadTib));
-        sb.append("\n tib type").append(Integer.toHexString(tibType));
+        sb.append("\nboot thread rvm class ").append(Integer.toHexString(bootThreadRVMClass));
+        sb.append("\ntib type ").append(Integer.toHexString(tibType));
         System.out.println(sb);
     }
 
