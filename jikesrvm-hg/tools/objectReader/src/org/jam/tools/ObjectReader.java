@@ -43,6 +43,8 @@ public class ObjectReader
          */
         int bootThreadTib = memory.read(bootThread-12);
         int bootThreadRVMClass = memory.read(bootThreadTib);
+        int rvmClassTib = memory.read(bootThreadRVMClass-12);
+        int rvmClass = memory.read(rvmClassTib);
         tibType = memory.read(bootThreadTib-12);
         StringBuffer sb = new StringBuffer("Boot Parameters: ");
         sb.append(Integer.toHexString(jtoc)).append(' ').append(Integer.toHexString(stack));
@@ -52,6 +54,7 @@ public class ObjectReader
         sb.append("boot thread tib ").append(Integer.toHexString(bootThreadTib));
         sb.append("\nboot thread rvm class ").append(Integer.toHexString(bootThreadRVMClass));
         sb.append("\ntib type ").append(Integer.toHexString(tibType));
+        sb.append("\nrvm class tib/class ").append(Integer.toHexString(rvmClassTib)).append('/').append(Integer.toHexString(rvmClass));
         System.out.println(sb);
     }
 
