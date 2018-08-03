@@ -1,17 +1,10 @@
 package org.jam.tools;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-
 public class ObjectReader
 {
 
     private static ObjectReader reader;
     private MemoryReader memory;
-    private FileChannel memoryChannel;
     private int jtoc;
     private int stack;
     private int bootThread;
