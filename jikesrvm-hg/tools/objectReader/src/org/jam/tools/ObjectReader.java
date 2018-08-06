@@ -31,6 +31,7 @@ public class ObjectReader
         jtoc = memory.read(BOOT_PARAMETERS_ADDRESS);
         stack = memory.read(BOOT_PARAMETERS_ADDRESS+4);
         bootThread = memory.read(BOOT_PARAMETERS_ADDRESS+8);
+        JikesObject bt = new JikesObject(memory, bootThread);
         /*
          * Find the TIB object
          */
@@ -49,6 +50,7 @@ public class ObjectReader
         sb.append("\ntib type ").append(Integer.toHexString(tibType));
         sb.append("\nrvm class tib/class ").append(Integer.toHexString(rvmClassTib)).append('/').append(Integer.toHexString(rvmClass));
         System.out.println(sb);
+        System.out.println();
     }
 
     public boolean isTib(int address)

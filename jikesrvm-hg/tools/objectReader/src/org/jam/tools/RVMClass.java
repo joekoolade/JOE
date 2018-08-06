@@ -1,16 +1,14 @@
 package org.jam.tools;
 
-public class RVMClass {
-    private static final int TYPE_REF_OFFSET = 8;
-    private MemoryReader memory;
-    private int address;
+public class RVMClass 
+extends JObject
+{
+    private static final int TYPE_REF_OFFSET = 4;
     private TypeRef typeRef;
     
     public RVMClass(MemoryReader memory, int address)
     {
-        this.memory = memory;
-        this.address = address;
-        
+        super(memory, address);
         typeRef = new TypeRef(memory, address+TYPE_REF_OFFSET);
     }
 }
