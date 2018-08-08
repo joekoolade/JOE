@@ -11,7 +11,7 @@ extends JObject
     public TypeRef(MemoryReader memory, int address)
     {
         super(memory, address);
-        name = new Atom(memory, address);
+        name = new Atom(memory, getInt(0));
         id = getInt(ID_OFFSET);
     }
 

@@ -8,6 +8,6 @@ extends JObject
     public JikesObject(MemoryReader memory, int address)
     {
         super(memory, address);
-        tib = new TIB(memory, address+JAVA_HEADER_OFFSET.toInt());
+        tib = new TIB(memory, getInt(JAVA_HEADER_OFFSET));
     }
 }

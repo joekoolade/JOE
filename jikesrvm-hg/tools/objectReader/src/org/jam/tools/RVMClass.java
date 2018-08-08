@@ -9,6 +9,6 @@ extends JObject
     public RVMClass(MemoryReader memory, int address)
     {
         super(memory, address);
-        typeRef = new TypeRef(memory, address+TYPE_REF_OFFSET);
+        typeRef = new TypeRef(memory, getInt(TYPE_REF_OFFSET));
     }
 }

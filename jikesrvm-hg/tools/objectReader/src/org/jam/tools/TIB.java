@@ -1,8 +1,5 @@
 package org.jam.tools;
 
-import org.jikesrvm.objectmodel.JavaHeaderConstants;
-import org.jikesrvm.objectmodel.TIBLayoutConstants;
-
 public class TIB 
 extends JObject
 {
@@ -12,8 +9,8 @@ extends JObject
     public TIB(MemoryReader memory, int address)
     {
         super(memory, address);
-        size = getInt(ARRAY_LENGTH_OFFSET.toInt());
-        rvmClass = new RVMClass(memory, address);
+        size = getInt(ARRAY_LENGTH_OFFSET);
+        rvmClass = new RVMClass(memory, getInt(0));
     }
 
     public int getSize()
