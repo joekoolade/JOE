@@ -20,7 +20,7 @@ extends JObject
     
     private void processFieldInstances()
     {
-        
+        RVMField field = new RVMField(getMemory(), fieldInstances.array()[0]);
         
     }
 

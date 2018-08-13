@@ -45,4 +45,9 @@ implements TIBLayoutConstants, JavaHeaderConstants
     {
         return address;
     }
+    
+    protected MemoryReader getMemory()
+    {
+        return memory;
+    }
 }
