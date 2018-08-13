@@ -15,4 +15,8 @@ extends JObject
         id = getInt(ID_OFFSET);
     }
 
+    public String getTypeName()
+    {
+        return name.getString();
+    }
 }

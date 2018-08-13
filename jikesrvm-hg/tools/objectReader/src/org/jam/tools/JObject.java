@@ -40,4 +40,9 @@ implements TIBLayoutConstants, JavaHeaderConstants
     {
         return memory.readByte(address+index);
     }
+    
+    public int getAddress()
+    {
+        return address;
+    }
 }

@@ -35,8 +35,8 @@ public class ObjectReader
         /*
          * Find the TIB object
          */
-        int bootThreadTib = memory.read(bootThread-12);
-        int bootThreadRVMClass = memory.read(bootThreadTib);
+        int bootThreadTib = bt.getTIBAddress();
+        int bootThreadRVMClass = bt.getType().getAddress();
         int rvmClassTib = memory.read(bootThreadRVMClass-12);
         int rvmClass = memory.read(rvmClassTib);
         tibType = memory.read(bootThreadTib-12);

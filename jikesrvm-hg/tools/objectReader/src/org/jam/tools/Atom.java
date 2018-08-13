@@ -8,15 +8,22 @@ extends JObject
     private static final int JTOC_OR_STR_OFFSET = -4;
     private int stringOrJtoc;
     private int id;
+    private ByteArray  array;
     private byte[]  value;
     
     public Atom(MemoryReader memory, int address)
     {
         super(memory, address);
         id = getInt(ID_OFFSET);
-        value = getByteArray(VAL_OFFSET);
+        array = new ByteArray(memory, getInt(VAL_OFFSET));
+        value = array.array();
         stringOrJtoc = getInt(JTOC_OR_STR_OFFSET);
         // do range check on *(stringOrJtoc-4)
+    }
+
+    public String getString()
+    {
+        return new String(value);
     }
 
 }
