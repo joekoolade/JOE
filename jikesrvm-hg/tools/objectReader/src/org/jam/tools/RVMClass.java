@@ -8,19 +8,27 @@ extends JObject
     private TypeRef typeRef;
     private IntArray fieldInstances;
     private static final boolean DEBUG = false;
+    private final RVMField fields[];
     
     public RVMClass(MemoryReader memory, int address)
     {
         super(memory, address);
         typeRef = new TypeRef(memory, getInt(TYPE_REF_OFFSET));
         fieldInstances = new IntArray(memory, getInt(INSTANCES_ARRAY_OFFSET));
+        fields = new RVMField[fieldInstances.size()];
         if(DEBUG) System.out.println("Instances: "+Integer.toHexString(fieldInstances.getAddress())+"/"+fieldInstances.size());
         processFieldInstances();
+        
     }
     
     private void processFieldInstances()
     {
-        RVMField field = new RVMField(getMemory(), fieldInstances.array()[0]);
+        int[] instanceArray = fieldInstances.array();
+        for(int i=0; i < fieldInstances.size(); i++)
+        {
+            fields[i] = new RVMField(getMemory(), instanceArray[i]);
+        }
+        
         
     }
 

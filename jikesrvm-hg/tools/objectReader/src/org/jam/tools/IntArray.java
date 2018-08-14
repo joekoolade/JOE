@@ -12,7 +12,7 @@ public class IntArray extends JObject
         value = new int[size];
         for(int i=0; i < size; i++)
         {
-            value[i] = getByte(i);
+            value[i] = getInt(i<<2);
         }
     }
 
