@@ -41,6 +41,10 @@ implements TIBLayoutConstants, JavaHeaderConstants
         return memory.readByte(address+index);
     }
     
+    public short getShort(int index)
+    {
+        return (short)memory.readChar(address+index);
+    }
     public int getAddress()
     {
         return address;
@@ -49,5 +53,10 @@ implements TIBLayoutConstants, JavaHeaderConstants
     protected MemoryReader getMemory()
     {
         return memory;
+    }
+    
+    public boolean isNull()
+    {
+        return address == 0;
     }
 }

@@ -17,7 +17,7 @@ public class MemberReference extends JObject
         type = new TypeRef(memory, getInt(TYPE_REF_OFFSET));
         name = new Atom(memory, getInt(NAME_OFFSET));
         descriptor = new Atom(memory, getInt(DESCRIPTOR_OFFSET));
-        System.out.println(type.getTypeName()+"/"+name.getString()+"/"+descriptor.getString());
+        System.out.println(type.getTypeName()+"^"+name.getString()+"^"+descriptor.getString());
         
     }
     

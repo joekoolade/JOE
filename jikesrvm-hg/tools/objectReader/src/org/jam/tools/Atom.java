@@ -14,6 +14,7 @@ extends JObject
     public Atom(MemoryReader memory, int address)
     {
         super(memory, address);
+        if(isNull()) return;
         id = getInt(ID_OFFSET);
         array = new ByteArray(memory, getInt(VAL_OFFSET));
         value = array.array();
@@ -23,6 +24,7 @@ extends JObject
 
     public String getString()
     {
+        if(isNull()) return "NULL";
         return new String(value);
     }
 
