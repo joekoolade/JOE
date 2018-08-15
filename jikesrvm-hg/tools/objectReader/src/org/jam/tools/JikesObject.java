@@ -4,11 +4,13 @@ public class JikesObject
 extends JObject
 {
     private TIB tib;
+    private RVMClass type;
     
     public JikesObject(MemoryReader memory, int address)
     {
         super(memory, address);
         tib = new TIB(memory, getInt(JAVA_HEADER_OFFSET));
+        type = tib.getType();
     }
     
     public int getTIBAddress()
@@ -22,6 +24,6 @@ extends JObject
      */
     public RVMClass getType()
     {
-        return tib.getType();
+        return type;
     }
 }

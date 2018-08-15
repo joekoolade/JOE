@@ -35,4 +35,19 @@ public class RVMField extends JObject
     {
         return member.getTypeName();
     }
+    
+    public int getOffset()
+    {
+        return offset;
+    }
+    
+    public int getSize()
+    {
+        return size;
+    }
+    
+    public boolean isReference()
+    {
+        return reference != 0;
+    }
 }
