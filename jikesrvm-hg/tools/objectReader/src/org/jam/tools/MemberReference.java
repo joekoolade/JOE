@@ -21,4 +21,13 @@ public class MemberReference extends JObject
         
     }
     
+    public String getName()
+    {
+        return name.getString();
+    }
+    
+    public String getTypeName()
+    {
+        return type.getTypeName();
+    }
 }
