@@ -1,5 +1,9 @@
 package org.jam.tools;
 
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 public class RVMClass 
 extends JObject
 {
@@ -8,17 +12,21 @@ extends JObject
     private TypeRef typeRef;
     private IntArray fieldInstances;
     private static final boolean DEBUG = false;
-    private final RVMField fields[];
+    private String typeName;
+    private TreeSet<RVMField> fieldSet;
     
     public RVMClass(MemoryReader memory, int address)
     {
         super(memory, address);
         typeRef = new TypeRef(memory, getInt(TYPE_REF_OFFSET));
         fieldInstances = new IntArray(memory, getInt(INSTANCES_ARRAY_OFFSET));
-        fields = new RVMField[fieldInstances.size()];
+        fieldSet = new TreeSet<RVMField>();
         if(DEBUG) System.out.println("Instances: "+Integer.toHexString(fieldInstances.getAddress())+"/"+fieldInstances.size());
         processFieldInstances();
-        
+        typeName = typeRef.getTypeName();
+        // remove type descriptors and replace / with .
+        typeName=typeName.substring(1, typeName.length()-1).replace('/', '.');
+        System.out.println(typeName);
     }
     
     private void processFieldInstances()
@@ -26,10 +34,9 @@ extends JObject
         int[] instanceArray = fieldInstances.array();
         for(int i=0; i < fieldInstances.size(); i++)
         {
-            fields[i] = new RVMField(getMemory(), instanceArray[i]);
+            RVMField aField = new RVMField(getMemory(), instanceArray[i]);
+            fieldSet.add(aField);
         }
-        
-        
     }
 
     public RVMField[] getFields()
@@ -39,8 +46,11 @@ extends JObject
     
     public String getClassName()
     {
-        return typeRef.getTypeName();
+        return typeName;
     }
     
-    
+    public Iterator<RVMField> getFieldIter()
+    {
+        return fieldSet.iterator();
+    }
 }

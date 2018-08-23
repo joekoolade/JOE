@@ -1,6 +1,8 @@
 package org.jam.tools;
 
-public class RVMField extends JObject
+public class RVMField 
+extends JObject
+implements Comparable<RVMField>
 {
     private static final int MEMBER_REF_OFFSET = 8;
     private static final int MODIFIER_OFFSET = 0x10;
@@ -49,5 +51,10 @@ public class RVMField extends JObject
     public boolean isReference()
     {
         return reference != 0;
+    }
+
+    public int compareTo(RVMField aField)
+    {
+        return aField.offset - offset;
     }
 }

@@ -13,6 +13,11 @@ extends JObject
         type = tib.getType();
     }
     
+    public void printObject()
+    {
+        System.out.println(type.getClassName());
+        
+    }
     public int getTIBAddress()
     {
         return tib.getAddress();
