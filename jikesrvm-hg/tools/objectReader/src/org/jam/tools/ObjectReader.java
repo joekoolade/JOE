@@ -72,4 +72,23 @@ public class ObjectReader
     {
         System.out.println(Integer.toHexString(memory.read(0x100008)));
     }
+    
+    /**
+     * Scan a stack
+     * @param stack
+     */
+    public void scan(byte[] stack)
+    {
+        
+    }
+    
+    public void scan(int address, int size)
+    {
+        
+    }
+    
+    public void scanJtoc()
+    {
+        
+    }
 }

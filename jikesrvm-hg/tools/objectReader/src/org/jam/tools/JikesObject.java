@@ -18,6 +18,10 @@ extends JObject
         return tib.getAddress();
     }
     
+    public RVMField[] getFields()
+    {
+        return type.getFields();
+    }
     /**
      * Get the class layout of the object
      * @return
@@ -25,5 +29,35 @@ extends JObject
     public RVMClass getType()
     {
         return type;
+    }
+    
+    /**
+     * Pretty print the object
+     */
+    public void print()
+    {
+        System.out.println("Type: "+type.getClassName());
+        RVMField[] fields = getFields();
+        for(RVMField aField: fields)
+        {
+            String name = aField.getName();
+            
+        }
+    }
+    
+    /**
+     * hex dump the object
+     */
+    public void dump()
+    {
+        
+    }
+    
+    /**
+     * Return a string representation of the object
+     */
+    public String toString()
+    {
+        return null;
     }
 }
