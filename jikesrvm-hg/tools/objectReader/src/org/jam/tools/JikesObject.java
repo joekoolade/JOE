@@ -1,5 +1,7 @@
 package org.jam.tools;
 
+import java.util.Iterator;
+
 public class JikesObject 
 extends JObject
 {
@@ -23,9 +25,9 @@ extends JObject
         return tib.getAddress();
     }
     
-    public RVMField[] getFields()
+    public Iterator<RVMField> getFields()
     {
-        return type.getFields();
+        return type.getFieldIter();
     }
     /**
      * Get the class layout of the object
@@ -42,9 +44,10 @@ extends JObject
     public void print()
     {
         System.out.println("Type: "+type.getClassName());
-        RVMField[] fields = getFields();
-        for(RVMField aField: fields)
+        Iterator<RVMField> fields = getFields();
+        while(fields.hasNext())
         {
+            RVMField aField = fields.next();
             String name = aField.getName();
             
         }

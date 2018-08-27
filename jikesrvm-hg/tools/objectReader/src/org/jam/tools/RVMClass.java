@@ -39,11 +39,6 @@ extends JObject
         }
     }
 
-    public RVMField[] getFields()
-    {
-        return fields;
-    }
-    
     public String getClassName()
     {
         return typeName;
