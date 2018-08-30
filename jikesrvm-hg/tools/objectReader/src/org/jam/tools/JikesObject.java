@@ -69,7 +69,7 @@ extends JObject
                  System.out.println("Unknown size: "+aField.getSize());
             }
             //System.out.println(name + "("+offset + ") = " + Integer.toHexString(value));
-            System.out.println(name + " = " + Long.toHexString(value) + "("+aField.getSignature()+")");
+            System.out.println(name + " = " + Long.toHexString(value));
 
         }
     }
