@@ -26,7 +26,6 @@ extends JObject
         typeName = typeRef.getTypeName();
         // remove type descriptors and replace / with .
         typeName=typeName.substring(1, typeName.length()-1).replace('/', '.');
-        System.out.println(typeName);
     }
     
     private void processFieldInstances()

@@ -32,6 +32,7 @@ public class ObjectReader
         stack = memory.read(BOOT_PARAMETERS_ADDRESS+4);
         bootThread = memory.read(BOOT_PARAMETERS_ADDRESS+8);
         JikesObject bt = new JikesObject(memory, bootThread);
+        bt.print();
         /*
          * Find the TIB object
          */

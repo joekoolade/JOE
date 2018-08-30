@@ -43,13 +43,34 @@ extends JObject
      */
     public void print()
     {
-        System.out.println("Type: "+type.getClassName());
+        long value=0;
+        System.out.println(type.getClassName());
         Iterator<RVMField> fields = getFields();
         while(fields.hasNext())
         {
             RVMField aField = fields.next();
             String name = aField.getName();
-            
+            int offset = aField.getOffset();
+            switch(aField.getSize())
+            {
+            case 1:
+                value = getByte(offset) & 0xFFL;
+                break;
+            case 2:
+                value = getShort(offset) & 0xFFFFL;
+                break;
+            case 4:
+                value = getInt(offset) & 0xFFFFFFFFL;
+                break;
+            case 8:
+                value = getLong(offset);
+                break;
+             default:
+                 System.out.println("Unknown size: "+aField.getSize());
+            }
+            //System.out.println(name + "("+offset + ") = " + Integer.toHexString(value));
+            System.out.println(name + " = " + Long.toHexString(value) + "("+aField.getSignature()+")");
+
         }
     }
     

@@ -45,6 +45,11 @@ implements TIBLayoutConstants, JavaHeaderConstants
     {
         return (short)memory.readChar(address+index);
     }
+    
+    public long getLong(int index)
+    {
+        return memory.readLong(address+index);
+    }
     public int getAddress()
     {
         return address;
