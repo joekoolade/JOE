@@ -54,6 +54,11 @@ public class ObjectReader
         System.out.println();
     }
 
+    public void dumpObject(int address)
+    {
+        JikesObject obj = new JikesObject(memory, address);
+        obj.printObject();
+    }
     public boolean isTib(int address)
     {
         return address == tibType;

@@ -9,11 +9,14 @@ public class CommandProcessor
 implements Runnable
 {
     private final Lexer lexer;
+    private final ObjectReader reader;
     
-    public CommandProcessor()
+    public CommandProcessor(ObjectReader reader)
     {
         lexer = new Lexer();
+        this.reader = reader;
     }
+    
     public void run()
     {
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -28,7 +31,7 @@ implements Runnable
                 if(results == null || results.size()==0) continue;
                 if(results.get(0).getValue().equals("xo"))
                 {
-                    
+                    reader.dumpObject(results.get(1).getInt());
                 }
             } catch (IOException e)
             {
@@ -40,7 +43,7 @@ implements Runnable
 
     public static void main(String args[])
     {
-        CommandProcessor cp = new CommandProcessor();
+        CommandProcessor cp = new CommandProcessor(null);
         cp.run();
     }
 }
