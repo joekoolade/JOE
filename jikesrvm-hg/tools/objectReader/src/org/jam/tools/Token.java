@@ -4,7 +4,7 @@ public class Token
 {
     final private TokenType type;
     final private String value;
-    final private Long num;
+    private Long num;
     
     public Token(TokenType command, String atom)
     {
@@ -22,7 +22,13 @@ public class Token
             }
             else
             {
-                num = Long.parseLong(value);
+                try
+                {
+                    num = Long.parseLong(value);
+                } catch (NumberFormatException e)
+                {
+                    num = Long.parseLong(value,16);
+                }
             }
             
         }
