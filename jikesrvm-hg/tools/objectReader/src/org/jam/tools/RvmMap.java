@@ -4,8 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import com.google.common.collect.ArrayListMultimap;
+
 public class RvmMap {
     private RandomAccessFile mapFile;
+    private ArrayListMultimap<String, MapField> fields;
     
     public RvmMap()
     {
@@ -28,7 +31,11 @@ public class RvmMap {
             while (line != null)
             {
                 String tokens[] = line.split(" +", 5);
-                if (tokens.length>2 && tokens[2].equals("field")) System.out.println(line);
+                if (tokens.length>2 && tokens[2].equals("field"))
+                {
+                    System.out.println(line);
+                    MapField f = new MapField(tokens);
+                }
                 line = mapFile.readLine();
             }
         }
