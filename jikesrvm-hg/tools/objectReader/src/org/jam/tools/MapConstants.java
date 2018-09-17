@@ -2,10 +2,9 @@ package org.jam.tools;
 
 import java.math.BigInteger;
 
-public class MapField 
-extends MapCommon
+public class MapConstants extends MapCommon
 {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private String fullDefiningType;    // class that field is defined in
     private String keyDefiningType;
     private String name;
@@ -13,37 +12,30 @@ extends MapCommon
     private String keyFieldType;
     private long intValue;
     private double floatValue;
-    
-    public MapField(String[] rvmMapLine)
+
+    public MapConstants(String rvmMapLine[])
     {
         super(Integer.parseInt(rvmMapLine[0]), Long.decode(rvmMapLine[1]).intValue());
         parseDetail(rvmMapLine[4]);
-        if(fullFieldType.equals("D") || fullFieldType.equals("F"))
+        try
         {
-            floatValue = Double.parseDouble(rvmMapLine[3]);
+            intValue = Long.decode(rvmMapLine[3]);
         }
-        else
+        catch (NumberFormatException e)
         {
-            try
-            {
-                intValue = Long.decode(rvmMapLine[3]);
-            }
-            catch (NumberFormatException e)
-            {
-                // Must be a negative long so lets use big integer
-                intValue = new BigInteger(rvmMapLine[3].substring(2), 16).longValue();
-            }
+            // Must be a negative long so lets use big integer
+            intValue = new BigInteger(rvmMapLine[3].substring(2), 16).longValue();
         }
     }
-    
+
     private void parseDetail(String details)
     {
-        String[] tokens = details.substring(2).split("[<>\\. ]+");
-        fullFieldType = getClass(tokens[3]);
+        String[] tokens = details.split("[<>\\. ]+");
+        fullFieldType = getClass(tokens[5]);
         keyFieldType = fullFieldType.substring(fullFieldType.lastIndexOf('.')+1);
-        fullDefiningType = getClass(tokens[1]);
+        fullDefiningType = getClass(tokens[3]);
         keyDefiningType = fullDefiningType.substring(fullDefiningType.lastIndexOf('.')+1);
-        name = tokens[2];
+        name = tokens[4];
         if(DEBUG) System.out.println(keyDefiningType+"."+name);
     }
 

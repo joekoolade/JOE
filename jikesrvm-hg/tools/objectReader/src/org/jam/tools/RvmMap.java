@@ -7,8 +7,13 @@ import java.io.RandomAccessFile;
 import com.google.common.collect.ArrayListMultimap;
 
 public class RvmMap {
+    private static final boolean DEBUG_FIELDS = false;
+    private static final boolean DEBUG_TIBS = false;
+    private static final boolean DEBUG_CONSTANTS = true;
     private RandomAccessFile mapFile;
     private ArrayListMultimap<String, MapField> fields;
+    private ArrayListMultimap<String, MapConstants> constants;
+    private ArrayListMultimap<Integer, MapTib> tibs;
     
     public RvmMap()
     {
@@ -20,6 +25,9 @@ public class RvmMap {
         {
             e.printStackTrace();
         }
+        fields = ArrayListMultimap.create();
+        tibs = ArrayListMultimap.create();
+        constants = ArrayListMultimap.create();
     }
     
     public void process()
@@ -31,10 +39,26 @@ public class RvmMap {
             while (line != null)
             {
                 String tokens[] = line.split(" +", 5);
-                if (tokens.length>2 && tokens[2].equals("field"))
+                if(tokens.length>2)
                 {
-                    System.out.println(line);
-                    MapField f = new MapField(tokens);
+                    if (tokens[2].equals("field"))
+                    {
+                        if(DEBUG_FIELDS) System.out.println(line);
+                        MapField f = new MapField(tokens);
+                        fields.put(f.getKey(), f);
+                    }
+                    else if(tokens[2].equals("tib"))
+                    {
+                        if(DEBUG_TIBS) System.out.println(line);
+                        MapTib t = new MapTib(tokens);
+                        tibs.put(t.getAddress(), t);
+                    }
+                    else if(tokens[2].equals("literal/field"))
+                    {
+                        if(DEBUG_CONSTANTS) System.out.println(line);
+                        MapConstants c = new MapConstants(tokens);
+                        constants.put(c.getKey(), c);
+                    }
                 }
                 line = mapFile.readLine();
             }
