@@ -31,11 +31,20 @@ public class MapConstants extends MapCommon
     private void parseDetail(String details)
     {
         String[] tokens = details.split("[<>\\. ]+");
-        fullFieldType = getClass(tokens[5]);
-        keyFieldType = fullFieldType.substring(fullFieldType.lastIndexOf('.')+1);
-        fullDefiningType = getClass(tokens[3]);
-        keyDefiningType = fullDefiningType.substring(fullDefiningType.lastIndexOf('.')+1);
-        name = tokens[4];
+        try
+        {
+            fullFieldType = getClass(tokens[5]);
+            keyFieldType = fullFieldType.substring(fullFieldType.lastIndexOf('.')+1);
+            fullDefiningType = getClass(tokens[3]);
+            keyDefiningType = fullDefiningType.substring(fullDefiningType.lastIndexOf('.')+1);
+            name = tokens[4];
+        } catch (Exception e)
+        {
+            fullFieldType = "NONE";
+            fullDefiningType = "NONE";
+            keyDefiningType = "NONE";
+            name = "NONE";
+        }
         if(DEBUG) System.out.println(keyDefiningType+"."+name);
     }
 

@@ -65,7 +65,6 @@ public class RvmMap {
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

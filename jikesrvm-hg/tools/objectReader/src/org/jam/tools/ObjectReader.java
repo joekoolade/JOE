@@ -5,6 +5,7 @@ public class ObjectReader
 
     private static ObjectReader reader;
     private MemoryReader memory;
+    private RvmMap map;
     private int jtoc;
     private int stack;
     private int bootThread;
@@ -52,6 +53,8 @@ public class ObjectReader
     public ObjectReader(String file)
     {
         memory = new MemoryReader(file);
+        map = new RvmMap();
+        map.process();
     }
     
     public void run()
