@@ -14,12 +14,18 @@ public class RvmMap {
     private ArrayListMultimap<String, MapField> fields;
     private ArrayListMultimap<String, MapConstants> constants;
     private ArrayListMultimap<Integer, MapTib> tibs;
+    private String workingDirectory;
     
     public RvmMap()
     {
+        this("");
+    }
+    
+    public RvmMap(String directory)
+    {
         try
         {
-            mapFile = new RandomAccessFile("RVM.map", "r");
+            mapFile = new RandomAccessFile(directory+"RVM.map", "r");
         }
         catch (FileNotFoundException e)
         {

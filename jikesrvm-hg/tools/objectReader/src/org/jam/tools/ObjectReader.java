@@ -10,6 +10,7 @@ public class ObjectReader
     private int stack;
     private int bootThread;
     private int tibType;
+    private String workingDirectory;
     
     static final private int BOOT_PARAMETERS_ADDRESS = 0x001000E0;
     
@@ -52,8 +53,10 @@ public class ObjectReader
 
     public ObjectReader(String file)
     {
+        workingDirectory = file.substring(0, file.lastIndexOf('/')+1);
+        System.out.println("Working Directory "+workingDirectory);
         memory = new MemoryReader(file);
-        map = new RvmMap();
+        map = new RvmMap(workingDirectory);
         map.process();
     }
     
