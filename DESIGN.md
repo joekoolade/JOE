@@ -1,6 +1,6 @@
 # Design
 ## Overiew
-![Overview](/images/JOE Overview.png)
+![Overview](/images/"JOE Overview.png"?raw=true)
 ## Goals
 * Simplified tool chain
   * Java compiler
