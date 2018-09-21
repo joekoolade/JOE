@@ -1,11 +1,11 @@
 # Design
 ## Overiew
-![Overview](/images/Overview.png)
+![Overview](/images/JOE Overview.png)
 ## Goals
 * Simplified tool chain
-** Java compiler
-** Java JRE
-** Java utilities
+  * Java compiler
+  * Java JRE
+  * Java utilities
 
 * Metacircular; all Java code
 * Small
