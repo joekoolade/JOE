@@ -11,8 +11,11 @@ extends JObject
     public JikesObject(MemoryReader memory, int address)
     {
         super(memory, address);
-        tib = new TIB(memory, getInt(JAVA_HEADER_OFFSET));
-        type = tib.getType();
+        if(address!=0)
+        {
+            tib = new TIB(memory, getInt(JAVA_HEADER_OFFSET));
+            type = tib.getType();
+        }
     }
     
     public void printObject()
@@ -43,33 +46,68 @@ extends JObject
      */
     public void print()
     {
+        if(isNull()) 
+        {
+            System.out.println("NULL");
+            return;
+        }
         long value=0;
         System.out.println(type.getClassName());
-        Iterator<RVMField> fields = getFields();
-        while(fields.hasNext())
+        if(type.isArray())
         {
-            RVMField aField = fields.next();
-            String name = aField.getName();
-            int offset = aField.getOffset();
-            switch(aField.getSize())
+            int size = getInt(ARRAY_LENGTH_OFFSET);
+            ArrayType arrayType = type.getArrayType();
+            for(int index=0; index < size; index++)
             {
-            case 1:
-                value = getByte(offset) & 0xFFL;
-                break;
-            case 2:
-                value = getShort(offset) & 0xFFFFL;
-                break;
-            case 4:
-                value = getInt(offset) & 0xFFFFFFFFL;
-                break;
-            case 8:
-                value = getLong(offset);
-                break;
-             default:
-                 System.out.println("Unknown size: "+aField.getSize());
+                switch(arrayType)
+                {
+                case BYTE:
+                case BOOLEAN:
+                    value = getByte(index);
+                    break;
+                case SHORT:
+                case CHAR:
+                    value = getShort(index<<1);
+                    break;
+                case INTEGER:
+                case FLOAT:
+                case OBJECT:
+                    value = getInt(index<<2);
+                    break;
+                case DOUBLE:
+                case LONG:
+                    value = getLong(index<<3);
+                }
+                System.out.println(Long.toHexString(value) + " ("+value+")");
             }
-            //System.out.println(name + "("+offset + ") = " + Integer.toHexString(value));
-            System.out.println(name + " = " + Long.toHexString(value));
+        }
+        else
+        {
+            Iterator<RVMField> fields = getFields();
+            while(fields.hasNext())
+            {
+                RVMField aField = fields.next();
+                String name = aField.getName();
+                int offset = aField.getOffset();
+                switch(aField.getSize())
+                {
+                case 1:
+                    value = getByte(offset) & 0xFFL;
+                    break;
+                case 2:
+                    value = getShort(offset) & 0xFFFFL;
+                    break;
+                case 4:
+                    value = getInt(offset) & 0xFFFFFFFFL;
+                    break;
+                case 8:
+                    value = getLong(offset);
+                    break;
+                 default:
+                     System.out.println("Unknown size: "+aField.getSize());
+                }
+                System.out.println(name + " = " + Long.toHexString(value));
+            }
 
         }
     }

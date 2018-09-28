@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class MapConstants extends MapCommon
 {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private String fullDefiningType;    // class that field is defined in
     private String keyDefiningType;
     private String name;
@@ -93,6 +93,6 @@ public class MapConstants extends MapCommon
     
     public String getKey()
     {
-        return keyFieldType+"."+name;
+        return keyDefiningType+"."+name;
     }
 }

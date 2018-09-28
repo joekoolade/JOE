@@ -43,6 +43,15 @@ public class Token
         return type;
     }
     
+    public boolean isString()
+    {
+        return type == TokenType.STRING;
+    }
+    
+    public boolean isNumber()
+    {
+        return type == TokenType.NUMBER;
+    }
     public String getValue()
     {
         return value;

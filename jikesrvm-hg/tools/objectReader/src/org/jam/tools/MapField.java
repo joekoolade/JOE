@@ -92,6 +92,6 @@ extends MapCommon
     
     public String getKey()
     {
-        return keyFieldType+"."+name;
+        return keyDefiningType+"."+name;
     }
 }

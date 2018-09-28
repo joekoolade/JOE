@@ -3,13 +3,14 @@ package org.jam.tools;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
 
 import com.google.common.collect.ArrayListMultimap;
 
 public class RvmMap {
     private static final boolean DEBUG_FIELDS = false;
     private static final boolean DEBUG_TIBS = false;
-    private static final boolean DEBUG_CONSTANTS = true;
+    private static final boolean DEBUG_CONSTANTS = false;
     private RandomAccessFile mapFile;
     private ArrayListMultimap<String, MapField> fields;
     private ArrayListMultimap<String, MapConstants> constants;
@@ -39,6 +40,7 @@ public class RvmMap {
     public void process()
     {
         String line;
+        System.out.println("Processing RVM.map");
         try
         {
             line = mapFile.readLine();
@@ -51,6 +53,7 @@ public class RvmMap {
                     {
                         if(DEBUG_FIELDS) System.out.println(line);
                         MapField f = new MapField(tokens);
+                        if(DEBUG_FIELDS) System.out.println(f.getKey());
                         fields.put(f.getKey(), f);
                     }
                     else if(tokens[2].equals("tib"))
@@ -63,6 +66,7 @@ public class RvmMap {
                     {
                         if(DEBUG_CONSTANTS) System.out.println(line);
                         MapConstants c = new MapConstants(tokens);
+                        if(DEBUG_CONSTANTS) System.out.println(c.getKey());
                         constants.put(c.getKey(), c);
                     }
                 }
@@ -73,6 +77,21 @@ public class RvmMap {
         {
             e.printStackTrace();
         }
+    }
+    
+    public List<MapField> getField(String field)
+    {
+        return fields.get(field);
+    }
+    
+    public List<MapConstants> getLiteral(String field)
+    {
+        return constants.get(field);
+    }
+    
+    public boolean isTib(Integer address)
+    {
+        return tibs.containsKey(address);
     }
     
     public static void main(String args[])

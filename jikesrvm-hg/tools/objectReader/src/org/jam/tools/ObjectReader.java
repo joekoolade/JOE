@@ -41,6 +41,18 @@ public class ObjectReader
         JikesObject obj = new JikesObject(memory, address);
         obj.print();
     }
+    public void dumpObject(MapConstants mapConstants)
+    {
+        
+    }
+
+    public void dumpObject(MapField mapField)
+    {
+        Long address = mapField.getIntValue();
+        JikesObject obj = new JikesObject(memory, address.intValue());
+        obj.print();
+    }
+
     public boolean isTib(int address)
     {
         return address == tibType;
@@ -82,5 +94,10 @@ public class ObjectReader
     public void scanJtoc()
     {
         
+    }
+
+    public RvmMap getMap()
+    {
+        return map;
     }
 }

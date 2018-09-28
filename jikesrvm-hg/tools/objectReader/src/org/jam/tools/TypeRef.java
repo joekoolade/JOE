@@ -1,5 +1,11 @@
 package org.jam.tools;
 
+/**
+ * Access jikesRVM TypeRef in memory
+ * 
+ * @author jkulig
+ *
+ */
 public class TypeRef 
 extends JObject 
 {
@@ -18,5 +24,10 @@ extends JObject
     public String getTypeName()
     {
         return name.getString();
+    }
+    
+    public boolean isArray()
+    {
+        return name.getByte(0)=='[';
     }
 }

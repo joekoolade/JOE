@@ -2,6 +2,6 @@ package org.jam.tools;
 
 public enum TokenType
 {
-    COMMAND,
+    STRING,
     NUMBER;
 }

@@ -33,7 +33,7 @@ implements TIBLayoutConstants, JavaHeaderConstants
         {
             byteArray[index] = getByte(index);
         }
-        return null;
+        return byteArray;
     }
 
     public byte getByte(int index)

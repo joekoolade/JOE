@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Lexer
 {
-    private final static Pattern cmdMatch = Pattern.compile("[\\p{Alpha}]+");
+    private final static Pattern cmdMatch = Pattern.compile("[\\p{Alnum}\\._\\$]+");
     private final static Pattern numberMatch = Pattern.compile("0?[xX]?[0-9a-fA-F]+");
     public List<Token> lex(String input)
     {
@@ -15,13 +15,13 @@ public class Lexer
         for(String atom : atoms)
         {
             // look for a command
-            if(cmdMatch.matcher(atom).matches())
-            {
-                results.add(new Token(TokenType.COMMAND, atom));
-            }
-            else if(numberMatch.matcher(atom).matches())
+            if(numberMatch.matcher(atom).matches())
             {
                 results.add(new Token(TokenType.NUMBER, atom));
+            }
+            else if(cmdMatch.matcher(atom).matches())
+            {
+                results.add(new Token(TokenType.STRING, atom));
             }
         }
         return results;
