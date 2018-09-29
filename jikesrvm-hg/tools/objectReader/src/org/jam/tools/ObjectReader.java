@@ -43,15 +43,15 @@ public class ObjectReader
     }
     public void dumpObject(MapConstants mapConstants)
     {
-        long value = mapConstants.getIntValue();
+        long value = memory.read(jtoc + mapConstants.getOffset()) & 0xFFFFFFFF;
         System.out.println("0x"+Long.toHexString(value)+" ("+value+")");
     }
 
     public void dumpObject(MapField mapField)
     {
-        if(mapField.isPrimitive())
+        if(mapField.isPrimitive() || mapField.isUnboxed())
         {
-            long value = mapField.getIntValue();
+            long value = memory.read(jtoc + mapField.getOffset()) & 0xFFFFFFFF;
             System.out.println("0x"+Long.toHexString(value)+" ("+value+")");
         }
         else

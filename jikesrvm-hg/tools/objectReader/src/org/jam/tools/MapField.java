@@ -99,4 +99,9 @@ extends MapCommon
     {
         return keyFieldType.length()==1;
     }
+
+    public boolean isUnboxed()
+    {
+        return fullFieldType.startsWith("org.vmmagic.unboxed");
+    }
 }
