@@ -63,16 +63,16 @@ extends JObject
                 {
                 case BYTE:
                 case BOOLEAN:
-                    value = getByte(index);
+                    value = getByte(index) & 0xFF;
                     break;
                 case SHORT:
                 case CHAR:
-                    value = getShort(index<<1);
+                    value = getShort(index<<1) & 0xFFFF;
                     break;
                 case INTEGER:
                 case FLOAT:
                 case OBJECT:
-                    value = getInt(index<<2);
+                    value = getInt(index<<2) & 0xFFFFFFFF;
                     break;
                 case DOUBLE:
                 case LONG:

@@ -94,4 +94,9 @@ extends MapCommon
     {
         return keyDefiningType+"."+name;
     }
+
+    public boolean isPrimitive()
+    {
+        return keyFieldType.length()==1;
+    }
 }

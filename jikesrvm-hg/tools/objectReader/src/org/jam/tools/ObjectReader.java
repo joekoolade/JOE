@@ -43,14 +43,23 @@ public class ObjectReader
     }
     public void dumpObject(MapConstants mapConstants)
     {
-        
+        long value = mapConstants.getIntValue();
+        System.out.println("0x"+Long.toHexString(value)+" ("+value+")");
     }
 
     public void dumpObject(MapField mapField)
     {
-        Long address = mapField.getIntValue();
-        JikesObject obj = new JikesObject(memory, address.intValue());
-        obj.print();
+        if(mapField.isPrimitive())
+        {
+            long value = mapField.getIntValue();
+            System.out.println("0x"+Long.toHexString(value)+" ("+value+")");
+        }
+        else
+        {     
+            Long address = mapField.getIntValue();
+            JikesObject obj = new JikesObject(memory, address.intValue());
+            obj.print();
+        }
     }
 
     public boolean isTib(int address)
