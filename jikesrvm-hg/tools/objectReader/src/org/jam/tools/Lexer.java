@@ -15,7 +15,7 @@ public class Lexer
         for(String atom : atoms)
         {
             // look for a command
-            if(numberMatch.matcher(atom).matches())
+            if(atom.length()>2 && numberMatch.matcher(atom).matches())
             {
                 results.add(new Token(TokenType.NUMBER, atom));
             }

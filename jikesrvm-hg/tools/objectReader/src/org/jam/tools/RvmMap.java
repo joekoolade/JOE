@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.ArrayListMultimap;
 
@@ -11,11 +13,12 @@ public class RvmMap {
     private static final boolean DEBUG_FIELDS = false;
     private static final boolean DEBUG_TIBS = false;
     private static final boolean DEBUG_CONSTANTS = false;
-    private static final boolean DEBUG_CODE = true;
+    private static final boolean DEBUG_CODE = false;
     private RandomAccessFile mapFile;
     private ArrayListMultimap<String, MapField> fields;
     private ArrayListMultimap<String, MapConstants> constants;
     private ArrayListMultimap<Integer, MapTib> tibs;
+    private TreeMap<Integer, MapCode> code;
     private String workingDirectory;
     
     public RvmMap()
@@ -36,6 +39,7 @@ public class RvmMap {
         fields = ArrayListMultimap.create();
         tibs = ArrayListMultimap.create();
         constants = ArrayListMultimap.create();
+        code = new TreeMap<Integer, MapCode>();
     }
     
     public void process()
@@ -72,8 +76,19 @@ public class RvmMap {
                     }
                     else if(tokens[2].equals("code"))
                     {
+                        MapCode  c;
                         if(DEBUG_CODE) System.out.println(line);
-                        MapCode c = new MapCode(tokens);
+                        if(tokens[0].length()==1)
+                        {
+                            // object method
+                            c = new MapCode(Integer.decode(tokens[3]), tokens[4]);
+                        }
+                        else
+                        {
+                            // static/jtoc method
+                            c = new MapCode(tokens);
+                        }
+                        code.put(c.getAddress(), c);
                     }
                 }
                 line = mapFile.readLine();
@@ -104,5 +119,12 @@ public class RvmMap {
     {
         RvmMap rmap = new RvmMap();
         rmap.process();
+    }
+
+    public MapCode getCode(int address)
+    {
+        Map.Entry<Integer, MapCode> entry = code.floorEntry(Integer.valueOf(address));
+        if(entry==null) return null;
+        return entry.getValue();
     }
 }

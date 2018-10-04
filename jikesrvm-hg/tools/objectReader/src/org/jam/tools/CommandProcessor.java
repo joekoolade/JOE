@@ -73,6 +73,11 @@ implements Runnable
                 }
                 else if(results.get(0).getValue().equals("c"))
                 {
+                    if(results.get(1).isNumber())
+                    {
+                        MapCode code = map.getCode(results.get(1).getInt());
+                        System.out.println(code.getTypeName()+"."+code.getName()+code.getParameters());
+                    }
                     
                 }
                 else if(results.get(0).getValue().equals("d"))
