@@ -71,6 +71,15 @@ implements Runnable
                         }
                     }
                 }
+                else if(results.get(0).getValue().equals("c"))
+                {
+                    
+                }
+                else if(results.get(0).getValue().equals("d"))
+                {
+                    
+                }
+
             } catch (IOException e)
             {
                 e.printStackTrace();

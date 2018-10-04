@@ -11,6 +11,7 @@ public class RvmMap {
     private static final boolean DEBUG_FIELDS = false;
     private static final boolean DEBUG_TIBS = false;
     private static final boolean DEBUG_CONSTANTS = false;
+    private static final boolean DEBUG_CODE = true;
     private RandomAccessFile mapFile;
     private ArrayListMultimap<String, MapField> fields;
     private ArrayListMultimap<String, MapConstants> constants;
@@ -68,6 +69,11 @@ public class RvmMap {
                         MapConstants c = new MapConstants(tokens);
                         if(DEBUG_CONSTANTS) System.out.println(c.getKey());
                         constants.put(c.getKey(), c);
+                    }
+                    else if(tokens[2].equals("code"))
+                    {
+                        if(DEBUG_CODE) System.out.println(line);
+                        MapCode c = new MapCode(tokens);
                     }
                 }
                 line = mapFile.readLine();
