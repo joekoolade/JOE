@@ -38,6 +38,12 @@ public class Token
         }
     }
 
+    public Token(String atom)
+    {
+        value = atom;
+        type = TokenType.STRING;
+    }
+
     public TokenType getType()
     {
         return type;
