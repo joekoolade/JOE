@@ -109,4 +109,19 @@ public class ObjectReader
     {
         return map;
     }
+    
+    public int readInt(int address)
+    {
+        return memory.read(address);
+    }
+    
+    public short readShort(int address)
+    {
+        return memory.readShort(address);
+    }
+    
+    public byte readByte(int address)
+    {
+        return memory.readByte(address);
+    }
 }

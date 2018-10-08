@@ -49,4 +49,10 @@ public class MemoryReader
     {
         return mappedBuffer.get(address);
     }
+
+    public short readShort(int address)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }
