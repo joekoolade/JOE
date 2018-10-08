@@ -117,13 +117,16 @@ implements Runnable
     {
         StringBuilder prefix;
         int index = 0;
+        int columns = 0;
         for(; index < size; index+=4)
         {
             prefix = formatInt(address+index*4, 8);
             prefix.append(": ");
-            for(int column=0; column < 4; column++)
+            if(size - index < 4) columns = size - index;
+            else columns = 4;
+            for(int nextColumn=0; nextColumn < columns; nextColumn++)
             {
-                int value = reader.readInt(address+column*4+index*4);
+                int value = reader.readInt(address+nextColumn*4+index*4);
                 prefix.append(formatInt(value, 8)).append(' ');
             }
             System.out.println(prefix.toString());
