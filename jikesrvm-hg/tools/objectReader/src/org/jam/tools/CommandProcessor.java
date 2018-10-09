@@ -90,14 +90,14 @@ implements Runnable
                 else if(results[0].equals("d"))
                 {
                     int address = 0x100000;
-                    int length = 256;
+                    int length = 32;
                     
                     if(results.length < 2)
                     {
                         System.err.println("usage: d <address> [length]");
                         continue;
                     }
-                    parseNumber(results[1]);
+                    address = parseNumber(results[1]);
                     if(results.length==3)
                     {
                         length = parseNumber(results[2]);
@@ -128,6 +128,17 @@ implements Runnable
             {
                 int value = reader.readInt(address+nextColumn*4+index*4);
                 prefix.append(formatInt(value, 8)).append(' ');
+            }
+            /*
+             * print out any characters
+             */
+            for (int j = 0; j < columns*4; j++)
+            {
+                byte aByte = reader.readByte(address+index*4+j);
+              if ((aByte & 0xFF) < 0x20 || (aByte & 0xFF) > 0x7E)
+                  prefix.append('.');
+              else
+                  prefix.append((char) (aByte & 0xFF));
             }
             System.out.println(prefix.toString());
         }
