@@ -40,7 +40,6 @@ implements Scheduler {
      * Current thread must be scheduled before calling calling
      * 
      */
-    @Override
     public void nextThread()
     {
         RVMThread nextThread;
@@ -74,7 +73,6 @@ implements Scheduler {
      * Puts thread onto the run queue
      * @param thread the thread to put on the run queue
      */
-    @Override
     public void addThread(RVMThread thread)
     {
         /*
@@ -90,7 +88,6 @@ implements Scheduler {
     /* (non-Javadoc)
      * @see org.jikesrvm.scheduler.Scheduler#getHandlerStack()
      */
-    @Override
     public Address getHandlerStack()
     {
         // TODO Auto-generated method stub
@@ -99,7 +96,6 @@ implements Scheduler {
     /* (non-Javadoc)
      * @see org.jikesrvm.scheduler.Scheduler#noRunnableThreads()
      */
-    @Override
     public boolean noRunnableThreads()
     {
         return runQueue.isEmpty();

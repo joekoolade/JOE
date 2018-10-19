@@ -38,7 +38,6 @@ public final class IMT implements RuntimeTable<CodeArray> {
     this.data = new CodeArray[TIBLayoutConstants.IMT_METHOD_SLOTS];
   }
 
-  @Override
   public CodeArray[] getBacking() {
     if (VM.VerifyAssertions) VM._assert(!VM.runningVM);
     return data;
@@ -60,7 +59,6 @@ public final class IMT implements RuntimeTable<CodeArray> {
    * @param index The index of the entry to get
    * @return The value of that entry
    */
-  @Override
   @Intrinsic
   @Uninterruptible
   public CodeArray get(int index) {
@@ -74,7 +72,6 @@ public final class IMT implements RuntimeTable<CodeArray> {
    * @param index The index of the entry to set
    * @param value The value to set the entry to.
    */
-  @Override
   @Intrinsic
   @UninterruptibleNoWarn("Interruptible code not reachable at runtime")
   public void set(int index, CodeArray value) {
@@ -85,7 +82,6 @@ public final class IMT implements RuntimeTable<CodeArray> {
   /**
    * Returns the length of the IMT
    */
-  @Override
   @Intrinsic
   @Uninterruptible
   public int length() {
