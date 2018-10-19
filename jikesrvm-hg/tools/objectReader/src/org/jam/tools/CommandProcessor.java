@@ -13,6 +13,7 @@ implements Runnable
     private final Lexer lexer;
     private final ObjectReader reader;
     private final RvmMap map;
+    private String[] results;
     
     public CommandProcessor(ObjectReader reader)
     {
@@ -31,7 +32,7 @@ implements Runnable
             try
             {
                 command = input.readLine();
-                String[] results = lexer.lex(command);
+                results = lexer.lex(command);
                 if(results == null || results.length < 2) continue;
                 if(results[0].equals("p"))
                 {
@@ -105,11 +106,10 @@ implements Runnable
                     dump(address, length);
                 }
 
-            } catch (IOException e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }
-           // System.out.println(command);
         }
     }
 
@@ -169,7 +169,7 @@ implements Runnable
      * @param parameter
      * @return number
      */
-    private int parseNumber(String parameter)
+    static public int parseNumber(String parameter)
     {
         /*
          * All strings are assumed be in hex.
@@ -203,6 +203,19 @@ implements Runnable
         return number;
     }
 
+    public String getArg(int argIndex)
+    {
+        return results[argIndex];
+    }
+    
+    public String[] getArgs()
+    {
+        return results;
+    }
+    public int numberOfArgs()
+    {
+        return results.length;
+    }
     public static void main(String args[])
     {
         CommandProcessor cp = new CommandProcessor(null);

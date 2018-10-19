@@ -44,7 +44,7 @@ extends JObject
     /**
      * Pretty print the object
      */
-    public void print()
+    public void print(String[] args)
     {
         if(isNull()) 
         {
@@ -56,8 +56,11 @@ extends JObject
         if(type.isArray())
         {
             int size = getInt(ARRAY_LENGTH_OFFSET);
+            int index=0;
+            if(args.length >= 3) size = CommandProcessor.parseNumber(args[2]);
+            if(args.length == 4) index = CommandProcessor.parseNumber(args[3]);
             ArrayType arrayType = type.getArrayType();
-            for(int index=0; index < size; index++)
+            for(; index < size; index++)
             {
                 switch(arrayType)
                 {

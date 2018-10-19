@@ -1,8 +1,5 @@
 package org.jam.tools;
 
-import org.jikesrvm.objectmodel.JavaHeaderConstants;
-import org.jikesrvm.objectmodel.TIBLayoutConstants;
-
 /*
  * Has stuff common to all jikes objects
  */

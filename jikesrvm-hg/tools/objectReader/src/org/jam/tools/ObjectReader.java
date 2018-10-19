@@ -13,6 +13,7 @@ public class ObjectReader
     private String workingDirectory;
     
     static final private int BOOT_PARAMETERS_ADDRESS = 0x001000E0;
+    private static CommandProcessor cp;
     
     public static void main(String[] args)
     {
@@ -25,7 +26,7 @@ public class ObjectReader
         }
         reader = new ObjectReader(args[0]);
         reader.initialize();
-        CommandProcessor cp = new CommandProcessor(reader);
+        cp = new CommandProcessor(reader);
         cp.run();
     }
 
@@ -39,7 +40,7 @@ public class ObjectReader
     public void dumpObject(int address)
     {
         JikesObject obj = new JikesObject(memory, address);
-        obj.print();
+        obj.print(cp.getArgs());
     }
     public void dumpObject(MapConstants mapConstants)
     {
@@ -58,7 +59,7 @@ public class ObjectReader
         {     
             Long address = mapField.getIntValue();
             JikesObject obj = new JikesObject(memory, address.intValue());
-            obj.print();
+            obj.print(cp.getArgs());
         }
     }
 

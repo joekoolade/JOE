@@ -9,8 +9,16 @@ extends JObject
     public TIB(MemoryReader memory, int address)
     {
         super(memory, address);
-        size = getInt(ARRAY_LENGTH_OFFSET);
-        rvmClass = new RVMClass(memory, getInt(0));
+        try
+        {
+            size = getInt(ARRAY_LENGTH_OFFSET);
+            rvmClass = new RVMClass(memory, getInt(0));
+        }
+        catch (Exception e)
+        {
+            System.err.println("TIB exception: "+address);
+            throw new RuntimeException(e);
+        }
     }
 
     public int getSize()
