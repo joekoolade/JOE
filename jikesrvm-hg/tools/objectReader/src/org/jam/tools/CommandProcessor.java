@@ -105,6 +105,27 @@ implements Runnable
                     }
                     dump(address, length);
                 }
+                else if(results[0].equals("bt"))
+                {
+                    int address = parseNumber(results[1]);
+                    int stackPointer = reader.readInt(address);
+                    int ipAddress;
+                    for(; stackPointer > 0;)
+                    {
+                        ipAddress = reader.readInt(stackPointer+4);
+                        MapCode code = map.getCode(ipAddress);
+                        System.out.print(formatInt(stackPointer, 8)+": ");
+                        if(code == null)
+                        {
+                            System.out.println(formatInt(ipAddress,8));
+                        }
+                        else
+                        {
+                            System.out.println(code.getTypeName()+"."+code.getName()+code.getParameters());
+                        }
+                        stackPointer = reader.readInt(stackPointer);
+                    }
+                }
 
             } catch (Exception e)
             {

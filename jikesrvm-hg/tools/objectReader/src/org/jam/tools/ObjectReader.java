@@ -63,6 +63,9 @@ public class ObjectReader
         }
     }
 
+    public void backTrace(int address)
+    {
+    }
     public boolean isTib(int address)
     {
         return address == tibType;
