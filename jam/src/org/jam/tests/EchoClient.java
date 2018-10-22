@@ -21,6 +21,22 @@ implements Runnable
     }
     public void run()
     {
+        System.out.println("DNS options");
+        System.setProperty("dnsjava.options", "verbose,verbosemsg");
+        System.setProperty("dns.server", "8.8.8.8");
+        try
+        {
+            System.out.println("DNS requests");
+            java.net.InetAddress addr = org.xbill.DNS.Address.getByName("google.com");
+            System.out.println("request "+addr);
+            addr = org.xbill.DNS.Address.getByName("viasat.com");
+            System.out.println("request "+addr);
+        }
+        catch (UnknownHostException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         System.out.println("Echo Client running");
         byte[] data = new byte[SIZE];
         for(int i=0; i < data.length; i++)
