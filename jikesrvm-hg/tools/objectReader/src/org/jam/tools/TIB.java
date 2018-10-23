@@ -16,7 +16,7 @@ extends JObject
         }
         catch (Exception e)
         {
-            System.err.println("TIB exception: "+address);
+            System.err.println("TIB exception: "+Integer.toHexString(address));
             throw new RuntimeException(e);
         }
     }
