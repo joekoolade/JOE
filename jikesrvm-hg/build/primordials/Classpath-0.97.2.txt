@@ -638,6 +638,8 @@ Ljava/net/SocketException;
 
 Ljava/net/BindException;
 
+Ljava/util/Random;
+
 Lorg/xbill/DNS/A6Record;
 Lorg/xbill/DNS/AAAARecord;
 Lorg/xbill/DNS/AFSDBRecord;
