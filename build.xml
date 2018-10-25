@@ -56,7 +56,8 @@
   <property name="options.java" location="${jikesrvm.dir}/common/options/src"/>
   <property name="tuningforklib.java" location="${jikesrvm.dir}/external/tuningforklib/src"/>
   <property name="vmmagic.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/src"/>
-  <property name="classpath.lib.dir" location="classpath-0.98"/>
+  <property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/32/java"/>
+<property name="classpath.lib.dir" location="classpath-0.98"/>
 
   <!-- Classpath library -->
   <property name="classlib.library-interface.cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
@@ -471,6 +472,7 @@ Check to make sure all required properties are specified. This includes properti
   <!-- **************************************************************************** -->
 
   <!-- build baseclass for vmmagic -->
+  <!--
   <target name="gen-vmmagic-word" depends="check-properties">
     <mkdir dir="${generated.dir}/vmmagic/32/java/org/vmmagic/unboxed"/>
     <mkdir dir="${generated.dir}/vmmagic/64/java/org/vmmagic/unboxed"/>
@@ -489,7 +491,7 @@ Check to make sure all required properties are specified. This includes properti
       </filterset>
     </copy>
   </target>
-
+   -->
   <!-- Macro to build IR and related artifacts (scheduler, burs) for opt compiler -->
   <macrodef name="generate-ir">
     <attribute name="arch"/>
@@ -1082,9 +1084,8 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="compile-vmmagic" depends="compile">
     <mkdir dir="${build.vmmagic.classes}"/>
-    <javac srcdir="${vmmagic.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="vars,lines,source"
+    <javac srcdir="${vmmagic.java}:${vmmagic.arch.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="vars,lines,source"
            source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
-      <src path="${generated.vmmagic.arch.java}"/>
       <classpath>
         <pathelement location="${build.classes}"/>
         <pathelement location="${build.vmmagic-stub.classes}"/>

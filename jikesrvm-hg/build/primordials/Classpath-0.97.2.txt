@@ -822,7 +822,7 @@ Lorg/xbill/DNS/utils/base32;
 Lorg/xbill/DNS/utils/base64;
 Lorg/xbill/DNS/utils/hexdump;
 
-# Ltest/org/jikesrvm/org/gctests/Exhaust;
+#Ltest/org/jikesrvm/org/gctests/Exhaust;
 #Ltest/org/jikesrvm/basic/core/threads/TestVolatileDoubles;
 #Ltest/org/jikesrvm/basic/core/threads/TestVolatileDoubles$VolatileDoubleField;
 Ltest/org/jikesrvm/basic/core/threads/TestTimeSlicing;

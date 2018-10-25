@@ -75,5 +75,3 @@ Lorg/jikesrvm/scheduler/Lock;
 
 [Lorg/vmmagic/pragma/Inline$When;
 Lsun/misc/Unsafe;
-
-Ltest/org/jikesrvm/org/gctests/Exhaust;
