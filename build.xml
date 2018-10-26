@@ -1013,12 +1013,12 @@ Check to make sure all required properties are specified. This includes properti
     <javac destdir="${build.classes}"
            debug="true"
            fork="true"
-           memoryMaximumSize="500M"
+           memoryMaximumSize="800M"
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-           sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${generated.arch.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
+           srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${mmtk.java}:${options.java}:${generated.config.java}:${generated.arch.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
+           sourcepath=""
            includeantruntime="false">
       <bootclasspath>
         <pathelement location="${classpath.lib.dir}/classpath.jar"/>
@@ -1031,6 +1031,8 @@ Check to make sure all required properties are specified. This includes properti
       <include name="gnu/**/*.java"/>
       <include name="sun/**/*.java"/>
       <include name="java/**/*.java"/>
+      <include name="org/jikesrvm/**"/>
+      <include name="org/mmtk/**"/>
       <include name="org/jam/**/*.java"/>
       <include name="org/xbill/DNS/*.java"/>
       <include name="org/xbill/DNS/utils/*.java"/>
@@ -1327,8 +1329,8 @@ Check to make sure all required properties are specified. This includes properti
         </linecontainsregexp>
       </filterchain>
     </loadfile>
-    <!-- 
-    <fail if="bootimage.warnings" message="${bootimage.warnings}"/> 
+    <!--
+    <fail if="bootimage.warnings" message="${bootimage.warnings}"/>
     <if>
       <conditions>
         <not>
