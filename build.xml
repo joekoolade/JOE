@@ -57,7 +57,7 @@
   <property name="tuningforklib.java" location="${jikesrvm.dir}/external/tuningforklib/src"/>
   <property name="vmmagic.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/src"/>
   <property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/32/java"/>
-<property name="classpath.lib.dir" location="classpath-0.98"/>
+  <property name="classpath.lib.dir" location="classpath-0.98"/>
 
   <!-- Classpath library -->
   <property name="classlib.library-interface.cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
@@ -1026,12 +1026,22 @@ Check to make sure all required properties are specified. This includes properti
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
       </classpath>
+      <exclude name="org/jikesrvm/compilers/opt/*/ppc/**"/>
+      <exclude name="org/jikesrvm/osr/ppc/**"/>
+      <exclude name="org/jikesrvm/ppc/**"/>
+      <exclude name="org/jikesrvm/compilers/baseline/ppc/**"/>
+      <exclude name="org/jikesrvm/compilers/common/assembler/ppc/**"/>
+      <exclude name="org/jikesrvm/tools/header_gen/*ppc.java"/>
+      <exclude name="org/jikesrvm/junit/**"/>
+      <exclude name="org/jikesrvm/mm/mminterface/SelectedNoGC.java"/>
+      <include name="test/**"/>
       <include name="Dummy.java"/>
       <include name="OptDummy.java"/>
       <include name="gnu/**/*.java"/>
       <include name="sun/**/*.java"/>
       <include name="java/**/*.java"/>
       <include name="org/jikesrvm/**"/>
+      <include name="org/vmutil/**"/>
       <include name="org/mmtk/**"/>
       <include name="org/jam/**/*.java"/>
       <include name="org/xbill/DNS/*.java"/>
