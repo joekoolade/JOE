@@ -2253,8 +2253,23 @@ private static boolean jamming=false;
             }
           }
         } else if (rvmFieldType.isLongType()) {
-          bootImage.setDoubleWord(rvmFieldAddress,
-              jdkFieldAcc.getLong(jdkObject));
+            try
+            {
+                bootImage.setDoubleWord(rvmFieldAddress,jdkFieldAcc.getLong(jdkObject));
+            } 
+            catch (IllegalArgumentException e)
+            {
+               if(jdkObject instanceof java.util.Random && rvmFieldName.equals("seed"))
+               {
+                   // seed field in Sun is AtomLong class
+                   bootImage.setDoubleWord(rvmFieldAddress, 0);
+               }
+               else
+               {
+                   System.out.println("type " + rvmScalarType + ", field " + rvmField);
+                   throw e;
+               }
+            }
         } else if (rvmFieldType.isFloatType()) {
           float f = jdkFieldAcc.getFloat(jdkObject);
           bootImage.setFullWord(rvmFieldAddress,
@@ -3279,28 +3294,38 @@ private static boolean jamming=false;
    * @param rvmType RVM type
    * @return JDK type ({@code null} --> type does not exist in host namespace)
    */
-  private static Class<?> getJdkType(RVMType rvmType) {
-    Throwable x;
-    try {
-      return Class.forName(rvmType.toString());
-    } catch (ExceptionInInitializerError e) {
-      throw e;
-    } catch (IllegalAccessError e) {
-      x = e;
-    } catch (UnsatisfiedLinkError e) {
-      x = e;
-    } catch (NoClassDefFoundError e) {
-      x = e;
-    } catch (SecurityException e) {
-      x = e;
-    } catch (ClassNotFoundException e) {
-      x = e;
+    private static Class<?> getJdkType(RVMType rvmType)
+    {
+        Throwable x;
+        try
+        {
+            return Class.forName(rvmType.toString());
+        } catch (ExceptionInInitializerError e)
+        {
+            say("ExceptionInInitializerError: " + rvmType.toString());
+            x = e;
+        } catch (IllegalAccessError e)
+        {
+            x = e;
+        } catch (UnsatisfiedLinkError e)
+        {
+            x = e;
+        } catch (NoClassDefFoundError e)
+        {
+            x = e;
+        } catch (SecurityException e)
+        {
+            x = e;
+        } catch (ClassNotFoundException e)
+        {
+            x = e;
+        }
+        if (verbose >= 1)
+        {
+            say(x.toString());
+        }
+        return null;
     }
-    if (verbose >= 1) {
-      say(x.toString());
-    }
-    return null;
-}
 
   /**
    * Obtain accessor via which a field value may be fetched from host JDK
