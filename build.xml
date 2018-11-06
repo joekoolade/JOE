@@ -94,7 +94,7 @@
   <!-- Set the properties for directory of generated artifacts -->
   <property name="generated.dir" location="${jikesrvm.dir}/generated"/>
   <property name="generated.config.dir" location="${generated.dir}/configurations/${build.name}"/>
-  <property name="generated.config.java" location="${jikesrvm.dir}/eclipse/gen-config"/>
+  <property name="mmtk.config.java" location="${jikesrvm.dir}/config/mmtk/semispace"/>
 
   <property name="generated.java" location="${generated.dir}/main/java"/>
   <property name="generated.ia32.java" location="${generated.dir}/ia32-${target.address.size}/main/java"/>
@@ -1017,7 +1017,7 @@ Check to make sure all required properties are specified. This includes properti
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${mmtk.java}:${options.java}:${generated.config.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
+           srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${mmtk.java}:${options.java}:${mmtk.config.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
            sourcepath=""
            includeantruntime="false">
       <bootclasspath>
@@ -1033,7 +1033,6 @@ Check to make sure all required properties are specified. This includes properti
       <exclude name="org/jikesrvm/compilers/common/assembler/ppc/**"/>
       <exclude name="org/jikesrvm/tools/header_gen/*ppc.java"/>
       <exclude name="org/jikesrvm/junit/**"/>
-      <exclude name="org/jikesrvm/mm/mminterface/SelectedNoGC.java"/>
       <include name="test/**"/>
       <include name="Dummy.java"/>
       <include name="OptDummy.java"/>
