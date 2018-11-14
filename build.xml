@@ -411,13 +411,7 @@ Check to make sure all required properties are specified. This includes properti
         <pathelement location="${build.options.classes}"/>
       </classpath>
     </javac>
-    <jar destfile="${build.mmtk.jar}" basedir="${build.mmtk.classes}">
-    	<include name="org/mmtk/plan/*"/>
-    	<include name="org/mmtk/plan/semispace/**"/>
-    	<include name="org/mmtk/policy/**"/>
-    	<include name="org/mmtk/utility/**"/>
-    	<include name="org/mmtk/vm/**"/>
-    </jar>
+    <jar destfile="${build.mmtk.jar}" basedir="${build.mmtk.classes}"/>
   </target>
 
   <target name="ensure-javacc">
@@ -1023,15 +1017,13 @@ Check to make sure all required properties are specified. This includes properti
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
-           sourcepath=""
+           srcdir="${mmtk.java}:${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
            includeantruntime="false">
       <bootclasspath>
         <pathelement location="${classpath.lib.dir}/classpath.jar"/>
       </bootclasspath>
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
-      	<pathelement location="${build.mmtk.jar}"/>
       </classpath>
       <exclude name="org/jikesrvm/compilers/opt/*/ppc/**"/>
       <exclude name="org/jikesrvm/osr/ppc/**"/>
@@ -1047,6 +1039,7 @@ Check to make sure all required properties are specified. This includes properti
       <include name="sun/**/*.java"/>
       <include name="java/**/*.java"/>
       <include name="org/jikesrvm/**"/>
+      <include name="org/mmtk/**"/>
       <include name="org/vmutil/**"/>
       <include name="org/jam/**/*.java"/>
       <include name="org/xbill/DNS/*.java"/>
