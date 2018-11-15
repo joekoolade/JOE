@@ -1039,7 +1039,12 @@ Check to make sure all required properties are specified. This includes properti
       <include name="sun/**/*.java"/>
       <include name="java/**/*.java"/>
       <include name="org/jikesrvm/**"/>
-      <include name="org/mmtk/**"/>
+      <include name="org/mmtk/*"/>
+      <include name="org/mmtk/plan/*"/>
+      <include name="org/mmtk/plan/semispace/**"/>
+      <include name="org/mmtk/policy/**"/>
+      <include name="org/mmtk/utility/**"/>
+      <include name="org/mmtk/vm/**"/>
       <include name="org/vmutil/**"/>
       <include name="org/jam/**/*.java"/>
       <include name="org/xbill/DNS/*.java"/>
@@ -1262,7 +1267,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement location="${build.mmtk.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
@@ -1359,7 +1363,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement location="${build.mmtk.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
