@@ -380,7 +380,7 @@ public class PropertyDescriptor extends FeatureDescriptor
         {
           return k.getConstructor(argTypes);
         }
-      catch (NoSuchMethodException _)
+      catch (NoSuchMethodException e)
         {
           return null;
         }
@@ -393,19 +393,19 @@ public class PropertyDescriptor extends FeatureDescriptor
         {
           return (PropertyEditor) c.newInstance(args);
         }
-      catch (InstantiationException _)
+      catch (InstantiationException e)
         {
           return null;
         }
-      catch (InvocationTargetException _)
+      catch (InvocationTargetException e)
         {
           return null;
         }
-      catch (IllegalAccessException _)
+      catch (IllegalAccessException e)
         {
           return null;
         }
-      catch (ClassCastException _)
+      catch (ClassCastException e)
         {
           return null;
         }

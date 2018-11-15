@@ -92,6 +92,7 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
   public static final int TRAP_MUST_IMPLEMENT = 45;
   public static final int TRAP_STORE_CHECK = 46; // opt-compiler
   public static final int TRAP_STACK_OVERFLOW_FATAL = 47; // assertion checking
+private static final boolean DEBUG = false;
 
   //---------------------------------------------------------------//
   //                     Type Checking.                            //
@@ -241,6 +242,11 @@ public class RuntimeEntrypoints implements Constants, ArchitectureSpecific.Stack
     }
     if (!rhs.isResolved()) {
       rhs.resolve();
+    }
+    if(DEBUG)
+    {
+        VM.sysWrite("aastore: lhs ", lhs.getDescriptor().toString());
+        VM.sysWriteln(" rhs " + rhs.getDescriptor().toString());
     }
     return DynamicTypeCheck.instanceOfResolved(lhs, rhs);
   }

@@ -1172,6 +1172,8 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   private static int numActiveDaemons;
 
+private static long nosyncNotifyOperations;
+
   /*
    * TuningFork instrumentation support
    */
@@ -2884,10 +2886,9 @@ public Address sentinelFp;
 //    VM.sysWriteln("sleep: ", ns);
     RVMThread t = getCurrentThread();
     t.waiting = Waiting.SLEEPING;
-    long atStart = Time.nanoTime(); // Magic.getTimeBase(); // sysCall.sysNanoTime();
+    long atStart = Time.nanoTime();
     long whenEnd = atStart + ns;
     
-//    Platform.timer.startTimer(ns);
     t.monitor().lockNoHandshake();
     t.monitor().timedWaitAbsoluteNoHandshake(whenEnd);
     t.monitor().unlock();
@@ -2943,53 +2944,32 @@ public Address sentinelFp;
       Lock l = ObjectModel.getHeavyLock(o, true);
 
       // release the lock
-//      l.mutex.lock();
+      l.mutex.lock();
       // this thread is supposed to own the lock on o
       if (VM.VerifyAssertions) VM._assert(l.getOwnerId() == getLockingId());
-//      RVMThread toAwaken = l.entering.dequeue();
+      RVMThread toAwaken = l.entering.dequeue();
+      // get previous lock info
       waitObject = l.getLockedObject();
       waitCount = l.getRecursionCount();
+      // unlock it
       l.setOwnerId(0);
-//      l.waiting.enqueue(this);
-
+      l.waiting.enqueue(this);
+      l.mutex.unlock();
+      VM.sysWriteln("waiting ", this.threadSlot);
       // if there was a thread waiting, awaken it
-//      if (toAwaken != null) {
-//        // is this where the problem is coming from?
-//        Platform.scheduler.addThread(toAwaken);
-//      }
-//      
-//      l.mutex.unlock();
+      if (toAwaken != null) {
+        // is this where the problem is coming from?
+        Platform.scheduler.addThread(toAwaken);
+      }
       
-      /*
-       * Give up the processor
-       */
-//      Magic.yield();
+      
       /*
        * Keeping looping until notified
        */
-//      while(l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null)
-//      {
-//        Magic.yield();
-//      }
-      
-//      // block
-//      monitor().lockNoHandshake();
-//      while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
-//             (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos)) {
-//        if (hasTimeout) {
-//          monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
-//        } else {
-//          monitor().waitWithHandshake();
-//        }
-//      }
-      monitor().lockNoHandshake();
-      if (hasTimeout)
+      while(l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
+        (!hasTimeout || Magic.getTimeBase() < whenWakeupNanos))
       {
-        monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
-      }
-      else
-      {
-        monitor().waitWithHandshake();
+        Magic.yield();
       }
       
       // figure out if anything special happened while we were blocked
@@ -3001,19 +2981,18 @@ public Address sentinelFp;
         throwThis = asyncThrowable;
         asyncThrowable = null;
       }
-      monitor().unlock();
-//      if (l.waiting.isQueued(this)) {
-//        l.mutex.lock();
-//        l.waiting.remove(this); /*
-//                                 * in case we got here due to an interrupt or a
-//                                 * stop() rather than a notify
-//                                 */
-//        l.mutex.unlock();
-//        // Note that the above must be done before attempting to acquire
-//        // the lock, since acquiring the lock may require queueing the thread.
-//        // But we cannot queue the thread if it is already on another
-//        // queue.
-//      }
+      if (l.waiting.isQueued(this)) {
+        l.mutex.lock();
+        l.waiting.remove(this); /*
+                                 * in case we got here due to an interrupt or a
+                                 * stop() rather than a notify
+                                 */
+        l.mutex.unlock();
+        // Note that the above must be done before attempting to acquire
+        // the lock, since acquiring the lock may require queueing the thread.
+        // But we cannot queue the thread if it is already on another
+        // queue.
+      }
       // reacquire the lock, restoring the recursion count
       ObjectModel.genericLock(o);
       waitObject = null;
@@ -3095,20 +3074,43 @@ public Address sentinelFp;
     // word and *then* initialize its state.  but fortunately, we do so while holding
     // the lock's mutex.  thus acquiring the lock's mutex is the only way to ensure that
     // we see the lock's state after initialization.
-//    l.mutex.lock();
+    l.mutex.lock();
     int owner=l.getOwnerId();
-//    l.mutex.unlock();
+    l.mutex.unlock();
     int me=getCurrentThread().getLockingId();
     if (owner != me) {
       raiseIllegalMonitorStateException("notifying (expected lock to be held by "+me+"("+getCurrentThread().getLockingId()+") but was held by "+owner+"("+l.getOwnerId()+")) ", o);
     }
-//    l.mutex.lock();
-//    RVMThread toAwaken = l.waiting.dequeue();
-//    l.mutex.unlock();
-//    if (toAwaken != null) {
-//      Platform.scheduler.addThread(toAwaken);
-//    }
-    getCurrentThread().monitor().notify1();
+    l.mutex.lock();
+    RVMThread toAwaken = l.waiting.dequeue();
+    l.mutex.unlock();
+    if (toAwaken != null) {
+        VM.sysWriteln("notifying ", toAwaken.threadSlot);
+        Platform.scheduler.addThread(toAwaken);
+    }
+  }
+
+  @Interruptible
+  public static void nosyncNotify(Object o) {
+    if (STATS)
+      nosyncNotifyOperations++;
+    Lock l = ObjectModel.getHeavyLock(o, false);
+    if (l == null)
+    {
+        VM.sysWriteln("nosync notify: no lock");
+        return;
+    }
+    // the reason for locking: when inflating a lock we *first* install it in the status
+    // word and *then* initialize its state.  but fortunately, we do so while holding
+    // the lock's mutex.  thus acquiring the lock's mutex is the only way to ensure that
+    // we see the lock's state after initialization.
+    l.mutex.lock();
+    RVMThread toAwaken = l.waiting.dequeue();
+    l.mutex.unlock();
+    if (toAwaken != null) {
+        VM.sysWriteln("nosync notify ", toAwaken.threadSlot);
+        Platform.scheduler.addThread(toAwaken);
+    }
   }
 
   /**
@@ -3124,29 +3126,28 @@ public Address sentinelFp;
     Lock l = ObjectModel.getHeavyLock(o, false);
     if (l == null)
       return;
-//    l.mutex.lock();
+    l.mutex.lock();
     int owner=l.getOwnerId();
-//    l.mutex.unlock();
+    l.mutex.unlock();
     if (owner != getCurrentThread().getLockingId()) {
       raiseIllegalMonitorStateException("notifying all (expected lock to be held by "+getCurrentThread().getLockingId()+" but was held by "+l.getOwnerId()+") ", o);
     }
-//    for (;;) {
-//      l.mutex.lock();
-//      RVMThread toAwaken = l.waiting.dequeue();
-//      l.mutex.unlock();
-//      if (toAwaken == null)
-//        break;
-//      toAwaken.monitor().lockedBroadcastNoHandshake();
-//    }
-    getCurrentThread().monitor().broadcast();
+    for (;;) {
+      l.mutex.lock();
+      RVMThread toAwaken = l.waiting.dequeue();
+      l.mutex.unlock();
+      if (toAwaken == null)
+        break;
+      Platform.scheduler.addThread(toAwaken);
+    }
   }
 
   public void stop(Throwable cause) {
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     asyncThrowable = cause;
 //    takeYieldpoint = 1;
-    monitor().broadcast();
-    monitor().unlock();
+//    monitor().broadcast();
+//    monitor().unlock();
   }
 
   /*
@@ -4952,6 +4953,7 @@ public Address sentinelFp;
    * @param ip instruction pointer for first frame to dump
    * @param fp frame pointer for first frame to dump
    */
+  @SuppressWarnings("unused")
   public static void dumpStack(Address ip, Address fp) {
     boolean b = Monitor.lockNoHandshake(dumpLock);
     RVMThread t = getCurrentThread();

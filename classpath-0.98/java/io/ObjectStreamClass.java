@@ -379,7 +379,7 @@ public class ObjectStreamClass implements Serializable
 		    newFieldList[k].lookupField(clazz);
 		    newFieldList[k].checkFieldType();
 		  }
-		catch (NoSuchFieldException _)
+		catch (NoSuchFieldException e)
 		  {
 		  }
 		j++;
@@ -391,7 +391,7 @@ public class ObjectStreamClass implements Serializable
 		    exportedFields[j].lookupField(clazz);
 		    exportedFields[j].checkFieldType();
 		  }
-		catch (NoSuchFieldException _)
+		catch (NoSuchFieldException e)
 		  {
 		  }
 
@@ -712,7 +712,7 @@ outer:
 		      {
 			fields[i].lookupField(cl);
 		      }
-		    catch (NoSuchFieldException _)
+		    catch (NoSuchFieldException e)
 		      {
 			fields[i].setToSet(false);
 		      }

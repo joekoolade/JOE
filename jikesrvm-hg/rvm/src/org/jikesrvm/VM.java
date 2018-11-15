@@ -12,10 +12,20 @@
  */
 package org.jikesrvm;
 
+import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.net.ethernet.Ethernet;
+import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.Arp;
+import org.jam.net.inet4.InetAddress;
+import org.jam.tests.EchoClient;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
+
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 import org.jam.board.pc.I8259A;
 import org.jam.board.pc.IMCR;
 import org.jam.board.pc.Platform;
@@ -321,6 +331,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     System.setProperty("line.separator", "\n");
     runClassInitializer("java.io.PrintStream"); // Uses System.getProperty
     runClassInitializer("java.util.Locale");
+    runClassInitializer("gnu.java.locale.LocaleInformation_en_US");
     runClassInitializer("java.util.ResourceBundle");
     // Run class initializers that require JNI
     if (verboseBoot >= 1) VM.sysWriteln("Running late class initializers");
@@ -361,6 +372,8 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    TraceEngine.engine.fullyBootedVM();
 
     runClassInitializer("java.util.logging.Level");
+    runClassInitializer("java.net.InetAddress");
+    runClassInitializer("org.jam.net.Route");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");
 //      runClassInitializer("java.lang.reflect.Proxy");
@@ -371,6 +384,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     // runClassInitializer("java.util.logging.Logger");
     // Initialize compiler that compiles dynamically loaded classes.
     //
+    runClassInitializer("java.util.Currency");
+    runClassInitializer("java.text.DecimalFormatSymbols");
+    runClassInitializer("java.text.DecimalFormat");
+    runClassInitializer("org.xbill.DNS.Name");
+    runClassInitializer("org.xbill.DNS.ResolverConfig");
+    runClassInitializer("org.xbill.DNS.Lookup");
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
     RuntimeCompiler.boot();
 
@@ -429,23 +448,38 @@ public class VM extends Properties implements Constants, ExitStatus {
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
 //  mainThread.start();
-    Magic.enableInterrupts();
-    Platform.net.receive();
+//    Magic.enableInterrupts();
+    
     /*
      * Sleep test
      */
-    Sleep sleep = new Sleep();
-    new Thread(sleep).start();
+//    Sleep sleep = new Sleep();
+//    new Thread(sleep).start();
     
+    Thread napiThread = new Thread(new NapiManager());
+    napiThread.setName("NAPI Manager");
+    napiThread.start();
+    Platform.net.inetBoot();
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
+    try
+    {
+        Thread echoTest = new Thread(new EchoClient());
+        echoTest.start();
+    } catch (SocketException e)
+    {
+        e.printStackTrace();
+    } catch (UnknownHostException e)
+    {
+        e.printStackTrace();
+    }
     /*
      * Exhaust class test
      */
-    runClassInitializer("test.org.jikesrvm.basic.core.threads.XThread");
-    Thread testThread = new TestThread();
-    testThread.start();
-    VM.sysWriteln("Main thread started");
+//    runClassInitializer("test.org.jikesrvm.basic.core.threads.XThread");
+//    Thread testThread = new TestThread();
+//    testThread.start();
+//    VM.sysWriteln("Main thread started");
     // terminate boot thread
     RVMThread.getCurrentThread().terminate();    
     // Say good bye to the boot thread
@@ -2730,6 +2764,43 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   public static boolean buildForSSE2() {
     return BuildForSSE2;
+  }
+  
+  public static void hexDump(byte data[])
+  {
+    hexDump(data, 0, data.length);
+  }
+  
+  /**
+   * Print data from array at offset
+   * @param data
+   * @param offset
+   */
+  public static void hexDump(byte data[], int offset, int size)
+  {
+    int i;
+    
+    for(i=offset; i < size; i++)
+    {
+      if(i!=0 && (i%16) == 0)
+      {
+        VM.sysWriteln();
+        if(data[i] < 0x10 && data[i] >=0)
+        {
+          VM.sysWrite('0');
+        }
+        VM.sysWrite(Integer.toHexString(data[i]&0xff), " ");
+      }
+      else
+      {
+        if(data[i] < 0x10 && data[i] >=0)
+        {
+          VM.sysWrite('0');
+        }
+        VM.sysWrite(Integer.toHexString(data[i]&0xff), " ");
+      }
+    }
+    VM.sysWriteln();
   }
 }
 

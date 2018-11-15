@@ -249,24 +249,34 @@ public class BootImageMap extends BootImageWriterMessages
    * @param jdkObject JDK object
    * @return map entry for the given object
    */
-  public static Entry findOrCreateEntry(Object jdkObject) {
-    if (jdkObject == null)
-      return nullEntry;
+    public static Entry findOrCreateEntry(Object jdkObject)
+    {
+        if (jdkObject == null) return nullEntry;
 
-    // Avoid duplicates of some known "safe" classes
-    jdkObject = BootImageObjectAddressRemapper.getInstance().intern(jdkObject);
-
-    synchronized (BootImageMap.class) {
-      Key key   = new Key(jdkObject);
-      Entry entry = keyToEntry.get(key);
-      if (entry == null) {
-        entry = new Entry(newId(), jdkObject);
-        keyToEntry.put(key, entry);
-        objectIdToEntry.add(entry);
-      }
-      return entry;
+        // Avoid duplicates of some known "safe" classes
+        jdkObject = BootImageObjectAddressRemapper.getInstance().intern(jdkObject);
+        Entry entry = null;
+        synchronized (BootImageMap.class)
+        {
+            try
+            {
+                Key key = new Key(jdkObject);
+                entry = keyToEntry.get(key);
+                if (entry == null)
+                {
+                    entry = new Entry(newId(), jdkObject);
+                    keyToEntry.put(key, entry);
+                    objectIdToEntry.add(entry);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                System.out.println("Problem class: "+jdkObject.getClass().getName());
+            }
+        }
+        return entry;
     }
-  }
 
   /**
    * Get JDK object corresponding to an object id.

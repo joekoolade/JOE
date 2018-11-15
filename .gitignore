@@ -42,3 +42,4 @@ jikesrvm-hg/tools/bootImageWriter/src/jam.out
 jikesrvm-hg/Assembler.java
 jam.ms3
 jikesrvm-hg/dragon4
+/target/

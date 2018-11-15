@@ -151,7 +151,7 @@ public class StreamHandler
 
       this.encoding = enc;
     }
-    catch (Exception _)
+    catch (Exception e)
     {
     }
 

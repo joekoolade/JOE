@@ -337,7 +337,7 @@ public class LogRecord
       if (resourceBundleName != null)
 	bundle = ResourceBundle.getBundle(resourceBundleName);
     }
-    catch (java.util.MissingResourceException _)
+    catch (java.util.MissingResourceException e)
     {
     }
   }

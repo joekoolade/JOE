@@ -186,7 +186,7 @@ void disconnect() {
 	        oout.close();
         sock.close();
 	}
-	catch (IOException _) {
+	catch (IOException e) {
     }
 
 	oin = null;

@@ -159,17 +159,17 @@ public class DecimalFormatSymbols implements Cloneable, Serializable
    */
   public DecimalFormatSymbols (Locale loc)
   {
-    ResourceBundle res;
+    ResourceBundle res=null;
 
-    try
-      {
-	res = ResourceBundle.getBundle("gnu.java.locale.LocaleInformation",
-		loc, ClassLoader.getSystemClassLoader());
-      }
-    catch (MissingResourceException x)
-      {
-	res = null;
-      }
+//    try
+//      {
+//	res = ResourceBundle.getBundle("gnu.java.locale.LocaleInformation",
+//		loc, ClassLoader.getSystemClassLoader());
+//      }
+//    catch (MissingResourceException x)
+//      {
+//	res = null;
+//      }
     locale = loc;
     currency = Currency.getInstance("XXX");
     currencySymbol = "?";

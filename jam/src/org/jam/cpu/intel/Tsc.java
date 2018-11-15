@@ -18,9 +18,11 @@ import org.vmmagic.unboxed.Address;
  *
  */
 public class Tsc {
-    public static long cyclesPerSecond;
-    public static int cyclesPer1000Ns=2500;
-    public final static long NSPERSEC=1000000000;
+  public static long       cyclesPerSecond;
+  public static int        cyclesPer1000Ns = 2500;
+  public final static long NSPERSEC        = 1000000000;
+
+  public static boolean    DEBUG           = false;
     
     public final static long getCycles()
     {
@@ -150,5 +152,21 @@ public class Tsc {
         VM.sysWriteln("TSC cycle per second = ", cyclesPerSecond);
         cyclesPer1000Ns = (int)(cyclesPerSecond/1000000);
         VM.sysWriteln("TSC cycles per 1000 NS = ", cyclesPer1000Ns);
+    }
+    
+    /**
+     * Delay for a set amount of microseconds
+     * @param microseconds microseconds to delay
+     */
+    public static void udelay(long microseconds)
+    {
+      long start=getCycles();
+      if(DEBUG) VM.sysWrite("udelay: ", start); 
+      long end = getCycles() + (microseconds * cyclesPer1000Ns);
+      if(DEBUG) VM.sysWriteln(" ", end);
+      while(getCycles() < end)
+      {
+        // just spin here
+      }
     }
 }

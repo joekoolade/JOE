@@ -171,7 +171,7 @@ public class InputStreamReader extends Reader
 	  encoding = EncodingHelper.getOldCanonical(cs.name());
 	  try {
 	      maxBytesPerChar = cs.newEncoder().maxBytesPerChar();
-	  } catch(UnsupportedOperationException _){
+	  } catch(UnsupportedOperationException e){
 	      maxBytesPerChar = 1f;
 	  } 
 	  decoder.onMalformedInput(CodingErrorAction.REPLACE);
@@ -220,7 +220,7 @@ public class InputStreamReader extends Reader
       Charset cs = EncodingHelper.getCharset(encoding_name);
       try {
         maxBytesPerChar = cs.newEncoder().maxBytesPerChar();
-      } catch(UnsupportedOperationException _){
+      } catch(UnsupportedOperationException e){
 	maxBytesPerChar = 1f;
       } 
 
@@ -253,7 +253,7 @@ public class InputStreamReader extends Reader
 
     try {
       maxBytesPerChar = charset.newEncoder().maxBytesPerChar();
-    } catch(UnsupportedOperationException _){
+    } catch(UnsupportedOperationException e){
       maxBytesPerChar = 1f;
     }
 
@@ -281,7 +281,7 @@ public class InputStreamReader extends Reader
         maxBytesPerChar = 1f;
       else
         maxBytesPerChar = charset.newEncoder().maxBytesPerChar();
-    } catch(UnsupportedOperationException _){
+    } catch(UnsupportedOperationException e){
 	maxBytesPerChar = 1f;
     } 
 

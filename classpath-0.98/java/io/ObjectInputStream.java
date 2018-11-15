@@ -1536,7 +1536,7 @@ public class ObjectInputStream extends InputStream
 		     + ", but requested type was "
 		     + (type == null ?  "Object" : type.getName()));
 		}
-	      catch (NullPointerException _)
+	      catch (NullPointerException e)
 		{
 		  /* Here we catch NullPointerException, because it may
 		     only come from the call 'field.getType()'. If field
@@ -2102,7 +2102,7 @@ public class ObjectInputStream extends InputStream
 	else
 	System.out.println(obj);
       }
-    catch (Exception _)
+    catch (Exception e)
       {
       }
     for (int i = 0; i < depth; i++)

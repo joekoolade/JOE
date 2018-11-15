@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.jam.java.net.VMInetAddress;
+
 /**
  * This class provides a cache of name service resolutions.  By
  * default successful resolutions are cached forever to guard

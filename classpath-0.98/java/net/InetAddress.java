@@ -45,6 +45,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import org.jam.java.net.VMInetAddress;
+
 /**
  * This class models an Internet address.  It does not have a public
  * constructor.  Instead, new instances of this objects are created
@@ -63,50 +65,27 @@ import java.io.Serializable;
  */
 public class InetAddress implements Serializable
 {
-  private static final long serialVersionUID = 3286316764910316507L;
+    private static final long serialVersionUID = 3286316764910316507L;
 
-  /**
-   * Dummy InetAddress, used to bind socket to any (all) network interfaces.
-   */
-  static InetAddress ANY_IF;
-  static
-  {
-    byte[] addr;
-    try
-      {
-	addr = VMInetAddress.lookupInaddrAny();
-      }
-    catch (UnknownHostException e)
-      {
-	// Make one up and hope it works.
-	addr = new byte[] {0, 0, 0, 0};
-      }
-    try
-      {
-	ANY_IF = getByAddress(addr);
-      }
-    catch (UnknownHostException e)
-      {
-	throw (InternalError) new InternalError().initCause(e);
-      }
-    ANY_IF.hostName = ANY_IF.getHostName();
-  }
-  
-  /**
-   * Stores static localhost address object.
-   */
-  static InetAddress LOCALHOST;
-  static
-  {
-    try
-      {
-	LOCALHOST = getByAddress("localhost", new byte[] {127, 0, 0, 1});
-      }
-    catch (UnknownHostException e)
-      {
-	throw (InternalError) new InternalError().initCause(e);
-      }
-  }    
+    /**
+     * Dummy InetAddress, used to bind socket to any (all) network interfaces.
+     */
+    static InetAddress ANY_IF;
+    /**
+     * Stores static localhost address object.
+     */
+    static InetAddress LOCALHOST;
+    static
+    {
+        try
+        {
+            LOCALHOST = getByAddress("localhost", new byte[] { 127, 0, 0, 1 });
+            ANY_IF = getByAddress("any-address", new byte[] { 0, 0, 0, 0 });
+        } catch (UnknownHostException e)
+        {
+            throw (InternalError) new InternalError().initCause(e);
+        }
+    }
 
   /**
    * The Serialized Form specifies that an int 'address' is saved/restored.
@@ -473,30 +452,29 @@ public class InetAddress implements Serializable
    *
    * @since 1.4
    */
-  public static InetAddress getByAddress(String host, byte[] addr)
-    throws UnknownHostException
-  {
-    if (addr.length == 4)
-      return new Inet4Address(addr, host);
+    public static InetAddress getByAddress(String host, byte[] addr) throws UnknownHostException
+    {
+        if (addr.length == 4)
+            return new Inet4Address(addr, host);
 
-    if (addr.length == 16)
-      {
-	for (int i = 0; i < 12; i++)
-	  {
-	    if (addr[i] != (i < 10 ? 0 : (byte) 0xFF))
-	      return new Inet6Address(addr, host);
-	  }
-	  
-	byte[] ip4addr = new byte[4];
-	ip4addr[0] = addr[12];
-	ip4addr[1] = addr[13];
-	ip4addr[2] = addr[14];
-	ip4addr[3] = addr[15];
-	return new Inet4Address(ip4addr, host);
-      }
+        if (addr.length == 16)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                if (addr[i] != (i < 10 ? 0 : (byte) 0xFF))
+                    return new Inet6Address(addr, host);
+            }
 
-    throw new UnknownHostException("IP address has illegal length");
-  }
+            byte[] ip4addr = new byte[4];
+            ip4addr[0] = addr[12];
+            ip4addr[1] = addr[13];
+            ip4addr[2] = addr[14];
+            ip4addr[3] = addr[15];
+            return new Inet4Address(ip4addr, host);
+        }
+
+        throw new UnknownHostException("IP address has illegal length");
+    }
 
   /**
    * Returns an InetAddress object representing the IP address of

@@ -96,17 +96,12 @@ public class StackTrace {
     /* Stack trace for the current thread */
     fp = Magic.getFramePointer();
     fp = Magic.getCallerFramePointer(fp);
-    while (Magic.getCallerFramePointer(fp).NE(STACKFRAME_SENTINEL_FP)) {
+    while (Magic.getCallerFramePointer(fp).NE(STACKFRAME_SENTINEL_FP) && fp.NE(Address.zero())) {
       int compiledMethodId = Magic.getCompiledMethodID(fp);
+//      VM.sysWriteln("stack walk: ", fp);
       if (compiledMethodId != INVISIBLE_METHOD_ID) {
         CompiledMethod compiledMethod =
           CompiledMethods.getCompiledMethod(compiledMethodId);
-        if ((compiledMethod.getCompilerType() != CompiledMethod.TRAP) &&
-            compiledMethod.hasBridgeFromNativeAnnotation()) {
-          // skip native frames, stopping at last native frame preceeding the
-          // Java To C transition frame
-          fp = RuntimeEntrypoints.unwindNativeStackFrame(fp);
-        }
       }
       stackFrameCount++;
       fp = Magic.getCallerFramePointer(fp);

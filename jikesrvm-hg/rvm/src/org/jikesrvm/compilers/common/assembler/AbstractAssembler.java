@@ -30,4 +30,6 @@ public abstract class AbstractAssembler {
   public abstract void patchSwitchCase(int sourceMachinecodeIndex);
 
   public abstract void patchLoadReturnAddress(int sourceMachinecodeIndex);
+
+  public abstract void patchUnconditionalAbsoluteBranch(int sourceMachinecodeIndex);
 }

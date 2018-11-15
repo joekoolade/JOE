@@ -127,11 +127,11 @@ public final class AnnotationInvocationHandler
                     return true;
                 }
             }
-            catch (IllegalAccessException _)
+            catch (IllegalAccessException e)
             {
                 // Ignore exception, like the JDK
             }
-            catch (InvocationTargetException _)
+            catch (InvocationTargetException e)
             {
                 // Ignore exception, like the JDK
             }

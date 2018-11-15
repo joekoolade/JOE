@@ -42,9 +42,12 @@ package java.util;
 import gnu.classpath.VMStackWalker;
 
 import gnu.java.lang.CPStringBuilder;
+import gnu.java.locale.LocaleInformation_en_US;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.jikesrvm.VM;
 
 /**
  * A resource bundle contains locale-specific data. If you need localized
@@ -131,6 +134,12 @@ public abstract class ResourceBundle
       return size() > CACHE_SIZE;
     }
   };
+  
+  static
+  {
+      bundleCache.put(new BundleKey(Locale.getDefault(), "gnu.java.locale.LocaleInformation", Locale.getDefault(), ClassLoader.getSystemClassLoader()), 
+                      new LocaleInformation_en_US()) ;
+  }
 
   /**
    * The constructor. It does nothing special.
@@ -407,6 +416,7 @@ public abstract class ResourceBundle
     if (obj instanceof ResourceBundle)
       return (ResourceBundle) obj;
 
+    VM.sysWrite("lookup key:"); VM.sysWriteln(lookupKey.toString());
     if (obj == nullEntry)
       throw new MissingResourceException("Bundle " + baseName
                                          + " not found for locale " + locale

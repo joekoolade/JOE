@@ -12,7 +12,6 @@
  */
 package org.mmtk.policy;
 
-import org.mmtk.plan.markcompact.MC;
 import org.mmtk.utility.Log;
 import org.mmtk.utility.alloc.Allocator;
 import org.mmtk.utility.alloc.BumpPointer;
@@ -507,7 +506,8 @@ public final class MarkCompactCollector {
         ObjectReference copyTo = MarkCompactSpace.getForwardingPointer(current);
         if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!copyTo.toAddress().EQ(Address.fromIntZeroExtend(VM.ALIGNMENT_VALUE)));
 
-        if (!copyTo.isNull() && Space.isInSpace(MC.MARK_COMPACT, copyTo)) {
+        if (!copyTo.isNull()) // && Space.isInSpace(MC.MARK_COMPACT, copyTo))
+        {
           if (VM.VERIFY_ASSERTIONS) {
             if (MarkCompactSpace.isMarked(current)) {
               Log.write("Object "); Log.write(current);

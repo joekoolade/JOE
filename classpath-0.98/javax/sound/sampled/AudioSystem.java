@@ -92,7 +92,7 @@ public class AudioSystem
           {
             return reader.getAudioFileFormat(f);
           }
-        catch (UnsupportedAudioFileException _)
+        catch (UnsupportedAudioFileException e)
           {
             // Try the next provider.
           }
@@ -119,7 +119,7 @@ public class AudioSystem
           {
             return reader.getAudioFileFormat(is);
           }
-        catch (UnsupportedAudioFileException _)
+        catch (UnsupportedAudioFileException e)
           {
             // Try the next provider.
           }
@@ -146,7 +146,7 @@ public class AudioSystem
           {
             return reader.getAudioFileFormat(url);
           }
-        catch (UnsupportedAudioFileException _)
+        catch (UnsupportedAudioFileException e)
           {
             // Try the next provider.
           }
@@ -259,7 +259,7 @@ public class AudioSystem
           {
             return reader.getAudioInputStream(f);
           }
-        catch (UnsupportedAudioFileException _)
+        catch (UnsupportedAudioFileException e)
           {
             // Try the next provider.
           }
@@ -286,7 +286,7 @@ public class AudioSystem
           {
             return reader.getAudioInputStream(is);
           }
-        catch (UnsupportedAudioFileException _)
+        catch (UnsupportedAudioFileException e)
           {
             // Try the next provider.
           }
@@ -313,7 +313,7 @@ public class AudioSystem
           {
             return reader.getAudioInputStream(url);
           }
-        catch (UnsupportedAudioFileException _)
+        catch (UnsupportedAudioFileException e)
           {
             // Try the next provider.
           }
@@ -384,7 +384,7 @@ public class AudioSystem
         {
           return mix.getLine(info);
         }
-        catch (LineUnavailableException _)
+        catch (LineUnavailableException e)
         {
           // Try the next provider.
         }

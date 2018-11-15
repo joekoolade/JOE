@@ -549,15 +549,15 @@ public class Applet extends Panel
           clip = AudioSystem.getClip();
           clip.open(AudioSystem.getAudioInputStream(url));
         }
-      catch (LineUnavailableException _)
+      catch (LineUnavailableException e)
         {
           // Ignore.
         }
-      catch (IOException _)
+      catch (IOException e)
         {
           // Ignore.
         }
-      catch (UnsupportedAudioFileException _)
+      catch (UnsupportedAudioFileException e)
         {
           // Ignore.
         }

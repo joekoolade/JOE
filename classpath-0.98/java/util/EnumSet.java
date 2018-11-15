@@ -126,7 +126,7 @@ public abstract class EnumSet<T extends Enum<T>>
       {
 	r = (EnumSet<T>) super.clone();
       }
-    catch (CloneNotSupportedException _)
+    catch (CloneNotSupportedException e)
       {
 	/* Can't happen */
 	return null;

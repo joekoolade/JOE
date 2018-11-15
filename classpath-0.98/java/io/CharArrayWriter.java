@@ -279,7 +279,7 @@ public class CharArrayWriter extends Writer
       {
 	write(cs == null ? "null" : cs.toString());
       }
-    catch (IOException _)
+    catch (IOException e)
       {
 	// Can't happen.
       }
@@ -313,7 +313,7 @@ public class CharArrayWriter extends Writer
       {
 	write(cs == null ? "null" : cs.subSequence(start, end).toString());
       }
-    catch (IOException _)
+    catch (IOException e)
       {
 	// Can't happen.
       }

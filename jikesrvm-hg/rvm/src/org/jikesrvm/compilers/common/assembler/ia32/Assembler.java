@@ -198,7 +198,12 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
    * The current end of the generated machine code
    */
   protected int mi;
-
+  
+  /**
+   * The current address
+   */
+  private int origin;
+  
   /**
    * Create an assembler with a given machine code buffer size that
    * will not print the machine code as it generates it.
@@ -878,6 +883,15 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     setMachineCodes(mi++, (byte) (opCode | cond));
   }
 
+  public final void setOrigin(int address)
+  {
+      origin = address;
+  }
+  
+  public final int getOrigin()
+  {
+      return origin;
+  }
   /**
    * Generate a locking prefix word into the generated code.  Locking
    * operations on IA32 are expressed by writing a locking byte before
@@ -1065,6 +1079,10 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     forwardRefs = ForwardReference.resolveMatching(this, forwardRefs, label);
   }
 
+  public final void resolveForwardReferencesAbs(int label) {
+      if (forwardRefs == null) return; // premature optimization
+      forwardRefs = ForwardReference.resolveMatching(this, forwardRefs, label);
+  }
   /**
    * Set up a code sequence to push a return address. This involves pushing the
    * current instruction address, and setting up an ADD that gets resolved later.
@@ -1150,6 +1168,17 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     emitImm32(relOffset, sourceIndex);
   }
 
+  public final void patchUnconditionalAbsoluteBranch(int sourceIndex)
+  {
+      if (VM.AlignmentChecking || isHotCode()) {
+          // force 4byte alignment here
+          emitNOP((4 - mi) & 3);
+        }
+        if (lister != null) lister.comefrom(mi+origin, sourceIndex);
+        sourceIndex++; // skip the op code
+        emitImm32(mi+origin, sourceIndex);
+      
+  }
   /**
    * Make the given conditional branch branch to the current
    * generated instruction.  It is the client's responsibility to
@@ -1949,11 +1978,24 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   /** Suggest to process that a a compare for a spin lock has just failed */
   public final void emitPAUSE () {
     int miStart = mi;
-    setMachineCodes(mi++, (byte) 0xF3);
+    setMachineCodes(mi++,(byte) 0xF3);
     setMachineCodes(mi++,(byte) 0x90);
     if (lister != null) lister.OP(miStart, "PAUSE");
   }
 
+  /**
+   * 8bit exchange of the contents of registers 1 and 2
+   * 
+   * @param reg1
+   * @param reg2
+   */
+  @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
+  public final void emitXCHG_Reg_Reg(GPR reg1, GPR reg2)
+  {
+    int miStart = mi;
+    setMachineCodes(mi++,(byte)0x86);
+    emitRegRegOperands(reg1, reg2);
+  }
   /**
    * Compare and exchange 8 bytes
    * <PRE>

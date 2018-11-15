@@ -193,7 +193,7 @@ public class ZipFile implements ZipConstants
                 | ((buf[3] & 0xFF) << 24);
         valid = sig == LOCSIG;
       }
-    catch (IOException _)
+    catch (IOException e)
       {
       } 
 
@@ -203,7 +203,7 @@ public class ZipFile implements ZipConstants
           {
 	    raf.close();
           }
-        catch (IOException _)
+        catch (IOException e)
           {
           }
 	throw new ZipException("Not a valid zip file");

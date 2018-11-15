@@ -2,6 +2,5 @@
 /target
 generated/
 /image.optNoGC.log
-/components
 /stderr.txt
 /trace.log

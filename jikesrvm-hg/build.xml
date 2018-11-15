@@ -90,7 +90,7 @@
   <!-- Set the properties for directory of generated artifacts -->
   <property name="generated.dir" location="generated"/>
   <property name="generated.config.dir" location="${generated.dir}/configurations/${build.name}"/>
-  <property name="generated.config.java" location="${generated.config.dir}/java"/>
+  <property name="generated.config.java" location="eclipse/gen-config"/>
 
   <property name="generated.java" location="${generated.dir}/main/java"/>
   <property name="generated.ia32.java" location="${generated.dir}/ia32-${target.address.size}/main/java"/>
@@ -126,6 +126,7 @@
   <property name="harness.java.version" value="1.6"/>
   <property name="rvm.java.version" value="1.6"/>
 
+  <property name="asm.jar" location="${basedir}/components/asm-3.0.jar"/>
   <!-- **************************************************************************** -->
   <!-- *                                                                          * -->
   <!-- *             Property initialization section of the build                 * -->
@@ -275,7 +276,6 @@
   </target>
 
   <target name="check-components-properties" depends="include-gcspy-check,prepare-ant-tasks">
-    <mkdir dir="${components.dir}"/>
     <!--
     <if>
       <conditions>
@@ -294,7 +294,6 @@
         <ant antfile="build/components/harmony.xml" target="ensure"/>
       </sequential>
     </if>
-    -->
     <if>
       <conditions>
         <equals arg1="${config.with-profile}" arg2="true"/>
@@ -332,6 +331,7 @@
     <ant antfile="build/components/hamcrest.xml" target="ensure"/>
     <ant antfile="build/components/mockito.xml" target="ensure"/>
     <property file="${components.file}"/>
+    -->
   </target>
 
   <target name="check-gcspy-client-properties" depends="check-config-properties" if="include.gcspy-client">
@@ -455,10 +455,10 @@ Check to make sure all required properties are specified. This includes properti
   <target name="compile-classpath" description="Compile GNU classpath">
     <mkdir dir="${classpath.dir}/classes"/>
     <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" destdir="${classpath.dir}/classes"
-      classpath="${classpath.dir}/classes" bootclasspath="${classpath.dir}/classes"
-      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/vm/reference/gnu,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
-      includes="java/**,javax/**,gnu/**,sun/**,org/**,vm/reference/**,external/**,org/jikesrvm/**"
-      excludes="gnu/java/awt/peer/x/**"
+      classpath="${classpath.dir}/classes:${build.vmmagic-stub.classes}:${build.classes}" bootclasspath="${classpath.dir}/classes"
+      sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
+      includes="java/**,javax/**,gnu/**,sun/**,org/jam/**,org/omg/**,vm/reference/**,external/**,org/jikesrvm/**,org/vmmagic/**"
+      excludes="gnu/java/awt/peer/x/**,vm/reference/gnu/java/net/**,vm/reference/java/net/**,gnu/java/net/*PlainSocketImpl.java,gnu/java/net/*PlainDatagramSocketImpl.java"
       includeantruntime="no"
       source="${rvm.java.version}"
       target="${rvm.java.version}"
@@ -473,6 +473,11 @@ Check to make sure all required properties are specified. This includes properti
       <include name="external/relaxngDatatype/**/*.java"/>
       <include name="external/sax/**/*.java"/>
       <include name="external/w3c_dom/**/*.java"/>
+      <exclude name="vm/reference/gnu/java/net/*.java"/>
+    </jar>
+    <jar file="${classpath.dir}/src.jar" basedir="${jam.java}" update="true">
+      <include name="org/jam/java/net/*.java"/>
+      <include name="org/jam/net/Socket.java"/>
     </jar>
     <jar file="${classpath.dir}/classpath.jar" basedir="${classpath.dir}/classes">
       <exclude name="org/jikesrvm/**"/>
@@ -1118,7 +1123,7 @@ Check to make sure all required properties are specified. This includes properti
   </target>
 
   <target name="do-gen-config-source" depends="gen-config-source">
-    <touch file="${generated.config.dir}/SourceGenerated"/>
+<!--    <touch file="${generated.config.dir}/SourceGenerated"/> -->
   </target>
 
   <target name="gen-config-source-check" depends="check-properties">
@@ -1220,6 +1225,8 @@ Check to make sure all required properties are specified. This includes properti
           <include name="sun/**/*.java"/>
           <include name="java/**/*.java"/>
           <include name="org/jam/**/*.java"/>
+          <include name="org/xbill/DNS/*.java"/>
+          <include name="org/xbill/DNS/utils/*.java"/>
           <include name="${arch-helper-class}"/>
           <include name="com/ibm/tuningfork/**/*.java"/>
           <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
@@ -1383,7 +1390,7 @@ Check to make sure all required properties are specified. This includes properti
   </target>
 
   <!-- <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-harmony"/> -->
-  <target name="package" depends="compile-vmmagic,package-classpath,package-harmony"/>
+  <target name="package" depends="compile-vmmagic,package-classpath"/>
 
   <target name="package-harmony" if="harmony.classlib">
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
@@ -1404,7 +1411,7 @@ Check to make sure all required properties are specified. This includes properti
     </jar>
   </target>
 
-  <target name="package-classpath" if="classpath.classlib">
+  <target name="package-classpath">
     <!-- create a rt.jar for the RVM -->
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false"> 
       <include name="java/**"/>
@@ -2229,11 +2236,7 @@ target.jni-suffix=${target.jni-suffix}
     </delete>
   </target>
 
-  <target name="cleanest" depends="real-clean" description="Strongest clean target: Delete components but not the user-defined components-cache.">
-    <delete dir="${components.dir}"/>
-  </target>
-
-  <target name="purge" depends="cleanest" description="Execute all clean targets and delete eclipse projects, the component cache, the directory for external libraries and test results.">
+  <target name="purge" description="Execute all clean targets and delete eclipse projects, the component cache, the directory for external libraries and test results.">
     <remove-eclipse-project-files/>
     <!-- Deletes cached components. -->
     <delete dir="${components.cache.dir}"/>

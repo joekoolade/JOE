@@ -112,7 +112,7 @@ public class ElementIterator implements Cloneable
       {
 	return super.clone();
       }
-    catch (CloneNotSupportedException _)
+    catch (CloneNotSupportedException e)
       {
 	// Can't happen.
 	return null;

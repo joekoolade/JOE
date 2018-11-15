@@ -18,7 +18,7 @@ public class VirtUsed {
   final int size;
   private int lastUsedIndex;    // The next buffer that driver expects to see data in
   
-  public static final int FLAG_NO_INTERRUPT = 0x01;
+  public static final short FLAG_NO_INTERRUPT = 0x01;
   private static final int ID_OFFSET   = 4;
   private static final int LEN_OFFSET  = 8;
   private static final int FLAG_OFFSET = 0;
@@ -73,6 +73,10 @@ public class VirtUsed {
     ring.store(flags);
   }
   
+  public void noInterrupts()
+  {
+    setFlags(FLAG_NO_INTERRUPT);
+  }
   public int getFlags()
   {
     int flags = ring.loadShort();

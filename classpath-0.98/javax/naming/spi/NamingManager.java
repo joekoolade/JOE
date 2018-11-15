@@ -600,7 +600,7 @@ public class NamingManager
 	if (obj != null)
 	  return (Context) obj;
       }
-    catch (Exception _)
+    catch (Exception e)
       {
       }
 

@@ -152,7 +152,7 @@ public abstract class Formatter
       {
 	msg = bundle.getString(msg);
       }
-      catch (java.util.MissingResourceException _)
+      catch (java.util.MissingResourceException e)
       {
       }
     }

@@ -489,7 +489,7 @@ public class UnicastRef
             System.out.println();
           }
       }
-    catch (IOException _)
+    catch (IOException e)
       {
       }
   }

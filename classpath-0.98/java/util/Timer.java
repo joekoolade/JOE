@@ -221,7 +221,7 @@ public class Timer
 		    {
 		      this.wait(time);
 		    }
-		  catch (InterruptedException _)
+		  catch (InterruptedException e)
 		    {
 		    }
 		}
@@ -234,7 +234,7 @@ public class Timer
 		{
 		  this.wait();
 		}
-	      catch (InterruptedException _)
+	      catch (InterruptedException e)
 		{
 		}
 	    }

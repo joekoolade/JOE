@@ -154,11 +154,19 @@ public class CommonCfg extends VirtioPciCap {
     commonCfg.store(size, QUEUE_SIZE_OFFSET);
   }
   
-  public void resetDevice()
+  final public void resetDevice()
   {
     setDeviceStatus((byte) 0);
   }
   
+  /**
+   * Returns true if device is requesting a reset
+   * @return
+   */
+  final public boolean deviceNeedsReset()
+  {
+    return getDeviceStatus() == DEVICE_NEEDS_RESET;
+  }
   /*
    * Tell device you notice it
    */
@@ -206,6 +214,11 @@ public class CommonCfg extends VirtioPciCap {
     commonCfg.store(0, QUEUE_DESC_OFFSET.plus(4));
     commonCfg.store(queue, QUEUE_DESC_OFFSET);
   }
+  public void setDescQueue(Address queue)
+  {
+    commonCfg.store(0, QUEUE_DESC_OFFSET.plus(4));
+    commonCfg.store(queue, QUEUE_DESC_OFFSET);
+  }
 
   /**
    * @param virtAvail
@@ -216,6 +229,11 @@ public class CommonCfg extends VirtioPciCap {
     commonCfg.store(0, QUEUE_AVAIL_OFFSET.plus(4));
     commonCfg.store(queue, QUEUE_AVAIL_OFFSET);
   }
+  public void setAvailQueue(Address queue)
+  {
+    commonCfg.store(0, QUEUE_AVAIL_OFFSET.plus(4));
+    commonCfg.store(queue, QUEUE_AVAIL_OFFSET);
+  }
 
   /**
    * @param virtUsed
@@ -223,6 +241,11 @@ public class CommonCfg extends VirtioPciCap {
   public void setUsedQueue(short queueIndex, Address queue)
   {
     setQueueSelect(queueIndex);
+    commonCfg.store(0, QUEUE_USED_OFFSET.plus(4));
+    commonCfg.store(queue, QUEUE_USED_OFFSET);
+  }
+  public void setUsedQueue(Address queue)
+  {
     commonCfg.store(0, QUEUE_USED_OFFSET.plus(4));
     commonCfg.store(queue, QUEUE_USED_OFFSET);
   }

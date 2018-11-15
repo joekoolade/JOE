@@ -174,7 +174,7 @@ public class RMIClassLoaderImpl extends RMIClassLoaderSpi
         if (defaultAnnotation != null)
           defaultCodebase = new URL (defaultAnnotation);
       }
-    catch (Exception _)
+    catch (Exception e)
       {
         defaultCodebase = null;
       }

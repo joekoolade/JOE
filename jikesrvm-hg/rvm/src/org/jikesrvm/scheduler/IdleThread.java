@@ -6,8 +6,6 @@
  */
 package org.jikesrvm.scheduler;
 
-import static org.jikesrvm.ia32.StackframeLayoutConstants.STACK_SIZE_NORMAL;
-
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
@@ -20,7 +18,7 @@ import org.vmmagic.unboxed.ObjectReference;
  */
 @NonMoving
 public class IdleThread extends SystemThread {
-
+    private static int loop = 0;
   /**
      * 
      */
@@ -31,24 +29,31 @@ public class IdleThread extends SystemThread {
     VM.sysWriteln("idle thread: ", ObjectReference.fromObject(RVMThread.idleThread));
   }
 
-  /*
-   * This is the idling loop when there is nothing else
-   * to be done
-   */
-  @Override
-  public void run()
-  {
-    VM.sysWriteln("Starting the Idle Thread");
     /*
-     * For now just pause because we will be doing is spinning until a process becomes available.
-     * Later on may want to do some power saving stuff.
+     * This is the idling loop when there is nothing else to be done
      */
-    while (true)
+    @Override
+    public void run()
     {
-      // rvmThread.checkBlock();
-      Magic.pause();
+        VM.sysWriteln("Starting the Idle Thread");
+        /*
+         * For now just pause because we will be doing is spinning until a process
+         * becomes available. Later on may want to do some power saving stuff.
+         */
+        while (true)
+        {
+            // rvmThread.checkBlock();
+            Magic.pause();
+        }
+
     }
 
+  private void doSomething()
+  {
+      loop++;
+      if((loop % 100000)==0)
+      {
+          VM.sysWrite("$%");
+      }
   }
-
 }

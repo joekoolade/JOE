@@ -312,7 +312,7 @@ public class URLClassLoader extends SecureClassLoader
                   {
                     absoluteURL = dir.getAbsoluteFile().toURL();
                   }
-                catch (MalformedURLException _)
+                catch (MalformedURLException e)
                   {
                     // This really should not happen.
                     absoluteURL = newUrl;

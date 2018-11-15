@@ -1,0 +1,28 @@
+#!/bin/bash
+dd if=/dev/zero of=jam.img bs=512 count=163840
+fdisk -e jam.img <<-EOF
+y
+disk
+n
+edit 1
+0B
+n
+2047
+
+write
+quit
+EOF
+dd if=jam.img of=mbr.img bs=512 count=2047
+dd if=jam.img of=fs.img bs=512 skip=2047
+disk=$(hdiutil attach -nomount fs.img)
+# Get disk device that was mounted
+number=$(echo $disk | cut -c 10-)
+# create the rdisk equivalent
+rdisk="/dev/rdisk$number"
+newfs_msdos -F 32 $rdisk
+hdiutil detach $disk
+cat mbr.img fs.img > jam.img
+hdiutil attach jam.img
+diskutil rename "NO NAME" JAM
+/usr/local/sbin/grub-install --modules="part_msdos biosdisk fat multiboot configfile" --root-directory="/Volumes/JAM" $rdisk
+hdiutil detach $disk

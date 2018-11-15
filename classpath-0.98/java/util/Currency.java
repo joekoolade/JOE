@@ -133,14 +133,16 @@ public final class Currency
     /* Create the properties object */
     properties = new Properties();
     /* Try and load the properties from our iso4217.properties resource */
-    try 
-      {
-        properties.load(Currency.class.getResourceAsStream("iso4217.properties"));
-      }
-    catch (IOException exception)
-      {
-        throw new InternalError("Failed to load currency resource: " + exception);
-      }
+//    try 
+//      {
+//        properties.load(Currency.class.getResourceAsStream("iso4217.properties"));
+//      }
+//    catch (IOException exception)
+//      {
+//        throw new InternalError("Failed to load currency resource: " + exception);
+//      }
+    properties.setProperty("US.currency", "USD");
+    properties.setProperty("US.fractionDigits", "2");
   }
 
   /**
@@ -409,7 +411,7 @@ public final class Currency
    */
   public String getSymbol(Locale locale)
   {
-    String property = "currenciesSymbol." + currencyCode;
+    String property = "currencySymbol";
     try
       {
         return ResourceBundle.getBundle("gnu.java.locale.LocaleInformation",

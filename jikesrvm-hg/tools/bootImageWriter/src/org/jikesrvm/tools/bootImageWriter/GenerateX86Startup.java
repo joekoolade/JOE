@@ -18,7 +18,6 @@ public class GenerateX86Startup {
 	@SuppressWarnings("unused")
 	private static final int CODE_SEGMENT = 1<<3;
 	private static final int DATA_SEGMENT = 2<<3;
-	
 	/**
 	 * 
 	 * @param stack top of stack
@@ -28,6 +27,7 @@ public class GenerateX86Startup {
 	 */
 	public GenerateX86Startup(BootRecord bootRecord) {
 		int multibootEntry=1;
+		asm.setOrigin(X86_LOADADDR);
 		asm.emitJMP_Label(multibootEntry);
 		asm.align(4);
 		// Insert multiboot header
@@ -93,8 +93,18 @@ public class GenerateX86Startup {
 		// io delay
 		asm.emitOUTB(0x80);
 		
+        // enable protected mode; not needed for qemu -kernel option
 		// setup gdt
 		asm.emitLGDT(gdtDesc);
+        // Set cr0.MP
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
+        asm.emitMOVCR(GPR.EAX, CR.CR0);
+        /****
+         * !!!!!! Any changes to above then the addres here needs to be recomputed!
+         */
+ //       asm.emitJMPFAR_label(0x100135, CODE_SEGMENT);
+        asm.emitJMPFAR_label(2, CODE_SEGMENT);
+        asm.resolveForwardReferences(2);
 		// asm.emitLIDT(idtTablePtr);
 		// Load the data segment registers
 		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
@@ -104,10 +114,6 @@ public class GenerateX86Startup {
 		asm.emitMOVSEG(SEG.GS, GPR.EAX);
 		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 
-		// enable protected mode; not needed for qemu -kernel option
-		// Set cr0.MP
-		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
-		asm.emitMOVCR(GPR.EAX, CR.CR0);
 		// Set cr4.OSFXSR
 		asm.emitMOV_Reg_Imm(GPR.EAX, 0x200);
 		asm.emitMOVCR(GPR.EAX, CR.CR4);
@@ -116,6 +122,13 @@ public class GenerateX86Startup {
 		asm.emitMOV_Reg_Abs(GPR.ESI, bootRecord.tocRegister.plus(bootRecord.bootThreadOffset));
 		// setup top of stack pointer
 		asm.emitLEA_Reg_Abs(GPR.ESP, bootRecord.spRegister);
+		// Put JTOC, SP, and ESI at 0x1000E0
+		asm.emitLEA_Reg_Abs(GPR.EAX, bootRecord.tocRegister);
+		Address parameterStorage = Address.fromIntSignExtend(0x1000E0);
+		asm.emitMOV_Abs_Reg(parameterStorage, GPR.EAX);
+		asm.emitMOV_Abs_Reg(parameterStorage.plus(4), GPR.ESP);
+        asm.emitMOV_Abs_Reg(parameterStorage.plus(8), GPR.ESI);
+		
 		// setup the thread register's frame pointer
 		asm.emitMOV_Reg_Reg(GPR.EAX, GPR.ESP);
 		asm.emitSUB_Reg_Imm_Byte(GPR.EAX, 8);

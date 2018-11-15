@@ -1126,10 +1126,10 @@ public abstract class TimeZone implements java.io.Serializable, Cloneable
       }
 
     // FIXME: Produce a warning here?
-    catch (IndexOutOfBoundsException _)
+    catch (IndexOutOfBoundsException e)
       {
       }
-    catch (NumberFormatException _)
+    catch (NumberFormatException e)
       {
       }
 

@@ -49,7 +49,7 @@ public interface HeapLayoutConstants {
   /** The address of the end of the data section of the boot image. */
   Address BOOT_IMAGE_DATA_END = BOOT_IMAGE_DATA_START.plus(BOOT_IMAGE_DATA_SIZE);
   /** The address of the end of the code section of the boot image. */
-  Address BOOT_IMAGE_CODE_END = BOOT_IMAGE_CODE_START.plus(0x400000);
+  Address BOOT_IMAGE_CODE_END = BOOT_IMAGE_CODE_START.plus(0x800000);
   /** The address of the end of the ref map section of the boot image. */
   Address BOOT_IMAGE_RMAP_END = BOOT_IMAGE_RMAP_START.plus(MAX_BOOT_IMAGE_RMAP_SIZE);
   /** The address of the end of the boot image. */

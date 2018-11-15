@@ -5,7 +5,7 @@
  * All rights reserved.
  */
 package org.jikesrvm.scheduler;
-import test.org.jikesrvm.org.gctests.Exhaust;
+//import org.jikesrvm.org.gctests.Exhaust;
 import test.org.jikesrvm.basic.core.bytecode.*;
 import test.org.jikesrvm.basic.core.threads.TestDispatch;
 import test.org.jikesrvm.basic.core.threads.TestInterruptAndSpin;

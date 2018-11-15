@@ -79,7 +79,9 @@ public interface TIBLayoutConstants {
    DynamicTypeCheck.java */
   int TIB_SUPERCLASS_IDS_INDEX = TIB_TYPE_INDEX + 1;
 
-  /** Does this class implement the ith interface? See DynamicTypeCheck.java */
+  /** Does this class implement the ith interface? See DynamicTypeCheck.java 
+   *  Contains an array on the interfaces that it implements
+   *  */
   int TIB_DOES_IMPLEMENT_INDEX = TIB_SUPERCLASS_IDS_INDEX + 1;
 
   /** The TIB of the elements type of an array (may be {@code null} in fringe cases
