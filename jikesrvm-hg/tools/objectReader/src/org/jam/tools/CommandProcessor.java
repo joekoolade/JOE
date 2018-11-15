@@ -33,7 +33,7 @@ implements Runnable
             {
                 command = input.readLine();
                 results = lexer.lex(command);
-                if(results == null || results.length < 2) continue;
+                if(results == null) continue;
                 if(results[0].equals("p"))
                 {
                     try
@@ -126,12 +126,24 @@ implements Runnable
                         stackPointer = reader.readInt(stackPointer);
                     }
                 }
+                else
+                {
+                    help();
+                }
 
             } catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void help()
+    {
+        System.out.println("p <object address|field name>\t\tDisplay contents of object address or field");
+        System.out.println("c <address>\t\tDisplay method name of address");
+        System.out.println("d <address>\t\tHex dump starting at address");
+        System.out.println("bt <address> [length]\t\tBack trace stack address");
     }
 
     private void dump(int address, int size)

@@ -26,9 +26,17 @@ This is interoperable with current Java compilers, class files, and libraries. O
 
 ## How to Build
 
-Ant is used to compile and build the JOE files and image. You need to set the config.name and host.name properties. Valid config names are `BaseBaseNoGC` and `BaseBaseSemiSpace`. The host.name I am using now is x86_64-osx. You should use a host.name that is appropriate for the platform you are using. The Ant build file, build.xml, is in the jikesrvm-hg directory. To compile the following targets must be run in this order: `compile, compile-mmtk, compile-classpath, package, compile-bootimage-writer`. The `build-bootimage` target is used to build the JOE executable image which is named jam.out.
-
-To execute the jam.out use the command: `qemu-system-i386 -no-reboot -kernel jam.out -nographic  -device i82559c,netdev=mynet -netdev user,id=mynet`
+Ant is used to compile and build the JOE files and image. To build after the initial repository clone:
+```
+ant compile
+ant compile-classpath
+ant build
+```
+To run the image, jam.out:
+```
+cd jikesrvm/target/BaseBaseSemiSpace_x86_64-osx
+../../../scripts/rjoe
+```
 
 The jam.out in the top directory will run org.jam.test.Sleep thread.
 

@@ -56,6 +56,7 @@
   <property name="options.java" location="${jikesrvm.dir}/common/options/src"/>
   <property name="tuningforklib.java" location="${jikesrvm.dir}/external/tuningforklib/src"/>
   <property name="vmmagic.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/src"/>
+  <property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/32/java"/>
   <property name="classpath.lib.dir" location="classpath-0.98"/>
 
   <!-- Classpath library -->
@@ -93,7 +94,7 @@
   <!-- Set the properties for directory of generated artifacts -->
   <property name="generated.dir" location="${jikesrvm.dir}/generated"/>
   <property name="generated.config.dir" location="${generated.dir}/configurations/${build.name}"/>
-  <property name="generated.config.java" location="${jikesrvm.dir}/eclipse/gen-config"/>
+  <property name="mmtk.config.java" location="${jikesrvm.dir}/config/mmtk/semispace"/>
 
   <property name="generated.java" location="${generated.dir}/main/java"/>
   <property name="generated.ia32.java" location="${generated.dir}/ia32-${target.address.size}/main/java"/>
@@ -471,6 +472,7 @@ Check to make sure all required properties are specified. This includes properti
   <!-- **************************************************************************** -->
 
   <!-- build baseclass for vmmagic -->
+  <!--
   <target name="gen-vmmagic-word" depends="check-properties">
     <mkdir dir="${generated.dir}/vmmagic/32/java/org/vmmagic/unboxed"/>
     <mkdir dir="${generated.dir}/vmmagic/64/java/org/vmmagic/unboxed"/>
@@ -489,7 +491,7 @@ Check to make sure all required properties are specified. This includes properti
       </filterset>
     </copy>
   </target>
-
+   -->
   <!-- Macro to build IR and related artifacts (scheduler, burs) for opt compiler -->
   <macrodef name="generate-ir">
     <attribute name="arch"/>
@@ -1011,12 +1013,11 @@ Check to make sure all required properties are specified. This includes properti
     <javac destdir="${build.classes}"
            debug="true"
            fork="true"
-           memoryMaximumSize="500M"
+           memoryMaximumSize="800M"
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-           sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${generated.arch.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
+           srcdir="${mmtk.java}:${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
            includeantruntime="false">
       <bootclasspath>
         <pathelement location="${classpath.lib.dir}/classpath.jar"/>
@@ -1024,11 +1025,27 @@ Check to make sure all required properties are specified. This includes properti
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
       </classpath>
+      <exclude name="org/jikesrvm/compilers/opt/*/ppc/**"/>
+      <exclude name="org/jikesrvm/osr/ppc/**"/>
+      <exclude name="org/jikesrvm/ppc/**"/>
+      <exclude name="org/jikesrvm/compilers/baseline/ppc/**"/>
+      <exclude name="org/jikesrvm/compilers/common/assembler/ppc/**"/>
+      <exclude name="org/jikesrvm/tools/header_gen/*ppc.java"/>
+      <exclude name="org/jikesrvm/junit/**"/>
+      <include name="test/**"/>
       <include name="Dummy.java"/>
       <include name="OptDummy.java"/>
       <include name="gnu/**/*.java"/>
       <include name="sun/**/*.java"/>
       <include name="java/**/*.java"/>
+      <include name="org/jikesrvm/**"/>
+      <include name="org/mmtk/*"/>
+      <include name="org/mmtk/plan/*"/>
+      <include name="org/mmtk/plan/semispace/**"/>
+      <include name="org/mmtk/policy/**"/>
+      <include name="org/mmtk/utility/**"/>
+      <include name="org/mmtk/vm/**"/>
+      <include name="org/vmutil/**"/>
       <include name="org/jam/**/*.java"/>
       <include name="org/xbill/DNS/*.java"/>
       <include name="org/xbill/DNS/utils/*.java"/>
@@ -1082,9 +1099,8 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="compile-vmmagic" depends="compile">
     <mkdir dir="${build.vmmagic.classes}"/>
-    <javac srcdir="${vmmagic.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="vars,lines,source"
+    <javac srcdir="${vmmagic.java}:${vmmagic.arch.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="vars,lines,source"
            source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
-      <src path="${generated.vmmagic.arch.java}"/>
       <classpath>
         <pathelement location="${build.classes}"/>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1251,7 +1267,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement location="${build.mmtk.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
@@ -1326,8 +1341,8 @@ Check to make sure all required properties are specified. This includes properti
         </linecontainsregexp>
       </filterchain>
     </loadfile>
-    <!-- 
-    <fail if="bootimage.warnings" message="${bootimage.warnings}"/> 
+    <!--
+    <fail if="bootimage.warnings" message="${bootimage.warnings}"/>
     <if>
       <conditions>
         <not>
@@ -1348,7 +1363,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement location="${build.mmtk.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
