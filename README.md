@@ -27,6 +27,7 @@ This is interoperable with current Java compilers, class files, and libraries. O
 ## How to Build
 
 Ant is used to compile and build the JOE files and image. To build after the initial repository clone:
+
 '''
 ant compile
 ant compile-classpath
@@ -34,6 +35,7 @@ ant build
 '''
 
 To run the image, jam.out:
+
 '''
 cd jikesrvm/target/BaseBaseSemiSpace_x86_64-osx
 ../../../scripts/rjoe
