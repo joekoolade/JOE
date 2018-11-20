@@ -18,6 +18,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import org.jam.driver.net.Packet;
+import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -99,28 +100,28 @@ public class Udp {
 
   /**
    * @param packet
- * @throws IOException 
+   * @throws IOException 
    */
   public void send(DatagramPacket packet) throws IOException
   {
 	  /*
 	   * Get a new connection
 	   */
-      System.out.println("udp send0");
+      VM.sysWriteln("udp send0");
 	  if(connection == null)
 	  {
-	      System.out.println("udp send1");
+	      VM.sysWriteln("udp send1");
 		  connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
 		  computePseudoHeaderSum();
 	  }
-	  System.out.println("udp length: "+packet.getLength());
+	  VM.sysWriteln("udp length: "+packet.getLength());
 	  if(packet.getLength() > 0xFFFF)
 	  {
 		  throw new IOException("Packet too big");
 	  }
-	  System.out.println("get new inet packet");
+	  VM.sysWriteln("get new inet packet");
 	  this.packet = new InetPacket(packet, connection);
-	  System.out.println("New inet packet");
+	  VM.sysWriteln("New inet packet");
 	  computeChecksum();
 	  Address udpPacket = this.packet.getPacketAddress();
 	  // Setup the udp packet header

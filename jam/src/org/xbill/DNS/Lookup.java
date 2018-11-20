@@ -513,6 +513,7 @@ lookup(Name current) {
 
 private void
 resolve(Name current, Name suffix) {
+    System.out.println("resolve "+ current + " " + suffix);
 	doneCurrent = false;
 	Name tname = null;
 	if (suffix == null)
@@ -555,6 +556,7 @@ run() {
 				break;
 		}
 	}
+	System.out.println("Done with the resolve()");
 	if (!done) {
 		if (badresponse) {
 			result = TRY_AGAIN;
