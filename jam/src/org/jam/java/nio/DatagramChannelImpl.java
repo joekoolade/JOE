@@ -48,13 +48,13 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 
+import org.jam.net.Udp;
+
 /**
  * @author Michael Koch
  */
 public final class DatagramChannelImpl extends DatagramChannel
-{
-  private VMChannel channel;
-  
+{  
   /**
    * Indicates whether this channel initiated whatever operation
    * is being invoked on our datagram socket.
@@ -62,13 +62,14 @@ public final class DatagramChannelImpl extends DatagramChannel
   private boolean inChannelOperation;
 
   private DatagramSocket socket;
-
-  protected DatagramChannelImpl (SelectorProvider provider)
+  private Udp channel;
+  
+  public DatagramChannelImpl ()
     throws IOException
   {
-    super (provider);
-    channel = new VMChannel();
-    channel.initSocket(false);
+    super (null);
+//    channel = new VMChannel();
+//    channel.initSocket(false);
     configureBlocking(true);
   }
 
@@ -136,14 +137,7 @@ public final class DatagramChannelImpl extends DatagramChannel
     
   public boolean isConnected()
   {
-    try
-      {
-        return channel.getPeerAddress() != null;
-      }
-    catch (IOException ioe)
-      {
-        return false;
-      }
+    return channel.getPeerAddress() != null;
   }
     
   public int write (ByteBuffer src)
@@ -231,8 +225,4 @@ public final class DatagramChannelImpl extends DatagramChannel
     return channel.send(src, dst);
   }
   
-  public VMChannel getVMChannel()
-  {
-    return channel;
-  }
 }

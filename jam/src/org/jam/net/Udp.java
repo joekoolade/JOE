@@ -16,6 +16,7 @@ import java.net.NoRouteToHostException;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 
 import org.jam.driver.net.Packet;
 import org.jikesrvm.VM;
@@ -310,5 +311,50 @@ public class Udp {
     // TODO Auto-generated method stub
     
   }
+public void setBlocking(boolean blocking)
+{
+    // TODO Auto-generated method stub
+    
+}
+public void disconnect()
+{
+    // TODO Auto-generated method stub
+    
+}
+public Object getPeerAddress()
+{
+    // TODO Auto-generated method stub
+    return null;
+}
+public int write(ByteBuffer src)
+{
+    // TODO Auto-generated method stub
+    return 0;
+}
+public long writeGathering(ByteBuffer[] srcs, int offset2, int length2)
+{
+    // TODO Auto-generated method stub
+    return 0;
+}
+public int read(ByteBuffer dst)
+{
+    // TODO Auto-generated method stub
+    return 0;
+}
+public long readScattering(ByteBuffer[] dsts, int offset2, int length2)
+{
+    // TODO Auto-generated method stub
+    return 0;
+}
+public SocketAddress receive(ByteBuffer dst)
+{
+    // TODO Auto-generated method stub
+    return null;
+}
+public int send(ByteBuffer src, InetSocketAddress dst)
+{
+    // TODO Auto-generated method stub
+    return 0;
+}
 
 }
