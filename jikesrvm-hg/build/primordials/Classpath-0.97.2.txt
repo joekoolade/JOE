@@ -368,7 +368,23 @@ Ljava/io/InputStream;
 Ljava/io/FileInputStream;
 Ljava/io/FileDescriptor;
 Ljava/io/VMFile;
+
 Lgnu/java/nio/FileChannelImpl;
+Lgnu/java/nio/SelectorProviderImpl;
+Lgnu/java/nio/SelectorImpl;
+
+Ljava/nio/channels/ClosedSelectorException;
+Ljava/nio/channels/SelectableChannel;
+Ljava/nio/channels/SelectionKey;
+Ljava/nio/channels/Selector;
+Ljava/nio/channels/SocketChannel;
+Ljava/nio/channels/spi/AbstractSelectableChannel;
+Ljava/nio/channels/spi/AbstractSelector;
+Ljava/nio/channels/spi/SelectorProvider;
+Ljava/nio/channels/ClosedChannelException;
+Ljava/nio/channels/DatagramChannel;
+Ljava/nio/channels/NotYetConnectedException;
+Ljava/nio/channels/spi/SelectorProvider;
 
 # Character conversion
 Ljava/nio/charset/Charset;

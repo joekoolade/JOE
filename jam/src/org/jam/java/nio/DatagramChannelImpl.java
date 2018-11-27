@@ -49,6 +49,7 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 
 import org.jam.net.Udp;
+import org.jikesrvm.VM;
 
 /**
  * @author Michael Koch
@@ -64,10 +65,10 @@ public final class DatagramChannelImpl extends DatagramChannel
   private DatagramSocket socket;
   private Udp channel;
   
-  public DatagramChannelImpl ()
+  public DatagramChannelImpl (SelectorProvider provider)
     throws IOException
   {
-    super (null);
+    super (provider);
 //    channel = new VMChannel();
 //    channel.initSocket(false);
     configureBlocking(true);
@@ -137,6 +138,7 @@ public final class DatagramChannelImpl extends DatagramChannel
     
   public boolean isConnected()
   {
+      VM.sysWriteln("isConnected");
     return channel.getPeerAddress() != null;
   }
     
@@ -145,7 +147,7 @@ public final class DatagramChannelImpl extends DatagramChannel
   {
     if (!isConnected ())
       throw new NotYetConnectedException ();
-    
+    VM.sysWriteln("write ByteBuffer");
     return channel.write(src);
   }
 
@@ -155,6 +157,7 @@ public final class DatagramChannelImpl extends DatagramChannel
     if (!isConnected())
       throw new NotYetConnectedException();
 
+    VM.sysWriteln("write writeGather");
     if ((offset < 0)
         || (offset > srcs.length)
         || (length < 0)

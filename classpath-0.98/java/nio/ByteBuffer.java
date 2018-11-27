@@ -63,7 +63,7 @@ public abstract class ByteBuffer extends Buffer
    */ 
   public static ByteBuffer allocateDirect (int capacity)
   {
-    return DirectByteBufferImpl.allocate (capacity);
+    return allocate (capacity);
   }
 
   /**

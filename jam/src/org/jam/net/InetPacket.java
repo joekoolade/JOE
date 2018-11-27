@@ -1,6 +1,7 @@
 package org.jam.net;
 
 import java.net.DatagramPacket;
+import java.nio.ByteBuffer;
 
 import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
@@ -30,7 +31,19 @@ public class InetPacket implements Packet {
 		netInterface = connection.getNetworkInterface();
 	}
 
-	public byte[] getArray() {
+	public InetPacket(ByteBuffer src, Connection connection)
+    {
+        int bufferSize = src.capacity()+HEADER_SIZE;
+        byte[] srcBuffer = src.array();
+        buffer = new byte[bufferSize];
+        RVMArray.arraycopy(srcBuffer, 0, buffer, HEADER_SIZE, src.capacity());
+        offset = HEADER_SIZE;
+        packetSize = src.capacity();
+        this.connection = connection;
+        netInterface = connection.getNetworkInterface();
+    }
+
+    public byte[] getArray() {
 		return buffer;
 	}
 
