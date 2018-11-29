@@ -72,7 +72,7 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
-import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
+//import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
 
 /**
  * A virtual machine.
@@ -432,6 +432,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     }
 
     System.setOut(Platform.serialPort.getPrintStream());
+    System.setErr(Platform.serialPort.getPrintStream());
 //     System.out.println("System.out is working!");
     
     if (verboseBoot >= 1)

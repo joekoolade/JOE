@@ -225,6 +225,7 @@ maxUDPSize(Message query) {
  */
 public Message
 send(Message query) throws IOException {
+    System.err.println("Simple Resolver send query");
 	if (Options.check("verbose"))
 		System.err.println("Sending to " +
 				   address.getAddress().getHostAddress() +

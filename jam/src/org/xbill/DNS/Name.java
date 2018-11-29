@@ -36,10 +36,10 @@ private static final byte [] emptyLabel = new byte[] {(byte)0};
 private static final byte [] wildLabel = new byte[] {(byte)1, (byte)'*'};
 
 /** The root name */
-public static final Name root;
+public static Name root;
 
 /** The root name */
-public static final Name empty;
+public static Name empty;
 
 /** The maximum length of a Name */
 private static final int MAXNAME = 255;
@@ -60,9 +60,10 @@ private static final DecimalFormat byteFormat = new DecimalFormat();
 private static final byte lowercase[] = new byte[256];
 
 /* Used in wildcard names. */
-private static final Name wild;
+private static Name wild;
 
-static {
+public static void boot()
+{
 	byteFormat.setMinimumIntegerDigits(3);
 	for (int i = 0; i < lowercase.length; i++) {
 		if (i < 'A' || i > 'Z')

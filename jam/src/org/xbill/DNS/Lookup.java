@@ -474,6 +474,7 @@ lookup(Name current) {
 	Message query = Message.newQuery(question);
 	Message response = null;
 	try {
+	    System.out.println("Sending to resolver");
 		response = resolver.send(query);
 	}
 	catch (IOException e) {

@@ -60,6 +60,7 @@ private static class Resolution implements ResolverListener {
 	/* Asynchronously sends a message. */
 	public void
 	send(int n) {
+	    System.out.println("Resolution send "+n);
 		sent[n]++;
 		outstanding++;
 		try {
@@ -354,6 +355,7 @@ setTimeout(int secs) {
  */
 public Message
 send(Message query) throws IOException {
+    System.out.println("extended resolver send()");
 	Resolution res = new Resolution(this, query);
 	return res.start();
 }
