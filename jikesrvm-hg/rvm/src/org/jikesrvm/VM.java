@@ -387,9 +387,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.util.Currency");
     runClassInitializer("java.text.DecimalFormatSymbols");
     runClassInitializer("java.text.DecimalFormat");
-    runClassInitializer("org.xbill.DNS.Name");
-    runClassInitializer("org.xbill.DNS.ResolverConfig");
-    runClassInitializer("org.xbill.DNS.Lookup");
+//    runClassInitializer("org.xbill.DNS.Name");
+//    runClassInitializer("org.xbill.DNS.ResolverConfig");
+//    runClassInitializer("org.xbill.DNS.Lookup");
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
     RuntimeCompiler.boot();
 

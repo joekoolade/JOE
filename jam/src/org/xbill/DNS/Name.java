@@ -62,6 +62,11 @@ private static final byte lowercase[] = new byte[256];
 /* Used in wildcard names. */
 private static Name wild;
 
+static
+{
+    boot();
+}
+
 public static void boot()
 {
 	byteFormat.setMinimumIntegerDigits(3);

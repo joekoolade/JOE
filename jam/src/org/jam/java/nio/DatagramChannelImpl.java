@@ -68,10 +68,13 @@ public final class DatagramChannelImpl extends DatagramChannel
   public DatagramChannelImpl (SelectorProvider provider)
     throws IOException
   {
+
     super (provider);
+    System.out.println("DatagramChannelImpl");
 //    channel = new VMChannel();
 //    channel.initSocket(false);
     configureBlocking(true);
+    System.out.println("DatagramChannelImpl#");
   }
 
   /**

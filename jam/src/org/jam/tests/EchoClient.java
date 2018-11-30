@@ -8,8 +8,11 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Name;
 import org.xbill.DNS.Options;
 import org.xbill.DNS.ResolverConfig;
+import org.xbill.DNS.UDPClient;
 
 public final class EchoClient
 implements Runnable
@@ -27,8 +30,12 @@ implements Runnable
         System.out.println("DNS options");
         System.setProperty("dnsjava.options", "verbose,verbosemsg");
         System.setProperty("dns.server", "8.8.8.8");
+        System.out.println("DNS options done");
+        Name.boot();
         Options.refresh();
         ResolverConfig.refresh();
+        Lookup.refreshDefault();
+        UDPClient.boot();
         try
         {
             System.out.println("DNS requests");

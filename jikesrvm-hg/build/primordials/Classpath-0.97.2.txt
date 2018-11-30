@@ -818,7 +818,7 @@ Lorg/xbill/DNS/Type$TypeMnemonic;
 Lorg/xbill/DNS/Type;
 Lorg/xbill/DNS/TypeBitmap;
 Lorg/xbill/DNS/U16NameBase;
-Lorg/xbill/DNS/UDPClient$1;
+#Lorg/xbill/DNS/UDPClient$1;
 Lorg/xbill/DNS/UDPClient;
 Lorg/xbill/DNS/UNKRecord;
 Lorg/xbill/DNS/URIRecord;
