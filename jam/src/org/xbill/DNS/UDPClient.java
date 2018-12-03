@@ -90,6 +90,7 @@ bind_random(InetSocketAddress addr) throws IOException
 
 void
 bind(SocketAddress addr) throws IOException {
+    System.out.println("DCI bind");
 	if (addr == null ||
 	    (addr instanceof InetSocketAddress &&
 	     ((InetSocketAddress)addr).getPort() == 0))
@@ -98,12 +99,14 @@ bind(SocketAddress addr) throws IOException {
 		if (bound)
 			return;
 	}
+    System.out.println("DCI bind#");
 
 	if (addr != null) {
 		DatagramChannel channel = (DatagramChannel) key.channel();
 		channel.socket().bind(addr);
 		bound = true;
 	}
+    System.out.println("DCI bind##");
 }
 
 void
