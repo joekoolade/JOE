@@ -155,10 +155,14 @@ sendrecv(SocketAddress local, SocketAddress remote, byte [] data, int max,
 throws IOException
 {
 	UDPClient client = new UDPClient(endTime);
+	System.out.println("sendrecv");
 	try {
 		client.bind(local);
+	    System.out.println("sendrecv#");
 		client.connect(remote);
+	    System.out.println("sendrecv##");
 		client.send(data);
+	    System.out.println("sendrecv###");
 		return client.recv(max);
 	}
 	finally {
