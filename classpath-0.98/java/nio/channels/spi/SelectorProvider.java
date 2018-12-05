@@ -151,6 +151,7 @@ public abstract class SelectorProvider
   {
     if (systemDefaultProvider == null)
     {
+        System.out.println("default provider null");
 	  systemDefaultProvider = new SelectorProviderImpl();
     }
 
