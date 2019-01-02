@@ -70,6 +70,8 @@ public final class DatagramChannelImpl extends DatagramChannel
   {
 
     super (provider);
+    socket = new DatagramSocket();
+    channel = socket.getChannel();
     System.out.println("DatagramChannelImpl");
 //    channel = new VMChannel();
 //    channel.initSocket(false);

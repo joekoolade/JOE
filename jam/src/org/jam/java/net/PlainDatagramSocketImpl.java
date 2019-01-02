@@ -42,6 +42,7 @@ package org.jam.java.net;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -82,12 +83,18 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
 
   /**
    * Default do nothing constructor
+ * @param datagramSocket 
    */
-  public PlainDatagramSocketImpl() throws IOException
+  public PlainDatagramSocketImpl(DatagramSocket datagramSocket) throws IOException
   {
     udp = new Udp();
   }
 
+  protected Udp getChannel()
+  {
+      return udp;
+  }
+  
   protected void finalize() throws Throwable
   {
     super.finalize();
