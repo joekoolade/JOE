@@ -67,9 +67,12 @@ bind_random(InetSocketAddress addr) throws IOException
 			return;
 	}
 
+	if(key==null) System.out.println("key is null");
 	DatagramChannel channel = (DatagramChannel) key.channel();
 	InetSocketAddress temp;
 
+    if(channel==null) System.out.println("channel null");
+    if(channel.socket()==null) System.out.println("socket() is null");
 	for (int i = 0; i < 1024; i++) {
 		try {
 			int port = prng.nextInt(EPHEMERAL_RANGE) +
@@ -90,7 +93,7 @@ bind_random(InetSocketAddress addr) throws IOException
 
 void
 bind(SocketAddress addr) throws IOException {
-    System.out.println("DCI bind");
+//    System.out.println("DCI bind");
 	if (addr == null ||
 	    (addr instanceof InetSocketAddress &&
 	     ((InetSocketAddress)addr).getPort() == 0))
@@ -99,14 +102,16 @@ bind(SocketAddress addr) throws IOException {
 		if (bound)
 			return;
 	}
-    System.out.println("DCI bind#");
+//    System.out.println("DCI bind#");
 
 	if (addr != null) {
 		DatagramChannel channel = (DatagramChannel) key.channel();
+		if(channel==null) System.out.println("channel null");
+		if(channel.socket()==null) System.out.println("socket() is null");
 		channel.socket().bind(addr);
 		bound = true;
 	}
-    System.out.println("DCI bind##");
+//    System.out.println("DCI bind##");
 }
 
 void

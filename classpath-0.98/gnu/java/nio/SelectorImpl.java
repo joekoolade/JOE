@@ -373,6 +373,15 @@ public class SelectorImpl extends AbstractSelector
     {
         SelectionKeyImpl result=null;
     
+        if (ch instanceof org.jam.java.nio.DatagramChannelImpl)
+        {
+          result = new DatagramChannelSelectionKey(ch, this);
+        }
+        else
+        {
+          throw new InternalError("No known channel type"); 
+        }
+        
 //        if (ch instanceof SocketChannelImpl)
 //            result = new SocketChannelSelectionKey(ch, this);
 //        else if (ch instanceof DatagramChannelImpl)
@@ -384,14 +393,13 @@ public class SelectorImpl extends AbstractSelector
 //        else
 //            throw new InternalError("No known channel type");
 //    
-//        synchronized (keys)
-//        {
-//            keys.add(result);
-//    
-//            result.interestOps(ops);
-//            result.attach(att);
-//        }
+        synchronized (keys)
+        {
+            keys.add(result);
     
+            result.interestOps(ops);
+            result.attach(att);
+        }
         return result;
     }
 }

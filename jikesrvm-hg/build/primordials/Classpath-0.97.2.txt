@@ -373,6 +373,8 @@ Ljava/io/VMFile;
 Lgnu/java/nio/FileChannelImpl;
 Lgnu/java/nio/SelectorProviderImpl;
 Lgnu/java/nio/SelectorImpl;
+Lgnu/java/nio/DatagramChannelImpl;
+Lgnu/java/nio/DatagramChannelSelectionKey;
 
 Ljava/nio/channels/ClosedSelectorException;
 Ljava/nio/channels/SelectableChannel;
