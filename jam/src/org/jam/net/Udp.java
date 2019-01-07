@@ -335,10 +335,10 @@ public class Udp {
 
     }
 
-    public Object getPeerAddress()
+    public InetSocketAddress getPeerAddress()
     {
         // TODO Auto-generated method stub
-        return null;
+        return remoteAddress;
     }
 
     public int write(ByteBuffer src) throws IOException
