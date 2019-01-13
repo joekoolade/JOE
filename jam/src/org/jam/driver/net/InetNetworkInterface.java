@@ -1,7 +1,11 @@
 package org.jam.driver.net;
 
+import java.net.UnknownHostException;
+
+import org.jam.board.pc.Platform;
 import org.jam.net.InetProtocolProcessor;
 import org.jam.net.NetworkInterface;
+import org.jam.net.Route;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.ArpTable;
@@ -82,6 +86,17 @@ public class InetNetworkInterface
         arp = new ArpThread(networkInterface);
         arpThread = new Thread(arp);
         inet4 = new InetProtocolProcessor(arp);
+        /*
+         * Setup the route
+         */
+        try
+        {
+            Route.addRoute(0, new InetAddress("0.0.0.0"), new InetAddress("10.0.2.2"), Platform.net);
+        } catch (UnknownHostException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         inetThread = new Thread(inet4);
         arpThread.start();
         inetThread.start();
