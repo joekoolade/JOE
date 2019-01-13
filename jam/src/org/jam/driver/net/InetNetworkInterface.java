@@ -63,8 +63,18 @@ public class InetNetworkInterface
          */
         if(!arpTable.hasInet(inet.inet4()))
         {
-            System.out.println("Create arp request: "+inet);
-            arp.request(ipAddress, inet);
+            Route route = Route.find(inet);
+            // ARP for the address or the gateway
+            if((ipAddress.inet4() & getNetMask()) == (inet.inet4() & getNetMask()))
+            {
+                System.out.println("Create arp request: "+inet);
+                arp.request(ipAddress, inet);
+            }
+            else
+            {
+                System.out.println("Create arp request: "+route.getGateway());
+                arp.request(ipAddress, route.getGateway());
+            }
         }
         /*
          * If this point is reached then the 
