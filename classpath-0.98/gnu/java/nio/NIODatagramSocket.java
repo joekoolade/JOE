@@ -64,8 +64,8 @@ public final class NIODatagramSocket extends DatagramSocket
     return impl;
   }
 
-  public final DatagramChannel getChannel()
-  {
-    return channel;
-  }
+//  public final DatagramChannel getChannel()
+//  {
+//    return channel;
+//  }
 }

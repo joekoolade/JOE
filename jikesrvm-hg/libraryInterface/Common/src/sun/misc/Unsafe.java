@@ -205,10 +205,19 @@ public final class Unsafe {
     }
   }
 
-  public void park(boolean isAbsolute,long time) throws Throwable  {
+//  public void park(boolean isAbsolute,long time) throws Throwable  {
+  public void park(boolean isAbsolute,long time) {
     RVMThread vmthread = java.lang.JikesRVMSupport.getThread(Thread.currentThread());
     if (vmthread != null) {
-      vmthread.park(isAbsolute, time);
+      try
+    {
+        vmthread.park(isAbsolute, time);
+    }
+    catch (Throwable e)
+    {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
     }
   }
 

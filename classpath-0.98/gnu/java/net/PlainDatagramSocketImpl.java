@@ -52,6 +52,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
+import org.jam.net.Udp;
+
 /**
  * Written using on-line Java Platform 1.2 API Specification, as well
  * as "The Java Class Libraries", 2nd edition (Addison-Wesley, 1998).
@@ -483,4 +485,11 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       throw new SocketException("unknown address type");
 //    impl.leaveGroup((InetSocketAddress) address, netIf);
   }
+
+    @Override
+    protected Udp getChannel()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
