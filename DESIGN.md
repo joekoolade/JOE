@@ -9,9 +9,13 @@
   * Java compiler
   * Java JRE
   * Java utilities
-
 * Metacircular; all Java code
+* Adaptive optimization
+* Self optimizing/tuning
 * Small
+* Push/pull class/method loading
+* Application security
+* Application safety
 * Scalable
 * Java interface to hardware
 * Self hosting
