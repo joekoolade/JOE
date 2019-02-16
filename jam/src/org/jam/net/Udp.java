@@ -120,6 +120,7 @@ public class Udp {
         }
         VM.sysWriteln("get new inet packet");
         this.packet = new InetPacket(packet, connection);
+        this.packet.setHeadroom(8);
         VM.sysWriteln("New inet packet");
         send();
     }
@@ -127,18 +128,21 @@ public class Udp {
     private void send()
     {
         computeChecksum();
-        Address udpPacket = this.packet.getPacketAddress();
+        Address udpPacket = packet.getPacketAddress();
         // Setup the udp packet header
         // source port
         udpPacket.store((short) localAddress.getPort());
         // desination port
         udpPacket.store((short) remoteAddress.getPort(), DESTINATION_PORT);
         // packet length
-        udpPacket.store((short) this.packet.getSize(), LENGTH);
+        udpPacket.store((short) packet.getSize(), LENGTH);
         // packet checksum
         udpPacket.store(packetChecksum, CHECKSUM);
         // send it on for IP processing
-        ip.send(this.packet);
+        System.out.println("private send "+packet.getOffset());
+        packet.setHeadroom(20);
+        VM.hexDump(packet.getArray(),0,packet.getBufferSize());
+        ip.send(packet);
     }
 
     private void initConnection() throws NoRouteToHostException
@@ -359,7 +363,7 @@ public class Udp {
         {
             throw new IOException("Packet too big");
         }
-        packet = new InetPacket(src, connection);
+        packet = new InetPacket(src, connection, 8);
         send();
         return 0;
     }

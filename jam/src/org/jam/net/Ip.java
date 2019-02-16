@@ -23,26 +23,28 @@ public class Ip {
 	private byte ttl = (byte)255; 
 	
 	public void send(InetPacket packet) {
-	    VM.sysWriteln("IP send");
+	    VM.sysWriteln("IP send ", packet.getOffset());
 		Address ipHeader = packet.getPacketAddress();
-		ipHeader.store((byte)((VERSION<<4) | HEADER_LEN));
+		int vhlen = (VERSION<<4) | HEADER_LEN;
+		ipHeader.store((byte)vhlen);
 		ipHeader.store(tos, TOS_FIELD);
 		ipHeader.store(ttl, TTL_FIELD);
 		ipHeader.store(packet.getProtocol(), PROTOCOL_FIELD);
 		ipHeader.store(0, CHECKSUM_FIELD);
 		ipHeader.store(packet.getLocalAddress(), SRCADDR_FIELD);
 		ipHeader.store(packet.getRemoteAddress(), DSTADDR_FIELD);
-		ipHeader.store(ByteOrder.hostToNetwork((short)packet.getSize()));
+		ipHeader.store(ByteOrder.hostToNetwork((short)packet.getSize()),LENGTH_FIELD);
 		if(packet.needToFragment())
 		{
 			fragmentPacket(packet);
 		}
 		else
 		{
-			ipHeader.store(DONT_FRAGMENT, FRAGMENT_FIELD);
+			ipHeader.store(ByteOrder.hostToNetwork(DONT_FRAGMENT), FRAGMENT_FIELD);
 		}
 		short csum = checksum(packet);
-		ipHeader.store(csum, CHECKSUM_FIELD);
+		ipHeader.store(ByteOrder.hostToNetwork(csum), CHECKSUM_FIELD);
+        VM.hexDump(packet.getArray(),0,packet.getBufferSize());
 		packet.send();
 	}
 
