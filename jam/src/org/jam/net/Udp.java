@@ -131,13 +131,13 @@ public class Udp {
         Address udpPacket = packet.getPacketAddress();
         // Setup the udp packet header
         // source port
-        udpPacket.store((short) localAddress.getPort());
+        udpPacket.store(ByteOrder.hostToNetwork((short) localAddress.getPort()));
         // desination port
-        udpPacket.store((short) remoteAddress.getPort(), DESTINATION_PORT);
+        udpPacket.store(ByteOrder.hostToNetwork((short) remoteAddress.getPort()), DESTINATION_PORT);
         // packet length
-        udpPacket.store((short) packet.getSize(), LENGTH);
+        udpPacket.store(ByteOrder.hostToNetwork((short) packet.getSize()), LENGTH);
         // packet checksum
-        udpPacket.store(packetChecksum, CHECKSUM);
+        udpPacket.store(ByteOrder.hostToNetwork(packetChecksum), CHECKSUM);
         // send it on for IP processing
         System.out.println("private send "+packet.getOffset());
         packet.setHeadroom(20);

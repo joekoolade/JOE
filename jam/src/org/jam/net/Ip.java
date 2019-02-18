@@ -31,8 +31,8 @@ public class Ip {
 		ipHeader.store(ttl, TTL_FIELD);
 		ipHeader.store(packet.getProtocol(), PROTOCOL_FIELD);
 		ipHeader.store(0, CHECKSUM_FIELD);
-		ipHeader.store(packet.getLocalAddress(), SRCADDR_FIELD);
-		ipHeader.store(packet.getRemoteAddress(), DSTADDR_FIELD);
+		ipHeader.store(ByteOrder.hostToNetwork(packet.getLocalAddress()), SRCADDR_FIELD);
+		ipHeader.store(ByteOrder.hostToNetwork(packet.getRemoteAddress()), DSTADDR_FIELD);
 		ipHeader.store(ByteOrder.hostToNetwork((short)packet.getSize()),LENGTH_FIELD);
 		if(packet.needToFragment())
 		{

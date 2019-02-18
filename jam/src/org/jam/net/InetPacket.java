@@ -35,12 +35,12 @@ public class InetPacket implements Packet {
 
 	public InetPacket(ByteBuffer src, Connection connection, int headroom)
     {
-        int bufferSize = src.capacity()+TCP_HEADROOM;
+        int bufferSize = src.capacity()+UDP_HEADROOM;
         byte[] srcBuffer = src.array();
         buffer = new byte[bufferSize];
-        RVMArray.arraycopy(srcBuffer, 0, buffer, TCP_HEADROOM, src.capacity());
+        RVMArray.arraycopy(srcBuffer, 0, buffer, UDP_HEADROOM, src.capacity());
         System.out.println("InetPacket1 "+bufferSize);
-        offset = TCP_HEADROOM - headroom;
+        offset = UDP_HEADROOM - headroom;
         packetSize = src.capacity();
         this.connection = connection;
         netInterface = connection.getNetworkInterface();
