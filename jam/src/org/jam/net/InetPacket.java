@@ -41,7 +41,7 @@ public class InetPacket implements Packet {
         RVMArray.arraycopy(srcBuffer, 0, buffer, UDP_HEADROOM, src.capacity());
         System.out.println("InetPacket1 "+bufferSize);
         offset = UDP_HEADROOM - headroom;
-        packetSize = src.capacity();
+        packetSize = src.capacity() + headroom;
         this.connection = connection;
         netInterface = connection.getNetworkInterface();
     }
@@ -89,6 +89,7 @@ public class InetPacket implements Packet {
 			throw new RuntimeException("No Headroom");
 		}
 		offset -= size;
+		packetSize += size;
 	}
 
 	public byte getProtocol() {
