@@ -36,6 +36,8 @@ This component provides the memory management subsystem for JikesRVM. The code i
 
 ### boot-image-writer
 
+![BootImageWriter](/images/BootImageWriter.png "Boot image creation")
+
 The boot-image-writer is a Java program that loads the JikesRVM classes  into a source JVM and packages them into boot image. It instantiates the JikesRVM objects in the source JVM, translates that object model into the JikesRVM object model and writes them out into a bootable image. It located in jikesrvm-hg/tools/bootImageWriter/src/.
 
 ### GNU Classpath
