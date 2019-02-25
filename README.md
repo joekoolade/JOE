@@ -10,7 +10,7 @@ One can think of JOE as AWS lambda programming with no arbitrary constraints. JO
 
 The motivation for JOE is to make it easier to deploy and run an application on any computer. The virtualized Java environment can use Java without an operating system by providing objects that can provide operating system services. Dan Ingalls said that "An operating system is a collections of things that don't fit into a language. There should not be one." Languages like Java, Smalltalk, C# contain all the high level objects and language constructs that provide threading, synchronization, and timers but used an operating system to provide those services. The JikesRVM has made it possible to implement the lower level services that where provided by an operating system to be implemented as Java objects.
 
-[The Design](DESIGN.MD)
+[The Design](DESIGN.md)
 
 ## What are the advantages to this approach?
 
