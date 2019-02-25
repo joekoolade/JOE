@@ -22,7 +22,7 @@
 * Fast build times
 * Easy configuration
 
-## High Level
+## Components
 
 JOE consists of the following major components: JikesRVM, boot-image-write, MMTK, GNU Classpath, and JAM (Java-on-Any-Machine).
 
@@ -46,4 +46,12 @@ This component is an implementation of Java’s standard library and is located 
 
 ### JAM
 
-This component contains the computer hardware and processor interfaces and is located in jam/.		
+This component contains the computer hardware and processor interfaces and is located in jam/.
+
+## Design Aspects
+
+### CPU Modes
+
+All software runs at the highest privilege. Application security and protection is enforced through the programming language. This simplifies the design of the OS components and increases the overall system performance.
+
+### Interrupt Handling		
