@@ -52,7 +52,7 @@ This component contains the computer hardware and processor interfaces and is lo
 
 ### Boot Image Layout
 
-![Layout]("images/JAM memory layout.png" "Image Layout")
+![Layout]("images/JAM%20memory%20layout.png" "Image Layout")
 
 ### CPU Modes
 
