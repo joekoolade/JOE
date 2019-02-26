@@ -22,7 +22,7 @@
 * Fast build times
 * Easy configuration
 
-## High Level
+## Components
 
 JOE consists of the following major components: JikesRVM, boot-image-write, MMTK, GNU Classpath, and JAM (Java-on-Any-Machine).
 
@@ -46,4 +46,13 @@ This component is an implementation of Java’s standard library and is located 
 
 ### JAM
 
-This component contains the computer hardware and processor interfaces and is located in jam/.		
+This component contains the computer hardware and processor interfaces and is located in jam/.
+
+## Design Aspects
+
+### CPU Modes
+
+All software runs at the highest privilege. Application security and protection is enforced through the programming language. This simplifies the design of the OS components and increases the overall system performance.
+
+### Interrupt Handling		
+All interrupt handlers must provide their own stack. When an interrupt handler is called, the current thread's stack will be switched over to the interrupt handler's stack. The interrupted thread's context is saved on its own stack. The interrupt handling methods need to be annotated with @InterruptHandler. This specifies to the compiler that there is no method prologue setup and the method epilogue should end with an interrupt return instruction. The interrupt handling needs to save the current context, switch to the interrupt handler stack, process the interrupt, and then restore the interrupted context. The Idt class is where all the interrupts are setup and processed. Methods int48(), int32(), and int36() are examples of how an interrupt can be processed.
