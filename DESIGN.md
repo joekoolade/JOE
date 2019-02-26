@@ -50,6 +50,10 @@ This component contains the computer hardware and processor interfaces and is lo
 
 ## Design Aspects
 
+### Boot Image Layout
+
+[Layout](images/JAM memory layout.png "Image Layout")
+
 ### CPU Modes
 
 All software runs at the highest privilege. Application security and protection is enforced through the programming language. This simplifies the design of the OS components and increases the overall system performance.
