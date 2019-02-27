@@ -99,7 +99,8 @@ public class Ethernet
       }
       packetAddress.store(ByteOrder.hostToNetwork(protocol), PROTO_OFFSET);
       this.packet = packet;
-      VM.sysWriteln("ethernet packetaddr ", packetAddress);
+      VM.sysWrite("ethernet packetaddr ", packetAddress);
+      VM.sysWriteln(" size ", packet.getSize());
   }
   public byte[] getFrame()
   {

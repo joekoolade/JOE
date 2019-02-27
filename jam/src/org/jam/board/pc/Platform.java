@@ -76,7 +76,7 @@ public class Platform {
         VM.sysWrite(ioApic.toString());
         try
         {
-            InetAddress inet = new InetAddress("10.0.2.1");
+            InetAddress inet = new InetAddress("10.0.2.15");
             net = new I82559c(inet, 0xffffff00);
         }
         catch (NoDeviceFoundException e)
