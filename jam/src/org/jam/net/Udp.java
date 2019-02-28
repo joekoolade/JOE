@@ -47,6 +47,7 @@ public class Udp {
     private Ip ip;
     private short packetChecksum;
     private boolean disableCheckSum = false;
+    private boolean pseudoSum = false;
     
     public Udp()
     {
@@ -137,10 +138,11 @@ public class Udp {
         // packet length
         udpPacket.store(ByteOrder.hostToNetwork((short) packet.getSize()), LENGTH);
         // packet checksum
+        udpPacket.store(0, CHECKSUM);
         computeChecksum();
         udpPacket.store(ByteOrder.hostToNetwork(packetChecksum), CHECKSUM);
         // send it on for IP processing
-        System.out.println("private send "+packet.getOffset());
+        System.out.println("private send "+packet.getOffset()+" "+packet.getSize());
         packet.setHeadroom(20);
         VM.hexDump(packet.getArray(),0,packet.getBufferSize());
         ip.send(packet);
@@ -150,7 +152,6 @@ public class Udp {
     {
         VM.sysWriteln("udp initConnection");
         connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
-        computePseudoHeaderSum();
     }
 
     /**
@@ -159,21 +160,18 @@ public class Udp {
     private void computePseudoHeaderSum()
     {
         // Sum up the source IP address
-        byte[] inetAddressBytes = connection.getLocal().asArray();
-        pseudoHeaderSum = (inetAddressBytes[0] << 8) + inetAddressBytes[1];
-        pseudoHeaderSum += (inetAddressBytes[2] << 8) + inetAddressBytes[3];
-        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum# "+Integer.toHexString(pseudoHeaderSum));
+        int val = connection.getLocalInet();
+        pseudoHeaderSum = ((val>>16) & 0xFFFF) + (val & 0xFFFF);
         // Add in the destination IP address
-        inetAddressBytes = remoteAddress.getAddress().getAddress();
-        pseudoHeaderSum = (inetAddressBytes[0] << 8) + inetAddressBytes[1];
-        pseudoHeaderSum += (inetAddressBytes[2] << 8) + inetAddressBytes[3];
-        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum## "+Integer.toHexString(pseudoHeaderSum));
-      // Add in the protocol
+        val = connection.getRemoteInet();
+        pseudoHeaderSum += ((val>>16) & 0xFFFF) + (val & 0xFFFF);
+        // Add in the protocol
         pseudoHeaderSum += IpProto.UDP.protocol();
-        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum### "+Integer.toHexString(pseudoHeaderSum));
-        // Add any carry overs
-        int carryOver = (pseudoHeaderSum >> 16) & 0xFFFF;
-        pseudoHeaderSum += carryOver;
+        // add in the size
+        pseudoHeaderSum += packet.getSize();
+        // Add the carry over
+        val = (pseudoHeaderSum >> 16) & 0xFFFF;
+        pseudoHeaderSum += val;
         if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum "+Integer.toHexString(pseudoHeaderSum));
     }
 
@@ -186,20 +184,23 @@ public class Udp {
             packetChecksum = 0;
             return;
         }
+        if(!pseudoSum)
+        {
+            computePseudoHeaderSum();
+            pseudoSum = true;
+        }
         Address data = packet.getPacketAddress();
+        csum = pseudoHeaderSum;
         for (int words = packet.getSize() >> 1; words > 0; words--)
         {
-            csum += (data.loadShort() & 0xFFFF);
+            int val = ByteOrder.hostToNetwork(data.loadShort());
+            csum += (val & 0xFFFF);
             data = data.plus(2);
         }
         if ((packet.getSize() & 0x1) != 0)
         {
-            csum += (data.loadShort() & 0x00FF);
+            csum += (ByteOrder.hostToNetwork(data.loadShort()) & 0x00FF);
         }
-        // add in udp size
-        csum += packet.getSize();
-        // Add pseudo header checksum
-        csum += pseudoHeaderSum;
         // Add the carry overs
         csum = (csum >> 16) + (csum & 0xFFFF);
         packetChecksum = (short) ~csum;
@@ -359,7 +360,7 @@ public class Udp {
     public int write(ByteBuffer src) throws IOException
     {
         VM.sysWriteln("udp write");
-        disableCheckSum = true;
+//        disableCheckSum = true;
         if (connection == null)
         {
             try
