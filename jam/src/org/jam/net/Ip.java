@@ -43,7 +43,7 @@ public class Ip {
 			ipHeader.store(ByteOrder.hostToNetwork(DONT_FRAGMENT), FRAGMENT_FIELD);
 		}
 		short csum = checksum(packet);
-		ipHeader.store(ByteOrder.hostToNetwork(csum), CHECKSUM_FIELD);
+		ipHeader.store(csum, CHECKSUM_FIELD);
         VM.hexDump(packet.getArray(),0,packet.getBufferSize());
 		packet.send();
 	}

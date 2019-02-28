@@ -46,7 +46,8 @@ public class Udp {
     private InetPacket packet;
     private Ip ip;
     private short packetChecksum;
-
+    private boolean disableCheckSum = false;
+    
     public Udp()
     {
         ip = new Ip();
@@ -127,7 +128,6 @@ public class Udp {
 
     private void send()
     {
-        computeChecksum();
         Address udpPacket = packet.getPacketAddress();
         // Setup the udp packet header
         // source port
@@ -137,6 +137,7 @@ public class Udp {
         // packet length
         udpPacket.store(ByteOrder.hostToNetwork((short) packet.getSize()), LENGTH);
         // packet checksum
+        computeChecksum();
         udpPacket.store(ByteOrder.hostToNetwork(packetChecksum), CHECKSUM);
         // send it on for IP processing
         System.out.println("private send "+packet.getOffset());
@@ -157,26 +158,34 @@ public class Udp {
      */
     private void computePseudoHeaderSum()
     {
-        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum");
         // Sum up the source IP address
-        byte[] inetAddressBytes = localAddress.getAddress().getAddress();
+        byte[] inetAddressBytes = connection.getLocal().asArray();
         pseudoHeaderSum = (inetAddressBytes[0] << 8) + inetAddressBytes[1];
         pseudoHeaderSum += (inetAddressBytes[2] << 8) + inetAddressBytes[3];
+        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum# "+Integer.toHexString(pseudoHeaderSum));
         // Add in the destination IP address
         inetAddressBytes = remoteAddress.getAddress().getAddress();
         pseudoHeaderSum = (inetAddressBytes[0] << 8) + inetAddressBytes[1];
         pseudoHeaderSum += (inetAddressBytes[2] << 8) + inetAddressBytes[3];
-        // Add in the protocol
-        pseudoHeaderSum += IpProto.UDP.ordinal();
+        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum## "+Integer.toHexString(pseudoHeaderSum));
+      // Add in the protocol
+        pseudoHeaderSum += IpProto.UDP.protocol();
+        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum### "+Integer.toHexString(pseudoHeaderSum));
         // Add any carry overs
         int carryOver = (pseudoHeaderSum >> 16) & 0xFFFF;
         pseudoHeaderSum += carryOver;
+        if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum "+Integer.toHexString(pseudoHeaderSum));
     }
 
     private void computeChecksum()
     {
         int csum = 0;
 
+        if(disableCheckSum)
+        {
+            packetChecksum = 0;
+            return;
+        }
         Address data = packet.getPacketAddress();
         for (int words = packet.getSize() >> 1; words > 0; words--)
         {
@@ -187,6 +196,8 @@ public class Udp {
         {
             csum += (data.loadShort() & 0x00FF);
         }
+        // add in udp size
+        csum += packet.getSize();
         // Add pseudo header checksum
         csum += pseudoHeaderSum;
         // Add the carry overs
@@ -348,6 +359,7 @@ public class Udp {
     public int write(ByteBuffer src) throws IOException
     {
         VM.sysWriteln("udp write");
+        disableCheckSum = true;
         if (connection == null)
         {
             try

@@ -36,7 +36,7 @@ public class Connection {
 
     public byte getProtocol()
     {
-        return (byte) protocol.ordinal();
+        return protocol.protocol();
     }
 
     public InetAddress getLocal()
