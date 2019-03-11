@@ -41,6 +41,8 @@ package java.net;
 import java.io.FileDescriptor;
 import java.io.IOException;
 
+import org.jam.net.Udp;
+
 
 /**
  * This abstract class models a datagram socket implementation.  An
@@ -293,4 +295,6 @@ public abstract class DatagramSocketImpl implements SocketOptions
   {
     return localPort;
   }
+
+  protected abstract Udp getChannel();
 }

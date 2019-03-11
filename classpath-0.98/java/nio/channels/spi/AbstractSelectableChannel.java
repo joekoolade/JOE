@@ -194,22 +194,22 @@ public abstract class AbstractSelectableChannel extends SelectableChannel
     return provider;
   }
 
-  private SelectionKey locate(Selector selector)
-  {
-    ListIterator it = keys.listIterator();
+    private SelectionKey locate(Selector selector)
+    {
+        ListIterator it = keys.listIterator();
 
-    while (it.hasNext())
-      {
-	SelectionKey key = (SelectionKey) it.next();
+        while (it.hasNext())
+        {
+            SelectionKey key = (SelectionKey) it.next();
 
-	if (key.selector() == selector)
-	  return key;
-      }
+            if (key.selector() == selector)
+                return key;
+        }
 
-    return null;
-  }
+        return null;
+    }
 
-  /**
+    /**
    * Registers this channel with the given selector, returning a selection key.
    *
    * @param selin the seletor to use

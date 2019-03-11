@@ -76,7 +76,7 @@ public class PlainSocketImpl extends SocketImpl
   /**
    * The underlying plain socket VM implementation.
    */
-  protected VMPlainSocketImpl impl;
+//  protected VMPlainSocketImpl impl;
 
   /**
    * A cached copy of the in stream for reading from the socket.
@@ -126,7 +126,7 @@ public class PlainSocketImpl extends SocketImpl
    */
   public PlainSocketImpl()
   {
-    this.impl = new VMPlainSocketImpl();
+//    this.impl = new VMPlainSocketImpl();
   }
 
   /**
@@ -155,7 +155,7 @@ public class PlainSocketImpl extends SocketImpl
         case SO_SNDBUF:
         case SO_TIMEOUT:
         case SO_REUSEADDR:
-          impl.setOption(optionId, value);
+//          impl.setOption(optionId, value);
           return;
         default:
           throw new SocketException("Unrecognized TCP option: " + optionId);
@@ -203,7 +203,7 @@ public class PlainSocketImpl extends SocketImpl
       case SO_SNDBUF:
       case SO_TIMEOUT:
       case SO_REUSEADDR:
-        return impl.getOption(optionId);
+        return null; //impl.getOption(optionId);
       default:
         throw new SocketException("Unrecognized TCP option: " + optionId);
     }
@@ -212,12 +212,12 @@ public class PlainSocketImpl extends SocketImpl
 
   public void shutdownInput() throws IOException
   {
-    impl.shutdownInput();
+//    impl.shutdownInput();
   }
 
   public void shutdownOutput() throws IOException
   {
-    impl.shutdownOutput();
+//    impl.shutdownOutput();
   }
 
   /**
@@ -235,7 +235,7 @@ public class PlainSocketImpl extends SocketImpl
     VMChannel vmchannel = channel.getVMChannel();
     vmchannel.initSocket(stream);
     channel.configureBlocking(true);
-    impl.getState().setChannelFD(vmchannel.getState());
+//    impl.getState().setChannelFD(vmchannel.getState());
   }
 
   /**
@@ -303,7 +303,7 @@ public class PlainSocketImpl extends SocketImpl
   {
     if (channel == null)
       create(true);
-    impl.bind(new InetSocketAddress(addr, port));
+//    impl.bind(new InetSocketAddress(addr, port));
     localport = channel.getVMChannel().getLocalAddress().getPort();
   }
 
@@ -320,7 +320,7 @@ public class PlainSocketImpl extends SocketImpl
   protected synchronized void listen(int queuelen)
     throws IOException
   {
-    impl.listen(queuelen);
+//    impl.listen(queuelen);
   }
 
   /**
@@ -339,7 +339,7 @@ public class PlainSocketImpl extends SocketImpl
                             + impl.getClass().getName());
     PlainSocketImpl that = (PlainSocketImpl) impl;
     VMChannel c = channel.getVMChannel().accept();
-    that.impl.getState().setChannelFD(c.getState());
+//    that.impl.getState().setChannelFD(c.getState());
     that.channel = new SocketChannelImpl(c);
     that.setOption(SO_REUSEADDR, Boolean.TRUE);
     // Reset the inherited timeout.
@@ -375,8 +375,8 @@ public class PlainSocketImpl extends SocketImpl
    */
   protected void close() throws IOException
   {
-    if (impl.getState().isValid())
-      impl.close();
+//    if (impl.getState().isValid())
+//      impl.close();
     
     address = null;
     port = -1;
@@ -384,7 +384,7 @@ public class PlainSocketImpl extends SocketImpl
 
   public void sendUrgentData(int data) throws IOException
   {
-    impl.sendUrgentData(data);
+//    impl.sendUrgentData(data);
   }
 
   /**

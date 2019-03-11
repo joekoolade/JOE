@@ -39,6 +39,7 @@ exception statement from your version. */
 package java.net;
 
 import org.jam.java.net.PlainDatagramSocketImpl;
+import org.jam.net.Udp;
 
 import java.io.IOException;
 
@@ -171,7 +172,7 @@ public class DatagramSocket
     {
         try
         {
-            impl = new PlainDatagramSocketImpl();
+            impl = new PlainDatagramSocketImpl(this);
         }
         catch (IOException ioe)
         {
@@ -243,6 +244,10 @@ public class DatagramSocket
     return remoteAddress;
   }
 
+  public Udp getChannel()
+  {
+      return impl.getChannel();
+  }
   /**
    * This method returns the remote port to which this socket is
    * connected.  If this socket is not connected, then this method will

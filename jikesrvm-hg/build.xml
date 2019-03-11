@@ -1419,7 +1419,7 @@ Check to make sure all required properties are specified. This includes properti
       <include name="gnu/**"/>
       <zipfileset src="${classpath.lib.dir}/classpath.jar"/>
     </zip>
-    <jar destfile="${build.vm.jar}" update="true" compress="false">
+    <jar destfile="${build.vm.jar}" compress="false">
       <fileset dir="${build.classes}">
         <exclude name="java/**"/>
         <exclude name="sun/**"/>

@@ -72,7 +72,7 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
-import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
+//import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
 
 /**
  * A virtual machine.
@@ -387,9 +387,9 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.util.Currency");
     runClassInitializer("java.text.DecimalFormatSymbols");
     runClassInitializer("java.text.DecimalFormat");
-    runClassInitializer("org.xbill.DNS.Name");
-    runClassInitializer("org.xbill.DNS.ResolverConfig");
-    runClassInitializer("org.xbill.DNS.Lookup");
+//    runClassInitializer("org.xbill.DNS.Name");
+//    runClassInitializer("org.xbill.DNS.ResolverConfig");
+//    runClassInitializer("org.xbill.DNS.Lookup");
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
     RuntimeCompiler.boot();
 
@@ -432,6 +432,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     }
 
     System.setOut(Platform.serialPort.getPrintStream());
+    System.setErr(Platform.serialPort.getPrintStream());
 //     System.out.println("System.out is working!");
     
     if (verboseBoot >= 1)

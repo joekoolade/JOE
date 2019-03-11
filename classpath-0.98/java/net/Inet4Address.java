@@ -214,7 +214,7 @@ public final class Inet4Address extends InetAddress
    */
   public String getHostAddress()
   {
-    CPStringBuilder sb = new CPStringBuilder(40);
+    StringBuilder sb = new StringBuilder(40);
 
     int len = addr.length;
     int i = 0;
