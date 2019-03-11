@@ -97,10 +97,10 @@ public class Ethernet
       {
         packetArray[targetIndex] = ethAddress[srcIndex];
       }
+      // ARP type
       packetAddress.store(ByteOrder.hostToNetwork(protocol), PROTO_OFFSET);
       this.packet = packet;
-      VM.sysWrite("ethernet packetaddr ", packetAddress);
-      VM.sysWriteln(" size ", packet.getSize());
+      VM.sysWriteln("ethernet packetaddr ", packetAddress);
   }
   public byte[] getFrame()
   {

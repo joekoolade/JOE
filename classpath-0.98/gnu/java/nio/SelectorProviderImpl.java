@@ -38,6 +38,8 @@ exception statement from your version. */
 package gnu.java.nio;
 
 
+import gnu.classpath.SystemProperties;
+
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.Pipe;
@@ -45,14 +47,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelector;
 import java.nio.channels.spi.SelectorProvider;
-import org.jam.java.nio.DatagramChannelImpl;
 
 public class SelectorProviderImpl extends SelectorProvider
 {
-//  private static final String SELECTOR_IMPL_KQUEUE = "kqueue";
-//  private static final String SELECTOR_IMPL_EPOLL = "epoll";
-//  private static final String SELECTOR_IMPL = "gnu.java.nio.selectorImpl";
-//  private static boolean epoll_failed = false;
+  private static final String SELECTOR_IMPL_KQUEUE = "kqueue";
+  private static final String SELECTOR_IMPL_EPOLL = "epoll";
+  private static final String SELECTOR_IMPL = "gnu.java.nio.selectorImpl";
+  private static boolean epoll_failed = false;
   
   public SelectorProviderImpl ()
   {
@@ -67,40 +68,40 @@ public class SelectorProviderImpl extends SelectorProvider
   public Pipe openPipe ()
     throws IOException
   {
-    return null; // new PipeImpl (this);
+    return new PipeImpl (this);
   }
     
   public AbstractSelector openSelector ()
     throws IOException
   {
-//    String selectorImpl = "default";
-//    if (KqueueSelectorImpl.kqueue_supported())
-//      selectorImpl = SELECTOR_IMPL_KQUEUE;
-//    if (EpollSelectorImpl.epoll_supported() && !epoll_failed)
-//      selectorImpl = SELECTOR_IMPL_EPOLL;
-//    selectorImpl = SystemProperties.getProperty(SELECTOR_IMPL, selectorImpl);
-//
-//    if (selectorImpl.equals(SELECTOR_IMPL_KQUEUE))
-//      return new KqueueSelectorImpl(this);
-//
-//    if (selectorImpl.equals(SELECTOR_IMPL_EPOLL))
-//      {
-//        // We jump through these hoops because even though epoll may look
-//        // like it's available (sys/epoll.h exists, and you can link against
-//        // all the epoll functions) it may not be available in the kernel
-//        // (especially 2.4 kernels), meaning you will get ENOSYS at run time.
-//        //
-//        // Madness!
-//        try
-//          {
-//            return new EpollSelectorImpl(this);
-//          }
-//        catch (InternalError e)
-//          {
-//            // epoll_create throws this on ENOSYS.
-//            epoll_failed = true;
-//          }
-//      }
+    String selectorImpl = "default";
+    if (KqueueSelectorImpl.kqueue_supported())
+      selectorImpl = SELECTOR_IMPL_KQUEUE;
+    if (EpollSelectorImpl.epoll_supported() && !epoll_failed)
+      selectorImpl = SELECTOR_IMPL_EPOLL;
+    selectorImpl = SystemProperties.getProperty(SELECTOR_IMPL, selectorImpl);
+
+    if (selectorImpl.equals(SELECTOR_IMPL_KQUEUE))
+      return new KqueueSelectorImpl(this);
+
+    if (selectorImpl.equals(SELECTOR_IMPL_EPOLL))
+      {
+        // We jump through these hoops because even though epoll may look
+        // like it's available (sys/epoll.h exists, and you can link against
+        // all the epoll functions) it may not be available in the kernel
+        // (especially 2.4 kernels), meaning you will get ENOSYS at run time.
+        //
+        // Madness!
+        try
+          {
+            return new EpollSelectorImpl(this);
+          }
+        catch (InternalError e)
+          {
+            // epoll_create throws this on ENOSYS.
+            epoll_failed = true;
+          }
+      }
 
     return new SelectorImpl (this);
   }

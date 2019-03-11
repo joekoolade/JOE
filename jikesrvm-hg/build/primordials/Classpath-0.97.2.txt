@@ -66,7 +66,6 @@ Ljava/lang/reflect/Member;
 Ljava/lang/reflect/VMConstructor;
 Ljava/lang/reflect/Constructor;
 Ljava/lang/reflect/AccessibleObject;
-Ljava/lang/reflect/Array;
 Ljava/lang/reflect/Proxy;
 Ljava/lang/reflect/Proxy$ClassFactory;
 Ljava/lang/reflect/Proxy$ProxyData;
@@ -369,25 +368,7 @@ Ljava/io/InputStream;
 Ljava/io/FileInputStream;
 Ljava/io/FileDescriptor;
 Ljava/io/VMFile;
-
 Lgnu/java/nio/FileChannelImpl;
-Lgnu/java/nio/SelectorProviderImpl;
-Lgnu/java/nio/SelectorImpl;
-Lgnu/java/nio/DatagramChannelImpl;
-Lgnu/java/nio/DatagramChannelSelectionKey;
-
-Ljava/nio/channels/ClosedSelectorException;
-Ljava/nio/channels/SelectableChannel;
-Ljava/nio/channels/SelectionKey;
-Ljava/nio/channels/Selector;
-Ljava/nio/channels/SocketChannel;
-Ljava/nio/channels/spi/AbstractSelectableChannel;
-Ljava/nio/channels/spi/AbstractSelector;
-Ljava/nio/channels/spi/SelectorProvider;
-Ljava/nio/channels/ClosedChannelException;
-Ljava/nio/channels/DatagramChannel;
-Ljava/nio/channels/NotYetConnectedException;
-Ljava/nio/channels/spi/SelectorProvider;
 
 # Character conversion
 Ljava/nio/charset/Charset;
@@ -560,6 +541,7 @@ Lgnu/java/security/provider/DefaultPolicy;
 [[Ljava/lang/Object;
 [Ljava/lang/Class;
 Ljava/lang/Class$1;
+Ljava/lang/Class$MethodKey;
 Ljava/lang/Class$StaticData;
 Ljava/lang/Enum;
 
@@ -819,7 +801,7 @@ Lorg/xbill/DNS/Type$TypeMnemonic;
 Lorg/xbill/DNS/Type;
 Lorg/xbill/DNS/TypeBitmap;
 Lorg/xbill/DNS/U16NameBase;
-#Lorg/xbill/DNS/UDPClient$1;
+Lorg/xbill/DNS/UDPClient$1;
 Lorg/xbill/DNS/UDPClient;
 Lorg/xbill/DNS/UNKRecord;
 Lorg/xbill/DNS/URIRecord;

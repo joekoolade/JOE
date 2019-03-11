@@ -139,12 +139,6 @@ public class Route {
     {
         return prefix;
     }
-    
-    public int getNetwork()
-    {
-        return destination.inet4() & netmask;
-    }
-    
     /**
      * Add a route based on the network interface information
      * @param net the network interface

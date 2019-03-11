@@ -161,9 +161,9 @@ class PipeImpl extends Pipe
     throws IOException
   {
     super();
-//    VMChannel[] pipe = VMPipe.pipe();
-//    sink = new SinkChannelImpl(provider, pipe[0]);
-//    source = new SourceChannelImpl(provider, pipe[1]);
+    VMChannel[] pipe = VMPipe.pipe();
+    sink = new SinkChannelImpl(provider, pipe[0]);
+    source = new SourceChannelImpl(provider, pipe[1]);
   }
 
   public Pipe.SinkChannel sink()

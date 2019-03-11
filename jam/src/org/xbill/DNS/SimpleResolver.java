@@ -28,7 +28,7 @@ public static final int DEFAULT_EDNS_PAYLOADSIZE = 1280;
 
 private InetSocketAddress address;
 private InetSocketAddress localAddress;
-private boolean useTCP=false, ignoreTruncation;
+private boolean useTCP, ignoreTruncation;
 private OPTRecord queryOPT;
 private TSIG tsig;
 private long timeoutValue = 10 * 1000;
@@ -54,7 +54,6 @@ SimpleResolver(String hostname) throws UnknownHostException {
 		addr = InetAddress.getLocalHost();
 	else
 		addr = InetAddress.getByName(hostname);
-	byte[] inet = addr.getAddress();
 	address = new InetSocketAddress(addr, DEFAULT_PORT);
 }
 
@@ -226,7 +225,6 @@ maxUDPSize(Message query) {
  */
 public Message
 send(Message query) throws IOException {
-    System.err.println("Simple Resolver send query");
 	if (Options.check("verbose"))
 		System.err.println("Sending to " +
 				   address.getAddress().getHostAddress() +
@@ -253,17 +251,11 @@ send(Message query) throws IOException {
 		if (useTCP || out.length > udpSize)
 			tcp = true;
 		if (tcp)
-		{
-		    System.out.println("TCPClient"); 
-		    in = TCPClient.sendrecv(localAddress, address, out,
+			in = TCPClient.sendrecv(localAddress, address, out,
 						endTime);
-		}
 		else
-		{
-			System.out.println("UDPClient"); 
 			in = UDPClient.sendrecv(localAddress, address, out,
 						udpSize, endTime);
-		}
 
 		/*
 		 * Check that the response is long enough.

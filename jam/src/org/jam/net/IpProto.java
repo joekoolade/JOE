@@ -15,10 +15,4 @@ public enum IpProto {
 	{
 		this.protocol = protocol;
 	}
-
-    public byte protocol()
-    {
-        // TODO Auto-generated method stub
-        return (byte)protocol;
-    }
 }

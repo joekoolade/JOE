@@ -474,7 +474,6 @@ lookup(Name current) {
 	Message query = Message.newQuery(question);
 	Message response = null;
 	try {
-	    System.out.println("Sending to resolver");
 		response = resolver.send(query);
 	}
 	catch (IOException e) {
@@ -514,7 +513,6 @@ lookup(Name current) {
 
 private void
 resolve(Name current, Name suffix) {
-    System.out.println("resolve "+ current + " " + suffix);
 	doneCurrent = false;
 	Name tname = null;
 	if (suffix == null)
@@ -557,7 +555,6 @@ run() {
 				break;
 		}
 	}
-	System.out.println("Done with the resolve()");
 	if (!done) {
 		if (badresponse) {
 			result = TRY_AGAIN;

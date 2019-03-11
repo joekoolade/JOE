@@ -1,7 +1,6 @@
 package org.jam.net;
 
 import java.net.DatagramPacket;
-import java.nio.ByteBuffer;
 
 import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
@@ -15,38 +14,23 @@ import org.vmmagic.unboxed.ObjectReference;
 public class InetPacket implements Packet {
 	private int offset;
 	private byte buffer[];
-	private static int UDP_HEADROOM = 42;		// size of the udp, ip, and ethernet headers
-	private static int TCP_HEADROOM = 54;
+	private static int HEADER_SIZE = 44;		// size of the udp, ip, and ethernet headers
 	private int packetSize;
 	private Connection connection;
 	private NetworkInterface netInterface;
 	
 	public InetPacket(DatagramPacket packet, Connection connection) {
-		int bufferSize = packet.getLength()+UDP_HEADROOM;
+		int bufferSize = packet.getLength()+HEADER_SIZE;
 		byte[] srcBuffer = packet.getData();
 		buffer = new byte[bufferSize];
-		System.out.println("InetPacket "+packet.getOffset());
-		RVMArray.arraycopy(srcBuffer, packet.getOffset(), buffer, UDP_HEADROOM, packet.getLength());
-		offset = UDP_HEADROOM-8;
+		RVMArray.arraycopy(srcBuffer, packet.getOffset(), buffer, HEADER_SIZE, packet.getLength());
+		offset = HEADER_SIZE;
 		packetSize = packet.getLength();
 		this.connection = connection;
 		netInterface = connection.getNetworkInterface();
 	}
 
-	public InetPacket(ByteBuffer src, Connection connection, int headroom)
-    {
-        int bufferSize = src.capacity()+UDP_HEADROOM;
-        byte[] srcBuffer = src.array();
-        buffer = new byte[bufferSize];
-        RVMArray.arraycopy(srcBuffer, 0, buffer, UDP_HEADROOM, src.capacity());
-        System.out.println("InetPacket1 "+bufferSize);
-        offset = UDP_HEADROOM - headroom;
-        packetSize = src.capacity() + headroom;
-        this.connection = connection;
-        netInterface = connection.getNetworkInterface();
-    }
-
-    public byte[] getArray() {
+	public byte[] getArray() {
 		return buffer;
 	}
 
@@ -89,7 +73,6 @@ public class InetPacket implements Packet {
 			throw new RuntimeException("No Headroom");
 		}
 		offset -= size;
-		packetSize += size;
 	}
 
 	public byte getProtocol() {

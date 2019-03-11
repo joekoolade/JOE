@@ -52,8 +52,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
-import org.jam.net.Udp;
-
 /**
  * Written using on-line Java Platform 1.2 API Specification, as well
  * as "The Java Class Libraries", 2nd edition (Addison-Wesley, 1998).
@@ -75,7 +73,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   /**
    * The platform-specific socket implementation.
    */
-//  private final VMPlainSocketImpl impl;
+  private final VMPlainSocketImpl impl;
   
   /**
    * Lock object to serialize threads wanting to receive 
@@ -93,7 +91,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   public PlainDatagramSocketImpl() throws IOException
   {
     channel = new VMChannel();
-//    impl = new VMPlainSocketImpl(channel);
+    impl = new VMPlainSocketImpl(channel);
   }
 
   /*protected void finalize() throws Throwable
@@ -122,20 +120,20 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   protected synchronized void bind(int port, InetAddress addr)
     throws SocketException
   {
-//    try
-//      {
-//        impl.bind(new InetSocketAddress(addr, port));
-//      }
-//    catch (SocketException se)
-//      {
-//        throw se;
-//      }
-//    catch (IOException ioe)
-//      {
-//        SocketException se = new SocketException();
-//        se.initCause(ioe);
-//        throw se;
-//      }
+    try
+      {
+        impl.bind(new InetSocketAddress(addr, port));
+      }
+    catch (SocketException se)
+      {
+        throw se;
+      }
+    catch (IOException ioe)
+      {
+        SocketException se = new SocketException();
+        se.initCause(ioe);
+        throw se;
+      }
   }
 
   /**
@@ -203,7 +201,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized void setTimeToLive(int ttl) throws IOException
   {
-//    impl.setTimeToLive(ttl);
+    impl.setTimeToLive(ttl);
   }
 
   /**
@@ -215,7 +213,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized int getTimeToLive() throws IOException
   {
-    return 0; //impl.getTimeToLive();
+    return impl.getTimeToLive();
   }
 
   protected int getLocalPort()
@@ -325,7 +323,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       {
         case IP_MULTICAST_IF:
         case IP_MULTICAST_IF2:
-//          impl.setMulticastInterface(optionId, (InetAddress) value);
+          impl.setMulticastInterface(optionId, (InetAddress) value);
           break;
 
         case IP_MULTICAST_LOOP:
@@ -339,7 +337,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
         case SO_SNDBUF:
         case SO_TIMEOUT:
         case SO_REUSEADDR:
-//          impl.setOption(optionId, value);
+          impl.setOption(optionId, value);
           return;
 
       default:
@@ -380,9 +378,9 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
           }
       }
     if (optionId == IP_MULTICAST_IF || optionId == IP_MULTICAST_IF2)
-      return null; //impl.getMulticastInterface(optionId);
+      return impl.getMulticastInterface(optionId);
 
-    return null; //impl.getOption(optionId);
+    return impl.getOption(optionId);
   }
 
   /**
@@ -437,7 +435,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized void join(InetAddress addr) throws IOException
   {
-//    impl.join(addr);
+    impl.join(addr);
   }
 
   /**
@@ -449,7 +447,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   protected synchronized void leave(InetAddress addr) throws IOException
   {
-//    impl.leave(addr);
+    impl.leave(addr);
   }
 
   /**
@@ -473,7 +471,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       throw new NullPointerException();
     if (!(address instanceof InetSocketAddress))
       throw new SocketException("unknown address type");
-//    impl.joinGroup((InetSocketAddress) address, netIf);
+    impl.joinGroup((InetSocketAddress) address, netIf);
   }
 
   public void leaveGroup(SocketAddress address, NetworkInterface netIf)
@@ -483,13 +481,6 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
       throw new NullPointerException();
     if (!(address instanceof InetSocketAddress))
       throw new SocketException("unknown address type");
-//    impl.leaveGroup((InetSocketAddress) address, netIf);
+    impl.leaveGroup((InetSocketAddress) address, netIf);
   }
-
-    @Override
-    protected Udp getChannel()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

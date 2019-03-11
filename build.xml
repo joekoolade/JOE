@@ -375,7 +375,6 @@ Check to make sure all required properties are specified. This includes properti
       includes="java/**,javax/**,gnu/**,sun/**,org/jam/**,org/omg/**,vm/reference/**,external/**,org/jikesrvm/**,org/vmmagic/**"
       excludes="gnu/java/awt/peer/x/**,vm/reference/gnu/java/net/**,vm/reference/java/net/**,gnu/java/net/*PlainSocketImpl.java,gnu/java/net/*PlainDatagramSocketImpl.java"
       includeantruntime="no"
-      failonerror="false"
       source="${rvm.java.version}"
       target="${rvm.java.version}"
     />
@@ -1015,7 +1014,6 @@ Check to make sure all required properties are specified. This includes properti
            debug="true"
            fork="true"
            memoryMaximumSize="800M"
-           failonerror="false"
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"

@@ -66,7 +66,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
    */
   public static DatagramChannel open() throws IOException
   {
-      if(SelectorProvider.provider()==null) System.out.println("provider null");
     return SelectorProvider.provider().openDatagramChannel();
   }
 

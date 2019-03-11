@@ -76,14 +76,18 @@ public class Platform {
         VM.sysWrite(ioApic.toString());
         try
         {
-//            InetAddress inet = new InetAddress("10.0.2.15");
-//            net = new I82559c(inet, 0xffffff00);
-            net = new I82559c();
+            InetAddress inet = new InetAddress("10.0.2.1");
+            net = new I82559c(inet, 0xffffff00);
         }
         catch (NoDeviceFoundException e)
         {
             // TODO Auto-generated catch block
             VM.sysWriteln("No VirtioNet device found!");
+        }
+        catch (UnknownHostException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         net.boot();
     }

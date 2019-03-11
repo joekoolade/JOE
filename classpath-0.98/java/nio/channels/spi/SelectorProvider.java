@@ -150,9 +150,28 @@ public abstract class SelectorProvider
   public static synchronized SelectorProvider provider()
   {
     if (systemDefaultProvider == null)
-    {
+      {
+	String propertyValue =
+	  System.getProperty("java.nio.channels.spi.SelectorProvider");
+
+	if (propertyValue == null || propertyValue.equals(""))
 	  systemDefaultProvider = new SelectorProviderImpl();
-    }
+	else
+	  {
+	    try
+	      {
+		systemDefaultProvider =
+		  (SelectorProvider) Class.forName(propertyValue)
+		                          .newInstance();
+	      }
+	    catch (Exception e)
+	      {
+		System.err.println("Could not instantiate class: "
+		                   + propertyValue);
+		systemDefaultProvider = new SelectorProviderImpl();
+	      }
+	  }
+      }
 
     return systemDefaultProvider;
   }
