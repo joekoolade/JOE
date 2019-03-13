@@ -1,5 +1,6 @@
 package org.jam.driver.net;
 
+import org.jam.net.Dhcp;
 import java.net.UnknownHostException;
 
 import org.jam.board.pc.Platform;
@@ -106,5 +107,6 @@ public class InetNetworkInterface
         inetThread = new Thread(inet4);
         arpThread.start();
         inetThread.start();
+        Dhcp.discover(networkInterface);
     }
 }
