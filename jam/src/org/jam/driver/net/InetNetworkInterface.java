@@ -92,19 +92,21 @@ public class InetNetworkInterface
          */
         arp = new ArpThread(networkInterface);
         arpThread = new Thread(arp);
+        arpThread.setName("ARP Thread");
         inet4 = new InetProtocolProcessor(arp);
         /*
          * Setup the route
          */
-        try
-        {
-            Route.addRoute(0, new InetAddress("0.0.0.0"), new InetAddress("10.0.2.2"), Platform.net);
-        } catch (UnknownHostException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        try
+//        {
+//            Route.addRoute(0, new InetAddress("0.0.0.0"), new InetAddress("10.0.2.2"), Platform.net);
+//        } catch (UnknownHostException e)
+//        {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
         inetThread = new Thread(inet4);
+        inetThread.setName("INET Thread");
         arpThread.start();
         inetThread.start();
         Dhcp.discover(networkInterface);

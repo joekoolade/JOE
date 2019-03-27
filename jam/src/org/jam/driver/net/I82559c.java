@@ -248,6 +248,7 @@ private static final boolean DEBUG_TX = true;
     txQueue = new NetworkQueue();
     arpTable = new ArpTable();
     setNetworkInterface(this);
+    Route.addRoute(InetAddress.HOST, InetAddress.HOST, 0xffffffff, this);
   }
   
   public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException

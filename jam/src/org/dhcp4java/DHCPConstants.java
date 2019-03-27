@@ -18,13 +18,8 @@
  */
 package org.dhcp4java;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Class holding all DHCP constants.

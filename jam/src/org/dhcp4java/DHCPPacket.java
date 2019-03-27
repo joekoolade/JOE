@@ -718,12 +718,14 @@ public class DHCPPacket implements Cloneable, Serializable {
      * @throws DHCPBadPacketException the datagram would be malformed (too small, too big...)
      */
     public byte[] serialize(int minSize, int maxSize) {
-        this.assertInvariants();
+        //this.assertInvariants();
         // prepare output buffer, pre-sized to maximum buffer length
         // default buffer is half the maximum size of possible packet
         // (this seams reasonable for most uses, worst case only doubles the buffer size once
+        System.out.println("dhcppakcet.serialize");
         ByteArrayOutputStream outBStream = new ByteArrayOutputStream(_DHCP_MAX_MTU / 2);
         DataOutputStream      outStream  = new DataOutputStream(outBStream);
+        System.out.println("dhcppakcet.serialize#");
         try {
             outStream.writeByte (this.op);
             outStream.writeByte (this.htype);
@@ -745,6 +747,7 @@ public class DHCPPacket implements Cloneable, Serializable {
                 outStream.writeInt(_MAGIC_COOKIE);
 
                 // parse output options in creation order (LinkedHashMap)
+                System.out.println("dhcppakcet.serialize##");
                 for (DHCPOption opt : this.getOptionsCollection()) {
                     assert (opt != null);
                     assert (opt.getCode() != DHO_PAD);
@@ -759,6 +762,7 @@ public class DHCPPacket implements Cloneable, Serializable {
                     outStream.writeByte(size);    // output option length
                     outStream.write(opt.getValueFast());    // output option data
                 }
+                System.out.println("dhcppakcet.serialize###");
                 // mark end of options
                 outStream.writeByte(DHO_END);
             }
@@ -775,6 +779,7 @@ public class DHCPPacket implements Cloneable, Serializable {
 
             // final packet is here
             byte[] data = outBStream.toByteArray();
+            System.out.println("dhcppakcet.serialize4");
 
             // do some post sanity checks
             if (data.length > _DHCP_MAX_MTU) {
@@ -1537,6 +1542,16 @@ public class DHCPPacket implements Cloneable, Serializable {
             throw new IllegalArgumentException("4-byte array required");
         }
         System.arraycopy(yiaddr, 0, this.yiaddr, 0, 4);
+    }
+    
+    public void setBroadcastFlag()
+    {
+        flags |= 0x1000;
+    }
+    
+    public void clearBroadcastFlag()
+    {
+        flags &= ~0x1000;
     }
     /**
      * Return the DHCP Option Type.

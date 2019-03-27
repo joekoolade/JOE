@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 public class Route {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
     NetworkInterface networkIf;
 	InetAddress destination;
 	InetAddress gateway;

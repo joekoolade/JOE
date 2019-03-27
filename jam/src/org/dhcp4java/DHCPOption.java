@@ -47,7 +47,6 @@ import java.util.logging.Logger;
  */
 public class DHCPOption implements Serializable {
 	private static final long   serialVersionUID = 2L;
-    private static final Logger logger = Logger.getLogger(DHCPOption.class.getName().toLowerCase());
 
     /**
      * The code of the option. 0 is reserved for padding, -1 for end of options.
@@ -385,7 +384,8 @@ public class DHCPOption implements Serializable {
         try {
             return InetAddress.getByAddress(this.value);
         } catch (UnknownHostException e) {
-			logger.log(Level.SEVERE, "Unexpected UnknownHostException", e);
+			//logger.log(Level.SEVERE, "Unexpected UnknownHostException", e);
+            System.out.println("Unexpected UnknownHostException ");
             return null;	// normally impossible
         }
     }
@@ -527,7 +527,8 @@ public class DHCPOption implements Serializable {
             }
             return addrs;
         } catch (UnknownHostException e) {
-			logger.log(Level.SEVERE, "Unexpected UnknownHostException", e);
+			// logger.log(Level.SEVERE, "Unexpected UnknownHostException", e);
+            System.out.println("Unexpected UnknownHostException");
             return null;	// normally impossible
         }
     }
@@ -914,7 +915,8 @@ public class DHCPOption implements Serializable {
             }
             return buf.toByteArray();
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Unexpected IOException", e);
+            //logger.log(Level.SEVERE, "Unexpected IOException", e);
+            System.out.println("Unexpected IOException");
             return buf.toByteArray();
         }
     }
@@ -973,7 +975,7 @@ public class DHCPOption implements Serializable {
         	}
 	        return buf.toByteArray();
 	    } catch (IOException e) {
-			logger.log(Level.SEVERE, "Unexpected IOException", e);
+			//logger.log(Level.SEVERE, "Unexpected IOException", e);
 	        return buf.toByteArray();
 	    }
     }
@@ -1137,7 +1139,8 @@ public class DHCPOption implements Serializable {
     		try {
     			return newOptionAsInetAddress(code, InetAddress.getByName(value));
     		} catch (UnknownHostException e) {
-    			logger.log(Level.SEVERE, "Invalid address:"+value, e);
+    			//logger.log(Level.SEVERE, "Invalid address:"+value, e);
+    		    System.out.println("Invalid address:"+value);
     			return null;
     		}
     	} else if (InetAddress[].class.equals(format)) {				// InetAddress[]
@@ -1148,7 +1151,8 @@ public class DHCPOption implements Serializable {
 	    			listInet[i] = InetAddress.getByName(listVal[i]);
 	    		}
     		} catch (UnknownHostException e) {
-    			logger.log(Level.SEVERE, "Invalid address", e);
+    			//logger.log(Level.SEVERE, "Invalid address", e);
+    		    System.out.println("Invalid address");
     			return null;
     		}
     		return newOptionAsInetAddresses(code, listInet);

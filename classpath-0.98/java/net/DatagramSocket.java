@@ -580,32 +580,29 @@ public class DatagramSocket
    * @exception IllegalBlockingModeException If this socket has an associated
    * channel, and the channel is in non-blocking mode.
    */
-  public void send(DatagramPacket p) throws IOException
-  {
-    if (isClosed())
-      throw new SocketException("socket is closed");
+    public void send(DatagramPacket p) throws IOException
+    {
+        if (isClosed()) throw new SocketException("socket is closed");
 
-    // JDK1.2: Don't do security checks if socket is connected; see jdk1.2 api.
-    SecurityManager s = System.getSecurityManager();
-    if (s != null && ! isConnected())
-      {
-	InetAddress addr = p.getAddress();
-	if (addr.isMulticastAddress())
-	  s.checkMulticast(addr);
-	else
-	  s.checkConnect(addr.getHostAddress(), p.getPort());
-      }
+        // JDK1.2: Don't do security checks if socket is connected; see jdk1.2 api.
+        SecurityManager s = System.getSecurityManager();
+        if (s != null && !isConnected())
+        {
+            InetAddress addr = p.getAddress();
+            if (addr.isMulticastAddress())
+                s.checkMulticast(addr);
+            else
+                s.checkConnect(addr.getHostAddress(), p.getPort());
+        }
 
-    if (isConnected())
-      {
-	if (p.getAddress() != null
-	    && (remoteAddress != p.getAddress() || remotePort != p.getPort()))
-	  throw new IllegalArgumentException
-	    ("DatagramPacket address does not match remote address");
-      }
+        if (isConnected())
+        {
+            if (p.getAddress() != null && (remoteAddress != p.getAddress() || remotePort != p.getPort()))
+                throw new IllegalArgumentException("DatagramPacket address does not match remote address");
+        }
 
-    getImpl().send(p);
-  }
+        getImpl().send(p);
+    }
 
   /**
    * Binds the socket to the given socket address.

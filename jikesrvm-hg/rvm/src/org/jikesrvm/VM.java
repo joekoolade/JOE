@@ -387,6 +387,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("java.util.Currency");
     runClassInitializer("java.text.DecimalFormatSymbols");
     runClassInitializer("java.text.DecimalFormat");
+    runClassInitializer("org.dhcp4java.DHCPOption");
+    runClassInitializer("org.dhcp4java.DHCPConstants");
 //    runClassInitializer("org.xbill.DNS.Name");
 //    runClassInitializer("org.xbill.DNS.ResolverConfig");
 //    runClassInitializer("org.xbill.DNS.Lookup");
@@ -443,8 +445,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     MemoryManager.enableCollection();
 
 //    LdivTests.test1();
-    // Schedule "main" thread for execution.
-    if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
 //    mainThread = new MainThread(null);
@@ -462,18 +462,18 @@ public class VM extends Properties implements Constants, ExitStatus {
     napiThread.start();
     Platform.net.inetBoot();
     // Schedule "main" thread for execution.
-    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
-    try
-    {
-        Thread echoTest = new Thread(new EchoClient());
-        echoTest.start();
-    } catch (SocketException e)
-    {
-        e.printStackTrace();
-    } catch (UnknownHostException e)
-    {
-        e.printStackTrace();
-    }
+//    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
+//    try
+//    {
+//        Thread echoTest = new Thread(new EchoClient());
+//        echoTest.start();
+//    } catch (SocketException e)
+//    {
+//        e.printStackTrace();
+//    } catch (UnknownHostException e)
+//    {
+//        e.printStackTrace();
+//    }
     /*
      * Exhaust class test
      */

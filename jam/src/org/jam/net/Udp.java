@@ -113,7 +113,7 @@ public class Udp {
         VM.sysWriteln("udp send0");
         if (connection == null)
         {
-            initConnection();
+            initConnection(packet);
         }
         VM.sysWriteln("udp length: " + packet.getLength());
         if (packet.getLength() > 0xFFFF)
@@ -148,9 +148,19 @@ public class Udp {
         ip.send(packet);
     }
 
-    private void initConnection() throws NoRouteToHostException
+    private void initConnection(DatagramPacket packet) throws NoRouteToHostException
     {
         VM.sysWriteln("udp initConnection");
+        if(packet != null)
+        {
+            System.out.println("ic ra "+remoteAddress);
+            if(remoteAddress==null)
+            {
+                System.out.println("ic packet "+packet);
+                remoteAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
+            }
+            System.out.println("ic ra0 "+remoteAddress);
+        }
         connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
     }
 
@@ -365,7 +375,7 @@ public class Udp {
         {
             try
             {
-                initConnection();
+                initConnection(null);
             }
             catch (NoRouteToHostException e)
             {
