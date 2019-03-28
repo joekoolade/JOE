@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 public class Route {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
     NetworkInterface networkIf;
 	InetAddress destination;
 	InetAddress gateway;
@@ -186,9 +186,31 @@ public class Route {
         
     }
 
+    /**
+     * FIXME: should be returning a list of routes for a broadcast
+     * 
+     * @param address
+     * @return Route
+     */
     public static Route find(InetAddress address)
     {
         if(DEBUG) System.out.println("routing " + address);
+        if(address.isBroadcast())
+        {
+            /*
+             * For the broadcast address return the
+             * first route of ANY_ADDR and prefix 32
+             */
+            for(Route route: routeTable)
+            {
+                if(DEBUG) System.out.println("ANY route "+route);
+                if(route.destination.isHost() && route.prefix == 32)
+                {
+                    if(DEBUG) System.out.println("ANY route found: "+route);
+                    return route;
+                }
+            }
+        }
         for(Route route: routeTable)
         {
             if(DEBUG) System.out.println("route "+route);
