@@ -17,15 +17,15 @@ public class Connection {
         remote = new InetAddress(remoteAddress.getAddress());
         System.out.println("remote addr " + remote);
         route = Route.find(remote);
-        System.out.println("getting local address ");
+        System.out.println("getting local address "+localAddress);
         byte[] addr = null;
-        if (localAddress.getAddress().isAnyLocalAddress())
+        if (localAddress !=null)
         {
-            local = route.getNetworkIf().getInetAddress();
+            local = new InetAddress(localAddress.getAddress());
         }
         else
         {
-            local = new InetAddress(localAddress.getAddress());
+            local = route.getNetworkIf().getInetAddress();
         }
         addr = local.asArray();
         System.out.println("connection " + ((int) addr[0] & 0xff) + "." + ((int) addr[1] & 0xff) + "." + ((int) addr[2] & 0xff) + "."

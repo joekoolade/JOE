@@ -153,13 +153,10 @@ public class Udp {
         VM.sysWriteln("udp initConnection");
         if(packet != null)
         {
-            System.out.println("ic ra "+remoteAddress);
             if(remoteAddress==null)
             {
-                System.out.println("ic packet "+packet);
                 remoteAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
             }
-            System.out.println("ic ra0 "+remoteAddress);
         }
         connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
     }
