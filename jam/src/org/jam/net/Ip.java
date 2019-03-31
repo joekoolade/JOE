@@ -18,6 +18,7 @@ public class Ip {
 	private final static Offset CHECKSUM_FIELD = Offset.fromIntSignExtend(10);
 	private final static Offset SRCADDR_FIELD = Offset.fromIntSignExtend(12);
 	private final static Offset DSTADDR_FIELD = Offset.fromIntSignExtend(16);
+    private static final boolean DEBUG = true;
 	
 	private byte tos = 0; // best effort
 	private byte ttl = (byte)255; 
@@ -44,7 +45,7 @@ public class Ip {
 		}
 		short csum = checksum(packet);
 		ipHeader.store(csum, CHECKSUM_FIELD);
-        VM.hexDump(packet.getArray(),0,packet.getBufferSize());
+        if (DEBUG) VM.hexDump(packet.getArray(),0,packet.getBufferSize());
 		packet.send();
 	}
 

@@ -25,9 +25,9 @@ public class InetPacket implements Packet {
 		int bufferSize = packet.getLength()+UDP_HEADROOM;
 		byte[] srcBuffer = packet.getData();
 		buffer = new byte[bufferSize];
-		System.out.println("InetPacket "+packet.getOffset());
+		System.out.println("InetPacket "+packet.getOffset()+" "+bufferSize);
 		RVMArray.arraycopy(srcBuffer, packet.getOffset(), buffer, UDP_HEADROOM, packet.getLength());
-		offset = UDP_HEADROOM-8;
+		offset = UDP_HEADROOM;
 		packetSize = packet.getLength();
 		this.connection = connection;
 		netInterface = connection.getNetworkInterface();
@@ -84,6 +84,7 @@ public class InetPacket implements Packet {
 	}
 
 	public void setHeadroom(int size) {
+	    System.out.println("inetpacket.setheadroom "+size+" "+offset);
 		if(size > offset)
 		{
 			throw new RuntimeException("No Headroom");
@@ -113,7 +114,7 @@ public class InetPacket implements Packet {
 		 * At this point the packet has a route. We just need
 		 * to get the mac  address of the destination
 		 */
-	    System.out.println("Inet send");
+	    System.out.println("Inet send "+netInterface);
 		EthernetAddr destinationMac = netInterface.arp(connection.getRemote());
 		System.out.println("Arp done");
 		netInterface.send(destinationMac, this, EtherType.IPV4.type());

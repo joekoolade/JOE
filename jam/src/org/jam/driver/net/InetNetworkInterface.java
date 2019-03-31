@@ -59,6 +59,13 @@ public class InetNetworkInterface
     public EthernetAddr arp(InetAddress inet)
     {
         /*
+         * The easiest case. The address is broadcast or host
+         */
+        if(inet.isBroadcast() || inet.isHost())
+        {
+            return EthernetAddr.BROADCAST_ADDRESS;
+        }
+        /*
          * The easy case. arp table has the mac address
          * then just return
          */
