@@ -7,7 +7,9 @@ import org.jam.net.inet4.InetAddress;
 
 public class Connection {
     private InetAddress local;
+    private int localPort;
     private InetAddress remote;
+    private int remotePort;
     private IpProto protocol;
     private Route route;
 
@@ -15,6 +17,7 @@ public class Connection {
     {
         // look up the route
         remote = new InetAddress(remoteAddress.getAddress());
+        remotePort = remoteAddress.getPort();
         System.out.println("remote addr " + remote);
         route = Route.find(remote);
         System.out.println("getting local address "+localAddress);

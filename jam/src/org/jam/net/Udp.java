@@ -16,6 +16,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import org.jam.driver.net.Packet;
 import org.jikesrvm.VM;
@@ -36,7 +37,8 @@ public class Udp {
     private static final Offset CHECKSUM = Offset.fromIntSignExtend(6);
 
     private static final boolean DEBUG_PSEUDOHEADER = true;
-
+    private static InetConnections connectionTable = new InetConnections();
+    
     InetSocketAddress localAddress;
     InetSocketAddress remoteAddress;
     int ttl;
@@ -60,6 +62,8 @@ public class Udp {
     public void bind(InetSocketAddress inetSocketAddress) throws SocketException, IOException
     {
         localAddress = inetSocketAddress;
+        // put it in the connection table
+        connectionTable.add(inetSocketAddress);
     }
 
     /**
@@ -72,6 +76,7 @@ public class Udp {
         if (localAddress == null)
         {
             localAddress = new InetSocketAddress(10000);
+            connectionTable.add(localAddress);
         }
         // check if address is routable
         // Create a new connection
