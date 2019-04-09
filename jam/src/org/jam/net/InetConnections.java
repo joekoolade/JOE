@@ -19,9 +19,11 @@ public class InetConnections
         table = new HashMap<Long, Connection>();
     }
     
-    public final void add(InetSocketAddress addr)
+    public final void add(InetSocketAddress addr, Connection connection)
     {
-        
+        byte[] inet = addr.getAddress().getAddress();
+        long key = (addr.getPort() << 32) | (inet[0] << 24) | (inet[1] << 16) | (inet[2] << 8) | inet[3];
+        table.put(key, connection);
     }
     
     public final void remove(Connection conn)
@@ -29,12 +31,12 @@ public class InetConnections
         
     }
     
-    public final void add(InetAddress inetAddr, int port)
+    public final void add(InetAddress inetAddr, int port, Connection connection)
     {
         
     }
     
-    public final void remove(InetAddress inetAddr, int port)
+    public final void remove(InetAddress inetAddr, int port, Connection connection)
     {
         
     }
@@ -42,6 +44,9 @@ public class InetConnections
     public final Connection find(InetAddress inetAddr, int port)
     {
         Connection conn = null;
+        
+        long key = (port<<32)|inetAddr.inet4();
+        conn = table.get(key);
         
         return conn;
     }
