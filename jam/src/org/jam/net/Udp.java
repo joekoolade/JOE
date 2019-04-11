@@ -63,7 +63,7 @@ public class Udp {
     {
         localAddress = inetSocketAddress;
         // put it in the connection table
-        connectionTable.add(inetSocketAddress);
+        connectionTable.add(inetSocketAddress, connection);
     }
 
     /**
@@ -76,8 +76,8 @@ public class Udp {
         if (localAddress == null)
         {
             localAddress = new InetSocketAddress(10000);
-            connectionTable.add(localAddress);
         }
+        connectionTable.add(localAddress, connection);
         // check if address is routable
         // Create a new connection
     }

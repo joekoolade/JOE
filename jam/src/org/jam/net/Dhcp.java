@@ -3,6 +3,8 @@ package org.jam.net;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Random;
 
@@ -26,6 +28,7 @@ implements Runnable
         try
         {
             socket = new DatagramSocket();
+            socket.bind(new InetSocketAddress(DHCPConstants.BOOTP_REQUEST_PORT));
         }
         catch (SocketException e)
         {

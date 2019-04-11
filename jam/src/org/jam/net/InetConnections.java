@@ -23,6 +23,7 @@ public class InetConnections
     {
         byte[] inet = addr.getAddress().getAddress();
         long key = ((long)addr.getPort() << 32) | (inet[0] << 24) | (inet[1] << 16) | (inet[2] << 8) | inet[3];
+        System.out.println("InetConnections add "+addr);
         table.put(key, connection);
     }
     
