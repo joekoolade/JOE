@@ -69,6 +69,8 @@ implements Runnable
         DHCPPacket discoverPacket = new DHCPPacket();
         xid = r.nextInt();
         discoverPacket.setXid(xid);
+        discoverPacket.setOp(DHCPConstants.BOOTREQUEST);
+        discoverPacket.setHtype(DHCPConstants.HTYPE_ETHER);
         discoverPacket.setDHCPMessageType(DHCPConstants.DHCPDISCOVER);
         discoverPacket.setOp(DHCPConstants.BOOTREQUEST);
         discoverPacket.setPort(DHCPConstants.BOOTP_REQUEST_PORT);

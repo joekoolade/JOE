@@ -1546,12 +1546,12 @@ public class DHCPPacket implements Cloneable, Serializable {
     
     public void setBroadcastFlag()
     {
-        flags |= 0x1000;
+        flags |= 0x0001;
     }
     
     public void clearBroadcastFlag()
     {
-        flags &= ~0x1000;
+        flags &= ~0x0001;
     }
     /**
      * Return the DHCP Option Type.
