@@ -28,7 +28,7 @@ implements Runnable
         try
         {
             socket = new DatagramSocket();
-            socket.bind(new InetSocketAddress(DHCPConstants.BOOTP_REQUEST_PORT));
+            socket.bind(new InetSocketAddress(DHCPConstants.BOOTP_REPLY_PORT));
         }
         catch (SocketException e)
         {
