@@ -143,7 +143,7 @@ public class Udp {
         // packet length
         udpPacket.store(ByteOrder.hostToNetwork((short) packet.getSize()), LENGTH);
         // packet checksum
-        udpPacket.store(0, CHECKSUM);
+        udpPacket.store((short)0, CHECKSUM);
         computeChecksum();
         udpPacket.store(ByteOrder.hostToNetwork(packetChecksum), CHECKSUM);
         // send it on for IP processing
@@ -182,8 +182,8 @@ public class Udp {
         // add in the size
         pseudoHeaderSum += packet.getSize();
         // Add the carry over
-        val = (pseudoHeaderSum >> 16) & 0xFFFF;
-        pseudoHeaderSum += val;
+        val = (pseudoHeaderSum >> 16) + (pseudoHeaderSum & 0xFFFF);
+        pseudoHeaderSum = val;
         if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum "+Integer.toHexString(pseudoHeaderSum));
     }
 
