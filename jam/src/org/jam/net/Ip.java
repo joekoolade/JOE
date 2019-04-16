@@ -49,6 +49,15 @@ public class Ip {
 		packet.send();
 	}
 
+	public void receive(InetPacket packet)
+	{
+	    Address ipHeader = packet.getAddress();
+	    byte vhl = ipHeader.loadByte();
+	    if((vhl>>4) != 4 || (vhl & 0xF) < 5)
+        {
+            
+        }
+	}
 	private short checksum(InetPacket packet) {
 		int csum=0;
 		
