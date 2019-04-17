@@ -49,7 +49,7 @@ public class Ip {
 		packet.send();
 	}
 
-	public void receive(InetPacket packet)
+	final static public void receive(InetPacket packet)
 	{
 	    Address ipHeader = packet.getAddress();
 	    byte vhl = ipHeader.loadByte();

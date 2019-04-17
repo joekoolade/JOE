@@ -42,7 +42,11 @@ implements Runnable
                 }
                 System.out.println("inetpp got rx");
                 Packet packet = rxQueue.get();
-                if(Ethernet.isArp(packet))
+                if(Ethernet.isIPv4(packet))
+                {
+                    
+                }
+                else if(Ethernet.isArp(packet))
                 {
                     System.out.println("inetpp arp packet");
                     packet.pull(Ethernet.HEADER_SIZE);
