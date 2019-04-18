@@ -1,5 +1,6 @@
 package org.jam.net;
 
+import org.jam.driver.net.Packet;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
@@ -49,14 +50,17 @@ public class Ip {
 		packet.send();
 	}
 
-	final static public void receive(InetPacket packet)
+	final public void receive(InetPacket packet)
 	{
 	    Address ipHeader = packet.getAddress();
 	    byte vhl = ipHeader.loadByte();
-	    if((vhl>>4) != 4 || (vhl & 0xF) < 5)
+	    int headerLength = vhl & 0xF;
+	    if((vhl>>4) != 4 || headerLength < 5)
         {
-            
+            // drop packet
+	        return;
         }
+	    
 	}
 	private short checksum(InetPacket packet) {
 		int csum=0;

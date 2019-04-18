@@ -15,11 +15,13 @@ implements Runnable
     private NetworkQueue rxQueue;
     private ArpThread arp;
     private static int QUEUE_SIZE = 256;
+    private Ip ip;
     
     public InetProtocolProcessor(ArpThread arp)
     {
         this.arp = arp;
         rxQueue = new NetworkQueue();
+        ip = new Ip();
     }
     public void run()
     {
@@ -45,6 +47,7 @@ implements Runnable
                 if(Ethernet.isIPv4(packet))
                 {
                     
+                    ip.receive(new InetPacket(packet));
                 }
                 else if(Ethernet.isArp(packet))
                 {

@@ -46,6 +46,10 @@ public class InetPacket implements Packet {
         netInterface = connection.getNetworkInterface();
     }
 
+	public InetPacket(Packet packet)
+	{
+	    
+	}
     public byte[] getArray() {
 		return buffer;
 	}
