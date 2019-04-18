@@ -56,4 +56,8 @@ public interface Packet
      * @param size
      */
     void pull(int size);
+    /*
+     * Release packet back to driver
+     */
+    void free();
 }

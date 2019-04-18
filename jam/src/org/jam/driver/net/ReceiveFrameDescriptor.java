@@ -41,18 +41,19 @@ public class ReceiveFrameDescriptor implements Packet
     private BufferFree bufferFree;
     private int        headroom;
     private int        offset;
-
-    public ReceiveFrameDescriptor(int bufferSize)
+    
+    public ReceiveFrameDescriptor(int bufferSize, BufferFree bufferFree)
     {
         buffer = new byte[bufferSize];
         rfdAddr = Magic.objectAsAddress(buffer);
         size(bufferSize - RFD_SIZE);
         offset = headroom = RFD_SIZE;
+        this.bufferFree = bufferFree;
     }
 
-    public ReceiveFrameDescriptor()
+    public ReceiveFrameDescriptor(BufferFree bufferFree)
     {
-        this(Ethernet.FRAME_LENGTH + Ethernet.FCS_LENGTH + RFD_SIZE);
+        this(Ethernet.FRAME_LENGTH + Ethernet.FCS_LENGTH + RFD_SIZE, bufferFree);
     }
 
     /**
@@ -258,5 +259,10 @@ public class ReceiveFrameDescriptor implements Packet
     public void pull(int size)
     {
         offset += size;
+    }
+    
+    public void free()
+    {
+        bufferFree.free(this);
     }
 }

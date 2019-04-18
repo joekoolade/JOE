@@ -139,4 +139,10 @@ public class InetPacket implements Packet {
        offset += size;
     }
 
+    public void free()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

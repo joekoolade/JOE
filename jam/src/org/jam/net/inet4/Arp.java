@@ -46,7 +46,6 @@ implements SendPacket
     private byte targetPa[];
     private byte hwAddressLen;
     private byte protoAddrLen;
-    private Packet packet;
     private int senderInet;
     private int targetInet;
     
@@ -56,7 +55,7 @@ implements SendPacket
     Arp(EthernetAddr senderEther, InetAddress sendIp, InetAddress targetIp)
     {
         hwType = HT_ETHERNET;
-        protocolType = Ethernet.PROTO_IP;
+        protocolType = Ethernet.PROTO_IP4;
         opCode = OP_REQUEST;
         senderHa = senderEther.asArray();
         senderPa = sendIp.asArray();
@@ -87,7 +86,6 @@ implements SendPacket
      */
     public Arp(Packet packet)
     {
-        this.packet = packet;
         Address packetAddr = packet.getPacketAddress();
         hwType = ByteOrder.networkToHost(packetAddr.loadShort());
         protocolType = ByteOrder.networkToHost(packetAddr.loadShort(PROTO_OFFSET));

@@ -717,11 +717,11 @@ private static final boolean DEBUG_TX = true;
     /*
      * Create a circular list of RFDS
      */
-    rfds[0] = new ReceiveFrameDescriptor();
+    rfds[0] = new ReceiveFrameDescriptor(this);
     for(bufferNumber=1; bufferNumber < RFD_COUNT; bufferNumber++)
     {
       // Create a linked list of RFDS
-      rfds[bufferNumber] = new ReceiveFrameDescriptor();
+      rfds[bufferNumber] = new ReceiveFrameDescriptor(this);
       rfds[bufferNumber-1].link(rfds[bufferNumber]);
     }
     rfds[RFD_COUNT-1].link(rfds[0]);
@@ -743,7 +743,7 @@ private static final boolean DEBUG_TX = true;
     */
    for(bufferNumber=0; bufferNumber<RFD_COUNT; bufferNumber++)
    {
-     rfdFreeList.add(new ReceiveFrameDescriptor());
+     rfdFreeList.add(new ReceiveFrameDescriptor(this));
    }
    VM.sysWriteln("rfd 0: ", rfds[0].toString());
   }

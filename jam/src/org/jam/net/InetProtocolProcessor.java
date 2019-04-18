@@ -54,6 +54,7 @@ implements Runnable
                     System.out.println("inetpp arp packet");
                     packet.pull(Ethernet.HEADER_SIZE);
                     Arp arp = new Arp(packet);
+                    packet.free();
                     this.arp.reply(arp);
                 }
             } catch (InterruptedException e)
