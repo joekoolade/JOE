@@ -39,15 +39,16 @@ public class ReceiveFrameDescriptor implements Packet
     private byte       buffer[];
     private Address    rfdAddr;
     private BufferFree bufferFree;
-    private int        headroom;
-    private int        offset;
+    private int        headroom;    // should be used from start of the packet
+    private int        offset;      // should be used from start of the buffer
     
     public ReceiveFrameDescriptor(int bufferSize, BufferFree bufferFree)
     {
         buffer = new byte[bufferSize];
         rfdAddr = Magic.objectAsAddress(buffer);
         size(bufferSize - RFD_SIZE);
-        offset = headroom = RFD_SIZE;
+        offset = RFD_SIZE;
+        headroom = 0;
         this.bufferFree = bufferFree;
     }
 
@@ -136,7 +137,7 @@ public class ReceiveFrameDescriptor implements Packet
     public byte[] getArray()
     {
         // TODO Auto-generated method stub
-        return null;
+        return buffer;
     }
 
     /*
@@ -147,7 +148,7 @@ public class ReceiveFrameDescriptor implements Packet
     public int getOffset()
     {
         // TODO Auto-generated method stub
-        return 0;
+        return offset;
     }
 
     /*
@@ -158,7 +159,7 @@ public class ReceiveFrameDescriptor implements Packet
     public int getSize()
     {
         // TODO Auto-generated method stub
-        return 0;
+        return actualSize() - headroom;
     }
 
     /*
@@ -259,6 +260,7 @@ public class ReceiveFrameDescriptor implements Packet
     public void pull(int size)
     {
         offset += size;
+        headroom += size;
     }
     
     public void free()

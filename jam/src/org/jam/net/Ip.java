@@ -20,7 +20,9 @@ public class Ip {
 	private final static Offset SRCADDR_FIELD = Offset.fromIntSignExtend(12);
 	private final static Offset DSTADDR_FIELD = Offset.fromIntSignExtend(16);
     private static final boolean DEBUG = true;
+    private static final boolean DEBUG_RX = true;
 	
+    private IpStats stats;
 	private byte tos = 0; // best effort
 	private byte ttl = (byte)255; 
 	
@@ -52,15 +54,25 @@ public class Ip {
 
 	final public void receive(InetPacket packet)
 	{
+	    if(DEBUG_RX) System.out.println("ip.receive"); 
 	    Address ipHeader = packet.getAddress();
 	    byte vhl = ipHeader.loadByte();
 	    int headerLength = vhl & 0xF;
 	    if((vhl>>4) != 4 || headerLength < 5)
         {
             // drop packet
+	        System.out.println("dropped vhl "+Integer.toHexString(vhl));
+	        stats.headerError();
 	        return;
         }
-	    
+	    int csum = checksum(packet);
+        if(DEBUG_RX) System.out.println("ip.receive csum "+Integer.toHexString(csum)+" "+Integer.toHexString(ipHeader.loadShort(CHECKSUM_FIELD)&0xFFFF));
+	    if(csum !=0)
+	    {
+	        System.out.println("csum failure");
+	        stats.checksumError();
+	    }
+        if(DEBUG_RX) System.out.println("ip.receive done"); 
 	}
 	private short checksum(InetPacket packet) {
 		int csum=0;

@@ -46,10 +46,22 @@ public class InetPacket implements Packet {
         netInterface = connection.getNetworkInterface();
     }
 
+	/**
+	 * Used when receiving an ethernet packet; creates and inetpacket
+	 * from an ethernet packet.
+	 * 
+	 * TODO: maybe have the packet interface aware of the interface is coming from
+	 * 
+	 * @param packet
+	 */
 	public InetPacket(Packet packet)
 	{
-	    
+	    buffer = new byte[packet.getSize()];
+	    byte[] packetBuffer = packet.getArray();
+	    RVMArray.arraycopy(packetBuffer, packet.getOffset(), buffer, 0, buffer.length);
+	    offset = 0;
 	}
+	
     public byte[] getArray() {
 		return buffer;
 	}

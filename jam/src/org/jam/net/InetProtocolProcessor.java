@@ -46,7 +46,7 @@ implements Runnable
                 Packet packet = rxQueue.get();
                 if(Ethernet.isIPv4(packet))
                 {
-                    
+                    packet.pull(Ethernet.HEADER_SIZE);
                     ip.receive(new InetPacket(packet));
                 }
                 else if(Ethernet.isArp(packet))
