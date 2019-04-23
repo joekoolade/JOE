@@ -72,9 +72,33 @@ public class Ip {
 	        System.out.println("csum failure");
 	        stats.checksumError();
 	    }
-        if(DEBUG_RX) System.out.println("ip.receive done"); 
+	    int len = ipHeader.loadShort(LENGTH_FIELD) & 0xFFFF;
+	    if(packet.getSize() < len)
+	    {
+	        stats.truncated();
+	    }
+	    else if(len < headerLength * 4)
+	    {
+	        stats.headerError();
+	    }
+	    if((ipHeader.loadShort(FRAGMENT_FIELD) & MORE_FRAGMENTS) !=0)
+	    {
+	        processFragment(packet);
+	    }
+        if(DEBUG_RX) System.out.println("ip.receive done");
+        int protocol = ipHeader.loadByte(PROTOCOL_FIELD) & 0xFF;
+        if(protocol==IpProto.UDP.protocol())
+        {
+            // udp receive
+        }
 	}
-	private short checksum(InetPacket packet) {
+	private void processFragment(InetPacket packet)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private short checksum(InetPacket packet) {
 		int csum=0;
 		
 		/*
