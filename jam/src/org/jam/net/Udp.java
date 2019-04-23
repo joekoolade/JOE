@@ -50,10 +50,12 @@ public class Udp {
     private short packetChecksum;
     private boolean disableCheckSum = false;
     private boolean pseudoSum = false;
+    private UdpStats stats;
     
     public Udp()
     {
         ip = new Ip();
+        stats = new UdpStats();
     }
 
     /**
@@ -153,6 +155,10 @@ public class Udp {
         ip.send(packet);
     }
 
+    static final void receive(InetPacket packet)
+    {
+        
+    }
     private void initConnection(DatagramPacket packet) throws NoRouteToHostException
     {
         VM.sysWriteln("udp initConnection");
