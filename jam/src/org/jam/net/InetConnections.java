@@ -48,7 +48,16 @@ public class InetConnections
         
         long key = ((long)port<<32)|inetAddr.inet4();
         conn = table.get(key);
-        
+        /*
+         * Try any-address, 0.0.0.0
+         */
+        if(conn == null)
+        {
+            key = port<<32;
+            conn = table.get(key);
+        }
+        if(conn != null) System.out.println("Connection found!");
+        System.out.println("key "+Long.toHexString(key));
         return conn;
     }
 }

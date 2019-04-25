@@ -72,7 +72,7 @@ public class Ip {
 	        System.out.println("csum failure");
 	        stats.checksumError();
 	    }
-	    int len = ipHeader.loadShort(LENGTH_FIELD) & 0xFFFF;
+	    int len = ByteOrder.networkToHost(ipHeader.loadShort(LENGTH_FIELD)) & 0xFFFF;
 	    if(packet.getSize() < len)
 	    {
 	        stats.truncated();
@@ -81,16 +81,21 @@ public class Ip {
 	    {
 	        stats.headerError();
 	    }
-	    if((ipHeader.loadShort(FRAGMENT_FIELD) & MORE_FRAGMENTS) !=0)
+	    if((ByteOrder.networkToHost(ipHeader.loadShort(FRAGMENT_FIELD)) & MORE_FRAGMENTS) !=0)
 	    {
 	        processFragment(packet);
 	    }
-        if(DEBUG_RX) System.out.println("ip.receive done");
+        if(DEBUG_RX) System.out.println("ip.receive checks done");
+        int sourceAddress = ByteOrder.networkToHost(ipHeader.loadInt(SRCADDR_FIELD));
+        int destinationAddress = ByteOrder.networkToHost(ipHeader.loadInt(DSTADDR_FIELD));
         int protocol = ipHeader.loadByte(PROTOCOL_FIELD) & 0xFF;
         if(protocol==IpProto.UDP.protocol())
         {
             // udp receive
+            packet.pull(headerLength*4);
+            Udp.receive(packet, sourceAddress, destinationAddress);
         }
+        if(DEBUG_RX) System.out.println("ip.receive done");
 	}
 	private void processFragment(InetPacket packet)
     {

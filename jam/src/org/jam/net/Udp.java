@@ -155,8 +155,22 @@ public class Udp {
         ip.send(packet);
     }
 
-    static final void receive(InetPacket packet)
+    static final void receive(InetPacket packet, int sourceAddress, int destinationAddress)
     {
+        System.out.println("udp.receive");
+        Address udpHeader = packet.getAddress();
+        int ulen = ByteOrder.networkToHost(udpHeader.loadShort(LENGTH));
+        int sourcePort = ByteOrder.networkToHost(udpHeader.loadShort());
+        int destinationPort = ByteOrder.networkToHost(udpHeader.loadShort(DESTINATION_PORT));
+        
+        
+        /*
+         * Look for a short packet
+         */
+        if(ulen > packet.getSize())
+        {
+            stats.error();
+        }
         
     }
     private void initConnection(DatagramPacket packet) throws NoRouteToHostException
