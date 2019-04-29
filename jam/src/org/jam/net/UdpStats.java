@@ -9,7 +9,7 @@ public class UdpStats {
         noPorts++;
     }
     
-    public void errors()
+    public void inError()
     {
         inErrors++;
     }

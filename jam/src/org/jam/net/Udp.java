@@ -50,12 +50,12 @@ public class Udp {
     private short packetChecksum;
     private boolean disableCheckSum = false;
     private boolean pseudoSum = false;
-    private UdpStats stats;
+    private static UdpStats stats;
     
     public Udp()
     {
         ip = new Ip();
-        stats = new UdpStats();
+        if(stats != null) stats = new UdpStats();
     }
 
     /**
@@ -65,7 +65,7 @@ public class Udp {
     {
         localAddress = inetSocketAddress;
         // put it in the connection table
-        connectionTable.add(inetSocketAddress, connection);
+        connectionTable.add(inetSocketAddress, this);
     }
 
     /**
@@ -79,7 +79,7 @@ public class Udp {
         {
             localAddress = new InetSocketAddress(10000);
         }
-        connectionTable.add(localAddress, connection);
+        connectionTable.add(localAddress, this);
         // check if address is routable
         // Create a new connection
     }
@@ -159,19 +159,41 @@ public class Udp {
     {
         System.out.println("udp.receive");
         Address udpHeader = packet.getAddress();
-        int ulen = ByteOrder.networkToHost(udpHeader.loadShort(LENGTH));
-        int sourcePort = ByteOrder.networkToHost(udpHeader.loadShort());
         int destinationPort = ByteOrder.networkToHost(udpHeader.loadShort(DESTINATION_PORT));
         
+        Udp udp = connectionTable.find(destinationAddress, destinationPort);
+        if(udp == null)
+        {
+            stats.noPort();
+            return;
+        }
         
+        udp.packet(packet);
+        udp.receive(sourceAddress, destinationAddress);
+    }
+    
+    private final void receive(int sourceAddress, int destinationAddress)
+    {
+        System.out.println("udp.receive2");
+        Address udpHeader = packet.getAddress();
+        int ulen = ByteOrder.networkToHost(udpHeader.loadShort(LENGTH));
         /*
          * Look for a short packet
          */
         if(ulen > packet.getSize())
         {
-            stats.error();
+            stats.inError();
         }
         
+       
+    }
+    /**
+     * Sets packet field to received packet
+     * @param packet
+     */
+    private final void packet(InetPacket packet)
+    {
+        this.packet = packet;
     }
     private void initConnection(DatagramPacket packet) throws NoRouteToHostException
     {
@@ -207,6 +229,21 @@ public class Udp {
         if (DEBUG_PSEUDOHEADER) System.out.println("computePseudoHeaderSum "+Integer.toHexString(pseudoHeaderSum));
     }
 
+    /**
+     * This one is called from the udp receive
+     * @param saddr
+     * @param daddr
+     * @param len
+     */
+    private void computePseudoHeaderSum2(int saddr, int daddr, int len)
+    {
+        long csum = 0;
+        csum = (long)saddr & 0x1FFFFFFFFL  + (long)daddr & 0x1FFFFFFFFL + len + IpProto.UDP.protocol();
+        
+        csum = (csum & 0xFFFF) + (csum>>16);
+        csum = (csum & 0xFFFF) + (csum>>16);
+    }
+    
     private void computeChecksum()
     {
         int csum = 0;

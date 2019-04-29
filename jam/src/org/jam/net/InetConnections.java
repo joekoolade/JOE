@@ -12,14 +12,14 @@ import org.jam.net.inet4.InetAddress;
  */
 public class InetConnections
 {
-    private HashMap<Long, Connection> table;
+    private HashMap<Long, Udp> table;
     
     public InetConnections()
     {
-        table = new HashMap<Long, Connection>();
+        table = new HashMap<Long, Udp>();
     }
     
-    public final void add(InetSocketAddress addr, Connection connection)
+    public final void add(InetSocketAddress addr, Udp connection)
     {
         byte[] inet = addr.getAddress().getAddress();
         long key = ((long)addr.getPort() << 32) | (inet[0] << 24) | (inet[1] << 16) | (inet[2] << 8) | inet[3];
@@ -42,11 +42,15 @@ public class InetConnections
         
     }
     
-    public final Connection find(InetAddress inetAddr, int port)
+    public final Udp find(InetAddress inetAddress, int port)
     {
-        Connection conn = null;
+        return(find(inetAddress.inet4(), port));
+    }
+    public final Udp find(int inetAddr, int port)
+    {
+        Udp conn = null;
         
-        long key = ((long)port<<32)|inetAddr.inet4();
+        long key = ((long)port<<32)|inetAddr;
         conn = table.get(key);
         /*
          * Try any-address, 0.0.0.0
