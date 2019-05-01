@@ -37,6 +37,7 @@ public class Udp {
     private static final Offset CHECKSUM = Offset.fromIntSignExtend(6);
 
     private static final boolean DEBUG_PSEUDOHEADER = true;
+    private static final boolean DEBUG = true;
     private static InetConnections connectionTable = new InetConnections();
     
     InetSocketAddress localAddress;
@@ -184,7 +185,12 @@ public class Udp {
         {
             stats.inError();
         }
-        
+        int csum = computePseudoHeaderSum2(sourceAddress, destinationAddress, ulen);
+        if(!verifyChecksum(csum))
+        {
+            stats.inError();
+            
+        }
        
     }
     /**
@@ -235,15 +241,43 @@ public class Udp {
      * @param daddr
      * @param len
      */
-    private void computePseudoHeaderSum2(int saddr, int daddr, int len)
+    private int computePseudoHeaderSum2(int saddr, int daddr, int len)
     {
         long csum = 0;
         csum = (long)saddr & 0x1FFFFFFFFL  + (long)daddr & 0x1FFFFFFFFL + len + IpProto.UDP.protocol();
         
+        // fold the integer
         csum = (csum & 0xFFFF) + (csum>>16);
+        // add the carry overs
         csum = (csum & 0xFFFF) + (csum>>16);
+        if(DEBUG_PSEUDOHEADER) System.out.println("pseudo2 "+Integer.toHexString((int)csum));
+        return (int)csum;
     }
     
+    private boolean verifyChecksum(int pseudoSum)
+    {
+        int csum = pseudoSum;
+        
+        if(disableCheckSum)
+        {
+            return true;
+        }
+        Address data = packet.getPacketAddress();
+        for (int words = packet.getSize() >> 1; words > 0; words--)
+        {
+            int val = ByteOrder.hostToNetwork(data.loadShort());
+            csum += (val & 0xFFFF);
+            data = data.plus(2);
+        }
+        if ((packet.getSize() & 0x1) != 0)
+        {
+            csum += (ByteOrder.hostToNetwork(data.loadShort()) & 0x00FF);
+        }
+        // Add the carry overs
+        csum = (csum >> 16) + (csum & 0xFFFF);
+        if(DEBUG) System.out.println("udp.verifyChecksum "+ Integer.toHexString(csum));
+        return ~csum==0;
+    }
     private void computeChecksum()
     {
         int csum = 0;
