@@ -16,6 +16,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import org.jam.driver.net.Packet;
@@ -53,10 +54,13 @@ public class Udp {
     private boolean pseudoSum = false;
     private static UdpStats stats;
     
+    private ArrayDeque<Packet> packetFifo;
+    
     public Udp()
     {
         ip = new Ip();
         if(stats != null) stats = new UdpStats();
+        packetFifo = new ArrayDeque<>();
     }
 
     /**
@@ -192,6 +196,29 @@ public class Udp {
             
         }
        
+    }
+    
+    /**
+     * Puts a packet the end of the UDP buffer fifo
+     * @param packet UDP rx packet
+     */
+    public final synchronized void put(Packet packet)
+    {
+        packetFifo.add(packet);
+    }
+    
+    /**
+     * Retrieves a packet at the head of the fifo
+     * @return a packet
+     */
+    public final synchronized Packet get()
+    {
+        return packetFifo.poll();
+    }
+    
+    public final synchronized boolean hasPacket()
+    {
+        return !packetFifo.isEmpty();
     }
     /**
      * Sets packet field to received packet
