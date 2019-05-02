@@ -96,8 +96,17 @@ implements Runnable
     
     private void selecting()
     {
-        // TODO Auto-generated method stub
-        
+        DatagramPacket response = new DatagramPacket(new byte[DHCPConstants.MAX_LEN], DHCPConstants.MAX_LEN);
+        try
+        {
+            System.out.println("dhcp.selecting#");
+            socket.receive(response);
+            System.out.println("dhcp.selecting#");
+        } catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private void runDiscover()

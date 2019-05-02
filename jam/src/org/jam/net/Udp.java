@@ -60,7 +60,7 @@ public class Udp {
     {
         ip = new Ip();
         if(stats != null) stats = new UdpStats();
-        packetFifo = new ArrayDeque<>();
+        packetFifo = new ArrayDeque<Packet>();
     }
 
     /**
