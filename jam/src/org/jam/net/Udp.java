@@ -340,10 +340,33 @@ public class Udp {
      * @param packet
      * @return
      */
-    public SocketAddress receive(DatagramPacket packet) throws SocketTimeoutException, InterruptedIOException
+    public void receive(DatagramPacket packet) throws SocketTimeoutException, InterruptedIOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        Packet p=null;
+        synchronized(this)
+        {
+            while(!hasPacket())
+            {
+                try
+                {
+                    this.wait();
+                } catch (IllegalMonitorStateException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InterruptedException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                p = get();
+                if(p != null) 
+                {
+                    
+                    return;
+                }
+            }
+        }
     }
 
     /**
