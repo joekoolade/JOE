@@ -218,8 +218,8 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   protected void receive(DatagramPacket packet)
     throws IOException
   {
-    synchronized(RECEIVE_LOCK)
-      {
+//    synchronized(RECEIVE_LOCK)
+//      {
         SocketAddress addr = null;
         while (true)
           {
@@ -239,7 +239,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
           }
         if (addr != null)
           packet.setSocketAddress(addr);
-      }
+//      }
   }
 
 

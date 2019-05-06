@@ -193,9 +193,9 @@ public class Udp {
         if(!verifyChecksum(csum))
         {
             stats.inError();
-            
+            return;
         }
-       
+        put(packet);
     }
     
     /**
@@ -205,6 +205,7 @@ public class Udp {
     public final synchronized void put(Packet packet)
     {
         packetFifo.add(packet);
+        notify();
     }
     
     /**
@@ -340,12 +341,14 @@ public class Udp {
      * @param packet
      * @return
      */
-    public void receive(DatagramPacket packet) throws SocketTimeoutException, InterruptedIOException
+    public SocketAddress receive(DatagramPacket packet) throws SocketTimeoutException, InterruptedIOException
     {
-        Packet p=null;
-        synchronized(this)
-        {
-            while(!hasPacket())
+        Packet p;
+        int waiting=0;
+        while((p=get())==null)
+        { 
+            waiting++;
+            synchronized(this)
             {
                 try
                 {
@@ -359,14 +362,12 @@ public class Udp {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                p = get();
-                if(p != null) 
-                {
-                    
-                    return;
-                }
             }
         }
+        System.out.println("udp.receive "+waiting);
+        packet.setLength(p.getSize());
+        System.arraycopy(p.getArray(), 0, packet.getData(), packet.getOffset(), p.getSize());
+        return remoteAddress;
     }
 
     /**
