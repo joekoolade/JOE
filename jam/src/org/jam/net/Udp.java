@@ -39,6 +39,7 @@ public class Udp {
 
     private static final boolean DEBUG_PSEUDOHEADER = true;
     private static final boolean DEBUG = true;
+    private static final boolean DEBUG_TRACE = true;
     private static InetConnections connectionTable = new InetConnections();
     
     InetSocketAddress localAddress;
@@ -122,20 +123,20 @@ public class Udp {
         /*
          * Get a new connection
          */
-        VM.sysWriteln("udp send0");
+        if(DEBUG_TRACE) VM.sysWriteln("udp send0");
         if (connection == null)
         {
             initConnection(packet);
         }
-        VM.sysWriteln("udp length: " + packet.getLength());
+        if(DEBUG_TRACE) VM.sysWriteln("udp length: " + packet.getLength());
         if (packet.getLength() > 0xFFFF)
         {
             throw new IOException("Packet too big");
         }
-        VM.sysWriteln("get new inet packet");
+        if(DEBUG_TRACE) VM.sysWriteln("get new inet packet");
         this.packet = new InetPacket(packet, connection);
         this.packet.setHeadroom(8);
-        VM.sysWriteln("New inet packet");
+        if(DEBUG_TRACE) VM.sysWriteln("New inet packet");
         send();
     }
 
@@ -154,7 +155,7 @@ public class Udp {
         computeChecksum();
         udpPacket.store(ByteOrder.hostToNetwork(packetChecksum), CHECKSUM);
         // send it on for IP processing
-        System.out.println("private send "+packet.getOffset()+" "+packet.getSize());
+        if(DEBUG_TRACE) System.out.println("private send "+packet.getOffset()+" "+packet.getSize());
         packet.setHeadroom(20);
         VM.hexDump(packet.getArray(),0,packet.getBufferSize());
         ip.send(packet);
@@ -162,10 +163,11 @@ public class Udp {
 
     static final void receive(InetPacket packet, int sourceAddress, int destinationAddress)
     {
-        System.out.println("udp.receive");
-        Address udpHeader = packet.getAddress();
+        if(DEBUG_TRACE) System.out.println("udp.receive");
+        Address udpHeader = packet.getPacketAddress();
         int destinationPort = ByteOrder.networkToHost(udpHeader.loadShort(DESTINATION_PORT));
         
+        if(DEBUG_TRACE) System.out.println("udp.rx "+Integer.toHexString(destinationAddress)+" "+destinationPort);
         Udp udp = connectionTable.find(destinationAddress, destinationPort);
         if(udp == null)
         {
@@ -179,8 +181,8 @@ public class Udp {
     
     private final void receive(int sourceAddress, int destinationAddress)
     {
-        System.out.println("udp.receive2");
-        Address udpHeader = packet.getAddress();
+        if(DEBUG_TRACE) System.out.println("udp.receive2");
+        Address udpHeader = packet.getPacketAddress();
         int ulen = ByteOrder.networkToHost(udpHeader.loadShort(LENGTH));
         /*
          * Look for a short packet
@@ -204,7 +206,9 @@ public class Udp {
      */
     public final synchronized void put(Packet packet)
     {
+        if(DEBUG_TRACE) System.out.println("udp.put");
         packetFifo.add(packet);
+        if(DEBUG_TRACE) System.out.println("udp.put notify");
         notify();
     }
     
@@ -231,7 +235,7 @@ public class Udp {
     }
     private void initConnection(DatagramPacket packet) throws NoRouteToHostException
     {
-        VM.sysWriteln("udp initConnection");
+        if(DEBUG_TRACE) VM.sysWriteln("udp initConnection");
         if(packet != null)
         {
             if(remoteAddress==null)
@@ -271,6 +275,7 @@ public class Udp {
      */
     private int computePseudoHeaderSum2(int saddr, int daddr, int len)
     {
+        if(DEBUG_TRACE) System.out.println("udp.pseduo2");
         long csum = 0;
         csum = (long)saddr & 0x1FFFFFFFFL  + (long)daddr & 0x1FFFFFFFFL + len + IpProto.UDP.protocol();
         

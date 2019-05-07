@@ -57,7 +57,7 @@ public class InetConnections
          */
         if(conn == null)
         {
-            key = port<<32;
+            key = (long)port<<32;
             conn = table.get(key);
         }
         if(conn != null) System.out.println("Connection found!");

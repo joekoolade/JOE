@@ -26,6 +26,11 @@ public class Ip {
 	private byte tos = 0; // best effort
 	private byte ttl = (byte)255; 
 	
+	public Ip()
+	{
+	    stats = new IpStats();
+	}
+	
 	public void send(InetPacket packet) {
 	    VM.sysWriteln("IP send ", packet.getOffset());
 		Address ipHeader = packet.getPacketAddress();
