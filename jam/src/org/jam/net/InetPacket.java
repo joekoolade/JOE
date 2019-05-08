@@ -60,6 +60,7 @@ public class InetPacket implements Packet {
 	    byte[] packetBuffer = packet.getArray();
 	    RVMArray.arraycopy(packetBuffer, packet.getOffset(), buffer, 0, buffer.length);
 	    offset = 0;
+	    packetSize = buffer.length;
 	}
 	
     public byte[] getArray() {
@@ -149,6 +150,7 @@ public class InetPacket implements Packet {
     public void pull(int size)
     {
        offset += size;
+       packetSize -= size;
     }
 
     public void free()

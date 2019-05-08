@@ -60,7 +60,7 @@ public class Udp {
     public Udp()
     {
         ip = new Ip();
-        if(stats != null) stats = new UdpStats();
+        if(stats == null) stats = new UdpStats();
         packetFifo = new ArrayDeque<Packet>();
     }
 
@@ -163,7 +163,7 @@ public class Udp {
 
     static final void receive(InetPacket packet, int sourceAddress, int destinationAddress)
     {
-        if(DEBUG_TRACE) System.out.println("udp.receive");
+        if(DEBUG_TRACE) System.out.println("udp.receive "+Integer.toHexString(sourceAddress));
         Address udpHeader = packet.getPacketAddress();
         int destinationPort = ByteOrder.networkToHost(udpHeader.loadShort(DESTINATION_PORT));
         
@@ -184,12 +184,15 @@ public class Udp {
         if(DEBUG_TRACE) System.out.println("udp.receive2");
         Address udpHeader = packet.getPacketAddress();
         int ulen = ByteOrder.networkToHost(udpHeader.loadShort(LENGTH));
+        if(DEBUG_TRACE) System.out.println("udp.receive2 "+ulen);
         /*
          * Look for a short packet
          */
         if(ulen > packet.getSize())
-        {
+        {        
+            if(DEBUG_TRACE) System.out.println("udp.receive2 "+packet.getSize());
             stats.inError();
+            return;
         }
         int csum = computePseudoHeaderSum2(sourceAddress, destinationAddress, ulen);
         if(!verifyChecksum(csum))
@@ -277,11 +280,12 @@ public class Udp {
     {
         if(DEBUG_TRACE) System.out.println("udp.pseduo2");
         long csum = 0;
-        csum = (long)saddr & 0x1FFFFFFFFL  + (long)daddr & 0x1FFFFFFFFL + len + IpProto.UDP.protocol();
-        
-        // fold the integer
-        csum = (csum & 0xFFFF) + (csum>>16);
-        // add the carry overs
+        csum = ((long)saddr & 0xFFFFFFFFL)  + ((long)daddr & 0xFFFFFFFFL) + len + IpProto.UDP.protocol();
+        if(DEBUG_PSEUDOHEADER) System.out.println("pseudo2 "+Long.toHexString(csum));
+        // add 32 bit carry overs
+        //csum = (csum & 0xFFFF) + (csum>>16);
+        csum = (csum>>32) + (csum & 0xFFFFFFFFL);
+        // add the 16 bit carry overs
         csum = (csum & 0xFFFF) + (csum>>16);
         if(DEBUG_PSEUDOHEADER) System.out.println("pseudo2 "+Integer.toHexString((int)csum));
         return (int)csum;
@@ -296,20 +300,22 @@ public class Udp {
             return true;
         }
         Address data = packet.getPacketAddress();
+        if(DEBUG_TRACE) System.out.println("udp.verifychecksum "+packet.getSize()+ " "+Integer.toHexString(data.toInt()));
         for (int words = packet.getSize() >> 1; words > 0; words--)
         {
-            int val = ByteOrder.hostToNetwork(data.loadShort());
+            int val = ByteOrder.networkToHost(data.loadShort());
             csum += (val & 0xFFFF);
             data = data.plus(2);
         }
         if ((packet.getSize() & 0x1) != 0)
         {
-            csum += (ByteOrder.hostToNetwork(data.loadShort()) & 0x00FF);
+            csum += (ByteOrder.networkToHost(data.loadShort()) & 0xFF00);
         }
         // Add the carry overs
+        if(DEBUG_TRACE) System.out.println("udp.verifyChecksum# "+ Integer.toHexString(csum));
         csum = (csum >> 16) + (csum & 0xFFFF);
-        if(DEBUG) System.out.println("udp.verifyChecksum "+ Integer.toHexString(csum));
-        return ~csum==0;
+        if(DEBUG_TRACE) System.out.println("udp.verifyChecksum##  "+ Integer.toHexString(csum));
+        return ~(short)csum==0;
     }
     private void computeChecksum()
     {
@@ -335,7 +341,7 @@ public class Udp {
         }
         if ((packet.getSize() & 0x1) != 0)
         {
-            csum += (ByteOrder.hostToNetwork(data.loadShort()) & 0x00FF);
+            csum += (ByteOrder.hostToNetwork(data.loadShort()) & 0xFF00);
         }
         // Add the carry overs
         csum = (csum >> 16) + (csum & 0xFFFF);
@@ -369,7 +375,7 @@ public class Udp {
                 }
             }
         }
-        System.out.println("udp.receive "+waiting);
+        System.out.println("udp.receive3 "+waiting);
         packet.setLength(p.getSize());
         System.arraycopy(p.getArray(), 0, packet.getData(), packet.getOffset(), p.getSize());
         return remoteAddress;
