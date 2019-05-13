@@ -18,9 +18,11 @@ implements Runnable
     int mode;
     int xid;
     final private static int DISCOVER_MODE = 1;
+    private static final boolean DEBUG_TRACE = true;
     private Random r;
     private NetworkInterface netInterface;
     private DatagramSocket socket;
+    private boolean collecting;
     
     public Dhcp(NetworkInterface netInterface)
     {
@@ -96,17 +98,32 @@ implements Runnable
     
     private void selecting()
     {
+        collecting = true;
         DatagramPacket response = new DatagramPacket(new byte[DHCPConstants.MAX_LEN], DHCPConstants.MAX_LEN);
         try
         {
-            System.out.println("dhcp.selecting#");
-            socket.receive(response);
-            System.out.println("dhcp.selecting#");
+            while(collecting)
+            {
+                if(DEBUG_TRACE) System.out.println("dhcp.selecting#");
+                socket.receive(response);
+                if(DEBUG_TRACE) System.out.println("dhcp.selecting##");
+                collector(response);
+            }
         } catch (IOException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Find DHCPOFFERs and select one; sets collecting to false when done.
+     * @param response
+     */
+    private void collector(DatagramPacket response)
+    {
+        // TODO Auto-generated method stub
+        
     }
 
     private void runDiscover()
