@@ -38,7 +38,7 @@ ant build
 ```
 To run the image, jam.out:
 ```
-cd jikesrvm/target/BaseBaseSemiSpace_x86_64-osx
+cd jikesrvm-hgÍ/target/BaseBaseSemiSpace_x86_64-osx
 ../../../scripts/rjoe
 ```
 
