@@ -45,6 +45,7 @@
   <property name="mmtk.java" location="${jikesrvm.dir}/MMTk/src"/>
   <property name="classpath.dir" location="classpath-0.98"/>
   <property name="jam.java" location="jam/src"/>
+	<property name="ext.src" location="ext/src"/>
   <property name="gctests.java" location="${jikesrvm.dir}/testing/tests/gctest/src"/>
   <property name="coretests.java" location="${jikesrvm.dir}/testing/tests/basic/src"/>
   <property name="jikessupport.classpath.dir" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
@@ -1019,7 +1020,7 @@ Check to make sure all required properties are specified. This includes properti
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${mmtk.java}:${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
+           srcdir="${ext.src}:${mmtk.java}:${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
            includeantruntime="false">
       <bootclasspath>
         <pathelement location="${classpath.lib.dir}/classpath.jar"/>
@@ -1058,7 +1059,26 @@ Check to make sure all required properties are specified. This includes properti
       <include name="org/jikesrvm/tools/header_gen/GenArch_${target.arch}.java"/>
       <exclude name="org/jikesrvm/tools/header_gen.GenerateInterfaceDeclarations.java"/>
     </javac>
-
+  	<!--
+  	   compile external classes
+  	-->
+    <javac destdir="${build.classes}"
+           debug="true"
+           fork="true"
+           memoryMaximumSize="800M"
+           failonerror="false"
+           debugLevel="vars,lines,source"
+           source="${rvm.java.version}"
+           target="${rvm.java.version}"
+           srcdir="${ext.src}"
+           includeantruntime="false">
+      <bootclasspath>
+        <pathelement location="${classpath.lib.dir}/classpath.jar"/>
+      </bootclasspath>
+      <classpath>
+        <pathelement location="${build.vmmagic-stub.classes}"/>
+      </classpath>
+    </javac>
 <!--
     <echo message="second compile (from ${generated.java})"/>
     <javac destdir="${build.classes}"
@@ -1214,12 +1234,13 @@ Check to make sure all required properties are specified. This includes properti
     <property name="primordials.main" refid="primordials.main"/>
     <property name="primordials.vmmagic" refid="primordials.vmmagic"/>
     <property name="primordials.vmmagic-stub" refid="primordials.vmmagic-stub"/>
-
+    
     <echo file="${build.base}/ClassesForImage.txt"
           message="${primordials.main}${line.separator}${primordials.vmmagic}${line.separator}${primordials.vmmagic-stub}${line.separator}"/>
     <replace file="${build.base}/ClassesForImage.txt" token=";" value="${line.separator}"/>
     <replaceregexp file="${build.base}/ClassesForImage.txt" match="(.*).class" replace="L\1;" byline="true"/>
 
+  	<property name="primordials.ext" value=",externals.txt"/>
     <condition property="primordials.aos" value=",RVM_AOS.txt" else="">
       <isset property="include.aos"/>
     </condition>
@@ -1233,7 +1254,7 @@ Check to make sure all required properties are specified. This includes properti
     <concat destfile="${build.base}/Primordials.txt">
       <filelist dir="${build.base}" files="ClassesForImage.txt"/>
       <filelist dir="${primordials.dir}"
-                files="Classpath-0.97.2.txt,RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
+                files="Classpath-0.97.2.txt,RVM.txt${primordials.ext}${primordials.opt}${primordials.aos}${primordials.arch}"/>
     </concat>
 
     <replaceregexp file="${build.base}/Primordials.txt" match=".*#.*" replace="" byline="true"/>

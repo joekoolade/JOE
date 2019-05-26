@@ -72,6 +72,8 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
+import hello.world.HwThread;
+
 //import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
 
 /**
@@ -458,6 +460,10 @@ public class VM extends Properties implements Constants, ExitStatus {
      */
 //    Sleep sleep = new Sleep();
 //    new Thread(sleep).start();
+    
+//    runClassInitializer("hello.world.HwThread");
+//    HwThread hw=new HwThread();
+//    hw.start();
     
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
