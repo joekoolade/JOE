@@ -123,7 +123,7 @@ public class Apic {
   
   protected void setTimerIcr(int icrValue)
   {
-    registers.store(0xFFFFFFFF, TIMERICR);
+    registers.store(icrValue, TIMERICR);
   }
   
   protected int getTimerCcr()
