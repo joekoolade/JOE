@@ -79,7 +79,7 @@ implements Timer
   public final void calibrate()
   {
     int pitcnt = 0;
-    long t2;
+    int t2;
     
     I82c54 timer = Platform.pit.timer;
     Address keyboardController = Address.fromIntZeroExtend(0x61);
@@ -102,18 +102,18 @@ implements Timer
     timer.counter2(I82c54.MODE0, latch);
     setTimerIcr(0xFFFFFFFF);
     // Wait for the gate to go active
-    VM.sysWriteln("Wait for gate to go active ");
+    VM.sysWrite("Wait for gate to go active ");
     while((keyboardController.ioLoadByte() & 0x20) != 0)
       ;
-    VM.sysWriteln('%');
+    VM.sysWriteln("%");
     while((keyboardController.ioLoadByte() & 0x20) == 0)
     {
         pitcnt++;
     }
     t2 = getTimerCcr();
+    disableTimer();
     Magic.enableInterrupts();
     // disable the timer
-    disableTimer();
     keyboardController.ioStore(0);
     VM.sysWriteln("t2: ", t2);
     long apicCycles = (long)MAX_ICR-t2;
