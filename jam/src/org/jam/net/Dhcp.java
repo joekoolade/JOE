@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.util.Random;
 
 import org.dhcp4java.DHCPConstants;
+import org.dhcp4java.DHCPOption;
 import org.dhcp4java.DHCPPacket;
 import org.jam.net.inet4.InetAddress;
 
@@ -122,7 +123,33 @@ implements Runnable
      */
     private void collector(DatagramPacket response)
     {
-        // TODO Auto-generated method stub
+        DHCPPacket packet = DHCPPacket.getPacket(response);
+        if(packet.getDHCPMessageType() == DHCPConstants.DHCPOFFER)
+        {
+            /*
+             * Discard non-matching xid messages
+             */
+            if(packet.getXid() != xid)
+            {
+                return;
+            }
+            /*
+             * Look for the server identifier option
+             */
+            if(!packet.containsOption(DHCPConstants.DHO_DHCP_SERVER_IDENTIFIER))
+            {
+                return;
+            }
+            /*
+             * Process the options
+             */
+            DHCPOption options[] = packet.getOptionsArray();
+            for(int i=0; i < options.length; i++)
+            {
+                System.out.println("Option "+options[i].getCode());
+            }
+            
+        }
         
     }
 

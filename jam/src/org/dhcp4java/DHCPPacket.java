@@ -581,6 +581,7 @@ public class DHCPPacket implements Cloneable, Serializable {
      */
     protected DHCPPacket marshall(byte[] buffer, int offset, int length,
                                   InetAddress address, int port, boolean strict) {
+        System.out.println("dhcppacket.marshall");
         // do some basic sanity checks
         // ibuff, offset & length are valid?
         if (buffer == null) {
@@ -607,6 +608,7 @@ public class DHCPPacket implements Cloneable, Serializable {
                     ") max MTU is " + _DHCP_MAX_MTU);
         }
         
+        System.out.println("dhcppacket.marshall#");
         // copy address and port
         this.address = address; // no need to clone, InetAddress is immutable
         this.port    = port;
@@ -628,6 +630,7 @@ public class DHCPPacket implements Cloneable, Serializable {
         copy(buffer, CHADDR_OFFSET, this.chaddr);
         copy(buffer, SNAME_OFFSET, this.sname);
         copy(buffer, FILE_OFFSET, this.file);
+        System.out.println("dhcppacket.marshall## "+Integer.toHexString(bufferAddr.toInt()));
 
         // check for DHCP MAGIC_COOKIE
         this.isDhcp = true;
@@ -636,17 +639,18 @@ public class DHCPPacket implements Cloneable, Serializable {
             this.isDhcp = false;
         }
 
+        System.out.println("dhcppacket.marshall3");
         Offset index = Offset.fromIntZeroExtend(OPTIONS_OFFSET.toInt()+4);
         if (this.isDhcp) {    // is it a full DHCP packet or a simple BOOTP?
             // DHCP Packet: parsing options
             int type = 0;
             while (true) {
+                System.out.println("dhcppacket.marshall index "+index.toInt());
                 int r = bufferAddr.loadByte(index); // inBStream.read();
                 index = index.plus(1);
-                if (r < 0) { break; } // EOF
                 
                 type = (byte) r;
-
+                System.out.println("dhcppacket.marshall type "+type);
                 if (type == DHO_PAD) { continue; } // skip Padding
                 if (type == DHO_END) { break;    } // break if end of options
 
@@ -665,11 +669,14 @@ public class DHCPPacket implements Cloneable, Serializable {
 
                 this.setOption(new DHCPOption((byte) type, unit_opt));  // store option
             }
+            System.out.println("dhcppacket.marshall7");
             this.truncated = (type != DHO_END); // truncated options?
             if (strict && this.truncated) {
-            	throw new DHCPBadPacketException("Packet seams to be truncated");
+                System.out.println("Packet seems to be truncated");
+            	// throw new DHCPBadPacketException("Packet seems to be truncated");
             }
         }
+        System.out.println("dhcppacket.marshall6");
 
         // put the remaining in padding
         this.padding = new byte[DHCPConstants.MAX_LEN-index.toInt()];
