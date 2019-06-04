@@ -20,10 +20,12 @@ implements Runnable
     int xid;
     final private static int DISCOVER_MODE = 1;
     private static final boolean DEBUG_TRACE = true;
+    private static final boolean DEBUG = true;
     private Random r;
     private NetworkInterface netInterface;
     private DatagramSocket socket;
     private boolean collecting;
+    private java.net.InetAddress subnetMask;
     
     public Dhcp(NetworkInterface netInterface)
     {
@@ -143,16 +145,27 @@ implements Runnable
             /*
              * Process the options
              */
-            DHCPOption options[] = packet.getOptionsArray();
-            for(int i=0; i < options.length; i++)
-            {
-                System.out.println("Option "+options[i].getCode());
-            }
+            processOptions(packet);
             
         }
         
     }
 
+    private void processOptions(DHCPPacket packet)
+    {
+        DHCPOption options[] = packet.getOptionsArray();
+        for(int i=0; i < options.length; i++)
+        {
+            if(DEBUG) System.out.println("Option "+options[i].getCode());
+            int optionCode = options[i].getCode();
+            if(optionCode==DHCPConstants.DHO_SUBNET_MASK)
+            {
+                subnetMask = options[i].getValueAsInetAddr();
+                System.out.println("Subnet "+subnetMask);
+            }
+        }
+    }
+    
     private void runDiscover()
     {
         init();

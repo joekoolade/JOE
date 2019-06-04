@@ -88,10 +88,10 @@ implements Timer
     /*
      * Enable timer2 gate, disable speaker
      */
-    int keyboardControllerValue = keyboardController.ioLoadByte();
-    keyboardControllerValue &= ~0x2;
-    keyboardControllerValue |= 0x1;
-    keyboardController.ioStore(keyboardControllerValue);
+//    int keyboardControllerValue = keyboardController.ioLoadByte();
+//    keyboardControllerValue &= ~0x2;
+//    keyboardControllerValue |= 0x1;
+//    keyboardController.ioStore(keyboardControllerValue);
     
     int calibrateTimeMs=100;
     /*
@@ -102,11 +102,11 @@ implements Timer
     timer.counter2(I82c54.MODE0, latch);
     setTimerIcr(0xFFFFFFFF);
     // Wait for the gate to go active
-    VM.sysWrite("Wait for gate to go active ");
-    while((keyboardController.ioLoadByte() & 0x20) != 0)
-      ;
-    VM.sysWriteln("%");
-    while((keyboardController.ioLoadByte() & 0x20) == 0)
+//    VM.sysWrite("Wait for gate to go active ");
+//    while((keyboardController.ioLoadByte() & 0x20) != 0)
+//      ;
+    VM.sysWriteln("latch "+latch);
+    while(timer.counter2() > 0)
     {
         pitcnt++;
     }
@@ -114,7 +114,7 @@ implements Timer
     disableTimer();
     Magic.enableInterrupts();
     // disable the timer
-    keyboardController.ioStore(0);
+//    keyboardController.ioStore(0);
     VM.sysWriteln("t2: ", t2);
     long apicCycles = (long)MAX_ICR-t2;
     VM.sysWrite("cycles: ", apicCycles);
