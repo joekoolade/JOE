@@ -26,6 +26,11 @@ implements Runnable
     private DatagramSocket socket;
     private boolean collecting;
     private java.net.InetAddress subnetMask;
+    private java.net.InetAddress[] routes;
+    private java.net.InetAddress[] nameservers;
+    private int leaseTime;
+    private byte messageType;
+    private java.net.InetAddress dhcpServer;
     
     public Dhcp(NetworkInterface netInterface)
     {
@@ -162,6 +167,37 @@ implements Runnable
             {
                 subnetMask = options[i].getValueAsInetAddr();
                 System.out.println("Subnet "+subnetMask);
+            }
+            else if(optionCode == DHCPConstants.DHO_ROUTERS)
+            {
+                routes = options[i].getValueAsInetAddrs();
+                for(int route=0; route<routes.length; route++)
+                {
+                    System.out.println("Route "+routes[route].toString());
+                }
+            }
+            else if(optionCode == DHCPConstants.DHO_DOMAIN_NAME_SERVERS)
+            {
+                nameservers = options[i].getValueAsInetAddrs();
+                for(int nameServerIndex=0; nameServerIndex < nameservers.length; nameServerIndex++)
+                {
+                    System.out.println("Nameserver "+nameservers[nameServerIndex]);
+                }
+            }
+            else if(optionCode == DHCPConstants.DHO_DHCP_LEASE_TIME)
+            {
+                leaseTime = options[i].getValueAsInt();
+                System.out.println("Lease time "+leaseTime);
+            }
+            else if(optionCode == DHCPConstants.DHO_DHCP_MESSAGE_TYPE)
+            {
+                messageType = options[i].getValueAsByte();
+                System.out.println("Message type "+messageType);
+            }
+            else if(optionCode == DHCPConstants.DHO_DHCP_SERVER_IDENTIFIER)
+            {
+                dhcpServer = options[i].getValueAsInetAddr();
+                System.out.println("DHCP Server "+dhcpServer);
             }
         }
     }
