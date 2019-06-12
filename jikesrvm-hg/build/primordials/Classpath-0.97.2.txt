@@ -932,3 +932,5 @@ Ltest/org/jikesrvm/basic/core/bytecode/TestArithmetic;
 #Ltest/org/jikesrvm/basic/core/bytecode/TestClassHierarchy$SubSubClass$O_J1;
 #Ltest/org/jikesrvm/basic/core/bytecode/TestClassHierarchy$SubSubClass$O_J2;
 #Ltest/org/jikesrvm/basic/core/bytecode/TestClassHierarchy$SubSubClass;
+
+Lorg/jam/utilities/HexChar;

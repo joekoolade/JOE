@@ -392,6 +392,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("org.dhcp4java.DHCPOption");
     runClassInitializer("org.dhcp4java.DHCPConstants");
     runClassInitializer("org.jam.net.Udp");
+    runClassInitializer("org.jam.utilities.HexChar");
     
 //    runClassInitializer("org.xbill.DNS.Name");
 //    runClassInitializer("org.xbill.DNS.ResolverConfig");

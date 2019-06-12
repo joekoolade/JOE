@@ -21,6 +21,7 @@ implements Runnable
     final private static int DISCOVER_MODE = 1;
     private static final boolean DEBUG_TRACE = true;
     private static final boolean DEBUG = true;
+    private static final boolean DEBUG_OPTIONS = false;
     private Random r;
     private NetworkInterface netInterface;
     private DatagramSocket socket;
@@ -31,6 +32,7 @@ implements Runnable
     private int leaseTime;
     private byte messageType;
     private java.net.InetAddress dhcpServer;
+    private java.net.InetAddress ipRequest;
     
     public Dhcp(NetworkInterface netInterface)
     {
@@ -82,7 +84,6 @@ implements Runnable
         discoverPacket.setOp(DHCPConstants.BOOTREQUEST);
         discoverPacket.setHtype(DHCPConstants.HTYPE_ETHER);
         discoverPacket.setDHCPMessageType(DHCPConstants.DHCPDISCOVER);
-        discoverPacket.setOp(DHCPConstants.BOOTREQUEST);
         discoverPacket.setPort(DHCPConstants.BOOTP_REQUEST_PORT);
         discoverPacket.setAddress(DHCPConstants.INADDR_BROADCAST);
         discoverPacket.setChaddr(netInterface.getEthernetAddress().asArray());
@@ -92,7 +93,7 @@ implements Runnable
                         discoverPacket.getAddress(), discoverPacket.getPort());
         try
         {
-            System.out.println("Dhcp.init##");
+            if(DEBUG_TRACE) System.out.println("Dhcp.init##");
             socket.send(udpPacket);
         }
         catch (IOException e)
@@ -100,10 +101,13 @@ implements Runnable
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("Dhcp.init###");
+        if(DEBUG_TRACE) System.out.println("Dhcp.init###");
         selecting();
     }
     
+    /**
+     * Processes messages in the dhcp selecting state
+     */
     private void selecting()
     {
         collecting = true;
@@ -116,6 +120,12 @@ implements Runnable
                 socket.receive(response);
                 if(DEBUG_TRACE) System.out.println("dhcp.selecting##");
                 collector(response);
+
+                if(isOfferMessage())
+                {
+                    sendRequest();
+                    requesting();
+                }
             }
         } catch (IOException e)
         {
@@ -151,9 +161,85 @@ implements Runnable
              * Process the options
              */
             processOptions(packet);
-            
+            /*
+             * Requested IP address
+             */
+            ipRequest = packet.getYiaddr();
         }
         
+    }
+
+    /**
+     * Create and send a DHCPREQUEST packet
+     */
+    private void sendRequest()
+    {
+        // Send a DHCPREQUEST packet
+        DHCPPacket request = getRequestPacket();
+        byte[] packetBuffer = request.serialize();
+        DatagramPacket udpPacket = new DatagramPacket(packetBuffer, packetBuffer.length, request.getAddress(), request.getPort());
+        try
+        {
+            if(DEBUG_TRACE) System.out.println("dhcp.sendRequest1");
+            socket.send(udpPacket);
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+        if(DEBUG_TRACE) System.out.println("dhcp.sendRequest2");
+        
+    }
+
+    /**
+     * processes messages in the dhcp requesting state
+     */
+    private void requesting()
+    {
+        DatagramPacket response = new DatagramPacket(new byte[DHCPConstants.MAX_LEN], DHCPConstants.MAX_LEN);
+        while(true)
+        {
+            if(DEBUG_TRACE) System.out.println("dhcp.requesting1");
+            try
+            {
+                socket.receive(response);
+            } catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            DHCPPacket packet = DHCPPacket.getPacket(response);
+            if(DEBUG_TRACE) System.out.println("dhcp.requesting2 "+packet.getDHCPMessageType());
+            processOptions(packet);
+        }
+        //if(DEBUG_TRACE) System.out.println("dhcp.requesting3");
+    }
+    /**
+     * @return 
+     * 
+     */
+    private DHCPPacket getRequestPacket()
+    {
+        DHCPPacket request = new DHCPPacket();
+        request.setXid(xid);
+        request.setOp(DHCPConstants.BOOTREQUEST);
+        request.setHtype(DHCPConstants.HTYPE_ETHER);
+        request.setDHCPMessageType(DHCPConstants.DHCPREQUEST);
+        request.setPort(DHCPConstants.BOOTP_REQUEST_PORT);
+        request.setAddress(DHCPConstants.INADDR_BROADCAST);
+        request.setChaddr(netInterface.getEthernetAddress().asArray());
+        request.setBroadcastFlag();
+        request.setOptionAsInetAddress(DHCPConstants.DHO_DHCP_SERVER_IDENTIFIER, dhcpServer);
+        request.setYiaddr(ipRequest);
+        DHCPOption option = DHCPOption.newOptionAsInetAddress(DHCPConstants.DHO_DHCP_REQUESTED_ADDRESS, ipRequest);
+        request.setOption(option);
+        
+        return request;
+    }
+
+    private boolean isOfferMessage()
+    {
+        return messageType == DHCPConstants.DHCPOFFER;
     }
 
     private void processOptions(DHCPPacket packet)
@@ -161,7 +247,7 @@ implements Runnable
         DHCPOption options[] = packet.getOptionsArray();
         for(int i=0; i < options.length; i++)
         {
-            if(DEBUG) System.out.println("Option "+options[i].getCode());
+            if(DEBUG_OPTIONS) System.out.println("Option "+options[i].getCode());
             int optionCode = options[i].getCode();
             if(optionCode==DHCPConstants.DHO_SUBNET_MASK)
             {
