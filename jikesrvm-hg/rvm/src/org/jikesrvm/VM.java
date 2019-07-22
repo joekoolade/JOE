@@ -19,6 +19,7 @@ import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.InetAddress;
+import org.jam.runtime.StartUp;
 import org.jam.tests.EchoClient;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
@@ -393,6 +394,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("org.dhcp4java.DHCPConstants");
     runClassInitializer("org.jam.net.Udp");
     runClassInitializer("org.jam.utilities.HexChar");
+    runClassInitializer("org.jam.runtime.StartUp");
     
 //    runClassInitializer("org.xbill.DNS.Name");
 //    runClassInitializer("org.xbill.DNS.ResolverConfig");
@@ -465,11 +467,14 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    runClassInitializer("hello.world.HwThread");
 //    HwThread hw=new HwThread();
 //    hw.start();
+    // Start running your programs
+    StartUp.runThread("hello.world.HwThread");
+    StartUp.run();
     
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     napiThread.start();
-    Platform.net.inetBoot();
+    // Platform.net.inetBoot();
     // Schedule "main" thread for execution.
 //    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    try

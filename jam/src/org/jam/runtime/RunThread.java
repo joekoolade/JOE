@@ -4,6 +4,7 @@ import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
+import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.classloader.TypeReference;
 import org.vmmagic.pragma.Entrypoint;
 
@@ -45,11 +46,17 @@ public class RunThread
        
         RVMClass cls = null;
         try {
+          if(DEBUG) VM.sysWriteln("Get classname Atom");
           Atom mainAtom = Atom.findOrCreateUnicodeAtom(threadClassName);
+          if(DEBUG) VM.sysWriteln("Find type reference");
           TypeReference threadClass = TypeReference.findOrCreate(cl, mainAtom.descriptorFromClassName());
+          if(DEBUG) VM.sysWriteln("Resolve 1");
           cls = threadClass.resolve().asClass();
+          if(DEBUG) VM.sysWriteln("Resolve 2");
           cls.resolve();
+          if(DEBUG) VM.sysWriteln("Instantiate");
           cls.instantiate();
+          if(DEBUG) VM.sysWriteln("Initialized");
           cls.initialize();
         } catch (NoClassDefFoundError e) {
           if (DEBUG) VM.sysWrite("failed.]");
@@ -59,6 +66,14 @@ public class RunThread
         }
         if (DEBUG) VM.sysWriteln("loaded.]");
         
+        /*
+         * Find the constructor
+         * 
+         * For now only expecting one, the default
+         */
+        RVMMethod[] constructors = cls.getConstructorMethods();
+        if(DEBUG) VM.sysWriteln("Constructor "+constructors[0].getSignature()+"/"+constructors[0].getName()+"/"+constructors[0].getDescriptor());
+        TypeReference params[] = constructors[0].getParameterTypes();
         
     }
 }

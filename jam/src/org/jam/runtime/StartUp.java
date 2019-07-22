@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * @author joe
  *
  */
-public class StartUp
+public class StartUp 
 {
     private enum Type
     {
@@ -18,7 +18,7 @@ public class StartUp
     private String className;
     private Type type;
     
-    private static ArrayList<StartUp> programs;
+    private static ArrayList<RunThread> programs = new ArrayList<RunThread>();
 
     private StartUp(String name, Type type)
     {
@@ -28,16 +28,21 @@ public class StartUp
 
     public final static void runMain(String clsName)
     {
-        programs.add(new StartUp(clsName, Type.MAIN));
+        programs.add(null);
     }
     
     public final static void runThread(String clsName)
     {
-        programs.add(new StartUp(clsName, Type.THREAD));
+        programs.add(new RunThread(clsName));
     }
     
     public final static void run()
     {
-        
+        int size = programs.size();
+        for(int index=0; index < size; index++)
+        {
+            RunThread program = programs.get(index);
+            program.run();
+        }
     }
 }
