@@ -6,6 +6,8 @@ import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.classloader.TypeReference;
+import org.jikesrvm.runtime.Reflection;
+import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.vmmagic.pragma.Entrypoint;
 
 /**
@@ -69,11 +71,12 @@ public class RunThread
         /*
          * Find the constructor
          * 
-         * For now only expecting one, the default
+         * For now only expecting one, the default. <init>()V
          */
         RVMMethod[] constructors = cls.getConstructorMethods();
         if(DEBUG) VM.sysWriteln("Constructor "+constructors[0].getSignature()+"/"+constructors[0].getName()+"/"+constructors[0].getDescriptor());
         TypeReference params[] = constructors[0].getParameterTypes();
-        
+        Object obj = RuntimeEntrypoints.resolvedNewScalar(cls);
+        Reflection.invoke(constructors[0], null, obj, null, true);
     }
 }
