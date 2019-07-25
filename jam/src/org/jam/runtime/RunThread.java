@@ -77,6 +77,10 @@ public class RunThread
         if(DEBUG) VM.sysWriteln("Constructor "+constructors[0].getSignature()+"/"+constructors[0].getName()+"/"+constructors[0].getDescriptor());
         TypeReference params[] = constructors[0].getParameterTypes();
         Object obj = RuntimeEntrypoints.resolvedNewScalar(cls);
-        Reflection.invoke(constructors[0], null, obj, null, true);
+        if(DEBUG) VM.sysWriteln("got a new object");
+        Thread t = (Thread)Reflection.invoke(constructors[0], null, obj, null, true);
+        if(DEBUG) VM.sysWriteln("Constructed new object");
+        t.start();
+        if(DEBUG) VM.sysWriteln("Starting "+threadClassName);
     }
 }
