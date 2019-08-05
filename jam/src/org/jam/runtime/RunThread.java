@@ -6,6 +6,7 @@ import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.classloader.TypeReference;
+import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Reflection;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.vmmagic.pragma.Entrypoint;
@@ -78,8 +79,9 @@ public class RunThread
         TypeReference params[] = constructors[0].getParameterTypes();
         Object obj = RuntimeEntrypoints.resolvedNewScalar(cls);
         if(DEBUG) VM.sysWriteln("got a new object");
-        Thread t = (Thread)Reflection.invoke(constructors[0], null, obj, null, true);
-        if(DEBUG) VM.sysWriteln("Constructed new object");
+        Reflection.invoke(constructors[0], null, obj, null, true);
+        if(DEBUG) VM.sysWriteln("Constructed new object ", Magic.objectAsAddress(obj));
+        Thread t=(Thread)obj;
         t.start();
         if(DEBUG) VM.sysWriteln("Starting "+threadClassName);
     }
