@@ -45,7 +45,7 @@
   <property name="mmtk.java" location="${jikesrvm.dir}/MMTk/src"/>
   <property name="classpath.dir" location="classpath-0.98"/>
   <property name="jam.java" location="jam/src"/>
-  <property name="ext.src" location="ext/src"/>
+  <property name="ext.src" location="ext/bin"/>
   <property name="gctests.java" location="${jikesrvm.dir}/testing/tests/gctest/src"/>
   <property name="coretests.java" location="${jikesrvm.dir}/testing/tests/basic/src"/>
   <property name="jikessupport.classpath.dir" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>

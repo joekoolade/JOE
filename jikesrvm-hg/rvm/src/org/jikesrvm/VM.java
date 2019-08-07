@@ -73,10 +73,6 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
-import hello.world.HwThread;
-
-//import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
-
 /**
  * A virtual machine.
  */
@@ -442,7 +438,6 @@ public class VM extends Properties implements Constants, ExitStatus {
 
     System.setOut(Platform.serialPort.getPrintStream());
     System.setErr(Platform.serialPort.getPrintStream());
-//     System.out.println("System.out is working!");
     
     if (verboseBoot >= 1)
     {
@@ -464,9 +459,6 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    Sleep sleep = new Sleep();
 //    new Thread(sleep).start();
     
-//    runClassInitializer("hello.world.HwThread");
-//    HwThread hw=new HwThread();
-//    hw.start();
     // Start running your programs
     StartUp.runThread("hello.world.HwThread");
     StartUp.run();
@@ -474,7 +466,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     napiThread.start();
-    // Platform.net.inetBoot();
+    Platform.net.inetBoot();
     // Schedule "main" thread for execution.
 //    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    try
