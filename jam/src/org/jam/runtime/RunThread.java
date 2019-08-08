@@ -19,11 +19,13 @@ import org.vmmagic.pragma.Entrypoint;
  *
  */
 public class RunThread
+implements Run
 {
     private static final boolean DEBUG = true;
     private String threadClassName;
     private String[] args;
-
+    private MainThread mainThread;
+    
     /**
      * The thread class to load and  run
      * @param threadClass

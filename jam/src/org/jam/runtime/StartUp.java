@@ -18,7 +18,7 @@ public class StartUp
     private String className;
     private Type type;
     
-    private static ArrayList<RunThread> programs = new ArrayList<RunThread>();
+    private static ArrayList<Run> programs = new ArrayList<Run>();
 
     private StartUp(String name, Type type)
     {
@@ -28,7 +28,7 @@ public class StartUp
 
     public final static void runMain(String clsName)
     {
-        programs.add(null);
+        programs.add(new RunMain(clsName, null));
     }
     
     public final static void runThread(String clsName)
@@ -41,7 +41,7 @@ public class StartUp
         int size = programs.size();
         for(int index=0; index < size; index++)
         {
-            RunThread program = programs.get(index);
+            Run program = programs.get(index);
             program.run();
         }
     }

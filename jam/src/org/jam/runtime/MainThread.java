@@ -32,7 +32,7 @@ public final class MainThread extends Thread {
   private final String[] args;
   private RVMMethod mainMethod;
   protected boolean launched = false;
-
+  
   private static final boolean dbg = true;
 
   /**
@@ -44,6 +44,7 @@ public final class MainThread extends Thread {
     super("MainThread");
     setDaemon(false); // NB otherwise we inherit the boot threads daemon status
     this.args = args;
+    
     if (dbg) {
       VM.sysWriteln("MainThread(args.length == ", args.length, "): constructor done");
     }
