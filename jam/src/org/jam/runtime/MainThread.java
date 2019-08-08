@@ -41,7 +41,7 @@ public final class MainThread extends Thread {
    *  {@code args[1..N]}: parameters to pass to "main" method
    */
   public MainThread(String[] args) {
-    super("MainThread");
+    super(args[0]);
     setDaemon(false); // NB otherwise we inherit the boot threads daemon status
     this.args = args;
     

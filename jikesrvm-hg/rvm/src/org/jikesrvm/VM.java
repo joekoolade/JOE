@@ -460,7 +460,7 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    new Thread(sleep).start();
     
     // Start running your programs
-    StartUp.runThread("hello.world.HwThread");
+    StartUp.runMain("com.vonhessling.DiningPhilosophers");
     StartUp.run();
     VM.sysWriteln("NAPI manager");
     Thread napiThread = new Thread(new NapiManager());

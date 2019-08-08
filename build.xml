@@ -1110,8 +1110,15 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
+	<target name="copy-ext">
+		<copy todir="${build.classes}">
+			<fileset id="ext.classes" dir="${ext.src}">
+				<include name="**/*.class"/>
+			</fileset>
+		</copy>
+	</target>
   <!-- <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-harmony"/> -->
-  <target name="package" depends="compile-vmmagic,package-classpath"/>
+  <target name="package" depends="compile-vmmagic,copy-ext,package-classpath"/>
 
   <target name="package-harmony" if="harmony.classlib">
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">

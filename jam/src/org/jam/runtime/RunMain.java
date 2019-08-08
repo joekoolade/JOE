@@ -8,34 +8,43 @@ implements Run
     private static final boolean DEBUG = true;
     private String threadClassName;
     private String[] args;
-
+    private final MainThread mainThread;
+    
     public RunMain(String threadClass, String args[])
     {
         this.threadClassName = threadClass;
-        this.args = args;
-        String[] mainArgs = new String[args.length + 1];
-        args[0] = threadClass;
-        int index = 1;
-        for(; index < args.length; index++)
+        if(args == null)
         {
-            mainArgs[index] = args[index-1];
+            this.args = new String[1];
+            this.args[0] =threadClass;
         }
-        this.args = mainArgs;
+        else
+        {
+            this.args = new String[args.length + 1];
+            this.args[0] =threadClass;
+            int index = 1;
+            for(; index < args.length; index++)
+            {
+                this.args[index] = args[index-1];
+            }
+        }
+        mainThread = new MainThread(this.args);
     }
 
+    public RunMain(String threadClass)
+    {
+        this(threadClass, null);
+    }
     public RunMain(String[] args)
     {
         this.args = args;
         threadClassName = args[0];
+        mainThread = new MainThread(this.args);
     }
-    public void setArgs(String args[])
-    {
-        this.args = args;
-    }
-    
+
     @Entrypoint
     public void run()
     {
-        
+        mainThread.run();
     }
 }
