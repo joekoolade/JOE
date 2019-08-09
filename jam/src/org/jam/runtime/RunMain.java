@@ -45,6 +45,6 @@ implements Run
     @Entrypoint
     public void run()
     {
-        mainThread.run();
+        mainThread.start();
     }
 }
