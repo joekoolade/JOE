@@ -64,7 +64,9 @@ import org.vmmagic.unboxed.Word;
 @NonMoving
 public class Monitor {
   private static final boolean DEBUG_UNLOCK = false;
-public static boolean trace = false;
+  private static final int LOCKED = 1;
+  private static final int UNLOCKED = 0;
+  public static boolean trace = false;
   Word monitor;
   int holderSlot=-1; // use the slot so that we're even more GC safe
   int recCount;
@@ -107,7 +109,7 @@ public static boolean trace = false;
       /*
        * Try to get the lock
        */
-      while (!Magic.attemptInt(this, monitorOffset, 0, 1))
+      while (!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
       {
         /*
          * Wait on the locking queue
@@ -142,7 +144,7 @@ public static boolean trace = false;
   @NoOptCompile
   public void relockNoHandshake(int recCount)
   {
-    while (!Magic.attemptInt(this, monitorOffset, 0, 1))
+    while (!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
     {
       /*
        * Wait on the locking queue
@@ -196,7 +198,7 @@ public static boolean trace = false;
     int mySlot = RVMThread.getCurrentThreadSlot();
     if (mySlot != holderSlot)
     {
-      while (!Magic.attemptInt(this, monitorOffset, 0, 1))
+      while (!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
       {
         /*
          * Wait on the locking queue
@@ -276,7 +278,7 @@ public static boolean trace = false;
       /*
        * release the monitor
        */
-      if(!Magic.attemptInt(this, monitorOffset, 1, 0))
+      if(!Magic.attemptInt(this, monitorOffset, LOCKED, UNLOCKED))
       {
           VM._assert(false);
       }
@@ -310,7 +312,7 @@ public static boolean trace = false;
     /*
      * release the monitor
      */
-    if(!Magic.attemptInt(this, Entrypoints.monitorField.getOffset(), 1, 0))
+    if(!Magic.attemptInt(this, Entrypoints.monitorField.getOffset(), LOCKED, UNLOCKED))
     {
         VM._assert(false);
     }
@@ -352,7 +354,7 @@ public static boolean trace = false;
     /*
      * Release the monitor
      */
-    if(!Magic.attemptInt(this, monitorOffset, 1, 0))
+    if(!Magic.attemptInt(this, monitorOffset, LOCKED, UNLOCKED))
     {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
     }
@@ -378,7 +380,7 @@ public static boolean trace = false;
     /*
      * Keep looping until thread can get the monitor lock
      */
-    while(!Magic.attemptInt(this, monitorOffset, 0, 1))
+    while(!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
     {
       Magic.yield();
     }
@@ -422,7 +424,7 @@ public static boolean trace = false;
     /*
      * Release the monitor
      */
-    if(!Magic.attemptInt(this, monitorOffset, 1, 0))
+    if(!Magic.attemptInt(this, monitorOffset, LOCKED, UNLOCKED))
     {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
     }
@@ -435,7 +437,7 @@ public static boolean trace = false;
     /*
      * Re-acquire the lock
      */
-    while(!Magic.attemptInt(this, monitorOffset, 0, 1))
+    while(!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
     {
         Magic.yield();
     }
