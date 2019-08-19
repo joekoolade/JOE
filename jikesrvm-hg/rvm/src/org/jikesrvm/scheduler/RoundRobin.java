@@ -21,6 +21,7 @@ implements Scheduler {
     private Address stackTop;
     private final static int STACK_SIZE = 256;
     private ThreadQueue runQueue;
+    private int idling = 0;
     
     public RoundRobin()
     {
@@ -48,6 +49,7 @@ implements Scheduler {
         if(runQueue.peek() == null)
         {
             nextThread = RVMThread.idleThread;
+            idling++;
         }
         else
         {
@@ -55,6 +57,7 @@ implements Scheduler {
              * Get the next runnable candidate
              */
             nextThread = runQueue.dequeue();
+            idling=0;
         }
         /*
          * Setup to restore from new thread
