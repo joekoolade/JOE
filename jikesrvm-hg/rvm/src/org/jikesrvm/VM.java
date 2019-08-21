@@ -83,6 +83,7 @@ public class VM extends Properties implements Constants, ExitStatus {
    * Reference to the main thread that is the first none VM thread run
    */
   public static MainThread mainThread;
+  public static boolean booting;
 
   //----------------------------------------------------------------------//
   //                          Initialization.                             //
@@ -141,6 +142,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
+    booting=true;
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
@@ -488,7 +490,8 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    testThread.start();
 //    VM.sysWriteln("Main thread started");
     // terminate boot thread
-    RVMThread.getCurrentThread().terminate();    
+    booting=false;
+    RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
     Magic.enableInterrupts();
 //    Platform.masterPic.setInterrupt(I8259A.COM1);

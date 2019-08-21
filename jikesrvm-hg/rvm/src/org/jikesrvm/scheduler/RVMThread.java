@@ -2425,7 +2425,7 @@ public Address sentinelFp;
 
     if (traceAcct)
       VM.sysWriteln("doing accounting...");
-    acctLock.lockNoHandshake();
+    //acctLock.lockNoHandshake();
 
     // if the thread terminated because of an exception, remove
     // the mark from the exception register object, or else the
@@ -2459,7 +2459,7 @@ public Address sentinelFp;
       VM.sysWriteln("  terminateSystem = ", terminateSystem);
     }
 
-    acctLock.unlock();
+    // acctLock.unlock();
 
     if (traceAcct)
       VM.sysWriteln("done with accounting.");
@@ -2500,10 +2500,10 @@ public Address sentinelFp;
     // this works.  we use synchronized because we cannot use the thread's
     // monitor().  see comment in join().  this is fine, because we're still
     // "running" from the standpoint of GC.
-    synchronized (this) {
+//    synchronized (this) {
       isJoinable = true;
-      notifyAll();
-    }
+//      notifyAll();
+//    }
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " is joinable.");
 
