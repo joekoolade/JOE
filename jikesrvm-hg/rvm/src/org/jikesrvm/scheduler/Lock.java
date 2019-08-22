@@ -252,13 +252,18 @@ public final class Lock implements Constants {
       /*
        * give up processor and wait for the unlock
        */
-      Magic.yield();
+      while(entering.isQueued(me))
+      {
+          Magic.yield();
+      }
 //      me.monitor().lockNoHandshake();
 //      while (entering.isQueued(me)) {
 //        me.monitor().waitWithHandshake(); // this may spuriously return
 //      }
 //      me.monitor().unlock();
-      return true;
+      mutex.lock();
+      ownerId = threadId;
+      recursionCount = 1;
     }
     mutex.unlock(); // thread-switching benign
     return true;

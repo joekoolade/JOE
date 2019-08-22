@@ -112,45 +112,58 @@ public final class SpinLock implements Constants {
   /**
    * Acquire a lock.
    */
-  public void lock() {
-    if (!VM.runningVM) return;
-//    VM.disableYieldpoints();
-    RVMThread i = RVMThread.getCurrentThread();
-    RVMThread p;
-    int attempts = 0;
-    Offset latestContenderOffset = Entrypoints.latestContenderField.getOffset();
-    do {
-      p = Magic.objectAsThread(Magic.addressAsObject(Magic.prepareAddress(this, latestContenderOffset)));
-      if (p == null) { // nobody owns the lock
-        if (Magic.attemptAddress(this, latestContenderOffset, Address.zero(), Magic.objectAsAddress(i))) {
-          Magic.isync(); // so subsequent instructions wont see stale values
-          return;
-        } else {
-          continue; // don't handle contention
+    public void lock()
+    {
+        if (!VM.runningVM)
+            return;
+        // VM.disableYieldpoints();
+        RVMThread i = RVMThread.getCurrentThread();
+        RVMThread p;
+        int attempts = 0;
+        Offset latestContenderOffset = Entrypoints.latestContenderField.getOffset();
+        do
+        {
+            p = Magic.objectAsThread(Magic.addressAsObject(Magic.prepareAddress(this, latestContenderOffset)));
+            if (p == null)
+            { // nobody owns the lock
+                if (Magic.attemptAddress(this, latestContenderOffset, Address.zero(), Magic.objectAsAddress(i)))
+                {
+                    Magic.isync(); // so subsequent instructions wont see stale values
+                    return;
+                } else
+                {
+                    continue; // don't handle contention
+                }
+            } 
+            else if (MCS_Locking && Magic.objectAsAddress(p).NE(IN_FLUX))
+            { // lock is owned, but not being changed
+                if (Magic.attemptAddress(this, latestContenderOffset, Magic.objectAsAddress(p), IN_FLUX))
+                {
+                    Magic.isync(); // so subsequent instructions wont see stale values
+                    break;
+                }
+            }
+            handleMicrocontention(attempts++);
+        } while (true);
+        // i owns the lock
+        if (VM.VerifyAssertions && !MCS_Locking)
+            VM._assert(VM.NOT_REACHED);
+        i.awaitingSpinLock = this;
+        if (p.awaitingSpinLock != this)
+        { // make i first (and only) waiter on the contender chain
+            i.contenderLink = i;
+        } else
+        { // make i last waiter on the contender chain
+            i.contenderLink = p.contenderLink;
+            p.contenderLink = i;
         }
-      } else if (MCS_Locking && Magic.objectAsAddress(p).NE(IN_FLUX)) { // lock is owned, but not being changed
-        if (Magic.attemptAddress(this, latestContenderOffset, Magic.objectAsAddress(p), IN_FLUX)) {
-          Magic.isync(); // so subsequent instructions wont see stale values
-          break;
-        }
-      }
-      handleMicrocontention(attempts++);
-    } while (true);
-    // i owns the lock
-    if (VM.VerifyAssertions && !MCS_Locking) VM._assert(VM.NOT_REACHED);
-    i.awaitingSpinLock = this;
-    if (p.awaitingSpinLock != this) { // make i first (and only) waiter on the contender chain
-      i.contenderLink = i;
-    } else {                               // make i last waiter on the contender chain
-      i.contenderLink = p.contenderLink;
-      p.contenderLink = i;
+        Magic.sync(); // so other contender will see updated contender chain
+        Magic.setObjectAtOffset(this, latestContenderOffset, i); // other threads can get at the lock
+        do
+        { // spin, waiting for the lock
+            Magic.isync(); // to make new value visible as soon as possible
+        } while (i.awaitingSpinLock == this);
     }
-    Magic.sync(); // so other contender will see updated contender chain
-    Magic.setObjectAtOffset(this, latestContenderOffset, i);  // other threads can get at the lock
-    do { // spin, waiting for the lock
-      Magic.isync(); // to make new value visible as soon as possible
-    } while (i.awaitingSpinLock == this);
-  }
 
   /**
    * Conditionally acquire a lock.
