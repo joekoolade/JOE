@@ -123,6 +123,9 @@ public final class SpinLock implements Constants {
         Offset latestContenderOffset = Entrypoints.latestContenderField.getOffset();
         do
         {
+            /*
+             * Get the thread that owns the lock
+             */
             p = Magic.objectAsThread(Magic.addressAsObject(Magic.prepareAddress(this, latestContenderOffset)));
             if (p == null)
             { // nobody owns the lock
@@ -143,6 +146,9 @@ public final class SpinLock implements Constants {
                     break;
                 }
             }
+            /*
+             * Someone owns the lock; Try to get it
+             */
             handleMicrocontention(attempts++);
         } while (true);
         // i owns the lock

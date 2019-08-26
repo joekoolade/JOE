@@ -93,6 +93,9 @@ public final class ThinLock implements ThinLockConstants {
       boolean tryToInflate=false;
       if (stat.EQ(TL_STAT_BIASABLE)) {
         Word id = old.and(TL_THREAD_ID_MASK);
+        /*
+         * the lock is free
+         */
         if (id.isZero()) {
           if (ENABLE_BIASED_LOCKING) {
             // lock is unbiased, bias it in our favor and grab it
@@ -116,11 +119,13 @@ public final class ThinLock implements ThinLockConstants {
           }
         } else if (id.EQ(threadId)) {
           // lock is biased in our favor
+          // The thread owns the lock
           Word changed = old.plus(TL_LOCK_COUNT_UNIT);
           if (!changed.and(TL_LOCK_COUNT_MASK).isZero()) {
             setDedicatedU16(o, lockOffset, changed);
             return;
           } else {
+            // Need a higher recursion count > 1024
             tryToInflate=true;
           }
         } else {
@@ -138,6 +143,9 @@ public final class ThinLock implements ThinLockConstants {
           }
         } else if (id.EQ(threadId)) {
           Word changed = old.plus(TL_LOCK_COUNT_UNIT);
+          /*
+           * recursion count > 1024. Need a fat lock
+           */
           if (changed.and(TL_LOCK_COUNT_MASK).isZero()) {
             tryToInflate=true;
           } else if (Synchronization.tryCompareAndSwap(
