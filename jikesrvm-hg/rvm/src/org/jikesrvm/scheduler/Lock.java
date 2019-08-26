@@ -261,9 +261,7 @@ public final class Lock implements Constants {
 //        me.monitor().waitWithHandshake(); // this may spuriously return
 //      }
 //      me.monitor().unlock();
-      mutex.lock();
-      ownerId = threadId;
-      recursionCount = 1;
+      return false;
     }
     mutex.unlock(); // thread-switching benign
     return true;

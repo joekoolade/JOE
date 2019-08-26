@@ -258,7 +258,7 @@ public final class ThinLock implements ThinLockConstants {
           return result;
         }
       }
-      RVMThread.yieldNoHandshake();
+      Magic.yield();
     }
   }
 
