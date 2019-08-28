@@ -49,7 +49,6 @@ implements Scheduler {
         if(runQueue.peek() == null)
         {
             nextThread = RVMThread.idleThread;
-            idling++;
         }
         else
         {
@@ -57,7 +56,6 @@ implements Scheduler {
              * Get the next runnable candidate
              */
             nextThread = runQueue.dequeue();
-            idling=0;
         }
         /*
          * Setup to restore from new thread

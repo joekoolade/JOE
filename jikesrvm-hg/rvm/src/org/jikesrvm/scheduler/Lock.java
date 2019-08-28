@@ -124,7 +124,7 @@ public final class Lock implements Constants {
   /** do debug tracing? */
   protected static final boolean trace = false;
   /** Control the gathering of statistics */
-  public static final boolean STATS = false;
+  public static final boolean STATS = true;
 
   /** The (fixed) number of entries in the lock table spine */
   protected static final int LOCK_SPINE_SIZE = 128;
