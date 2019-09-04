@@ -13,6 +13,7 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.UninterruptibleNoWarn;
@@ -49,7 +50,7 @@ public class TimerThread extends SystemThread {
         if (VM.BuildForAdaptiveSystem) {
           // grab the lock to prevent threads from getting GC'd while we are
           // iterating (since this thread doesn't stop for GC)
-          RVMThread.acctLock.lockNoHandshake();
+          Magic.disableInterrupts();
           RVMThread.timerTicks++;
           for (int i=0;i<RVMThread.numThreads;++i) {
             RVMThread candidate=RVMThread.threads[i];
@@ -58,7 +59,7 @@ public class TimerThread extends SystemThread {
               candidate.takeYieldpoint=1;
             }
           }
-          RVMThread.acctLock.unlock();
+          Magic.enableInterrupts();
         }
 
         RVMThread.checkDebugRequest();

@@ -76,11 +76,20 @@ implements Scheduler {
      */
     public void addThread(RVMThread thread)
     {
+        if(thread.isOnQueue()) return;
+        /*
+         * See if we are in a garbage collection. If so
+         * then put the thread onto the gcWait queue
+         */
+        if(RVMThread.isGC() && thread.isCollectorThread()==false && thread.ignoreHandshakesAndGC()==false)
+        {
+            RVMThread.gcWait.enqueue(thread);
+        }
         /*
          * See if thread is already queued somewhere else
          * like a monitor
          */
-        if(thread.queuedOn==null && !thread.isTerminated())
+        else if(!thread.isTerminated())
         {
           runQueue.enqueue(thread);
         }
