@@ -41,7 +41,7 @@ ant build
 
 ## How To Add External Classes
 
-Precompiled classes can be added to image and loaded by the runtime. This allows users to run other programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load your program and run it. To have your classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example:
+Precompiled classes can be added to the image and loaded by the runtime. This allows users to run  programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load the program and run it. To have classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example. The classes must be compiled for Java version 1.5.
 
 ```
 FAMILYs-MacBook-Pro:JOE joe$ ls -R ext/bin
