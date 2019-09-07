@@ -39,7 +39,7 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
 
   /** Counter to track index into thread table for root tracing.  */
   private static final SynchronizedCounter threadCounter = new SynchronizedCounter();
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
 
   /**
    * Scanning of a object, processing each pointer field encountered.
