@@ -45,7 +45,7 @@
   <property name="mmtk.java" location="${jikesrvm.dir}/MMTk/src"/>
   <property name="classpath.dir" location="classpath-0.98"/>
   <property name="jam.java" location="jam/src"/>
-	<property name="ext.src" location="ext/src"/>
+  <property name="ext.src" location="ext/bin"/>
   <property name="gctests.java" location="${jikesrvm.dir}/testing/tests/gctest/src"/>
   <property name="coretests.java" location="${jikesrvm.dir}/testing/tests/basic/src"/>
   <property name="jikessupport.classpath.dir" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
@@ -1020,7 +1020,7 @@ Check to make sure all required properties are specified. This includes properti
            debugLevel="vars,lines,source"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${ext.src}:${mmtk.java}:${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
+           srcdir="${mmtk.java}:${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${mmtk.config.java}:${tuningforklib.java}:${options.java}:${generated.arch.java}:${main.java}:${tuningforklib.java}:${jam.java}:${gctests.java}:${coretests.java}"
            includeantruntime="false">
       <bootclasspath>
         <pathelement location="${classpath.lib.dir}/classpath.jar"/>
@@ -1058,26 +1058,6 @@ Check to make sure all required properties are specified. This includes properti
       <include name="org/jikesrvm/tools/oth/OptTestHarness.java"/>
       <include name="org/jikesrvm/tools/header_gen/GenArch_${target.arch}.java"/>
       <exclude name="org/jikesrvm/tools/header_gen.GenerateInterfaceDeclarations.java"/>
-    </javac>
-  	<!--
-  	   compile external classes
-  	-->
-    <javac destdir="${build.classes}"
-           debug="true"
-           fork="true"
-           memoryMaximumSize="800M"
-           failonerror="false"
-           debugLevel="vars,lines,source"
-           source="${rvm.java.version}"
-           target="${rvm.java.version}"
-           srcdir="${ext.src}"
-           includeantruntime="false">
-      <bootclasspath>
-        <pathelement location="${classpath.lib.dir}/classpath.jar"/>
-      </bootclasspath>
-      <classpath>
-        <pathelement location="${build.vmmagic-stub.classes}"/>
-      </classpath>
     </javac>
 <!--
     <echo message="second compile (from ${generated.java})"/>
@@ -1130,8 +1110,15 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
+	<target name="copy-ext">
+		<copy todir="${build.classes}">
+			<fileset id="ext.classes" dir="${ext.src}">
+				<include name="**/*.class"/>
+			</fileset>
+		</copy>
+	</target>
   <!-- <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-harmony"/> -->
-  <target name="package" depends="compile-vmmagic,package-classpath"/>
+  <target name="package" depends="compile-vmmagic,copy-ext,package-classpath"/>
 
   <target name="package-harmony" if="harmony.classlib">
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
@@ -1205,7 +1192,20 @@ Check to make sure all required properties are specified. This includes properti
   <!-- *                                                                          * -->
   <!-- **************************************************************************** -->
 
-  <target name="gen-primordial-list">
+	<target name="gen-ext-list">
+		<!-- Get all classes in the ext.src directory -->
+		<fileset id="ext.classes" dir="${ext.src}">
+			<include name="**/*.class"/>
+		</fileset>
+		<property name="ext.classes" refid="ext.classes"/>
+		<!-- Create the externals.txt file -->
+		<echo file="${primordials.dir}/externals.txt"
+					message="${ext.classes}${line.separator}"/>
+    <replace file="${primordials.dir}/externals.txt" token=";" value="${line.separator}"/>
+    <replaceregexp file="${primordials.dir}/externals.txt" match="(.*).class" replace="L\1;" byline="true"/>
+	</target>
+
+	<target name="gen-primordial-list">
 
     <fileset id="primordials.main" dir="${build.classes}">
       <include name="org/**/*.class" />
@@ -1286,10 +1286,11 @@ Check to make sure all required properties are specified. This includes properti
 
 <target name="build" depends="build-bootimage"/>
 
-<target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list">
+<target name="build-bootimage" depends="build-bootimage-writer,gen-ext-list,gen-primordial-list">
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
+      <pathelement location="${build.ext.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 

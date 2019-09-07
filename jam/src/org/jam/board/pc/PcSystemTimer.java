@@ -101,6 +101,8 @@ implements Timer
             overflow -= 1000000;
         }
 
+        //if (RVMThread.bootThread.isTerminated()==false) return;
+        if(VM.booting==true) return;
         checkTimers();
         schedule();
 //        Platform.masterPic.eoi();

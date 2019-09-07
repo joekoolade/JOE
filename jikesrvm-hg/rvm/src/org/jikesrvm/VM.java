@@ -19,6 +19,7 @@ import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.InetAddress;
+import org.jam.runtime.StartUp;
 import org.jam.tests.EchoClient;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
@@ -72,10 +73,6 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
-import hello.world.HwThread;
-
-//import test.org.jikesrvm.basic.core.bytecode.TestArithmetic;
-
 /**
  * A virtual machine.
  */
@@ -86,6 +83,7 @@ public class VM extends Properties implements Constants, ExitStatus {
    * Reference to the main thread that is the first none VM thread run
    */
   public static MainThread mainThread;
+  public static boolean booting;
 
   //----------------------------------------------------------------------//
   //                          Initialization.                             //
@@ -144,6 +142,7 @@ public class VM extends Properties implements Constants, ExitStatus {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
+    booting=true;
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
@@ -392,6 +391,8 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("org.dhcp4java.DHCPOption");
     runClassInitializer("org.dhcp4java.DHCPConstants");
     runClassInitializer("org.jam.net.Udp");
+    runClassInitializer("org.jam.utilities.HexChar");
+    runClassInitializer("org.jam.runtime.StartUp");
     
 //    runClassInitializer("org.xbill.DNS.Name");
 //    runClassInitializer("org.xbill.DNS.ResolverConfig");
@@ -439,7 +440,6 @@ public class VM extends Properties implements Constants, ExitStatus {
 
     System.setOut(Platform.serialPort.getPrintStream());
     System.setErr(Platform.serialPort.getPrintStream());
-//     System.out.println("System.out is working!");
     
     if (verboseBoot >= 1)
     {
@@ -461,10 +461,10 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    Sleep sleep = new Sleep();
 //    new Thread(sleep).start();
     
-//    runClassInitializer("hello.world.HwThread");
-//    HwThread hw=new HwThread();
-//    hw.start();
-    
+    // Start running your programs
+    StartUp.runMain("com.vonhessling.DiningPhilosophers");
+    StartUp.run();
+    VM.sysWriteln("NAPI manager");
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     napiThread.start();
@@ -490,7 +490,8 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    testThread.start();
 //    VM.sysWriteln("Main thread started");
     // terminate boot thread
-    RVMThread.getCurrentThread().terminate();    
+    booting=false;
+    RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
     Magic.enableInterrupts();
 //    Platform.masterPic.setInterrupt(I8259A.COM1);

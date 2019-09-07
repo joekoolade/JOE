@@ -36,7 +36,8 @@ public class Udp {
     private static final Offset DESTINATION_PORT = Offset.fromIntSignExtend(2);
     private static final Offset LENGTH = Offset.fromIntSignExtend(4);
     private static final Offset CHECKSUM = Offset.fromIntSignExtend(6);
-
+    static final int UDP_HEADER_SIZE = 8;
+    
     private static final boolean DEBUG_PSEUDOHEADER = true;
     private static final boolean DEBUG = true;
     private static final boolean DEBUG_TRACE = true;
@@ -135,7 +136,7 @@ public class Udp {
         }
         if(DEBUG_TRACE) VM.sysWriteln("get new inet packet");
         this.packet = new InetPacket(packet, connection);
-        this.packet.setHeadroom(8);
+        this.packet.setHeadroom(UDP_HEADER_SIZE);
         if(DEBUG_TRACE) VM.sysWriteln("New inet packet");
         send();
     }
@@ -376,8 +377,8 @@ public class Udp {
             }
         }
         System.out.println("udp.receive3 "+waiting);
-        packet.setLength(p.getSize());
-        System.arraycopy(p.getArray(), 0, packet.getData(), packet.getOffset(), p.getSize());
+        packet.setLength(p.getSize()-UDP_HEADER_SIZE);
+        System.arraycopy(p.getArray(), p.getOffset()+UDP_HEADER_SIZE, packet.getData(), packet.getOffset(), p.getSize()-UDP_HEADER_SIZE);
         return remoteAddress;
     }
 
@@ -541,7 +542,7 @@ public class Udp {
         {
             throw new IOException("Packet too big");
         }
-        packet = new InetPacket(src, connection, 8);
+        packet = new InetPacket(src, connection, UDP_HEADER_SIZE);
         send();
         return 0;
     }

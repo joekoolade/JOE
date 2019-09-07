@@ -124,7 +124,7 @@ public final class Lock implements Constants {
   /** do debug tracing? */
   protected static final boolean trace = false;
   /** Control the gathering of statistics */
-  public static final boolean STATS = false;
+  public static final boolean STATS = true;
 
   /** The (fixed) number of entries in the lock table spine */
   protected static final int LOCK_SPINE_SIZE = 128;
@@ -252,13 +252,16 @@ public final class Lock implements Constants {
       /*
        * give up processor and wait for the unlock
        */
-      Magic.yield();
+      while(entering.isQueued(me))
+      {
+          Magic.yield();
+      }
 //      me.monitor().lockNoHandshake();
 //      while (entering.isQueued(me)) {
 //        me.monitor().waitWithHandshake(); // this may spuriously return
 //      }
 //      me.monitor().unlock();
-      return true;
+      return false;
     }
     mutex.unlock(); // thread-switching benign
     return true;

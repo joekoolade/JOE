@@ -35,7 +35,7 @@ import org.jikesrvm.runtime.Magic;
  */
 public class ApplicationClassLoader extends URLClassLoader {
 
-  static final boolean DBG = false;
+  static final boolean DBG = true;
 
   static int numInstantiations = 0;
 
@@ -58,6 +58,7 @@ public class ApplicationClassLoader extends URLClassLoader {
     createdAtBootImageWritingTime = VM.writingBootImage;
     createdWithRunningVM = VM.runningVM;
 
+    /*
     try {
       if (specifiedClasspath == null) {
         addURL(new URL("file", null, -1, System.getProperty("user.dir") + File.separator));
@@ -86,6 +87,7 @@ public class ApplicationClassLoader extends URLClassLoader {
           "JikesRVM: ApplicationClassLoader: Initialization Failed with a MalformedURLException; there was an error setting the application's classpath: " +
           e);
     }
+    */
   }
 
   /** Name of the Application Class Loader.  Actually used by Jikes RVM's

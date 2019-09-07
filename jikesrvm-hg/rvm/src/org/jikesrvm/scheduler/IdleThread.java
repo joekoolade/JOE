@@ -40,10 +40,17 @@ public class IdleThread extends SystemThread {
          * For now just pause because we will be doing is spinning until a process
          * becomes available. Later on may want to do some power saving stuff.
          */
+        int idling=0;
         while (true)
         {
             // rvmThread.checkBlock();
             Magic.pause();
+            idling++;
+            if(idling > 100000000)
+            {
+                // RVMThread.dumpVirtualMachine();
+                idling=0;
+            }
         }
 
     }

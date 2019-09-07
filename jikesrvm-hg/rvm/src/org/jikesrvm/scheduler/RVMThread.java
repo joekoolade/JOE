@@ -683,6 +683,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    */
   boolean isBlockedForGC;
 
+  static ThreadQueue gcWait = new ThreadQueue();
   /**
    * A block adapter specifies the reason for blocking or unblocking a thread.  A thread
    * remains blocked so long as any of the block adapters say that it should be blocked.
@@ -1096,7 +1097,7 @@ public final class RVMThread extends ThreadContext implements Constants {
    * <li>numThreads, numActiveThreads, numActiveDaemons static fields of RVMThread</li>
    * </ul>
    */
-  public static Monitor acctLock;
+  // public static Monitor acctLock;
 
   /**
    * Lock (mutex) used for servicing debug requests.
@@ -1173,6 +1174,8 @@ public final class RVMThread extends ThreadContext implements Constants {
   private static int numActiveDaemons;
 
 private static long nosyncNotifyOperations;
+
+private static boolean gcInProgress=false;
 
   /*
    * TuningFork instrumentation support
@@ -1292,7 +1295,7 @@ public Address sentinelFp;
   public static void boot() {
     outOfMemoryError = new OutOfMemoryError();
     dumpLock = new Monitor();
-    acctLock = new NoYieldpointsMonitor();
+    // acctLock = new NoYieldpointsMonitor();
     debugLock = new NoYieldpointsMonitor();
     outputLock = new NoYieldpointsMonitor();
     softHandshakeDataLock = new Monitor();
@@ -1344,9 +1347,9 @@ public Address sentinelFp;
 
     softRendezvous();
 
-    acctLock.lockNoHandshake();
+    Magic.disableInterrupts();
     aboutToTerminate[aboutToTerminateN++] = threadSlot;
-    acctLock.unlock();
+    Magic.enableInterrupts();
   }
 
   /**
@@ -1362,19 +1365,19 @@ public Address sentinelFp;
     if (!neverKillThreads) {
       restart: while(true) {
         int notKilled = 0;
-        acctLock.lockNoHandshake();
+        Magic.disableInterrupts();
         for (int i = 0; i < aboutToTerminateN; ++i) {
           RVMThread t = threadBySlot[aboutToTerminate[i]];
           if (t.getExecStatus() == TERMINATED) {
             aboutToTerminate[i--] = aboutToTerminate[--aboutToTerminateN];
-            acctLock.unlock();
+            Magic.enableInterrupts();
             t.releaseThreadSlot();
             continue restart;
           } else {
             notKilled++;
           }
         }
-        acctLock.unlock();
+        Magic.enableInterrupts();
         if (notKilled > 0 && traceAboutToTerminate) {
           VM.sysWriteln("didn't kill ", notKilled, " threads");
         }
@@ -1399,7 +1402,7 @@ public Address sentinelFp;
     } else {
       processAboutToTerminate();
       //acctLock.lockNoHandshake();
-      //Magic.disableInterrupts();
+      Magic.disableInterrupts();
       if (freeSlotN > 0) {
         threadSlot = freeSlots[--freeSlotN];
       } else {
@@ -1408,7 +1411,7 @@ public Address sentinelFp;
         }
         threadSlot = nextSlot++;
       }
-      //Magic.enableInterrupts();
+      Magic.enableInterrupts();
       //acctLock.unlock();
       // before we actually use this slot, ensure that there is a monitor
       // for it. note that if the slot doesn't have a monitor, then we
@@ -1432,14 +1435,14 @@ public Address sentinelFp;
                      */
 
       //acctLock.lockNoHandshake();
-      // Magic.disableInterrupts();
+      Magic.disableInterrupts();
       threadBySlot[threadSlot] = this;
 
       threadIdx = numThreads++;
       threads[threadIdx] = this;
 
       //acctLock.unlock();
-      //Magic.enableInterrupts();
+      Magic.enableInterrupts();
     }
     lockingId = threadSlot << ThinLockConstants.TL_THREAD_ID_SHIFT;
     if (traceAcct) {
@@ -1453,7 +1456,7 @@ public Address sentinelFp;
    */
   @NoCheckStore
   void releaseThreadSlot() {
-    acctLock.lockNoHandshake();
+    Magic.disableInterrupts();
     RVMThread replacementThread = threads[numThreads - 1];
     threads[threadIdx] = replacementThread;
     replacementThread.threadIdx = threadIdx;
@@ -1469,7 +1472,7 @@ public Address sentinelFp;
     threads[--numThreads] = null;
     threadBySlot[threadSlot] = null;
     freeSlots[freeSlotN++] = threadSlot;
-    acctLock.unlock();
+    Magic.enableInterrupts();
   }
 
    /**
@@ -2124,12 +2127,12 @@ public Address sentinelFp;
         VM.sysWriteln("Timer ticks = ", timerTicks);
         doProfileReport.openNoHandshake();
         // snapshot the threads
-        acctLock.lockNoHandshake();
+        Magic.disableInterrupts();
         int numDebugThreads = numThreads;
         for (int i = 0; i < numThreads; ++i) {
           debugThreads[i] = threads[i];
         }
-        acctLock.unlock();
+        Magic.enableInterrupts();
         // do the magic
         for (int i = 0; i < numDebugThreads; ++i) {
           debugThreads[i].handleDebugRequestForThread();
@@ -2349,12 +2352,12 @@ public Address sentinelFp;
     // N.B.: cannot hit a yieldpoint between setting execStatus and starting the
     // thread!!
     setExecStatus(IN_JAVA);
-    acctLock.lockNoHandshake();
+    Magic.disableInterrupts();
     numActiveThreads++;
     if (daemon) {
       numActiveDaemons++;
     }
-    acctLock.unlock();
+    Magic.enableInterrupts();
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " starting!");
     
@@ -2425,7 +2428,7 @@ public Address sentinelFp;
 
     if (traceAcct)
       VM.sysWriteln("doing accounting...");
-    acctLock.lockNoHandshake();
+    //acctLock.lockNoHandshake();
 
     // if the thread terminated because of an exception, remove
     // the mark from the exception register object, or else the
@@ -2459,7 +2462,7 @@ public Address sentinelFp;
       VM.sysWriteln("  terminateSystem = ", terminateSystem);
     }
 
-    acctLock.unlock();
+    // acctLock.unlock();
 
     if (traceAcct)
       VM.sysWriteln("done with accounting.");
@@ -2500,10 +2503,10 @@ public Address sentinelFp;
     // this works.  we use synchronized because we cannot use the thread's
     // monitor().  see comment in join().  this is fine, because we're still
     // "running" from the standpoint of GC.
-    synchronized (this) {
+//    synchronized (this) {
       isJoinable = true;
-      notifyAll();
-    }
+//      notifyAll();
+//    }
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " is joinable.");
 
@@ -3270,7 +3273,7 @@ public Address sentinelFp;
   @NoCheckStore
   public static int snapshotHandshakeThreads(SoftHandshakeVisitor v) {
     // figure out which threads to consider
-    acctLock.lockNoHandshake(); // get a consistent view of which threads are live.
+    Magic.disableInterrupts(); // get a consistent view of which threads are live.
 
     int numToHandshake = 0;
     for (int i = 0; i < numThreads; ++i) {
@@ -3286,7 +3289,7 @@ public Address sentinelFp;
         handshakeThreads[numToHandshake++] = t;
       }
     }
-    acctLock.unlock();
+    Magic.enableInterrupts();
     return numToHandshake;
   }
 
@@ -3481,56 +3484,71 @@ public Address sentinelFp;
   @Unpreemptible
   public static void blockAllMutatorsForGC() {
     if(traceBlock) VM.sysWriteln("blockAllMutatorsGC: starting ", getCurrentThreadSlot());
-    RVMThread.handshakeLock.lockNoHandshake();
-    while (true) {
-      // (1) Find all the threads that need to be blocked for GC
-      RVMThread.acctLock.lockNoHandshake();
-      int numToHandshake = 0;
-      for (int i = 0; i < RVMThread.numThreads; i++) {
-        RVMThread t = RVMThread.threads[i];
-        if (!t.isCollectorThread() && !t.ignoreHandshakesAndGC()) {
-          RVMThread.handshakeThreads[numToHandshake++] = t;
-          if(traceBlock) VM.sysWriteln("Need to block thread ", t.threadSlot);
-        }
-      }
-      if(traceBlock) VM.sysWriteln("blockAllMutatorsGC: Handshake threads: ", numToHandshake);
-      RVMThread.acctLock.unlock();
-
-      // (2) Remove any threads that have already been blocked from the list.
-      for (int i = 0; i < numToHandshake; i++) {
-        RVMThread t = RVMThread.handshakeThreads[i];
-        t.monitor().lockNoHandshake();
-        if (t.blockedFor(RVMThread.gcBlockAdapter) || RVMThread.notRunning(t.asyncBlock(RVMThread.gcBlockAdapter))) {
-          // Already blocked or not running, remove.
-          if(traceBlock) VM.sysWriteln("blockAllMutatorsGC: removing: ", t.threadSlot);
-          RVMThread.handshakeThreads[i--] = RVMThread.handshakeThreads[--numToHandshake];
-          RVMThread.handshakeThreads[numToHandshake] = null; // help GC
-        }
-        t.monitor().unlock();
-      }
-      //VM.sysWriteln("blockAllMutatorsGC: Unblocked handshake threads: ", numToHandshake);
-      // (3) Quit trying to block threads if all threads are either blocked
-      //     or not running (a thread is "not running" if it is NEW or TERMINATED;
-      //     in the former case it means that the thread has not had start()
-      //     called on it while in the latter case it means that the thread
-      //     is either in the TERMINATED state or is about to be in that state
-      //     real soon now, and will not perform any heap-related work before
-      //     terminating).
-      if (numToHandshake == 0) break;
-
-      // (4) Request a block for GC from all other threads.
-      for (int i = 0; i < numToHandshake; i++) {
-        if (traceBlock) VM.sysWriteln("blockAllMutatorsGC: blocking ", RVMThread.handshakeThreads[i].threadSlot);
-        RVMThread t = RVMThread.handshakeThreads[i];
-        RVMThread.observeExecStatusAtSTW(t.block(RVMThread.gcBlockAdapter));
-        RVMThread.handshakeThreads[i] = null; // help GC
+    Magic.disableInterrupts();
+    gcInProgress = true;
+    /*
+     * Take all threads on scheduler and
+     * put on gc block queue
+     */
+    for (int i = 0; i < RVMThread.numThreads; i++) {
+      RVMThread t = RVMThread.threads[i];
+      if (!t.isOnQueue() && !t.isCollectorThread() && !t.ignoreHandshakesAndGC()) {
+        gcWait.enqueue(t);
+        if(traceBlock) VM.sysWriteln("GC blocking thread ", t.threadSlot);
       }
     }
-    //VM.sysWriteln("blockAllMutatorsGC: finished ", getCurrentThreadSlot());
-    RVMThread.handshakeLock.unlock();
-
-    // Deal with terminating threads to ensure that all threads are either dead to MMTk or stopped above.
-    RVMThread.processAboutToTerminate();
+    Magic.enableInterrupts();
+    
+//    RVMThread.handshakeLock.lockNoHandshake();
+//    while (true) {
+//      // (1) Find all the threads that need to be blocked for GC
+//      Magic.disableInterrupts();
+//      int numToHandshake = 0;
+//      for (int i = 0; i < RVMThread.numThreads; i++) {
+//        RVMThread t = RVMThread.threads[i];
+//        if (!t.isCollectorThread() && !t.ignoreHandshakesAndGC()) {
+//          RVMThread.handshakeThreads[numToHandshake++] = t;
+//          if(traceBlock) VM.sysWriteln("Need to block thread ", t.threadSlot);
+//        }
+//      }
+//      if(traceBlock) VM.sysWriteln("blockAllMutatorsGC: Handshake threads: ", numToHandshake);
+//      Magic.enableInterrupts();
+//
+//      // (2) Remove any threads that have already been blocked from the list.
+//      for (int i = 0; i < numToHandshake; i++) {
+//        RVMThread t = RVMThread.handshakeThreads[i];
+//        t.monitor().lockNoHandshake();
+//        if (t.blockedFor(RVMThread.gcBlockAdapter) || RVMThread.notRunning(t.asyncBlock(RVMThread.gcBlockAdapter))) {
+//          // Already blocked or not running, remove.
+//          if(traceBlock) VM.sysWriteln("blockAllMutatorsGC: removing: ", t.threadSlot);
+//          RVMThread.handshakeThreads[i--] = RVMThread.handshakeThreads[--numToHandshake];
+//          RVMThread.handshakeThreads[numToHandshake] = null; // help GC
+//        }
+//        t.monitor().unlock();
+//      }
+//      //VM.sysWriteln("blockAllMutatorsGC: Unblocked handshake threads: ", numToHandshake);
+//      // (3) Quit trying to block threads if all threads are either blocked
+//      //     or not running (a thread is "not running" if it is NEW or TERMINATED;
+//      //     in the former case it means that the thread has not had start()
+//      //     called on it while in the latter case it means that the thread
+//      //     is either in the TERMINATED state or is about to be in that state
+//      //     real soon now, and will not perform any heap-related work before
+//      //     terminating).
+//      if (numToHandshake == 0) break;
+//
+//      // (4) Request a block for GC from all other threads.
+//      for (int i = 0; i < numToHandshake; i++) {
+//        if (traceBlock) VM.sysWriteln("blockAllMutatorsGC: blocking ", RVMThread.handshakeThreads[i].threadSlot);
+//        RVMThread t = RVMThread.handshakeThreads[i];
+//        RVMThread.observeExecStatusAtSTW(t.block(RVMThread.gcBlockAdapter));
+//        RVMThread.handshakeThreads[i] = null; // help GC
+//      }
+//    }
+//    //VM.sysWriteln("blockAllMutatorsGC: finished ", getCurrentThreadSlot());
+//    RVMThread.handshakeLock.unlock();
+//
+//    // Deal with terminating threads to ensure that all threads are either dead to MMTk or stopped above.
+//    RVMThread.processAboutToTerminate();
   }
 
   /**
@@ -3539,21 +3557,14 @@ public Address sentinelFp;
   @NoCheckStore
   @Unpreemptible
   public static void unblockAllMutatorsForGC() {
-    RVMThread.handshakeLock.lockNoHandshake();
-    RVMThread.acctLock.lockNoHandshake();
-    int numToHandshake = 0;
-    for (int i = 0; i < RVMThread.numThreads; i++) {
-      RVMThread t = RVMThread.threads[i];
-      if (!t.isCollectorThread() && !t.ignoreHandshakesAndGC()) {
-        RVMThread.handshakeThreads[numToHandshake++] = t;
-      }
+    Magic.disableInterrupts();
+    gcInProgress = false;
+    while(gcWait.isEmpty() == false)
+    {
+        RVMThread t = gcWait.dequeue();
+        Platform.scheduler.addThread(t);
     }
-    RVMThread.acctLock.unlock();
-    for (int i = 0; i < numToHandshake; i++) {
-      RVMThread.handshakeThreads[i].unblock(RVMThread.gcBlockAdapter);
-      RVMThread.handshakeThreads[i] = null; // Help GC
-    }
-    RVMThread.handshakeLock.unlock();
+    Magic.enableInterrupts();
   }
 
   @Uninterruptible
@@ -3600,7 +3611,7 @@ public Address sentinelFp;
     // fixpoint is needed in case some thread spawns another thread
     // while we're waiting.  that is unlikely but possible.
     for (;;) {
-      acctLock.lockNoHandshake();
+      Magic.disableInterrupts();
       int numToHandshake=0;
       for (int i=0;i<numThreads;++i) {
         RVMThread t=threads[i];
@@ -3610,7 +3621,7 @@ public Address sentinelFp;
           handshakeThreads[numToHandshake++]=t;
         }
       }
-      acctLock.unlock();
+      Magic.enableInterrupts();
 
       for (int i=0;i<numToHandshake;++i) {
         RVMThread t=handshakeThreads[i];
@@ -3673,7 +3684,7 @@ public Address sentinelFp;
 
     RVMThread current=getCurrentThread();
     worldStopped=false;
-    acctLock.lockNoHandshake();
+    Magic.disableInterrupts();
     int numToHandshake=0;
     for (int i=0;i<numThreads;++i) {
       RVMThread t=threads[i];
@@ -3683,7 +3694,7 @@ public Address sentinelFp;
         handshakeThreads[numToHandshake++]=t;
       }
     }
-    acctLock.unlock();
+    Magic.enableInterrupts();
     for (int i=0;i<numToHandshake;++i) {
       handshakeThreads[i].unblock(ba);
       handshakeThreads[i]=null; // help GC
@@ -4125,12 +4136,12 @@ public Address sentinelFp;
         // thread will start as a daemon
       } else {
         boolean terminateSystem = false;
-        acctLock.lockNoHandshake();
+        Magic.disableInterrupts();
         numActiveDaemons += on ? 1 : -1;
         if (numActiveDaemons == numActiveThreads) {
           terminateSystem = true;
         }
-        acctLock.unlock();
+        Magic.enableInterrupts();
         if (terminateSystem) {
           if (VM.TraceThreads) {
             trace("Thread", "last non Daemon demonized");
@@ -4604,8 +4615,7 @@ public Address sentinelFp;
   }
 
   public static void dumpAcct() {
-    acctLock.lockNoHandshake();
-    dumpLock.lockNoHandshake();
+    Magic.disableInterrupts();
     VM.sysWriteln("====== Begin Thread Accounting Dump ======");
     dumpThreadArray("threadBySlot", threadBySlot, nextSlot);
     dumpThreadSlotArray("aboutToTerminate", aboutToTerminate, aboutToTerminateN);
@@ -4619,8 +4629,7 @@ public Address sentinelFp;
     VM.sysWriteln();
     dumpThreadArray("threads", threads, numThreads);
     VM.sysWriteln("====== End Thread Accounting Dump ======");
-    dumpLock.unlock();
-    acctLock.unlock();
+    Magic.enableInterrupts();
   }
 
   public void extDump() {
@@ -5192,8 +5201,9 @@ public Address sentinelFp;
    * Dump state of virtual machine.
    */
   public static void dumpVirtualMachine() {
-    boolean b = Monitor.lockNoHandshake(dumpLock);
-    getCurrentThread().disableYieldpoints();
+//    boolean b = Monitor.lockNoHandshake(dumpLock);
+//    getCurrentThread().disableYieldpoints();
+    Magic.disableInterrupts();
     VM.sysWrite("\n-- Threads --\n");
     for (int i = 0; i < numThreads; ++i) {
       RVMThread t = threads[i];
@@ -5222,8 +5232,9 @@ public Address sentinelFp;
           dumpStack(thr.contextRegisters.getInnermostFramePointer());
       }
     }
-    getCurrentThread().enableYieldpoints();
-    Monitor.unlock(b, dumpLock);
+    Magic.enableInterrupts();
+//    getCurrentThread().enableYieldpoints();
+//    Monitor.unlock(b, dumpLock);
   }
 
   public static Feedlet getCurrentFeedlet() {
@@ -5302,5 +5313,10 @@ public Address sentinelFp;
     public Address getFramePointer()
     {
       return framePointer;
+    }
+
+    public static boolean isGC()
+    {
+        return gcInProgress;
     }
 }

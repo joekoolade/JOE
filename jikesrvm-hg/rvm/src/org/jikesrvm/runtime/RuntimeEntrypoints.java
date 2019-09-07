@@ -330,7 +330,6 @@ private static final boolean DEBUG = false;
 
     // Allocate the object and initialize its header
     Object newObj = MemoryManager.allocateScalar(size, tib, allocator, align, offset, site);
-
     // Deal with finalization
     if (hasFinalizer) MemoryManager.addFinalizer(newObj);
 
@@ -607,17 +606,17 @@ private static final boolean DEBUG = false;
    * @see MemberReference#needsDynamicLink
    */
   public static void initializeClassForDynamicLink(RVMClass cls) {
-//    if (VM.TraceClassLoading) {
-//      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (begin) " + cls + "\n");
-//    }
-//
-//    cls.resolve();
-//    cls.instantiate();
-//    cls.initialize();   // throws ExceptionInInitializerError
-//
-//    if (VM.TraceClassLoading) {
-//      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (end)   " + cls + "\n");
-//    }
+    if (VM.TraceClassLoading) {
+      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (begin) " + cls + "\n");
+    }
+
+    cls.resolve();
+    cls.instantiate();
+    cls.initialize();   // throws ExceptionInInitializerError
+
+    if (VM.TraceClassLoading) {
+      VM.sysWrite("RuntimeEntrypoints.initializeClassForDynamicLink: (end)   " + cls + "\n");
+    }
   }
 
   //---------------------------------------------------------------//
