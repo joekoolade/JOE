@@ -30,7 +30,7 @@ This is interoperable with current Java compilers, class files, and libraries. O
 
 [Run your own classes](HelloWorldClass.md)
 
-## How to Build
+## How To Build
 
 Ant is used to compile and build the JOE files and image. To build after the initial repository clone:
 ```
@@ -38,6 +38,29 @@ ant compile
 ant compile-classpath
 ant build
 ```
+
+## How To Add External Classes
+
+Precompiled classes can be added to image and loaded by the runtime. This allows users to run other programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load your program and run it. To have your classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example:
+
+```
+FAMILYs-MacBook-Pro:JOE joe$ ls -R ext/bin
+com	hello
+
+ext/bin/com:
+vonhessling
+
+ext/bin/com/vonhessling:
+DiningPhilosophers$Philosopher.class	DiningPhilosophers.class
+
+ext/bin/hello:
+world
+
+ext/bin/hello/world:
+HwThread.class
+```
+## How To Run
+
 To run the image, jam.out:
 ```
 cd jikesrvm-hgÍ/target/BaseBaseSemiSpace_x86_64-osx
