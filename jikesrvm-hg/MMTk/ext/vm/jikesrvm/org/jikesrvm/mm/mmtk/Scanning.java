@@ -149,6 +149,7 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
   private void computeThreadRoots(TraceLocal trace, boolean newRootsSufficient) {
     boolean processCodeLocations = MemoryManagerConstants.MOVES_CODE;
 
+    if(DEBUG) Log.writeln("computeThreadRoots start");
     /* scan all threads */
     while (true) {
       int threadIndex = threadCounter.increment();
@@ -168,6 +169,7 @@ public final class Scanning extends org.mmtk.vm.Scanning implements Constants {
 
     /* flush out any remset entries generated during the above activities */
     Selected.Mutator.get().flushRememberedSets();
+    if(DEBUG) Log.writeln("computeThreadRoots finished");
   }
 
   @Override

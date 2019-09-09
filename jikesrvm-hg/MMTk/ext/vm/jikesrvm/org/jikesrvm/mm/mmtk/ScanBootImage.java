@@ -29,7 +29,7 @@ import org.vmmagic.pragma.*;
  */
 public class ScanBootImage implements Constants {
 
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
   private static final boolean FILTER = true;
 
   private static final int LOG_CHUNK_BYTES = 12;
@@ -60,6 +60,7 @@ public class ScanBootImage implements Constants {
   @Uninterruptible
   public static void scanBootImage(TraceLocal trace) {
     /* establish sentinals in map & image */
+    if (DEBUG) Log.write("scanBootImage start\n");
     Address mapStart = BootRecord.the_boot_record.bootImageRMapStart;
     Address mapEnd = BootRecord.the_boot_record.bootImageRMapEnd;
     Address imageStart = BootRecord.the_boot_record.bootImageDataStart;
@@ -79,6 +80,7 @@ public class ScanBootImage implements Constants {
       processChunk(cursor, imageStart, mapStart, mapEnd, trace);
       cursor = cursor.plus(stride);
     }
+    if (DEBUG) Log.write("scanBootImage finished\n");
 
     /* print some debugging stats */
     if (DEBUG) {
