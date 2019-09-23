@@ -9,6 +9,7 @@ package org.jikesrvm.scheduler;
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
+import org.mmtk.plan.Plan;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -81,7 +82,7 @@ implements Scheduler {
          * See if we are in a garbage collection. If so
          * then put the thread onto the gcWait queue
          */
-        if(RVMThread.isGC() && thread.isCollectorThread()==false && thread.ignoreHandshakesAndGC()==false)
+        if(Plan.gcInProgress() && thread.isCollectorThread()==false && thread.ignoreHandshakesAndGC()==false)
         {
             RVMThread.gcWait.enqueue(thread);
         }

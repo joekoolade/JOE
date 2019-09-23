@@ -77,7 +77,8 @@ public class Collection extends org.mmtk.vm.Collection implements org.mmtk.utili
     RVMThread t=RVMThread.getCurrentThread();
     t.assertAcceptableStates(RVMThread.IN_JAVA, RVMThread.IN_JAVA_TO_BLOCK);
     RVMThread.observeExecStatusAtSTW(t.getExecStatus());
-    RVMThread.getCurrentThread().block(RVMThread.gcBlockAdapter);
+    // RVMThread.getCurrentThread().block(RVMThread.gcBlockAdapter);
+    RVMThread.blockForGC();
   }
 
   /***********************************************************************

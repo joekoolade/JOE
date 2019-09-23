@@ -3567,6 +3567,12 @@ public Address sentinelFp;
     Magic.enableInterrupts();
   }
 
+  public static void blockForGC()
+  {
+      gcWait.enqueue(RVMThread.getCurrentThread());
+      Magic.yield();
+  }
+  
   @Uninterruptible
   public static class HardHandshakeVisitor {
     public boolean includeThread(RVMThread t) {
