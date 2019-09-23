@@ -178,8 +178,10 @@ implements Timer
          * set expiration time and put on the queue
          */
 //        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
+        Magic.disableInterrupts();
         timerQueue.put(time_ns, RVMThread.getCurrentThread());
         threadQueue.enqueue(RVMThread.getCurrentThread());
+        Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
          */
@@ -193,7 +195,10 @@ implements Timer
      */
     public RVMThread removeTimer(long timeKey)
     {
-      return timerQueue.remove(timeKey);
+      Magic.disableInterrupts();
+      RVMThread t =  timerQueue.remove(timeKey);
+      Magic.enableInterrupts();
+      return t;
     }
     
     /**

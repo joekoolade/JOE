@@ -157,7 +157,7 @@ public abstract class Plan implements Constants {
    */
   public Plan() {
     /* Create base option instances */
-    Options.verbose = new Verbose(7);
+    Options.verbose = new Verbose(1);
     Options.verboseTiming = new VerboseTiming();
     Options.stressFactor = new StressFactor();
     Options.noFinalizer = new NoFinalizer();
