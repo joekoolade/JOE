@@ -166,6 +166,7 @@ implements Runnable
         System.out.println("c <address>\t\tDisplay method name of address");
         System.out.println("d <address> [length]\t\tHex dump starting at address");
         System.out.println("bt <address> [length]\t\tBack trace stack address");
+        System.out.println("td [RVMThread address]\t\tDump thread information");
         System.out.println("q\t\tExit program");
     }
 
