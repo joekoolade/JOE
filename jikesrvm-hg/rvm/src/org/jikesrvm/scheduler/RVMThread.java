@@ -5306,14 +5306,19 @@ public Address sentinelFp;
     /**
      * @param framePointer
      */
-    public void setStackPointer(Address framePointer)
+    public void setStackPointer(Address a)
     {
-        this.sp = framePointer;
+        this.sp = a;
     }
     
     public Address getStackPointer()
     {
         return sp;
+    }
+    
+    public void setFramePointer(Address a)
+    {
+        framePointer = a;
     }
     
     public Address getFramePointer()

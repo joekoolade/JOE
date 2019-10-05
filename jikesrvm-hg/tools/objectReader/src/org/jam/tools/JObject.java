@@ -33,6 +33,17 @@ implements TIBLayoutConstants, JavaHeaderConstants
         return byteArray;
     }
 
+    public char[] getCharArray(int offset)
+    {
+        int arraySize = getInt(offset+ARRAY_LENGTH_OFFSET);
+        char[] charArray = new char[arraySize];
+        for(int index=0; index < arraySize; index++)
+        {
+            charArray[index] = (char)getShort(index<<1);
+        }
+        return charArray;
+    }
+
     public byte getByte(int index)
     {
         return memory.readByte(address+index);

@@ -6,7 +6,7 @@ public class JikesObject
 extends JObject
 {
     private TIB tib;
-    private RVMClass type;
+    protected RVMClass type;
     
     public JikesObject(MemoryReader memory, int address)
     {
@@ -86,11 +86,16 @@ extends JObject
         }
         else
         {
+            boolean hasField = (args.length==3);
             Iterator<RVMField> fields = getFields();
             while(fields.hasNext())
             {
                 RVMField aField = fields.next();
                 String name = aField.getName();
+                if(hasField)
+                {
+                    if(name.equals(args[2]) == false) continue;
+                }
                 int offset = aField.getOffset();
                 switch(aField.getSize())
                 {
@@ -115,6 +120,21 @@ extends JObject
         }
     }
     
+    public int getField(String fieldName)
+    {
+        int value = 0;
+        RVMField field = type.getField(fieldName);
+        if(field==null) 
+        {
+            value = 0;
+        }
+        else
+        {
+            value = getInt(field.getOffset());
+        }
+        return value;
+    }
+    
     /**
      * hex dump the object
      */
@@ -129,5 +149,10 @@ extends JObject
     public String toString()
     {
         return null;
+    }
+    
+    boolean isString()
+    {
+        return type.getClassName().equals("java.lang.String");
     }
 }
