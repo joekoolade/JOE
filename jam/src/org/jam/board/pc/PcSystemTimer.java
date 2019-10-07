@@ -35,7 +35,7 @@ implements Timer
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
     public int BOLT = 10;   // schedule new process
-    private int stack[];
+//    private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;
     private static final int TIMERTICKSPERNSECS = 1000000;
@@ -58,20 +58,20 @@ implements Timer
         /*
          * Allocate irq handler stack
          */
-        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE); // new int[STACK_SIZE];
+//        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE); // new int[STACK_SIZE];
         /*
          * Put in the sentinel
          */
-        stack[STACK_SIZE-1] = 0;    // IP = 0
-        stack[STACK_SIZE-2] = 0;    // FP = 0
-        stack[STACK_SIZE-3] = 0;    // cmid = 0
+//        stack[STACK_SIZE-1] = 0;    // IP = 0
+//        stack[STACK_SIZE-2] = 0;    // FP = 0
+//        stack[STACK_SIZE-3] = 0;    // cmid = 0
         
         /*
          * On a stack switch, the new stack is popped so need to count for this
          * in the stackTop field. This space will contain the interrupted thread's
          * stack pointer.
          */
-        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
+//        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
         timerQueue = new TreeMap<Long, RVMThread>();
         threadQueue = new ThreadQueue();
     }

@@ -2389,8 +2389,6 @@ public Address sentinelFp;
      * ------------
      * EDI
      * ------------
-     * new stack - 4       ESP: new stack
-     * ------------
      */
      Platform.scheduler.addThread(this);
   }

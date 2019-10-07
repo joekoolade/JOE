@@ -28,7 +28,7 @@ import org.vmmagic.unboxed.Word;
  */
 public abstract class MachineSpecificIA extends MachineSpecific implements ArchConstants {
 
-  private static final int STARTUP_CONTEXT = (12*4);
+  private static final int STARTUP_CONTEXT = (11*4);
 /**
    * A well-known memory location used to manipulate the FPU control word.
    */
@@ -68,12 +68,12 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
   @Uninterruptible
   public final void initializeStack(ArchitectureSpecific.Registers contextRegisters, Address ip, Address sp) {
     Address fp;
-//    VM.sysWrite("sp0: ", sp); VM.sysWriteln(" ip: ", ip);
+    VM.sysWrite("sp0: ", sp); VM.sysWriteln(" ip: ", ip);
     sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
     fp = sp.minus(SizeConstants.BYTES_IN_ADDRESS + STACKFRAME_BODY_OFFSET);
     Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
     Magic.setCompiledMethodID(fp, INVISIBLE_METHOD_ID);
-//    VM.sysWrite("sp1: ", sp); VM.sysWriteln(" fp: ", fp);
+    VM.sysWrite("sp1: ", sp); VM.sysWriteln(" fp: ", fp);
     /*
      * Setup the interrupt return and registers
      */
@@ -92,7 +92,7 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
     contextRegisters.gprs.set(ESP.value(), sp.toWord());
     contextRegisters.fp = fp;
     contextRegisters.ip = ip;
-//    VM.sysWriteln("sp2: ", sp);
+    VM.sysWriteln("sp2: ", sp);
   }
 
   /* unique to IA */

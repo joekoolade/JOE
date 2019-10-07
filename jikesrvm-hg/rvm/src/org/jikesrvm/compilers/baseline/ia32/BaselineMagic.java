@@ -2593,11 +2593,11 @@ final class BaselineMagic {
            * 
            * Switch to the interrupted stack by popping it into the SP
            */
-          asm.emitPOP_Reg(GPR.ESP);
+//          asm.emitPOP_Reg(GPR.ESP);
           /*
            * Need to pop the interrupt thread stack
            */
-          asm.emitPOP_Reg(GPR.EAX);
+//          asm.emitPOP_Reg(GPR.EAX);
           /*
            * restore floating point/sse/xmm registers
            */
@@ -2627,7 +2627,7 @@ final class BaselineMagic {
           /*
            * restore the stack pointer from the RVMThread sp field
            */
-          asm.emitMOV_Reg_RegDisp(SP, ESI, Entrypoints.stackPointerField.getOffset());
+//          asm.emitMOV_Reg_RegDisp(SP, ESI, Entrypoints.stackPointerField.getOffset());
           /*
            * restore floating point/sse/xmm registers
            */
