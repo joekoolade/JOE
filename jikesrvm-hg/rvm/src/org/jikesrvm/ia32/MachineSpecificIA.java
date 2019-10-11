@@ -69,11 +69,11 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
   public final void initializeStack(ArchitectureSpecific.Registers contextRegisters, Address ip, Address sp) {
     Address fp;
     VM.sysWrite("sp0: ", sp); VM.sysWriteln(" ip: ", ip);
-    sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
-    fp = sp.minus(SizeConstants.BYTES_IN_ADDRESS + STACKFRAME_BODY_OFFSET);
-    Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
-    Magic.setCompiledMethodID(fp, INVISIBLE_METHOD_ID);
-    VM.sysWrite("sp1: ", sp); VM.sysWriteln(" fp: ", fp);
+//    sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
+//    fp = sp.minus(SizeConstants.BYTES_IN_ADDRESS + STACKFRAME_BODY_OFFSET);
+//    Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
+//    Magic.setCompiledMethodID(fp, INVISIBLE_METHOD_ID);
+//    VM.sysWrite("sp1: ", sp); VM.sysWriteln(" fp: ", fp);
     /*
      * Setup the interrupt return and registers
      * 
@@ -87,21 +87,13 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
      * FP
      * 
      */
-    sp = sp.minus(STARTUP_CONTEXT);
-    sp.store(0, Offset.zero().plus(0));         // EDI
-    sp.store(contextRegisters.gprs.get(ESI.value()), Offset.zero().plus(4));        // ESI
-    sp.store(sp, Offset.zero().plus(8));        // EBP
-    sp.store(0xFFFFFFFC, Offset.zero().plus(12));        // ESP
-    sp.store(0, Offset.zero().plus(16));        // EBX
-    sp.store(0, Offset.zero().plus(20));        // EDX
-    sp.store(0, Offset.zero().plus(24));        // ECX
-    sp.store(0, Offset.zero().plus(28));        // EAX
-    sp.store(ip, Offset.zero().plus(32));       // EIP
-    sp.store(8, Offset.zero().plus(36));        // Code segment
-    sp.store(0x200, Offset.zero().plus(40));        // EFLAGS
-    contextRegisters.gprs.set(ESP.value(), sp.toWord());
-    contextRegisters.fp = fp;
-    contextRegisters.ip = ip;
+    sp.store(0, Offset.zero());                                 // IP0
+    sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(4));   // FP0
+    sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(8));      // cmd id0; invisible method id
+    sp.store(0x200, Offset.zero().minus(12));                   // EFLAGS
+    sp.store(8, Offset.zero().minus(16));                       // CS
+    sp.store(ip, Offset.zero().minus(20));                      // IP
+    sp.store(sp.minus(8), Offset.zero().plus(24));             // FP
     VM.sysWriteln("sp2: ", sp);
   }
 
