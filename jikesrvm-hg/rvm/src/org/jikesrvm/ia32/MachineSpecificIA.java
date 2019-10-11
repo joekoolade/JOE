@@ -76,6 +76,16 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
     VM.sysWrite("sp1: ", sp); VM.sysWriteln(" fp: ", fp);
     /*
      * Setup the interrupt return and registers
+     * 
+     * Top of Stack
+     * 0        IP0; sentinel IP
+     * 0        FP0; sentinel FP
+     * 0        cmd id0; invisible method id
+     * 0x200
+     * code segment
+     * IP
+     * FP
+     * 
      */
     sp = sp.minus(STARTUP_CONTEXT);
     sp.store(0, Offset.zero().plus(0));         // EDI
