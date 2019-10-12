@@ -1553,8 +1553,8 @@ public Address sentinelFp;
       sentinelFp = contextRegisters.fp;
       // Points to framepointer sentinel
       this.framePointer = contextRegisters.fp;
-      this.sp = framePointer; // contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
-//      VM.sysWriteln("rvmthread sp: ", this.sp);
+      this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
+      VM.sysWriteln("rvmthread sp: ", this.sp);
       
       /*
        * Set up the FP/SSE/MMX state area

@@ -2494,7 +2494,7 @@ final class BaselineMagic {
           /*
            * Push the interrupted threads frame pointer
            */
-          asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store caller's frame pointer
+          asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
           asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
           asm.emitPUSH_Imm(StackframeLayoutConstants.INTERRUPT_METHOD_ID);
 
@@ -2524,6 +2524,24 @@ final class BaselineMagic {
            */
           asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
           asm.emitFXSAVE_Reg(EAX);
+          /*
+           * Store the stack pointer
+           */
+          asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.stackPointerField.getOffset(), SP);
+          /*
+           * Save fp and ip into contextRegisters
+           * 
+           * eax has the fp
+           */
+          asm.emitMOV_Reg_RegDisp(EAX, TR, ArchEntrypoints.framePointerField.getOffset());
+          // ebx has contextRegisters
+          asm.emitMOV_Reg_RegDisp(EBX, TR, Entrypoints.threadContextRegistersField.getOffset());
+          // save fp
+          asm.emitMOV_RegDisp_Reg(EBX, ArchEntrypoints.registersFPField.getOffset(), EAX);
+          // get there return address
+          asm.emitMOV_Reg_RegDisp(EAX, SP, Offset.fromIntZeroExtend(32));
+          // save it
+          asm.emitMOV_RegDisp_Reg(EBX, ArchEntrypoints.registersIPField.getOffset(), EAX);
       }
   }
   static
@@ -2557,6 +2575,10 @@ final class BaselineMagic {
           asm.emitFXRSTOR_Reg(EAX);
 
           /*
+           * Restore the stack
+           */
+          asm.emitMOV_Reg_RegDisp(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
+          /*
            * Now restore the interrrupted threads context
            */
           asm.emitPOP_Reg(EDI);
@@ -2589,25 +2611,25 @@ final class BaselineMagic {
           /*
            * restore the stack pointer from the RVMThread sp field
            */
-//          asm.emitMOV_Reg_RegDisp(SP, ESI, Entrypoints.stackPointerField.getOffset());
+          asm.emitMOV_Reg_RegDisp(SP, TR, Entrypoints.stackPointerField.getOffset());
           /*
            * restore floating point/sse/xmm registers
            */
           asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
           asm.emitFXRSTOR_Reg(EAX);
           /*
-           * Restore the frame pointer
-           */
-          // get the context register address
-          asm.emitMOV_Reg_RegDisp(EBX, ESI, Entrypoints.threadContextRegistersField.getOffset());
-          // Move contextreg.fp into eax
-          asm.emitMOV_Reg_RegDisp(EAX, EBX, ArchEntrypoints.registersFPField.getOffset());
-          // back into the rvmthread.framepointer
-          asm.emitMOV_RegDisp_Reg(ESI, ArchEntrypoints.framePointerField.getOffset(), EAX);
-          /*
            * Now restore the interrrupted threads context
            */
-          asm.emitPOPAD();
+          asm.emitPOP_Reg(EDI);
+          asm.emitPOP_Reg(EBP);
+          asm.emitPOP_Reg(EBX);
+          asm.emitPOP_Reg(EDX);
+          asm.emitPOP_Reg(ECX);
+          asm.emitPOP_Reg(EAX);
+          // pop the cmid
+          asm.emitADD_Reg_Imm(SP, 4);
+          // Restore previous frame pointer
+          asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset()); // discard frame
       }
   }
   static

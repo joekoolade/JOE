@@ -199,7 +199,6 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int13()
        {
-         Magic.halt();
            Magic.saveContext();
            VM.sysFailTrap("General Protection");
        }

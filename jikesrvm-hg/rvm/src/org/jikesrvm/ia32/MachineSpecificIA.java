@@ -93,10 +93,12 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
     sp.store(0x200, Offset.zero().minus(12));                   // EFLAGS
     sp.store(8, Offset.zero().minus(16));                       // CS
     sp.store(ip, Offset.zero().minus(20));                      // IP
-    sp.store(sp.minus(8), Offset.zero().plus(24));              // FP
-    sp.store(THREAD_START_METHOD_ID, Offset.zero().plus(28));   // thread start method id
+    sp.store(sp.minus(8), Offset.zero().minus(24));              // FP
+    sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(28));   // thread start method id
     contextRegisters.ip = ip;
-    contextRegisters.fp = sp.plus(24);
+    contextRegisters.fp = sp.minus(24);
+    // set the sp
+    contextRegisters.gprs.set(ESP.value(), sp.minus(52).toWord());
     VM.sysWriteln("fp: ", contextRegisters.fp);
   }
 
