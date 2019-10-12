@@ -3499,10 +3499,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
        * The third word of the header contains the compiled method id of the called method.
        */
       asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store caller's frame pointer
-      asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.framePointerField.getOffset(), SP);
-//      ThreadLocalState.emitMoveRegToField(asm,
-//                                          ArchEntrypoints.framePointerField.getOffset(),
-//                                          SP); // establish new frame
+      asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
       /*
        * NOTE: until the end of the prologue SP holds the framepointer.
        */

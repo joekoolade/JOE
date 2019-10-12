@@ -1553,7 +1553,7 @@ public Address sentinelFp;
       sentinelFp = contextRegisters.fp;
       // Points to framepointer sentinel
       this.framePointer = contextRegisters.fp;
-      this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
+      this.sp = framePointer; // contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
 //      VM.sysWriteln("rvmthread sp: ", this.sp);
       
       /*
@@ -2366,25 +2366,13 @@ public Address sentinelFp;
      * is returning from an interrupt
      * 
      * Top of Stack
-     * ------------
-     * EFLAGS
-     * ------------
-     * CS
-     * ------------
-     * EIP
-     * ------------
-     * EAX
-     * ------------
-     * ECX
-     * ------------
-     * EDX
-     * ------------
-     * EBX
-     * ------------
-     * EBP
-     * ------------
-     * EDI
-     * ------------
+     * 0        IP0; sentinel IP
+     * 0        FP0; sentinel FP
+     * 0        cmd id0; invisible method id
+     * 0x200
+     * code segment
+     * IP
+     * FP
      */
      Platform.scheduler.addThread(this);
   }

@@ -93,8 +93,10 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
     sp.store(0x200, Offset.zero().minus(12));                   // EFLAGS
     sp.store(8, Offset.zero().minus(16));                       // CS
     sp.store(ip, Offset.zero().minus(20));                      // IP
-    sp.store(sp.minus(8), Offset.zero().plus(24));             // FP
-    VM.sysWriteln("sp2: ", sp);
+    sp.store(sp.minus(8), Offset.zero().plus(24));              // FP
+    contextRegisters.ip = ip;
+    contextRegisters.fp = sp.plus(24);
+    VM.sysWriteln("fp: ", contextRegisters.fp);
   }
 
   /* unique to IA */
