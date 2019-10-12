@@ -79,13 +79,13 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
      * 
      * Top of Stack
      * 0        IP0; sentinel IP
-     * 0        FP0; sentinel FP
-     * 0        cmd id0; invisible method id
+     * STACKFRAME_SENTINEL_FP        FP0; sentinel FP
+     * INVISIBLE_METHOD_ID       cmd id0; invisible method id
      * 0x200
      * code segment
      * IP
      * FP
-     * 
+     * THREAD_START_METHOD_ID
      */
     sp.store(0, Offset.zero());                                 // IP0
     sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(4));   // FP0
@@ -94,6 +94,7 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
     sp.store(8, Offset.zero().minus(16));                       // CS
     sp.store(ip, Offset.zero().minus(20));                      // IP
     sp.store(sp.minus(8), Offset.zero().plus(24));              // FP
+    sp.store(THREAD_START_METHOD_ID, Offset.zero().plus(28));   // thread start method id
     contextRegisters.ip = ip;
     contextRegisters.fp = sp.plus(24);
     VM.sysWriteln("fp: ", contextRegisters.fp);

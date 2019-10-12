@@ -161,6 +161,8 @@ public interface StackframeLayoutConstants {
   Address STACKFRAME_SENTINEL_FP = Address.fromIntSignExtend(-2);
   /** marker for "assembler" frames that have no associated RVMMethod */
   int INVISIBLE_METHOD_ID = -1;
+  int INTERRUPT_METHOD_ID = -2;     // an interrupt frame  
+  int THREAD_START_METHOD_ID = -3;  // thread starup frame
 
   // Stackframe alignment.
   // Align to 8 byte boundary for good floating point save/restore performance (on powerPC, anyway).
