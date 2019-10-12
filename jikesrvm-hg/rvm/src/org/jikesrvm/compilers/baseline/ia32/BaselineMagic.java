@@ -58,6 +58,7 @@ import org.jikesrvm.VM;
 import org.jikesrvm.ArchitectureSpecific.Assembler;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.ArchitectureSpecific.Registers;
+import org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.MethodReference;
 import org.jikesrvm.classloader.RVMArray;
@@ -2490,6 +2491,13 @@ final class BaselineMagic {
       @Override
       void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
       {
+          /*
+           * Push the interrupted threads frame pointer
+           */
+          asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store caller's frame pointer
+          asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
+          asm.emitPUSH_Imm(StackframeLayoutConstants.INTERRUPT_METHOD_ID);
+
           /**
            * Save context onto the stack.
            * 
@@ -2557,6 +2565,11 @@ final class BaselineMagic {
           asm.emitPOP_Reg(EDX);
           asm.emitPOP_Reg(ECX);
           asm.emitPOP_Reg(EAX);
+          // pop the cmid
+          asm.emitADD_Reg_Imm(SP, 4);
+          // Restore previous frame pointer
+          asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset()); // discard frame
+
       }
   }
   static
