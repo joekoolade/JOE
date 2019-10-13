@@ -151,11 +151,11 @@ implements Timer
          * Remove the thread from the timer and schedule it
          */
         if(trace) VM.sysWriteln("Timer expired! ", timerExpiration);
-        Magic.disableInterrupts();
+        //Magic.disableInterrupts();
         RVMThread thread = timerQueue.remove(timerExpiration);
         threadQueue.remove(thread);
         Platform.scheduler.addThread(thread);
-        Magic.enableInterrupts();
+        //Magic.enableInterrupts();
     }
     
     /**
