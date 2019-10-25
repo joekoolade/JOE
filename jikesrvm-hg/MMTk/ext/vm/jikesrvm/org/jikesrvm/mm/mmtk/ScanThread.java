@@ -142,8 +142,12 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     Registers regs=thread.getContextRegisters();
     Address gprs = Magic.objectAsAddress(regs.gprs);
 
-    Address ip=regs.getInnermostInstructionAddress();
-    Address fp=regs.getInnermostFramePointer();
+    /*
+     * Skip past the interrupt; go up the one frame past the interrupt
+     */
+    // Address ip=regs.getInnermostInstructionAddress();
+    Address fp=regs.getInnermostFramePointer().loadAddress();
+    Address ip = fp.loadAddress(Offset.fromIntZeroExtend(4));
     if (DEFAULT_VERBOSITY >= 1)
     {
       VM.sysWrite("scanning fp ", fp);
@@ -293,9 +297,11 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
       /* At start of loop:
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
-      while (fp.NE(sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
+//      while (fp.loadAddress().NE(sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
+      while (fp.loadAddress(Offset.fromIntZeroExtend(4)).NE(sentinelFp)) {
         if (DEFAULT_VERBOSITY >= 1) {
-          VM.sysWriteln("Thread ",thread.getThreadSlot()," at fp = ",fp);
+          VM.sysWrite("Thread ",thread.getThreadSlot()); VM.sysWrite(" at fp = ",fp);
+          VM.sysWriteln(" ", sentinelFp);
         }
         prevFp = scanFrame(verbosity);
         ip = Magic.getReturnAddress(fp, thread);
@@ -384,7 +390,11 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
       if (verbosity >= 2) Log.writeln("\n--- METHOD <invisible method>");
       return false;
     }
-
+    if (compiledMethodId == ArchitectureSpecific.ArchConstants.INTERRUPT_METHOD_ID)
+    {
+        if (verbosity >= 2) Log.writeln("\n--- METHOD <interrupt method>");
+        return false;
+    }
     /* establish the compiled method */
     compiledMethod = CompiledMethods.getCompiledMethod(compiledMethodId);
     compiledMethod.setActiveOnStack();  // prevents code from being collected
