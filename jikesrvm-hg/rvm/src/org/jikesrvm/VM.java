@@ -2678,52 +2678,6 @@ public class VM extends Properties implements Constants, ExitStatus {
   @Inline
   @Unpreemptible("We may boost the size of the stack with GC disabled and may get preempted doing this")
   public static void disableGC(boolean recursiveOK) {
-    // current (non-GC) thread is going to be holding raw addresses, therefore we must:
-    //
-    // 1. make sure we have enough stack space to run until GC is re-enabled
-    //    (otherwise we might trigger a stack reallocation)
-    //    (We can't resize the stack if there's a native frame, so don't
-    //     do it and hope for the best)
-    //
-    // 2. force all other threads that need GC to wait until this thread
-    //    is done with the raw addresses
-    //
-    // 3. ensure that this thread doesn't try to allocate any objects
-    //    (because an allocation attempt might trigger a collection that
-    //    would invalidate the addresses we're holding)
-    //
-
-    RVMThread myThread = RVMThread.getCurrentThread();
-
-    // 0. Sanity Check; recursion
-    int gcDepth = myThread.getDisableGCDepth();
-    if (VM.VerifyAssertions) VM._assert(gcDepth >= 0);
-    gcDepth++;
-    myThread.setDisableGCDepth(gcDepth);
-    if (gcDepth > 1) {
-      return;                   // We've already disabled it.
-    }
-
-    // 1.
-    //
-    if (Magic.getFramePointer().minus(ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GCDISABLED)
-        .LT(myThread.stackLimit)) {
-      RVMThread.resizeCurrentStack(myThread.getStackLength()+
-          ArchitectureSpecific.StackframeLayoutConstants.STACK_SIZE_GCDISABLED, null);
-    }
-
-    // 2.
-    //
-    myThread.disableYieldpoints();
-
-    // 3.
-    //
-    if (VM.VerifyAssertions) {
-      if (!recursiveOK) {
-        VM._assert(!myThread.getDisallowAllocationsByThisThread()); // recursion not allowed
-      }
-      myThread.setDisallowAllocationsByThisThread();
-    }
   }
 
   /**
@@ -2742,21 +2696,6 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   @Inline
   public static void enableGC(boolean recursiveOK) {
-    RVMThread myThread = RVMThread.getCurrentThread();
-    int gcDepth = myThread.getDisableGCDepth();
-    if (VM.VerifyAssertions) {
-      VM._assert(gcDepth >= 1);
-      VM._assert(myThread.getDisallowAllocationsByThisThread());
-    }
-    gcDepth--;
-    myThread.setDisableGCDepth(gcDepth);
-    if (gcDepth > 0) {
-      return;
-    }
-
-    // Now the actual work of re-enabling GC.
-    myThread.clearDisallowAllocationsByThisThread();
-    myThread.enableYieldpoints();
   }
 
   /**
