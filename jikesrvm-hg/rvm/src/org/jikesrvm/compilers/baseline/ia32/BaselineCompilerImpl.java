@@ -1015,143 +1015,12 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       asm.emitIDIV_Reg_Reg_Quad(EAX, ECX);
       asm.emitPUSH_Reg(EAX); // push result
     } else {
-        asm.emitPUSH_Reg(EBP);
-        /*
-         *   stack looks like:
-         *   ...
-         *   a: dividend.high    FOUR_SLOTS
-         *      dividend.low     THREE_SLOTS
-         *   b: divisor.high     TWO_SLOTS
-         *      divisor.low      ONE_SLOTS
-         *      EBP              <--- esp
-         */
-        asm.emitMOV_Reg_RegDisp(EDX, SP, TWO_SLOTS); // edx = divisor.high
-        asm.emitMOV_Reg_RegDisp(EAX, SP, ONE_SLOT); // eax = divisor.low
-        
-        asm.emitMOV_Reg_Reg(ECX, EDX);
-        asm.emitSAR_Reg_Imm(ECX, 31);           // ( b < 0 ) ? -1 : 0
-        asm.emitXOR_Reg_Reg(EAX, ECX);
-        asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (b < 0) ? not(b) : b
-        asm.emitSUB_Reg_Reg(EAX, ECX);
-        asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(b)
-        asm.emitMOV_RegDisp_Reg(SP, TWO_SLOTS, EDX);
-        asm.emitMOV_RegDisp_Reg(SP, ONE_SLOT, EAX);    // store abs(b) onto the stack
-        asm.emitMOV_Reg_Reg(EBP, ECX);                  // put sign of b in ebp
-        asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);   // edx = dividend.high
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);   // eax = dividend.low
-        asm.emitMOV_Reg_Reg(ECX, EDX);
-        asm.emitSAR_Reg_Imm(ECX, 31);           // ( a < 0 ) ? -1 : 0
-        asm.emitXOR_Reg_Reg(EAX, ECX);
-        asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (a < 0) ? not(a) : a
-        asm.emitSUB_Reg_Reg(EAX, ECX);
-        asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(a)
-        asm.emitMOV_RegDisp_Reg(SP, FOUR_SLOTS, EDX);
-        asm.emitMOV_RegDisp_Reg(SP, THREE_SLOTS, EAX);    // store abs(a) onto the stack
-        asm.emitXOR_Reg_Reg(EBP, ECX);                  // sign result = sign of a ^ sign of b
-        asm.emitMOV_Reg_RegDisp(EBX, SP, TWO_SLOTS);     // Find the index i of the leading bit in b.
-        asm.emitBSR_Reg_Reg(ECX, EBX);                  // if divisor.high is 0
-//        ForwardReference F9 = asm.forwardJcc(Assembler.EQ);  
-        asm.emitJCC_Cond_Label(Assembler.EQ, 9);        // jump to special case 9
-        
-        // b.high > 0
-        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);    // construct bhi containing [1+i:32+i] of b
-        asm.emitSHR_Reg_Reg(EAX, ECX);
-        asm.emitSHR_Reg_Imm(EAX, 1);                    // dividend.low >> (i+1)
-        asm.emitNOT_Reg(ECX);                           // 31-i
-        asm.emitSHL_Reg_Reg(EBX, ECX);                  // dividend.high << (31-i)
-        asm.emitOR_Reg_Reg(EBX, EAX);                   // bhi = dividend.low | dividend.high
-        asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);
-        asm.emitCMP_Reg_Reg(EDX, EBX);                  // Jump to F1 if a.high < b.high
-        asm.emitJCC_Cond_Label(Assembler.LGE, 1);
-        //ForwardReference F1 = asm.forwardJcc();
-        
-        //  a >  b >> (i+1)
-        asm.emitDIV_Reg_Reg(EAX, EBX);                  // eax = quotient; edx = remainder
-        asm.emitNOT_Reg(ECX);
-        asm.emitSHR_Reg_Imm(EAX, 1);
-        asm.emitSHR_Reg_Reg(EAX, ECX);
-        asm.emitMOV_Reg_Reg(EDI, EAX);
-        asm.emitMUL_Reg_RegDisp(EAX, SP, ONE_SLOT);    // eax = dividend.low
-        asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(EBX, SP, THREE_SLOTS);
-        asm.emitSUB_Reg_Reg(EBX, EAX);
-        asm.emitSBB_Reg_Reg(ECX, EDX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
-        asm.emitMUL_Reg_Reg(EAX, EDI);                  // q*dividend.high
-        asm.emitSUB_Reg_Reg(ECX, EAX);
-        asm.emitSBB_Reg_Imm(EDI, 0);                    // decrement q if remainder negative
-        asm.emitXOR_Reg_Reg(EDX, EDX);
-        asm.emitMOV_Reg_Reg(EAX, EDI);
-        // restore sign to result
-        asm.emitADD_Reg_Reg(EAX, EBP);
-        asm.emitADC_Reg_Reg(EDX, EBP);
-        asm.emitXOR_Reg_Reg(EAX, EBP);
-        asm.emitXOR_Reg_Reg(EDX, EBP);
-        asm.emitPOP_Reg(EBP);
-        // Pop off the arguments
-        asm.emitADD_Reg_Imm(ESP, 16);
-        asm.emitPUSH_Reg(EDX);
-        asm.emitPUSH_Reg(EAX);
-        asm.emitJMP_Label(10);
-        
-        //F1.resolve(asm);
-        asm.resolveForwardReferences(1);
-        asm.emitSUB_Reg_Reg(EDX, EBX);          // dividend.high - divisor.high
-        asm.emitDIV_Reg_Reg(EAX, EBX);
-        asm.emitNOT_Reg(ECX);
-        asm.emitSHR_Reg_Imm(EAX, 1);
-        asm.emitOR_Reg_Imm(EAX, 0x80000000);
-        asm.emitSHR_Reg_Reg(EAX, ECX);
-        asm.emitMOV_Reg_Reg(EDI, EAX);
-        asm.emitMUL_Reg_RegDisp(EAX, SP, ONE_SLOT);    // dividend.low * q
-        asm.emitMOV_Reg_RegDisp(EBX, SP, THREE_SLOTS);
-        asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
-        asm.emitSUB_Reg_Reg(EBX, EAX);
-        asm.emitSBB_Reg_Reg(ECX, EDX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
-        asm.emitMUL_Reg_Reg(EAX, EDI);          // q * dividend.high
-        asm.emitSUB_Reg_Reg(ECX, EAX);
-        asm.emitSBB_Reg_Imm(EDI, 0);
-        asm.emitXOR_Reg_Reg(EDX, EDX);
-        asm.emitMOV_Reg_Reg(EAX, EDI);
-        
-        // restore correct sign to the result
-        asm.emitADD_Reg_Reg(EAX, EBP);
-        asm.emitADC_Reg_Reg(EDX, EBP);
-        asm.emitXOR_Reg_Reg(EAX, EBP);
-        asm.emitXOR_Reg_Reg(EDX, EBP);
-        asm.emitPOP_Reg(EBP);
-        // Pop off the arguments
-        asm.emitADD_Reg_Imm(ESP, 16);
-        asm.emitPUSH_Reg(EDX);
-        asm.emitPUSH_Reg(EAX);
-        asm.emitJMP_Label(10);
-
-        //F9.resolve(asm);
-        asm.resolveForwardReferences(9);
-        // dividend.high is 0
-        asm.emitMOV_Reg_RegDisp(EAX, SP, FOUR_SLOTS);       // a.hi
-        asm.emitMOV_Reg_RegDisp(ECX, SP, ONE_SLOT);         // b.lo
-        asm.emitXOR_Reg_Reg(EDX, EDX);
-        asm.emitDIV_Reg_Reg(EAX, ECX);                      // a.hi/b.lo
-        asm.emitMOV_Reg_Reg(EBX, EAX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);      // a.lo
-        asm.emitDIV_Reg_Reg(EAX, ECX);                      // a.lo / b.lo
-        asm.emitMOV_Reg_Reg(EDX, EBX);
-        // restore correct sign to the result
-        asm.emitADD_Reg_Reg(EAX, EBP);
-        asm.emitADC_Reg_Reg(EDX, EBP);
-        asm.emitXOR_Reg_Reg(EAX, EBP);
-        asm.emitXOR_Reg_Reg(EDX, EBP);
-        asm.emitPOP_Reg(EBP);
-        // Pop off the arguments
-        asm.emitADD_Reg_Imm(ESP, 16);
-        asm.emitPUSH_Reg(EDX);
-        asm.emitPUSH_Reg(EAX);
-        asm.resolveForwardReferences(10);
+        genParameterRegisterLoad(asm, 4);
+        asm.emitCALL_Abs(Magic.getTocPointer().plus(Entrypoints.div64Method.getOffset()));
+        asm.emitPUSH_Reg(T0);
+        asm.emitPUSH_Reg(T1);
     }
-  }
+ }
 
     @Override
   protected final void emit_lrem() {
@@ -1163,154 +1032,10 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       asm.emitIDIV_Reg_Reg_Quad(EAX, ECX);
       asm.emitPUSH_Reg(EDX); // push result
     } else {
-        asm.emitPUSH_Reg(EBP);
-        /*
-         *   stack looks like:
-         *   ...
-         *   a: dividend.high    FOUR_SLOTS
-         *      dividend.low     THREE_SLOTS
-         *   b: divisor.high     TWO_SLOTS
-         *      divisor.low      ONE_SLOTS
-         *      EBP              <--- esp
-         */
-        asm.emitMOV_Reg_RegDisp(EDX, SP, TWO_SLOTS); // edx = divisor.high
-        asm.emitMOV_Reg_RegDisp(EAX, SP, ONE_SLOT); // eax = divisor.low
-        
-        asm.emitMOV_Reg_Reg(ECX, EDX);
-        asm.emitSAR_Reg_Imm(ECX, 31);           // ( b < 0 ) ? -1 : 0
-        asm.emitXOR_Reg_Reg(EAX, ECX);
-        asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (b < 0) ? not(b) : b
-        asm.emitSUB_Reg_Reg(EAX, ECX);
-        asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(b)
-        asm.emitMOV_RegDisp_Reg(SP, TWO_SLOTS, EDX);
-        asm.emitMOV_RegDisp_Reg(SP, ONE_SLOT, EAX);    // store abs(b) onto the stack
-        asm.emitMOV_Reg_Reg(EBP, ECX);                  // put sign of b in ebp
-        asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);   // edx = dividend.high
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);   // eax = dividend.low
-        asm.emitMOV_Reg_Reg(ECX, EDX);
-        asm.emitSAR_Reg_Imm(ECX, 31);           // ( a < 0 ) ? -1 : 0
-        asm.emitXOR_Reg_Reg(EAX, ECX);
-        asm.emitXOR_Reg_Reg(EDX, ECX);                  // EDX:EAX = (a < 0) ? not(a) : a
-        asm.emitSUB_Reg_Reg(EAX, ECX);
-        asm.emitSBB_Reg_Reg(EDX, ECX);                  // EDX:EAX = abs(a)
-        asm.emitMOV_RegDisp_Reg(SP, FOUR_SLOTS, EDX);
-        asm.emitMOV_RegDisp_Reg(SP, THREE_SLOTS, EAX);    // store abs(a) onto the stack
-        asm.emitXOR_Reg_Reg(EBP, ECX);                  // sign result = sign of a ^ sign of b
-        asm.emitMOV_Reg_RegDisp(EBX, SP, TWO_SLOTS);     // Find the index i of the leading bit in b.
-        asm.emitBSR_Reg_Reg(ECX, EBX);                  // if divisor.high is 0
-//        ForwardReference F9 = asm.forwardJcc(Assembler.EQ);  
-        asm.emitJCC_Cond_Label(Assembler.EQ, 9);        // jump to special case 9
-        
-        // b.high > 0
-        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);    // construct bhi containing [1+i:32+i] of b
-        asm.emitSHR_Reg_Reg(EAX, ECX);
-        asm.emitSHR_Reg_Imm(EAX, 1);                    // dividend.low >> (i+1)
-        asm.emitNOT_Reg(ECX);                           // 31-i
-        asm.emitSHL_Reg_Reg(EBX, ECX);                  // dividend.high << (31-i)
-        asm.emitOR_Reg_Reg(EBX, EAX);                   // bhi = dividend.low | dividend.high
-        asm.emitMOV_Reg_RegDisp(EDX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);
-        asm.emitCMP_Reg_Reg(EDX, EBX);                  // Jump to F1 if a.high < b.high
-        asm.emitJCC_Cond_Label(Assembler.LGE, 1);
-        //ForwardReference F1 = asm.forwardJcc();
-        
-        //  a >  b >> (i+1)
-        asm.emitDIV_Reg_Reg(EAX, EBX);                  // eax = quotient; edx = remainder
-        asm.emitNOT_Reg(ECX);
-        asm.emitSHR_Reg_Imm(EAX, 1);
-        asm.emitSHR_Reg_Reg(EAX, ECX);
-        asm.emitMOV_Reg_Reg(EDI, EAX);
-        asm.emitMUL_Reg_RegDisp(EAX, SP, ONE_SLOT);    // eax = dividend.low
-        asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
-        asm.emitMOV_Reg_RegDisp(EBX, SP, THREE_SLOTS);
-        asm.emitSUB_Reg_Reg(EBX, EAX);
-        asm.emitSBB_Reg_Reg(ECX, EDX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
-        asm.emitMUL_Reg_Reg(EAX, EDI);                  // q*dividend.high
-        asm.emitSUB_Reg_Reg(ECX, EAX);
-//        asm.emitJCC_Cond_Label(Assembler.LGE, 2);
-//        asm.emitMOV_Reg_RegDisp(EBX, SP, ONE_SLOT);
-//        asm.emitMOV_Reg_RegDisp(ECX, SP, TWO_SLOTS);
-//        asm.resolveForwardReferences(2);
-        asm.emitCMOV_Cond_Reg_RegDisp(Assembler.LLT, EBX, SP, ONE_SLOT);
-        asm.emitCMOV_Cond_Reg_RegDisp(Assembler.LLT, ECX, SP, TWO_SLOTS);
-        asm.emitMOV_Reg_Reg(EAX, EBX);
-        asm.emitMOV_Reg_Reg(EDX, ECX);
-        
-        // restore sign to result
-        asm.emitADD_Reg_Reg(EAX, EBP);
-        asm.emitADC_Reg_Reg(EDX, EBP);
-        asm.emitXOR_Reg_Reg(EAX, EBP);
-        asm.emitXOR_Reg_Reg(EDX, EBP);
-        asm.emitPOP_Reg(EBP);
-        // Pop off the arguments
-        asm.emitADD_Reg_Imm(ESP, 16);
-        asm.emitPUSH_Reg(EDX);
-        asm.emitPUSH_Reg(EAX);
-        asm.emitJMP_Label(10);
-        
-        //F1.resolve(asm);
-        asm.resolveForwardReferences(1);
-        asm.emitSUB_Reg_Reg(EDX, EBX);          // dividend.high - divisor.high
-        asm.emitDIV_Reg_Reg(EAX, EBX);
-        asm.emitNOT_Reg(ECX);
-        asm.emitSHR_Reg_Imm(EAX, 1);
-        asm.emitOR_Reg_Imm(EAX, 0x80000000);
-        asm.emitSHR_Reg_Reg(EAX, ECX);
-        asm.emitMOV_Reg_Reg(EDI, EAX);
-        asm.emitMUL_Reg_RegDisp(EAX, SP, ONE_SLOT);    // dividend.low * q
-        asm.emitMOV_Reg_RegDisp(EBX, SP, THREE_SLOTS);
-        asm.emitMOV_Reg_RegDisp(ECX, SP, FOUR_SLOTS);
-        asm.emitSUB_Reg_Reg(EBX, EAX);
-        asm.emitSBB_Reg_Reg(ECX, EDX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, TWO_SLOTS);
-        asm.emitMUL_Reg_Reg(EAX, EDI);          // q * dividend.high
-        asm.emitSUB_Reg_Reg(ECX, EAX);
-        asm.emitCMOV_Cond_Reg_RegDisp(Assembler.LLT, EBX, SP, ONE_SLOT);
-        asm.emitCMOV_Cond_Reg_RegDisp(Assembler.LLT, ECX, SP, TWO_SLOTS);
-//        asm.emitJCC_Cond_Label(Assembler.LGE, 3);
-//        asm.emitMOV_Reg_RegDisp(EBX, SP, ONE_SLOT);
-//        asm.emitMOV_Reg_RegDisp(ECX, SP, TWO_SLOTS);
-//        asm.resolveForwardReferences(3);
-        asm.emitMOV_Reg_Reg(EAX, EBX);
-        asm.emitMOV_Reg_Reg(EDX, ECX);
-        
-        
-        // restore correct sign to the result
-        asm.emitADD_Reg_Reg(EAX, EBP);
-        asm.emitADC_Reg_Reg(EDX, EBP);
-        asm.emitXOR_Reg_Reg(EAX, EBP);
-        asm.emitXOR_Reg_Reg(EDX, EBP);
-        asm.emitPOP_Reg(EBP);
-        // Pop off the arguments
-        asm.emitADD_Reg_Imm(ESP, 16);
-        asm.emitPUSH_Reg(EDX);
-        asm.emitPUSH_Reg(EAX);
-        asm.emitJMP_Label(10);
-
-        //F9.resolve(asm);
-        asm.resolveForwardReferences(9);
-        // dividend.high is 0
-        asm.emitMOV_Reg_RegDisp(EAX, SP, FOUR_SLOTS);       // a.hi
-        asm.emitMOV_Reg_RegDisp(ECX, SP, ONE_SLOT);         // b.lo
-        asm.emitXOR_Reg_Reg(EDX, EDX);
-        asm.emitDIV_Reg_Reg(EAX, ECX);                      // a.hi/b.lo
-        asm.emitMOV_Reg_Reg(EBX, EAX);
-        asm.emitMOV_Reg_RegDisp(EAX, SP, THREE_SLOTS);      // a.lo
-        asm.emitDIV_Reg_Reg(EAX, ECX);                      // a.lo / b.lo
-        asm.emitMOV_Reg_Reg(EAX, EDX);                      // eax = remainder
-        asm.emitXOR_Reg_Reg(EDX, EDX);                      // edx = 0
-        // restore correct sign to the result
-        asm.emitADD_Reg_Reg(EAX, EBP);
-        asm.emitADC_Reg_Reg(EDX, EBP);
-        asm.emitXOR_Reg_Reg(EAX, EBP);
-        asm.emitXOR_Reg_Reg(EDX, EBP);
-        asm.emitPOP_Reg(EBP);
-        // Pop off the arguments
-        asm.emitADD_Reg_Imm(ESP, 16);
-        asm.emitPUSH_Reg(EDX);
-        asm.emitPUSH_Reg(EAX);
-        asm.resolveForwardReferences(10);
+        genParameterRegisterLoad(asm, 4);
+        asm.emitCALL_Abs(Magic.getTocPointer().plus(Entrypoints.mod64Method.getOffset()));
+        asm.emitPUSH_Reg(T0);
+        asm.emitPUSH_Reg(T1);
     }
   }
 
@@ -3813,93 +3538,124 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
    * @param method is the method to be called.
    * @param hasThisParam is the method virtual?
    */
-  protected void genParameterRegisterLoad(MethodReference method, boolean hasThisParam) {
-    int max = NUM_PARAMETER_GPRS + NUM_PARAMETER_FPRS;
-    if (max == 0) return; // quit looking when all registers are full
-    int gpr = 0;  // number of general purpose registers filled
-    int fpr = 0;  // number of floating point  registers filled
-    GPR T = T0; // next GPR to get a parameter
-    int params = method.getParameterWords() + (hasThisParam ? 1 : 0);
-    Offset offset = Offset.fromIntSignExtend((params - 1) << LG_WORDSIZE); // stack offset of first parameter word
-    if (hasThisParam) {
-      if (gpr < NUM_PARAMETER_GPRS) {
-        stackMoveHelper(T, offset);
-        T = T1; // at most 2 parameters can be passed in general purpose registers
-        gpr++;
-        max--;
-      }
-      offset = offset.minus(WORDSIZE);
-    }
-    for (TypeReference type : method.getParameterTypes()) {
-      if (max == 0) return; // quit looking when all registers are full
-      TypeReference t = type;
-      if (t.isLongType()) {
-        if (gpr < NUM_PARAMETER_GPRS) {
-          if (WORDSIZE == 4) {
-            stackMoveHelper(T, offset); // lo register := hi mem (== hi order word)
-            T = T1; // at most 2 parameters can be passed in general purpose registers
-            gpr++;
-            max--;
-            if (gpr < NUM_PARAMETER_GPRS) {
-              stackMoveHelper(T, offset.minus(WORDSIZE)); // hi register := lo mem (== lo order word)
-              gpr++;
-              max--;
+    protected void genParameterRegisterLoad(MethodReference method, boolean hasThisParam)
+    {
+        int max = NUM_PARAMETER_GPRS + NUM_PARAMETER_FPRS;
+        if (max == 0) return; // quit looking when all registers are full
+        int gpr = 0; // number of general purpose registers filled
+        int fpr = 0; // number of floating point registers filled
+        GPR T = T0; // next GPR to get a parameter
+        int params = method.getParameterWords() + (hasThisParam ? 1 : 0);
+        Offset offset = Offset.fromIntSignExtend((params - 1) << LG_WORDSIZE); // stack offset of first parameter word
+        if (hasThisParam)
+        {
+            if (gpr < NUM_PARAMETER_GPRS)
+            {
+                stackMoveHelper(T, offset);
+                T = T1; // at most 2 parameters can be passed in general purpose registers
+                gpr++;
+                max--;
             }
-          } else {
-            // initially offset will point at junk word, move down and over
-            stackMoveHelper(T, offset.minus(WORDSIZE));
-            T = T1; // at most 2 parameters can be passed in general purpose registers
-            gpr++;
-            max--;
-          }
+            offset = offset.minus(WORDSIZE);
         }
-        offset = offset.minus(2 * WORDSIZE);
-      } else if (t.isFloatType()) {
-        if (fpr < NUM_PARAMETER_FPRS) {
-          if (SSE2_FULL) {
-            asm.emitMOVSS_Reg_RegDisp(XMM.lookup(fpr), SP, offset);
-          } else {
-            asm.emitFLD_Reg_RegDisp(FP0, SP, offset);
-          }
-          fpr++;
-          max--;
+        for (TypeReference type : method.getParameterTypes())
+        {
+            if (max == 0) return; // quit looking when all registers are full
+            TypeReference t = type;
+            if (t.isLongType())
+            {
+                if (gpr < NUM_PARAMETER_GPRS)
+                {
+                    if (WORDSIZE == 4)
+                    {
+                        stackMoveHelper(T, offset); // lo register := hi mem (== hi order word)
+                        T = T1; // at most 2 parameters can be passed in general purpose registers
+                        gpr++;
+                        max--;
+                        if (gpr < NUM_PARAMETER_GPRS)
+                        {
+                            stackMoveHelper(T, offset.minus(WORDSIZE)); // hi register := lo mem (== lo order word)
+                            gpr++;
+                            max--;
+                        }
+                    }
+                    else
+                    {
+                        // initially offset will point at junk word, move down and over
+                        stackMoveHelper(T, offset.minus(WORDSIZE));
+                        T = T1; // at most 2 parameters can be passed in general purpose registers
+                        gpr++;
+                        max--;
+                    }
+                }
+                offset = offset.minus(2 * WORDSIZE);
+            }
+            else if (t.isFloatType())
+            {
+                if (fpr < NUM_PARAMETER_FPRS)
+                {
+                    if (SSE2_FULL)
+                    {
+                        asm.emitMOVSS_Reg_RegDisp(XMM.lookup(fpr), SP, offset);
+                    }
+                    else
+                    {
+                        asm.emitFLD_Reg_RegDisp(FP0, SP, offset);
+                    }
+                    fpr++;
+                    max--;
+                }
+                offset = offset.minus(WORDSIZE);
+            }
+            else if (t.isDoubleType())
+            {
+                if (fpr < NUM_PARAMETER_FPRS)
+                {
+                    if (SSE2_FULL)
+                    {
+                        asm.emitMOVLPD_Reg_RegDisp(XMM.lookup(fpr), SP, offset.minus(WORDSIZE));
+                    }
+                    else
+                    {
+                        asm.emitFLD_Reg_RegDisp_Quad(FP0, SP, offset.minus(WORDSIZE));
+                    }
+                    fpr++;
+                    max--;
+                }
+                offset = offset.minus(2 * WORDSIZE);
+            }
+            else if (t.isReferenceType() || t.isWordLikeType())
+            {
+                if (gpr < NUM_PARAMETER_GPRS)
+                {
+                    stackMoveHelper(T, offset);
+                    T = T1; // at most 2 parameters can be passed in general purpose registers
+                    gpr++;
+                    max--;
+                }
+                offset = offset.minus(WORDSIZE);
+            }
+            else
+            { // t is object, int, short, char, byte, or boolean
+                if (gpr < NUM_PARAMETER_GPRS)
+                {
+                    if (offset.isZero())
+                    {
+                        asm.emitMOV_Reg_RegInd(T, SP);
+                    }
+                    else
+                    {
+                        asm.emitMOV_Reg_RegDisp(T, SP, offset);
+                    }
+                    T = T1; // at most 2 parameters can be passed in general purpose registers
+                    gpr++;
+                    max--;
+                }
+                offset = offset.minus(WORDSIZE);
+            }
         }
-        offset = offset.minus(WORDSIZE);
-      } else if (t.isDoubleType()) {
-        if (fpr < NUM_PARAMETER_FPRS) {
-          if (SSE2_FULL) {
-            asm.emitMOVLPD_Reg_RegDisp(XMM.lookup(fpr), SP, offset.minus(WORDSIZE));
-          } else {
-            asm.emitFLD_Reg_RegDisp_Quad(FP0, SP, offset.minus(WORDSIZE));
-          }
-          fpr++;
-          max--;
-        }
-        offset = offset.minus(2 * WORDSIZE);
-      } else if (t.isReferenceType() || t.isWordLikeType()) {
-        if (gpr < NUM_PARAMETER_GPRS) {
-          stackMoveHelper(T, offset);
-          T = T1; // at most 2 parameters can be passed in general purpose registers
-          gpr++;
-          max--;
-        }
-        offset = offset.minus(WORDSIZE);
-      } else { // t is object, int, short, char, byte, or boolean
-        if (gpr < NUM_PARAMETER_GPRS) {
-          if (offset.isZero()) {
-            asm.emitMOV_Reg_RegInd(T, SP);
-          } else {
-            asm.emitMOV_Reg_RegDisp(T, SP, offset);
-          }
-          T = T1; // at most 2 parameters can be passed in general purpose registers
-          gpr++;
-          max--;
-        }
-        offset = offset.minus(WORDSIZE);
-      }
+        if (VM.VerifyAssertions) VM._assert(offset.EQ(Offset.fromIntSignExtend(-WORDSIZE)));
     }
-    if (VM.VerifyAssertions) VM._assert(offset.EQ(Offset.fromIntSignExtend(-WORDSIZE)));
-  }
 
   /**
    * Store parameters into local space of the callee's stackframe.

@@ -396,6 +396,12 @@ public class Entrypoints {
   public static final RVMField edgeCountersField =
       getField(org.jikesrvm.compilers.baseline.EdgeCounts.class, "data", int[][].class);
 
+  public static final NormalMethod div64Method =
+                  getMethod(org.jam.math.Math.class, "div64", "(JJ)J");
+
+  public static final NormalMethod mod64Method =
+                  getMethod(org.jam.math.Math.class, "mod64", "(JJ)J");
+
   //////////////////
   // Entrypoints that are valid only when the opt compiler is included in the build
   //////////////////

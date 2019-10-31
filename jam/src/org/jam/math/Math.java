@@ -1,5 +1,6 @@
+package org.jam.math;
 
-public class TwoLongDivide
+public class Math
 {
     public static long[] div64qr(long n, long d)
     {
