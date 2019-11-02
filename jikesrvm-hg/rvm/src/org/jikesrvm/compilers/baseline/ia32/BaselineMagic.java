@@ -2524,6 +2524,7 @@ final class BaselineMagic {
            */
           asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
           asm.emitFXSAVE_Reg(EAX);
+          asm.emitFINIT();
           /*
            * Store the stack pointer
            */
