@@ -18,6 +18,7 @@ import org.jikesrvm.scheduler.ThreadQueue;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 import org.jam.interfaces.Timer;
+import org.jam.util.PriorityQueue;
 
 /**
  * @author joe
@@ -40,7 +41,7 @@ implements Timer
     private final static int STACK_SIZE = 512;
     private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
-    private TreeMap<Long, RVMThread> timerQueue;
+    private PriorityQueue timerQueue;
     private ThreadQueue threadQueue;
     
     /*
@@ -72,7 +73,7 @@ implements Timer
          * stack pointer.
          */
 //        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
-        timerQueue = new TreeMap<Long, RVMThread>();
+        timerQueue = new PriorityQueue();
         threadQueue = new ThreadQueue();
     }
 
@@ -140,7 +141,7 @@ implements Timer
         {
             return;
         }
-        Long timerExpiration = timerQueue.firstKey();
+        long timerExpiration = timerQueue.rootValue();
         
         if(Time.nanoTime() < timerExpiration)
         {
@@ -152,7 +153,12 @@ implements Timer
          */
         if(trace) VM.sysWriteln("Timer expired! ", timerExpiration);
         //Magic.disableInterrupts();
-        RVMThread thread = timerQueue.remove(timerExpiration);
+        RVMThread thread = (RVMThread) timerQueue.remove(timerExpiration);
+        if(thread == null)
+        {
+            VM.sysWrite("timer expire: ", timerExpiration);
+            VM.sysFail(timerQueue.toString());
+        }
         threadQueue.remove(thread);
         Platform.scheduler.addThread(thread);
         //Magic.enableInterrupts();
@@ -181,7 +187,7 @@ implements Timer
          */
 //        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
         Magic.disableInterrupts();
-        timerQueue.put(time_ns, RVMThread.getCurrentThread());
+        timerQueue.insert(time_ns, RVMThread.getCurrentThread());
         threadQueue.enqueue(RVMThread.getCurrentThread());
         Magic.enableInterrupts();
         /*
@@ -198,7 +204,7 @@ implements Timer
     public RVMThread removeTimer(long timeKey)
     {
       Magic.disableInterrupts();
-      RVMThread t =  timerQueue.remove(timeKey);
+      RVMThread t =  (RVMThread) timerQueue.remove(timeKey);
       Magic.enableInterrupts();
       return t;
     }
