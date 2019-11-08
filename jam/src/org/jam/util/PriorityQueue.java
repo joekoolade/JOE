@@ -170,6 +170,7 @@ public class PriorityQueue {
                */
               shiftUp(index);
               numElements--;
+              reheapify(1);
               break;
           }
               
@@ -180,7 +181,8 @@ public class PriorityQueue {
   {
       while(index < numElements)
       {
-          queue[index] = queue[index+1];
+          queue[index].priority = queue[index+1].priority;
+          queue[index].data = queue[index+1].data;
           index++;
       }
   }
