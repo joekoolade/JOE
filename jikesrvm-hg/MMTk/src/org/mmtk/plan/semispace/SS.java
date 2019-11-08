@@ -51,11 +51,11 @@ public class SS extends StopTheWorld {
   public static boolean hi = false;
 
   /** One of the two semi spaces that alternate roles at each collection */
-  public static final CopySpace copySpace0 = new CopySpace("ss0", false, VMRequest.create(Address.fromIntZeroExtend(0x5000000), Extent.fromIntZeroExtend(0x1000000)));
+  public static final CopySpace copySpace0 = new CopySpace("ss0", false, VMRequest.create());
   public static final int SS0 = copySpace0.getDescriptor();
 
   /** One of the two semi spaces that alternate roles at each collection */
-  public static final CopySpace copySpace1 = new CopySpace("ss1", true, VMRequest.create(Address.fromIntZeroExtend(0x6000000), Extent.fromIntZeroExtend(0x1000000)));
+  public static final CopySpace copySpace1 = new CopySpace("ss1", true, VMRequest.create());
   public static final int SS1 = copySpace1.getDescriptor();
 
   public final Trace ssTrace;

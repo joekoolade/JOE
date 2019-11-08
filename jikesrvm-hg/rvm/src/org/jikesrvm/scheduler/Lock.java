@@ -22,6 +22,7 @@ import org.jikesrvm.objectmodel.ThinLockConstants;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.Inline;
 import org.vmmagic.pragma.Interruptible;
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.UnpreemptibleNoWarn;
 import org.vmmagic.pragma.Unpreemptible;
@@ -116,6 +117,7 @@ java.lang.Object#notifyAll}, and {@link java.lang.Object#wait()}.
  */
 
 @Uninterruptible
+@NonMoving
 public final class Lock implements Constants {
   /****************************************************************************
    * Constants

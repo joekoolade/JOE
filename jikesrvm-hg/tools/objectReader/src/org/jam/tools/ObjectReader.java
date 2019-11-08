@@ -50,17 +50,19 @@ public class ObjectReader
         System.out.println("0x"+Long.toHexString(value)+" ("+value+")");
     }
 
+    /*
+     * Prints out JTOC field
+     */
     public void dumpObject(MapField mapField)
     {
+        long value = memory.read(jtoc + mapField.getOffset()) & 0xFFFFFFFF;
         if(mapField.isPrimitive() || mapField.isUnboxed())
         {
-            long value = memory.read(jtoc + mapField.getOffset()) & 0xFFFFFFFF;
             System.out.println("0x"+Long.toHexString(value)+" ("+value+")");
         }
         else
         {     
-            Long address = mapField.getIntValue();
-            JikesObject obj = new JikesObject(memory, address.intValue());
+            JikesObject obj = new JikesObject(memory, (int) value);
             obj.print(cp.getArgs());
         }
     }
@@ -226,22 +228,39 @@ public class ObjectReader
     
     public void dumpThread(int threadAddress)
     {
-        // get the thread stack
-        JikesObject thread = new JikesObject(memory, threadAddress);
-        int fp = thread.getField("framePointer");
-        int sp = thread.getField("sp");
-        int threadIdx = thread.getField("threadIdx");
-        int slot = thread.getField("threadSlot");
-        int nameAddress = thread.getField("name");
-        String name = getString(nameAddress);
-        
-        System.out.println("Thread " + name + " index "+threadIdx+" slot "+slot);
-        // dump the stack
-        dump(sp, 20);
-        // print interrupt code point
-        printCodePoint(readInt(fp));
-        // backtrace
-        backTrace(fp);
+        int fp=0, sp=0, threadIdx=-1, slot=-1, nameAddress=0;
+        String name="NULL";
+        try
+        {
+            // get the thread stack
+            JikesObject thread = new JikesObject(memory, threadAddress);
+            fp = thread.getField("framePointer");
+            sp = thread.getField("sp");
+            threadIdx = thread.getField("threadIdx");
+            slot = thread.getField("threadSlot");
+            nameAddress = thread.getField("name");
+            name = getString(nameAddress);
+            
+            System.out.println("Thread " + name + " index "+threadIdx+" slot "+slot);
+            // dump the stack
+            dump(sp, 20);
+            // print interrupt code point
+            printCodePoint(readInt(fp));
+            // backtrace
+            backTrace(fp);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("OOPS! Something is wrong with this thread!");
+            System.out.println("Thread id: "+Integer.toHexString(threadAddress));
+            System.out.println("fp: "+Integer.toHexString(fp));
+            System.out.println("sp: "+Integer.toHexString(sp));
+            System.out.println("Thread idx: "+threadIdx);
+            System.out.println("Slot: "+slot);
+            System.out.println("Name Address: "+Integer.toHexString(nameAddress));
+            System.out.println("Name: "+name);
+        }
     }
     
     public void dumpAllThreads()

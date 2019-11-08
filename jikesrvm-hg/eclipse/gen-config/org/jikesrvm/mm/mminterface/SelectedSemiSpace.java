@@ -16,10 +16,10 @@ import org.jikesrvm.scheduler.RVMThread;
 
 import org.vmmagic.pragma.*;
 
-public class Selected {
-  public static final String name = "org.mmtk.plan.refcount.fullheap.RC";
+public class SelectedSemiSpace {
+  public static final String name = "org.mmtk.plan.semispace.SS";
   @Uninterruptible
-  public static final class Plan extends org.mmtk.plan.refcount.fullheap.RC
+  public static final class Plan extends org.mmtk.plan.semispace.SS
   {
     private static final Plan plan = new Plan();
 
@@ -28,12 +28,12 @@ public class Selected {
   }
 
   @Uninterruptible
-  public static final class Collector extends org.mmtk.plan.refcount.fullheap.RCCollector
+  public static final class Collector extends org.mmtk.plan.semispace.SSCollector
   {
   }
 
   @Uninterruptible
-  public static final class Constraints extends org.mmtk.plan.refcount.fullheap.RCConstraints
+  public static final class Constraints extends org.mmtk.plan.semispace.SSConstraints
   {
     private static final Constraints constraints = new Constraints();
 
@@ -42,7 +42,7 @@ public class Selected {
   }
 
   @Uninterruptible
-  public static class Mutator extends org.mmtk.plan.refcount.fullheap.RCMutator
+  public static class Mutator extends org.mmtk.plan.semispace.SSMutator
   {
     @Inline
     public final RVMThread getThread() { return (RVMThread) this; }
