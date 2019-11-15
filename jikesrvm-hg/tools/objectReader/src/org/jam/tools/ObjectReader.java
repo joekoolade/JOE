@@ -240,12 +240,17 @@ public class ObjectReader
             slot = thread.getField("threadSlot");
             nameAddress = thread.getField("name");
             name = getString(nameAddress);
-            
+            JikesObject contextRegisters = new JikesObject(memory, thread.getField("contextRegisters"));
+            int gprs = contextRegisters.getField("gprs");
             System.out.println("Thread " + name + " index "+threadIdx+" slot "+slot);
+            System.out.println("fp "+Integer.toHexString(fp) + " sp "+Integer.toHexString(sp));
+            int fp0 = contextRegisters.getField("fp");
+            int ip0 = contextRegisters.getField("ip");
+            System.out.println("ctxt fp "+Integer.toHexString(fp0) + " ip " + Integer.toHexString(ip0) + " gprs " + Integer.toHexString(gprs));
             // dump the stack
             dump(sp, 20);
             // print interrupt code point
-            printCodePoint(readInt(fp));
+            printCodePoint(readInt(fp+4));
             // backtrace
             backTrace(fp);
         }
