@@ -10,12 +10,14 @@ import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
 import org.mmtk.plan.Plan;
+import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 
 /**
  * @author Joe Kulig
  *
  */
+@NonMoving
 public class RoundRobin
 implements Scheduler {
     private int[] stack;
