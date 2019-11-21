@@ -404,6 +404,11 @@ public final class Lock implements Constants {
     VM.sysWrite(":\n");
     VM.sysWrite(" lockedObject: ");
     VM.sysWriteHex(Magic.objectAsAddress(lockedObject));
+    if(lockedObject == null) 
+    {
+        VM.sysWrite("\n");
+        return;
+    }
     VM.sysWrite("   thin lock = ");
     VM.sysWriteHex(Magic.objectAsAddress(lockedObject).loadAddress(ObjectModel.defaultThinLockOffset()));
     VM.sysWrite(" object type = ");
