@@ -33,7 +33,7 @@ public interface HeapLayoutConstants {
 
   /** The address in virtual memory that is the highest that can be mapped. */
   Address MAXIMUM_MAPPABLE =
-    Address.fromIntZeroExtend( 0x08000000 );
+    Address.fromIntZeroExtend( 0x08800000 );
 
   /** The maximum boot image data size */
 //  int BOOT_IMAGE_DATA_SIZE = 56<<20;

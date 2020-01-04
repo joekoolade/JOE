@@ -42,7 +42,8 @@ public final class VMThrowable {
       return null;
     } else if (RVMThread.getCurrentThread().isCollectorThread()) {
       VM.sysWriteln("Exception in GC thread");
-      RVMThread.dumpVirtualMachine();
+      VM.sysFail("VMThrowable");
+      //RVMThread.dumpVirtualMachine();
       return null;
     }
     try {

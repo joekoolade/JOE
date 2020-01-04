@@ -83,7 +83,7 @@ public class DebugUtil implements org.mmtk.utility.Constants, org.jikesrvm.Const
   @Uninterruptible
   public static boolean validRef(ObjectReference ref) {
 
-    if (ref.isNull()) return true;
+    if (ref.isNull() || ref.toAddress().toInt() == 0xdeadbeef) return true;
     if (!Space.isMappedObject(ref)) {
       VM.sysWrite("validRef: REF outside heap, ref = ");
       VM.sysWrite(ref);

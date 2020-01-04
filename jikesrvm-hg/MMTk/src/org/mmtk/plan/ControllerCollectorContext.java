@@ -69,7 +69,7 @@ public class ControllerCollectorContext extends CollectorContext {
       // Wait for a collection request.
       if (Options.verbose.getValue() >= 5) Log.writeln("[STWController: Waiting for request...]");
       waitForRequest();
-      if (Options.verbose.getValue() >= 5) Log.writeln("[STWController: Request recieved.]");
+      if (Options.verbose.getValue() >= 5) Log.writeln("[STWController: Request recieved.] ", requestCount);
 
       // The start time.
       long startTime = VM.statistics.nanoTime();
@@ -141,6 +141,7 @@ public class ControllerCollectorContext extends CollectorContext {
    */
   public void request() {
     if (requestFlag) {
+      Log.writeln("GC already triggered");
       return;
     }
     // lock.lock();

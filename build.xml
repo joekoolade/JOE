@@ -1289,7 +1289,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement location="${build.ext.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 

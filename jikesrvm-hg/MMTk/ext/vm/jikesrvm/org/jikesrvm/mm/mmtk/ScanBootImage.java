@@ -39,6 +39,8 @@ public class ScanBootImage implements Constants {
   private static final int MAX_RUN = (1<<BITS_IN_BYTE)-1;
   private static final int LONGENCODING_OFFSET_BYTES = 4;
   private static final int GUARD_REGION = LONGENCODING_OFFSET_BYTES + 1; /* long offset + run encoding */
+private static final boolean DEBUG1 = false;
+private static final boolean DEBUG2 = false;
 
   /* statistics */
   static int roots = 0;
@@ -75,6 +77,13 @@ public class ScanBootImage implements Constants {
     roots = 0;
     refs = 0;
 
+    if(DEBUG)
+    {
+        Log.write("cursor: ", cursor);
+        Log.write(" Image: ", imageStart);
+        Log.write(" Map Start: ", mapStart);
+        Log.writeln(" end: ", mapEnd);
+    }
     /* process chunks in parallel till done */
     while (cursor.LT(mapEnd)) {
       processChunk(cursor, imageStart, mapStart, mapEnd, trace);
@@ -110,6 +119,13 @@ public class ScanBootImage implements Constants {
     int value;
     Offset offset = Offset.zero();
     Address cursor = chunkStart;
+    if(DEBUG1)
+    {
+        Log.write("Chunk: ", chunkStart);
+        Log.write("Image: ", imageStart);
+        Log.write("Map Start: ", mapStart);
+        Log.writeln(" end: ", mapEnd);
+    }
     while ((value = (cursor.loadByte() & 0xff)) != 0) {
       /* establish the offset */
       if ((value & LONGENCODING_MASK) != 0) {
@@ -133,6 +149,7 @@ public class ScanBootImage implements Constants {
         if (DEBUG) roots++;
         trace.processRootEdge(slot, false);
       }
+      if(DEBUG2) Log.write(" ", slot);
       if (runlength != 0) {
         for (int i = 0; i < runlength; i++) {
           offset = offset.plus(BYTES_IN_ADDRESS);
@@ -386,5 +403,18 @@ public class ScanBootImage implements Constants {
     code[index++] = (byte) (value & 0xff);
     return index;
   }
+
+public static void reset()
+{
+    lastOffset = Integer.MIN_VALUE / 2;  /* bootstrap value */
+    oldIndex = 0;
+    codeIndex = 0;
+
+    /* statistics */
+    shortRefs = 0;
+    runRefs = 0;
+    longRefs = 0;
+    startRefs = 0;
+}
 
 }
