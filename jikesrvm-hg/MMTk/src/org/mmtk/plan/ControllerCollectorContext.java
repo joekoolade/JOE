@@ -142,6 +142,7 @@ public class ControllerCollectorContext extends CollectorContext {
   public void request() {
     if (requestFlag) {
       Log.writeln("GC already triggered");
+      Thread.yield();
       return;
     }
     // lock.lock();
@@ -155,6 +156,7 @@ public class ControllerCollectorContext extends CollectorContext {
     //      Log.writeln("GC controller request broadcast");
         }
     }
+    Thread.yield();
     //lock.unlock();
   }
 

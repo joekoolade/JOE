@@ -13,6 +13,7 @@
 package org.mmtk.plan.refcount;
 
 import org.mmtk.utility.Constants;
+import org.mmtk.utility.Log;
 import org.mmtk.vm.VM;
 import org.vmmagic.pragma.Inline;
 import org.vmmagic.pragma.Uninterruptible;
@@ -118,6 +119,11 @@ public class RCHeader implements Constants {
     Word oldValue, newValue;
     do {
       oldValue = VM.objectModel.prepareAvailableBits(object);
+      if(oldValue.and(LOGGING_MASK).EQ(LOGGED)==false)
+      {
+          Log.write("Object not LOGGED!");
+          Log.writeln(" ", ObjectReference.fromObject(oldValue).toAddress());
+      }
       if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(oldValue.and(LOGGING_MASK).EQ(LOGGED));
       newValue = oldValue.or(UNLOGGED);
     } while(!VM.objectModel.attemptAvailableBits(object, oldValue, newValue));

@@ -856,33 +856,33 @@ public abstract class Plan implements Constants {
    */
   public final boolean poll(boolean spaceFull, Space space) {
     if (collectionRequired(spaceFull, space)) {
-//      if (space == metaDataSpace) {
-//        /* In general we must not trigger a GC on metadata allocation since
-//         * this is not, in general, in a GC safe point.  Instead we initiate
-//         * an asynchronous GC, which will occur at the next safe point.
-//         */
-//        logPoll(space, "Asynchronous collection requested");
-//        controlCollectorContext.request();
-//        return false;
-//      }
+      if (space == metaDataSpace) {
+        /* In general we must not trigger a GC on metadata allocation since
+         * this is not, in general, in a GC safe point.  Instead we initiate
+         * an asynchronous GC, which will occur at the next safe point.
+         */
+        logPoll(space, "Asynchronous collection requested");
+        controlCollectorContext.request();
+        return false;
+      }
       logPoll(space, "Triggering collection");
       controlCollectorContext.request();
       return true;
     }
 
     if (concurrentCollectionRequired()) {
-//      if (space == metaDataSpace) {
-//        logPoll(space, "Triggering async concurrent collection");
-//        triggerInternalCollectionRequest();
-//        return false;
-//      } else {
-//        logPoll(space, "Triggering concurrent collection");
-//        triggerInternalCollectionRequest();
-//        return true;
-//      }
-      logPoll(space, "Triggering concurrent collection");
-      triggerInternalCollectionRequest();
-      return true;
+      if (space == metaDataSpace) {
+        logPoll(space, "Triggering async concurrent collection");
+        triggerInternalCollectionRequest();
+        return false;
+      } else {
+        logPoll(space, "Triggering concurrent collection");
+        triggerInternalCollectionRequest();
+        return true;
+      }
+//      logPoll(space, "Triggering concurrent collection");
+//      triggerInternalCollectionRequest();
+//      return true;
     }
 
     return false;
