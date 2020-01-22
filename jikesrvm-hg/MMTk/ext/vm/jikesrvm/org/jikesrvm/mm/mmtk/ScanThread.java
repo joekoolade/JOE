@@ -86,14 +86,14 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
    */
 
   /** quietly validates each ref reported by map iterators */
-  static final boolean VALIDATE_REFS = VM.VerifyAssertions;
+  static final boolean VALIDATE_REFS = false; //VM.VerifyAssertions;
 
   /*
    * debugging options to produce printout during scanStack
    * MULTIPLE GC THREADS WILL PRODUCE SCRAMBLED OUTPUT so only
    * use these when running with PROCESSORS=1
    */
-  private static final int DEFAULT_VERBOSITY = 0;
+  private static final int DEFAULT_VERBOSITY = 1;
   private static final int FAILURE_VERBOSITY = 4;
 
   /***********************************************************************
@@ -157,6 +157,11 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     regs.setInnermost(ip,fp);
 
     scanThread(thread, trace, processCodeLocations, gprs, fp, newRootsSufficient);
+    if (DEFAULT_VERBOSITY >= 1)
+    {
+      VM.sysWrite("Done fp ", regs.getInnermostFramePointer());
+      VM.sysWriteln(" ip ", regs.getInnermostInstructionAddress());
+    }
   }
 
   /**
