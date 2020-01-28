@@ -109,7 +109,7 @@ public class Monitor {
       /*
        * Try to get the lock
        */
-      Magic.disableInterrupts();
+//      Magic.disableInterrupts();
       while (!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
       {
         /*
@@ -121,9 +121,9 @@ public class Monitor {
 //        VM.sysWrite("/R", recCount);
 //        VM.sysWriteln("/A", acquireCount);
         locking.enqueue(RVMThread.getCurrentThread());
-        Magic.enableInterrupts();
+//        Magic.enableInterrupts();
         Magic.yield();
-        Magic.disableInterrupts();
+//        Magic.disableInterrupts();
       }
       if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
       if (VM.VerifyAssertions) VM._assert(recCount == 0);
@@ -259,20 +259,6 @@ public class Monitor {
   @NoOptCompile
   private void relockWithHandshakeImpl(int recCount) {
     relockNoHandshake(recCount);
-//    for (;;) {
-//      RVMThread.enterNative();
-//      // sysCall.sysMonitorEnter(monitor);
-//      if (RVMThread.attemptLeaveNativeNoBlock()) {
-//        break;
-//      } else {
-//        // sysCall.sysMonitorExit(monitor);
-//        RVMThread.leaveNative();
-//      }
-//    }
-//    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);
-//    if (VM.VerifyAssertions) VM._assert(this.recCount==0);
-//    holderSlot=RVMThread.getCurrentThreadSlot();
-//    this.recCount=recCount;
   }
   /**
    * Release the lock.  This method should (in principle) be non-blocking,
@@ -439,7 +425,7 @@ public class Monitor {
     /*
      * Release the monitor
      */
-    Magic.disableInterrupts();
+//    Magic.disableInterrupts();
     if(!Magic.attemptInt(this, monitorOffset, LOCKED, UNLOCKED))
     {
       VM.sysFail("Monitor.waitNoHandshake: monitor is not locked!\n");
@@ -453,7 +439,7 @@ public class Monitor {
     /*
      * Re-acquire the lock
      */
-    Magic.enableInterrupts();
+//    Magic.enableInterrupts();
     while(!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
     {
         Magic.yield();

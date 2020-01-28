@@ -2929,7 +2929,8 @@ public Address sentinelFp;
       Lock l = ObjectModel.getHeavyLock(o, true);
 
       // release the lock
-      l.mutex.lock();
+//      l.mutex.lock();
+      Magic.disableInterrupts();
       // this thread is supposed to own the lock on o
       if (VM.VerifyAssertions) VM._assert(l.getOwnerId() == getLockingId());
       RVMThread toAwaken = l.entering.dequeue();
@@ -2939,7 +2940,8 @@ public Address sentinelFp;
       // unlock it
       l.setOwnerId(0);
       l.waiting.enqueue(this);
-      l.mutex.unlock();
+//      l.mutex.unlock();
+      Magic.enableInterrupts();
       VM.sysWriteln("waiting ", this.threadSlot);
       // if there was a thread waiting, awaken it
       if (toAwaken != null) {
@@ -2967,12 +2969,14 @@ public Address sentinelFp;
         asyncThrowable = null;
       }
       if (l.waiting.isQueued(this)) {
-        l.mutex.lock();
+//        l.mutex.lock();
+        Magic.disableInterrupts();
         l.waiting.remove(this); /*
                                  * in case we got here due to an interrupt or a
                                  * stop() rather than a notify
                                  */
-        l.mutex.unlock();
+//        l.mutex.unlock();
+        Magic.enableInterrupts();
         // Note that the above must be done before attempting to acquire
         // the lock, since acquiring the lock may require queueing the thread.
         // But we cannot queue the thread if it is already on another
