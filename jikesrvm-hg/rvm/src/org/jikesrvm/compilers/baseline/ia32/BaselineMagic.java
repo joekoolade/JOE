@@ -2612,7 +2612,7 @@ final class BaselineMagic {
           /*
            * restore the stack pointer from the RVMThread sp field
            */
-          asm.emitMOV_Reg_RegDisp(SP, TR, Entrypoints.stackPointerField.getOffset());
+          asm.emitMOV_Reg_RegDisp(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
           /*
            * restore floating point/sse/xmm registers
            */

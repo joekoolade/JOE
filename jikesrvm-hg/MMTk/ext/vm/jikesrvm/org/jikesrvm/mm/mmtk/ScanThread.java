@@ -146,7 +146,7 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
      * Skip past the interrupt; go up the one frame past the interrupt
      */
     // Address ip=regs.getInnermostInstructionAddress();
-    Address fp=regs.getInnermostFramePointer().loadAddress();
+    Address fp=regs.getInnermostFramePointer();
     Address ip = fp.loadAddress(Offset.fromIntZeroExtend(4));
     if (DEFAULT_VERBOSITY >= 1)
     {

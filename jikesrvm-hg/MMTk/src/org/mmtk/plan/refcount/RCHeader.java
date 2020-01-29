@@ -320,7 +320,7 @@ public class RCHeader implements Constants {
     int rtn;
     if (VM.VERIFY_ASSERTIONS) {
       VM.assertions._assert(RCBase.isRCObject(object));
-      VM.assertions._assert(isLiveRC(object));
+//      VM.assertions._assert(isLiveRC(object));
     }
     do {
       oldValue = VM.objectModel.prepareAvailableBits(object);

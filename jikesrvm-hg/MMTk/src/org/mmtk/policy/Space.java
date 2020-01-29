@@ -338,7 +338,7 @@ public abstract class Space implements Constants {
    */
   @Inline
   public static boolean isInSpace(int descriptor, Address address) {
-    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!address.isZero());
+//    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!address.isZero());
     if (FORCE_SLOW_MAP_LOOKUP || !SpaceDescriptor.isContiguous(descriptor)) {
       return Map.getDescriptorForAddress(address) == descriptor;
     } else {
