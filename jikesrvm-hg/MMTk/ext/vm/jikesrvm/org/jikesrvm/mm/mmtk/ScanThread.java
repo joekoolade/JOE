@@ -142,11 +142,16 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     Registers regs=thread.getContextRegisters();
     Address gprs = Magic.objectAsAddress(regs.gprs);
 
+    // Address ip=regs.getInnermostInstructionAddress();
+    /*
+     * Save the initial frame state
+     */
+    Address fp0 = regs.getInnermostFramePointer();
+    Address ip0 = fp0.loadAddress(Offset.fromIntZeroExtend(4));
     /*
      * Skip past the interrupt; go up the one frame past the interrupt
      */
-    // Address ip=regs.getInnermostInstructionAddress();
-    Address fp=regs.getInnermostFramePointer();
+    Address fp=regs.getInnermostFramePointer().loadAddress();
     Address ip = fp.loadAddress(Offset.fromIntZeroExtend(4));
     if (DEFAULT_VERBOSITY >= 1)
     {
@@ -157,6 +162,10 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     regs.setInnermost(ip,fp);
 
     scanThread(thread, trace, processCodeLocations, gprs, fp, newRootsSufficient);
+    /*
+     * Make things nice again. Set the frame back to it previous state
+     */
+    regs.setInnermost(ip0, fp0);
     if (DEFAULT_VERBOSITY >= 1)
     {
       VM.sysWrite("Done fp ", regs.getInnermostFramePointer());
