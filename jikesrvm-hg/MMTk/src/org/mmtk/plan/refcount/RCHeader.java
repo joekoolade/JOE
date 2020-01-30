@@ -123,8 +123,9 @@ public class RCHeader implements Constants {
       {
           Log.write("Object not LOGGED!");
           Log.writeln(" ", ObjectReference.fromObject(oldValue).toAddress());
+//          break;
       }
-      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(oldValue.and(LOGGING_MASK).EQ(LOGGED));
+      //if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(oldValue.and(LOGGING_MASK).EQ(LOGGED));
       newValue = oldValue.or(UNLOGGED);
     } while(!VM.objectModel.attemptAvailableBits(object, oldValue, newValue));
   }
