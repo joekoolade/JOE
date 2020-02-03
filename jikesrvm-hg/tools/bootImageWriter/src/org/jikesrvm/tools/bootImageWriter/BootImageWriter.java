@@ -1073,6 +1073,7 @@ private static boolean jamming=false;
     bootRecord.bootImageCodeStart = bootImageCodeAddress;
     bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImage.getCodeSize());
     bootRecord.bootImageRMapStart = bootImageRMapAddress;
+    bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImage.getRMapSize());
     bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
     bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x4000000);
     

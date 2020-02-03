@@ -43,30 +43,17 @@ public interface ArchEntrypoints {
       (VM.BuildForPowerPC) ?
       EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;", "restoreVolatilesInstructions", ArchCodeArrayName) : null;
 
-  RVMField trampolineRegistersField =
-        EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "trampolineRegisters", "Lorg/jikesrvm/ArchitectureSpecific$Registers;");
-  RVMField hijackedReturnAddressField =
-    EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hijackedReturnAddress", "Lorg/vmmagic/unboxed/Address;");
-  RVMField registersIPField =
-      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "ip", "Lorg/vmmagic/unboxed/Address;");
+  RVMField trampolineRegistersField = EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "trampolineRegisters", "Lorg/jikesrvm/ArchitectureSpecific$Registers;");
+  RVMField hijackedReturnAddressField = EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hijackedReturnAddress", "Lorg/vmmagic/unboxed/Address;");
+  RVMField registersIPField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "ip", "Lorg/vmmagic/unboxed/Address;");
   RVMField registersFPRsField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "fprs", "[D");
-  RVMField registersGPRsField =
-      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "gprs", "Lorg/vmmagic/unboxed/WordArray;");
+  RVMField registersGPRsField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "gprs", "Lorg/vmmagic/unboxed/WordArray;");
   RVMField registersInUseField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "inuse", "Z");
-  RVMField registersLRField =
-      (VM.BuildForPowerPC) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",
-                                      "lr",
-                                      "Lorg/vmmagic/unboxed/Address;") : null;
-  RVMField framePointerField =
-      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;",
-                                   "framePointer",
-                                   "Lorg/vmmagic/unboxed/Address;") : null;
+  RVMField registersLRField = (VM.BuildForPowerPC) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "lr", "Lorg/vmmagic/unboxed/Address;") : null;
+  RVMField framePointerField = (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "framePointer", "Lorg/vmmagic/unboxed/Address;") : null;
+  RVMField stackPointerField = (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "sp", "Lorg/vmmagic/unboxed/Address;") : null;
   RVMField hiddenSignatureIdField =
       (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hiddenSignatureId", "I") : null;
-  RVMField registersFPField =
-  (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",
-                               "fp",
-                               "Lorg/vmmagic/unboxed/Address;") : null;
-  RVMField arrayIndexTrapParamField =
-      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "arrayIndexTrapParam", "I") : null;
+  RVMField registersFPField = (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;","fp", "Lorg/vmmagic/unboxed/Address;") : null;
+  RVMField arrayIndexTrapParamField = (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "arrayIndexTrapParam", "I") : null;
 }

@@ -267,7 +267,19 @@ public class BootImage extends BootImageWriterMessages
    * return the size of the rmap
    */
   public int getRMapSize() {
-    return rMapSize;
+    int size;
+    if(rMapSize==0)
+    {
+        System.out.println("rmap size references: "+ referenceMapReferences);
+        byte[] bootImageRMap0 = new byte[referenceMapReferences<<LOG_BYTES_IN_WORD];
+        size = ScanBootImage.encodeRMap(bootImageRMap0, referenceMap, referenceMapLimit);
+        ScanBootImage.reset();
+    }
+    else 
+    {
+        size = rMapSize;
+    }
+    return size;
   }
 
   /**

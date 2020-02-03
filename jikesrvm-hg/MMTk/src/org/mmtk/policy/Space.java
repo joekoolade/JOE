@@ -54,7 +54,7 @@ public abstract class Space implements Constants {
   /**
    *
    */
-  private static boolean DEBUG = false;
+  private static boolean DEBUG = true;
 
   // the following is somewhat arbitrary for the 64 bit system at this stage
   public static final int LOG_ADDRESS_SPACE = (BYTES_IN_ADDRESS == 4) ? 32 : 40;
@@ -81,7 +81,7 @@ public abstract class Space implements Constants {
 
   private static int spaceCount = 0;
   private static Space[] spaces = new Space[MAX_SPACES];
-  private static Address heapCursor = HEAP_START;
+  private static Address heapCursor = Address.zero();
   private static Address heapLimit = HEAP_END;
 
   /****************************************************************************
@@ -136,13 +136,21 @@ public abstract class Space implements Constants {
     this.index = spaceCount++;
     spaces[index] = this;
 
+    if(DEBUG)
+    {
+        Log.write("Space: "); Log.write(name);
+        Log.write("/", vmRequest.type);
+        Log.write("/", index);
+        Log.write("/", vmRequest.start);
+        Log.writeln("/", vmRequest.extent.toInt());
+    }
     if (vmRequest.type == VMRequest.REQUEST_DISCONTIGUOUS) {
       this.contiguous = false;
       this.descriptor = SpaceDescriptor.createDescriptor();
       this.start = Address.zero();
       this.extent = Extent.zero();
       this.headDiscontiguousRegion = Address.zero();
-      VM.memory.setHeapRange(index, HEAP_START, HEAP_END); // this should really be refined!  Once we have a code space, we can be a lot more specific about what is a valid code heap area
+      VM.memory.setHeapRange(index, AVAILABLE_START, HEAP_END); // this should really be refined!  Once we have a code space, we can be a lot more specific about what is a valid code heap area
       return;
     }
 
@@ -156,6 +164,7 @@ public abstract class Space implements Constants {
     }
 
     if (extent.NE(chunkAlign(extent, false))) {
+     //   System.out.println(name + " requested non-aligned extent: " + extent.toLong() + " bytes");
       VM.assertions.fail(name + " requested non-aligned extent: " + extent.toLong() + " bytes");
     }
 
@@ -191,10 +200,12 @@ public abstract class Space implements Constants {
     Map.insert(start, extent, descriptor, this);
 
     if (DEBUG) {
-      Log.write(name); Log.write(" ");
-      Log.write(start); Log.write(" ");
-      Log.write(start.plus(extent)); Log.write(" ");
-      Log.writeln(extent.toWord());
+      Log.write(name);
+      Log.write(" ", vmRequest.type);
+      Log.write(" ", start);
+      Log.write(" ", start.plus(extent));
+      Log.write(" ");
+      Log.writeln(extent);
     }
   }
 
@@ -327,7 +338,7 @@ public abstract class Space implements Constants {
    */
   @Inline
   public static boolean isInSpace(int descriptor, Address address) {
-    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!address.isZero());
+//    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!address.isZero());
     if (FORCE_SLOW_MAP_LOOKUP || !SpaceDescriptor.isContiguous(descriptor)) {
       return Map.getDescriptorForAddress(address) == descriptor;
     } else {

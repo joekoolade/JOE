@@ -57,7 +57,7 @@ public class Map {
 
   private static final Lock lock = VM.newLock("Map lock");
   
-  private static final boolean VERBOSE = false;
+  private static final boolean VERBOSE = true;
 
   /****************************************************************************
    *
@@ -98,6 +98,11 @@ public class Map {
   public static void insert(Address start, Extent extent, int descriptor,
       Space space) {
     Extent e = Extent.zero();
+    if(VERBOSE)
+    {
+        Log.write("SpaceMap: ", start);
+        Log.writeln("/", extent.toInt());
+    }
     while (e.LT(extent)) {
       int index = getChunkIndex(start.plus(e));
       if (descriptorMap[index] != 0) {
@@ -114,8 +119,7 @@ public class Map {
         Log.write("SpaceMap: ", index);
         Log.write("/");
         Log.write(space.getName());
-        Log.write("/", start);
-        Log.writeln("/", extent.toInt());
+        Log.writeln("/", e.toInt());
       }
       e = e.plus(Space.BYTES_IN_CHUNK);
     }

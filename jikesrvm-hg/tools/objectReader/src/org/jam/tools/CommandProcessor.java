@@ -126,6 +126,28 @@ implements Runnable
                         stackPointer = reader.readInt(stackPointer);
                     }
                 }
+                /*
+                 * Thread dump; dumps all threads in the threadBySlots arrary
+                 */
+                else if(results[0].equals("td"))
+                {
+                    if(results.length==2)
+                    {
+                        int address = parseNumber(results[1]);
+                        reader.dumpThread(address);
+                    }
+                    else
+                    {
+                        reader.dumpAllThreads();
+                    }
+                }
+                /*
+                 * The exit command
+                 */
+                else if(results[0].equals("q"))
+                {
+                    System.exit(0);
+                }
                 else
                 {
                     help();
@@ -140,10 +162,12 @@ implements Runnable
 
     private void help()
     {
-        System.out.println("p <object address|field name>\t\tDisplay contents of object address or field");
+        System.out.println("p <object address|field name> [ field name ] | [ array_length [ index ]]\t\tDisplay contents of object address or field");
         System.out.println("c <address>\t\tDisplay method name of address");
-        System.out.println("d <address>\t\tHex dump starting at address");
+        System.out.println("d <address> [length]\t\tHex dump starting at address");
         System.out.println("bt <address> [length]\t\tBack trace stack address");
+        System.out.println("td [RVMThread address]\t\tDump thread information");
+        System.out.println("q\t\tExit program");
     }
 
     private void dump(int address, int size)

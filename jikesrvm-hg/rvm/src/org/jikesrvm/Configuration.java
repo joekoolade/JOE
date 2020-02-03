@@ -110,7 +110,7 @@ public abstract class Configuration {
   public static final boolean BuildWithGCSpy = false;
   
   public static final String RVM_VERSION_STRING = "Jikes RVM 3.1.3+hg (rUnknown)";
-  public static final String RVM_CONFIGURATION = "BaseBaseSemiSpace";
+  public static final String RVM_CONFIGURATION = "BaseBaseRefCount";
 
   /**
    * Alignment checking (for IA32 only; for debugging purposes only).

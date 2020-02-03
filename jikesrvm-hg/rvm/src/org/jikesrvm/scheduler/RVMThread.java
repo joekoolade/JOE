@@ -1554,7 +1554,7 @@ public Address sentinelFp;
       // Points to framepointer sentinel
       this.framePointer = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
-//      VM.sysWriteln("rvmthread sp: ", this.sp);
+      VM.sysWriteln("rvmthread sp: ", this.sp);
       
       /*
        * Set up the FP/SSE/MMX state area
@@ -2366,31 +2366,13 @@ public Address sentinelFp;
      * is returning from an interrupt
      * 
      * Top of Stack
-     * ------------
-     * EFLAGS
-     * ------------
-     * CS
-     * ------------
-     * EIP
-     * ------------
-     * EAX
-     * ------------
-     * ECX
-     * ------------
-     * EDX
-     * ------------
-     * EBX
-     * ------------
-     * ESP
-     * ------------
-     * EBP
-     * ------------
-     * ESI
-     * ------------
-     * EDI
-     * ------------
-     * new stack - 4       ESP: new stack
-     * ------------
+     * 0        IP0; sentinel IP
+     * 0        FP0; sentinel FP
+     * 0        cmd id0; invisible method id
+     * 0x200
+     * code segment
+     * IP
+     * FP
      */
      Platform.scheduler.addThread(this);
   }
@@ -2947,7 +2929,8 @@ public Address sentinelFp;
       Lock l = ObjectModel.getHeavyLock(o, true);
 
       // release the lock
-      l.mutex.lock();
+//      l.mutex.lock();
+      Magic.disableInterrupts();
       // this thread is supposed to own the lock on o
       if (VM.VerifyAssertions) VM._assert(l.getOwnerId() == getLockingId());
       RVMThread toAwaken = l.entering.dequeue();
@@ -2957,7 +2940,8 @@ public Address sentinelFp;
       // unlock it
       l.setOwnerId(0);
       l.waiting.enqueue(this);
-      l.mutex.unlock();
+//      l.mutex.unlock();
+      Magic.enableInterrupts();
       VM.sysWriteln("waiting ", this.threadSlot);
       // if there was a thread waiting, awaken it
       if (toAwaken != null) {
@@ -2985,12 +2969,14 @@ public Address sentinelFp;
         asyncThrowable = null;
       }
       if (l.waiting.isQueued(this)) {
-        l.mutex.lock();
+//        l.mutex.lock();
+        Magic.disableInterrupts();
         l.waiting.remove(this); /*
                                  * in case we got here due to an interrupt or a
                                  * stop() rather than a notify
                                  */
-        l.mutex.unlock();
+//        l.mutex.unlock();
+        Magic.enableInterrupts();
         // Note that the above must be done before attempting to acquire
         // the lock, since acquiring the lock may require queueing the thread.
         // But we cannot queue the thread if it is already on another
@@ -3567,6 +3553,12 @@ public Address sentinelFp;
     Magic.enableInterrupts();
   }
 
+  public static void blockForGC()
+  {
+      gcWait.enqueue(RVMThread.getCurrentThread());
+      Magic.yield();
+  }
+  
   @Uninterruptible
   public static class HardHandshakeVisitor {
     public boolean includeThread(RVMThread t) {
@@ -5300,14 +5292,19 @@ public Address sentinelFp;
     /**
      * @param framePointer
      */
-    public void setStackPointer(Address framePointer)
+    public void setStackPointer(Address a)
     {
-        this.sp = framePointer;
+        this.sp = a;
     }
     
     public Address getStackPointer()
     {
         return sp;
+    }
+    
+    public void setFramePointer(Address a)
+    {
+        framePointer = a;
     }
     
     public Address getFramePointer()

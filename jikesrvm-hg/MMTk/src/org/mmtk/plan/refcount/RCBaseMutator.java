@@ -18,6 +18,7 @@ import org.mmtk.policy.ExplicitFreeListLocal;
 import org.mmtk.policy.ExplicitFreeListSpace;
 import org.mmtk.policy.LargeObjectLocal;
 import org.mmtk.policy.Space;
+import org.mmtk.utility.Log;
 import org.mmtk.utility.alloc.Allocator;
 import org.mmtk.utility.deque.ObjectReferenceDeque;
 import org.mmtk.vm.VM;
@@ -163,6 +164,11 @@ public class RCBaseMutator extends StopTheWorldMutator {
         immortal.linearScan(btSweepImmortal);
       }
       rc.release();
+      if(!modBuffer.isEmpty())
+      {
+          Log.write("Mod Buffer is not EMPTY!");
+          Log.writeln(" ", ObjectReference.fromObject(modBuffer).toAddress());
+      }
       if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(modBuffer.isEmpty());
       if (!RCBase.BUILD_FOR_GENRC) {
         if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(decBuffer.isEmpty());

@@ -18,6 +18,7 @@ import org.jikesrvm.scheduler.ThreadQueue;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 import org.jam.interfaces.Timer;
+import org.jam.util.PriorityQueue;
 
 /**
  * @author joe
@@ -35,12 +36,12 @@ implements Timer
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
     public int BOLT = 10;   // schedule new process
-    private int stack[];
+//    private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;
     private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
-    private TreeMap<Long, RVMThread> timerQueue;
+    private PriorityQueue timerQueue;
     private ThreadQueue threadQueue;
     
     /*
@@ -58,21 +59,21 @@ implements Timer
         /*
          * Allocate irq handler stack
          */
-        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE); // new int[STACK_SIZE];
+//        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE); // new int[STACK_SIZE];
         /*
          * Put in the sentinel
          */
-        stack[STACK_SIZE-1] = 0;    // IP = 0
-        stack[STACK_SIZE-2] = 0;    // FP = 0
-        stack[STACK_SIZE-3] = 0;    // cmid = 0
+//        stack[STACK_SIZE-1] = 0;    // IP = 0
+//        stack[STACK_SIZE-2] = 0;    // FP = 0
+//        stack[STACK_SIZE-3] = 0;    // cmid = 0
         
         /*
          * On a stack switch, the new stack is popped so need to count for this
          * in the stackTop field. This space will contain the interrupted thread's
          * stack pointer.
          */
-        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
-        timerQueue = new TreeMap<Long, RVMThread>();
+//        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
+        timerQueue = new PriorityQueue();
         threadQueue = new ThreadQueue();
     }
 
@@ -140,7 +141,7 @@ implements Timer
         {
             return;
         }
-        Long timerExpiration = timerQueue.firstKey();
+        long timerExpiration = timerQueue.rootValue();
         
         if(Time.nanoTime() < timerExpiration)
         {
@@ -151,9 +152,16 @@ implements Timer
          * Remove the thread from the timer and schedule it
          */
         if(trace) VM.sysWriteln("Timer expired! ", timerExpiration);
-        RVMThread thread = timerQueue.remove(timerExpiration);
+        //Magic.disableInterrupts();
+        RVMThread thread = (RVMThread) timerQueue.remove(timerExpiration);
+        if(thread == null)
+        {
+            VM.sysWrite("timer expire: ", timerExpiration);
+            VM.sysFail(timerQueue.toString());
+        }
         threadQueue.remove(thread);
         Platform.scheduler.addThread(thread);
+        //Magic.enableInterrupts();
     }
     
     /**
@@ -178,8 +186,10 @@ implements Timer
          * set expiration time and put on the queue
          */
 //        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
-        timerQueue.put(time_ns, RVMThread.getCurrentThread());
+        Magic.disableInterrupts();
+        timerQueue.insert(time_ns, RVMThread.getCurrentThread());
         threadQueue.enqueue(RVMThread.getCurrentThread());
+        Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
          */
@@ -193,7 +203,10 @@ implements Timer
      */
     public RVMThread removeTimer(long timeKey)
     {
-      return timerQueue.remove(timeKey);
+      Magic.disableInterrupts();
+      RVMThread t =  (RVMThread) timerQueue.remove(timeKey);
+      Magic.enableInterrupts();
+      return t;
     }
     
     /**

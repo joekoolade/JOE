@@ -6,6 +6,8 @@ import org.jikesrvm.runtime.Memory;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
+import org.vmmagic.unboxed.Offset;
+import org.vmmagic.unboxed.Word;
 
 @Uninterruptible
 public class MemoryManager {
@@ -14,7 +16,8 @@ public class MemoryManager {
 	static Address cursor;
 	
 	public static void boot(BootRecord bootRecord) {
-		freeMemStart = bootRecord.bootImageRMapStart;
+		Word start = bootRecord.bootImageRMapEnd.toWord().plus(Offset.fromIntZeroExtend(0x1000)).and(Word.fromIntZeroExtend(~0xFFF));
+		freeMemStart = start.toAddress();
 		freeMemEnd = freeMemStart.plus(bootRecord.maximumHeapSize);
 		cursor = freeMemStart;
 		VM.sysWrite("MemoryManager: start=", freeMemStart);

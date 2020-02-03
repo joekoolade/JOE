@@ -79,7 +79,7 @@ implements Timer
   public final void calibrate()
   {
     int pitcnt = 0;
-    int t2;
+    long t2;
     
     I82c54 timer = Platform.pit.timer;
     Address keyboardController = Address.fromIntZeroExtend(0x61);
@@ -110,7 +110,7 @@ implements Timer
     {
         pitcnt++;
     }
-    t2 = getTimerCcr();
+    t2 = (long)getTimerCcr() & 0xFFFFFFFFL;
     disableTimer();
     Magic.enableInterrupts();
     // disable the timer

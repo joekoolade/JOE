@@ -57,7 +57,7 @@ import org.vmmagic.pragma.*;
 
   /* FIXME the following was established via trial and error :-( */
   //  private static int BOOT_SEGMENT_MB = 4+(BOOT_IMAGE_SIZE.toInt()>>LOG_BYTES_IN_MBYTE);
-  private static int BOOT_SEGMENT_MB = (BOOT_IMAGE_RMAP_START.toInt()>>LOG_BYTES_IN_MBYTE);
+  private static int BOOT_SEGMENT_MB = 0x4400000 >> LOG_BYTES_IN_MBYTE; // (BOOT_IMAGE_RMAP_END.toInt()>>LOG_BYTES_IN_MBYTE);
   private static boolean DEBUG = false;
   
   /**

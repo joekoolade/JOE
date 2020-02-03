@@ -15,7 +15,7 @@
 	<!--
 	config.name and host.name must be set to do a build
 	-->
-  <property name="config.name" value="BaseBaseSemiSpace"/>
+  <property name="config.name" value="BaseBaseRefCount"/>
   <property name="host.name" value="x86_64-osx"/>
   <property name="rvm.version" value="3.1.3+hg"/>
   <!-- <property name="hg.revision" value="XXX"/> -->
@@ -95,7 +95,7 @@
   <!-- Set the properties for directory of generated artifacts -->
   <property name="generated.dir" location="${jikesrvm.dir}/generated"/>
   <property name="generated.config.dir" location="${generated.dir}/configurations/${build.name}"/>
-  <property name="mmtk.config.java" location="${jikesrvm.dir}/config/mmtk/semispace"/>
+  <property name="mmtk.config.java" location="${jikesrvm.dir}/config/mmtk/refcount"/>
 
   <property name="generated.java" location="${generated.dir}/main/java"/>
   <property name="generated.ia32.java" location="${generated.dir}/ia32-${target.address.size}/main/java"/>
@@ -1044,7 +1044,6 @@ Check to make sure all required properties are specified. This includes properti
       <include name="org/jikesrvm/**"/>
       <include name="org/mmtk/*"/>
       <include name="org/mmtk/plan/*"/>
-      <include name="org/mmtk/plan/semispace/**"/>
       <include name="org/mmtk/policy/**"/>
       <include name="org/mmtk/utility/**"/>
       <include name="org/mmtk/vm/**"/>
@@ -1290,7 +1289,6 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
-      <pathelement location="${build.ext.jar}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 

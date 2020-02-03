@@ -190,6 +190,7 @@ public class Entrypoints {
              org.jikesrvm.scheduler.RVMThread.class);
 
   public static final RVMField stackPointerField = getField(org.jikesrvm.scheduler.RVMThread.class, "sp", org.vmmagic.unboxed.Address.class);
+  public static final RVMField framePointerField = getField(org.jikesrvm.scheduler.RVMThread.class, "framePointer", org.vmmagic.unboxed.Address.class);
   public static final RVMField fxStateField = getField(org.jikesrvm.scheduler.RVMThread.class,"fxStateAddress", org.vmmagic.unboxed.Address.class);
   public static final RVMField scratchStorageField =
       getField(org.jikesrvm.scheduler.RVMThread.class, "scratchStorage", double.class);
@@ -394,6 +395,12 @@ public class Entrypoints {
 
   public static final RVMField edgeCountersField =
       getField(org.jikesrvm.compilers.baseline.EdgeCounts.class, "data", int[][].class);
+
+  public static final NormalMethod div64Method =
+                  getMethod(org.jam.math.Math.class, "div64", "(JJ)J");
+
+  public static final NormalMethod mod64Method =
+                  getMethod(org.jam.math.Math.class, "mod64", "(JJ)J");
 
   //////////////////
   // Entrypoints that are valid only when the opt compiler is included in the build

@@ -1,6 +1,8 @@
 package org.jam.tools;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeSet;
 import org.jam.tools.ArrayType;
 
@@ -15,6 +17,7 @@ extends JObject
     private static final boolean DEBUG = false;
     private String typeName;
     private TreeSet<RVMField> fieldSet;
+    private Map<String, RVMField> fieldMap;
     private int dimension;
     
     public RVMClass(MemoryReader memory, int address)
@@ -46,6 +49,7 @@ extends JObject
         {
             fieldInstances = new IntArray(memory, getInt(INSTANCES_ARRAY_OFFSET));
             fieldSet = new TreeSet<RVMField>();
+            fieldMap = new HashMap<String, RVMField>();
             if (DEBUG) System.out.println("Instances: " + Integer.toHexString(fieldInstances.getAddress()) + "/" + fieldInstances.size());
             processFieldInstances();
             // remove type descriptors and replace / with .
@@ -60,6 +64,7 @@ extends JObject
         {
             RVMField aField = new RVMField(getMemory(), instanceArray[i]);
             fieldSet.add(aField);
+            fieldMap.put(aField.getName(), aField);
         }
     }
 
@@ -120,5 +125,10 @@ extends JObject
     public Iterator<RVMField> getFieldIter()
     {
         return fieldSet.iterator();
+    }
+    
+    public RVMField getField(String fieldName)
+    {
+        return fieldMap.get(fieldName);
     }
 }

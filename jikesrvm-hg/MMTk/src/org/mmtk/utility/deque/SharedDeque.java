@@ -51,7 +51,8 @@ public class SharedDeque extends Deque implements Constants {
     this.rps = rps;
     this.arity = arity;
     this.name = name;
-    lock = VM.newLock("SharedDeque");
+    // lock = VM.newLock("SharedDeque");
+    lock = new Object();
     clearCompletionFlag();
     head = HEAD_INITIAL_VALUE;
     tail = TAIL_INITIAL_VALUE;
@@ -70,29 +71,33 @@ public class SharedDeque extends Deque implements Constants {
    */
   final void enqueue(Address buf, int arity, boolean toTail) {
     if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(arity == this.arity);
-    lock();
-    if (toTail) {
-      // Add to the tail of the queue
-      setNext(buf, Address.zero());
-      if (tail.EQ(TAIL_INITIAL_VALUE))
-        head = buf;
-      else
-        setNext(tail, buf);
-      setPrev(buf, tail);
-      tail = buf;
-    } else {
-      // Add to the head of the queue
-      setPrev(buf, Address.zero());
-      if (head.EQ(HEAD_INITIAL_VALUE))
-        tail = buf;
-      else
-        setPrev(head, buf);
-      setNext(buf, head);
-      head = buf;
+    //lock();
+    synchronized(lock)
+    {
+        if (toTail) {
+          // Add to the tail of the queue
+          setNext(buf, Address.zero());
+          if (tail.EQ(TAIL_INITIAL_VALUE))
+            head = buf;
+          else
+            setNext(tail, buf);
+          setPrev(buf, tail);
+          tail = buf;
+        } else {
+          // Add to the head of the queue
+          setPrev(buf, Address.zero());
+          if (head.EQ(HEAD_INITIAL_VALUE))
+            tail = buf;
+          else
+            setPrev(head, buf);
+          setNext(buf, head);
+          head = buf;
+        }
+        bufsenqueued++;
+        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(checkDequeLength(bufsenqueued));
+        lock.notify();
     }
-    bufsenqueued++;
-    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(checkDequeLength(bufsenqueued));
-    unlock();
+    //unlock();
   }
 
   public final void clearDeque(int arity) {
@@ -230,7 +235,7 @@ public class SharedDeque extends Deque implements Constants {
   protected volatile Address tail;
   @Entrypoint
   private volatile int bufsenqueued;
-  private Lock lock;
+  private Object lock;
 
   private static final long WARN_PERIOD = (long)(2*1E9);
   private static final long TIMEOUT_PERIOD = 10 * WARN_PERIOD;
@@ -245,77 +250,109 @@ public class SharedDeque extends Deque implements Constants {
    * @return the Address of the block
    */
   private Address dequeue(boolean waiting, boolean fromTail) {
-    lock();
-    Address rtn = ((fromTail) ? tail : head);
-    if (rtn.isZero()) {
-      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(tail.isZero() && head.isZero());
-      // no buffers available
-      if (waiting) {
-        int ordinal = TRACE ? 0 : VM.activePlan.collector().getId();
-        setNumConsumersWaiting(numConsumersWaiting + 1);
-        while (rtn.isZero()) {
-          if (numConsumersWaiting == numConsumers)
-            setCompletionFlag();
-          if (TRACE) {
-            Log.write("-- ("); Log.write(ordinal);
-            Log.write(") joining wait queue of SharedDeque(");
-            Log.write(name); Log.write(") ");
-            Log.write(numConsumersWaiting); Log.write("/");
-            Log.write(numConsumers);
-            Log.write(" consumers waiting");
-            if (complete()) Log.write(" WAIT COMPLETE");
-            Log.writeln();
-            if (TRACE_BLOCKERS)
-              VM.assertions.dumpStack();
-          }
-          unlock();
-          // Spin and wait
-          spinWait(fromTail);
-
-          if (complete()) {
-            if (TRACE) {
-              Log.write("-- ("); Log.write(ordinal); Log.writeln(") EXITING");
+    //lock();
+    Address rtn;
+    synchronized(lock)
+    {
+        rtn = ((fromTail) ? tail : head);
+        if (rtn.isZero()) {
+          if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(tail.isZero() && head.isZero());
+          // no buffers available
+          if (waiting) {
+            int ordinal = TRACE ? 0 : VM.activePlan.collector().getId();
+            setNumConsumersWaiting(numConsumersWaiting + 1);
+            while (rtn.isZero()) {
+              if (numConsumersWaiting == numConsumers)
+                setCompletionFlag();
+              if (TRACE) {
+                Log.write("-- ("); Log.write(ordinal);
+                Log.write(") joining wait queue of SharedDeque(");
+                Log.write(name); Log.write(") ");
+                Log.write(numConsumersWaiting); Log.write("/");
+                Log.write(numConsumers);
+                Log.write(" consumers waiting");
+                if (complete()) Log.write(" WAIT COMPLETE");
+                Log.writeln();
+                if (TRACE_BLOCKERS)
+                  VM.assertions.dumpStack();
+              }
+              //unlock();
+              // Spin and wait
+              //spinWait(fromTail);
+              while(rtn.isZero() && !complete())
+              {
+                  try
+                {
+                    lock.wait(100000000);
+                } catch (IllegalMonitorStateException e)
+                {
+                    // TODO Auto-generated catch block
+                    Log.writeln("sharedDeque: illegal monitor state");
+                    lock.notify();
+                    return Address.zero();
+                } catch (IllegalArgumentException e)
+                {
+                    // TODO Auto-generated catch block
+                    Log.writeln("sharedDeque: illegal arguemnt");
+                    lock.notify();
+                    return Address.zero();
+                } catch (InterruptedException e)
+                {
+                    // TODO Auto-generated catch block
+                    Log.writeln("sharedDeque: interrupt");
+                    lock.notify();
+                    return Address.zero();
+                }
+              }
+    
+              if (complete()) {
+                if (TRACE) {
+                  Log.write("-- ("); Log.write(ordinal); Log.writeln(") EXITING");
+                }
+                //lock();
+                setNumConsumersWaiting(numConsumersWaiting - 1);
+                //unlock();
+                lock.notify();
+                return Address.zero();
+              }
+              //lock();
+              // Re-get the list head/tail while holding the lock
+              rtn = ((fromTail) ? tail : head);
             }
-            lock();
             setNumConsumersWaiting(numConsumersWaiting - 1);
-            unlock();
+            if (TRACE) {
+              Log.write("-- ("); Log.write(ordinal); Log.write(") resuming work ");
+              Log.write(" n="); Log.writeln(numConsumersWaiting);
+            }
+          } else {
+            //unlock();
+            lock.notify();
             return Address.zero();
           }
-          lock();
-          // Re-get the list head/tail while holding the lock
-          rtn = ((fromTail) ? tail : head);
         }
-        setNumConsumersWaiting(numConsumersWaiting - 1);
-        if (TRACE) {
-          Log.write("-- ("); Log.write(ordinal); Log.write(") resuming work ");
-          Log.write(" n="); Log.writeln(numConsumersWaiting);
+        if (fromTail) {
+          // dequeue the tail buffer
+          setTail(getPrev(tail));
+          if (head.EQ(rtn)) {
+            setHead(Address.zero());
+            if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(tail.isZero());
+          } else {
+            setNext(tail, Address.zero());
+          }
+        } else {
+          // dequeue the head buffer
+          setHead(getNext(head));
+          if (tail.EQ(rtn)) {
+            setTail(Address.zero());
+            if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(head.isZero());
+          } else {
+            setPrev(head, Address.zero());
+          }
         }
-      } else {
-        unlock();
-        return Address.zero();
-      }
+        bufsenqueued--;
+        lock.notify();
     }
-    if (fromTail) {
-      // dequeue the tail buffer
-      setTail(getPrev(tail));
-      if (head.EQ(rtn)) {
-        setHead(Address.zero());
-        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(tail.isZero());
-      } else {
-        setNext(tail, Address.zero());
-      }
-    } else {
-      // dequeue the head buffer
-      setHead(getNext(head));
-      if (tail.EQ(rtn)) {
-        setTail(Address.zero());
-        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(head.isZero());
-      } else {
-        setPrev(head, Address.zero());
-      }
-    }
-    bufsenqueued--;
-    unlock();
+    //unlock();
     return rtn;
   }
 
@@ -427,7 +464,7 @@ public class SharedDeque extends Deque implements Constants {
    * synchronize access to the shared queue of buffers.
    */
   private void lock() {
-    lock.acquire();
+    //lock.acquire();
   }
 
   /**
@@ -435,7 +472,7 @@ public class SharedDeque extends Deque implements Constants {
    * access to the shared queue of buffers.
    */
   private void unlock() {
-    lock.release();
+    //lock.release();
   }
 
   /**

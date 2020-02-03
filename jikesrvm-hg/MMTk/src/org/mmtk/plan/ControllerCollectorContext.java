@@ -21,11 +21,13 @@ import org.mmtk.vm.VM;
 import org.vmmagic.pragma.*;
 
 @Uninterruptible
+@NonMoving
 public class ControllerCollectorContext extends CollectorContext {
 
   /** The lock to use to manage collection */
-  private Monitor lock;
-
+  // private Monitor lock;
+  Object lock;
+  
   /** The set of worker threads to use */
   private ParallelCollectorGroup workers;
 
@@ -54,7 +56,7 @@ public class ControllerCollectorContext extends CollectorContext {
   @Interruptible
   public void initCollector(int id) {
     super.initCollector(id);
-    lock = VM.newHeavyCondLock("CollectorControlLock");
+    lock = new Object(); // VM.newHeavyCondLock("CollectorControlLock");
   }
 
   /**
@@ -67,7 +69,7 @@ public class ControllerCollectorContext extends CollectorContext {
       // Wait for a collection request.
       if (Options.verbose.getValue() >= 5) Log.writeln("[STWController: Waiting for request...]");
       waitForRequest();
-      if (Options.verbose.getValue() >= 5) Log.writeln("[STWController: Request recieved.]");
+      if (Options.verbose.getValue() >= 5) Log.writeln("[STWController: Request recieved.] ", requestCount);
 
       // The start time.
       long startTime = VM.statistics.nanoTime();
@@ -139,16 +141,23 @@ public class ControllerCollectorContext extends CollectorContext {
    */
   public void request() {
     if (requestFlag) {
+      Log.writeln("GC already triggered");
+      Thread.yield();
       return;
     }
-    lock.lock();
-    if (!requestFlag) {
-      requestFlag = true;
-      requestCount++;
-      lock.broadcast();
-//      Log.writeln("GC controller request broadcast");
+    // lock.lock();
+    synchronized(lock)
+    {
+        if (!requestFlag) {
+          requestFlag = true;
+          requestCount++;
+          // lock.broadcast();
+          lock.notify();
+    //      Log.writeln("GC controller request broadcast");
+        }
     }
-    lock.unlock();
+    Thread.yield();
+    //lock.unlock();
   }
 
   /**
@@ -156,20 +165,40 @@ public class ControllerCollectorContext extends CollectorContext {
    * additional collection cycle.
    */
   private void clearRequest() {
-    lock.lock();
-    requestFlag = false;
-    lock.unlock();
+    //lock.lock();
+    synchronized(lock)
+    {
+        requestFlag = false;
+    }
+    //lock.unlock();
   }
 
   /**
    * Wait until a request is received.
    */
   private void waitForRequest() {
-    lock.lock();
-    lastRequestCount++;
-    while (lastRequestCount == requestCount) {
-      lock.await();
+    //lock.lock();
+    synchronized(lock)
+    {
+        lastRequestCount++;
+        while (lastRequestCount == requestCount) {
+          // lock.await();
+            try
+            {
+                lock.wait();
+            }
+            catch (IllegalMonitorStateException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (InterruptedException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
-    lock.unlock();
+    // lock.unlock();
   }
 }

@@ -880,6 +880,9 @@ public abstract class Plan implements Constants {
         triggerInternalCollectionRequest();
         return true;
       }
+//      logPoll(space, "Triggering concurrent collection");
+//      triggerInternalCollectionRequest();
+//      return true;
     }
 
     return false;
