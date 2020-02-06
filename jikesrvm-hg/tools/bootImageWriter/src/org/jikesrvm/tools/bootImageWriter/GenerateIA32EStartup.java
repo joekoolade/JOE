@@ -49,25 +49,36 @@ public class GenerateIA32EStartup {
 		 * Reserve space for GDT and IDT tables
 		 */
 		asm.align(0x40);
-		Address gdtTablePtr = Address.fromIntZeroExtend(0x100050);
-		Address gdtDesc = Address.fromIntZeroExtend(0x100040);
-		asm.space(0xc0);
+		// table containing system descriptors
+		Address gdtTable = Address.fromIntZeroExtend(0x100810);
+		// gdt register info
+		Address gdtDesc = Address.fromIntZeroExtend(0x100800);
+		Address csDesc = gdtTable.plus(8);
+		Address dsDesc = gdtTable.plus(0x10);
+		// gdt descriptor has limit of 3 entries; base address of gdtDesc
 		// GDT table pointer; limit is 3*N-1 bytes
-		asm.emitImm16((3*8)-1, 0x40);
-		asm.emitImm32(gdtTablePtr.toInt(), 0x42);
+		asm.emitMOV_Abs_Imm_Word(gdtDesc, (8*3) - 1);
+		asm.emitMOV_Abs_Imm(gdtDesc.plus(2), gdtTable.toInt());
+		// Fill in the GDT table entries
 		// descriptor 0 is null
+		asm.emitMOV_Abs_Imm(gdtTable, 0);
+		asm.emitMOV_Abs_Imm(gdtTable.plus(4), 0);
 		/*
 		 * descriptor 1 is the code segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, code execute/read seg type
 		 */
-		asm.emitImm32(0x8000, 0x58);
-		asm.emitImm32(0xc09a00, 0x5c);
+		asm.emitMOV_Abs_Imm(csDesc, 0x8000);
+		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0xC09A00);
+//		asm.emitImm32(0x8000, 0x58);
+//		asm.emitImm32(0xc09a00, 0x5c);
 		/*
 		 * descriptor 2 is the data segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, data read/write seg type
 		 */
-		asm.emitImm32(0x8000, 0x60);
-		asm.emitImm32(0xc09200, 0x64);
+        asm.emitMOV_Abs_Imm(dsDesc, 0x8000);
+        asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0xC09200);
+//		asm.emitImm32(0x8000, 0x60);
+//		asm.emitImm32(0xc09200, 0x64);
 		// IDT table pointer
 		// should be at 0x100 for the multibootEntry
 		asm.resolveForwardReferences(multibootEntry);
@@ -99,6 +110,10 @@ public class GenerateIA32EStartup {
 		/*
 		 * Setup PML4 table
 		 */
+		int PAGE_PRESENT = 1;
+		int PAGE_WRITE = 2;
+		Address pml4Table = Address.fromIntZeroExtend(0x101000);
+		pml4Table.store(PAGE_WRITE|PAGE_PRESENT);
 		/*
 		 * Setup PDPTE table
 		 */
