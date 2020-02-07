@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.jikesrvm.compilers.common.assembler.ia32.AssemblerConstants;
 import org.jikesrvm.ia32.CodeArray;
 import org.jikesrvm.ia32.RegisterConstants.CR;
 import org.jikesrvm.ia32.RegisterConstants.GPR;
@@ -45,11 +46,12 @@ public class GenerateIA32EStartup {
 			System.out.println("mbh: "+Integer.toHexString(codeIndex)+" "+Integer.toHexString(v));
 			codeIndex = asm.emitImm32(v, codeIndex);
 		}
-		/*
-		 * Reserve space for GDT and IDT tables
-		 */
-		asm.align(0x40);
-		// table containing system descriptors
+        /*
+         * Reserve space for GDT and IDT tables
+         */
+        asm.align(0x40);
+        // table containing system descriptors
+        asm.resolveForwardReferences(multibootEntry);
 		Address gdtTable = Address.fromIntZeroExtend(0x100810);
 		// gdt register info
 		Address gdtDesc = Address.fromIntZeroExtend(0x100800);
@@ -67,21 +69,14 @@ public class GenerateIA32EStartup {
 		 * descriptor 1 is the code segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, code execute/read seg type
 		 */
-		asm.emitMOV_Abs_Imm(csDesc, 0x8000);
+		asm.emitMOV_Abs_Imm(csDesc, 0);
 		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0xC09A00);
-//		asm.emitImm32(0x8000, 0x58);
-//		asm.emitImm32(0xc09a00, 0x5c);
 		/*
 		 * descriptor 2 is the data segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, data read/write seg type
 		 */
-        asm.emitMOV_Abs_Imm(dsDesc, 0x8000);
+        asm.emitMOV_Abs_Imm(dsDesc, 0);
         asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0xC09200);
-//		asm.emitImm32(0x8000, 0x60);
-//		asm.emitImm32(0xc09200, 0x64);
-		// IDT table pointer
-		// should be at 0x100 for the multibootEntry
-		asm.resolveForwardReferences(multibootEntry);
 		// multiboot entry starts here
 		// set the stack pointer
 		// asm.emitMOV_Reg_Imm(GPR.ESP, stack.toInt());
@@ -103,23 +98,37 @@ public class GenerateIA32EStartup {
 		asm.emitOUTB(0x21);
 		// io delay
 		asm.emitOUTB(0x80);
-		
-		/*
-		 * Setup GDT
-		 */
 		/*
 		 * Setup PML4 table
 		 */
 		int PAGE_PRESENT = 1;
 		int PAGE_WRITE = 2;
+		int PAGE_SIZE = 0x80;
 		Address pml4Table = Address.fromIntZeroExtend(0x101000);
-		pml4Table.store(PAGE_WRITE|PAGE_PRESENT);
+		asm.emitMOV_Abs_Imm(pml4Table, PAGE_WRITE|PAGE_PRESENT);
 		/*
 		 * Setup PDPTE table
 		 */
+		Address pdpteTable = Address.fromIntZeroExtend(0x102000);
+		asm.emitMOV_Abs_Imm(pdpteTable, PAGE_WRITE|PAGE_PRESENT);
 		/*
 		 * Setup PDE table
+		 * Fill all table entries to map 1GB
 		 */
+		Address pdeTable = Address.fromIntSignExtend(0x103000);
+        asm.emitMOV_Reg_Imm(GPR.EAX, PAGE_SIZE|PAGE_WRITE|PAGE_PRESENT);
+        asm.emitLEA_Reg_Abs(GPR.EBX, pdeTable);
+		int pdeTableLoop = asm.getMachineCodeIndex();
+		// page address; 2MB chunks
+		asm.emitMOV_RegInd_Reg(GPR.EBX, GPR.EAX);
+		// advance to next pde entry
+		asm.emitADD_Reg_Imm(GPR.EBX, 0x8);
+		// advance to next page address
+		asm.emitADD_Reg_Imm(GPR.EAX, 0x200000);
+		// stop when 1GB is reached
+		asm.emitCMP_Reg_Imm(GPR.EAX, 0x40000000);
+		asm.emitJCC_Cond_Imm(AssemblerConstants.LLT, pdeTableLoop);
+		
         // enable protected mode; not needed for qemu -kernel option
 		// setup gdt
 		asm.emitLGDT(gdtDesc);
