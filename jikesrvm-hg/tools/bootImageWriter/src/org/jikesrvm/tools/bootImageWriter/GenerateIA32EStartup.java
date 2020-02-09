@@ -99,23 +99,23 @@ public class GenerateIA32EStartup {
 		// io delay
 		asm.emitOUTB(0x80);
 		/*
-		 * Setup PML4 table
+		 * Setup PML4 table; pointer to PD PTE Table
 		 */
 		int PAGE_PRESENT = 1;
 		int PAGE_WRITE = 2;
 		int PAGE_SIZE = 0x80;
 		Address pml4Table = Address.fromIntZeroExtend(0x101000);
-		asm.emitMOV_Abs_Imm(pml4Table, PAGE_WRITE|PAGE_PRESENT);
+        Address pdpteTable = Address.fromIntZeroExtend(0x102000);
+        Address pdeTable = Address.fromIntSignExtend(0x103000);
+		asm.emitMOV_Abs_Imm(pml4Table, pdpteTable.toInt()|PAGE_WRITE|PAGE_PRESENT);
 		/*
-		 * Setup PDPTE table
+		 * Setup PDPTE table; pointer to PDE Table
 		 */
-		Address pdpteTable = Address.fromIntZeroExtend(0x102000);
-		asm.emitMOV_Abs_Imm(pdpteTable, PAGE_WRITE|PAGE_PRESENT);
+		asm.emitMOV_Abs_Imm(pdpteTable, pdeTable.toInt()|PAGE_WRITE|PAGE_PRESENT);
 		/*
 		 * Setup PDE table
 		 * Fill all table entries to map 1GB
 		 */
-		Address pdeTable = Address.fromIntSignExtend(0x103000);
         asm.emitMOV_Reg_Imm(GPR.EAX, PAGE_SIZE|PAGE_WRITE|PAGE_PRESENT);
         asm.emitLEA_Reg_Abs(GPR.EBX, pdeTable);
 		int pdeTableLoop = asm.getMachineCodeIndex();
@@ -129,35 +129,47 @@ public class GenerateIA32EStartup {
 		asm.emitCMP_Reg_Imm(GPR.EAX, 0x40000000);
 		asm.emitJCC_Cond_Imm(AssemblerConstants.LLT, pdeTableLoop);
 		
-        // enable protected mode; not needed for qemu -kernel option
+		/*
+		 * Set CR4 with PAE and PGE bits
+		 * and OSFXSR,OSXMMEXCPT
+		 */
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0x6A0);
+		asm.emitMOVCR(GPR.EAX, CR.CR4);
+		/*
+		 * Set CR3 with PML4 table
+		 */
+		asm.emitMOV_Reg_Abs(GPR.EAX, pml4Table);
+		asm.emitMOVCR(GPR.EAX, CR.CR3);
+		/*
+		 * Read EFER MSR
+		 */
+		asm.emitMOV_Reg_Imm(GPR.ECX, 0xC0000080);
+		asm.emitRDMSR();
+		/*
+		 * Set the LME
+		 */
+		asm.emitOR_Reg_Imm(GPR.EAX, 0x100);
+		asm.emitWRMSR();
+		/*
+		 * Activate long and real mode
+		 */
+		asm.emitMOVCR(CR.CR0, GPR.EAX);
+		asm.emitOR_Reg_Imm(GPR.EAX, 0x80000001);
+		
 		// setup gdt
 		asm.emitLGDT(gdtDesc);
         // Set cr0.MP
-		asm.emitMOV_Reg_Imm(GPR.EAX, 0x3);
-        asm.emitMOVCR(GPR.EAX, CR.CR0);
-        /****
-         * !!!!!! Any changes to above then the addres here needs to be recomputed!
-         */
- //       asm.emitJMPFAR_label(0x100135, CODE_SEGMENT);
         asm.emitJMPFAR_label(2, CODE_SEGMENT);
         asm.resolveForwardReferences(2);
-		// asm.emitLIDT(idtTablePtr);
-		// Load the data segment registers
-		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
-		asm.emitMOVSEG(SEG.DS, GPR.EAX);
-		asm.emitMOVSEG(SEG.ES, GPR.EAX);
-		asm.emitMOVSEG(SEG.FS, GPR.EAX);
-		asm.emitMOVSEG(SEG.GS, GPR.EAX);
-		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 
-		// Set cr4.OSFXSR
-		asm.emitMOV_Reg_Imm(GPR.EAX, 0x200);
-		asm.emitMOVCR(GPR.EAX, CR.CR4);
-		
-		/*
-		 * Enable ia-32e mode; x86_64
-		 */
-		
+        // Load the data segment registers
+//		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
+//		asm.emitMOVSEG(SEG.DS, GPR.EAX);
+//		asm.emitMOVSEG(SEG.ES, GPR.EAX);
+//		asm.emitMOVSEG(SEG.FS, GPR.EAX);
+//		asm.emitMOVSEG(SEG.GS, GPR.EAX);
+//		asm.emitMOVSEG(SEG.SS, GPR.EAX);
+
 		// setup THREAD ID register; This puts the RVMThread.bootThread object ref into ESI
 		asm.emitMOV_Reg_Abs(GPR.ESI, bootRecord.tocRegister.plus(bootRecord.bootThreadOffset));
 		// setup top of stack pointer

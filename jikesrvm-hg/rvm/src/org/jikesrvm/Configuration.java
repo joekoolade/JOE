@@ -29,7 +29,7 @@ public abstract class Configuration {
   public static final boolean BuildForSSE2Full = BuildForSSE2 && true;
   public static final boolean BuildForHwFsqrt = true && (false || VM.BuildForSSE2);
 
-  public static final boolean BuildFor32Addr = true;
+  public static final boolean BuildFor32Addr = false;
   public static final boolean BuildFor64Addr = !BuildFor32Addr;
 
   public static final boolean BuildForAix = false;
