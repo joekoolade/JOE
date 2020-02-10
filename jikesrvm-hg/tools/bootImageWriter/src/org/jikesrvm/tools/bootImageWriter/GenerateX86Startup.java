@@ -12,7 +12,9 @@ import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.tools.bootImageWriter.JamAssembler.SEG;
 import org.vmmagic.unboxed.Address;
 
-public class GenerateX86Startup {
+public class GenerateX86Startup 
+implements ProcessorStartup 
+{
 	private static final int X86_LOADADDR = 0x100000;
 	private JamAssembler asm = new JamAssembler(1024);
 	@SuppressWarnings("unused")

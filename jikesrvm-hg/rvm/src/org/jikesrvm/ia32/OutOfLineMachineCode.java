@@ -50,7 +50,7 @@ public abstract class OutOfLineMachineCode implements BaselineConstants {
     reflectiveMethodInvokerInstructions = generateReflectiveMethodInvokerInstructions();
     saveThreadStateInstructions = generateSaveThreadStateInstructions();
     threadSwitchInstructions = generateThreadSwitchInstructions();
-    RVMThread.stackTrampolineBridgeInstructions = generateStackTrampolineBridgeInstructions();
+    //RVMThread.stackTrampolineBridgeInstructions = generateStackTrampolineBridgeInstructions();
     restoreHardwareExceptionStateInstructions = generateRestoreHardwareExceptionStateInstructions();
   }
 
