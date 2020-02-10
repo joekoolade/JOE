@@ -13,7 +13,7 @@ import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.tools.bootImageWriter.JamAssembler.SEG;
 import org.vmmagic.unboxed.Address;
 
-public class GenerateIA32EStartup {
+public class GenerateIA32EStartup implements ProcessorStartup {
 	private static final int X86_LOADADDR = 0x100000;
 	private JamAssembler asm = new JamAssembler(1024);
 	@SuppressWarnings("unused")
@@ -204,6 +204,9 @@ public class GenerateIA32EStartup {
 		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
+	/* (non-Javadoc)
+     * @see org.jikesrvm.tools.bootImageWriter.ProcessorStartup#writeImage(java.lang.String)
+     */
 	public void writeImage(String filename) {
 		// Write startup image out to a file
 		CodeArray codeArray = asm.getMachineCodes();
@@ -221,6 +224,9 @@ public class GenerateIA32EStartup {
 		}
 	}
 	
+	/* (non-Javadoc)
+     * @see org.jikesrvm.tools.bootImageWriter.ProcessorStartup#getArray()
+     */
 	public byte[] getArray() {
 		return (byte[]) asm.getMachineCodes().getBacking();
 	}

@@ -1104,12 +1104,13 @@ private static boolean jamming=false;
       bootImage.setAddressWord(jtocPtr.plus(oIDOffset), MiscHeader.getOID(), false, false);
     }
 
-    GenerateX86Startup startup=null;
+    ProcessorStartup startup=null;
     if(bootImageStartupName!=null) {
     	say("Creating x86 startup code ... \nsp: "+Integer.toHexString(bootRecord.spRegister.toInt()) + " start: " +
     			Integer.toHexString(bootRecord.ipRegister.toInt()));
     	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
-    	startup = new GenerateX86Startup(bootRecord);
+//    	startup = new GenerateX86Startup(bootRecord);
+        startup = new GenerateIA32EStartup(bootRecord);
     	say("Done!\n Writing the image ..." + bootImageStartupName);
     	startup.writeImage(bootImageStartupName);
     	say("Done!");
