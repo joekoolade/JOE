@@ -165,18 +165,18 @@ public class BootImage extends BootImageWriterMessages
 	  RandomAccessFile execFile = new RandomAccessFile(jamoutFile, "rw");
 	  // truncate the file
 	  execFile.setLength(0);
-	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_386, 0x100000, execFile);
+	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_IA_64, 0x100000, execFile);
 	  
 	  /*
 	   * Setup the startup code
 	   */
-	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode, startupCode.length, 0x1000);
+	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode, startupCode.length, 0x8000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x101000, 0x1000, bootImageData.array(), getDataSize(), 0x1EFF000);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_DATA_START.toInt(), 0x1000, bootImageData.array(), getDataSize(), BOOT_IMAGE_DATA_SIZE);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x2000000, 0x1000, bootImageCode.array(), getCodeSize(), 0x2000000);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_CODE_START.toInt(), 0x1000, bootImageCode.array(), getCodeSize(), BOOT_IMAGE_CODE_SIZE);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x4000000, 0x1000, bootImageRMap, getRMapSize(), 0x50000);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_RMAP_START.toInt(), 0x1000, bootImageRMap, getRMapSize(), MAX_BOOT_IMAGE_RMAP_SIZE);
 	  elf.addProgramHeader(programHeader);
 	  elf.write();
 	  execFile.close();
@@ -343,7 +343,6 @@ public class BootImage extends BootImageWriterMessages
     return ObjectModel.allocateCode(this, array, numElements);
   }
 
-  @Override
   public Address allocateDataStorage(int size, int align, int offset) {
     size = roundAllocationSize(size);
     Offset unalignedOffset = freeDataOffset;
@@ -355,7 +354,7 @@ public class BootImage extends BootImageWriterMessages
     Offset lowAddr = freeDataOffset;
     freeDataOffset = freeDataOffset.plus(size);
     if (freeDataOffset.sGT(Offset.fromIntZeroExtend(BOOT_IMAGE_DATA_SIZE)))
-      fail("bootimage full (need at least " + size + " more bytes for data)");
+      fail("bootimage full (need at least " + size + " more bytes for data): "+freeDataOffset.toString());
 
     ObjectModel.fillAlignmentGap(this, BOOT_IMAGE_DATA_START.plus(unalignedOffset),
                                     lowAddr.minus(unalignedOffset).toWord().toExtent());
@@ -369,7 +368,6 @@ public class BootImage extends BootImageWriterMessages
     return size + ((-size) & ((1 << JavaHeader.LOG_MIN_ALIGNMENT) - 1));
   }
 
-  @Override
   public Address allocateCodeStorage(int size, int align, int offset) {
     size = roundAllocationSize(size);
     Offset unalignedOffset = freeCodeOffset;
@@ -400,7 +398,6 @@ public class BootImage extends BootImageWriterMessages
     freeCodeOffset = Offset.zero();
   }
 
-  @Override
   public void setByte(Address address, int value) {
     int idx;
     ByteBuffer data;
@@ -441,13 +438,11 @@ public class BootImage extends BootImageWriterMessages
     }
   }
 
-  @Override
   public void setHalfWord(Address address, int value) {
     int idx = address.diff(BOOT_IMAGE_DATA_START).toInt();
     bootImageData.putChar(idx, (char)value);
   }
 
-  @Override
   public void setFullWord(Address address, int value) {
     int idx;
     ByteBuffer data;
@@ -461,7 +456,6 @@ public class BootImage extends BootImageWriterMessages
     data.putInt(idx, value);
   }
 
-  @Override
   public void setAddressWord(Address address, Word value, boolean objField, boolean root) {
     if (VM.VerifyAssertions) VM._assert(!root || objField);
     if (objField) value = MemoryManager.bootTimeWriteBarrier(value);
@@ -489,12 +483,10 @@ public class BootImage extends BootImageWriterMessages
       numNulledReferences += 1;
   }
 
-  @Override
   public void setNullAddressWord(Address address, boolean objField, boolean root) {
     setNullAddressWord(address, objField, root, true);
   }
 
-  @Override
   public void setDoubleWord(Address address, long value) {
     int idx;
     ByteBuffer data;

@@ -76,8 +76,14 @@ public class Map {
     globalPageMap = new GenericFreeList(1, 1, Space.MAX_SPACES);
     sharedFLMap = new FreeListPageResource[Space.MAX_SPACES];
     if (VM.VERIFY_ASSERTIONS)
+    {
+        Log.write("map assert: ", Space.BITS_IN_ADDRESS);
+        Log.write("/", Space.LOG_ADDRESS_SPACE);
+        Log.write("/", Space.HEAP_END);
+        Log.writeln("/", MAP_BASE_ADDRESS);
         VM.assertions._assert(Space.BITS_IN_ADDRESS == Space.LOG_ADDRESS_SPACE ||
             Space.HEAP_END.diff(MAP_BASE_ADDRESS).toWord().rshl(Space.LOG_ADDRESS_SPACE).isZero());
+    }
   }
 
   /****************************************************************************

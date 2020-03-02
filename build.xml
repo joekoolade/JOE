@@ -57,8 +57,11 @@
   <property name="options.java" location="${jikesrvm.dir}/common/options/src"/>
   <property name="tuningforklib.java" location="${jikesrvm.dir}/external/tuningforklib/src"/>
   <property name="vmmagic.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/src"/>
-  <property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/32/java"/>
-  <property name="classpath.lib.dir" location="classpath-0.98"/>
+  <property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/64/java"/>
+<!--  Use for 32 bit arch
+<property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/32/java"/>
+-->
+	<property name="classpath.lib.dir" location="classpath-0.98"/>
 
   <!-- Classpath library -->
   <property name="classlib.library-interface.cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
