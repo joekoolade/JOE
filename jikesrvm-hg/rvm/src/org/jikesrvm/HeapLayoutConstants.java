@@ -21,23 +21,23 @@ public interface HeapLayoutConstants {
 
   /** The address of the start of the data section of the boot image. */
   Address BOOT_IMAGE_DATA_START =
-    Address.fromIntZeroExtend( 0x00101000 );
+    Address.fromIntZeroExtend( 0x00108000 );
 
   /** The address of the start of the code section of the boot image. */
   Address BOOT_IMAGE_CODE_START =
-    Address.fromIntZeroExtend( 0x02000000 );
+    Address.fromIntZeroExtend( 0x06000000 );
 
   /** The address of the start of the ref map section of the boot image. */
   Address BOOT_IMAGE_RMAP_START =
-    Address.fromIntZeroExtend( 0x04000000 );
+    Address.fromIntZeroExtend( 0x0A000000 );
 
   /** The address in virtual memory that is the highest that can be mapped. */
   Address MAXIMUM_MAPPABLE =
-    Address.fromIntZeroExtend( 0x08800000 );
+    Address.fromIntZeroExtend( 0x0C800000 );
 
   /** The maximum boot image data size */
 //  int BOOT_IMAGE_DATA_SIZE = 56<<20;
-  int BOOT_IMAGE_DATA_SIZE = 0x1eff000;
+  int BOOT_IMAGE_DATA_SIZE = 0x2eff000;
 
   /** The maximum boot image code size */
   int BOOT_IMAGE_CODE_SIZE = 24<<20;

@@ -67,7 +67,6 @@ public class ELFOutput extends ELFImpl {
     public int read_off() throws IOException { throw new IOException(); }
     public int read_addr() throws IOException { throw new IOException(); }
 
-	@Override
 	public void write_bytes(byte[] data, int offset, int filesz) throws IOException 
 	{
 		// TODO Auto-generated method stub

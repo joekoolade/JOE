@@ -241,7 +241,6 @@ public class BootImageWriter extends BootImageWriterMessages
    * comparator defers to another comparator.
    */
   private static final class IdenticalComparator implements Comparator<BootImageMap.Entry> {
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       return 0;
     }
@@ -252,7 +251,6 @@ public class BootImageWriter extends BootImageWriterMessages
    * reference ID.
    */
   private static final class TypeReferenceComparator implements Comparator<BootImageMap.Entry> {
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       TypeReference aRef = TypeReference.findOrCreate(a.jdkObject.getClass());
       TypeReference bRef = TypeReference.findOrCreate(b.jdkObject.getClass());
@@ -265,7 +263,6 @@ public class BootImageWriter extends BootImageWriterMessages
    * classes.
    */
   private static final class ClassNameComparator implements Comparator<BootImageMap.Entry> {
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       return -a.jdkObject.getClass().toString().compareTo(b.jdkObject.getClass().toString());
     }
@@ -280,7 +277,6 @@ public class BootImageWriter extends BootImageWriterMessages
     ObjectSizeComparator(Comparator<BootImageMap.Entry> identicalSizeComparator) {
       this.identicalSizeComparator = identicalSizeComparator;
     }
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       TypeReference aRef = TypeReference.findOrCreate(a.jdkObject.getClass());
       TypeReference bRef = TypeReference.findOrCreate(b.jdkObject.getClass());
@@ -311,7 +307,6 @@ public class BootImageWriter extends BootImageWriterMessages
     NumberOfReferencesComparator(Comparator<BootImageMap.Entry> identicalSizeComparator) {
       this.identicalSizeComparator = identicalSizeComparator;
     }
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       TypeReference aRef = TypeReference.findOrCreate(a.jdkObject.getClass());
       TypeReference bRef = TypeReference.findOrCreate(b.jdkObject.getClass());
@@ -342,7 +337,6 @@ public class BootImageWriter extends BootImageWriterMessages
     NumberOfNonFinalReferencesComparator(Comparator<BootImageMap.Entry> identicalSizeComparator) {
       this.identicalSizeComparator = identicalSizeComparator;
     }
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       TypeReference aRef = TypeReference.findOrCreate(a.jdkObject.getClass());
       TypeReference bRef = TypeReference.findOrCreate(b.jdkObject.getClass());
@@ -373,7 +367,6 @@ public class BootImageWriter extends BootImageWriterMessages
     NonFinalReferenceDensityComparator(Comparator<BootImageMap.Entry> identicalSizeComparator) {
       this.identicalSizeComparator = identicalSizeComparator;
     }
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       TypeReference aRef = TypeReference.findOrCreate(a.jdkObject.getClass());
       TypeReference bRef = TypeReference.findOrCreate(b.jdkObject.getClass());
@@ -405,7 +398,6 @@ public class BootImageWriter extends BootImageWriterMessages
     ReferenceDensityComparator(Comparator<BootImageMap.Entry> identicalSizeComparator) {
       this.identicalSizeComparator = identicalSizeComparator;
     }
-    @Override
     public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
       TypeReference aRef = TypeReference.findOrCreate(a.jdkObject.getClass());
       TypeReference bRef = TypeReference.findOrCreate(b.jdkObject.getClass());
@@ -1249,7 +1241,6 @@ private static boolean jamming=false;
    */
   private static class TypeComparator<T> implements Comparator<T> {
 
-    @Override
     public int compare(T a, T b) {
       if (a == null && b == null) return 0;
       if (a == null) return 1;
@@ -3611,7 +3602,6 @@ private static void writeAddressMap(String mapFileName) throws IOException {
       out.println();
 
       SortedSet<BootImageMap.Entry> set = new TreeSet<BootImageMap.Entry>(new Comparator<BootImageMap.Entry>() {
-        @Override
         public int compare(BootImageMap.Entry a, BootImageMap.Entry b) {
           return Integer.valueOf(a.imageAddress.toInt()).compareTo(b.imageAddress.toInt());
         }

@@ -26,20 +26,17 @@ final class BootImageObjectAddressRemapper implements ObjectAddressRemapper {
     return singleton;
   }
 
-  @Override
   public <T> Address objectAsAddress(T jdkObject) {
     jdkObject = intern(jdkObject);
     return BootImageMap.findOrCreateEntry(jdkObject).objectId;
   }
 
-  @Override
   public Object addressAsObject(Address address) {
     VM.sysWriteln("BootImageObjectAddressRemapper: called addressAsObject");
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
     return null;
   }
 
-  @Override
   @SuppressWarnings("unchecked")
   public <T> T intern(T obj) {
     if (obj instanceof String) {
@@ -55,7 +52,6 @@ final class BootImageObjectAddressRemapper implements ObjectAddressRemapper {
     return obj;
   }
 
-  @Override
   public int identityHashCode(Object obj) {
     BootImageMap.Entry entry = BootImageMap.findOrCreateEntry(obj);
     int identityHashCode = System.identityHashCode(obj);
