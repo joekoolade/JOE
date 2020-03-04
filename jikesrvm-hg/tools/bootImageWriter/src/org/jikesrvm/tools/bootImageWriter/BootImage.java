@@ -165,7 +165,7 @@ public class BootImage extends BootImageWriterMessages
 	  RandomAccessFile execFile = new RandomAccessFile(jamoutFile, "rw");
 	  // truncate the file
 	  execFile.setLength(0);
-	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_IA_64, 0x100000, execFile);
+	  ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB,  ET_EXEC, EM_386, 0x100000, execFile);
 	  
 	  /*
 	   * Setup the startup code
