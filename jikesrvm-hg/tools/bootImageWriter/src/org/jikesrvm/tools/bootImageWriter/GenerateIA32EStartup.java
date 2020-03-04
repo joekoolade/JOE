@@ -70,13 +70,13 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		 * 128MB segment, base 0, 32bit segment, DPL 0, code execute/read seg type
 		 */
 		asm.emitMOV_Abs_Imm(csDesc, 0);
-		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0xC09A00);
+		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0x9AAF00);
 		/*
 		 * descriptor 2 is the data segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, data read/write seg type
 		 */
         asm.emitMOV_Abs_Imm(dsDesc, 0);
-        asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0xC09200);
+        asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0x920000);
 		// multiboot entry starts here
 		// set the stack pointer
 		// asm.emitMOV_Reg_Imm(GPR.ESP, stack.toInt());
