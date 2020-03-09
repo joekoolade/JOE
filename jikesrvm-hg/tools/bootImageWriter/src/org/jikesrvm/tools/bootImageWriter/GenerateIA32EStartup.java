@@ -69,14 +69,16 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		 * descriptor 1 is the code segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, code execute/read seg type
 		 */
-		asm.emitMOV_Abs_Imm(csDesc, 0);
-		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0x9AAF00);
+		asm.emitMOV_Abs_Imm(csDesc, 0xFFFF);
+//		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0x00AF9A00);
+		asm.emitMOV_Abs_Imm(csDesc.plus(4), 0xCF9A00);
 		/*
 		 * descriptor 2 is the data segment
 		 * 128MB segment, base 0, 32bit segment, DPL 0, data read/write seg type
 		 */
-        asm.emitMOV_Abs_Imm(dsDesc, 0);
-        asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0x920000);
+        asm.emitMOV_Abs_Imm(dsDesc, 0xFFFF);
+//        asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0x00CF9200);
+        asm.emitMOV_Abs_Imm(dsDesc.plus(4), 0xCF9200);
 		// multiboot entry starts here
 		// set the stack pointer
 		// asm.emitMOV_Reg_Imm(GPR.ESP, stack.toInt());
@@ -129,6 +131,21 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		asm.emitCMP_Reg_Imm(GPR.EAX, 0x40000000);
 		asm.emitJCC_Cond_Imm(AssemblerConstants.LLT, pdeTableLoop);
 		
+        // setup gdt
+        asm.emitLGDT(gdtDesc);
+        // Set cr0.MP
+        /*
+         * Set long and real mode
+         */
+        asm.emitMOVCR(CR.CR0, GPR.EAX);
+        asm.emitOR_Reg_Imm(GPR.EAX, 0x1);
+        asm.emitMOVCR(GPR.EAX, CR.CR0);
+        /*
+         * Activate with a jump
+         */
+//        asm.emitOperandPrefix();
+        asm.emitJMPFAR_label(2, CODE_SEGMENT);
+        asm.resolveForwardReferences(2);
 		/*
 		 * Set CR4 with PAE and PGE bits
 		 * and OSFXSR,OSXMMEXCPT
@@ -150,17 +167,28 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		 */
 		asm.emitOR_Reg_Imm(GPR.EAX, 0x100);
 		asm.emitWRMSR();
-		/*
-		 * Activate long and real mode
-		 */
-		asm.emitMOVCR(CR.CR0, GPR.EAX);
-		asm.emitOR_Reg_Imm(GPR.EAX, 0x80000001);
 		
 		// setup gdt
-		asm.emitLGDT(gdtDesc);
+//		asm.emitLGDT(gdtDesc);
         // Set cr0.MP
-        asm.emitJMPFAR_label(2, CODE_SEGMENT);
-        asm.resolveForwardReferences(2);
+        /*
+         * Set long and real mode
+         */
+        asm.emitMOVCR(CR.CR0, GPR.EAX);
+        asm.emitOR_Reg_Imm(GPR.EAX, 0x80000001);
+        asm.emitMOVCR(GPR.EAX, CR.CR0);
+        
+        /*
+         * Put code segment into 64 bit mode
+         */
+        asm.emitMOV_Abs_Imm(csDesc, 0xFFFF);
+        asm.emitMOV_Abs_Imm(csDesc.plus(4), 0xA09A00);
+
+        /*
+         * Activate with a jump
+         */
+        asm.emitJMPFAR_label(3, CODE_SEGMENT);
+        asm.resolveForwardReferences(3);
 
         // Load the data segment registers
 //		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
@@ -200,7 +228,8 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		
 		// setup FRAME POINTER
 		// call VM.boot(); we are never coming back
-		asm.emitFARCALL(bootRecord.ipRegister, CODE_SEGMENT);
+//		asm.emitFARCALL(bootRecord.ipRegister, CODE_SEGMENT);
+		asm.emitCALL_Imm(bootRecord.ipRegister.toInt());
 		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	
