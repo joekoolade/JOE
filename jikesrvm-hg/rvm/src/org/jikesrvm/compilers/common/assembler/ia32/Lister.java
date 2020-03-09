@@ -29,7 +29,7 @@ public final class Lister implements RegisterConstants {
 
   private final Assembler asm;
 
-  private enum Prefix {LOCK, LIKELY, UNLIKELY};
+  private enum Prefix {LOCK, LIKELY, UNLIKELY, OPERAND, ADDRESS};
 
   private Prefix prefix;
 
@@ -548,4 +548,14 @@ public final class Lister implements RegisterConstants {
   public void comefrom(int i, int j) {
     VM.sysWrite(right(hex(i), 6) + "| <<< " + right(hex(j), 6) + "\n");
   }
+
+  public void operandPrefix()
+  {
+    prefix = Prefix.OPERAND;
+  }
+  public void addressPrefix()
+  {
+    prefix = Prefix.ADDRESS;
+  }
+
 }

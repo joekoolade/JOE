@@ -892,6 +892,19 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   {
       return origin;
   }
+  
+  @Inline
+  public final void emitOperandPrefix()
+  {
+      setMachineCodes(mi++, (byte)0x66);
+      if (lister != null) lister.operandPrefix();
+  }
+  @Inline
+  public final void emitAddressPrefix()
+  {
+      setMachineCodes(mi++, (byte)0x67);
+      if (lister != null) lister.addressPrefix();
+  }
   /**
    * Generate a locking prefix word into the generated code.  Locking
    * operations on IA32 are expressed by writing a locking byte before
