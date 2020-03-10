@@ -228,6 +228,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
   protected Assembler (int bytecodeSize, boolean shouldPrint) {
     machineCodes = new byte[bytecodeSize*CODE_EXPANSION_FACTOR + CODE_OVERHEAD_TERM];
     lister = shouldPrint ? new Lister((ArchitectureSpecific.Assembler) this) : null;
+    origin = 0;
   }
 
   /**
@@ -17726,7 +17727,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
        setMachineCodes(mi++, (byte) 0xE8);
        // offset of next instruction (this instruction is 5 bytes,
        // but we just accounted for one of them in the mi++ above)
-       emitImm32(imm - (mi + 4));
+       emitImm32(imm - (origin + mi + 4));
     if (lister != null) lister.I(miStart, "CALL", imm);
   }
 
@@ -17905,7 +17906,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
     // can we fit the offset from the next instruction into 8
     // bits, assuming this instruction is 2 bytes (which it will
     // be if the offset fits into 8 bits)?
-    int relOffset = imm - (mi + 2);
+    int relOffset = imm - (origin + mi + 2);
     if (fits(relOffset,8)) {
       // yes, so use short form.
       setMachineCodes(mi++, (byte) 0xEB);
@@ -17917,7 +17918,7 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
        setMachineCodes(mi++, (byte) 0xE9);
        // offset of next instruction (this instruction is 5 bytes,
        // but we just accounted for one of them in the mi++ above)
-       emitImm32(imm - (mi + 4));
+       emitImm32(imm - (origin + mi + 4));
     }
     if (lister != null) lister.I(miStart, "JMP", imm);
   }
