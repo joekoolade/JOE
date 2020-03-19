@@ -183,14 +183,6 @@ public class BootRecord {
   // Additional RVM entrypoints
   //
   /**
-   * method id for inserting stackframes at site of hardware traps
-   */
-  int hardwareTrapMethodId;
-  /**
-   * jtoc offset of RuntimeEntrypoints.deliverHardwareException()
-   */
-  Offset deliverHardwareExceptionOffset;
-  /**
    * jtoc offset of RVMThread.dumpStackAndDie(I)
    */
   public Offset dumpStackAndDieOffset;
@@ -198,16 +190,6 @@ public class BootRecord {
    * jtoc offset of RVMThread.bootThread
    */
   public Offset bootThreadOffset;
-  /**
-   * jtoc offset of RVMThread.debugRequested
-   */
-  Offset debugRequestedOffset;
-  /**
-   * an external signal has been sent e.g. kill -signalnumber processid
-   */
-  @Entrypoint
-  int externalSignalFlag;
-
   // Host operating system entrypoints - see "sys.C"
   //
 

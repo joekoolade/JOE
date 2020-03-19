@@ -787,17 +787,6 @@ private static final boolean DEBUG = false;
   //----------------//
 
   public static void init() {
-    // tell "RunBootImage.C" to pass control to
-    // "RuntimeEntrypoints.deliverHardwareException()"
-    // whenever the host operating system detects a hardware trap
-    //
-    BootRecord.the_boot_record.hardwareTrapMethodId = CompiledMethods.createHardwareTrapCompiledMethod().getId();
-    BootRecord.the_boot_record.deliverHardwareExceptionOffset = Offset.zero();
-
-    // tell "RunBootImage.C" to set "RVMThread.debugRequested" flag
-    // whenever the host operating system detects a debug request signal
-    //
-    BootRecord.the_boot_record.debugRequestedOffset = Entrypoints.debugRequestedField.getOffset();
   }
 
   /**

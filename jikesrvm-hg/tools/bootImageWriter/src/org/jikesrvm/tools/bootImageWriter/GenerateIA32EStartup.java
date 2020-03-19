@@ -18,7 +18,7 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 	private JamAssembler asm = new JamAssembler(1024);
 	@SuppressWarnings("unused")
 	private static final int CODE_SEGMENT = 1<<3;
-	private static final int DATA_SEGMENT = 2<<3;
+	private static final int DATA_SEGMENT = 0;
 	/**
 	 * 
 	 * @param stack top of stack
@@ -191,12 +191,12 @@ public class GenerateIA32EStartup implements ProcessorStartup {
         asm.resolveForwardReferences(3);
 
         // Load the data segment registers
-//		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
-//		asm.emitMOVSEG(SEG.DS, GPR.EAX);
-//		asm.emitMOVSEG(SEG.ES, GPR.EAX);
-//		asm.emitMOVSEG(SEG.FS, GPR.EAX);
-//		asm.emitMOVSEG(SEG.GS, GPR.EAX);
-//		asm.emitMOVSEG(SEG.SS, GPR.EAX);
+		asm.emitMOV_Reg_Imm(GPR.EAX, DATA_SEGMENT);
+		asm.emitMOVSEG(SEG.DS, GPR.EAX);
+		asm.emitMOVSEG(SEG.ES, GPR.EAX);
+		asm.emitMOVSEG(SEG.FS, GPR.EAX);
+		asm.emitMOVSEG(SEG.GS, GPR.EAX);
+		asm.emitMOVSEG(SEG.SS, GPR.EAX);
 
 		// setup THREAD ID register; This puts the RVMThread.bootThread object ref into ESI
 		asm.emitMOV_Reg_Abs(GPR.ESI, bootRecord.tocRegister.plus(bootRecord.bootThreadOffset));

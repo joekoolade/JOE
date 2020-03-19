@@ -54,10 +54,12 @@ public class Apic {
   {
     if(!CpuId.hasAPIC)
     {
+        VM.sysWriteln("No APIC on the processor!");
       throw new RuntimeException("No APIC on the processor!");
     } 
     if(!MSR.apicIsEnabled())
     {
+        VM.sysWriteln("APIC is not enabled!");
       throw new RuntimeException("APIC is not enabled!");
     }
   }
