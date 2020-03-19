@@ -374,8 +374,6 @@ public class Entrypoints {
   
   public static final RVMField the_boot_recordField =
       getField(org.jikesrvm.runtime.BootRecord.class, "the_boot_record", org.jikesrvm.runtime.BootRecord.class);
-  public static final RVMField externalSignalFlagField =
-      getField(org.jikesrvm.runtime.BootRecord.class, "externalSignalFlag", int.class);
   public static final RVMField sysLongDivideIPField =
       getField(org.jikesrvm.runtime.BootRecord.class, "sysLongDivideIP", org.vmmagic.unboxed.Address.class);
   public static final RVMField sysLongToFloatIPField =

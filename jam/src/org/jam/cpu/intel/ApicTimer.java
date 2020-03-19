@@ -126,7 +126,6 @@ implements Timer
   /* (non-Javadoc)
    * @see org.jam.interfaces.Timer#getTime()
    */
-  @Override
   public long getTime()
   {
     // TODO Auto-generated method stub
@@ -136,7 +135,6 @@ implements Timer
   /* (non-Javadoc)
    * @see org.jam.interfaces.Timer#handler()
    */
-  @Override
   public void handler()
   {
     // TODO Auto-generated method stub
@@ -146,7 +144,6 @@ implements Timer
   /* (non-Javadoc)
    * @see org.jam.interfaces.Timer#startTimer(long)
    */
-  @Override
   public void startTimer(long timeNs)
   {
     // TODO Auto-generated method stub
@@ -156,7 +153,6 @@ implements Timer
   /* (non-Javadoc)
    * @see org.jam.interfaces.Timer#removeTimer(long)
    */
-  @Override
   public RVMThread removeTimer(long timeKey)
   {
     // TODO Auto-generated method stub
@@ -166,7 +162,6 @@ implements Timer
   /* (non-Javadoc)
    * @see org.jam.interfaces.Timer#getHandlerStack()
    */
-  @Override
   public Address getHandlerStack()
   {
     // TODO Auto-generated method stub

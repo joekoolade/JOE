@@ -119,7 +119,7 @@ public class CpuId {
       if(trace)
       {
         VM.sysWriteln("Max CPUID: ", maxCpuId);
-        VM.sysWriteln("Vendor ID: ", new String(vendorId));
+        VM.sysWrite("Vendor ID: "); VM.sysWrite(vendorId, 12); VM.sysWriteln();
       }
     }
     static void cpuId1()
@@ -281,7 +281,7 @@ public class CpuId {
       processorBrand[47] = (char)((regs[3] >> 24) & 0xff);
       if(trace)
       {
-        VM.sysWriteln("Processor Brand: ", new String(processorBrand));
+        VM.sysWrite("Processor Brand: "); VM.sysWrite(processorBrand, 48); VM.sysWriteln();
       }
     }
     
