@@ -2810,10 +2810,10 @@ final class BaselineMagic {
        * Push EAX, EBX, ECX, and EDX into the array
        */
       asm.emitPOP_Reg(EBP);
-      asm.emitMOV_RegDisp_Reg(EBP, NO_SLOT, EAX);
-      asm.emitMOV_RegDisp_Reg(EBP, ONE_SLOT, EBX);
-      asm.emitMOV_RegDisp_Reg(EBP, TWO_SLOTS, ECX);
-      asm.emitMOV_RegDisp_Reg(EBP, THREE_SLOTS, EDX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero(), EAX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero().plus(4), EBX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero().plus(8), ECX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero().plus(12), EDX);
       /*
        * Pop the int[] off
        */
@@ -2839,8 +2839,16 @@ final class BaselineMagic {
       asm.emitPOP_Reg(ECX);
       asm.emitRDMSR();
       // push the value onto the stack
-      asm.emitPUSH_Reg(EDX);
-      asm.emitPUSH_Reg(EAX);
+      if(VM.BuildFor64Addr)
+      {
+          asm.emitSHL_Reg_Imm_Quad(EDX, 32);
+          asm.emitOR_Reg_Reg_Quad(EAX, EDX);
+          asm.emitPUSH_Reg(EAX);
+      }
+      else
+      {
+          asm.emitPUSH_Reg(EDX);
+      }
     }
   }
   
