@@ -19,6 +19,7 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 	@SuppressWarnings("unused")
 	private static final int CODE_SEGMENT = 1<<3;
 	private static final int DATA_SEGMENT = 0;
+	private static final int WORDSIZE = 8;
 	/**
 	 * 
 	 * @param stack top of stack
@@ -108,30 +109,47 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		int PAGE_SIZE = 0x80;
 		Address pml4Table = Address.fromIntZeroExtend(0x101000);
         Address pdpteTable = Address.fromIntZeroExtend(0x102000);
-        Address pdeTable = Address.fromIntSignExtend(0x103000);
+        Address pdeTable0 = Address.fromIntSignExtend(0x103000); // 0 - 0x3FFF_FFFF
+        Address pdeTable3 = Address.fromIntSignExtend(0x104000); // 0xC000_0000 - 0xFFFF_FFFF
 		asm.emitMOV_Abs_Imm(pml4Table, pdpteTable.toInt()|PAGE_WRITE|PAGE_PRESENT);
 		/*
 		 * Setup PDPTE table; pointer to PDE Table
 		 */
-		asm.emitMOV_Abs_Imm(pdpteTable, pdeTable.toInt()|PAGE_WRITE|PAGE_PRESENT);
+		asm.emitMOV_Abs_Imm(pdpteTable, pdeTable0.toInt()|PAGE_WRITE|PAGE_PRESENT);
 		/*
 		 * Setup PDE table
 		 * Fill all table entries to map 1GB
 		 */
         asm.emitMOV_Reg_Imm(GPR.EAX, PAGE_SIZE|PAGE_WRITE|PAGE_PRESENT);
-        asm.emitLEA_Reg_Abs(GPR.EBX, pdeTable);
+        asm.emitLEA_Reg_Abs(GPR.EBX, pdeTable0);
 		int pdeTableLoop = asm.getMachineCodeIndex();
 		// page address; 2MB chunks
 		asm.emitMOV_RegInd_Reg(GPR.EBX, GPR.EAX);
 		// advance to next pde entry
-		asm.emitADD_Reg_Imm(GPR.EBX, 0x8);
+		asm.emitADD_Reg_Imm(GPR.EBX, WORDSIZE);
 		// advance to next page address
 		asm.emitADD_Reg_Imm(GPR.EAX, 0x200000);
 		// stop when 1GB is reached
 		asm.emitCMP_Reg_Imm(GPR.EAX, 0x40000000);
 		asm.emitJCC_Cond_Imm(AssemblerConstants.LLT, pdeTableLoop);
-		
-        // setup gdt
+		/*
+		 * Map 0xF000_0000 to 0xFFFF_FFFF 
+		 */
+		asm.emitMOV_Abs_Imm(pdpteTable.plus(WORDSIZE*3), pdeTable3.toInt()|PAGE_WRITE|PAGE_PRESENT);;;
+ 		asm.emitLEA_Reg_Abs(GPR.EBX, pdeTable3.plus(0xC00)); // starting offset for 0xF000_0000
+		asm.emitMOV_Reg_Imm(GPR.EAX, 0xF0000000|PAGE_SIZE|PAGE_WRITE|PAGE_PRESENT);
+        pdeTableLoop = asm.getMachineCodeIndex();
+        // page address; 2MB chunks
+        asm.emitMOV_RegInd_Reg(GPR.EBX, GPR.EAX);
+        // advance to next pde entry
+        asm.emitADD_Reg_Imm(GPR.EBX, WORDSIZE);
+        // advance to next page address
+        asm.emitADD_Reg_Imm(GPR.EAX, 0x200000);
+        // stop count rollover over and is positive
+        // asm.emitCMP_Reg_Imm(GPR.EAX, 0x40000000);
+        // Keep looping until EAX > 0
+        asm.emitJCC_Cond_Imm(AssemblerConstants.S, pdeTableLoop);
+
         asm.emitLGDT(gdtDesc);
         // Set cr0.MP
         /*
@@ -143,7 +161,6 @@ public class GenerateIA32EStartup implements ProcessorStartup {
         /*
          * Activate with a jump
          */
-//        asm.emitOperandPrefix();
         asm.emitJMPFAR_label(2, CODE_SEGMENT);
         asm.resolveForwardReferences(2);
 		/*
@@ -155,7 +172,7 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		/*
 		 * Set CR3 with PML4 table
 		 */
-		asm.emitMOV_Reg_Abs(GPR.EAX, pml4Table);
+		asm.emitLEA_Reg_Abs(GPR.EAX, pml4Table);
 		asm.emitMOVCR(GPR.EAX, CR.CR3);
 		/*
 		 * Read EFER MSR

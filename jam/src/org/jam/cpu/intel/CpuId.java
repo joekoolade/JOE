@@ -88,6 +88,14 @@ public class CpuId {
   public static boolean hasAVX;
   public static boolean hasF16C;
   public static boolean hasDRAND;
+  public static boolean hasLAHF64;
+  public static boolean hasLZCNT;
+  public static boolean hasPREFETCHW;
+  public static boolean hasSYSCALL64;
+  public static boolean hasExecuteDisableBit;
+  public static boolean has1GBPages;
+  public static boolean hasRDTSCP;
+  public static boolean hasIA64;
   public static final boolean trace = true;
   
   public static void boot()
@@ -95,6 +103,7 @@ public class CpuId {
     cpuId0();
     cpuId1();
     extendedCpuId0();
+    extendedCpuId1();
     extendedCpuId2();
     extendedCpuId3();
     extendedCpuId4();
@@ -216,8 +225,25 @@ public class CpuId {
       Magic.cpuId(0x80000000, regs);
       if(trace)
       {
-        VM.sysWriteln("Extened CPUID 0: ", VM.intAsHexString(regs[0]));
+        VM.sysWriteln("Extended CPUID 0: ", VM.intAsHexString(regs[0]));
       }
+    }
+    
+    static void extendedCpuId1()
+    {
+        Magic.cpuId(0x80000001, regs);
+        if(trace)
+        {
+            VM.sysWriteln("Extended CPUID 1 EAX: ", VM.intAsHexString(regs[0]));
+        }
+        hasLAHF64 = (regs[2] & 0x00000001) != 0;
+        hasLZCNT = (regs[2] & 0x00000020) != 0;
+        hasPREFETCHW = (regs[2] & 0x00000100) != 0;
+        hasSYSCALL64 = (regs[3] & 0x00000800) != 0;
+        hasExecuteDisableBit = (regs[3] & 0x00100000) != 0;
+        has1GBPages = (regs[3] & 0x04000000) != 0;
+        hasRDTSCP = (regs[3] & 0x08000000) != 0;
+        hasIA64 = (regs[3] & 0x20000000) != 0;
     }
     
     static void extendedCpuId2()
@@ -347,6 +373,13 @@ public class CpuId {
       if(hasAVX) VM.sysWrite("AVX ");
       if(hasF16C) VM.sysWrite("F16C ");
       if(hasDRAND) VM.sysWrite("DRAND ");
+      if(hasLZCNT) VM.sysWrite("LZCNT ");
+      if(hasPREFETCHW) VM.sysWrite("PREFETCHW ");
+      if(hasSYSCALL64) VM.sysWrite("SYSCALL64 ");
+      if(hasExecuteDisableBit) VM.sysWrite("EDB ");
+      if(has1GBPages) VM.sysWrite("1GBPAGES ");;
+      if(hasRDTSCP) VM.sysWrite("RDTSCP ");
+      if(hasIA64) VM.sysWrite("IA64 ");
       VM.sysWriteln();
     }
 }
