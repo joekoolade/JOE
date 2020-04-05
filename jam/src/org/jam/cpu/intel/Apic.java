@@ -20,7 +20,7 @@ import org.vmmagic.unboxed.Offset;
 public class Apic {
   
   // Hardcode address for now
-  final protected static Address registers = Address.fromIntSignExtend(0xFEE00000);
+  final protected static Address registers = Address.fromIntZeroExtend(0xFEE00000);
   final protected static Offset ID = Offset.fromIntSignExtend(0x20);
   final protected static Offset VERSION = Offset.fromIntSignExtend(0x30);
   final protected static Offset TPR = Offset.fromIntSignExtend(0x80);
@@ -49,7 +49,9 @@ public class Apic {
   final protected static Offset TIMERDCR = Offset.fromIntSignExtend(0x3E0);
   private static final int SUPRESS_EIO_BROADCASTS = 1<<24;
   private static final int APIC_SW_ENABLE = 1<<8;
-  
+  /*
+   * TODO: Get APIC address from IA32_APIC_BASE msr register
+   */
   public Apic()
   {
     if(!CpuId.hasAPIC)

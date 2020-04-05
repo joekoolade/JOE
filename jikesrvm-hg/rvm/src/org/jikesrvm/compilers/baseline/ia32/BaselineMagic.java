@@ -2843,6 +2843,7 @@ final class BaselineMagic {
       {
           asm.emitSHL_Reg_Imm_Quad(EDX, 32);
           asm.emitOR_Reg_Reg_Quad(EAX, EDX);
+          asm.emitPUSH_Reg(EDX);
           asm.emitPUSH_Reg(EAX);
       }
       else
