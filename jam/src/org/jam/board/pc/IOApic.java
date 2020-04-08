@@ -39,8 +39,8 @@ public abstract class IOApic {
   
   public IOApic(int baseAddress)
   {
-    IOREGSEL = Address.fromIntSignExtend(baseAddress);
-    IOWIN = Address.fromIntSignExtend(baseAddress+0x10);
+    IOREGSEL = Address.fromIntZeroExtend(baseAddress);
+    IOWIN = Address.fromIntZeroExtend(baseAddress+0x10);
     int val = ioApicId();
     id = (val >> 24) & 0xF;
     val = ioApicVer();
