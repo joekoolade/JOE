@@ -50,7 +50,7 @@ public final class Idt implements SegmentDescriptorTypes {
      * 
      *  						          0       2      6
      *  						          +-------+------+
-     *  idtTableRegister -->	|limit  | base |
+     *  idtTableRegister -->	          |limit  | base |
      *  						          +-------+------+
      */
 	// formatter:on
@@ -1020,9 +1020,12 @@ public final class Idt implements SegmentDescriptorTypes {
      */
     private void storeVector(int vector, Address irqAddress)
     {
-        Offset vectorOffset = Offset.fromIntSignExtend(vector * 8);
+        Offset vectorOffset = Offset.fromIntZeroExtend(vector * 16);
 		base.store((codeSegment << 16) | (irqAddress.toInt() & 0xffff), vectorOffset);
 		base.store((irqAddress.toInt() & 0xFFFF0000) | SEGMENT_PRESENT | INTERRUPTGATE,vectorOffset.plus(4));
+		// assuming bits 63-32 are zero
+		base.store(0, vectorOffset.plus(8));
+        base.store(0, vectorOffset.plus(12));
     }
 
 	/**
