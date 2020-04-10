@@ -72,7 +72,7 @@ public final class Idt implements SegmentDescriptorTypes {
 			return;
 		this.base = base;
 		this.codeSegment = codeSegment;
-		this.limit = limit * 8 - 1;
+		this.limit = limit * 16 - 1;
 
 		idtTableRegister = base;
 		idtTableRegister.store((short) this.limit);
