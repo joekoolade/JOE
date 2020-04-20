@@ -3321,7 +3321,14 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
       adjustStack((method.getLocalWords() << LG_WORDSIZE)+(returnSize-bytesPopped), true);
     } else if (method.hasInterruptHandlerAnnotation()) {
       // generate return from interrupt
-      asm.emitIRET();
+        if(VM.buildFor32Addr())
+        {
+            asm.emitIRET();
+        }
+        else
+        {
+            asm.emitIRETQ();
+        }
     } else {
       // normal method
 //      if (method.hasBaselineSaveLSRegistersAnnotation()) {

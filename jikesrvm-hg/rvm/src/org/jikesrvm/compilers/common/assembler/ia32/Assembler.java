@@ -1934,6 +1934,14 @@ public abstract class Assembler extends AbstractAssembler implements RegisterCon
       if(lister != null) lister.OP(miStart, "IRETD");
   }
   
+  public final void emitIRETQ()
+  {
+      int miStart = mi;
+      generateREXprefix(true, null, null, null);
+      setMachineCodes(mi++, (byte)0xCF);
+      if(lister != null) lister.OP(miStart, "IRETQ");
+  }
+  
   /** allocate stack frame for procedure */
   public final void emitENTER_Imm (int frameSize) {
     int miStart = mi;
