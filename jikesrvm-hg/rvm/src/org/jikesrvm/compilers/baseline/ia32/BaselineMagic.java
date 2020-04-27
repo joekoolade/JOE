@@ -2651,10 +2651,7 @@ final class BaselineMagic {
       generators.put(getMethodReference(Magic.class, MagicNames.saveContext, void.class), g);
   }
   
-  /*
-   * restore registers from the stack
-   */
-  private static final class RestoreContext extends MagicGenerator
+    private static final class RestoreContext extends MagicGenerator
   {
       @Override
       void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
@@ -2701,9 +2698,9 @@ final class BaselineMagic {
               asm.emitPUSH_RegDisp(GPR.R14, gprsOffset.plus(WORDSIZE*13));
               asm.emitPOP_Reg(GPR.R14);
               /*
-               * No need to remove interrupt method it. IRET will automatically
-               * pop 8 bytes by default
+               * Need to pop the compiled method id
                */
+              asm.emitADD_Reg_Imm(ESP, 0x8);
           }
           else
           {
@@ -2799,9 +2796,9 @@ final class BaselineMagic {
               asm.emitPUSH_RegDisp(GPR.R14, gprsOffset.plus(WORDSIZE*13));
               asm.emitPOP_Reg(GPR.R14);
               /*
-               * No need to remove interrupt method it. IRET will automatically
-               * pop 8 bytes by default
+               * Need to pop the compiled method id
                */
+              asm.emitADD_Reg_Imm(ESP, 0x8);
           }
           else
           {
