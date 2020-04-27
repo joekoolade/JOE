@@ -1537,7 +1537,7 @@ public Address sentinelFp;
       // get instructions for method to be executed as thread startoff
       CodeArray instructions = Entrypoints.threadStartoffMethod.getCurrentEntryCodeArray();
 
-      VM.disableGC();
+//      VM.disableGC();
 
       // initialize thread registers
       Address ip = Magic.objectAsAddress(instructions);
@@ -1559,7 +1559,6 @@ public Address sentinelFp;
       /*
        * Set up the FP/SSE/MMX state area
        */
-//      fxStateRegisters = new int[FXSTATESIZE+4];  // creates 516 byte area
       fxStateRegisters = MemoryManager.newNonMovingIntArray(FXSTATESIZE+4);  // creates 516 byte area
       /*
        * Align to a sixteen byte boundary
@@ -1574,7 +1573,7 @@ public Address sentinelFp;
         fxStateAddress = Address.fromIntSignExtend(fxStateAddress.plus(16).toInt() & ~0xF);
       }
 //      VM.sysWriteln("FX STATE1: ", fxStateAddress);
-      VM.enableGC();
+//      VM.enableGC();
 
       assignThreadSlot();
       this.name = name == null ? "Thread-" + threadSlot : name;

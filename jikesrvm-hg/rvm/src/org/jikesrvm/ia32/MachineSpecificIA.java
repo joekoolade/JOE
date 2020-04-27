@@ -26,8 +26,8 @@ import org.vmmagic.unboxed.Word;
 /**
  * Wrappers around IA32-specific code common to both 32 & 64 bit
  */
-public abstract class MachineSpecificIA extends MachineSpecific implements ArchConstants {
-
+public abstract class MachineSpecificIA extends MachineSpecific implements BaselineConstants {
+  private static final int CS = 8;
   private static final int STARTUP_CONTEXT = (11*4);
 /**
    * A well-known memory location used to manipulate the FPU control word.
@@ -87,18 +87,37 @@ public abstract class MachineSpecificIA extends MachineSpecific implements ArchC
      * FP
      * THREAD_START_METHOD_ID
      */
-    sp.store(0, Offset.zero());                                 // IP0
-    sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(4));   // FP0
-    sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(8));      // cmd id0; invisible method id
-    sp.store(0x200, Offset.zero().minus(12));                   // EFLAGS
-    sp.store(8, Offset.zero().minus(16));                       // CS
-    sp.store(ip, Offset.zero().minus(20));                      // IP
-    sp.store(sp.minus(8), Offset.zero().minus(24));              // FP
-    sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(28));   // thread start method id
-    contextRegisters.ip = ip;
-    contextRegisters.fp = sp.minus(24);
-    // set the sp
-    contextRegisters.gprs.set(ESP.value(), sp.minus(52).toWord());
+    if(VM.buildFor32Addr())
+    {
+        sp.store(0, Offset.zero());                                 // IP0
+        sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(4));   // FP0
+        sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(8));      // cmd id0; invisible method id
+        sp.store(0x200, Offset.zero().minus(12));                   // EFLAGS
+        sp.store(8, Offset.zero().minus(16));                       // CS
+        sp.store(ip, Offset.zero().minus(20));                      // IP
+        sp.store(sp.minus(8), Offset.zero().minus(24));              // FP
+        sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(28));   // thread start method id
+        contextRegisters.ip = ip;
+        contextRegisters.fp = sp.minus(24);
+        // set the sp
+        contextRegisters.gprs.set(ESP.value(), sp.minus(52).toWord());
+    }
+    else
+    {
+        sp.store(0, Offset.zero());                                         // IP0
+        sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(WORDSIZE));    // FP0
+        sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(WORDSIZE*2));     // cmd id0; invisible method id
+        sp.store(0, Offset.zero().minus(WORDSIZE*3));                       // Stack selector, NULL
+        sp.store(sp.minus(WORDSIZE*8).toInt(), Offset.zero().minus(WORDSIZE*4));                       // Stack selector, NULL
+        sp.store(0x200, Offset.zero().minus(WORDSIZE*5));                   // RFLAGS
+        sp.store(CS, Offset.zero().minus(WORDSIZE*6));                      // code selector
+        sp.store(ip, Offset.zero().minus(WORDSIZE*7));                      // RIP
+        sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(WORDSIZE*8));  // thread start method id
+        contextRegisters.ip = ip;
+        contextRegisters.fp = sp.minus(WORDSIZE*8);
+        // set the sp
+        contextRegisters.gprs.set(ESP.value(), sp.minus(WORDSIZE*8).toWord());
+    }
     VM.sysWriteln("fp: ", contextRegisters.fp);
   }
 
