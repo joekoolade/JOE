@@ -493,6 +493,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     booting=false;
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
+    VM.sysWriteln("Time to start the show");
     Magic.enableInterrupts();
 //    Platform.masterPic.setInterrupt(I8259A.COM1);
 //    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
