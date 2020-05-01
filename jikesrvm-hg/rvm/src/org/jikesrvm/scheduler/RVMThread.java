@@ -4976,7 +4976,7 @@ public Address sentinelFp;
     } else {
       try {
         VM.sysWriteln("-- Stack --");
-        while (fp.plus(12).NE(t.sentinelFp)) {
+        while (fp.plus(3*BaselineConstants.WORDSIZE).NE(t.sentinelFp)) {
 
           // if code is outside of RVM heap, assume it to be native code,
           // skip to next frame

@@ -39,7 +39,9 @@ import org.vmmagic.pragma.*;
   public static final int MMAP_CHUNK_BYTES = 1 << LOG_MMAP_CHUNK_BYTES;   // the granularity VMResource operates at
   //TODO: 64-bit: this is not OK: value does not fit in int, but should, we do not want to create such big array
   private static final int MMAP_CHUNK_MASK = MMAP_CHUNK_BYTES - 1;
-  private static final int MMAP_NUM_CHUNKS = 1 << (Constants.LOG_BYTES_IN_ADDRESS_SPACE - LOG_MMAP_CHUNK_BYTES);
+//  private static final int MMAP_NUM_CHUNKS = 1 << (Constants.LOG_BYTES_IN_ADDRESS_SPACE - LOG_MMAP_CHUNK_BYTES);
+  // FIXME: Assume 4GB max
+  private static final int MMAP_NUM_CHUNKS = 1 << 12; //(Constants.LOG_BYTES_IN_ADDRESS_SPACE - LOG_MMAP_CHUNK_BYTES);
   public static final boolean verbose = false;
 
   /****************************************************************************
