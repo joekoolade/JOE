@@ -1072,19 +1072,29 @@ private static boolean jamming=false;
     // Update field of boot record now by re-copying
     //
     if (verbose >= 1) say("re-copying boot record (and its TIB)");
-    try {
-      Address newBootRecordImageAddress = copyToBootImage(bootRecord, false, bootRecordImageAddress, null, false, AlignmentEncoding.ALIGN_CODE_NONE);
-      if (!newBootRecordImageAddress.EQ(bootRecordImageAddress)) {
-        VM.sysWriteln("bootRecordImageOffset = ", bootRecordImageAddress);
-        VM.sysWriteln("newBootRecordImageOffset = ", newBootRecordImageAddress);
-        if (VM.VerifyAssertions) {
-          VM._assert(newBootRecordImageAddress.EQ(bootRecordImageAddress));
+    try
+    {
+        VM.sysWriteln("Boot Record:");
+        VM.sysWrite("Data =", bootRecord.bootImageDataStart); VM.sysWriteln(" - ", bootRecord.bootImageDataEnd);
+        VM.sysWrite("Code =", bootRecord.bootImageCodeStart); VM.sysWriteln(" - ", bootRecord.bootImageCodeEnd);
+        VM.sysWrite("Map =", bootRecord.bootImageRMapStart); VM.sysWriteln(" - ", bootRecord.bootImageRMapEnd);
+        Address newBootRecordImageAddress = copyToBootImage(bootRecord, false, bootRecordImageAddress, null, false,
+                        AlignmentEncoding.ALIGN_CODE_NONE);
+        if (!newBootRecordImageAddress.EQ(bootRecordImageAddress))
+        {
+            VM.sysWriteln("bootRecordImageOffset = ", bootRecordImageAddress);
+            VM.sysWriteln("newBootRecordImageOffset = ", newBootRecordImageAddress);
+            if (VM.VerifyAssertions)
+            {
+                VM._assert(newBootRecordImageAddress.EQ(bootRecordImageAddress));
+            }
         }
-      }
-      // Make sure pending entries are fully written out
-      processPendingEntries();
-    } catch (IllegalAccessException e) {
-      fail("unable to update boot record: "+e);
+        // Make sure pending entries are fully written out
+        processPendingEntries();
+    }
+    catch (IllegalAccessException e)
+    {
+        fail("unable to update boot record: " + e);
     }
 
     if (VM.BuildWithGCTrace) {
@@ -2003,6 +2013,12 @@ private static boolean jamming=false;
     return count;
   }
 
+  private static void sizeBootImageSections()
+  {
+      long dataSize = 0;
+      long codeSize = 0;
+      long mapSize = 0;
+  }
   /**
    * Copy an object (and, recursively, any of its fields or elements that
    * are references) from host jdk address space into image.
