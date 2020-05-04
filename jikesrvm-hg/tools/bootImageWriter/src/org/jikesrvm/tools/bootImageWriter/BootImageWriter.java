@@ -2018,6 +2018,12 @@ private static boolean jamming=false;
       long dataSize = 0;
       long codeSize = 0;
       long mapSize = 0;
+      
+      /*
+       * Boot record size
+       */
+      // JTOC size
+      // All other objects
   }
   /**
    * Copy an object (and, recursively, any of its fields or elements that
