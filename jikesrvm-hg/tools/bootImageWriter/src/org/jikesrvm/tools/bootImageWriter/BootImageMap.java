@@ -45,7 +45,7 @@ public class BootImageMap extends BootImageWriterMessages
   /**
    * Unique ID value
    */
-  private static int idGenerator;
+  static int idGenerator;
 
   /**
    * Create unique ID number

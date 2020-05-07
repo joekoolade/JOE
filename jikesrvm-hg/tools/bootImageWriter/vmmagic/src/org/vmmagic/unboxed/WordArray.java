@@ -77,7 +77,7 @@ public final class WordArray implements RuntimeTable<Word> {
 
   @Inline
   public Word[] getBacking() {
-    if (!VM.writingImage)
+    if (!VM.writingImage && !VM.sizingImage)
         VM.sysFail("WordArray.getBacking called when not writing boot image");
     return data;
   }
