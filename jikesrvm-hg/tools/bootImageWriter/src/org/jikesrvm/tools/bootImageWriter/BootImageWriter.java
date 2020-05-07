@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
@@ -46,6 +47,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.jikesrvm.Callbacks;
+import org.jikesrvm.HeapLayout;
 import org.jikesrvm.VM;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.ArchitectureSpecific.LazyCompilationTrampoline;
@@ -77,6 +79,7 @@ import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
+import org.vmmagic.unboxed.WordArray;
 
 /**
  * Construct an RVM virtual machine bootimage.
@@ -433,6 +436,284 @@ public class BootImageWriter extends BootImageWriterMessages
     }
   }
 
+  /**
+   * Keeps will track the sizes of the data, code, and rmap sections
+   * from the Boot image mapped objects
+   */
+    private static final class MapSizer {
+        static long dataSize = 0;
+        static long codeSize = 0;
+        static long mapSize = 0;
+
+        static int numTibs = 0;
+        private static int numObjRefArrayType = 0;
+        private static int numCodeArrays = 0;
+        private static int numArrays = 0;
+        private static int numRunTables = 0;
+        private static int numClasses = 0;
+        static int numObjects = 0;
+        private static ArrayDeque<Object> deferred = new ArrayDeque<Object>();
+        private static HashSet<Object> processed = new HashSet<Object>();
+        private static int numProcessed;
+        
+        public static void size() throws IllegalAccessException
+        {
+
+            BootImageMap.Entry entry = null;
+            System.out.println("Estimating size of " + BootImageMap.objectIdToEntry.size() + " objects");
+            say("Last ID ", String.valueOf(BootImageMap.idGenerator));
+            say("pending entries ", String.valueOf(pendingEntries.size()));
+            // size jtoc
+            // dataSize += (Statics.getTotalNumberOfSlots() << LOG_BYTES_IN_ADDRESS);
+            sizeObject(Statics.getSlotsAsIntArray(),null, true);
+            if (BootImageMap.findOrCreateEntry(Statics.getSlotsAsIntArray()) != null)
+                say("found jtoc");
+            else
+                say("jtoc not found!");
+
+            // Sizing statics
+            int refSlotSize = Statics.getReferenceSlotSize();
+            for (int i = Statics.middleOfTable + refSlotSize, n = Statics.getHighestInUseSlot(); i <= n; i += refSlotSize)
+            {
+                if (!Statics.isReference(i))
+                {
+                    throw new Error("Static " + i + " of " + n + " isn't reference");
+                }
+                jtocCount = i; // for diagnostic
+                Offset jtocOff = Statics.slotAsOffset(i);
+                int objCookie;
+                if (VM.BuildFor32Addr)
+                    objCookie = Statics.getSlotContentsAsInt(jtocOff);
+                else
+                    objCookie = (int) Statics.getSlotContentsAsLong(jtocOff);
+                if (verbose >= 3) say("       jtoc[", String.valueOf(i), "] = ", String.valueOf(objCookie));
+                Object jdkObject = BootImageMap.getObject(objCookie);
+                if (jdkObject == null) continue;
+                deferred.add(jdkObject);
+                dataSize += 8;
+                numObjects++;
+            }
+
+            
+            while(deferred.isEmpty() == false)
+            {
+                Object jdkObject = deferred.remove();
+                if(jdkObject == null)
+                {
+                    continue;
+                }
+                if(processed.contains(jdkObject)) continue;
+                sizeObject(jdkObject, null, true);
+                processed.add(jdkObject);
+                numObjects++;
+            }
+            
+            Iterator<BootImageMap.Entry> bootMapIter = BootImageMap.objectIdToEntry.iterator();
+            while (bootMapIter.hasNext())
+            {
+                // BootImageMap.Entry entry = bootMapIter.next();
+                entry = bootMapIter.next();
+                if(entry.jdkObject == null)
+                {
+                    continue;
+                }
+                if(processed.contains(entry.jdkObject))
+                {
+                    numProcessed++;
+                    continue;
+                }
+                sizeObject(entry.jdkObject, null, true);
+                numObjects++;
+            }
+            say("MapSizer");
+            say("TIBS           ", String.valueOf(numTibs));
+            say("Arrays         ", String.valueOf(numArrays));
+            say("RunTables      ", String.valueOf(numRunTables));
+            say("Code Arrays    ", String.valueOf(numCodeArrays));
+            say("Obj Ref Arrays ", String.valueOf(numObjRefArrayType));
+            say("Classes        ", String.valueOf(numClasses));
+            say("Objects processed = ", String.valueOf(numObjects));
+            say("Already processsed = ", String.valueOf(numProcessed));
+            say("Estimated data size = ", Long.toString(dataSize));
+            say("Estimated code size = ", Long.toString(codeSize));
+            
+            HeapLayout.setDataImageStart(0x108000);
+            HeapLayout.setDataImageSize((int)dataSize);
+            HeapLayout.setCodeImageSize((int)codeSize);
+            
+            say("DATA ", Integer.toHexString(HeapLayout.BOOT_IMAGE_DATA_START.toInt()), " ", Integer.toHexString(HeapLayout.BOOT_IMAGE_DATA_END.toInt()));
+            say("CODE ", Integer.toHexString(HeapLayout.BOOT_IMAGE_CODE_START.toInt()), " ", Integer.toHexString(HeapLayout.BOOT_IMAGE_CODE_END.toInt()));
+            say("RMAP ", Integer.toHexString(HeapLayout.BOOT_IMAGE_RMAP_START.toInt()), " ", Integer.toHexString(HeapLayout.BOOT_IMAGE_RMAP_END.toInt()));
+        }
+
+        private static void sizeObject(Object jdkObject, Object parentObject, boolean size)
+        throws IllegalAccessException
+        {
+            Class<?>   jdkType = jdkObject.getClass();
+            RVMType rvmType = getRvmType(jdkType);
+            // RVMType rvmType = getRvmType(jdkType);
+            rvmType = getRvmType(jdkType);
+            if (rvmType == null)
+            {
+                say(jdkType.getName(), " is not part of the boot image!");
+                return;
+            }
+            if (jdkType.isArray())
+            {
+                numArrays++;
+                int arrayCount = Array.getLength(jdkObject);
+                RVMArray rvmArrayType = rvmType.asArray();
+                sizeArray(arrayCount, jdkObject, jdkType, rvmArrayType, parentObject);
+                sizeObject(rvmType.getTypeInformationBlock(), jdkObject, false);
+            }
+            else if (jdkObject instanceof TIB)
+            {
+                Object backing = ((RuntimeTable<?>)jdkObject).getBacking();
+                int arrayCount = Array.getLength(backing);
+                Class<?> backingType = backing.getClass();
+                RVMArray rvmArrayType = getRvmType(backingType).asArray();
+                sizeArray(arrayCount, backing, backingType, rvmArrayType, jdkObject);
+                numTibs++;
+            }
+            else if (rvmType == RVMType.ObjectReferenceArrayType || rvmType.getTypeRef().isRuntimeTable())
+            {
+                numObjRefArrayType++;
+                Object backing = ((RuntimeTable<?>)jdkObject).getBacking();
+                sizeObject(backing, jdkObject, false);
+                sizeTIB(rvmType, jdkObject);
+            }
+            else if (jdkObject instanceof RuntimeTable)
+            {
+                numRunTables++;
+                Object backing = ((RuntimeTable<?>)jdkObject).getBacking();
+                sizeMagicArray(backing, rvmType.asArray(), parentObject);
+            }
+            else if (rvmType == RVMType.CodeArrayType)
+            {
+                numCodeArrays++;
+                numObjects++;
+                Object backing = ((CodeArray)jdkObject).getBacking();
+                sizeMagicArray(backing, rvmType.asArray(), parentObject);
+            }
+            else if (rvmType.getTypeRef().isMagicType())
+            {
+                say("Unhandled copying of magic type: " + rvmType.getDescriptor().toString() +
+                                " in object of type " + parentObject.getClass().toString());
+                            fail("incomplete boot image support");
+            }
+            else
+            {
+                numClasses++;
+                if (rvmType instanceof RVMArray) fail("This isn't a scalar " + rvmType);
+                RVMClass rvmScalarType = rvmType.asClass();
+                sizeClass(jdkObject, jdkType, rvmScalarType, parentObject);
+                sizeTIB(rvmType, jdkObject);
+            }
+        }
+
+        private static void sizeClass(Object jdkObject, Class<?> jdkType, RVMClass rvmScalarType, Object parentObject)
+        throws IllegalAccessException
+        {
+            // Get the size
+            dataSize += rvmScalarType.getInstanceSize();
+            numObjects++;
+            
+            // copy object fields from host jdk address space into image
+            // recurse on values that are references
+                RVMField[] rvmFields = rvmScalarType.getInstanceFields();
+                for (int i = 0; i < rvmFields.length; ++i) {
+                  RVMField rvmField = rvmFields[i];
+                  TypeReference rvmFieldType = rvmField.getType();
+                  String  rvmFieldName = rvmField.getName().toString();
+                  Field   jdkFieldAcc = getJdkFieldAccessor(jdkType, i, INSTANCE_FIELD);
+                  
+                  if(jdkFieldAcc == null) continue;
+                  
+                  try
+                  {
+                      if(rvmFieldType.isClassType())
+                      {
+                          Object value = jdkFieldAcc.get(jdkObject);
+                          if(value == null) continue;
+                          // Class<?> jdkClass = jdkFieldAcc.getDeclaringClass();
+                          deferred.add(value);
+                      }
+                  }
+                  catch (Error e)
+                  {
+                      // TODO Auto-generated catch block
+                      e.printStackTrace();
+                      say("field name ", rvmFieldName);
+                      say("jdk class ", jdkType.getName());
+                      say("objects ", String.valueOf(numObjects));
+                      say("data size ", String.valueOf(dataSize));
+                  }
+               }
+            
+        }
+        static private void sizeMagicArray(Object jdkObject, RVMArray rvmArrayType, Object parentObject)
+        {
+            RVMType rvmElementType = rvmArrayType.getElementType();
+
+            // allocate space in image
+            int arrayCount = Array.getLength(jdkObject);
+            if(rvmElementType.equals(RVMType.CodeType))
+            {
+                codeSize += rvmArrayType.getInstanceSize(arrayCount);
+                numCodeArrays++;
+            }
+            else
+            {
+                dataSize += rvmArrayType.getInstanceSize(arrayCount);
+                numObjects++;
+            }
+        }
+        
+        static private void sizeTIB(RVMType rvmType, Object jdkObject) throws IllegalAccessException
+        {
+            sizeObject(rvmType.getTypeInformationBlock(), jdkObject, false);
+        }
+        
+        static private void sizeArray(int arrayCount, Object jdkObject, Class<?> jdkType, RVMArray rvmArrayType, Object parentObject)
+        {
+            dataSize += rvmArrayType.getInstanceSize(arrayCount);
+            RVMType rvmElementType = rvmArrayType.asArray().getElementType();
+            if (rvmElementType.isClassType())
+            {
+                // array element is reference type
+                boolean isTIB = parentObject instanceof TIB;
+                Object[] values = (Object []) jdkObject;
+                Class<?> jdkClass = jdkObject.getClass();
+                dataSize += (arrayCount * 8);
+                for(int i=0; i < arrayCount; i++)
+                {
+                    if(values[i] != null)
+                    {
+                        if(isTIB && ((values[i] instanceof Word) || (values[i] == LazyCompilationTrampoline.instructions)))
+                        {
+                            continue;
+                        }
+                        deferred.add(values[i]);
+                    }
+                }
+            }
+        }
+        public long getDataSize()
+        {
+            return dataSize;
+        }
+
+        public long getCodeSize()
+        {
+            return codeSize;
+        }
+
+        public long getMapSize()
+        {
+            return mapSize;
+        }
+    }
+  
   /**
    * Entries yet to be written into the boot image
    */
@@ -937,6 +1218,21 @@ private static boolean jamming=false;
     //
     disableObjectAddressRemapper();
 
+    VM.sizingImage = true;
+    try
+    {
+        MapSizer.size();
+    }
+    catch (IllegalAccessException e1)
+    {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+        System.exit(-2);
+    }
+    
+    
+    VM.sizingImage = false;
+    
     ////////////////////////////////////////////////////
     // Copy rvm objects from host jdk into bootimage.
     ////////////////////////////////////////////////////
@@ -1027,6 +1323,7 @@ private static boolean jamming=false;
         copyReferenceFieldToBootImage(jtocPtr.plus(jtocOff), jdkObject, Statics.getSlotsAsIntArray(), false, false, null, null);
         if (verbose >= 2) traceContext.pop();
       }
+      say("pending entries ", String.valueOf(pendingEntries.size()));
       // Copy entries that are in the pending queue
       processPendingEntries();
       // Find and copy unallocated entries
@@ -1037,10 +1334,17 @@ private static boolean jamming=false;
           fixupLinkAddresses(mapEntry);
         }
       }
+      say("TIBS           ", String.valueOf(numTibs0), " ", String.valueOf(MapSizer.numTibs));
+      say("Arrays         ", String.valueOf(numArrays0), " ", String.valueOf(MapSizer.numArrays));
+      say("RunTables      ", String.valueOf(numRunTables0), " ", String.valueOf(MapSizer.numRunTables));
+      say("Code Arrays    ", String.valueOf(numCodeArrays0), " ", String.valueOf(MapSizer.numCodeArrays));
+      say("Obj Ref Arrays ", String.valueOf(numObjRefs0), " ", String.valueOf(MapSizer.numObjRefArrayType));
+      say("Classes        ", String.valueOf(numClasses0), " ", String.valueOf(MapSizer.numClasses));
     } catch (IllegalAccessException e) {
       fail("unable to copy statics: "+e);
     }
     jtocCount = -1;
+    say("Last ID ", String.valueOf(BootImageMap.idGenerator));
 
     if (profile) {
       stopTime = System.currentTimeMillis();
@@ -1060,12 +1364,12 @@ private static boolean jamming=false;
 
     bootRecord.bootThreadOffset = Entrypoints.bootThreadField.getOffset();
 
-    bootRecord.bootImageDataStart = bootImageDataAddress;
-    bootRecord.bootImageDataEnd   = bootImageDataAddress.plus(bootImage.getDataSize());
-    bootRecord.bootImageCodeStart = bootImageCodeAddress;
-    bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImage.getCodeSize());
-    bootRecord.bootImageRMapStart = bootImageRMapAddress;
-    bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImage.getRMapSize());
+    bootRecord.bootImageDataStart = BOOT_IMAGE_DATA_START;
+    bootRecord.bootImageDataEnd   = BOOT_IMAGE_DATA_END; //bootImageDataAddress.plus(bootImage.getDataSize());
+    bootRecord.bootImageCodeStart = BOOT_IMAGE_CODE_START; // bootImageCodeAddress;
+    bootRecord.bootImageCodeEnd   = BOOT_IMAGE_CODE_END; //bootImageCodeAddress.plus(bootImage.getCodeSize());
+    bootRecord.bootImageRMapStart = BOOT_IMAGE_RMAP_START;
+    bootRecord.bootImageRMapEnd   = BOOT_IMAGE_RMAP_START.plus(bootImage.getRMapSize());
     bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
     bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x4000000);
     
@@ -1113,18 +1417,16 @@ private static boolean jamming=false;
     	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
 //    	startup = new GenerateX86Startup(bootRecord);
         startup = new GenerateIA32EStartup(bootRecord);
-    	say("Done!\n Writing the image ..." + bootImageStartupName);
     	startup.writeImage(bootImageStartupName);
-    	say("Done!");
     }
     //
     // Write image to disk.
     //
     if (profile) startTime = System.currentTimeMillis();
     try {
-    	say("writing image files");
+//    	say("writing image files");
     	bootImage.write();
-    	say("writing elf file");
+//    	say("writing elf file");
         bootImage.writeElfFile(startup.getArray());
     	// bootImage.writeMultiboot(startup.getArray());
       say("File writing done");
@@ -1132,6 +1434,8 @@ private static boolean jamming=false;
       fail("unable to write bootImage: "+e);
     }
 
+    say("Autosize Data ", Long.toHexString(MapSizer.dataSize));
+    say("Autosize Code ", Long.toHexString(MapSizer.codeSize));
     if (profile) {
       stopTime = System.currentTimeMillis();
       System.out.println("PROF: writing RVM.map "+(stopTime-startTime)+" ms");
@@ -1881,6 +2185,18 @@ private static boolean jamming=false;
   private static final int LARGE_SCALAR_SIZE = 1024;
   private static int depth = -1;
   private static int jtocCount = -1;
+
+private static int numArrays0;
+
+private static int numTibs0;
+
+private static int numObjRefs0;
+
+private static int numRunTables0;
+
+private static int numCodeArrays0;
+
+private static int numClasses0;
   private static final String SPACES = "                                                                                                                                                                                                                                                                                                                                ";
 
   private static void check(Word value, String msg) {
@@ -2013,18 +2329,6 @@ private static boolean jamming=false;
     return count;
   }
 
-  private static void sizeBootImageSections()
-  {
-      long dataSize = 0;
-      long codeSize = 0;
-      long mapSize = 0;
-      
-      /*
-       * Boot record size
-       */
-      // JTOC size
-      // All other objects
-  }
   /**
    * Copy an object (and, recursively, any of its fields or elements that
    * are references) from host jdk address space into image.
@@ -2062,6 +2366,7 @@ private static boolean jamming=false;
 
       // copy object to image
       if (jdkType.isArray()) {
+          numArrays0++;
         // allocate space in image prior to recursing
         int arrayCount       = Array.getLength(jdkObject);
         RVMArray rvmArrayType = rvmType.asArray();
@@ -2083,6 +2388,7 @@ private static boolean jamming=false;
           ObjectModel.setTIB(bootImage, mapEntry.imageAddress, tibImageAddress, rvmType);
         }
       } else if (jdkObject instanceof TIB) {
+          numTibs0++;
         Object backing = ((RuntimeTable<?>)jdkObject).getBacking();
 
         int alignCodeValue = ((TIB)jdkObject).getAlignData();
@@ -2099,6 +2405,7 @@ private static boolean jamming=false;
           copyTIBToBootImage(rvmType, jdkObject, mapEntry.imageAddress);
         }
       } else if (rvmType == RVMType.ObjectReferenceArrayType || rvmType.getTypeRef().isRuntimeTable()) {
+          numObjRefs0++;
         Object backing = ((RuntimeTable<?>)jdkObject).getBacking();
 
         /* Copy the backing array, and then replace its TIB */
@@ -2108,9 +2415,11 @@ private static boolean jamming=false;
           copyTIBToBootImage(rvmType, jdkObject, mapEntry.imageAddress);
         }
       } else if (jdkObject instanceof RuntimeTable) {
+          numRunTables0++;
         Object backing = ((RuntimeTable<?>)jdkObject).getBacking();
         mapEntry.imageAddress = copyMagicArrayToBootImage(backing, rvmType.asArray(), allocOnly, overwriteAddress, parentObject);
       }  else if (rvmType == RVMType.CodeArrayType) {
+          numCodeArrays0++;
         // Handle the code array that is represented as either byte or int arrays
         if (verbose >= 2) depth--;
         Object backing = ((CodeArray)jdkObject).getBacking();
@@ -2120,6 +2429,7 @@ private static boolean jamming=false;
             " in object of type " + parentObject.getClass().toString());
         fail("incomplete boot image support");
       } else {
+          numClasses0++;
         // allocate space in image
         if (rvmType instanceof RVMArray) fail("This isn't a scalar " + rvmType);
         RVMClass rvmScalarType = rvmType.asClass();

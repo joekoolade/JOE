@@ -46,7 +46,7 @@ public abstract class CodeArray {
   }
 
   public Object getBacking() {
-    if (!VM.writingImage) {
+    if (!VM.writingImage && !VM.sizingImage) {
       VM.sysFail("CodeArray.getBacking called when not writing boot image");
     }
     return data;

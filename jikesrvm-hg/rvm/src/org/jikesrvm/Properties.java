@@ -50,6 +50,13 @@ public class Properties extends Options {
    */
   @RuntimeFinal(false)
   public static boolean writingImage = false;
+  
+  /**
+   * We are autosizing the code, data, and map sections
+   */
+  @RuntimeFinal(false)
+  public static boolean sizingImage;
+
   /**
    * is the running VM fully booted?
    * Set by VM.boot when the VM is fully booted.

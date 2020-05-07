@@ -41,6 +41,7 @@ public class ScanBootImage implements Constants {
   private static final int GUARD_REGION = LONGENCODING_OFFSET_BYTES + 1; /* long offset + run encoding */
 private static final boolean DEBUG1 = false;
 private static final boolean DEBUG2 = false;
+private static final boolean DEBUG3 = false;
 
   /* statistics */
   static int roots = 0;
@@ -265,7 +266,7 @@ private static final boolean DEBUG2 = false;
       codeIndex = (codeIndex + GUARD_REGION) & ~(CHUNK_BYTES - 1);
       oldIndex = codeIndex;
       codeIndex = encodeLongEncoding(code, codeIndex, offset);
-      if (DEBUG) {
+      if (DEBUG3) {
         startRefs++;
         Log.write("[chunk: "); Log.write(codeIndex);
         Log.write(" offset: "); Log.write(offset);
