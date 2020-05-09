@@ -11,7 +11,7 @@ extends JObject
         super(memory, address);
         try
         {
-            size = getInt(ARRAY_LENGTH_OFFSET);
+            size = getWord(ARRAY_LENGTH_OFFSET);
             rvmClass = new RVMClass(memory, getInt(0));
         }
         catch (Exception e)

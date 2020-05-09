@@ -17,6 +17,11 @@ implements TIBLayoutConstants, JavaHeaderConstants
         this.address = address;
     }
 
+    public int getWord(int offset)
+    {
+        return memory.read(address + (offset * WORDSIZE));
+    }
+    
     public int getInt(int offset)
     {
         return memory.read(address+offset);

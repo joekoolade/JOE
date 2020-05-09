@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import gnu.java.lang.CPStringBuilder;
-
 public class CommandProcessor
 implements Runnable
 {

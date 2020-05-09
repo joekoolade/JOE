@@ -3,6 +3,7 @@ package org.jam.tools;
 import java.util.List;
 
 public class ObjectReader
+implements SizeConstants
 {
 
     private static ObjectReader reader;
@@ -36,7 +37,7 @@ public class ObjectReader
     {
         jtoc = memory.read(BOOT_PARAMETERS_ADDRESS);
         stack = memory.read(BOOT_PARAMETERS_ADDRESS+4);
-        bootThread = memory.read(BOOT_PARAMETERS_ADDRESS+8);
+        bootThread = memory.read(BOOT_PARAMETERS_ADDRESS+4);
     }
 
     public void dumpObject(int address)

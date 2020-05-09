@@ -15,7 +15,7 @@ public class MapConstants extends MapCommon
 
     public MapConstants(String rvmMapLine[])
     {
-        super(Integer.parseInt(rvmMapLine[0]), Long.decode(rvmMapLine[1]).intValue());
+        super(Integer.parseInt(rvmMapLine[0]), new BigInteger(rvmMapLine[1].substring(2), 16).intValue());
         parseDetail(rvmMapLine[4]);
         try
         {
