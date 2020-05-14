@@ -9,11 +9,11 @@ import org.jam.tools.ArrayType;
 public class RVMClass 
 extends JObject
 {
-    private static final int TYPE_REF_OFFSET = 4;
-    private static final int DIMENSION_OFFSET = 0x24;
-    private static final int INSTANCES_ARRAY_OFFSET = 0x68;
+    private static final int TYPE_REF_OFFSET = 8;           // RVMType: TypeReference typeRef
+    private static final int DIMENSION_OFFSET = 0x40;       // RVMType: int dimesion
+    private static final int INSTANCES_ARRAY_OFFSET = 0xC0; // RVMClass: RVMFields instanceFields[]
     private TypeRef typeRef;
-    private IntArray fieldInstances;
+    private LongArray fieldInstances;
     private static final boolean DEBUG = false;
     private String typeName;
     private TreeSet<RVMField> fieldSet;
@@ -23,7 +23,7 @@ extends JObject
     public RVMClass(MemoryReader memory, int address)
     {
         super(memory, address);
-        typeRef = new TypeRef(memory, getInt(TYPE_REF_OFFSET));
+        typeRef = new TypeRef(memory, getWord(TYPE_REF_OFFSET));
         typeName = typeRef.getTypeName();
         dimension = getInt(DIMENSION_OFFSET);
         if(dimension > 0)
@@ -47,7 +47,7 @@ extends JObject
         }
         else
         {
-            fieldInstances = new IntArray(memory, getInt(INSTANCES_ARRAY_OFFSET));
+            fieldInstances = new LongArray(memory, getWord(INSTANCES_ARRAY_OFFSET));
             fieldSet = new TreeSet<RVMField>();
             fieldMap = new HashMap<String, RVMField>();
             if (DEBUG) System.out.println("Instances: " + Integer.toHexString(fieldInstances.getAddress()) + "/" + fieldInstances.size());
@@ -59,10 +59,10 @@ extends JObject
     
     private void processFieldInstances()
     {
-        int[] instanceArray = fieldInstances.array();
+        long[] instanceArray = fieldInstances.array();
         for(int i=0; i < fieldInstances.size(); i++)
         {
-            RVMField aField = new RVMField(getMemory(), instanceArray[i]);
+            RVMField aField = new RVMField(getMemory(), (int)instanceArray[i]);
             fieldSet.add(aField);
             fieldMap.put(aField.getName(), aField);
         }

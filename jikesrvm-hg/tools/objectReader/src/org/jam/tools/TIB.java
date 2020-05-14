@@ -12,7 +12,7 @@ extends JObject
         try
         {
             size = getWord(ARRAY_LENGTH_OFFSET);
-            rvmClass = new RVMClass(memory, getInt(0));
+            rvmClass = new RVMClass(memory, getWord(0));
         }
         catch (Exception e)
         {

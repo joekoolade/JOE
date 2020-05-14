@@ -451,49 +451,19 @@ public class VM extends Properties implements Constants, ExitStatus {
 //    LdivTests.test1();
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
-//    mainThread = new MainThread(null);
-//  mainThread.start();
-//    Magic.enableInterrupts();
-    
-    /*
-     * Sleep test
-     */
-//    Sleep sleep = new Sleep();
-//    new Thread(sleep).start();
-    
     // Start running your programs
-    StartUp.runMain("com.vonhessling.DiningPhilosophers");
-    StartUp.run();
+//    StartUp.runMain("com.vonhessling.DiningPhilosophers");
+//    StartUp.run();
     VM.sysWriteln("NAPI manager");
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     napiThread.start();
     Platform.net.inetBoot();
-    // Schedule "main" thread for execution.
-//    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
-//    try
-//    {
-//        Thread echoTest = new Thread(new EchoClient());
-//        echoTest.start();
-//    } catch (SocketException e)
-//    {
-//        e.printStackTrace();
-//    } catch (UnknownHostException e)
-//    {
-//        e.printStackTrace();
-//    }
-    /*
-     * Exhaust class test
-     */
-//    runClassInitializer("test.org.jikesrvm.basic.core.threads.XThread");
-//    Thread testThread = new TestThread();
-//    testThread.start();
-//    VM.sysWriteln("Main thread started");
     // terminate boot thread
+    VM.sysWriteln("Time to start the show");
     booting=false;
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
-    VM.sysWriteln("Time to start the show");
     Magic.enableInterrupts();
 //    Platform.masterPic.setInterrupt(I8259A.COM1);
 //    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);

@@ -9,11 +9,11 @@ public class JikesArray extends JikesObject {
 
     public int getSize()
     {
-        return getInt(ARRAY_LENGTH_OFFSET);
+        return getWord(ARRAY_LENGTH_OFFSET);
     }
     
     public int get(int index)
     {
-        return getInt(index<<2);
+        return getWord(index<<3);
     }
 }

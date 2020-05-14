@@ -12,6 +12,8 @@
  */
 package org.jikesrvm.tools.bootImageWriter;
 
+import static org.jikesrvm.runtime.EntrypointHelper.getField;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,6 +56,7 @@ import org.jikesrvm.ArchitectureSpecific.LazyCompilationTrampoline;
 import org.jikesrvm.ArchitectureSpecific.OutOfLineMachineCode;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.BootstrapClassLoader;
+import org.jikesrvm.classloader.MemberReference;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
@@ -70,6 +73,7 @@ import org.jikesrvm.objectmodel.ObjectModel;
 import org.jikesrvm.objectmodel.RuntimeTable;
 import org.jikesrvm.objectmodel.TIB;
 import org.jikesrvm.runtime.BootRecord;
+import org.jikesrvm.runtime.EntrypointHelper;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Statics;
@@ -1436,6 +1440,23 @@ private static boolean jamming=false;
 
     say("Autosize Data ", Long.toHexString(MapSizer.dataSize));
     say("Autosize Code ", Long.toHexString(MapSizer.codeSize));
+    say("OR offset:");
+    say("RVMType.dimension offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMType.class, "dimension", int.class).getOffset().toInt()));
+    say("RVMType.typeRef offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMType.class, "typeRef", TypeReference.class).getOffset().toInt()));
+    say("RVMClass.instanceFields offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMClass.class, "instanceFields", RVMField[].class).getOffset().toInt()));
+    say("TypeReference.id offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.TypeReference.class, "id", int.class).getOffset().toInt()));
+    say("TypeReference.name offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.TypeReference.class, "name", Atom.class).getOffset().toInt()));
+    say("Atom.val offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.Atom.class, "val", byte[].class).getOffset().toInt()));
+    say("Atom.id offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.Atom.class, "id", int.class).getOffset().toInt()));
+    say("MemberReference.descriptor offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.MemberReference.class, "descriptor", Atom.class).getOffset().toInt()));
+    say("MemberReference.type offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.MemberReference.class, "type", TypeReference.class).getOffset().toInt()));
+    say("MemberReference.name offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.MemberReference.class, "name", Atom.class).getOffset().toInt()));
+    say("RVMField.memRef offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMMember.class, "memRef", MemberReference.class).getOffset().toInt()));
+    say("RVMField.signature offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMMember.class, "signature", Atom.class).getOffset().toInt()));
+    say("RVMField.modifier offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMMember.class, "modifiers", short.class).getOffset().toInt()));
+    say("RVMField.offset offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMMember.class, "offset", int.class).getOffset().toInt()));
+    say("RVMField.size offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMField.class, "size", byte.class).getOffset().toInt()));
+    say("RVMField.reference offset ", Integer.toHexString(EntrypointHelper.getField(org.jikesrvm.classloader.RVMField.class, "reference", boolean.class).getOffset().toInt()));
     if (profile) {
       stopTime = System.currentTimeMillis();
       System.out.println("PROF: writing RVM.map "+(stopTime-startTime)+" ms");

@@ -13,7 +13,7 @@ extends JObject
         super(memory, address);
         if(address!=0)
         {
-            tib = new TIB(memory, getInt(JAVA_HEADER_OFFSET));
+            tib = new TIB(memory, getWord(JAVA_HEADER_OFFSET));
             type = tib.getType();
         }
     }
@@ -55,7 +55,7 @@ extends JObject
         System.out.println(type.getClassName());
         if(type.isArray())
         {
-            int size = getInt(ARRAY_LENGTH_OFFSET);
+            int size = getWord(ARRAY_LENGTH_OFFSET);
             int index=0;
             if(args.length >= 3) size = CommandProcessor.parseNumber(args[2]);
             if(args.length == 4) index = CommandProcessor.parseNumber(args[3]);
@@ -130,7 +130,7 @@ extends JObject
         }
         else
         {
-            value = getInt(field.getOffset());
+            value = getWord(field.getOffset());
         }
         return value;
     }
