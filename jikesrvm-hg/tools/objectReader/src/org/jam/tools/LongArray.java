@@ -1,22 +1,22 @@
 package org.jam.tools;
 
-public class IntArray extends JObject
+public class LongArray extends JObject
 {
-    final private int[] value;
+    final private long[] value;
     private int size;
     
-    public IntArray(MemoryReader memory, int address)
+    public LongArray(MemoryReader memory, int address)
     {
         super(memory, address);
         size = getWord(ARRAY_LENGTH_OFFSET);
-        value = new int[size];
+        value = new long[size];
         for(int i=0; i < size; i++)
         {
-            value[i] = getInt(i<<2);
+            value[i] = getLong(i<<3);
         }
     }
 
-    public int[] array()
+    public long[] array()
     {
         return value;
     }

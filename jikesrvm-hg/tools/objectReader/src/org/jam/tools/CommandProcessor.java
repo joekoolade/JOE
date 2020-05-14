@@ -103,6 +103,23 @@ implements Runnable
                     }
                     dump(address, length);
                 }
+                else if(results[0].equals("dl"))
+                {
+                    int address = 0x100000;
+                    int length = 32;
+                    
+                    if(results.length < 2)
+                    {
+                        System.err.println("usage: dl <address> [length]");
+                        continue;
+                    }
+                    address = parseNumber(results[1]);
+                    if(results.length==3)
+                    {
+                        length = parseNumber(results[2]);
+                    }
+                    dump_long(address, length);
+                }
                 else if(results[0].equals("bt"))
                 {
                     int address = parseNumber(results[1]);
@@ -163,6 +180,7 @@ implements Runnable
         System.out.println("p <object address|field name> [ field name ] | [ array_length [ index ]]\t\tDisplay contents of object address or field");
         System.out.println("c <address>\t\tDisplay method name of address");
         System.out.println("d <address> [length]\t\tHex dump starting at address");
+        System.out.println("dl <address> [length]\t\tHex dump longs starting at address");
         System.out.println("bt <address> [length]\t\tBack trace stack address");
         System.out.println("td [RVMThread address]\t\tDump thread information");
         System.out.println("q\t\tExit program");
@@ -198,6 +216,57 @@ implements Runnable
             System.out.println(prefix.toString());
         }
         
+    }
+
+    private void dump_long(int address, int size)
+    {
+        StringBuilder prefix;
+        int index = 0;
+        int columns = 0;
+        for(; index < size; index+=2)
+        {
+            prefix = formatInt(address+index*8, 8);
+            prefix.append(": ");
+            if(size - index < 2) columns = size - index;
+            else columns = 2;
+            for(int nextColumn=0; nextColumn < columns; nextColumn++)
+            {
+                long value = reader.readLong(address+nextColumn*8+index*8);
+                prefix.append(formatLong(value, 16)).append(' ');
+            }
+            /*
+             * print out any characters
+             */
+            for (int j = 0; j < columns*8; j++)
+            {
+                byte aByte = reader.readByte(address+index*8+j);
+              if ((aByte & 0xFF) < 0x20 || (aByte & 0xFF) > 0x7E)
+                  prefix.append('.');
+              else
+                  prefix.append((char) (aByte & 0xFF));
+            }
+            System.out.println(prefix.toString());
+        }
+        
+    }
+
+    /**
+     * Format an long into the specified radix, zero-filled.
+     *
+     * @param i The integer to format.
+     * @param radix The radix to encode to.
+     * @param len The target length of the string. The string is
+     *   zero-padded to this length, but may be longer.
+     * @return The formatted integer.
+     */
+    public static StringBuilder formatLong(long i, int len)
+    {
+      String s = Long.toHexString(i);
+      StringBuilder buf = new StringBuilder();
+      for (int j = 0; j < len - s.length(); j++)
+        buf.append("0");
+      buf.append(s);
+      return buf;
     }
 
     /**

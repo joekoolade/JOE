@@ -8,7 +8,7 @@ public class ByteArray extends JObject
     public ByteArray(MemoryReader memory, int address)
     {
         super(memory, address);
-        size = getInt(ARRAY_LENGTH_OFFSET);
+        size = getWord(ARRAY_LENGTH_OFFSET);
         value = new byte[size];
         for(int i=0; i < size; i++)
         {

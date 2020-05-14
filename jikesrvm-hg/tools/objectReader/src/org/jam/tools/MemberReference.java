@@ -3,9 +3,9 @@ package org.jam.tools;
 public class MemberReference extends JObject
 {
 
-    private final static int TYPE_REF_OFFSET = -4;
+    private final static int TYPE_REF_OFFSET = -8;
     private final static int NAME_OFFSET = 0;
-    private final static int DESCRIPTOR_OFFSET = 4;
+    private final static int DESCRIPTOR_OFFSET = 8;
     private static final boolean DEBUG = false;
     
     private final TypeRef type;
@@ -15,9 +15,9 @@ public class MemberReference extends JObject
     public MemberReference(MemoryReader memory, int address)
     {
         super(memory, address);
-        type = new TypeRef(memory, getInt(TYPE_REF_OFFSET));
-        name = new Atom(memory, getInt(NAME_OFFSET));
-        descriptor = new Atom(memory, getInt(DESCRIPTOR_OFFSET));
+        type = new TypeRef(memory, getWord(TYPE_REF_OFFSET));
+        name = new Atom(memory, getWord(NAME_OFFSET));
+        descriptor = new Atom(memory, getWord(DESCRIPTOR_OFFSET));
         if(DEBUG) System.out.println(type.getTypeName()+"^"+name.getString()+"^"+descriptor.getString());
         
     }

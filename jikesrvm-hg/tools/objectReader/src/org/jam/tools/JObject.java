@@ -19,7 +19,7 @@ implements TIBLayoutConstants, JavaHeaderConstants
 
     public int getWord(int offset)
     {
-        return memory.read(address + (offset * WORDSIZE));
+        return (int)memory.readLong(address + offset);
     }
     
     public int getInt(int offset)
@@ -29,7 +29,7 @@ implements TIBLayoutConstants, JavaHeaderConstants
 
     public byte[] getByteArray(int offset)
     {
-        int arraySize = getInt(offset+ARRAY_LENGTH_OFFSET);
+        int arraySize = getWord(offset+ARRAY_LENGTH_OFFSET);
         byte[] byteArray = new byte[arraySize];
         for(int index=0; index < arraySize; index++)
         {
@@ -40,7 +40,7 @@ implements TIBLayoutConstants, JavaHeaderConstants
 
     public char[] getCharArray(int offset)
     {
-        int arraySize = getInt(offset+ARRAY_LENGTH_OFFSET);
+        int arraySize = getWord(offset+ARRAY_LENGTH_OFFSET);
         char[] charArray = new char[arraySize];
         for(int index=0; index < arraySize; index++)
         {

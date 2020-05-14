@@ -2316,7 +2316,7 @@ public Address sentinelFp;
   private static void startoff() {
     RVMThread currentThread = getCurrentThread();
 //    VM.sysWriteln("startoff framePointer: ", currentThread.framePointer);
-    currentThread.enableYieldpoints();
+//    currentThread.enableYieldpoints();
     if (traceAcct) {
       VM.sysWriteln("Thread #", currentThread.threadSlot);
     }

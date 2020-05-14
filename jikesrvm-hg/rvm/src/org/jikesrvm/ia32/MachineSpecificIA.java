@@ -116,7 +116,7 @@ public abstract class MachineSpecificIA extends MachineSpecific implements Basel
         contextRegisters.ip = ip;
         contextRegisters.fp = sp.minus(WORDSIZE*8);
         // set the sp
-        contextRegisters.gprs.set(ESP.value(), sp.minus(WORDSIZE*8).toWord());
+        contextRegisters.gprs.set(ESP.value(), sp.minus(WORDSIZE*7).toWord());
     }
     VM.sysWriteln("fp: ", contextRegisters.fp);
   }
