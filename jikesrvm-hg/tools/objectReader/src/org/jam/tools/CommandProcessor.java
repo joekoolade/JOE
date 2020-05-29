@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class CommandProcessor
-implements Runnable
+implements Runnable, SizeConstants
 {
     private final Lexer lexer;
     private final ObjectReader reader;
@@ -123,11 +123,11 @@ implements Runnable
                 else if(results[0].equals("bt"))
                 {
                     int address = parseNumber(results[1]);
-                    int stackPointer = reader.readInt(address);
+                    int stackPointer = (int)reader.readLong(address);
                     int ipAddress;
                     for(; stackPointer > 0;)
                     {
-                        ipAddress = reader.readInt(stackPointer+4);
+                        ipAddress = (int)reader.readLong(stackPointer+WORDSIZE);
                         MapCode code = map.getCode(ipAddress);
                         System.out.print(formatInt(stackPointer, 8)+": ");
                         if(code == null)
@@ -138,7 +138,7 @@ implements Runnable
                         {
                             System.out.println(code.getTypeName()+"."+code.getName()+code.getParameters());
                         }
-                        stackPointer = reader.readInt(stackPointer);
+                        stackPointer = (int)reader.readLong(stackPointer);
                     }
                 }
                 /*
