@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import joeq.Util.Collections.AppendIterator;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -317,12 +320,12 @@ public abstract class Section implements ELFConstants {
         public final int getInfo() { return localSymbols.size(); }
         public final int getEntSize() { return SymbolTableEntry.getEntrySize(); }
         public void setIndices() {
-//            Iterator i = new AppendIterator(localSymbols.iterator(), globalSymbols.iterator());
-//            int j=-1;
-//            while (i.hasNext()) {
-//                SymbolTableEntry e = (SymbolTableEntry)i.next();
-//                e.setIndex(++j);
-//            }
+            Iterator i = new AppendIterator(localSymbols.iterator(), globalSymbols.iterator());
+            int j=-1;
+            while (i.hasNext()) {
+                SymbolTableEntry e = (SymbolTableEntry)i.next();
+                e.setIndex(++j);
+            }
         }
         public SymbolTableEntry getSymbolTableEntry(int i) {
             if (i < localSymbols.size()) return (SymbolTableEntry)localSymbols.get(i);
@@ -330,11 +333,11 @@ public abstract class Section implements ELFConstants {
             return (SymbolTableEntry)globalSymbols.get(i);
         }
         public void writeData(ELF file) throws IOException {
-//            Iterator i = new AppendIterator(localSymbols.iterator(), globalSymbols.iterator());
-//            while (i.hasNext()) {
-//                SymbolTableEntry e = (SymbolTableEntry)i.next();
-//                e.write(file, stringTable);
-//            }
+            Iterator i = new AppendIterator(localSymbols.iterator(), globalSymbols.iterator());
+            while (i.hasNext()) {
+                SymbolTableEntry e = (SymbolTableEntry)i.next();
+                e.write(file, stringTable);
+            }
         }
         
         public static SymTabSection empty(int flags, int addr) {
@@ -390,11 +393,11 @@ public abstract class Section implements ELFConstants {
             return (SymbolTableEntry)globalSymbols.get(i);
         }
         public void writeData(ELF file) throws IOException {
-//            Iterator i = new AppendIterator(localSymbols.iterator(), globalSymbols.iterator());
-//            while (i.hasNext()) {
-//                SymbolTableEntry e = (SymbolTableEntry)i.next();
-//                e.write(file, stringTable);
-//            }
+            Iterator i = new AppendIterator(localSymbols.iterator(), globalSymbols.iterator());
+            while (i.hasNext()) {
+                SymbolTableEntry e = (SymbolTableEntry)i.next();
+                e.write(file, stringTable);
+            }
         }
         
         public static DynSymSection empty(int flags, int addr) {

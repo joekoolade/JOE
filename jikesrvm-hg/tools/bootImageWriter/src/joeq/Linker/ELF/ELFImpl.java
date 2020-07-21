@@ -155,17 +155,14 @@ abstract class ELFImpl implements ELF, ELFConstants {
         // write the header.
         writeHeader(e_phoff, e_shoff);
         
-        for(ProgramHeader ph: program_headers)
-        {
-        	ph.writeHeader(this, poff);
-        	poff += ph.getFileSz();
+        Iterator pi = program_headers.iterator();
+        while (pi.hasNext()) {
+            ProgramHeader p = (ProgramHeader)pi.next();
+            p.writeHeader(this);
         }
         
-        for(ProgramHeader ph: program_headers)
-        {
-        	ph.writeData(this);
-        }
         // write the section data
+//        soff = poff;
         si = sections.iterator();
         while (si.hasNext()) {
             s = si.next();
