@@ -1311,7 +1311,7 @@ Check to make sure all required properties are specified. This includes properti
     <echo message="MMTk properties = ${mmtk.properties}"/>
     <java classname="org.jikesrvm.tools.bootImageWriter.BootImageWriter"
           fork="yes"
-          maxmemory="700M"
+          maxmemory="1024M"
           failonerror="false"
           resultproperty="bootimage-writer.result"
           dir="${jikesrvm.dir}/tools/bootImageWriter/src">
@@ -1336,7 +1336,6 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.data.image"/>
       <arg value="-or"/>
       <arg path="${build.base}/RVM.rmap.image"/>
-      <!-- <arg value="-demographics"/> -->
       <arg value="-m"/>
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>

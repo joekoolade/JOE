@@ -19,15 +19,24 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.ArrayList;
 
 import static joeq.Linker.ELF.ELFConstants.*;
 import joeq.Linker.ELF.ELFRandomAccessFile;
 import joeq.Linker.ELF.ProgramHeader.LoadProgramHeader;
+import joeq.Linker.ELF.Section;
+import joeq.Linker.ELF.Section.SymTabSection;
+import joeq.Linker.ELF.Section.StrTabSection;
+import joeq.Linker.ELF.SymbolTableEntry;
 
 import org.jikesrvm.VM;
+import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.SizeConstants;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.RVMClass;
+import org.jikesrvm.classloader.RVMMethod;
+import org.jikesrvm.compilers.common.CompiledMethod;
+import org.jikesrvm.compilers.common.CompiledMethods;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mmtk.ScanBootImage;
 import org.jikesrvm.objectmodel.BootImageInterface;
@@ -133,6 +142,9 @@ public class BootImage extends BootImageWriterMessages
    */
   private static final boolean mapByteBuffers = false;
 
+  private SymTabSection symbolTable;
+  private StrTabSection stringTable;
+
   /**
    * @param ltlEndian write words low-byte first?
    * @param t turn tracing on?
@@ -158,6 +170,8 @@ public class BootImage extends BootImageWriterMessages
     bootImageCode.order(endian);
     referenceMap = new byte[BOOT_IMAGE_DATA_SIZE >> LOG_BYTES_IN_ADDRESS];
     trace = t;
+    stringTable = new Section.StrTabSection(".strtab", Section.SHF_ALLOC, 0);
+    symbolTable = new Section.SymTabSection(".symtab", Section.SHF_ALLOC, 0, stringTable);
   }
 
   public void writeElfFile(byte[] startupCode) throws IOException
@@ -170,16 +184,42 @@ public class BootImage extends BootImageWriterMessages
 	  /*
 	   * Setup the startup code
 	   */
-	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode, startupCode.length, 0x8000);
+	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode.length, 0x8000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_DATA_START.toInt(), 0x1000, bootImageData.array(), getDataSize(), BOOT_IMAGE_DATA_SIZE);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_DATA_START.toInt(), 0x1000, getDataSize(), BOOT_IMAGE_DATA_SIZE);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_CODE_START.toInt(), 0x1000, bootImageCode.array(), getCodeSize(), BOOT_IMAGE_CODE_SIZE);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_CODE_START.toInt(), 0x1000, getCodeSize(), BOOT_IMAGE_CODE_SIZE);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_RMAP_START.toInt(), 0x1000, bootImageRMap, getRMapSize(), MAX_BOOT_IMAGE_RMAP_SIZE);
+	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_RMAP_START.toInt(), 0x1000, getRMapSize(), MAX_BOOT_IMAGE_RMAP_SIZE);
 	  elf.addProgramHeader(programHeader);
+	  elf.addSection(Section.NullSection.INSTANCE);
+	  Section section = new Section.ProgBitsSectionImpl(".init", Section.SHF_ALLOC | Section.SHF_EXECINSTR | Section.SHF_WRITE, 0x100000, 0x1000, startupCode);
+	  elf.addSection(section);
+	  section = new Section.ProgBitsSectionImpl(".text", Section.SHF_ALLOC | Section.SHF_EXECINSTR | Section.SHF_WRITE, BOOT_IMAGE_CODE_START.toInt(), 0x1000, bootImageCode.array());
+      elf.addSection(section);
+      section = new Section.ProgBitsSectionImpl(".data", Section.SHF_ALLOC | Section.SHF_WRITE, BOOT_IMAGE_DATA_START.toInt(), 0x1000, bootImageData.array());
+      elf.addSection(section);
+      section = new Section.ProgBitsSectionImpl(".rodata", Section.SHF_ALLOC, BOOT_IMAGE_RMAP_START.toInt(), 0x1000, bootImageRMap);
+      elf.addSection(section);
+	  elf.addSection(symbolTable);
+	  elf.addSection(stringTable);
 	  elf.write();
 	  execFile.close();
+  }
+  
+  public void createSymbolTable()
+  {
+      for (int i = 0; i < CompiledMethods.numCompiledMethods(); ++i) {
+          CompiledMethod compiledMethod = CompiledMethods.getCompiledMethodUnchecked(i);
+          if (compiledMethod != null) {
+            RVMMethod m = compiledMethod.getMethod();
+            if (m != null && compiledMethod.isCompiled()) {
+              CodeArray instructions = compiledMethod.getEntryCodeArray();
+              Address code = BootImageMap.getImageAddress(instructions.getBacking(), true);
+              symbolTable.addSymbol(new SymbolTableEntry(m.toString(), code.toInt(), 4, STB_GLOBAL, STT_FUNC, symbolTable));
+            }
+          }
+        }
   }
   
   /**

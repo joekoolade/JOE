@@ -1428,6 +1428,8 @@ private static boolean jamming=false;
     //
     if (profile) startTime = System.currentTimeMillis();
     try {
+        say("create symbol table");
+        bootImage.createSymbolTable();
 //    	say("writing image files");
     	bootImage.write();
 //    	say("writing elf file");
