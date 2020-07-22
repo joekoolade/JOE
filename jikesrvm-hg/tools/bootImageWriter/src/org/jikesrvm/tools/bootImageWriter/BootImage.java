@@ -183,13 +183,15 @@ public class BootImage extends BootImageWriterMessages
 	  
 	  /*
 	   * Setup the startup code
+	   * 
+	   * The program headers and section headers must be in sequence
 	   */
 	  LoadProgramHeader programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, 0x100000, 0x1000, startupCode.length, 0x8000);
 	  elf.addProgramHeader(programHeader);
-	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_DATA_START.toInt(), 0x1000, getDataSize(), BOOT_IMAGE_DATA_SIZE);
-	  elf.addProgramHeader(programHeader);
 	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_CODE_START.toInt(), 0x1000, getCodeSize(), BOOT_IMAGE_CODE_SIZE);
 	  elf.addProgramHeader(programHeader);
+      programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_DATA_START.toInt(), 0x1000, getDataSize(), BOOT_IMAGE_DATA_SIZE);
+      elf.addProgramHeader(programHeader);
 	  programHeader = new LoadProgramHeader(PF_X|PF_R|PF_W, BOOT_IMAGE_RMAP_START.toInt(), 0x1000, getRMapSize(), MAX_BOOT_IMAGE_RMAP_SIZE);
 	  elf.addProgramHeader(programHeader);
 	  elf.addSection(Section.NullSection.INSTANCE);
