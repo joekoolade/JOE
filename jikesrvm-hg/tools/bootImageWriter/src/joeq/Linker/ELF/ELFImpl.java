@@ -3,6 +3,7 @@
 // Licensed under the terms of the GNU LGPL; see COPYING for details.
 package joeq.Linker.ELF;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,6 +130,7 @@ abstract class ELFImpl implements ELF, ELFConstants {
         // pack all sections and calculate section header offset.
         Iterator<Section> si = sections.iterator();
         Section s = null;
+        ArrayList<Integer> offsets = new ArrayList<Integer>();
         if(!sections.isEmpty())
         {
 	        s = si.next();
@@ -147,17 +149,23 @@ abstract class ELFImpl implements ELF, ELFConstants {
 	                ss.setIndices();
 	            }
 	            if (!(s instanceof Section.NoBitsSection))
-	                e_shoff += s.getSize();
+	            {
+	                offsets.add(e_shoff);
+                    e_shoff += s.getSize();
+	            }
 	            s.setIndex(++i);
 	        }
         }
+        System.out.println("ph offsets " + offsets.size());
         // now, actually do the writing.
         // write the header.
         writeHeader(e_phoff, e_shoff);
         
         Iterator pi = program_headers.iterator();
+        Iterator<Integer> offsetIter = offsets.iterator();
         while (pi.hasNext()) {
             ProgramHeader p = (ProgramHeader)pi.next();
+            p.setOffset(offsetIter.next());
             p.writeHeader(this);
         }
         

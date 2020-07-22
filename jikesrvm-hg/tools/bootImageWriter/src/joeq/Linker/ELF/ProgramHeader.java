@@ -28,7 +28,8 @@ public abstract class ProgramHeader implements ELFConstants {
     public int getMemSz() { return memsz; }
     public int getFlags() { return flags; }
     public int getAlign() { return align; }
-
+    public void setOffset(int offset) { this.offset = offset; }
+    
     public void writeHeader(ELFImpl file) throws IOException {
         file.write_word(this.getType());
         file.write_off(this.getOffset());
