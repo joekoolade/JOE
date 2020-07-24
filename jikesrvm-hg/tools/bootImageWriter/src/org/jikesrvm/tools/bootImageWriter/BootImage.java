@@ -218,7 +218,9 @@ public class BootImage extends BootImageWriterMessages
             if (m != null && compiledMethod.isCompiled()) {
               CodeArray instructions = compiledMethod.getEntryCodeArray();
               Address code = BootImageMap.getImageAddress(instructions.getBacking(), true);
-              symbolTable.addSymbol(new SymbolTableEntry(m.toString(), code.toInt(), 4, STB_GLOBAL, STT_FUNC, symbolTable));
+              String methodName = m.toString().replaceAll("\\< BootstrapCL\\, ", "");
+              methodName = methodName.replaceAll("\\; \\>", "");
+              symbolTable.addSymbol(new SymbolTableEntry(methodName, code.toInt(), 4, STB_GLOBAL, STT_FUNC, symbolTable));
             }
           }
         }
