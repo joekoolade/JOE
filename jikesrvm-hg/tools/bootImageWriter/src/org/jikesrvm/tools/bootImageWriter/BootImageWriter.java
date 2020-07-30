@@ -911,7 +911,7 @@ public class BootImageWriter extends BootImageWriterMessages
    * Junk released from Statics when instantiation finishes and may
    * be needed to generate the boot image report.
    */
-  private static Object staticsJunk;
+  static Object staticsJunk;
 
 private static boolean jamming=false;
 
@@ -3703,7 +3703,7 @@ private static int numClasses0;
    * @param jtocSlot JTOC slot number
    * @return field name
    */
-  private static RVMField getRvmStaticField(Offset jtocOff) {
+  static RVMField getRvmStaticField(Offset jtocOff) {
     for (int i = FIRST_TYPE_DICTIONARY_INDEX; i < RVMType.numTypes(); ++i) {
       RVMType type = RVMType.getType(i);
       if (type == null) continue;
@@ -3719,7 +3719,7 @@ private static int numClasses0;
     return null;
   }
 
-  private static CompiledMethod findMethodOfCode(Object code) {
+  static CompiledMethod findMethodOfCode(Object code) {
     for (int i = 0; i < CompiledMethods.numCompiledMethods(); ++i) {
       CompiledMethod compiledMethod = CompiledMethods.getCompiledMethodUnchecked(i);
       if (compiledMethod != null &&
@@ -3984,7 +3984,7 @@ private static void writeAddressMap(String mapFileName) throws IOException {
    * @param jtocOff offset in JTOC
    * @return integer at offset
    */
-  private static int getIVal(Offset jtocOff) {
+  static int getIVal(Offset jtocOff) {
     int ival;
     if (VM.BuildFor32Addr) {
       ival = Statics.getSlotContentsAsInt(jtocOff);
@@ -4000,7 +4000,7 @@ private static void writeAddressMap(String mapFileName) throws IOException {
    * @param fatalIfNotFound whether to terminate on failure
    * @return address of object or zero if not found
    */
-  private static Address getReferenceAddr(Offset jtocOff, boolean fatalIfNotFound) {
+  static Address getReferenceAddr(Offset jtocOff, boolean fatalIfNotFound) {
     int ival = getIVal(jtocOff);
     if (ival != 0) {
       Object jdkObject = BootImageMap.getObject(ival);
