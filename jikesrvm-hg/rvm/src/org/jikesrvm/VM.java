@@ -212,7 +212,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     // Fetch arguments from program command line.
     //
     // Early initialization of TuningFork tracing engine.
-    TraceEngine.engine.earlyStageBooting();
+//    TraceEngine.engine.earlyStageBooting();
 
     // Allow Memory Manager to respond to its command line arguments
     //
