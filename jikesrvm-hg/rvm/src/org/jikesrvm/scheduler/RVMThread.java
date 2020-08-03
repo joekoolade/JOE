@@ -169,7 +169,7 @@ public final class RVMThread extends ThreadContext implements Constants {
   protected static final boolean traceBind = false;
 
   /** Trace thread start/stop */
-  protected static final boolean traceAcct = false;
+  protected static final boolean traceAcct = true;
 
   /** Trace execution */
   protected static final boolean trace = false;
@@ -1495,9 +1495,9 @@ public Address sentinelFp;
     this.contextRegisters = new Registers();
     this.exceptionRegisters = new Registers();
 
-    if (VM.runningVM) {
-      feedlet = TraceEngine.engine.makeFeedlet(name, name);
-    }
+//    if (VM.runningVM) {
+//      feedlet = TraceEngine.engine.makeFeedlet(name, name);
+//    }
 
     if (VM.VerifyAssertions) VM._assert(stack != null);
 
@@ -2398,7 +2398,7 @@ public Address sentinelFp;
     // allow java.lang.Thread.exit() to remove this thread from ThreadGroup
     java.lang.JikesRVMSupport.threadDied(thread);
 
-    TraceEngine.engine.removeFeedlet(feedlet);
+//    TraceEngine.engine.removeFeedlet(feedlet);
 
     if (VM.VerifyAssertions) {
       if (Lock.countLocksHeldByThread(getLockingId()) > 0) {
@@ -5180,9 +5180,9 @@ public Address sentinelFp;
     if (VM.VerifyAssertions) VM._assert(bootThread == null);
     BootThread bt = new BootThread();
     bootThread = bt.getRVMThread();
-    bootThread.feedlet = TraceEngine.engine.makeFeedlet(
-        "Jikes RVM boot thread",
-        "Thread used to execute the initial boot sequence of Jikes RVM");
+//    bootThread.feedlet = TraceEngine.engine.makeFeedlet(
+//        "Jikes RVM boot thread",
+//        "Thread used to execute the initial boot sequence of Jikes RVM");
     numActiveThreads++;
     numActiveDaemons++;
     return bootThread;

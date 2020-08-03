@@ -48,7 +48,7 @@ implements Scheduler {
     {
         RVMThread nextThread;
         
-//        RVMThread currentThread = Magic.getThreadRegister();
+        RVMThread currentThread = Magic.getThreadRegister();
         if(runQueue.peek() == null)
         {
             nextThread = RVMThread.idleThread;
@@ -63,10 +63,10 @@ implements Scheduler {
         /*
          * Setup to restore from new thread
          */
-//        VM.sysWrite(Magic.objectAsAddress(Magic.getThreadRegister()));
-//        VM.sysWriteln("->", Magic.objectAsAddress(nextThread));
-//        VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
-//        VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
+        VM.sysWrite(Magic.objectAsAddress(Magic.getThreadRegister()));
+        VM.sysWriteln("->", Magic.objectAsAddress(nextThread));
+        VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
+        VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
         /*
          * Set the thread register
          */

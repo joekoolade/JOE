@@ -47,7 +47,7 @@ public final class TraceEngine {
 
   public enum State { STARTING_UP, RUNNING_FILE, SHUTTING_DOWN, SHUT_DOWN };
 
-  public static final TraceEngine engine = new TraceEngine();
+  public static final TraceEngine engine = null; // new TraceEngine();
   private static final int IO_INTERVAL_MS = 100;
   private static final int INITIAL_EVENT_CHUNKS = 64;
 
