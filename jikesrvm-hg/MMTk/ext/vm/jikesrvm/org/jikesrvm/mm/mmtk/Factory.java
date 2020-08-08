@@ -198,7 +198,8 @@ public final class Factory extends org.mmtk.vm.Factory {
   @Override
   public org.mmtk.vm.MMTk_Events newEvents() {
     try {
-      return new MMTk_Events(org.jikesrvm.tuningfork.TraceEngine.engine);
+//      return new MMTk_Events(org.jikesrvm.tuningfork.TraceEngine.engine);
+        return new MMTk_Events(null);
     } catch (Exception e) {
       VM.sysFail("Failed to allocate new MMTk_Events!");
       return null; // never get here
