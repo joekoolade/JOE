@@ -108,11 +108,12 @@ public abstract class MachineSpecificIA extends MachineSpecific implements Basel
         sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(WORDSIZE));    // FP0
         sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(WORDSIZE*2));     // cmd id0; invisible method id
         sp.store(0, Offset.zero().minus(WORDSIZE*3));                       // Stack selector, NULL
-        sp.store(sp.minus(WORDSIZE*8).toInt(), Offset.zero().minus(WORDSIZE*4));                       // Stack selector, NULL
+        sp.store(sp.minus(WORDSIZE*9).toInt(), Offset.zero().minus(WORDSIZE*4));                       // Stack selector, NULL
         sp.store(0x200, Offset.zero().minus(WORDSIZE*5));                   // RFLAGS
         sp.store(CS, Offset.zero().minus(WORDSIZE*6));                      // code selector
         sp.store(ip, Offset.zero().minus(WORDSIZE*7));                      // RIP
-        sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(WORDSIZE*8));  // thread start method id
+        sp.store(0, Offset.zero().minus(WORDSIZE*8));                       // err code 0
+        sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(WORDSIZE*9));  // thread start method id
         contextRegisters.ip = ip;
         contextRegisters.fp = sp.minus(WORDSIZE*8);
         // set the sp

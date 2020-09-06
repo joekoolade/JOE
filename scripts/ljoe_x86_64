@@ -1,3 +1,3 @@
 #!/bin/sh
 
-qemu-system-x86_64 -no-reboot -kernel jam.out -nographic  -device i82559c,netdev=mynet -netdev user,id=mynet -no-shutdown -d in_asm,int,pcall,cpu_reset,unimp,guest_errors -D log
+qemu-system-x86_64 -no-reboot -kernel jam.out -nographic  -device i82559c,netdev=mynet -netdev user,id=mynet -no-shutdown -d in_asm,int,exec,pcall,cpu_reset,unimp,guest_errors -D log

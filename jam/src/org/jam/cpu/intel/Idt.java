@@ -199,7 +199,7 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int13()
        {
-           Magic.saveContext();
+           Magic.halt();
            VM.sysFailTrap("General Protection");
        }
        @InterruptHandler
@@ -307,7 +307,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Magic.saveContext();
            Platform.timer.handler();
            // Restore back to the interrupt stack and context
-           Magic.restoreThreadContext();
+           Magic.restoreThreadContextErrCode();
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -339,7 +339,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Platform.serialPort.handler();
            Platform.apic.eoi();
            // Restore back to the interrupt stack and context
-           Magic.restoreThreadContext();
+           Magic.restoreThreadContextErrCode();
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -410,6 +410,7 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            // Save registers on the interrupted stack
            Magic.saveContext();
+//           Magic.halt();
            // Switch to the interrupt stack
 //           Magic.switchStack(Platform.scheduler.getHandlerStack());
 //           VM.sysWriteln("int48/yield");
@@ -417,9 +418,10 @@ public final class Idt implements SegmentDescriptorTypes {
            // RVMThread.yieldpoint(0, null);
            Platform.scheduler.addThread(Magic.getThreadRegister());
            Platform.scheduler.nextThread();
-           RVMThread.isInterrupted = false;
            // Restore back to the interrupt stack and context
-           Magic.restoreThreadContext();
+           Magic.restoreThreadContextNoErrCode();
+//           Magic.halt();
+           RVMThread.isInterrupted = false;
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -625,7 +627,7 @@ public final class Idt implements SegmentDescriptorTypes {
 //         Magic.switchStack(Platform.timer.getHandlerStack());
          Platform.serialPort.handler();
          // Restore back to the interrupt stack and context
-         Magic.restoreThreadContext();
+         Magic.restoreThreadContextErrCode();
          // The interrupt handler annotation will emit the IRET
          // good bye
        }
@@ -675,7 +677,7 @@ public final class Idt implements SegmentDescriptorTypes {
          Platform.timer.handler();
          Platform.apic.eoi();
          // Restore back to the interrupt stack and context
-         Magic.restoreThreadContext();
+         Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET
          // good bye
        }

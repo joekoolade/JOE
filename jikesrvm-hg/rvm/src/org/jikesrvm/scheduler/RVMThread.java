@@ -1554,7 +1554,8 @@ public Address sentinelFp;
       // Points to framepointer sentinel
       this.framePointer = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(Registers.ESP.value()).toAddress();
-      VM.sysWriteln("rvmthread sp: ", this.sp);
+      VM.sysWrite("rvmthread sp: ", this.sp);
+      VM.sysWriteln(" gpr: ", Magic.objectAsAddress(contextRegisters.gprs));
       
       /*
        * Set up the FP/SSE/MMX state area
@@ -2555,9 +2556,12 @@ public Address sentinelFp;
   /** Uninterruptible final portion of thread termination. */
   void finishThreadTermination() {
     execStatus = TERMINATED;
-    Magic.yield();
-    if (VM.VerifyAssertions)
-      VM._assert(VM.NOT_REACHED);
+    if(!isBootThread())
+    {
+        Magic.yield();
+    }
+//    if (VM.VerifyAssertions)
+//      VM._assert(VM.NOT_REACHED);
   }
 
   /*

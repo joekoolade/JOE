@@ -67,6 +67,7 @@ implements Scheduler {
         VM.sysWriteln("->", Magic.objectAsAddress(nextThread));
         VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
         VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
+//        VM.sysWriteln("gpr ", Magic.objectAsAddress(nextThread.contextRegisters.gprs));
         /*
          * Set the thread register
          */

@@ -465,6 +465,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
     Magic.enableInterrupts();
+    Platform.ioApic.enableInterrupts();
 //    Platform.masterPic.setInterrupt(I8259A.COM1);
 //    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
 //    IMCR.enableIRQS();
