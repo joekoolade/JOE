@@ -130,7 +130,8 @@ public class MagicNames {
   public static final Atom dynamicBridgeTo = Atom.findOrCreateAsciiAtom("dynamicBridgeTo");
   public static final Atom saveContext = Atom.findOrCreateAsciiAtom("saveContext");
   public static final Atom restoreContext = Atom.findOrCreateAsciiAtom("restoreContext");
-  public static final Atom restoreThreadContext = Atom.findOrCreateAsciiAtom("restoreThreadContext");
+  public static final Atom restoreThreadContextNoErrCode = Atom.findOrCreateAsciiAtom("restoreThreadContextNoErrCode");
+  public static final Atom restoreThreadContextErrCode = Atom.findOrCreateAsciiAtom("restoreThreadContextErrCode");
   public static final Atom switchStack = Atom.findOrCreateAsciiAtom("switchStack");
   public static final Atom startThread = Atom.findOrCreateAsciiAtom("startThread");
   public static final Atom enableInterrupts = Atom.findOrCreateAsciiAtom("enableInterrupts");
