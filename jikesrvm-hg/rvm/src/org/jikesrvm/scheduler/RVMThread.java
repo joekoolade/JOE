@@ -1187,6 +1187,10 @@ private static boolean gcInProgress=false;
 
 private Address ip;
 
+/*
+ * Stack address of interrupted thread. Saves ESP after the 
+ * interrupt transfer. Used to restore stack to the point of the IRET
+ */
 private Address sp;
 
 public Address sentinelFp;
