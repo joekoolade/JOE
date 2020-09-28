@@ -2228,6 +2228,8 @@ public Address sentinelFp;
       fxStateAddress = Address.fromIntSignExtend(fxStateAddress.plus(16).toInt() & ~0xF);
     }
     VM.sysWriteln("Boot STATE1: ", fxStateAddress);
+    VM.sysWriteln("context regs ", Magic.objectAsAddress(contextRegisters));
+    VM.sysWriteln("gpr regs ", Magic.objectAsAddress(contextRegisters.gprs));
     thread = java.lang.JikesRVMSupport.createThread(this,
         "Jikes_RVM_Boot_Thread");
   }
