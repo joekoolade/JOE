@@ -104,6 +104,10 @@ public abstract class MachineSpecificIA extends MachineSpecific implements Basel
     }
     else
     {
+        /*
+         * Need align stack on 16-byte boundary
+         */
+        // sp = Address.fromIntZeroExtend(sp.plus(15).toInt() & ~0xF).plus(8);
         sp.store(0, Offset.zero());                                         // IP0
         sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(WORDSIZE));    // FP0
         sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(WORDSIZE*2));     // cmd id0; invisible method id

@@ -2530,6 +2530,10 @@ final class BaselineMagic {
               Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
               Offset registersContext = Entrypoints.threadContextRegistersField.getOffset();
               /*
+               * Store the stack pointer
+               */
+              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.stackPointerField.getOffset(), SP);
+              /*
                * Push R14,15 onto the stack
                */
               asm.emitPUSH_Reg(GPR.R15);
@@ -2545,7 +2549,7 @@ final class BaselineMagic {
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*1), ECX);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*2), EDX);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*3), EBX);
- //             asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*4), ESP);  // save but don't restore off by 16
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*4), ESP);  // save but don't restore off by 16
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*5), EBP);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*6), ESI);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*7), EDI);
@@ -2568,12 +2572,6 @@ final class BaselineMagic {
               asm.emitMOV_Reg_RegDisp_Quad(EAX, ESI, Entrypoints.fxStateField.getOffset());
               asm.emitFXSAVE_Reg(EAX);
               asm.emitFINIT();
-              /*
-               * Store the stack pointer
-               */
-//              Offset threadStackOffset = Offset.fromIntZeroExtend(0x20);
-//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R8, ESP, threadStackOffset);
-              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.stackPointerField.getOffset(), ESP);
          
               /*
                * Save fp and ip into contextRegisters
@@ -2588,6 +2586,11 @@ final class BaselineMagic {
               asm.emitMOV_Reg_RegDisp_Quad(EAX, ESP, Offset.zero());
               // save it
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R15, ArchEntrypoints.registersIPField.getOffset(), EAX);
+              /*
+               * Push the interrupted threads frame pointer
+               */
+              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
+              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
               /*
                * Push interrupt method id
                */
@@ -2802,7 +2805,7 @@ final class BaselineMagic {
               asm.emitPUSH_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*14));
               asm.emitPOP_Reg(GPR.R14);
               /*
-               * Need to pop the compiled method id
+               * Need to pop the error code
                */
               asm.emitADD_Reg_Imm(ESP, 0x8);
           }
@@ -2864,8 +2867,8 @@ final class BaselineMagic {
               /*
                * restore the frame pointer
                */
-              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, ArchEntrypoints.registersFPField.getOffset());
-              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
+//              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, ArchEntrypoints.registersFPField.getOffset());
+//              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
               /*
                * restore registers
                */
@@ -2873,7 +2876,7 @@ final class BaselineMagic {
               asm.emitMOV_Reg_RegDisp_Quad(ECX, GPR.R14, Offset.zero().plus(WORDSIZE*1));
               asm.emitMOV_Reg_RegDisp_Quad(EDX, GPR.R14, Offset.zero().plus(WORDSIZE*2));
               asm.emitMOV_Reg_RegDisp_Quad(EBX, GPR.R14, Offset.zero().plus(WORDSIZE*3));
-              asm.emitMOV_Reg_RegDisp_Quad(ESP, GPR.R14, Offset.zero().plus(WORDSIZE*4));   // Now we are on the restored threads stack
+//              asm.emitMOV_Reg_RegDisp_Quad(ESP, GPR.R14, Offset.zero().plus(WORDSIZE*4));   // Now we are on the restored threads stack
               asm.emitMOV_Reg_RegDisp_Quad(EBP, GPR.R14, Offset.zero().plus(WORDSIZE*5));
               asm.emitMOV_Reg_RegDisp_Quad(EDI, GPR.R14, Offset.zero().plus(WORDSIZE*7));
               asm.emitMOV_Reg_RegDisp_Quad(GPR.R8, GPR.R14, Offset.zero().plus(WORDSIZE*8));
@@ -2890,9 +2893,13 @@ final class BaselineMagic {
               asm.emitPUSH_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*14));
               asm.emitPOP_Reg(GPR.R14);
               /*
-               * Need to pop the compiled method id
+               * Need to pop the CMID
                */
 //              asm.emitADD_Reg_Imm(ESP, 0x8);
+              /*
+               * restore the stack pointer from the RVMThread sp field
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
           }
           else
           {

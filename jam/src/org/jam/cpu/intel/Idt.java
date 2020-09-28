@@ -627,7 +627,7 @@ public final class Idt implements SegmentDescriptorTypes {
 //         Magic.switchStack(Platform.timer.getHandlerStack());
          Platform.serialPort.handler();
          // Restore back to the interrupt stack and context
-         Magic.restoreThreadContextErrCode();
+         Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET
          // good bye
        }

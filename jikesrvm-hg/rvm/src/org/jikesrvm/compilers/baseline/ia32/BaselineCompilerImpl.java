@@ -3318,7 +3318,7 @@ public abstract class BaselineCompilerImpl extends BaselineCompiler implements B
   private void genEpilogue(int returnSize, int bytesPopped) {
     if (klass.hasBridgeFromNativeAnnotation()) {
       // pop locals and parameters, get to saved GPR's
-      adjustStack((method.getLocalWords() << LG_WORDSIZE)+(returnSize-bytesPopped), true);
+      // adjustStack((method.getLocalWords() << LG_WORDSIZE)+(returnSize-bytesPopped), true);
     } else if (method.hasInterruptHandlerAnnotation()) {
       // generate return from interrupt
         if(VM.buildFor32Addr())
