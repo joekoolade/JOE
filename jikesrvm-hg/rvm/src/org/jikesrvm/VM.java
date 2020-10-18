@@ -449,16 +449,16 @@ public class VM extends Properties implements Constants, ExitStatus {
     MemoryManager.enableCollection();
 
 //    LdivTests.test1();
-    // Create main thread.
+//    // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
     // Start running your programs
     StartUp.runMain("com.vonhessling.DiningPhilosophers");
     StartUp.run();
-    VM.sysWriteln("NAPI manager");
-    Thread napiThread = new Thread(new NapiManager());
-    napiThread.setName("NAPI Manager");
-    napiThread.start();
-    Platform.net.inetBoot();
+//    VM.sysWriteln("NAPI manager");
+//    Thread napiThread = new Thread(new NapiManager());
+//    napiThread.setName("NAPI Manager");
+//    napiThread.start();
+//    Platform.net.inetBoot();
     // terminate boot thread
     VM.sysWriteln("Time to start the show");
     booting=false;
@@ -466,9 +466,6 @@ public class VM extends Properties implements Constants, ExitStatus {
     // Say good bye to the boot thread
     Magic.enableInterrupts();
     Platform.ioApic.enableInterrupts();
-//    Platform.masterPic.setInterrupt(I8259A.COM1);
-//    Platform.masterPic.setInterrupt(I8259A.SYSTEM_TIMER);
-//    IMCR.enableIRQS();
     Magic.yield();
     VM.shutdown(1);
     VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");

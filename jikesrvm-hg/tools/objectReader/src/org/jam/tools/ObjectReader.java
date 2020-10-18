@@ -297,6 +297,7 @@ implements SizeConstants
             {
                 System.out.println(code.getTypeName()+"."+code.getName()+code.getParameters());
             }
+            if(ipAddress == 0xFFFFFFFDL) return;
             stackPointer = reader.readLong((int)stackPointer);
         }
     }
@@ -317,7 +318,7 @@ implements SizeConstants
             name = getString(nameAddress);
             JikesObject contextRegisters = new JikesObject(memory, thread.getField("contextRegisters"));
             int gprs = contextRegisters.getField("gprs");
-            System.out.println("Thread " + name + " index "+threadIdx+" slot "+slot);
+            System.out.println("Thread " + Integer.toHexString(threadAddress) + " " + name + " index "+threadIdx+" slot "+slot);
             System.out.println("fp "+Integer.toHexString(fp) + " sp "+Integer.toHexString(sp));
             int fp0 = contextRegisters.getField("fp");
             int ip0 = contextRegisters.getField("ip");
@@ -325,9 +326,9 @@ implements SizeConstants
             // dump the stack
             dump_long(sp, 20);
             
-            printCodePoint((int)readLong(fp+8));
+            printCodePoint((int)readLong(fp0+8));
             // backtrace
-            backTrace(fp);
+            backTrace(fp0);
         }
         catch (Exception e)
         {
