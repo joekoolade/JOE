@@ -104,12 +104,12 @@ public class Monitor {
   public void lockNoHandshake()
   {
     int mySlot = RVMThread.getCurrentThreadSlot();
+    Magic.disableInterrupts();
     if (mySlot != holderSlot)
     {
       /*
        * Try to get the lock
        */
-//      Magic.disableInterrupts();
       while (!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
       {
         /*
@@ -121,9 +121,9 @@ public class Monitor {
 //        VM.sysWrite("/R", recCount);
 //        VM.sysWriteln("/A", acquireCount);
         locking.enqueue(RVMThread.getCurrentThread());
-//        Magic.enableInterrupts();
+        Magic.enableInterrupts();
         Magic.yield();
-//        Magic.disableInterrupts();
+        Magic.disableInterrupts();
       }
       if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
       if (VM.VerifyAssertions) VM._assert(recCount == 0);
@@ -131,6 +131,7 @@ public class Monitor {
     }
     recCount++;
     acquireCount++;
+    Magic.enableInterrupts();
     if(trace) 
     {
       VM.sysWrite("Lock(No HS)", Magic.objectAsAddress(this));
@@ -170,6 +171,7 @@ public class Monitor {
       VM.sysWrite("/R", recCount);
       VM.sysWriteln("/A", acquireCount);
     }
+    Magic.enableInterrupts();
   }
 
   /**
@@ -202,9 +204,9 @@ public class Monitor {
   public void lockWithHandshake()
   {
     int mySlot = RVMThread.getCurrentThreadSlot();
+    Magic.disableInterrupts();
     if (mySlot != holderSlot)
     {
-      Magic.disableInterrupts();
       while (!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
       {
         /*
@@ -221,6 +223,7 @@ public class Monitor {
     }
     recCount++;
     acquireCount++;
+    Magic.enableInterrupts();
     if(trace) 
     {
       VM.sysWrite("Lock(HS)", Magic.objectAsAddress(this));
@@ -322,7 +325,8 @@ public class Monitor {
        */
       Platform.scheduler.addThread(waitingThread);
     }
-    Magic.disableInterrupts();
+//    Magic.disableInterrupts();
+    Magic.enableInterrupts();
     return result;
   }
   /**

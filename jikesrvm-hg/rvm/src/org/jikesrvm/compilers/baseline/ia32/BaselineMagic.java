@@ -2549,7 +2549,7 @@ final class BaselineMagic {
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*1), ECX);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*2), EDX);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*3), EBX);
-              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*4), ESP);  // save but don't restore off by 16
+//              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*4), ESP);  // save but don't restore off by 16
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*5), EBP);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*6), ESI);
               asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*7), EDI);
@@ -2580,7 +2580,7 @@ final class BaselineMagic {
                */
               asm.emitMOV_Reg_RegDisp_Quad(EAX, TR, ArchEntrypoints.framePointerField.getOffset());
               // save fp
-              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, ArchEntrypoints.registersFPField.getOffset(), EAX);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R15, ArchEntrypoints.registersFPField.getOffset(), EAX);
               // get there return address
 //              asm.emitMOV_Reg_RegDisp_Quad(EAX, ESP, Offset.fromIntZeroExtend(8));
               asm.emitMOV_Reg_RegDisp_Quad(EAX, ESP, Offset.zero());
@@ -2589,8 +2589,8 @@ final class BaselineMagic {
               /*
                * Push the interrupted threads frame pointer
                */
-              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
-              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
+//              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
+//              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
               /*
                * Push interrupt method id
                */
@@ -2867,8 +2867,8 @@ final class BaselineMagic {
               /*
                * restore the frame pointer
                */
-//              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, ArchEntrypoints.registersFPField.getOffset());
-//              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R15, ArchEntrypoints.registersFPField.getOffset());
+              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
               /*
                * restore registers
                */
@@ -2888,7 +2888,7 @@ final class BaselineMagic {
               asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, GPR.R14, Offset.zero().plus(WORDSIZE*15));
               /*
                * r14 being used as pointer to register context
-               * push r14 onto the stack, then pop it into register to restore
+               * push the saved r14 onto the stack, then pop it into register to restore
                */
               asm.emitPUSH_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*14));
               asm.emitPOP_Reg(GPR.R14);
