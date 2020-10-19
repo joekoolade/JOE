@@ -1630,7 +1630,8 @@ public Address sentinelFp;
    * isn't set.
    */
   public RVMThread(Thread thread, long stacksize, String name, boolean daemon, int priority) {
-    this(MemoryManager.newStack((stacksize <= 0) ? STACK_SIZE_NORMAL : (int) stacksize), thread, name, daemon, null, priority);
+//    this(MemoryManager.newStack((stacksize <= 0) ? STACK_SIZE_NORMAL : (int) stacksize), thread, name, daemon, null, priority);
+    this(MemoryManager.newStack((stacksize <= STACK_SIZE_NORMAL) ? STACK_SIZE_NORMAL : (int) stacksize), thread, name, daemon, null, priority);
   }
 
   /**

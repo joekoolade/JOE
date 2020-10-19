@@ -122,125 +122,152 @@ public final class Idt implements SegmentDescriptorTypes {
 	    @InterruptHandler
 	    public static void int0()
 	    {
-	        VM.sysFail("FAULT: Divide by 0");
+            Magic.halt();
+            while(true) ;
+//	        VM.sysFail("FAULT: Divide by 0");
 	    }
 	    @InterruptHandler
 	    public static void int1()
 	    {
-	        VM.sysFail("INT1, Reserved");
+            Magic.halt();
+            while(true) ;
+//	        VM.sysFail("INT1, Reserved");
 	    }
 	    @InterruptHandler
 	    public static void int2()
 	    {
-	        VM.sysFail("NMI Interrupt");
+            Magic.halt();
+            while(true) ;
+//	        VM.sysFail("NMI Interrupt");
 	    }
 	    @InterruptHandler
 	    public static void int3()
 	    {
-	        VM.sysFail("Breakpoint");
+            Magic.halt();
+            while(true) ;
+//	        VM.sysFail("Breakpoint");
 	    }
 	    @InterruptHandler
 	    public static void int4()
 	    {
-	        VM.sysFail("Overflow");
+	        Magic.halt();
+	         while(true) ;
+//	        VM.sysFail("Overflow");
 	    }
         @InterruptHandler
         public static void int5()
         {
           Magic.halt();
-          VM.sysFail("BOUND range exceeded");
+          while(true) ;
+//          VM.sysFail("BOUND range exceeded");
         }
         @InterruptHandler
         public static void int6()
         {
-          Magic.saveContext();
-          // Magic.halt();
-          VM.sysFailTrap("Invalid Opcode");
+           Magic.halt();
+           while(true) ;
+//          VM.sysFailTrap("Invalid Opcode");
         }
         @InterruptHandler
         public static void int7()
         {
           Magic.halt();
-            VM.sysFail("Device Not Available");
+          while(true) ;
+//            VM.sysFail("Device Not Available");
         }
         @InterruptHandler
         public static void int8()
         {
           Magic.halt();
-            Magic.saveContext();
+          while(true) ;
+//            Magic.saveContext();
 //            Magic.halt();
 //            VM.write("Double Fault");
-            VM.sysFail("Double Fault");
+//            VM.sysFail("Double Fault");
         }
         @InterruptHandler
         public static void int9()
         {
           Magic.halt();
-            VM.sysFail("Coprocessor Segment Overrun");
+          while(true) ;
+//            VM.sysFail("Coprocessor Segment Overrun");
         }
         @InterruptHandler
         public static void int10()
         {
           Magic.halt();
-            VM.sysFail("Invalid TSS");
+          while(true) ;
+//            VM.sysFail("Invalid TSS");
         }
        @InterruptHandler
         public static void int11()
         {
          Magic.halt();
-            VM.sysFail("Segment Not Present");
+         while(true) ;
+//            VM.sysFail("Segment Not Present");
         }
        @InterruptHandler
        public static void int12()
        {
          Magic.halt();
-           VM.sysFail("Stack Segment Fault");
+         while(true) ;
+//           VM.sysFail("Stack Segment Fault");
        }
        @InterruptHandler
        public static void int13()
        {
            Magic.halt();
-           VM.sysFailTrap("General Protection");
+           while(true) ;
+//           VM.sysFailTrap("General Protection");
        }
        @InterruptHandler
        public static void int14()
        {
          Magic.halt();
-           VM.sysFail("Page Fault");
+         while(true) ;
+//           VM.sysFail("Page Fault");
        }
        @InterruptHandler
        public static void int15()
        {
-           VM.sysWriteln("Spurious Interrupt");
+           Magic.halt();
+           while(true) ;
+//           VM.sysWriteln("Spurious Interrupt");
        }
        @InterruptHandler
        public static void int16()
        {
-         Magic.halt();
-           VM.sysFail("x87 FPU Floating-Point Error");
+           Magic.halt();
+           while(true) ;
+//           VM.sysFail("x87 FPU Floating-Point Error");
        }
        @InterruptHandler
        public static void int17()
        {
-         Magic.halt();
-           VM.sysFail("Alignment Check");
+           Magic.halt();
+           while(true) ;
+//           VM.sysFail("Alignment Check");
        }
        @InterruptHandler
        public static void int18()
        {
-           VM.sysFail("Machine Check");
+           Magic.halt();
+           while(true) ;
+//           VM.sysFail("Machine Check");
        }
        @InterruptHandler
        public static void int19()
        {
-         Magic.halt();
-           VM.sysFail("SIMD Floating Point Exception");
+           Magic.halt();
+           while(true) ;
+//           VM.sysFail("SIMD Floating Point Exception");
        }
        @InterruptHandler
        public static void int20()
        {
-         Magic.halt();
-           VM.sysFail("Virtualization Exception");
+           Magic.halt();
+           while(true) ;
+//           VM.sysFail("Virtualization Exception");
        }
        @InterruptHandler
        public static void int21()
