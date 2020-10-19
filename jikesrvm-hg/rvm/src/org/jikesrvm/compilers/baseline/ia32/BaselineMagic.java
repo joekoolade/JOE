@@ -2448,17 +2448,17 @@ final class BaselineMagic {
       // Store FPU control word at top of the stack
       Offset CWOFF = Offset.fromIntSignExtend(-WORDSIZE);
       asm.emitFLDCW_RegDisp(SP, CWOFF);
-      asm.emitMOV_Reg_RegDisp(S0, SP, CWOFF);
+      asm.emitMOV_Reg_RegDisp_Quad(S0, SP, CWOFF);
       // Set FPU to round up
-      asm.emitAND_RegDisp_Imm(SP, CWOFF, ~0xc00);
-      asm.emitOR_RegDisp_Imm(SP, CWOFF, 0x800);
+      asm.emitAND_RegDisp_Imm_Quad(SP, CWOFF, ~0xc00);
+      asm.emitOR_RegDisp_Imm_Quad(SP, CWOFF, 0x800);
       asm.emitFSTCW_RegDisp(SP, CWOFF);
       // Load parameter to FPU stack
       asm.emitFLD_Reg_RegInd(FP0, SP);
       asm.emitFRNDINT(FP0);
       asm.emitFST_RegInd_Reg(SP, FP0);
       // restore the fpu cw
-      asm.emitMOV_RegDisp_Reg(SP, CWOFF, S0);
+      asm.emitMOV_RegDisp_Reg_Quad(SP, CWOFF, S0);
       asm.emitFSTCW_RegDisp(SP, CWOFF);
     }
   }
@@ -2589,7 +2589,7 @@ final class BaselineMagic {
               /*
                * Push the interrupted threads frame pointer
                */
-//              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
+              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
 //              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
               /*
                * Push interrupt method id
