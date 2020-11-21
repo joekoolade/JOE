@@ -333,8 +333,9 @@ public final class Idt implements SegmentDescriptorTypes {
            // Save registers on the interrupted stack
            Magic.saveContext();
            Platform.timer.handler();
-           // Restore back to the interrupt stack and context
-           Magic.restoreThreadContextErrCode();
+           Platform.apic.eoi();
+          // Restore back to the interrupt stack and context
+           Magic.restoreThreadContextNoErrCode();
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -366,7 +367,7 @@ public final class Idt implements SegmentDescriptorTypes {
            Platform.serialPort.handler();
            Platform.apic.eoi();
            // Restore back to the interrupt stack and context
-           Magic.restoreThreadContextErrCode();
+           Magic.restoreThreadContextNoErrCode();
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -396,7 +397,6 @@ public final class Idt implements SegmentDescriptorTypes {
        {
 //           Platform.masterPic.interruptMask(0xFF);
 //           Magic.disableInterrupts();
-         Magic.saveContext();
          VM.sysFailTrap("TRAP_ARRAY_BOUNDS");
        }
        @InterruptHandler
@@ -446,9 +446,9 @@ public final class Idt implements SegmentDescriptorTypes {
            Platform.scheduler.addThread(Magic.getThreadRegister());
            Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context
+           RVMThread.isInterrupted = false;
            Magic.restoreThreadContextNoErrCode();
 //           Magic.halt();
-           RVMThread.isInterrupted = false;
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
@@ -653,6 +653,7 @@ public final class Idt implements SegmentDescriptorTypes {
          // Switch to the interrupt stack
 //         Magic.switchStack(Platform.timer.getHandlerStack());
          Platform.serialPort.handler();
+         Platform.apic.eoi();
          // Restore back to the interrupt stack and context
          Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET

@@ -2899,6 +2899,7 @@ final class BaselineMagic {
               /*
                * restore the stack pointer from the RVMThread sp field
                */
+//              asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
               asm.emitMOV_Reg_RegDisp_Quad(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
           }
           else
