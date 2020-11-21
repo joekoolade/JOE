@@ -329,7 +329,9 @@ private static final boolean DEBUG = false;
     if (VM.ForceFrequentGC) checkAllocationCountDownToGC();
 
     // Allocate the object and initialize its header
+    Magic.disableInterrupts();
     Object newObj = MemoryManager.allocateScalar(size, tib, allocator, align, offset, site);
+    Magic.enableInterrupts();
     // Deal with finalization
     if (hasFinalizer) MemoryManager.addFinalizer(newObj);
 
@@ -410,7 +412,11 @@ private static final boolean DEBUG = false;
     if (VM.ForceFrequentGC) checkAllocationCountDownToGC();
 
     // Allocate the array and initialize its header
-    return MemoryManager.allocateArray(numElements, logElementSize, headerSize, tib, allocator, align, offset, site);
+    Magic.disableInterrupts();
+    Object newObj = MemoryManager.allocateArray(numElements, logElementSize, headerSize, tib, allocator, align, offset, site);
+    Magic.disableInterrupts();
+    return newObj;
+//    return MemoryManager.allocateArray(numElements, logElementSize, headerSize, tib, allocator, align, offset, site);
   }
 
   /**

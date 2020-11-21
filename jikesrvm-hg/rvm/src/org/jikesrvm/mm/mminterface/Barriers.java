@@ -1225,8 +1225,10 @@ public class Barriers implements org.mmtk.utility.Constants {
   @Entrypoint
   public static void objectFieldWrite(Object ref, Object value, Offset offset, int locationMetadata) {
     if (NEEDS_OBJECT_GC_WRITE_BARRIER) {
+      Magic.disableInterrupts();
       ObjectReference src = ObjectReference.fromObject(ref);
       Selected.Mutator.get().objectReferenceWrite(src, src.toAddress().plus(offset), ObjectReference.fromObject(value), offset.toWord(), Word.fromIntZeroExtend(locationMetadata), INSTANCE_FIELD);
+      Magic.enableInterrupts();
     } else if (VM.VerifyAssertions)
       VM._assert(VM.NOT_REACHED);
   }
