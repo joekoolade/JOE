@@ -69,11 +69,11 @@ public abstract class CharsetProvider
   {
     // We only do the security check for custom providers, not for the
     // built in ones.
-    SecurityManager s = System.getSecurityManager();
-    if (s != null &&
-        ! (this instanceof gnu.java.nio.charset.Provider
-        || this instanceof gnu.java.nio.charset.iconv.IconvProvider))
-      s.checkPermission(new RuntimePermission("charsetProvider"));
+//    SecurityManager s = System.getSecurityManager();
+//    if (s != null &&
+//        ! (this instanceof gnu.java.nio.charset.Provider
+//        || this instanceof gnu.java.nio.charset.iconv.IconvProvider))
+//      s.checkPermission(new RuntimePermission("charsetProvider"));
   }
 
   /**

@@ -845,34 +845,105 @@ public class VM extends Properties implements Constants, ExitStatus {
    */
   @NoInline
   /* don't waste code space inlining these --dave */
-  public static void writeHex(long value) {
+  public static void writeHex(long num) {
     if (runningVM) {
-        int i;
-        long val=value;
-        for(i=0; i<64; i++) {
-        	digitBuffer[i] = ' ';
-        }
-        digitBuffer[63] = '0';
-        if(val == 0)
+        // Compute string length
+        int size = 1;
+        long copy = num >>> 4;
+        int mask = (1 << 4) - 1;
+        while (copy != 0)
+          {
+            size++;
+            copy >>>= 4;
+          }
+        // Quick path for single character strings
+        if (size == 1)
         {
-            i=62;
+            PcBootSerialPort.putChar('0');
+            PcBootSerialPort.putChar('x');
+            PcBootSerialPort.putChar(hexDigits[(int)num & mask]);
+            return;
         }
-        else
-        {
-            for(i=63; val > 0; i--) {
-          	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
-          	  val>>=4;
-            }
+
+        // Encode into buffer
+//        char[] buffer = new char[size];
+        int i = size + 2;   // +2 for '0x' lead
+        do
+          {
+            digitBuffer[--i] = hexDigits[(int) num & mask];
+            num >>>= 4;
+          }
+        while (num != 0);
+        digitBuffer[0] = '0';
+        digitBuffer[1] = 'x';
+        
+        for(i=0; i<size+2; i++) {
+            PcBootSerialPort.putChar(digitBuffer[i]);
         }
-        digitBuffer[i--] = 'x';
-        digitBuffer[i] = '0';
-        for(; i<64; i++) {
-      	  PcBootSerialPort.putChar(digitBuffer[i]);
-        }
+        // Package constructor avoids an array copy.
+//        return new String(buffer, i, size - i, true);
+//        int i;
+//        long val=value;
+//        for(i=0; i<64; i++) {
+//        	digitBuffer[i] = ' ';
+//        }
+//        digitBuffer[63] = '0';
+//        if(val == 0)
+//        {
+//            i=62;
+//        }
+//        else
+//        {
+//            for(i=63; val > 0; i--) {
+//          	  digitBuffer[i] = hexDigits[(int)(val&0xf)];
+//          	  val>>=4;
+//            }
+//        }
+//        digitBuffer[i--] = 'x';
+//        digitBuffer[i] = '0';
+//        for(; i<64; i++) {
+//      	  PcBootSerialPort.putChar(digitBuffer[i]);
+//        }
     } else {
-      writeHexNotRunningVM(value);
+      writeHexNotRunningVM(num);
     }
   }
+  
+  /**
+   * Helper for converting unsigned numbers to String.
+   *
+   * @param num the number
+   * @param exp log2(digit) (ie. 1, 3, or 4 for binary, oct, hex)
+   */
+//  private static String toUnsignedString(long num, int exp)
+//  {
+//    // Compute string length
+//    int size = 1;
+//    long copy = num >>> exp;
+//    while (copy != 0)
+//      {
+//        size++;
+//        copy >>>= exp;
+//      }
+//    // Quick path for single character strings
+//    if (size == 1)
+//      return new String(digits, (int)num, 1, true);
+//
+//    // Encode into buffer
+//    int mask = (1 << exp) - 1;
+//    char[] buffer = new char[size];
+//    int i = size;
+//    do
+//      {
+//        buffer[--i] = digits[(int) num & mask];
+//        num >>>= exp;
+//      }
+//    while (num != 0);
+//
+//    // Package constructor avoids an array copy.
+//    return new String(buffer, i, size - i, true);
+//  }
+
   @UninterruptibleNoWarn("Interruptible code not reachable at runtime")
   private static void writeHexNotRunningVM(long value) {
     if (VM.VerifyAssertions) VM._assert(!VM.runningVM);
