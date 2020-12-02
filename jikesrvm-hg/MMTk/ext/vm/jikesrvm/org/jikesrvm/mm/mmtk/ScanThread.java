@@ -146,31 +146,31 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     /*
      * Save the initial frame state
      */
-    Address fp0 = regs.getInnermostFramePointer();
-    Address ip0 = fp0.loadAddress(Offset.fromIntZeroExtend(4));
+    Address fp = regs.getInnermostFramePointer();
+    Address ip = fp.loadAddress(Offset.fromIntZeroExtend(BYTES_IN_ADDRESS*1));
     /*
      * Skip past the interrupt; go up the one frame past the interrupt
      */
-    Address fp=regs.getInnermostFramePointer().loadAddress();
-    Address ip = fp.loadAddress(Offset.fromIntZeroExtend(4));
+//    Address fp=regs.getInnermostFramePointer().loadAddress();
+//    Address ip = fp.loadAddress(Offset.fromIntZeroExtend(BYTES_IN_ADDRESS*2));
     if (DEFAULT_VERBOSITY >= 1)
     {
       VM.sysWrite("scanning fp ", fp);
       VM.sysWriteln(" ip ", ip);
     }
-    regs.clear();
+//    regs.clear();
     regs.setInnermost(ip,fp);
 
     scanThread(thread, trace, processCodeLocations, gprs, fp, newRootsSufficient);
     /*
      * Make things nice again. Set the frame back to it previous state
      */
-    regs.setInnermost(ip0, fp0);
-    if (DEFAULT_VERBOSITY >= 1)
-    {
-      VM.sysWrite("Done fp ", regs.getInnermostFramePointer());
-      VM.sysWriteln(" ip ", regs.getInnermostInstructionAddress());
-    }
+//    regs.setInnermost(ip, fp);
+//    if (DEFAULT_VERBOSITY >= 1)
+//    {
+//      VM.sysWrite("Done fp ", regs.getInnermostFramePointer());
+//      VM.sysWriteln(" ip ", regs.getInnermostInstructionAddress());
+//    }
   }
 
   /**
@@ -314,10 +314,10 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
 //      while (fp.loadAddress().NE(sentinelFp) && Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
-      while (fp.loadAddress(Offset.fromIntZeroExtend(4)).NE(sentinelFp)) {
-        if (DEFAULT_VERBOSITY >= 3) {
+      while (fp.loadAddress(Offset.fromIntZeroExtend(BYTES_IN_ADDRESS)).NE(sentinelFp)) {
+        if (DEFAULT_VERBOSITY >= 1) {
           VM.sysWrite("Thread ",thread.getThreadSlot()); VM.sysWrite(" at fp = ",fp);
-          VM.sysWriteln(" ", sentinelFp);
+          VM.sysWriteln(" ", fp.loadAddress(Offset.fromIntZeroExtend(BYTES_IN_ADDRESS)));
         }
         prevFp = scanFrame(verbosity);
         ip = Magic.getReturnAddress(fp, thread);
@@ -404,6 +404,11 @@ import org.jikesrvm.ArchitectureSpecific.Registers;
     if (compiledMethodId == ArchitectureSpecific.ArchConstants.INVISIBLE_METHOD_ID) {
       if (verbosity >= 2) Log.writeln("\n--- METHOD <invisible method>");
       return false;
+    }
+    if (compiledMethodId == ArchitectureSpecific.ArchConstants.THREAD_START_METHOD_ID)
+    {
+        if (verbosity >= 2) Log.writeln("\n--- METHOD <thread start method>");
+        return false;
     }
     if (compiledMethodId == ArchitectureSpecific.ArchConstants.INTERRUPT_METHOD_ID)
     {

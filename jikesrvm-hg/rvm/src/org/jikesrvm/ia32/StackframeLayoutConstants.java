@@ -158,7 +158,7 @@ public interface StackframeLayoutConstants {
   int XMM_STATE_SIZE = 8 * 4;
 
   /** fp value indicating end of stack walkback */
-  Address STACKFRAME_SENTINEL_FP = Address.fromIntSignExtend(-2);
+  Address STACKFRAME_SENTINEL_FP = Address.fromIntZeroExtend(-3);
   /** marker for "assembler" frames that have no associated RVMMethod */
   int INVISIBLE_METHOD_ID = -1;
   int INTERRUPT_METHOD_ID = -2;     // an interrupt frame  

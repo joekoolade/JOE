@@ -244,8 +244,8 @@ public abstract class Charset implements Comparable<Charset>
 
   private static CharsetProvider provider()
   {
-    String useIconv = SystemProperties.getProperty
-      ("gnu.classpath.nio.charset.provider.iconv");
+    String useIconv = null; //SystemProperties.getProperty
+//      ("gnu.classpath.nio.charset.provider.iconv");
 
     if (useIconv != null)
       return IconvProvider.provider();

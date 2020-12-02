@@ -84,7 +84,7 @@ public final class Provider extends CharsetProvider
   // Package private to avoid an accessor method in PrivilegedAction below.
   Provider ()
   {
-    extendedLoaded = false;
+    extendedLoaded = true;
     canonicalNames = new HashMap<String,String> ();
     charsets = new HashMap<String,Charset> ();
 
@@ -258,14 +258,15 @@ public final class Provider extends CharsetProvider
   {
     // The default provider is safe to instantiate.
     if (singleton == null)
-      singleton = AccessController.doPrivileged
-	(new PrivilegedAction<Provider>()
-	  {
-	    public Provider run()
-	    {
-	      return new Provider();
-	    }
-	  });
+        singleton = new Provider();
+//      singleton = AccessController.doPrivileged
+//	(new PrivilegedAction<Provider>()
+//	  {
+//	    public Provider run()
+//	    {
+//	      return new Provider();
+//	    }
+//	  });
     return singleton;
   }
 }
