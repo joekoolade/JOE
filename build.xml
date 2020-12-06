@@ -67,6 +67,7 @@
   <property name="classlib.library-interface.cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
   <property name="classlib.library-interface.non-cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/LGPL/src"/>
   <property name="classlib.library-interface.non-cpl2.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/PD/src"/>
+  <property name="classlib.library-interface.common.java" location="${jikesrvm.dir}/libraryInterface/Common/src"/>
 
   <!-- Location of .dat files for options -->
   <property name="options.dir" location="${jikesrvm.dir}/rvm/src-generated/options"/>
@@ -373,8 +374,11 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="compile-classpath" description="Compile GNU classpath">
     <mkdir dir="${classpath.dir}/classes"/>
-    <javac srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" destdir="${classpath.dir}/classes"
-      classpath="${classpath.dir}/classes:${build.vmmagic-stub.classes}:${build.classes}" bootclasspath="${classpath.dir}/classes"
+    <javac 
+      srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" 
+      destdir="${classpath.dir}/classes"
+      classpath="${classpath.dir}/classes:${build.vmmagic-stub.classes}:${build.classes}" 
+      bootclasspath="${classpath.dir}/classes"
       sourcepath="${classpath.dir},${classpath.dir}/vm/reference,${classpath.dir}/external/w3c_dom,${classpath.dir}/external/jsr166,${classpath.dir}/external/sax,${classpath.dir}/external/relaxngDatatype"
       includes="java/**,javax/**,gnu/**,sun/**,org/jam/**,org/omg/**,vm/reference/**,external/**,org/jikesrvm/**,org/vmmagic/**"
       excludes="gnu/java/awt/peer/x/**,vm/reference/gnu/java/net/**,vm/reference/java/net/**,gnu/java/net/*PlainSocketImpl.java,gnu/java/net/*PlainDatagramSocketImpl.java"
@@ -401,9 +405,8 @@ Check to make sure all required properties are specified. This includes properti
     </jar>
     <jar file="${classpath.dir}/classpath.jar" basedir="${classpath.dir}/classes">
       <exclude name="org/jikesrvm/**"/>
-      <exclude name="**/JikesRVMSupport.class"/>
-      <exclude name="**/VMCommonLibrarySupport.class"/>
     </jar>
+  	
   </target>
   <!-- we are compiling mmtk independently to ensure that it can build independent of the rvm -->
   <target name="compile-mmtk" depends="compile-vmmagic-stub,compile-options" description="Compile MMTk toolkit.">
@@ -1292,6 +1295,8 @@ Check to make sure all required properties are specified. This includes properti
     <path id="rvm.class.path">
       <pathelement location="${build.vm.jar}"/>
       <pathelement location="${build.rt.jar}"/>
+        <pathelement location="${build.mmtk.jar}"/>
+        <pathelement location="${build.classes}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
 
@@ -1339,7 +1344,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="-m"/>
       <arg path="${build.base}/RVM.map"/>
       <arg value="-trace"/>
-      <arg value="-demographics"/>
+      <!-- <arg value="-demographics"/> -->
 	    <arg value="-profile"/>
       <!-- <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->

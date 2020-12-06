@@ -407,7 +407,7 @@ Ljava/nio/CharBuffer;
 Ljava/nio/CharBufferImpl;
 Ljava/nio/DirectByteBufferImpl$ReadWrite;
 Lgnu/java/nio/charset/Provider;
-Lgnu/java/nio/charset/Provider$1;
+#Lgnu/java/nio/charset/Provider$1;
 Lgnu/java/nio/charset/ByteCharset;
 Lgnu/java/nio/charset/ByteCharset$Decoder;
 Lgnu/java/nio/charset/ByteCharset$Decoder$1;
@@ -517,7 +517,7 @@ Lgnu/java/security/provider/Gnu;
 Lgnu/java/security/provider/Gnu$1;
 Lgnu/java/security/OID;
 
-Lgnu/java/nio/charset/Provider$1;
+#Lgnu/java/nio/charset/Provider$1;
 Ljava/nio/charset/CoderResult$1;
 Ljava/nio/charset/CoderResult$2;
 Ljava/util/zip/ZipFile$1;
