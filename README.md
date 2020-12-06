@@ -40,6 +40,7 @@ ant compile
 ant compile-classpath
 ant build
 ```
+The system builds with Java 1.8. Earlier Java versions should work also. OpenJDK 1.11 DOES NOT work.
 
 ## How To Add External Classes
 
