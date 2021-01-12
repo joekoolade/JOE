@@ -1,5 +1,7 @@
 # JOE
 
+[Latest Status](https://github.com/joekoolade/JOE/wiki)
+
 ## Java On Everything
 
 JOE can run a Java program without an operating system by building the operating system into the program. This makes the program easier to configure and deploy. JOE can make any Java programmer an embedded developer.
