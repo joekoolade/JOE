@@ -199,25 +199,25 @@ public abstract class Charset implements Comparable<Charset>
    *
    * @throws IllegalCharsetNameException  if the name is illegal
    */
-  private static Charset charsetForName(String charsetName)
-  {
-    checkName (charsetName);
-    // Try the default provider first
-    // (so we don't need to load external providers unless really necessary)
-    // if it is an exotic charset try loading the external providers.
-    Charset cs = provider().charsetForName(charsetName);
-    if (cs == null)
-      {
-	CharsetProvider[] providers = providers2();
-	for (int i = 0; i < providers.length; i++)
-	  {
-	    cs = providers[i].charsetForName(charsetName);
-	    if (cs != null)
-	      break;
-	  }
-      }
-    return cs;
-  }
+    private static Charset charsetForName(String charsetName)
+    {
+        checkName(charsetName);
+        // Try the default provider first
+        // (so we don't need to load external providers unless really necessary)
+        // if it is an exotic charset try loading the external providers.
+        Charset cs = provider().charsetForName(charsetName);
+//        if (cs == null)
+//        {
+//            CharsetProvider[] providers = providers2();
+//            for (int i = 0; i < providers.length; i++)
+//            {
+//                cs = providers[i].charsetForName(charsetName);
+//                if (cs != null)
+//                    break;
+//            }
+//        }
+        return cs;
+    }
 
   public static SortedMap<String, Charset> availableCharsets()
   {

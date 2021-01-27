@@ -160,52 +160,52 @@ public final class Provider extends CharsetProvider
     if (extendedLoaded)
       return;
 
-    addCharset (new ISO_8859_3 ());    // ISO-8859-3 aka ISO-LATIN-3
-    addCharset (new ISO_8859_6 ());    // ISO-8859-6 (Arabic)
-    addCharset (new ISO_8859_8 ());    // ISO-8859-8 (Hebrew)
-
-    // Some more codepages
-    addCharset (new Cp424());
-    addCharset (new Cp437());
-    addCharset (new Cp737());
-    addCharset (new Cp775());
-    addCharset (new Cp850());
-    addCharset (new Cp852());
-    addCharset (new Cp855()); // IBM Cyrillic
-    addCharset (new Cp857()); // IBM Turkish
-    addCharset (new Cp860()); // MSDOS Portugese
-    addCharset (new Cp861()); // MSDOS Icelandic
-    addCharset (new Cp862()); // PC Hebrew
-    addCharset (new Cp863()); // MSDOS Can. French
-    addCharset (new Cp864()); // PC Arabic
-    addCharset (new Cp865()); // MSDOS Nordic
-    addCharset (new Cp866()); // MSDOS Russian
-    addCharset (new Cp869()); // IBM modern Greek
-    addCharset (new Cp874()); // IBM Thai
-
-    addCharset (new MacCentralEurope());
-    addCharset (new MacCroatian());
-    addCharset (new MacCyrillic());
-    addCharset (new MacDingbat());
-    addCharset (new MacGreek());
-    addCharset (new MacIceland());
-    addCharset (new MacRoman());
-    addCharset (new MacRomania());
-    addCharset (new MacSymbol());
-    addCharset (new MacThai());
-    addCharset (new MacTurkish());
-    addCharset (new MS874());
-
-    addCharset (new Windows1255());
-    addCharset (new Windows1256());
-    addCharset (new Windows1258());
-
+//    addCharset (new ISO_8859_3 ());    // ISO-8859-3 aka ISO-LATIN-3
+//    addCharset (new ISO_8859_6 ());    // ISO-8859-6 (Arabic)
+//    addCharset (new ISO_8859_8 ());    // ISO-8859-8 (Hebrew)
+//
+//    // Some more codepages
+//    addCharset (new Cp424());
+//    addCharset (new Cp437());
+//    addCharset (new Cp737());
+//    addCharset (new Cp775());
+//    addCharset (new Cp850());
+//    addCharset (new Cp852());
+//    addCharset (new Cp855()); // IBM Cyrillic
+//    addCharset (new Cp857()); // IBM Turkish
+//    addCharset (new Cp860()); // MSDOS Portugese
+//    addCharset (new Cp861()); // MSDOS Icelandic
+//    addCharset (new Cp862()); // PC Hebrew
+//    addCharset (new Cp863()); // MSDOS Can. French
+//    addCharset (new Cp864()); // PC Arabic
+//    addCharset (new Cp865()); // MSDOS Nordic
+//    addCharset (new Cp866()); // MSDOS Russian
+//    addCharset (new Cp869()); // IBM modern Greek
+//    addCharset (new Cp874()); // IBM Thai
+//
+//    addCharset (new MacCentralEurope());
+//    addCharset (new MacCroatian());
+//    addCharset (new MacCyrillic());
+//    addCharset (new MacDingbat());
+//    addCharset (new MacGreek());
+//    addCharset (new MacIceland());
+//    addCharset (new MacRoman());
+//    addCharset (new MacRomania());
+//    addCharset (new MacSymbol());
+//    addCharset (new MacThai());
+//    addCharset (new MacTurkish());
+//    addCharset (new MS874());
+//
+//    addCharset (new Windows1255());
+//    addCharset (new Windows1256());
+//    addCharset (new Windows1258());
+//
     extendedLoaded = true;
   }
 
   public Iterator<Charset> charsets ()
   {
-    loadExtended();
+//    loadExtended();
     return Collections.unmodifiableCollection (charsets.values ())
                       .iterator ();
   }
@@ -254,7 +254,7 @@ public final class Provider extends CharsetProvider
       canonicalNames.put (((String) i.next()).toLowerCase(), canonicalName);
   }
 
-  public static synchronized Provider provider ()
+  public static Provider provider ()
   {
     // The default provider is safe to instantiate.
     if (singleton == null)

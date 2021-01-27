@@ -20,6 +20,7 @@ import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jam.net.inet4.InetAddress;
 import org.jam.runtime.StartUp;
+import org.jam.system.Trace;
 import org.jam.tests.EchoClient;
 import org.jam.tests.LdivTests;
 import org.jam.tests.Sleep;
@@ -393,6 +394,7 @@ public class VM extends Properties implements Constants, ExitStatus {
     runClassInitializer("org.jam.net.Udp");
     runClassInitializer("org.jam.utilities.HexChar");
     runClassInitializer("org.jam.runtime.StartUp");
+    runClassInitializer("org.jam.system.Trace");
     
 //    runClassInitializer("org.xbill.DNS.Name");
 //    runClassInitializer("org.xbill.DNS.ResolverConfig");
@@ -422,6 +424,12 @@ public class VM extends Properties implements Constants, ExitStatus {
     VM.sysWriteln("contextRegister offset ", Entrypoints.threadContextRegistersField.getOffset());
     VM.sysWriteln("gprs offset ", ArchEntrypoints.registersGPRsField.getOffset());
     VM.sysWriteln("sp offset ", Entrypoints.stackPointerField.getOffset());
+    
+    /*
+     * Initialize Trace class
+     */
+    Trace.init();
+    
     /*
      * Need to initialize the platform here because
      * we need the scheduler to start threads.

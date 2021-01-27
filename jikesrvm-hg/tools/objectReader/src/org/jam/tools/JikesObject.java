@@ -74,14 +74,14 @@ extends JObject
                     break;
                 case INTEGER:
                 case FLOAT:
-                case OBJECT:
                     value = getInt(index<<2) & 0xFFFFFFFF;
                     break;
                 case DOUBLE:
+                case OBJECT:
                 case LONG:
                     value = getLong(index<<3);
                 }
-                System.out.println(Long.toHexString(value) + " ("+value+")");
+                System.out.println(index + ": " + Long.toHexString(value) + " ("+value+")");
             }
         }
         else
