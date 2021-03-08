@@ -41,6 +41,7 @@
   <property name="primordials.dir" location="${jikesrvm.dir}/build/primordials"/>
   <property name="main.java" location="${jikesrvm.dir}/rvm/src"/>
   <property name="arch.java" location="${jikesrvm.dir}/rvm/arch"/>
+  <property name="arch.intel.java" location="${arch.java}/ia32/src"/>
   <property name="test.java" location="${jikesrvm.dir}/rvm/test-src/"/>
   <property name="mmtk.java" location="${jikesrvm.dir}/MMTk/src"/>
   <property name="classpath.dir" location="classpath-0.98"/>
@@ -62,9 +63,11 @@
 <property name="vmmagic.arch.java" location="${jikesrvm.dir}/tools/bootImageWriter/vmmagic/32/java"/>
 -->
 	<property name="classpath.lib.dir" location="classpath-0.98"/>
+  <property name="classpath.jikes-stubs.java" location="${classpath.lib.dir}/jikesrvm-stubs"/>
 
   <!-- Classpath library -->
   <property name="classlib.library-interface.cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/src"/>
+  <property name="classlib.library-interface.cpl.stubs.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/EPL/stubs"/>
   <property name="classlib.library-interface.non-cpl.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/LGPL/src"/>
   <property name="classlib.library-interface.non-cpl2.java" location="${jikesrvm.dir}/libraryInterface/GNUClasspath/PD/src"/>
   <property name="classlib.library-interface.common.java" location="${jikesrvm.dir}/libraryInterface/Common/src"/>
@@ -126,9 +129,9 @@
   <property name="bootimage.threads" value="1"/>
 
   <!-- Source versions -->
-  <property name="mmtk.java.version" value="1.6"/>
-  <property name="harness.java.version" value="1.6"/>
-  <property name="rvm.java.version" value="1.6"/>
+  <property name="mmtk.java.version" value="1.8"/>
+  <property name="harness.java.version" value="1.8"/>
+  <property name="rvm.java.version" value="1.8"/>
 
   <property name="ia32-assembler.uptodate" value="true"/>
 
@@ -374,8 +377,8 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="compile-classpath" description="Compile GNU classpath">
     <mkdir dir="${classpath.dir}/classes"/>
-    <javac 
-      srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs" 
+<!--    <javac 
+      srcdir="${classpath.dir}:${classpath.dir}/jikesrvm-stubs:${classlib.library-interface.cpl.java}:${classlib.library-interface.common.java}" 
       destdir="${classpath.dir}/classes"
       classpath="${classpath.dir}/classes:${build.vmmagic-stub.classes}:${build.classes}" 
       bootclasspath="${classpath.dir}/classes"
@@ -387,6 +390,41 @@ Check to make sure all required properties are specified. This includes properti
       source="${rvm.java.version}"
       target="${rvm.java.version}"
     />
+      srcdir="${classpath.dir}:${vmmagic-stub.java}:${main.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.common.java}" 
+        <src path="${main.java}"/>
+        <src path="${arch.intel.java}"/>
+        <src path="${jam.java}"/>
+        <src path="${tuningforklib.java}"/>
+    -->
+    <javac 
+      destdir="${classpath.dir}/classes"
+      includeantruntime="no"
+      failonerror="false"
+      source="${rvm.java.version}"
+      target="${rvm.java.version}"
+    >
+    	<src path="${classpath.dir}"/>
+    	<src path="${classpath.jikes-stubs.java}"/>
+    	<src path="${vmmagic-stub.java}"/>
+    	<src path="${classlib.library-interface.cpl.java}"/>
+        <src path="${classlib.library-interface.non-cpl.java}"/>
+        <src path="${classlib.library-interface.common.java}"/>
+    	<include name="java/**"/>
+        <include name="javax/**"/>
+    	<include name="gnu/**"/>
+    	<include name="sun/**"/>
+    	<include name="org/jam/**"/>
+    	<include name="org/omg/**"/>
+    	<include name="vm/reference/**"/>
+    	<include name="external/**"/>
+    	<include name="org/jikesrmv/**"/>
+    	<include name="org/vmmagic/**"/>
+    	<exclude name="gnu/java/awt/peer/x/**"/>
+    	<exclude name="vm/reference/gnu/java/net/**"/>
+    	<exclude name="vm/reference/java/net/**"/>
+    	<exclude name="gnu/java/net/*PlainSocketImpl.java"/>
+    	<exclude name="gnu/java/net/*PlainDatagramSocketImpl.java"/>
+    </javac>
     <jar file="${classpath.dir}/src.jar" basedir="${classpath.dir}">
       <include name="java/**/*.java"/>
       <include name="javax/**/*.java"/>
@@ -406,7 +444,6 @@ Check to make sure all required properties are specified. This includes properti
     <jar file="${classpath.dir}/classpath.jar" basedir="${classpath.dir}/classes">
       <exclude name="org/jikesrvm/**"/>
     </jar>
-  	
   </target>
   <!-- we are compiling mmtk independently to ensure that it can build independent of the rvm -->
   <target name="compile-mmtk" depends="compile-vmmagic-stub,compile-options" description="Compile MMTk toolkit.">
@@ -1328,11 +1365,21 @@ Check to make sure all required properties are specified. This includes properti
       <sysproperty key="mmtk.hostjvm" value="org.jikesrvm.mm.mmtk.Factory"/>
       <sysproperty key="mmtk.properties" value="${mmtk.properties}"/>
       <sysproperty key="rvm.properties" value="${build.base}/rvm.properties"/>
-      <jvmarg value="-Xbootclasspath/a:${rvm.class.path}"/>
+        <jvmarg value="-Xbootclasspath/a:${build.base}/classes:${build.vm.jar}:${build.rt.jar}"/>
+    	<!--
+      <jvmarg value="-Xbootclasspath/a:${build.base}/classes"/>
+      <jvmarg value="-Xbootclasspath/a:${build.vm.jar}"/>
+      <jvmarg value="-Xbootclasspath/a:${build.rt.jar}"/>
+      -->
+      <jvmarg value="-verbose:class"/>
+      <jvmarg value="-Xshare:off"/>
+      <jvmarg value="-XshowSettings"/>
       <arg value="-log"/>
       <arg path="${build.base}/BootImageWriterOutput.txt"/>
-      <arg value="-classpath"/>
+      <arg value="-xclasspath"/>
       <arg path="${rvm.class.path}"/>
+        <arg value="-classpath"/>
+        <arg path="${rvm.class.path}"/>
       <arg value="-n"/>
       <arg path="${build.base}/Primordials.txt"/>
       <arg value="-oc"/>

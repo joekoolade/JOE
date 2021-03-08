@@ -39,13 +39,13 @@ package gnu.java.nio;
 
 
 import java.io.IOException;
+import java.net.ProtocolFamily;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.Pipe;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelector;
 import java.nio.channels.spi.SelectorProvider;
-import org.jam.java.nio.DatagramChannelImpl;
 
 public class SelectorProviderImpl extends SelectorProvider
 {
@@ -116,5 +116,11 @@ public class SelectorProviderImpl extends SelectorProvider
   {
     return new SocketChannelImpl (this);
   }
+
+public DatagramChannel openDatagramChannel(ProtocolFamily family) throws IOException
+{
+    // TODO Auto-generated method stub
+    return null;
+}
 
 }

@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 
 import org.jikesrvm.classloader.RVMField;
 import org.jikesrvm.classloader.RVMType;
+import org.jikesrvm.mm.mminterface.Barriers;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.jikesrvm.scheduler.Synchronization;
