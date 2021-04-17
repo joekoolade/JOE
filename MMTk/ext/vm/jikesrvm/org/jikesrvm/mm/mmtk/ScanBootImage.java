@@ -396,4 +396,16 @@ public class ScanBootImage {
     return index;
   }
 
+  public static void reset()
+  {
+      lastOffset = Integer.MIN_VALUE / 2;  /* bootstrap value */
+      oldIndex = 0;
+      codeIndex = 0;
+
+      /* statistics */
+      shortRefs = 0;
+      runRefs = 0;
+      longRefs = 0;
+      startRefs = 0;
+  }
 }

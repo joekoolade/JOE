@@ -13,7 +13,7 @@
 
 package org.jikesrvm.tools.bootImageWriter;
 
-public final class BootImageWriterMessages {
+public class BootImageWriterMessages {
 
   private BootImageWriterMessages() {
     // prevent instantiation

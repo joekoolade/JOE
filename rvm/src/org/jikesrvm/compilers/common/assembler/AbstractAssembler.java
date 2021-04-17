@@ -28,6 +28,8 @@ public abstract class AbstractAssembler {
 
   public abstract void patchUnconditionalBranch(int sourceMachinecodeIndex);
 
+  public abstract void patchUnconditionalAbsoluteBranch(int sourceMachinecodeIndex);
+
   public abstract void patchConditionalBranch(int sourceMachinecodeIndex);
 
   public abstract void patchSwitchCase(int sourceMachinecodeIndex);

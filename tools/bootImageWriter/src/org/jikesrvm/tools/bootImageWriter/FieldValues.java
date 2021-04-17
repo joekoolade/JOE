@@ -483,9 +483,9 @@ public class FieldValues {
       Error {
 
     if (jdkObject instanceof java.util.HashMap && "table".equals(rvmFieldName)) {
-      if (VM.VerifyAssertions) VM._assert("openjdk".equals(BootImageWriter.classLibrary()));
-      OpenJDKDifferences.rebuildHashMapForOpenJDK6(jdkObject, jdkType, rvmFieldAddress,
-          rvmFieldName);
+//      if (VM.VerifyAssertions) VM._assert("openjdk".equals(BootImageWriter.classLibrary()));
+//      OpenJDKDifferences.rebuildHashMapForOpenJDK6(jdkObject, jdkType, rvmFieldAddress,
+//          rvmFieldName);
     }
 
     if (jdkObject instanceof java.lang.reflect.Constructor && "constructorAccessor".equals(rvmFieldName)) {

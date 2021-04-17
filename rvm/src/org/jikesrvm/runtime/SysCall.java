@@ -39,7 +39,6 @@ import org.vmmagic.unboxed.Offset;
  *       for each method declared here.
  */
 @Uninterruptible
-@GenerateImplementation("org.jikesrvm.runtime.SysCallImpl")
 public abstract class SysCall {
 
   /**
@@ -50,7 +49,7 @@ public abstract class SysCall {
 
   static {
     try {
-      sysCall = (SysCall)Class.forName("org.jikesrvm.runtime.SysCallImpl").newInstance();
+      sysCall = new SysCallImpl();
     } catch (final Exception e) {
       throw new Error(e);
     }

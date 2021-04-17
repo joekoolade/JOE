@@ -63,7 +63,7 @@ public final class Lister extends AbstractLister {
 
   private final Assembler asm;
 
-  private enum Prefix {LOCK, LIKELY, UNLIKELY};
+  private enum Prefix {LOCK, LIKELY, UNLIKELY, OPERAND, ADDRESS};
 
   private Prefix prefix;
 
@@ -87,6 +87,15 @@ public final class Lister extends AbstractLister {
 
   public void branchUnlikelyPrefix() {
     prefix = Prefix.UNLIKELY;
+  }
+
+  public void operandPrefix()
+  {
+    prefix = Prefix.OPERAND;
+  }
+  public void addressPrefix()
+  {
+    prefix = Prefix.ADDRESS;
   }
 
   public void OP(int i, String op) {

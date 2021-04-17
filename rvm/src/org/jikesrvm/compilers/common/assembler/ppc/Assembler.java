@@ -214,6 +214,10 @@ public final class Assembler extends AbstractAssembler {
   }
 
   @Override
+  public void patchUnconditionalAbsoluteBranch(int sourceMachinecodeIndex) {
+  }
+  
+  @Override
   public void patchUnconditionalBranch(int sourceMachinecodeIndex) {
     int delta = mIP - sourceMachinecodeIndex;
     int instr = machineCodes[sourceMachinecodeIndex];

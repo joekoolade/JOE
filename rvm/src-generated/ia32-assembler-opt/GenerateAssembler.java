@@ -1072,6 +1072,30 @@ public class GenerateAssembler {
     excludedOpcodes.add("JMP");
     excludedOpcodes.add("JCC");
     excludedOpcodes.add("EMMS");
+    excludedOpcodes.add("CLI");
+    excludedOpcodes.add("STI");
+    excludedOpcodes.add("RDTSC");
+    excludedOpcodes.add("PREFETCHNTA");
+    excludedOpcodes.add("PAUSE");
+    excludedOpcodes.add("OUT32");
+    excludedOpcodes.add("OUT16");
+    excludedOpcodes.add("OUT8");
+    excludedOpcodes.add("IN32");
+    excludedOpcodes.add("IN16");
+    excludedOpcodes.add("IN8");
+    excludedOpcodes.add("LIDT");
+    excludedOpcodes.add("HLT");
+    excludedOpcodes.add("PUSHAD");
+    excludedOpcodes.add("POPAD");
+    excludedOpcodes.add("BSR");
+    excludedOpcodes.add("FXSAVE");
+    excludedOpcodes.add("FXRSTOR");
+    excludedOpcodes.add("FRNDINT");
+    excludedOpcodes.add("CPUID");
+    excludedOpcodes.add("RDMSR");
+    excludedOpcodes.add("WRMSR");
+    excludedOpcodes.add("XCHG");
+    excludedOpcodes.add("MOVSEG");
   }
 
   /**

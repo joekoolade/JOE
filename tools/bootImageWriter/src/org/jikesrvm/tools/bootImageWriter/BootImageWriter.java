@@ -40,10 +40,12 @@ import static org.jikesrvm.tools.bootImageWriter.Verbosity.SUMMARY;
 import static org.jikesrvm.tools.bootImageWriter.Verbosity.TYPE_NAMES;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -174,6 +176,7 @@ public class BootImageWriter {
    */
   private static BootImage bootImage;
 
+  private static String bootImageStartupName;
   /**
    * Linked list that operates in FIFO manner rather than LIFO
    */
@@ -314,6 +317,8 @@ public class BootImageWriter {
     return Address.fromLong(Long.decode(s));
   }
 
+  private static boolean jamming=false;
+
   /**
    * Main.
    * @param args command line arguments
@@ -324,9 +329,11 @@ public class BootImageWriter {
     String   bootImageDataName     = null;
     String   bootImageRMapName     = null;
     String   bootImageMapName      = null;
+    String   elfImageName		   = null;
     Vector<String>   bootImageTypeNames    = null;
     String   bootImageTypeNamesFile = null;
     String[] bootImageCompilerArgs = {};
+    bootImageStartupName = null;
 
     //
     // This may look useless, but it is not: it is a kludge to prevent
@@ -342,6 +349,16 @@ public class BootImageWriter {
     // Process command line directives.
     //
     for (int i = 0; i < args.length; ++i) {
+      // name of the elf image file
+      if(args[i].equals("-out"))
+      {
+    	  if(++i > args.length)
+    	  {
+    		  fail("Not elf image name for -out argument");
+    	  }
+    	  elfImageName = args[i];
+    	  continue;
+      }
       // name of class library
       if (args[i].equals("-classlib")) {
         if (++i >= args.length)
@@ -481,6 +498,15 @@ public class BootImageWriter {
         littleEndian = true;
         continue;
       }
+      
+      if (args[i].equals("-jam")) {
+    	  if (++i >= args.length)
+    		  fail("Need to specify jam files");
+    	  bootImageStartupName = args[i];
+    	  say("JAMMING to "+bootImageStartupName);
+    	  jamming = true;
+    	  continue;
+      }
       fail("unrecognized command line argument: " + args[i]);
     }
 
@@ -510,15 +536,15 @@ public class BootImageWriter {
 
     if (bootImageDataAddress.isZero())
       fail("please specify boot-image address with \"-da <addr>\"");
-    if (!(bootImageDataAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
-      fail("please specify a boot-image address that is a multiple of 0x01000000");
+    if (!jamming && !(bootImageDataAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
+      say("please specify a boot-image address that is a multiple of 0x01000000: "+Integer.toHexString(bootImageDataAddress.toInt()));
     if (bootImageCodeAddress.isZero())
       fail("please specify boot-image address with \"-ca <addr>\"");
-    if (!(bootImageCodeAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
+    if (!jamming && !(bootImageCodeAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
       fail("please specify a boot-image address that is a multiple of 0x01000000");
     if (bootImageRMapAddress.isZero())
       fail("please specify boot-image address with \"-ra <addr>\"");
-    if (!(bootImageRMapAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
+    if (!jamming && !(bootImageRMapAddress.toWord().and(Word.fromIntZeroExtend(0x00FFFFFF)).isZero()))
       fail("please specify a boot-image address that is a multiple of 0x01000000");
 
     // Redirect the log file
@@ -541,7 +567,7 @@ public class BootImageWriter {
     // (need to get contiguous storage before it gets fragmented by pinned objects)
     //
     try {
-      bootImage = new BootImage(littleEndian, verbosity.isAtLeast(Verbosity.SUMMARY), bootImageCodeName, bootImageDataName, bootImageRMapName);
+      bootImage = new BootImage(littleEndian, verbosity.isAtLeast(Verbosity.SUMMARY), bootImageCodeName, bootImageDataName, bootImageRMapName, elfImageName);
     } catch (IOException e) {
       fail("unable to write bootImage: " + e);
     }
@@ -729,17 +755,23 @@ public class BootImageWriter {
 
     bootRecord.bootThreadOffset = Entrypoints.bootThreadField.getOffset();
 
-    bootRecord.bootImageDataStart = bootImageDataAddress;
-    bootRecord.bootImageDataEnd   = bootImageDataAddress.plus(bootImageDataSize());
+    bootRecord.bootImageDataStart = bootImageDataAddress; //BOOT_IMAGE_DATA_START;
+    bootRecord.bootImageDataEnd   = bootImageDataAddress.plus(bootImage.getDataSize());
     bootRecord.bootImageCodeStart = bootImageCodeAddress;
-    bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImageCodeSize());
-    bootRecord.bootImageRMapStart = bootImageRMapAddress;
-    bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImageRMapSize());
+    bootRecord.bootImageCodeEnd   = bootImageCodeAddress.plus(bootImage.getCodeSize());
+    bootRecord.bootImageRMapStart = bootImageRMapAddress; //BOOT_IMAGE_RMAP_START;
+    bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImage.getRMapSize());
+    bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
+    bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x4000000);
 
     // Update field of boot record now by re-copying
     //
     if (verbosity.isAtLeast(SUMMARY)) say("re-copying boot record (and its TIB)");
     try {
+        VM.sysWriteln("Boot Record:");
+        VM.sysWrite("Data =", bootRecord.bootImageDataStart); VM.sysWriteln(" - ", bootRecord.bootImageDataEnd);
+        VM.sysWrite("Code =", bootRecord.bootImageCodeStart); VM.sysWriteln(" - ", bootRecord.bootImageCodeEnd);
+        VM.sysWrite("Map =", bootRecord.bootImageRMapStart); VM.sysWriteln(" - ", bootRecord.bootImageRMapEnd);
       Address newBootRecordImageAddress = copyToBootImage(bootRecord, false, bootRecordImageAddress, null, false, AlignmentEncoding.ALIGN_CODE_NONE);
       if (!newBootRecordImageAddress.EQ(bootRecordImageAddress)) {
         VM.sysWriteln("bootRecordImageOffset = ", bootRecordImageAddress);
@@ -763,12 +795,28 @@ public class BootImageWriter {
       bootImage.setAddressWord(jtocPtr.plus(oIDOffset), MiscHeader.getOID(), false, false);
     }
 
+    ProcessorStartup startup=null;
+    if(bootImageStartupName!=null) {
+    	say("Creating x86 startup code ... \nsp: "+Integer.toHexString(bootRecord.spRegister.toInt()) + " start: " +
+    			Integer.toHexString(bootRecord.ipRegister.toInt()));
+    	Address tr = bootRecord.tocRegister.plus(bootRecord.bootThreadOffset);
+//    	startup = new GenerateX86Startup(bootRecord);
+        startup = new GenerateIA32EStartup(bootRecord);
+    	startup.writeImage(bootImageStartupName);
+    }
     //
     // Write image to disk.
     //
     if (profile) startTime = System.currentTimeMillis();
     try {
+        say("create symbol table");
+        bootImage.createSymbolTable();
+//    	say("writing image files");
       bootImage.write();
+//    	say("writing elf file");
+        bootImage.writeElfFile(startup.getArray());
+    	// bootImage.writeMultiboot(startup.getArray());
+      say("File writing done");
     } catch (IOException e) {
       fail("unable to write bootImage: " + e);
     }
@@ -796,7 +844,7 @@ public class BootImageWriter {
     // such types had better not be needed to dynamically link in the
     // remainder of the virtual machine at run time!
     //
-    if (verbosity.isAtLeast(DETAILED)) {
+    if (verbosity.isAtLeast(SUMMARY)) {
       for (int i = FIRST_TYPE_DICTIONARY_INDEX; i < RVMType.numTypes(); ++i) {
         RVMType type = RVMType.getType(i);
         if (type == null) continue;
@@ -821,6 +869,65 @@ public class BootImageWriter {
     }
 
     if (verbosity.isAtLeast(SUMMARY)) say("done");
+  }
+
+  private static void writeMultibootFile() throws IOException {
+	final int memoryOffset = 0x100000;
+	String multibootFileName = "jam.bin";
+	RandomAccessFile multibootFile = new RandomAccessFile(multibootFileName, "rw");
+	/*
+	 * Append the multiboot header and init code file
+	 */
+	File startupCode = new File(bootImageStartupName);
+	byte[]	fileBuffer = new byte[(int)startupCode.length()];
+	FileInputStream fileReader = new FileInputStream(startupCode);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	/*
+	 * Compute file offset for data image
+	 */
+	int fileOffset = bootImageDataAddress.toInt() - memoryOffset;
+	multibootFile.seek(fileOffset);
+	/*
+	 * Append the data file
+	 */
+	File dataFile = new File(bootImage.getDataFileName());
+	fileBuffer = new byte[(int)dataFile.length()];
+	fileReader = new FileInputStream(dataFile);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	/*
+	 * Compute file offset for code image 
+	 */
+	fileOffset = bootImageCodeAddress.toInt() - memoryOffset;
+	multibootFile.seek(fileOffset);
+	/*
+	 * Append the code file
+	 */
+	File codeFile = new File(bootImage.getCodeFileName());
+	fileBuffer = new byte[(int)codeFile.length()];
+	fileReader = new FileInputStream(codeFile);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	/*
+	 * Compute file offset for map image
+	 */
+	fileOffset = bootImageRMapAddress.toInt() - memoryOffset;
+	multibootFile.seek(fileOffset);
+	/*
+	 * Append the map file
+	 */
+	File mapFile = new File(bootImage.getRMapFileName());
+	fileBuffer = new byte[(int)mapFile.length()];
+	fileReader = new FileInputStream(mapFile);
+	fileReader.read(fileBuffer);
+	fileReader.close();
+	multibootFile.write(fileBuffer);
+	
+	multibootFile.close();
   }
 
   /**

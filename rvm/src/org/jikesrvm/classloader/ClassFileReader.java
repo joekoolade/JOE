@@ -164,7 +164,8 @@ public class ClassFileReader {
         }
 
         default:
-          throw new ClassFormatError("bad constant pool");
+            
+          throw new ClassFormatError("bad constant pool tag "+ tmpTags[i]);
       }
     }
 

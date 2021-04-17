@@ -12,10 +12,29 @@
  */
 package org.jikesrvm;
 
+import org.jam.driver.net.NapiManager;
+import org.jam.driver.serial.PcBootSerialPort;
+import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.net.ethernet.Ethernet;
+import org.jam.net.ethernet.EthernetAddr;
+import org.jam.net.inet4.Arp;
+import org.jam.net.inet4.InetAddress;
+import org.jam.runtime.StartUp;
+import org.jam.system.Trace;
+import org.jam.tests.LdivTests;
+import org.jam.tests.Sleep;
+
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_SYSFAIL;
+import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_PRINTED_HELP_MESSAGE;
 
+import org.jam.board.pc.I8259A;
+import org.jam.board.pc.IMCR;
+import org.jam.board.pc.Platform;
+import org.jikesrvm.ia32.ThreadLocalState;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
 import org.jikesrvm.architecture.StackFrameLayout;
@@ -36,14 +55,18 @@ import org.jikesrvm.compilers.baseline.BaselineCompiler;
 import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
 import org.jikesrvm.mm.mminterface.MemoryManager;
+import org.jikesrvm.mm.mminterface.Selected;
+import org.jikesrvm.runtime.ArchEntrypoints;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Callbacks;
 import org.jikesrvm.runtime.CommandLineArgs;
 import org.jikesrvm.runtime.DynamicLibrary;
 import org.jikesrvm.runtime.Entrypoints;
+import org.jikesrvm.runtime.ExitStatus;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Reflection;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
+import org.jikesrvm.scheduler.IdleThread;
 import org.jikesrvm.runtime.SysCall;
 import org.jikesrvm.runtime.Time;
 
@@ -53,6 +76,7 @@ import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
 import org.jikesrvm.scheduler.Synchronization;
 import org.jikesrvm.scheduler.RVMThread;
+import org.jikesrvm.scheduler.TestThread;
 import org.jikesrvm.runtime.FileSystem;
 import org.jikesrvm.tuningfork.TraceEngine;
 import org.jikesrvm.util.Services;
@@ -70,6 +94,7 @@ import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
+import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 /**
  * A virtual machine.
  */
@@ -85,6 +110,7 @@ public class VM extends Properties {
    * Reference to the main thread that is the first none VM thread run
    */
   public static MainThread mainThread;
+  public static boolean booting;
 
   //----------------------------------------------------------------------//
   //                          Initialization.                             //
@@ -142,6 +168,16 @@ public class VM extends Properties {
   public static void boot() {
     writingBootImage = false;
     runningVM = true;
+    booting=true;
+    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
+    ThreadLocalState.setCurrentThread(RVMThread.bootThread);
+    /*
+     * Setup the serial port
+     */
+    PcBootSerialPort.setBaudRate(SerialPortBaudRate.BAUDRATE_115200);
+    PcBootSerialPort.setParityNone();
+    PcBootSerialPort.setWordLength8();
+    PcBootSerialPort.setStopBits1();
     verboseBoot = BootRecord.the_boot_record.verboseBoot;
     verboseSignalHandling = BootRecord.the_boot_record.verboseSignalHandling != 0;
 
@@ -192,12 +228,18 @@ public class VM extends Properties {
     //    multi-threaded.
     Services.boot();
 
+    /*
+     * Baremetal memory initialization
+     */
+    org.jam.mm.MemoryManager.boot(BootRecord.the_boot_record);
+    
     // Initialize memory manager.
     //    This must happen before any uses of "new".
     //
     if (verboseBoot >= 1) {
       VM.sysWriteln("Setting up memory manager: bootrecord = ",
                     Magic.objectAsAddress(BootRecord.the_boot_record));
+      VM.sysWriteln("Setting up memory manager: bootThread = ", Magic.objectAsAddress(RVMThread.bootThread));
     }
     MemoryManager.boot(BootRecord.the_boot_record);
 
@@ -263,7 +305,7 @@ public class VM extends Properties {
 
     runClassInitializer("java.lang.Runtime");
     if (!VM.BuildForOpenJDK) {
-      runClassInitializer("java.lang.System");
+    runClassInitializer("java.lang.System");
     }
     runClassInitializer("sun.misc.Unsafe");
 
@@ -337,8 +379,8 @@ public class VM extends Properties {
     }
     RVMThread.boot();
     if (!VM.BuildForOpenJDK) {
-      if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
-      RVMThread.getCurrentThread().setupBootJavaThread();
+    if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
+    RVMThread.getCurrentThread().setupBootJavaThread();
     }
 
     if (verboseBoot >= 1) VM.sysWriteln("Booting DynamicLibrary");
@@ -459,7 +501,7 @@ public class VM extends Properties {
 
     if (VM.BuildForGnuClasspath) {
       // OpenJDK runs it later
-      runClassInitializer("java.nio.charset.Charset");
+    runClassInitializer("java.nio.charset.Charset");
     }
 
     if (VM.BuildForGnuClasspath) {
@@ -468,15 +510,15 @@ public class VM extends Properties {
     runClassInitializer("java.nio.charset.CoderResult");
 
     if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.io.PrintWriter"); // Uses System.getProperty
+    runClassInitializer("java.io.PrintWriter"); // Uses System.getProperty
     }
     System.setProperty("line.separator", "\n");
     if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.io.PrintStream"); // Uses System.getProperty
+    runClassInitializer("java.io.PrintStream"); // Uses System.getProperty
     }
     if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.util.Locale");
-      runClassInitializer("java.util.ResourceBundle");
+    runClassInitializer("java.util.Locale");
+    runClassInitializer("java.util.ResourceBundle");
       runClassInitializer("java.util.zip.CRC32");
     }
     if (VM.BuildForOpenJDK) {
@@ -502,7 +544,7 @@ public class VM extends Properties {
       runClassInitializer("gnu.java.nio.FileChannelImpl");
     }
     if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.io.FileDescriptor");
+    runClassInitializer("java.io.FileDescriptor");
       runClassInitializer("java.io.FilePermission");
     }
     runClassInitializer("java.util.jar.JarFile");
@@ -520,15 +562,15 @@ public class VM extends Properties {
       runClassInitializer("java.lang.VMDouble");
     }
     if (!VM.BuildForOpenJDK) {
-      runClassInitializer("java.util.PropertyPermission");
+    runClassInitializer("java.util.PropertyPermission");
     }
     runClassInitializer("org.jikesrvm.classloader.RVMAnnotation");
     if (!VM.BuildForOpenJDK) {
-      runClassInitializer("java.lang.annotation.RetentionPolicy");
-      runClassInitializer("java.lang.annotation.ElementType");
+    runClassInitializer("java.lang.annotation.RetentionPolicy");
+    runClassInitializer("java.lang.annotation.ElementType");
     }
     if (!VM.BuildForOpenJDK) {
-      runClassInitializer("java.lang.Thread$State");
+    runClassInitializer("java.lang.Thread$State");
     }
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");
@@ -541,8 +583,8 @@ public class VM extends Properties {
     }
 
     if (!VM.BuildForOpenJDK) {
-      if (verboseBoot >= 1) VM.sysWriteln("initializing standard streams");
-      // Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
+    if (verboseBoot >= 1) VM.sysWriteln("initializing standard streams");
+    // Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
       FileSystem.initializeStandardStreamsForGnuClasspath();
     }
 
@@ -572,7 +614,7 @@ public class VM extends Properties {
       runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
     runClassInitializer("java.util.logging.Logger");
-
+    
     // Initialize compiler that compiles dynamically loaded classes.
     //
     if (verboseBoot >= 1) VM.sysWriteln("Initializing runtime compiler");
@@ -633,11 +675,11 @@ public class VM extends Properties {
       Magic.setBooleanAtOffset(Magic.getJTOC().toObjectReference().toObject(), Entrypoints.sclSet_Field.getOffset(), true);
       if (VM.VerifyAssertions) VM._assert(ClassLoader.getSystemClassLoader() == appCl);
     }
-
+    
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.lang.ClassLoader$StaticData");
     }
-
+    
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
@@ -657,7 +699,7 @@ public class VM extends Properties {
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
     mainThread = new MainThread(applicationArguments, mainThreadGroup);
-
+    
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     mainThread.start();
@@ -669,7 +711,7 @@ public class VM extends Properties {
       VM.sysWriteln("Boot sequence completed; finishing boot thread");
     }
 
-    RVMThread.getCurrentThread().terminate();
+    RVMThread.getCurrentThread().terminate();  
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
@@ -2836,15 +2878,98 @@ public class VM extends Properties {
   public static boolean buildFor64Addr() {
     return BuildFor64Addr;
   }
-
+  
+  public static void hexDump(byte data[])
+  {
+    hexDump(data, 0, data.length);
+  }
+  
   /**
    * @return whether this is a build for SSE2.
    * NB. this method is provided to give a hook to the IA32
    * assembler that won't be compiled away by javac.
 
    */
+  public static void hexDump(byte data[], int offset, int size)
+  {
+    int i;
+    
+    for(i=offset; i < size; i++)
+    {
+      if(i!=0 && (i%16) == 0)
+      {
+        VM.sysWriteln();
+        if(data[i] < 0x10 && data[i] >=0)
+        {
+          VM.sysWrite('0');
+        }
+        VM.sysWrite(Integer.toHexString(data[i]&0xff), " ");
+      }
+      else
+      {
+        if(data[i] < 0x10 && data[i] >=0)
+        {
+          VM.sysWrite('0');
+        }
+        VM.sysWrite(Integer.toHexString(data[i]&0xff), " ");
+      }
+    }
+    VM.sysWriteln();
+  }
   public static boolean buildForSSE2() {
     return BuildForSSE2;
+  }
+
+  /**
+   * Format a 32 bit number as "0x" followed by 8 hex digits.
+   * Do this without referencing Integer or Character classes,
+   * in order to avoid dynamic linking.
+   * TODO: move this method to Services.
+   * @param number
+   * @return a String with the hex representation of the integer
+   */
+  @Interruptible
+  public static String intAsHexString(int number) {
+    char[] buf = new char[10];
+    int index = 10;
+    while (--index > 1) {
+      int digit = number & 0x0000000f;
+      buf[index] = digit <= 9 ? (char) ('0' + digit) : (char) ('a' + digit - 10);
+      number >>= 4;
+    }
+    buf[index--] = 'x';
+    buf[index] = '0';
+    return new String(buf);
+  }
+
+  /**
+   * Format a 32/64 bit number as "0x" followed by 8/16 hex digits.
+   * Do this without referencing Integer or Character classes,
+   * in order to avoid dynamic linking.
+   * TODO: move this method to Services.
+   * @param addr  The 32/64 bit number to format.
+   * @return a String with the hex representation of an Address
+   */
+  @Interruptible
+  public static String addressAsHexString(Address addr) {
+    int len = 2 + (BITS_IN_ADDRESS >> 2);
+    char[] buf = new char[len];
+    while (--len > 1) {
+      int digit = addr.toInt() & 0x0F;
+      buf[len] = digit <= 9 ? (char) ('0' + digit) : (char) ('a' + digit - 10);
+      addr = addr.toWord().rshl(4).toAddress();
+    }
+    buf[len--] = 'x';
+    buf[len] = '0';
+    return new String(buf);
+  }
+
+  @NoInline
+  public static void sysFailTrap(String message)
+  {
+      VM.sysWriteln(Magic.getFramePointer());
+      RVMThread.trapTraceback(message);
+      VM.shutdown(EXIT_STATUS_SYSFAIL);
   }
 }
 

@@ -169,7 +169,7 @@ public abstract class BootImageTypes {
       }
     }
     if ("openjdk".equals(BootImageWriter.classLibrary())) {
-      fixUpTypesForHashMapForOpenJDK6();
+//      fixUpTypesForHashMapForOpenJDK6();
     }
     return invalidEntrys;
   }

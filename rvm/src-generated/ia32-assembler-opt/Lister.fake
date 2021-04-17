@@ -35,6 +35,14 @@ final class Lister {
 
   }
 
+  void operandPrefix() {
+  
+  }
+  
+  void addressPrefix() {
+  
+  }
+  
   void OP (int i, String op) {
 
   }

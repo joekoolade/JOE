@@ -43,6 +43,7 @@ public final class ArchEntrypoints {
           "hiddenSignatureId", "I");
       arrayIndexTrapParamField = EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;",
           "arrayIndexTrapParam", "I");
+      stackPointerField = EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "sp", "Lorg/vmmagic/unboxed/Address;");
     } else {
       if (VM.VerifyAssertions) VM._assert(VM.BuildForPowerPC);
       arch = "ppc";
@@ -93,6 +94,8 @@ public final class ArchEntrypoints {
   public static final RVMField hiddenSignatureIdField;
   public static final RVMField arrayIndexTrapParamField;
 
+  public static final RVMField stackPointerField;
+  
   private ArchEntrypoints() {
     // prevent instantiation
   }

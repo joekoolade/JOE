@@ -61,7 +61,7 @@ public class java_lang_Class<T> {
   }
 
   @ReplaceMember
-  private static Class<?> forName0(String name, boolean initialize, ClassLoader loader, Class<?> caller)
+  private static Class<?> forName0(String name, boolean initialize, ClassLoader loader)
       throws ClassNotFoundException {
     if (name == null) {
       throw new NullPointerException("Name parameter must not be null (but was)!");

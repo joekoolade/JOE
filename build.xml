@@ -49,7 +49,8 @@
   <property name="options.java" location="common/options/src"/>
   <property name="tuningforklib.java" location="external/tuningforklib/src"/>	
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
-	
+  <property name="jam.java" location="jam-src" />
+
   <!-- Location of .dat files for options -->	
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
@@ -96,7 +97,7 @@
   <property name="dist.base" location="${dist.dir}/${build.name}"/>
 
   <!-- Set the class library to use -->
-  <property name="classlib.provider" value="GNU Classpath"/>
+  <property name="classlib.provider" value="OpenJDK"/>
 
   <condition property="openjdk.classlib" value="true">
     <equals arg1="${classlib.provider}" arg2="OpenJDK"/>
@@ -1394,11 +1395,11 @@ Check to make sure all required properties are specified. This includes properti
                debugLevel="${debugLevel}"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
-               srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
-               sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
+               srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
+               sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
                includeantruntime="false">
           <bootclasspath>
-            <pathelement location="${openjdk.lib.dir}/rt.jar"/>
+            <pathelement location="${openjdk.lib.dir}/classes.jar"/>
           </bootclasspath>
           <classpath>
             <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1410,6 +1411,7 @@ Check to make sure all required properties are specified. This includes properti
           <include name="sun/**/*.java"/>
           <include name="java/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/**/*.java"/>
+          <include name="org/jam/**/*.java"/>
           <include name="${arch-helper-class}"/>
           <include name="com/ibm/tuningfork/**/*.java"/>
           <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
@@ -1420,14 +1422,14 @@ Check to make sure all required properties are specified. This includes properti
         <!-- Compile libraryInterface again to detect problems relating to @ReplaceClass -->
         <mkdir dir="${build.base}/replacements/java"/>
         <echo>Generating list of replacement classes</echo>
-        <javac srcDir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
+        <javac srcDir="${main.java}:${jam.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
                failonerror="true"
                includeantruntime="false"
                createMissingPackageInfoClass="false">
           <bootclasspath>
-            <pathelement location="${openjdk.lib.dir}/rt.jar"/>
+            <pathelement location="${openjdk.lib.dir}/classes.jar"/>
           </bootclasspath>
           <classpath>
             <pathelement location="${helpers.classes}"/>
@@ -1446,6 +1448,7 @@ Check to make sure all required properties are specified. This includes properti
       </sequential>
     </if>
 
+<!-- Do not need syscall implementations
     <echo>Generating implementations for @SysCall</echo>
     <mkdir dir="${build.base}/syscall/java"/>
 
@@ -1460,8 +1463,9 @@ Check to make sure all required properties are specified. This includes properti
         <pathelement location="${build.classes}"/>
       </classpath>
       <compilerarg value="-proc:only"/>
-      
+-->      
       <!-- Processor needs to be specified explicitly, otherwise lookup will fail -->
+<!--
       <compilerarg value="-processor"/>
       <compilerarg value="org.jikesrvm.tools.annotation_processing.SysCallProcessor"/>
  
@@ -1470,7 +1474,7 @@ Check to make sure all required properties are specified. This includes properti
       <compilerarg value="-s"/>
       <compilerarg value="${build.base}/syscall/java"/>
     </javac>
-
+-->
     <echo message="second compile (from ${generated.java})"/>
     <if>
       <conditions>
@@ -1480,10 +1484,11 @@ Check to make sure all required properties are specified. This includes properti
         <echo message="second compile (from ${generated.java})"/>
         <javac destdir="${build.classes}"
            debug="true"
+           verbose="true"
            debugLevel="${debugLevel}"
            source="${rvm.java.version}"
            target="${rvm.java.version}"
-           srcdir="${build.base}/syscall/java;${build.base}/replacements/java"
+           srcdir="${build.base}/replacements/java"
            includeantruntime="false">
           <classpath>
             <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1492,6 +1497,7 @@ Check to make sure all required properties are specified. This includes properti
         </javac>
       </sequential>
     </if>
+<!--
     <if>
       <conditions>
         <not>
@@ -1514,6 +1520,7 @@ Check to make sure all required properties are specified. This includes properti
         </javac>
       </sequential>
     </if>
+-->
   </target>
 
   <target name="compile-unit-tests" depends="compile">
@@ -1615,7 +1622,7 @@ Check to make sure all required properties are specified. This includes properti
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
       <include name="java/**"/>
       <include name="sun/**"/>
-      <zipfileset src="${openjdk.lib.dir}/rt.jar"/>
+      <zipfileset src="${openjdk.lib.dir}/classes.jar"/>
       <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
     </zip>
     <jar destfile="${build.vm.jar}" update="true" compress="false">
@@ -1863,6 +1870,10 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="-numThreads=${bootimage.threads}"/>
       <arg value="-classlib"/>
       <arg value="${bootimage.classlib}"/>
+      <arg value="-jam"/>
+      <arg value="${build.base}/jamX86.image"/>
+      <arg value="-out"/>
+      <arg value="${build.base}/jam.out"/>
     </java>
 
     <loadfile property="bootimage.warnings" srcFile="${build.base}/BootImageWriterOutput.txt">

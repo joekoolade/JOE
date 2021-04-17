@@ -54,7 +54,7 @@ public class java_lang_ClassLoader {
 
   @ReplaceMember
   private Class defineClass1(String name, byte[] b, int off, int len,
-      ProtectionDomain pd, String source) {
+      ProtectionDomain pd, String source, boolean flag) {
     // TODO OPENJDK/ICEDTEA do we need to do something with source? Seems to be the location property
     // from CodeSource
     return ClassLoaderSupport.defineClass(thisAsClassLoader(), name, b, off, len, pd);

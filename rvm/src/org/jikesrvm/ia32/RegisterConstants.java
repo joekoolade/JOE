@@ -18,6 +18,8 @@ import org.vmmagic.pragma.Pure;
 import org.vmmagic.pragma.UninterruptibleNoWarn;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.MachineRegister;
+import org.jikesrvm.ia32.RegisterConstants.CR;
+import org.jikesrvm.ia32.RegisterConstants.SEG;
 import org.jikesrvm.runtime.Magic;
 
 public final class RegisterConstants {
@@ -138,6 +140,10 @@ public final class RegisterConstants {
     }
   }
 
+  public enum SEG {
+      ES, CS, SS, DS, FS, GS;
+  }
+
   /**
    * Representation of x87 floating point registers
    */
@@ -250,6 +256,47 @@ public final class RegisterConstants {
     }
   }
 
+  /**
+   * Represention of the IA control registers
+   */
+  public enum CR implements IntelMachineRegister {
+      CR0(0), CR1(1), CR2(2), CR3(3), CR4(4), CR5(5), CR6(6), CR7(7),
+      CR8(8), CR9(9), CR10(10), CR11(11), CR12(12), CR13(13), CR14(14), CR15(15);
+
+    /** Local copy of the backing array. Copied here to avoid calls to clone */
+    private static final CR[] vals = values();
+    
+    CR(int v) {
+        if(v != ordinal()) {
+            throw new Error("Invalid CR register ordinal");
+        }
+    }
+
+    @Override
+    @Pure
+    public byte value() {
+          return (byte)ordinal();
+    }
+
+    @Override
+    @Pure
+    public boolean needsREXprefix() {
+        if (VM.buildFor32Addr()) {
+            return false;
+        } else {
+            return value() > 7;
+        }
+    }
+    /**
+     * Convert encoded value into the CR it represents
+     * @param num encoded value
+     * @return represented CR
+     */
+    @Pure
+    public static CR lookup(int num) {
+        return vals[num];
+    }
+  }
   /*
    * Symbolic values for general purpose registers.
    * These values are used to assemble instructions and as indices into:
@@ -326,6 +373,8 @@ public final class RegisterConstants {
   public static final XMM XMM13 = XMM.XMM13;
   public static final XMM XMM14 = XMM.XMM14;
   public static final XMM XMM15 = XMM.XMM15;
+  
+  public static final SEG CS = SEG.CS;
 
   /*
    * Dedicated registers.

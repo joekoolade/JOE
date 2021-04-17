@@ -1443,6 +1443,17 @@ public final class Magic {
     }
   }
 
+    /**
+     * emit a HLT instruction
+     */
+    public static void halt()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
   /**
    * A hardware SQRT instruction.
    * <p>
@@ -1514,6 +1525,16 @@ public final class Magic {
     return Integer.MIN_VALUE;
   }
 
+    /**
+     * Save processor registers on the stack
+     */
+    public static void saveContext()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
   /**
    * Is the specified parameter constant (due to either inlining or specialization).
    * Count starts at zero and includes the 'this' parameter for instance methods.
@@ -1528,6 +1549,16 @@ public final class Magic {
     return false;
   }
 
+    /**
+     * Restore processor registers from the stack
+     */
+    public static void restoreContext()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
   /**
    * Returns the size of the stack frame for the method.
    * <p>
@@ -1539,4 +1570,150 @@ public final class Magic {
     return -1;
   }
 
+    /**
+     * Restore processor registers from the stack
+     */
+    public static void restoreThreadContextNoErrCode()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * Restore processor registers from the stack
+     */
+    public static void restoreThreadContextErrCode()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * @param stack
+     */
+    public static void switchStack(Address stack)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    /**
+     * Set the IDT register
+     * @param lidtDescriptor
+     */
+    public static void setIdt(Address lidtDescriptor)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * 
+     */
+    @Uninterruptible
+    public static void yield()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    public static void startThread(Address ip, Address sp)
+    {
+        /*
+         * Push ip onto the sp; switch to sp; and return
+         */
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    public static void enableInterrupts()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+    
+    public static void disableInterrupts()
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    public static void setCS(int segment)
+    {
+        if (VM.runningVM && VM.VerifyAssertions)
+        {
+            VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+        }
+    }
+
+    /**
+     * @param a
+     * @return
+     */
+    public static double dceil(double a)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0.0;
+    }
+    
+    public static void cpuId(int val, int[] registers)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+    }
+    
+    public static long readMSR(int msrRegister)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
+    
+    public static void writeMSR(int msrRegister, long value)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+    }
+    
+    public static short byteSwap(short value)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
+    public static int byteSwap(int value)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
 }

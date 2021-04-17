@@ -22,6 +22,7 @@ import static org.jikesrvm.objectmodel.ThinLockConstants.TL_THREAD_ID_SHIFT;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import org.jam.board.pc.Platform;
 import org.jikesrvm.VM;
 import org.jikesrvm.adaptive.OSRListener;
 import org.jikesrvm.adaptive.OnStackReplacementEvent;
@@ -384,6 +385,11 @@ public final class RVMThread extends ThreadContext {
   boolean isJoinable;
 
   /**
+   * Is thread running in an interrupt
+   */
+  static public boolean isInterrupted;
+
+  /**
    * Link pointer for queues (specifically ThreadQueue). A thread can only be
    * on one such queue at a time. The queue that a thread is on is indicated by
    * <code>queuedOn</code>.
@@ -460,6 +466,11 @@ public final class RVMThread extends ThreadContext {
   public static RVMThread bootThread;
 
   /**
+   * Need to identify which thread is the Idle thread
+   */
+  public static RVMThread idleThread;
+
+  /**
    * Is the threading system initialized?
    */
   public static boolean threadingInitialized = false;
@@ -517,6 +528,12 @@ public final class RVMThread extends ThreadContext {
   @Entrypoint
   Address framePointer;
 
+  @Entrypoint
+  Address sp;
+  
+  @Entrypoint
+  Address fxStateAddress;
+  
   /**
    * "hidden parameter" for interface invocation thru the IMT
    */
@@ -726,6 +743,7 @@ public final class RVMThread extends ThreadContext {
    */
   boolean isBlockedForGC;
 
+  static ThreadQueue gcWait = new ThreadQueue();
   /**
    * An integer token identifying the last stack trace request
    */
@@ -1277,6 +1295,10 @@ public final class RVMThread extends ThreadContext {
    */
   public static int nextSlot = 2;
 
+  private static long nosyncNotifyOperations;
+
+  private static boolean gcInProgress=false;
+
   /**
    * Number of threads in the system (some of which may not be active).
    */
@@ -1366,8 +1388,8 @@ public final class RVMThread extends ThreadContext {
     // debugging things that
     // show up as recursive use of hardware exception registers (eg the
     // long-standing lisp bug)
-    BootRecord.the_boot_record.dumpStackAndDieOffset =
-      Entrypoints.dumpStackAndDieMethod.getOffset();
+//    BootRecord.the_boot_record.dumpStackAndDieOffset =
+//      Entrypoints.dumpStackAndDieMethod.getOffset();
     Lock.init();
   }
 
@@ -3032,6 +3054,11 @@ public final class RVMThread extends ThreadContext {
     finishThreadTermination();
   }
 
+  public boolean isTerminated()
+  {
+    return execStatus == TERMINATED;
+  }
+  
   /** Uninterruptible final portion of thread termination. */
   void finishThreadTermination() {
     sysCall.sysThreadTerminate();
@@ -3592,6 +3619,29 @@ public final class RVMThread extends ThreadContext {
     l.mutex.unlock();
     if (toAwaken != null) {
       toAwaken.monitor().lockedBroadcastNoHandshake();
+    }
+  }
+
+  @Interruptible
+  public static void nosyncNotify(Object o) {
+    if (STATS)
+      nosyncNotifyOperations++;
+    Lock l = ObjectModel.getHeavyLock(o, false);
+    if (l == null)
+    {
+        VM.sysWriteln("nosync notify: no lock");
+        return;
+    }
+    // the reason for locking: when inflating a lock we *first* install it in the status
+    // word and *then* initialize its state.  but fortunately, we do so while holding
+    // the lock's mutex.  thus acquiring the lock's mutex is the only way to ensure that
+    // we see the lock's state after initialization.
+    l.mutex.lock();
+    RVMThread toAwaken = l.waiting.dequeue();
+    l.mutex.unlock();
+    if (toAwaken != null) {
+        VM.sysWriteln("nosync notify ", toAwaken.threadSlot);
+        Platform.scheduler.addThread(toAwaken);
     }
   }
 
@@ -5463,7 +5513,25 @@ public final class RVMThread extends ThreadContext {
     }
   }
 
-  static void tracebackWithoutLock() {
+  private static void dumpExceptionStack(Address frame)
+  {
+      VM.sysWrite("Error Code:"); VM.sysWriteln(frame.loadInt());
+      VM.sysWrite("IP:"); VM.sysWriteln(frame.loadInt(Offset.fromIntZeroExtend(4)));
+      VM.sysWrite("CS:"); VM.sysWriteln(frame.loadInt(Offset.fromIntZeroExtend(8)));
+      VM.sysWrite("Flags:"); VM.sysWriteln(frame.loadInt(Offset.fromIntZeroExtend(12)));
+  }
+  
+  public static void trapTraceback(String message)
+  {
+      VM.sysWriteln(message);
+      VM.sysWriteln("Thread #", getCurrentThreadSlot());
+      Address framePointer = Magic.getCallerFramePointer(Magic.getFramePointer());
+      VM.sysWriteln(framePointer);
+      dumpExceptionStack(framePointer.plus(10*4));
+      dumpStack(framePointer.minus(14*4));
+  }
+  
+static void tracebackWithoutLock() {
     if (VM.runningVM) {
       VM.sysWriteln("Thread #", getCurrentThreadSlot());
       dumpStack(Magic.getCallerFramePointer(Magic.getFramePointer()));

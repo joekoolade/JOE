@@ -47,12 +47,15 @@ import static org.jikesrvm.ia32.BaselineConstants.T1_SAVE_OFFSET;
 import static org.jikesrvm.ia32.BaselineConstants.TR;
 import static org.jikesrvm.ia32.BaselineConstants.WORDSIZE;
 import static org.jikesrvm.ia32.BaselineConstants.XMM_SAVE_OFFSET;
+import static org.jikesrvm.ia32.RegisterConstants.CS;
 import static org.jikesrvm.ia32.RegisterConstants.EAX;
+import static org.jikesrvm.ia32.RegisterConstants.EBP;
 import static org.jikesrvm.ia32.RegisterConstants.EBX;
 import static org.jikesrvm.ia32.RegisterConstants.ECX;
 import static org.jikesrvm.ia32.RegisterConstants.EDI;
 import static org.jikesrvm.ia32.RegisterConstants.EDX;
 import static org.jikesrvm.ia32.RegisterConstants.ESI;
+import static org.jikesrvm.ia32.RegisterConstants.ESP;
 import static org.jikesrvm.ia32.RegisterConstants.FP0;
 import static org.jikesrvm.ia32.RegisterConstants.JTOC_REGISTER;
 import static org.jikesrvm.ia32.RegisterConstants.XMM0;
@@ -62,6 +65,7 @@ import static org.jikesrvm.ia32.RegisterConstants.XMM3;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_FRAME_POINTER_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_METHOD_ID_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET;
+import static org.jikesrvm.ia32.StackframeLayoutConstants.INTERRUPT_METHOD_ID;
 import static org.jikesrvm.objectmodel.TIBLayoutConstants.TIB_TYPE_INDEX;
 import static org.jikesrvm.runtime.EntrypointHelper.getMethodReference;
 
@@ -2506,4 +2510,954 @@ final class BaselineMagic {
     MagicGenerator g = new GetFrameSize();
     generators.put(getMethodReference(Magic.class, MagicNames.getFrameSize, int.class), g);
   }
+
+  private static final class IOLoad32 extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T1);  // IO address
+          asm.emitIN32();
+          asm.emitPUSH_Reg(T0); // int value
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOLoad32();
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadInt, int.class), g);
+  }
+  
+  private static final class IOLoad32_offset extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(S0);  // offset
+          asm.emitPOP_Reg(T1);  // IO address
+          asm.emitADD_Reg_Reg(T1, S0);
+          asm.emitIN32();
+          asm.emitPUSH_Reg(T0); // int value
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOLoad32_offset();
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadInt, Offset.class, int.class), g);
+  }
+  
+  private static final class IOLoad16 extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T1);  // IO address
+          asm.emitIN16();
+          asm.emitPUSH_Reg(T0); // short value
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOLoad16();
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadShort, short.class), g);
+  }
+  
+  private static final class IOLoad16_offset extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(S0);  // offset
+          asm.emitPOP_Reg(T1);  // IO address
+          asm.emitADD_Reg_Reg(T1, S0);
+          asm.emitIN16();
+          asm.emitPUSH_Reg(T0); // int value
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOLoad16_offset();
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadShort, Offset.class, short.class), g);
+  }
+  
+  private static final class IOLoad8 extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T1);  // IO address
+          asm.emitIN8();
+          asm.emitPUSH_Reg(T0); // short value
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOLoad8();
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadByte, byte.class), g);
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadChar, char.class), g);
+  }
+  
+  private static final class IOLoad8_offset extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(S0);  // offset
+          asm.emitPOP_Reg(T1);  // IO address
+          asm.emitADD_Reg_Reg(T1, S0);
+          asm.emitIN8();
+          asm.emitPUSH_Reg(T0); // byte value
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOLoad8_offset();
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadByte, Offset.class, byte.class), g);
+      generators.put(getMethodReference(Address.class, MagicNames.ioLoadChar, Offset.class, char.class), g);
+  }
+
+  /**
+   * Store a 32bit quantity to an IO space address
+   */
+  private static final class IOStore32 extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T0);      // int value
+          asm.emitPOP_Reg(T1);      // IO address
+          asm.emitOUT32();
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOStore32();
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, int.class, void.class), g);
+  }
+
+  /**
+   * Store a 32bit quantity to an IO space address + offset
+   */
+  private static final class IOStore32_offset extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T0);      // int value
+          asm.emitPOP_Reg(S0);      // offset
+          asm.emitPOP_Reg(T1);      // IO address
+          asm.emitADD_Reg_Reg(T1, S0);  // IO address + offset
+          asm.emitOUT32();
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOStore32_offset();
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, int.class, void.class), g);
+  }
+
+  /**
+   * Store a 16bit quantity to an IO space address
+   */
+  private static final class IOStore16 extends MagicGenerator 
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) 
+      {
+          asm.emitPOP_Reg(T0);      // short value
+          asm.emitPOP_Reg(T1);      // IO address
+          asm.emitOUT16();
+      }
+  }
+  
+  static 
+  {
+      MagicGenerator g = new IOStore16();
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, short.class, void.class), g);
+  }
+  
+  /**
+   * Store a 32bit quantity to an IO space address + offset
+   */
+  private static final class IOStore16_offset extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T0);      // short value
+          asm.emitPOP_Reg(S0);      // offset
+          asm.emitPOP_Reg(T1);      // IO address
+          asm.emitADD_Reg_Reg(T1, S0);  // IO address + offset
+          asm.emitOUT16();
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOStore16_offset();
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, short.class, void.class), g);
+  }
+
+  private static final class IOStore8 extends MagicGenerator 
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(T0); // byte value
+          asm.emitPOP_Reg(T1); // IO address
+          asm.emitOUT8();
+      }
+  }
+  
+  static
+  {
+      MagicGenerator g = new IOStore8();
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, byte.class, void.class), g);
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, char.class, void.class), g);
+  }
+
+  /**
+   * Store a 32bit quantity to an IO space address + offset
+   */
+  private static final class IOStore8_offset extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+          asm.emitPOP_Reg(T0);      // byte value
+          asm.emitPOP_Reg(S0);      // offset
+          asm.emitPOP_Reg(T1);      // IO address
+          asm.emitADD_Reg_Reg(T1, S0);  // IO address + offset
+          asm.emitOUT16();
+      }
+  }
+  
+  static {
+      MagicGenerator g = new IOStore8_offset();
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, byte.class, void.class), g);
+      generators.put(getMethodReference(Address.class, MagicNames.ioStore, Offset.class, char.class, void.class), g);
+  }
+
+  /*
+   * Halt the cpu
+   */
+  private static final class Halt extends MagicGenerator {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitHLT();
+      }
+  }
+  static {
+      MagicGenerator g = new Halt();
+      generators.put(getMethodReference(Magic.class, MagicNames.halt, void.class), g);
+  }
+  
+  /*
+   * Save registers onto the stack
+   */
+  private static final class SaveContext extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          if(VM.BuildFor64Addr)
+          {
+              /*
+               *   IA32e mode interrupt stack looks like this
+               *   
+               *   +----------------------
+               *   |
+               *   |
+               *   |
+               *   +----------------------
+               *   | SS (stack segment)      +40
+               *   +----------------------
+               *   | RSP                     +32
+               *   +----------------------
+               *   | RFLAGS                  +24
+               *   +----------------------
+               *   | CS                      +16
+               *   +----------------------
+               *   | RIP                     +8
+               *   +----------------------
+               *   | Error Code               <---- RSP
+               *   +----------------------
+               */
+              Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
+              Offset registersContext = Entrypoints.threadContextRegistersField.getOffset();
+              /*
+               * Store the stack pointer
+               */
+              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.stackPointerField.getOffset(), SP);
+              /*
+               * Push R14,15 onto the stack
+               */
+              asm.emitPUSH_Reg(GPR.R15);
+              asm.emitPUSH_Reg(GPR.R14);
+              // R15 = context registers
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, TR, registersContext);
+              // R14 = gprs word array
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R14, GPR.R15, gprsOffset);
+              /*
+               * Save context int thread.contextRegisters
+               */
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*0), EAX);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*1), ECX);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*2), EDX);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*3), EBX);
+//              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*4), ESP);  // save but don't restore off by 16
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*5), EBP);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*6), ESI);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*7), EDI);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*8), GPR.R8);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*9), GPR.R9);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*10), GPR.R10);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*11), GPR.R11);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*12), GPR.R12);
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*13), GPR.R13);
+              // pop R14 from stack into thread context
+              asm.emitPOP_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*14)); 
+              // pop R15 from stack into thread context
+              asm.emitPOP_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*15));
+              // Push the stack pointer
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R14, Offset.zero().plus(WORDSIZE*4), ESP);
+
+              /*
+               * Store floating point/sse/xmm registers
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, ESI, Entrypoints.fxStateField.getOffset());
+              asm.emitFXSAVE_Reg(EAX);
+              asm.emitFINIT();
+         
+              /*
+               * Save fp and ip into contextRegisters
+               * 
+               * eax has the fp
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, TR, ArchEntrypoints.framePointerField.getOffset());
+              // save fp
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R15, ArchEntrypoints.registersFPField.getOffset(), EAX);
+              // get there return address
+//              asm.emitMOV_Reg_RegDisp_Quad(EAX, ESP, Offset.fromIntZeroExtend(8));
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, ESP, Offset.zero());
+              // save it
+              asm.emitMOV_RegDisp_Reg_Quad(GPR.R15, ArchEntrypoints.registersIPField.getOffset(), EAX);
+              /*
+               * Push the interrupted threads frame pointer
+               */
+              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
+//              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
+              /*
+               * Push interrupt method id
+               */
+              asm.emitPUSH_Imm(INTERRUPT_METHOD_ID);
+           }
+          else
+          {
+              /*
+               * Push the interrupted threads frame pointer
+               */
+              asm.emitPUSH_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
+              asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.framePointerField.getOffset(), SP); // establish new frame
+              asm.emitPUSH_Imm(INTERRUPT_METHOD_ID);
+    
+              /**
+               * Save context onto the stack.
+               * 
+               * This will push the following on the stack
+               * 
+               *    Top Stack
+               *    ...
+               *    EAX
+               *    ECX
+               *    EDX
+               *    EBX
+               *    EBP
+               *    EDI  <-- ESP
+               */
+              asm.emitPUSH_Reg(EAX);
+              asm.emitPUSH_Reg(ECX);
+              asm.emitPUSH_Reg(EDX);
+              asm.emitPUSH_Reg(EBX);
+              asm.emitPUSH_Reg(EBP);
+              asm.emitPUSH_Reg(EDI);
+    
+              /*
+               * Store floating point/sse/xmm registers
+               */
+              asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+              asm.emitFXSAVE_Reg(EAX);
+              asm.emitFINIT();
+              /*
+               * Store the stack pointer
+               */
+              asm.emitMOV_RegDisp_Reg(TR, ArchEntrypoints.stackPointerField.getOffset(), SP);
+              /*
+               * Save fp and ip into contextRegisters
+               * 
+               * eax has the fp
+               */
+              asm.emitMOV_Reg_RegDisp(EAX, TR, ArchEntrypoints.framePointerField.getOffset());
+              // ebx has contextRegisters
+              asm.emitMOV_Reg_RegDisp(EBX, TR, Entrypoints.threadContextRegistersField.getOffset());
+              // save fp
+              asm.emitMOV_RegDisp_Reg(EBX, ArchEntrypoints.registersFPField.getOffset(), EAX);
+              // get there return address
+              asm.emitMOV_Reg_RegDisp(EAX, SP, Offset.fromIntZeroExtend(32));
+              // save it
+              asm.emitMOV_RegDisp_Reg(EBX, ArchEntrypoints.registersIPField.getOffset(), EAX);
+          }
+      }
+  }
+  static
+  {
+      MagicGenerator g = new SaveContext();
+      generators.put(getMethodReference(Magic.class, MagicNames.saveContext, void.class), g);
+  }
+  
+//    private static final class RestoreContext extends MagicGenerator
+//  {
+//      @Override
+//      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+//      {
+//          if(VM.BuildFor64Addr)
+//          {
+//              /*
+//               * restore floating point/sse/xmm registers
+//               */
+//              asm.emitMOV_Reg_RegDisp_Quad(EAX, ESI, Entrypoints.fxStateField.getOffset());
+//              asm.emitFXRSTOR_Reg(EAX);
+//              
+//              Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
+//              Offset registersContext = Entrypoints.threadContextRegistersField.getOffset();
+//              // R15 = context registers
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, TR, registersContext);
+//              // R14 = gprs word array
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R14, GPR.R15, gprsOffset);
+//              /*
+//               * restore the frame pointer
+//               */
+//              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R15, ArchEntrypoints.registersFPField.getOffset());
+//              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
+//              /*
+//               * restore registers
+//               */
+//              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, gprsOffset.plus(WORDSIZE));
+//              asm.emitMOV_Reg_RegDisp_Quad(ECX, GPR.R14, gprsOffset.plus(WORDSIZE*2));
+//              asm.emitMOV_Reg_RegDisp_Quad(EDX, GPR.R14, gprsOffset.plus(WORDSIZE*3));
+//              asm.emitMOV_Reg_RegDisp_Quad(EBX, GPR.R14, gprsOffset.plus(WORDSIZE*4));
+//              asm.emitMOV_Reg_RegDisp_Quad(EBP, GPR.R14, gprsOffset.plus(WORDSIZE*5));
+//              asm.emitMOV_Reg_RegDisp_Quad(EDI, GPR.R14, gprsOffset.plus(WORDSIZE*6));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R8, GPR.R14, gprsOffset.plus(WORDSIZE*7));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R9, GPR.R14, gprsOffset.plus(WORDSIZE*8));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R10, GPR.R14, gprsOffset.plus(WORDSIZE*9));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R11, GPR.R14, gprsOffset.plus(WORDSIZE*10));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R12, GPR.R14, gprsOffset.plus(WORDSIZE*11));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R13, GPR.R14, gprsOffset.plus(WORDSIZE*12));
+//              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, GPR.R14, gprsOffset.plus(WORDSIZE*14));
+//              /*
+//               * r14 being used as pointer to register context
+//               * push r14 onto the stack, then pop it into register to restore
+//               */
+//              asm.emitPUSH_RegDisp(GPR.R14, gprsOffset.plus(WORDSIZE*13));
+//              asm.emitPOP_Reg(GPR.R14);
+//              /*
+//               * Need to pop the compiled method id
+//               */
+//              asm.emitADD_Reg_Imm(ESP, 0x8);
+//          }
+//          else
+//          {
+//              /*
+//               * Should be at the interrupted stacks SP.
+//               * 
+//               * Switch to the interrupted stack by popping it into the SP
+//               */
+//    //          asm.emitPOP_Reg(GPR.ESP);
+//              /*
+//               * Need to pop the interrupt thread stack
+//               */
+//    //          asm.emitPOP_Reg(GPR.EAX);
+//              /*
+//               * restore floating point/sse/xmm registers
+//               */
+//              asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+//              asm.emitFXRSTOR_Reg(EAX);
+//    
+//              /*
+//               * Restore the stack
+//               */
+//              asm.emitMOV_Reg_RegDisp(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
+//              /*
+//               * Now restore the interrrupted threads context
+//               */
+//              asm.emitPOP_Reg(EDI);
+//              asm.emitPOP_Reg(EBP);
+//              asm.emitPOP_Reg(EBX);
+//              asm.emitPOP_Reg(EDX);
+//              asm.emitPOP_Reg(ECX);
+//              asm.emitPOP_Reg(EAX);
+//              // pop the cmid
+//              asm.emitADD_Reg_Imm(SP, 4);
+//              // Restore previous frame pointer
+//              asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset()); // discard frame
+//          }
+//      }
+//  }
+//  static
+//  {
+//      MagicGenerator g = new RestoreContext();
+//      generators.put(getMethodReference(Magic.class, MagicNames.restoreContext, void.class), g);
+//  }
+  
+  /*
+   * restore context and stack from the thread
+   */
+  private static final class RestoreThreadContextErrCode extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          if(VM.BuildFor64Addr)
+          {
+              /*
+               * restore floating point/sse/xmm registers
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, TR, Entrypoints.fxStateField.getOffset());
+              asm.emitFXRSTOR_Reg(EAX);
+              
+              Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
+              Offset registersContext = Entrypoints.threadContextRegistersField.getOffset();
+              // R15 = context registers
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, TR, registersContext);
+              // R14 = gprs word array
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R14, GPR.R15, gprsOffset);
+              /*
+               * restore the frame pointer
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, ArchEntrypoints.registersFPField.getOffset());
+              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
+              /*
+               * restore registers
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, Offset.zero().plus(WORDSIZE*0));
+              asm.emitMOV_Reg_RegDisp_Quad(ECX, GPR.R14, Offset.zero().plus(WORDSIZE*1));
+              asm.emitMOV_Reg_RegDisp_Quad(EDX, GPR.R14, Offset.zero().plus(WORDSIZE*2));
+              asm.emitMOV_Reg_RegDisp_Quad(EBX, GPR.R14, Offset.zero().plus(WORDSIZE*3));
+              asm.emitMOV_Reg_RegDisp_Quad(ESP, GPR.R14, Offset.zero().plus(WORDSIZE*4));   // Now we are on the restored threads stack
+              asm.emitMOV_Reg_RegDisp_Quad(EBP, GPR.R14, Offset.zero().plus(WORDSIZE*5));
+              asm.emitMOV_Reg_RegDisp_Quad(EDI, GPR.R14, Offset.zero().plus(WORDSIZE*7));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R8, GPR.R14, Offset.zero().plus(WORDSIZE*8));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R9, GPR.R14, Offset.zero().plus(WORDSIZE*9));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R10, GPR.R14, Offset.zero().plus(WORDSIZE*10));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R11, GPR.R14, Offset.zero().plus(WORDSIZE*11));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R12, GPR.R14, Offset.zero().plus(WORDSIZE*12));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R13, GPR.R14, Offset.zero().plus(WORDSIZE*13));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, GPR.R14, Offset.zero().plus(WORDSIZE*15));
+              /*
+               * r14 being used as pointer to register context
+               * push r14 onto the stack, then pop it into register to restore
+               */
+              asm.emitPUSH_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*14));
+              asm.emitPOP_Reg(GPR.R14);
+              /*
+               * Need to pop the error code
+               */
+              asm.emitADD_Reg_Imm(ESP, 0x8);
+          }
+          else
+          {
+              /*
+               * restore the stack pointer from the RVMThread sp field
+               */
+              asm.emitMOV_Reg_RegDisp(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
+              /*
+               * restore floating point/sse/xmm registers
+               */
+              asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+              asm.emitFXRSTOR_Reg(EAX);
+              /*
+               * Now restore the interrrupted threads context
+               */
+              asm.emitPOP_Reg(EDI);
+              asm.emitPOP_Reg(EBP);
+              asm.emitPOP_Reg(EBX);
+              asm.emitPOP_Reg(EDX);
+              asm.emitPOP_Reg(ECX);
+              asm.emitPOP_Reg(EAX);
+              // pop the cmid
+              asm.emitADD_Reg_Imm(SP, 4);
+              // Restore previous frame pointer
+              asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset()); // discard frame
+          }
+      }
+  }
+  static
+  {
+      MagicGenerator g = new RestoreThreadContextErrCode();
+      generators.put(getMethodReference(Magic.class, MagicNames.restoreThreadContextErrCode, void.class), g);
+  }
+
+  /*
+   * restore context and stack from the thread
+   */
+  private static final class RestoreThreadContextNoErrCode extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          if(VM.BuildFor64Addr)
+          {
+              /*
+               * restore floating point/sse/xmm registers
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, TR, Entrypoints.fxStateField.getOffset());
+              asm.emitFXRSTOR_Reg(EAX);
+              
+              Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
+              Offset registersContext = Entrypoints.threadContextRegistersField.getOffset();
+              // R15 = context registers
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, TR, registersContext);
+              // R14 = gprs word array
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R14, GPR.R15, gprsOffset);
+              /*
+               * restore the frame pointer
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R15, ArchEntrypoints.registersFPField.getOffset());
+              asm.emitMOV_RegDisp_Reg_Quad(TR, ArchEntrypoints.framePointerField.getOffset(), EAX);
+              /*
+               * restore registers
+               */
+              asm.emitMOV_Reg_RegDisp_Quad(EAX, GPR.R14, Offset.zero().plus(WORDSIZE*0));
+              asm.emitMOV_Reg_RegDisp_Quad(ECX, GPR.R14, Offset.zero().plus(WORDSIZE*1));
+              asm.emitMOV_Reg_RegDisp_Quad(EDX, GPR.R14, Offset.zero().plus(WORDSIZE*2));
+              asm.emitMOV_Reg_RegDisp_Quad(EBX, GPR.R14, Offset.zero().plus(WORDSIZE*3));
+//              asm.emitMOV_Reg_RegDisp_Quad(ESP, GPR.R14, Offset.zero().plus(WORDSIZE*4));   // Now we are on the restored threads stack
+              asm.emitMOV_Reg_RegDisp_Quad(EBP, GPR.R14, Offset.zero().plus(WORDSIZE*5));
+              asm.emitMOV_Reg_RegDisp_Quad(EDI, GPR.R14, Offset.zero().plus(WORDSIZE*7));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R8, GPR.R14, Offset.zero().plus(WORDSIZE*8));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R9, GPR.R14, Offset.zero().plus(WORDSIZE*9));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R10, GPR.R14, Offset.zero().plus(WORDSIZE*10));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R11, GPR.R14, Offset.zero().plus(WORDSIZE*11));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R12, GPR.R14, Offset.zero().plus(WORDSIZE*12));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R13, GPR.R14, Offset.zero().plus(WORDSIZE*13));
+              asm.emitMOV_Reg_RegDisp_Quad(GPR.R15, GPR.R14, Offset.zero().plus(WORDSIZE*15));
+              /*
+               * r14 being used as pointer to register context
+               * push the saved r14 onto the stack, then pop it into register to restore
+               */
+              asm.emitPUSH_RegDisp(GPR.R14, Offset.zero().plus(WORDSIZE*14));
+              asm.emitPOP_Reg(GPR.R14);
+              /*
+               * Need to pop the CMID
+               */
+//              asm.emitADD_Reg_Imm(ESP, 0x8);
+              /*
+               * restore the stack pointer from the RVMThread sp field
+               */
+//              asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset());        // store interrupted caller's frame pointer
+              asm.emitMOV_Reg_RegDisp_Quad(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
+          }
+          else
+          {
+              /*
+               * restore the stack pointer from the RVMThread sp field
+               */
+              asm.emitMOV_Reg_RegDisp(SP, TR, ArchEntrypoints.stackPointerField.getOffset());
+              /*
+               * restore floating point/sse/xmm registers
+               */
+              asm.emitMOV_Reg_RegDisp(EAX, ESI, Entrypoints.fxStateField.getOffset());
+              asm.emitFXRSTOR_Reg(EAX);
+              /*
+               * Now restore the interrrupted threads context
+               */
+              asm.emitPOP_Reg(EDI);
+              asm.emitPOP_Reg(EBP);
+              asm.emitPOP_Reg(EBX);
+              asm.emitPOP_Reg(EDX);
+              asm.emitPOP_Reg(ECX);
+              asm.emitPOP_Reg(EAX);
+              // pop the cmid
+              asm.emitADD_Reg_Imm(SP, 4);
+              // Restore previous frame pointer
+              asm.emitPOP_RegDisp(TR, ArchEntrypoints.framePointerField.getOffset()); // discard frame
+          }
+      }
+  }
+  static
+  {
+      MagicGenerator g = new RestoreThreadContextNoErrCode();
+      generators.put(getMethodReference(Magic.class, MagicNames.restoreThreadContextNoErrCode, void.class), g);
+  }
+  
+  /**
+   * Set ESP to a new stack pointer and
+   * save into thread's framePointer field
+   */
+  private static final class SwitchStack extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          // Get the current stack pointer
+          //asm.emitLEA_Reg_RegDisp(S0, SP, sd);
+          asm.emitMOV_Reg_Reg(S0, SP);
+          // Pop new stack parameter into the ESP
+          // The new stack parameter is still on the old stack
+          // remember to pop when restoring
+          asm.emitPOP_Reg(SP);
+      }
+  }
+  
+  /**
+   * Add SwitchStack magic into the table
+   */
+  static
+  {
+      MagicGenerator g = new SwitchStack();
+      generators.put(getMethodReference(Magic.class, MagicNames.switchStack, Address.class, void.class), g);
+  }
+  
+  /**
+   * Set the IDT register
+   */
+  private static final class SetIdt extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(S0);
+          asm.emitLIDT(S0);
+      }
+  }
+  /**
+   * Add SetIdt magic into the table
+   */
+  static
+  {
+      MagicGenerator g = new SetIdt();
+      generators.put(getMethodReference(Magic.class, MagicNames.setIdt, Address.class, void.class), g);
+  }
+  
+  /**
+   * Start a thread
+   */
+  private static final class StartThread extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(S0);  // thread instruction pointer
+          asm.emitPOP_Reg(SP);  // switch to the new stack
+          /*
+           * Start executing at the new thread
+           */
+          asm.emitJMP_Reg(S0);
+      }
+  }
+  /**
+   * Add StartThread into the table
+   */
+  static
+  {
+      MagicGenerator g = new StartThread();
+      generators.put(getMethodReference(Magic.class, MagicNames.startThread, Address.class, Address.class, void.class), g);
+  }
+  
+  /**
+   * Enable interrupts
+   */
+  private static final class EnableInterrupts extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitSTI();
+      }
+  }
+  
+  /**
+   * Add EnableInterrupts into the table
+   */
+  static
+  {
+      MagicGenerator g = new EnableInterrupts();
+      generators.put(getMethodReference(Magic.class, MagicNames.enableInterrupts, void.class), g);
+  }
+
+  /**
+   * Disable interrupts
+   */
+  private static final class DisableInterrupts extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitCLI();
+      }
+  }
+  
+  /**
+   * Add EnableInterrupts into the table
+   */
+  static
+  {
+      MagicGenerator g = new DisableInterrupts();
+      generators.put(getMethodReference(Magic.class, MagicNames.disableInterrupts, void.class), g);
+  }
+  
+  /**
+   * Generate a yield interrupt
+   */
+  private static final class Yield extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitINT_Imm(48);
+      }
+  }
+  
+  /**
+   * Add Yield into the table
+   */
+  static
+  {
+      MagicGenerator g = new Yield();
+      generators.put(getMethodReference(Magic.class, MagicNames.yield, void.class), g);
+  }
+  
+  /**
+   * Generate a segment register move
+   */
+  private static final class SetCS extends MagicGenerator
+  {
+      @Override
+      void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+      {
+          asm.emitPOP_Reg(S0);
+          asm.emitMOVSEG(CS, S0);
+      }
+  }
+  
+  static
+  {
+      MagicGenerator g = new SetCS();
+      generators.put(getMethodReference(Magic.class, MagicNames.setCS, int.class, void.class), g);
+  }
+  
+  /*
+   * Generate a CPUID instruction
+   */
+  private static final class CpuId extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      asm.emitMOV_Reg_RegDisp(EAX, ESP, ONE_SLOT);
+      // int[] is at the top of the stack
+      asm.emitCPUID();
+      /*
+       * Push EAX, EBX, ECX, and EDX into the array
+       */
+      asm.emitPOP_Reg(EBP);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero(), EAX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero().plus(4), EBX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero().plus(8), ECX);
+      asm.emitMOV_RegDisp_Reg(EBP, Offset.zero().plus(12), EDX);
+      /*
+       * Pop the int[] off
+       */
+      asm.emitPOP_Reg(EAX);
+    }
+  }
+  
+  static
+  {
+    MagicGenerator g = new CpuId();
+    generators.put(getMethodReference(Magic.class, MagicNames.cpuId, int.class, int[].class, void.class), g);
+  }
+  
+  /*
+   * Generate a RDMSR instruction
+   */
+  private static final class RdMsr extends MagicGenerator {
+
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      // load the MSR register
+      asm.emitPOP_Reg(ECX);
+      asm.emitRDMSR();
+      // push the value onto the stack
+      if(VM.BuildFor64Addr)
+      {
+          asm.emitSHL_Reg_Imm_Quad(EDX, 32);
+          asm.emitOR_Reg_Reg_Quad(EAX, EDX);
+          asm.emitPUSH_Reg(EDX);
+          asm.emitPUSH_Reg(EAX);
+      }
+      else
+      {
+          asm.emitPUSH_Reg(EDX);
+      }
+    }
+  }
+  
+  static
+  {
+    MagicGenerator g = new RdMsr();
+    generators.put(getMethodReference(Magic.class, MagicNames.rdMsr, int.class, long.class), g);
+  }
+  
+  /*
+   * Generate a WRMSR instruction
+   */
+  final static private class WrMsr extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      // load the value
+      asm.emitPOP_Reg(EDX);
+      asm.emitPOP_Reg(EAX);
+      asm.emitPOP_Reg(ECX);
+      asm.emitWRMSR();
+    }
+  }
+  static
+  {
+    MagicGenerator g = new WrMsr();
+    generators.put(getMethodReference(Magic.class, MagicNames.wrMsr, int.class, long.class, void.class), g);
+  }
+  
+  /*
+   * Generate an integer byte swap
+   */
+  final static private class ByteSwap32 extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      asm.emitPOP_Reg(S0);
+      asm.emitBSWAP_Reg(S0);
+      asm.emitPUSH_Reg(S0);
+    }
+  }
+  static
+  {
+    MagicGenerator g = new ByteSwap32();
+    generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, int.class, int.class), g);
+  }
+  
+  /*
+   * Generate an short byte swap
+   */
+  final static private class ByteSwap16 extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      /*
+       * This is the ECX but it contains a short in the CX
+       */
+      asm.emitPOP_Reg(S0);
+      /*
+       * This is an 8bit instruction so really 
+       * the registers are CL, CH
+       */
+      asm.emitXCHG_Reg_Reg(S0, EBP);
+      /*
+       * The byte swapped result is contained the CX
+       */
+      asm.emitPUSH_Reg(S0);
+    }
+  }
+  static
+  {
+    MagicGenerator g = new ByteSwap16();
+    generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, short.class, short.class), g);
+  }
+
 }
+

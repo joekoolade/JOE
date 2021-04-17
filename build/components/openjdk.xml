@@ -20,7 +20,7 @@
   <property name="icedtea.component.dir" location="${components.dir}/icedtea"/>
   <property name="icedtea.package.dir" value="${icedtea.component.dir}/${icedtea.version}"/>
   <property name="icedtea.dir" value="${icedtea.package.dir}/${icedtea.version.start}"/>
-  <property name="icedtea.jre.location" value="${icedtea.dir}/icedtea-build/openjdk.build/j2sdk-server-image/jre"/>
+  <property name="icedtea.jre.location" value="/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents"/>
 
   <property name="openjdk.tarball.dest" value="${icedtea.package.dir}/${openjdk.tarball.archive}"/>
 
@@ -50,7 +50,8 @@
   </target>
 
   <target name="build" depends="patch">
-    <echo message="Building IcedTea libraries"/>
+
+  	<echo message="Building IcedTea libraries"/>
     <test-file name="make.exe" location="${host.file}"/>
 
     <echo>Executing autogen.sh</echo>
@@ -81,8 +82,11 @@
   </target>
 
   <target name="ensure" depends="prepare-ant-tasks">
+    <echo>Setting up for use as class library</echo>
+    <writeComponentConstants dir="${icedtea.jre.location}/Classes"/>
+    <setComponentsConfig key="${target.name}.openjdk.lib.dir" value="${icedtea.jre.location}/Classes"/>
     <echo message="Ensure IcedTea libraries"/>
-    <ensureUptodate name="openjdk" dir="${icedtea.jre.location}/lib"/>
+    <ensureUptodate name="openjdk" dir="${icedtea.jre.location}/Classes"/>
   </target>
 
 </project>

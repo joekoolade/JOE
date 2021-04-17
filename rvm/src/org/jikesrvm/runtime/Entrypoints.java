@@ -208,6 +208,9 @@ public class Entrypoints {
     getField(org.jikesrvm.scheduler.RVMThread.class, "bootThread",
              org.jikesrvm.scheduler.RVMThread.class);
 
+  public static final RVMField stackPointerField = getField(org.jikesrvm.scheduler.RVMThread.class, "sp", org.vmmagic.unboxed.Address.class);
+  public static final RVMField framePointerField = getField(org.jikesrvm.scheduler.RVMThread.class, "framePointer", org.vmmagic.unboxed.Address.class);
+  public static final RVMField fxStateField = getField(org.jikesrvm.scheduler.RVMThread.class,"fxStateAddress", org.vmmagic.unboxed.Address.class);
   public static final RVMField scratchStorageField =
       getField(org.jikesrvm.scheduler.RVMThread.class, "scratchStorage", double.class);
   public static final RVMField takeYieldpointField =
@@ -476,8 +479,7 @@ public class Entrypoints {
     }
 
     if (VM.BuildForOpenJDK) {
-      java_lang_reflect_Method_getCallerClass = getMethod(java.lang.reflect.Method.class, "getCallerClass",
-          "()Ljava/lang/Class;");
+      java_lang_reflect_Method_getCallerClass = null;
       usr_paths_Field = getField(java.lang.ClassLoader.class, "usr_paths", String[].class);
       sys_paths_Field = getField(java.lang.ClassLoader.class, "sys_paths", String[].class);
       scl_Field = getField(java.lang.ClassLoader.class, "scl", ClassLoader.class);
@@ -521,6 +523,11 @@ public class Entrypoints {
 
   public static final RVMField classLoadedCountField =
       getField(org.jikesrvm.classloader.JMXSupport.class, "classLoadedCount", int.class);
+  public static final NormalMethod div64Method =
+                  getMethod(org.jam.math.Math.class, "div64", "(JJ)J");
+
+  public static final NormalMethod mod64Method =
+                  getMethod(org.jam.math.Math.class, "mod64", "(JJ)J");
 
   //////////////////
   // Entrypoints that are valid only when the opt compiler is included in the build

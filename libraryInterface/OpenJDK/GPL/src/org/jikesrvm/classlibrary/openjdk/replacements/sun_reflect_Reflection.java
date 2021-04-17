@@ -38,7 +38,7 @@ public class sun_reflect_Reflection {
   private static final boolean DEBUG_GET_CALLER_CLASS = false;
 
   @ReplaceMember
-  public static Class<?> getCallerClass() {
+  public static Class<?> getCallerClass(int i) {
     // TODO OPENJDK/ICEDTEA this implementation is rather messy. If we have to adjust this again,
     // we ought to write a better one, with a test case for all the cases.
 

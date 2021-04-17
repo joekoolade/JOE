@@ -19,26 +19,47 @@ import static org.jikesrvm.HeapLayoutConstants.BOOT_IMAGE_CODE_START;
 import static org.jikesrvm.HeapLayoutConstants.BOOT_IMAGE_DATA_SIZE;
 import static org.jikesrvm.HeapLayoutConstants.BOOT_IMAGE_DATA_SIZE_LIMIT;
 import static org.jikesrvm.HeapLayoutConstants.BOOT_IMAGE_DATA_START;
+import static org.jikesrvm.HeapLayoutConstants.BOOT_IMAGE_RMAP_START;
+import static org.jikesrvm.HeapLayoutConstants.MAX_BOOT_IMAGE_RMAP_SIZE;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.LOG_BYTES_IN_ADDRESS;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.LOG_BYTES_IN_WORD;
 import static org.jikesrvm.tools.bootImageWriter.BootImageWriterMessages.fail;
 import static org.jikesrvm.tools.bootImageWriter.BootImageWriterMessages.say;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.ArrayList;
+
+import static joeq.Linker.ELF.ELFConstants.*;
+
+import joeq.Linker.ELF.ELFConstants;
+import joeq.Linker.ELF.ELFRandomAccessFile;
+import joeq.Linker.ELF.ProgramHeader.LoadProgramHeader;
+import joeq.Linker.ELF.Section;
+import joeq.Linker.ELF.Section.SymTabSection;
+import joeq.Linker.ELF.Section.StrTabSection;
+import joeq.Linker.ELF.SymbolTableEntry;
 
 import org.jikesrvm.VM;
+import org.jikesrvm.compilers.common.CodeArray;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.RVMClass;
+import org.jikesrvm.classloader.RVMField;
+import org.jikesrvm.classloader.RVMMethod;
+import org.jikesrvm.classloader.RVMType;
+import org.jikesrvm.compilers.common.CompiledMethod;
+import org.jikesrvm.compilers.common.CompiledMethods;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mmtk.ScanBootImage;
 import org.jikesrvm.objectmodel.BootImageInterface;
 import org.jikesrvm.objectmodel.JavaHeader;
 import org.jikesrvm.objectmodel.ObjectModel;
+import org.jikesrvm.objectmodel.TIB;
 import org.jikesrvm.runtime.Statics;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
@@ -127,23 +148,36 @@ public class BootImage implements BootImageInterface {
   private final String imageRMapFileName;
 
   /**
-   * Use mapped byte buffers? We need to truncate the byte buffer
-   * before writing it to disk. This operation is supported on UNIX but
-   * not Windows.
+     * the elf image
+     */
+    private String jamoutFile;
+
+    /**
+     * Use mapped byte buffers? We need to truncate the byte buffer before writing
+     * it to disk. This operation is supported on UNIX but not Windows.
    */
   private static final boolean mapByteBuffers = false;
+
+    private SymTabSection symbolTable;
+    private StrTabSection stringTable;
 
   /**
    * @param ltlEndian write words low-byte first?
    * @param t turn tracing on?
    */
-  BootImage(boolean ltlEndian, boolean t, String imageCodeFileName, String imageDataFileName, String imageRMapFileName) throws IOException {
+    BootImage(boolean ltlEndian, boolean t, String imageCodeFileName, String imageDataFileName,
+    String imageRMapFileName, String elfImage) throws IOException
+    {
     this.imageCodeFileName = imageCodeFileName;
     this.imageDataFileName = imageDataFileName;
     this.imageRMapFileName = imageRMapFileName;
+        jamoutFile = elfImage;
     dataOut = new RandomAccessFile(imageDataFileName,"rw");
+        dataOut.setLength(0);
     codeOut = new RandomAccessFile(imageCodeFileName,"rw");
-    if (mapByteBuffers) {
+        codeOut.setLength(0);
+        if (mapByteBuffers)
+        {
       bootImageData = dataOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_DATA_SIZE);
       bootImageCode = codeOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_CODE_SIZE);
     } else {
@@ -155,6 +189,139 @@ public class BootImage implements BootImageInterface {
     bootImageCode.order(endian);
     referenceMap = new byte[BOOT_IMAGE_DATA_SIZE >> LOG_BYTES_IN_ADDRESS];
     trace = t;
+        stringTable = new Section.StrTabSection(".strtab", Section.SHF_ALLOC, 0);
+        symbolTable = new Section.SymTabSection(".symtab", Section.SHF_ALLOC, 0, stringTable);
+    }
+
+    public void writeElfFile(byte[] startupCode) throws IOException
+    {
+        RandomAccessFile execFile = new RandomAccessFile(jamoutFile, "rw");
+        // truncate the file
+        execFile.setLength(0);
+        ELFRandomAccessFile elf = new ELFRandomAccessFile(ELFDATA2LSB, ET_EXEC, EM_386, 0x100000, execFile);
+
+        /*
+         * Setup the startup code
+         * 
+         * The program headers and section headers must be in sequence
+         */
+        LoadProgramHeader programHeader = new LoadProgramHeader(PF_X | PF_R | PF_W, 0x100000, 0x1000,
+        startupCode.length, 0x8000);
+        elf.addProgramHeader(programHeader);
+        programHeader = new LoadProgramHeader(PF_X | PF_R | PF_W, BOOT_IMAGE_CODE_START.toInt(), 0x1000, getCodeSize(),
+        BOOT_IMAGE_CODE_SIZE);
+        elf.addProgramHeader(programHeader);
+        programHeader = new LoadProgramHeader(PF_X | PF_R | PF_W, BOOT_IMAGE_DATA_START.toInt(), 0x1000, getDataSize(),
+        BOOT_IMAGE_DATA_SIZE);
+        elf.addProgramHeader(programHeader);
+        programHeader = new LoadProgramHeader(PF_X | PF_R | PF_W, BOOT_IMAGE_RMAP_START.toInt(), 0x1000, getRMapSize(),
+        MAX_BOOT_IMAGE_RMAP_SIZE);
+        elf.addProgramHeader(programHeader);
+        elf.addSection(Section.NullSection.INSTANCE);
+        Section section = new Section.ProgBitsSectionImpl(".init",
+        Section.SHF_ALLOC | Section.SHF_EXECINSTR | Section.SHF_WRITE, 0x100000, 0x1000, startupCode);
+        elf.addSection(section);
+        section = new Section.ProgBitsSectionImpl(".text",
+        Section.SHF_ALLOC | Section.SHF_EXECINSTR | Section.SHF_WRITE, BOOT_IMAGE_CODE_START.toInt(), 0x1000,
+        bootImageCode.array());
+        elf.addSection(section);
+        section = new Section.ProgBitsSectionImpl(".data", Section.SHF_ALLOC | Section.SHF_WRITE,
+        BOOT_IMAGE_DATA_START.toInt(), 0x1000, bootImageData.array());
+        elf.addSection(section);
+        section = new Section.ProgBitsSectionImpl(".rodata", Section.SHF_ALLOC, BOOT_IMAGE_RMAP_START.toInt(), 0x1000,
+        bootImageRMap);
+        elf.addSection(section);
+        elf.addSection(symbolTable);
+        elf.addSection(stringTable);
+        elf.write();
+        execFile.close();
+    }
+
+    public void createSymbolTable()
+    {
+        for (int i = 0; i < CompiledMethods.numCompiledMethods(); ++i)
+        {
+            CompiledMethod compiledMethod = CompiledMethods.getCompiledMethodUnchecked(i);
+            if (compiledMethod != null)
+            {
+                RVMMethod m = compiledMethod.getMethod();
+                if (m != null && compiledMethod.isCompiled())
+                {
+                    CodeArray instructions = compiledMethod.getEntryCodeArray();
+                    Address code = BootImageMap.getImageAddress(instructions.getBacking(), true);
+                    String methodName = m.toString().replaceAll("\\< BootstrapCL\\, ", "");
+                    methodName = methodName.replaceAll("\\; \\>", "");
+                    symbolTable.addSymbol(new SymbolTableEntry(methodName, code.toInt(), 4, STB_GLOBAL, STT_FUNC, symbolTable));
+                }
+            }
+        }
+        byte type = 0; 
+        // Reference JTOC fields
+        // Restore previously unnecessary Statics data structures
+        Statics.bootImageReportGeneration(MethodAddressMap.staticsJunk);
+       for (int jtocSlot = Statics.middleOfTable, n = Statics.getHighestInUseSlot(); jtocSlot <= n; jtocSlot += Statics
+        .getReferenceSlotSize())
+        {
+            Offset jtocOff = Statics.slotAsOffset(jtocSlot);
+            Object obj = BootImageMap.getObject(MethodAddressMap.getIVal(jtocOff));
+            Address address = (MethodAddressMap.getReferenceAddr(jtocOff, false));
+            if (address.toInt() == 0)
+                continue;
+            String symbol=null, symbol0=null;
+            RVMField field = BootImageWriter.getRvmStaticField(jtocOff);
+            if (Statics.isReferenceLiteral(jtocSlot))
+            {
+                if (obj instanceof Class)
+                {
+                    symbol0 = symbol = obj.toString();
+                    type = STT_OBJECT;
+                }
+                if (field != null)
+                {
+                    symbol0 = field.toString();
+                    symbol = field.toString().replaceAll("\\< BootstrapCL\\, ", "");
+                    symbol = symbol.replaceAll("\\; \\>", "");
+                    type = STT_OBJECT;
+                }
+            } 
+            else if (field != null)
+            {
+                // category = "field ";
+                symbol0 = field.toString();
+                symbol = field.toString().replaceAll("\\< BootstrapCL\\, ", "");
+                symbol = symbol.replaceAll("\\; \\>", "");
+                type = STT_OBJECT;
+            } 
+            else if (obj instanceof TIB)
+            {
+                // TIBs confuse the statics as their backing is written into the boot image
+                // category = "tib ";
+                RVMType rvmType = ((TIB) obj).getType();
+                if(rvmType==null) continue;
+                symbol0 = symbol = rvmType.toString();
+                type = STT_OBJECT;
+            } 
+            else 
+            {
+                if (obj instanceof Class) {
+                  symbol0 = symbol = obj.toString();
+                  type = STT_OBJECT;
+                } 
+                else {
+                  CompiledMethod m = MethodAddressMap.findMethodOfCode(obj);
+                  if (m != null) {
+                      symbol0 = m.getMethod().toString();
+                    symbol = m.getMethod().toString().replaceAll("\\< BootstrapCL\\, ", "");;
+                    symbol = symbol.replaceAll("\\; \\>", "");
+                    type = STT_FUNC;
+                  }
+                  else continue;
+                }
+            }
+            if(symbol == null) continue;
+ //           say(symbol0 + ":" + symbol + ":" + Integer.toHexString(address.toInt()));
+            symbolTable.addSymbol(new SymbolTableEntry(symbol, address.toInt(), 4, STB_GLOBAL, type, symbolTable));
+        }
   }
 
   /**
@@ -197,6 +364,8 @@ public class BootImage implements BootImageInterface {
        used portion of the array actually gets written into the image. */
     bootImageRMap = new byte[referenceMapReferences << LOG_BYTES_IN_WORD];
     rMapSize = ScanBootImage.encodeRMap(bootImageRMap, referenceMap, referenceMapLimit);
+        File oldRmap = new File(imageRMapFileName);
+        oldRmap.delete();
     FileOutputStream rmapOut = new FileOutputStream(imageRMapFileName);
     rmapOut.write(bootImageRMap, 0, rMapSize);
     rmapOut.flush();
@@ -206,6 +375,18 @@ public class BootImage implements BootImageInterface {
     }
     ScanBootImage.encodingStats();
   }
+
+    public void writeMultiboot(byte[] startUpCode) throws IOException
+    {
+        RandomAccessFile jamOut = new RandomAccessFile(jamoutFile, "rw");
+        // set file pointer to end
+        jamOut.write(startUpCode);
+        jamOut.write(bootImageData.array());
+        jamOut.write(bootImageCode.array());
+        jamOut.write(bootImageRMap);
+        say("Create jam.out multiboot!");
+        jamOut.close();
+    }
 
   /**
    * Get image data size, in bytes.
@@ -227,8 +408,20 @@ public class BootImage implements BootImageInterface {
   /**
    * return the size of the rmap
    */
-  public int getRMapSize() {
-    return rMapSize;
+    public int getRMapSize()
+    {
+        int size;
+        if (rMapSize == 0)
+        {
+            System.out.println("rmap size references: " + referenceMapReferences);
+            byte[] bootImageRMap0 = new byte[referenceMapReferences << LOG_BYTES_IN_WORD];
+            size = ScanBootImage.encodeRMap(bootImageRMap0, referenceMap, referenceMapLimit);
+            ScanBootImage.reset();
+        } else
+        {
+            size = rMapSize;
+        }
+        return size;
   }
 
   /**
@@ -459,4 +652,19 @@ public class BootImage implements BootImageInterface {
   public void countNulledReference() {
     numNulledReferences += 1;
   }
+
+    public String getCodeFileName()
+    {
+        return imageCodeFileName;
+    }
+
+    public String getDataFileName()
+    {
+        return imageDataFileName;
+    }
+
+    public String getRMapFileName()
+    {
+        return imageRMapFileName;
+    }
 }

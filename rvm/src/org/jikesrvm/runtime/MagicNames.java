@@ -208,4 +208,35 @@ public class MagicNames {
   public static final Atom addressArrayLength = Atom.findOrCreateAsciiAtom("length");
   public static final Atom addressArrayGet = Atom.findOrCreateAsciiAtom("get");
   public static final Atom addressArraySet = Atom.findOrCreateAsciiAtom("set");
+  
+  // Segment register manipulations
+  public static final Atom setCS = Atom.findOrCreateAsciiAtom("setCS");
+  public static final Atom cpuId = Atom.findOrCreateAsciiAtom("cpuId");
+  public static final Atom rdMsr = Atom.findOrCreateAsciiAtom("readMSR");
+  public static final Atom wrMsr = Atom.findOrCreateAsciiAtom("writeMSR");
+  
+  public static final Atom byteSwap = Atom.findOrCreateAsciiAtom("byteSwap");
+
+  public static final Atom ioLoadByte = Atom.findOrCreateAsciiAtom("ioLoadByte");
+  public static final Atom ioLoadChar = Atom.findOrCreateAsciiAtom("ioLoadChar");
+  public static final Atom ioLoadShort = Atom.findOrCreateAsciiAtom("ioLoadShort");
+  public static final Atom ioLoadInt = Atom.findOrCreateAsciiAtom("ioLoadInt");
+  public static final Atom ioStore = Atom.findOrCreateAsciiAtom("ioStore");
+  
+  public static final Atom halt = Atom.findOrCreateAsciiAtom("halt");
+  public static final Atom yield = Atom.findOrCreateAsciiAtom("yield");
+  public static final Atom dceil = Atom.findOrCreateAsciiAtom("dceil");
+
+  public static final Atom saveContext = Atom.findOrCreateAsciiAtom("saveContext");
+  public static final Atom restoreContext = Atom.findOrCreateAsciiAtom("restoreContext");
+  public static final Atom restoreThreadContextNoErrCode = Atom.findOrCreateAsciiAtom("restoreThreadContextNoErrCode");
+  public static final Atom restoreThreadContextErrCode = Atom.findOrCreateAsciiAtom("restoreThreadContextErrCode");
+  public static final Atom switchStack = Atom.findOrCreateAsciiAtom("switchStack");
+  public static final Atom startThread = Atom.findOrCreateAsciiAtom("startThread");
+  public static final Atom enableInterrupts = Atom.findOrCreateAsciiAtom("enableInterrupts");
+  public static final Atom disableInterrupts = Atom.findOrCreateAsciiAtom("disableInterrupts");
+
+  public static final Atom setIdt = Atom.findOrCreateAsciiAtom("setIdt");
+
+  
 }

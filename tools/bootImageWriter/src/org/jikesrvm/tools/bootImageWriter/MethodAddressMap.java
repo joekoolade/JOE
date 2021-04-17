@@ -52,7 +52,7 @@ public abstract class MethodAddressMap {
    * Junk released from Statics when instantiation finishes and may
    * be needed to generate the boot image report.
    */
-  private static Object staticsJunk;
+  static Object staticsJunk;
 
   static void setStaticsJunk(Object staticsJunk) {
     MethodAddressMap.staticsJunk = staticsJunk;
@@ -313,7 +313,7 @@ public abstract class MethodAddressMap {
    * @param fatalIfNotFound whether to terminate on failure
    * @return address of object or zero if not found
    */
-  private static Address getReferenceAddr(Offset jtocOff, boolean fatalIfNotFound) {
+  static Address getReferenceAddr(Offset jtocOff, boolean fatalIfNotFound) {
     int ival = MethodAddressMap.getIVal(jtocOff);
     if (ival != 0) {
       Object jdkObject = BootImageMap.getObject(ival);
@@ -331,7 +331,7 @@ public abstract class MethodAddressMap {
    * @param jtocOff offset in JTOC
    * @return integer at offset
    */
-  private static int getIVal(Offset jtocOff) {
+   static int getIVal(Offset jtocOff) {
     int ival;
     if (VM.BuildFor32Addr) {
       ival = Statics.getSlotContentsAsInt(jtocOff);
@@ -341,7 +341,7 @@ public abstract class MethodAddressMap {
     return ival;
   }
 
-  private static CompiledMethod findMethodOfCode(Object code) {
+  static CompiledMethod findMethodOfCode(Object code) {
     for (int i = 0; i < CompiledMethods.numCompiledMethods(); ++i) {
       CompiledMethod compiledMethod = CompiledMethods.getCompiledMethodUnchecked(i);
       if (compiledMethod != null &&

@@ -198,13 +198,18 @@ public class Assembler extends AbstractAssembler {
   /**
    * The array holding the generated binary code.
    */
-  private byte [] machineCodes;
+  protected byte [] machineCodes;
 
   /**
    * The current end of the generated machine code
    */
   protected int mi;
 
+  /**
+   * The current address
+   */
+  private int origin;
+  
   /**
    * Create an assembler with a given machine code buffer size that
    * will not print the machine code as it generates it.
@@ -384,7 +389,7 @@ public class Assembler extends AbstractAssembler {
    * is desired, this special SIB (scale-index-base) byte must be
    * emitted.
    */
-  private static final byte SIBforESP = (byte) ((0<<6) + (4<<3) + ESP.value()); // (scale factor 1) no index, ESP is base
+  protected static final byte SIBforESP = (byte) ((0<<6) + (4<<3) + ESP.value()); // (scale factor 1) no index, ESP is base
 
   /**
    * In the representation of addressing modes in the ModRM and SIB
@@ -393,7 +398,7 @@ public class Assembler extends AbstractAssembler {
    * is desired, this special SIB (scale-index-base) byte must be
    * emitted.
    */
-  private static final byte SIBforR12 = VM.buildFor32Addr() ? 0 :
+  protected static final byte SIBforR12 = VM.buildFor32Addr() ? 0 :
     (byte) ((0<<6) + (4<<3) + (R12.value() & 0x7)); // (scale factor 1) no index, R12 is base
 
   /**
@@ -405,7 +410,7 @@ public class Assembler extends AbstractAssembler {
    * @param B_reg extension of the modrm field, SIB base or opcode reg field
    */
   @Inline
-  private void generateREXprefix(boolean W, IntelMachineRegister R_reg, IntelMachineRegister X_reg, IntelMachineRegister B_reg) {
+  protected void generateREXprefix(boolean W, IntelMachineRegister R_reg, IntelMachineRegister X_reg, IntelMachineRegister B_reg) {
     boolean R = R_reg != null && R_reg.needsREXprefix();
     boolean X = X_reg != null && X_reg.needsREXprefix();
     boolean B = B_reg != null && B_reg.needsREXprefix();
@@ -425,7 +430,7 @@ public class Assembler extends AbstractAssembler {
    * @return the encoded ModRM byte.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private byte regRegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
+  protected byte regRegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
     return (byte) ((3 << 6) | ((reg2.value() & 7) << 3) | (reg1.value() & 0x7));
   }
 
@@ -439,7 +444,7 @@ public class Assembler extends AbstractAssembler {
    * @return the encoded ModRM byte.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private byte regDisp32RegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
+  protected byte regDisp32RegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
     return (byte) ((2 << 6) | ((reg2.value() & 7)<< 3) | (reg1.value() & 7));
   }
 
@@ -453,7 +458,7 @@ public class Assembler extends AbstractAssembler {
    * @return the encoded ModRM byte.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private byte regDisp8RegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
+  protected byte regDisp8RegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
     return (byte) ((1 << 6) | ((reg2.value() & 7) << 3) | (reg1.value() & 7));
   }
 
@@ -466,7 +471,7 @@ public class Assembler extends AbstractAssembler {
    * @return the encoded ModRM byte.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private byte regIndirectRegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
+  protected byte regIndirectRegModRM(IntelMachineRegister reg1, IntelMachineRegister reg2) {
     return (byte) (((reg2.value() & 7) << 3) | (reg1.value() & 7));
   }
 
@@ -482,7 +487,7 @@ public class Assembler extends AbstractAssembler {
    * @return the encoded SIB byte.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={2,3})
-  private byte sib(short scale, IntelMachineRegister baseReg, IntelMachineRegister indexReg) {
+  protected byte sib(short scale, IntelMachineRegister baseReg, IntelMachineRegister indexReg) {
     return (byte) ((scale << 6) | ((indexReg.value() & 7) << 3) | (baseReg.value() & 7));
   }
 
@@ -494,7 +499,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other register or extended opcode.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private void emitRegRegOperands(IntelMachineRegister reg1, IntelMachineRegister reg2) {
+  protected void emitRegRegOperands(IntelMachineRegister reg1, IntelMachineRegister reg2) {
     setMachineCodes(mi++, regRegModRM(reg1, reg2));
   }
 
@@ -512,7 +517,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other register or extended opcode.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,3})
-  private void emitRegDisp32RegOperands(IntelMachineRegister reg1, int disp, IntelMachineRegister reg2) {
+  protected void emitRegDisp32RegOperands(IntelMachineRegister reg1, int disp, IntelMachineRegister reg2) {
     setMachineCodes(mi++, regDisp32RegModRM(reg1, reg2));
     if (reg1 == ESP) setMachineCodes(mi++, SIBforESP);
     if (reg1 == R12) setMachineCodes(mi++, SIBforR12);
@@ -533,7 +538,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other register or extended opcode.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,3})
-  private void emitRegDisp8RegOperands(IntelMachineRegister reg1, byte disp, IntelMachineRegister reg2) {
+  protected void emitRegDisp8RegOperands(IntelMachineRegister reg1, byte disp, IntelMachineRegister reg2) {
     setMachineCodes(mi++, regDisp8RegModRM(reg1, reg2));
     if (reg1 == ESP) setMachineCodes(mi++, SIBforESP);
     if (reg1 == R12) setMachineCodes(mi++, SIBforR12);
@@ -554,7 +559,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other register or extended opcode.
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,3})
-  private void emitRegDispRegOperands(IntelMachineRegister reg1, Offset disp, IntelMachineRegister reg2) {
+  protected void emitRegDispRegOperands(IntelMachineRegister reg1, Offset disp, IntelMachineRegister reg2) {
     if (reg1 == GPR.EIP) {
       setMachineCodes(mi++, regIndirectRegModRM(EBP, reg2)); // EBP == RIP addressing mode
       emitImm32(disp);
@@ -589,7 +594,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other register or extended opcode
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private void emitRegIndirectRegOperands(IntelMachineRegister reg1, IntelMachineRegister reg2) {
+  protected void emitRegIndirectRegOperands(IntelMachineRegister reg1, IntelMachineRegister reg2) {
     if (reg1 == EBP) {
       emitRegDispRegOperands(reg1, Offset.zero(), reg2);
     } else if (reg1 == R13) {
@@ -615,7 +620,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other operand or the extended opcode
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,4})
-  private void emitRegOffRegOperands(IntelMachineRegister index, short scale, Offset disp, IntelMachineRegister reg2) {
+  protected void emitRegOffRegOperands(IntelMachineRegister index, short scale, Offset disp, IntelMachineRegister reg2) {
     setMachineCodes(mi++, regIndirectRegModRM(ESP, reg2));
     setMachineCodes(mi++, sib(scale, EBP, index));
     emitImm32(disp);
@@ -629,7 +634,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other operand or the extended opcode
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
-  private void emitAbsRegOperands(Address disp, IntelMachineRegister reg2) {
+  protected void emitAbsRegOperands(Address disp, IntelMachineRegister reg2) {
     if (VM.buildFor32Addr()) {
       setMachineCodes(mi++, regIndirectRegModRM(EBP, reg2)); // EBP == No displacement
     } else {
@@ -652,7 +657,7 @@ public class Assembler extends AbstractAssembler {
    * @param reg2 the other operand or the extended opcode
    */
   @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2,5})
-  private void emitSIBRegOperands(IntelMachineRegister base, IntelMachineRegister index, short scale, Offset disp, IntelMachineRegister reg2) {
+  protected void emitSIBRegOperands(IntelMachineRegister base, IntelMachineRegister index, short scale, Offset disp, IntelMachineRegister reg2) {
     if (VM.VerifyAssertions) VM._assert(index != ESP);
     if (VM.VerifyAssertions) VM._assert(index != R12);
     if (disp.EQ(Offset.zero()) && base != EBP && base != R13) {
@@ -676,7 +681,7 @@ public class Assembler extends AbstractAssembler {
    * @param disp the displacement to generate.
    */
   @Inline
-  private void emitImm32(Offset disp) {
+  protected void emitImm32(Offset disp) {
     emitImm32(disp.toWord());
   }
 
@@ -687,7 +692,7 @@ public class Assembler extends AbstractAssembler {
    * @param disp the displacement to generate.
    */
   @Inline
-  private void emitImm32(Address disp) {
+  protected void emitImm32(Address disp) {
     emitImm32(disp.toWord());
   }
 
@@ -698,7 +703,7 @@ public class Assembler extends AbstractAssembler {
    * @param disp the displacement to generate.
    */
   @Inline
-  private void emitImm32(Word disp) {
+  protected void emitImm32(Word disp) {
     if (VM.VerifyAssertions) {
       if (!fits(disp, 32)) {
         final String msg = "Displacement " + unboxedValueString(disp) +
@@ -716,7 +721,7 @@ public class Assembler extends AbstractAssembler {
    * @param imm the immediate to generate.
    */
   @Inline
-  private void emitImm32(int imm) {
+  protected void emitImm32(int imm) {
     mi = emitImm32(imm, mi);
   }
 
@@ -727,7 +732,7 @@ public class Assembler extends AbstractAssembler {
    * @param imm the immediate the generate;
    */
   @Inline
-  private void emitImm64(long imm) {
+  protected void emitImm64(long imm) {
     mi = emitImm64(imm, mi);
   }
 
@@ -738,7 +743,7 @@ public class Assembler extends AbstractAssembler {
    * @param imm the immediate to generate.
    */
   @Inline
-  private void emitImm16(int imm) {
+  protected void emitImm16(int imm) {
     if (VM.VerifyAssertions) {
       if (!fits(imm, 16) && !(fitsUnsigned(imm, 16))) {
         final String msg = "Immediate " + imm +
@@ -756,7 +761,7 @@ public class Assembler extends AbstractAssembler {
    * @param imm the immediate to generate.
    */
   @Inline
-  private void emitImm8(int imm) {
+  protected void emitImm8(int imm) {
     if (VM.VerifyAssertions) {
       if (!fits(imm, 8) && !(fitsUnsigned(imm, 8))) {
         final String msg = "Immediate " + imm +
@@ -776,7 +781,7 @@ public class Assembler extends AbstractAssembler {
    * @return next machine code index to write to
    */
   @Inline
-  private int emitImm16(int imm, int idx) {
+  protected int emitImm16(int imm, int idx) {
     setMachineCodes(idx++, (byte) ((imm >>  0) & 0xFF));
     setMachineCodes(idx++, (byte) ((imm >>  8) & 0xFF));
     return idx;
@@ -791,7 +796,7 @@ public class Assembler extends AbstractAssembler {
    * @return next machine code index to write to
    */
   @Inline
-  private int emitImm32(int imm, int idx) {
+  protected int emitImm32(int imm, int idx) {
     setMachineCodes(idx++, (byte) ((imm >>  0) & 0xFF));
     setMachineCodes(idx++, (byte) ((imm >>  8) & 0xFF));
     setMachineCodes(idx++, (byte) ((imm >> 16) & 0xFF));
@@ -807,7 +812,7 @@ public class Assembler extends AbstractAssembler {
    * @param idx the location in the generated code to write.
    * @return next machine code index to write to
    */
-  private int emitImm64(long imm, int idx) {
+  protected int emitImm64(long imm, int idx) {
       setMachineCodes(idx++, (byte) ((imm >>  0) & 0xFF));
       setMachineCodes(idx++, (byte) ((imm >>  8) & 0xFF));
       setMachineCodes(idx++, (byte) ((imm >>  16) & 0xFF));
@@ -828,11 +833,34 @@ public class Assembler extends AbstractAssembler {
    * @return next machine code index to write to
    */
   @Inline
-  private int emitImm8(int imm, int idx) {
+  protected int emitImm8(int imm, int idx) {
     setMachineCodes(idx++, (byte) imm);
     return idx;
   }
 
+    public final void setOrigin(int address)
+  {
+      origin = address;
+  }
+  
+  public final int getOrigin()
+  {
+      return origin;
+  }
+  
+  @Inline
+  public final void emitOperandPrefix()
+  {
+      setMachineCodes(mi++, (byte)0x66);
+      if (lister != null) lister.operandPrefix();
+  }
+  @Inline
+  public final void emitAddressPrefix()
+  {
+      setMachineCodes(mi++, (byte)0x67);
+      if (lister != null) lister.addressPrefix();
+  }
+  
   /**
    * Generate a conditional opcode given the base opcode and the
    * condition code desired.  The CMOVcc, SETcc and Jcc families of
@@ -844,7 +872,7 @@ public class Assembler extends AbstractAssembler {
    * @param cond the condition code desired
    */
   @Inline
-  private void emitCondOpByte(byte opCode, byte cond) {
+  protected void emitCondOpByte(byte opCode, byte cond) {
     setMachineCodes(mi++, (byte) (opCode | cond));
   }
 
@@ -1196,6 +1224,18 @@ public class Assembler extends AbstractAssembler {
     int relOffset = mi - (sourceIndex+6);
     sourceIndex += 2; // skip the (two byte) op code
     emitImm32(relOffset, sourceIndex);
+  }
+
+  public final void patchUnconditionalAbsoluteBranch(int sourceIndex)
+  {
+      if (VM.AlignmentChecking || isHotCode()) {
+          // force 4byte alignment here
+          emitNOP((4 - mi) & 3);
+        }
+        if (lister != null) lister.comefrom(mi+origin, sourceIndex);
+        sourceIndex++; // skip the op code
+        emitImm32(mi+origin, sourceIndex);
+      
   }
 
   /**
@@ -2949,6 +2989,263 @@ public class Assembler extends AbstractAssembler {
     if (lister != null) lister.R(miStart, "FXCH", nonZeroReg);
   }
 
+    /**
+   * Generate OUT DX,EAX
+   */
+  public final void emitOUT32()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xEF);
+      
+      // list it
+      if(lister != null)
+      {
+          lister.RR(miStart, "OUT32", EDX, EAX);
+      }
+  }
+  
+  /**
+   * Generate OUT DX, AX
+   */
+  public final void emitOUT16()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x66);
+      setMachineCodes(mi++, (byte)0xEF);
+      // list it
+      if(lister != null)
+      {
+          lister.RR(miStart, "OUT16", EDX, EAX);
+      }
+  }
+  
+  /**
+   * Generate OUT DX,AL
+   */
+  public final void emitOUT8()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xEE);
+      // list it
+      if(lister != null)
+      {
+          lister.RR(miStart, "OUT8", EDX, EAX);
+      }
+  }
+  
+  /**
+   * Generate an IN EAX,DX
+   */
+  public final void emitIN32()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xED);
+      
+      // list it
+      if(lister != null)
+      {
+          lister.RR(miStart, "IN32", EAX, EDX);
+      }
+  }
+  
+  /**
+   * Generate an IN AX,DX instruction
+   */
+  public final void emitIN16()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x66);
+      setMachineCodes(mi++, (byte)0xED);
+      // list it
+      if(lister != null)
+      {
+          lister.RR(miStart, "IN16", EAX, EDX);
+      }
+  }
+  
+  /**
+   * Generate IN AL,DX
+   */
+  public final void emitIN8()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xEC);
+      
+      // list it
+      if(lister != null)
+      {
+          lister.RR(miStart, "IN8", EAX, EDX);
+      }
+  }
+  
+  /**
+   * Generate STI
+   */
+  public final void emitSTI()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xFB);
+      
+      if(lister != null)
+      {
+          lister.OP(miStart, "STI");
+      }
+  }
+
+  /**
+   * Generate CLI
+   */
+  public final void emitCLI()
+  {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xFA);
+      
+      if(lister != null)
+      {
+          lister.OP(miStart, "CLI");
+      }
+  }
+  
+  /**
+   * Generate an LIDT address
+   * @param lidtDesciptor
+   */
+    public void emitLIDT(GPR lidtDesciptor) {
+        int miStart = mi;
+        setMachineCodes(mi++, (byte)0x0f);
+        setMachineCodes(mi++, (byte)0x01);
+        setMachineCodes(mi++, regIndirectRegModRM(lidtDesciptor,GPR.getForOpcode(3))); // opcode /3, disp32
+        if(lister != null) lister.R(miStart, "LIDT", lidtDesciptor);
+    }
+    
+    /**
+     * Generate a HLT instruction
+     */
+    public void emitHLT()
+    {
+        int miStart = mi;
+        
+        setMachineCodes(mi++, (byte)0xF4);
+        if(lister != null) lister.OP(miStart, "HLT");
+    }
+    
+    /**
+     * Generate a PUSHAD instruction
+     */
+    public void emitPUSHAD()
+    {
+        int miStart = mi;
+        
+        setMachineCodes(mi++, (byte)0x60);
+        if(lister != null) lister.OP(miStart, "PUSHAD");
+    }
+    
+    /**
+     * Genterate a POPAD instruction
+     */
+    public void emitPOPAD()
+    {
+        int miStart = mi;
+        
+        setMachineCodes(mi++, (byte)0x61);
+        if(lister != null) lister.OP(miStart, "POPAD");
+    }
+ 
+    public final void emitBSR_Reg_Reg(GPR dst, GPR src)
+    {
+        int miStart = mi;
+        
+        setMachineCodes(mi++, (byte)0x0F);
+        setMachineCodes(mi++, (byte)0xBD);
+        emitRegRegOperands(src, dst);
+    }
+    
+    public final void emitFXSAVE_Reg(GPR dst)
+    {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0xAE);
+      setMachineCodes(mi++, regIndirectRegModRM(dst, GPR.getForOpcode(0)));
+    }
+
+    public final void emitFXRSTOR_Reg(GPR dst)
+    {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0xAE);
+      setMachineCodes(mi++, regIndirectRegModRM(dst, GPR.getForOpcode(1)));
+    }
+
+    public final void emitFRNDINT(FPR dst)
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0xD9);
+      setMachineCodes(mi++, (byte)0xFC);
+      if(lister != null) lister.R(miStart, "FRNDINT", dst);
+    }
+    
+    public final void emitCPUID()
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0xA2);
+    }
+    
+    public final void emitRDMSR()
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0x32);
+    }
+    
+    public final void emitWRMSR()
+    {
+      int miStart = mi;
+      
+      setMachineCodes(mi++, (byte)0x0F);
+      setMachineCodes(mi++, (byte)0x30);
+    }
+  
+    /**
+     * 8bit exchange of the contents of registers 1 and 2
+     * 
+     * @param reg1
+     * @param reg2
+     */
+    @Inline(value=Inline.When.ArgumentsAreConstant, arguments={1,2})
+    public final void emitXCHG_Reg_Reg(GPR reg1, GPR reg2)
+    {
+      int miStart = mi;
+      setMachineCodes(mi++,(byte)0x86);
+      emitRegRegOperands(reg1, reg2);
+    }
+
+    /**
+     * Move srcReg to segment register
+     * 
+     * seg := srcReg
+     * 
+     * @param seg
+     * @param srcReg
+     */
+    public void emitMOVSEG(SEG seg, GPR srcReg) {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0x8e);
+      setMachineCodes(mi++, (byte)(0xc0 | (seg.ordinal()<<3) | srcReg.ordinal()));
+      // if(lister != null) lister.
+    }
+  
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *
