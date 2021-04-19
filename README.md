@@ -36,20 +36,42 @@ This is interoperable with current Java compilers, class files, and libraries. O
 
 ## How To Build
 
-Ant is used to compile and build the JOE files and image. To build after the initial repository clone:
+To build you must build from Mac OSX. You will need Java OpenJDK6. You will also need jenv, brew, bison, and the gcc compiler, gcc-10, and Java 1.8/OpenJDK8.
+
+### One time setup
 ```
-ant compile
-ant compile-classpath
-ant build
+% brew tap homebrew/cask-versions
+% brew install java6
+
+% /Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java -version
+java version "1.6.0_65"
+Java(TM) SE Runtime Environment (build 1.6.0_65-b14-468)
+Java HotSpot(TM) 64-Bit Server VM (build 20.65-b04-468, mixed mode)
+
+% cd <top of JOE repo>
+% cat > .ant.properties
+config.name=BaseBaseRefCount
+host.name=x86_64-osx
+<ctrl-D>
+
+% jenv local 1.8
+% ant check-components-properties
+
+% jenv local 1.6
 ```
-The system builds with Java 1.8. Earlier Java versions should work also. OpenJDK 1.11 DOES NOT work.
+
+### Building JOE
+```
+% cd <top of JOE repo>
+% ant build-bootimage
+```
 
 ## How To Add External Classes
 
 Precompiled classes can be added to the image and loaded by the runtime. This allows users to run  programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load the program and run it. To have classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example. The classes must be compiled for Java version 1.5.
 
 ```
-FAMILYs-MacBook-Pro:JOE joe$ ls -R ext/bin
+joe$ ls -R ext/bin
 com	hello
 
 ext/bin/com:
