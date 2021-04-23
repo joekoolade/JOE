@@ -170,7 +170,6 @@ public class VM extends Properties {
     runningVM = true;
     booting=true;
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
-    VM.sysWriteln("The Start");
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
      * Setup the serial port
@@ -179,7 +178,8 @@ public class VM extends Properties {
     PcBootSerialPort.setParityNone();
     PcBootSerialPort.setWordLength8();
     PcBootSerialPort.setStopBits1();
-    verboseBoot = BootRecord.the_boot_record.verboseBoot;
+    VM.sysWriteln("\nThe Start");
+//    verboseBoot = BootRecord.the_boot_record.verboseBoot;
     verboseSignalHandling = BootRecord.the_boot_record.verboseSignalHandling != 0;
 
     sysWriteLockOffset = Entrypoints.sysWriteLockField.getOffset();

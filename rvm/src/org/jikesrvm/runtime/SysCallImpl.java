@@ -264,7 +264,7 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall {
 
   @java.lang.Override
   public int sysNumProcessors() {
-    return 0;
+    return 1;
   }
 
   @java.lang.Override
