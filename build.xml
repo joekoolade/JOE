@@ -32,7 +32,7 @@
 
   <!-- default configuration values. May have already been set by above tasks -->
   <property file="${jikesrvm.dir}/build/configs/config.properties.defaults"/>
-  <property name="debugLevel" value="lines,source"/>
+  <property name="debugLevel" value="lines,source,vars"/>
 
   <setBuildName property="build.name" config="${config.name}"/>
 
@@ -1547,7 +1547,7 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
-  <target name="bootstrap-unit-tests" description="Run unit tests on the boostrap VM" depends="compile-unit-tests">
+  <target name="bootstrap-unit-tests" description="Run unit tests on the boostrap VM" depends="compile-unit-tests" unless="skip.unit.tests">
 
     <delete dir="${junit.reports.bootstrap}"/>
     <mkdir dir="${junit.reports.bootstrap}"/>

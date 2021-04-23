@@ -1,0 +1,3 @@
+#!/bin/sh
+
+qemu-system-x86_64 -no-reboot -kernel jam.out -nographic  -device i82559c,netdev=mynet -netdev user,id=mynet -no-shutdown

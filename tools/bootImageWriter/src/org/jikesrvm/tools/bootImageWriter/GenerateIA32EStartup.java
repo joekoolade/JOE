@@ -246,7 +246,7 @@ public class GenerateIA32EStartup implements ProcessorStartup {
 		// setup FRAME POINTER
 		// call VM.boot(); we are never coming back
 //		asm.emitFARCALL(bootRecord.ipRegister, CODE_SEGMENT);
-		asm.emitCALL_Imm(bootRecord.ipRegister.toInt());
+		asm.emitCALL_Imm(bootRecord.ipRegister.minus(X86_LOADADDR).toInt());
 		// asm.emitCALL_Imm(vmEntry.minus(0x100000).toInt());
 	}
 	

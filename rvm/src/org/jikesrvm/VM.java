@@ -170,6 +170,7 @@ public class VM extends Properties {
     runningVM = true;
     booting=true;
     verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
+    VM.sysWriteln("The Start");
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
      * Setup the serial port

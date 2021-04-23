@@ -1,18 +1,135 @@
 package org.jikesrvm.runtime;
 
+import org.jam.driver.serial.PcBootSerialPort;
+import org.jikesrvm.VM;
+
 @org.vmmagic.pragma.Uninterruptible
 public final class SysCallImpl extends org.jikesrvm.runtime.SysCall {
 
   @java.lang.Override
   public void sysConsoleWriteChar(char v) {
+      PcBootSerialPort.putChar(v);
   }
 
+  private final static char digitBuffer[] = new char[21];
+  private final static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd','e', 'f' };
+  
   @java.lang.Override
   public void sysConsoleWriteInteger(int value, int hexToo) {
-  }
+      if(hexToo > 0) {
+          int size = 1;
+          long copy = value >>> 4;
+          int mask = (1 << 4) - 1;
+          while (copy != 0)
+            {
+              size++;
+              copy >>>= 4;
+            }
+          // Quick path for single character strings
+          if (size == 1)
+          {
+              PcBootSerialPort.putChar('0');
+              PcBootSerialPort.putChar('x');
+              PcBootSerialPort.putChar(hexDigits[(int)value & mask]);
+              return;
+          }
+
+          // Encode into buffer
+//          char[] buffer = new char[size];
+          int i = size + 2;   // +2 for '0x' lead
+          do
+            {
+              digitBuffer[--i] = hexDigits[(int) value & mask];
+              value >>>= 4;
+            }
+          while (value != 0);
+          digitBuffer[0] = '0';
+          digitBuffer[1] = 'x';
+          
+          for(i=0; i<size+2; i++) {
+              PcBootSerialPort.putChar(digitBuffer[i]);
+          }
+      } else {
+          int i;
+          int val=value;
+          for(i=0; i<11; i++) {
+              digitBuffer[i] = ' ';
+          }
+          digitBuffer[10] = '0';
+          if(val < 0)
+          {
+            val = -val;
+          }
+          for(i=10; val > 0; i--) {
+              digitBuffer[i] = hexDigits[(int)(val%10)];
+            val/=10;
+          }
+          if((value & 0x80000000) != 0) {
+              digitBuffer[i] = '-';
+          }
+          for(; i<11; i++) {
+              PcBootSerialPort.putChar(digitBuffer[i]);
+          }
+      }
+}
 
   @java.lang.Override
   public void sysConsoleWriteLong(long value, int hexToo) {
+      if(hexToo > 0) {
+          int size = 1;
+          long copy = value >>> 4;
+          int mask = (1 << 4) - 1;
+          while (copy != 0)
+            {
+              size++;
+              copy >>>= 4;
+            }
+          // Quick path for single character strings
+          if (size == 1)
+          {
+              PcBootSerialPort.putChar('0');
+              PcBootSerialPort.putChar('x');
+              PcBootSerialPort.putChar(hexDigits[(int)value & mask]);
+              return;
+          }
+
+          // Encode into buffer
+//          char[] buffer = new char[size];
+          int i = size + 2;   // +2 for '0x' lead
+          do
+            {
+              digitBuffer[--i] = hexDigits[(int) value & mask];
+              value >>>= 4;
+            }
+          while (value != 0);
+          digitBuffer[0] = '0';
+          digitBuffer[1] = 'x';
+          
+          for(i=0; i<size+2; i++) {
+              PcBootSerialPort.putChar(digitBuffer[i]);
+          }
+      } else {
+          int i;
+          long val=value;
+          for(i=0; i<21; i++) {
+              digitBuffer[i] = ' ';
+          }
+          digitBuffer[20] = '0';
+          if(val < 0)
+          {
+            val = -val;
+          }
+          for(i=20; val > 0; i--) {
+              digitBuffer[i] = hexDigits[(int)(val%10)];
+            val/=10;
+          }
+          if((value & 0x8000000000000000L) != 0) {
+              digitBuffer[i] = '-';
+          }
+          for(; i<21; i++) {
+              PcBootSerialPort.putChar(digitBuffer[i]);
+          }
+      }
   }
 
   @java.lang.Override
@@ -25,54 +142,66 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall {
 
   @java.lang.Override
   public void sysExit(int value) {
+      VM.sysWriteln("EXIT ", value);
   }
 
   @java.lang.Override
   public int sysArg(int argno, byte[] buf, int buflen) {
+      VM.sysWriteln("ARG ", argno);
     return 0;
   }
 
   @java.lang.Override
   public int sysGetenv(byte[] varName, byte[] buf, int limit) {
+      VM.sysWriteln("GETENV ", varName[0]);
     return 0;
   }
 
   @java.lang.Override
   public void sysCopy(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Address src, org.vmmagic.unboxed.Extent cnt) {
+      VM.sysWriteln("COPY ", dst);
   }
 
   @java.lang.Override
   public void sysMemmove(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Address src, org.vmmagic.unboxed.Extent cnt) {
+      VM.sysWriteln("MEMMOVE ", dst);
   }
 
   @java.lang.Override
   public org.vmmagic.unboxed.Address sysMalloc(int length) {
+      VM.sysWriteln("MALLOC ", length);
     return null;
   }
 
   @java.lang.Override
   public org.vmmagic.unboxed.Address sysCalloc(int length) {
+      VM.sysWriteln("CALLOC ", length);
     return null;
   }
 
   @java.lang.Override
   public void sysFree(org.vmmagic.unboxed.Address location) {
+      VM.sysWriteln("FREE ", location);
   }
 
   @java.lang.Override
   public void sysZeroNT(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Extent cnt) {
+      VM.sysWriteln("ZERONT ", dst);
   }
 
   @java.lang.Override
   public void sysZero(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Extent cnt) {
+      VM.sysWriteln("ZERO ", dst);
   }
 
   @java.lang.Override
   public void sysZeroPages(org.vmmagic.unboxed.Address dst, int cnt) {
+      VM.sysWriteln("ZEROPAGES ", dst);
   }
 
   @java.lang.Override
   public void sysSyncCache(org.vmmagic.unboxed.Address address, int size) {
+      VM.sysWriteln("SYNCACHE ", address);
   }
 
   @java.lang.Override
