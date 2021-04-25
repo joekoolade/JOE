@@ -7,7 +7,6 @@
 package org.jam.cpu.intel;
 
 import org.jam.board.pc.I82c54;
-import org.jam.board.pc.Platform;
 import org.jam.interfaces.Timer;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -81,7 +80,6 @@ implements Timer
     int pitcnt = 0;
     long t2;
     
-    I82c54 timer = Platform.pit.timer;
     Address keyboardController = Address.fromIntZeroExtend(0x61);
     
     Magic.disableInterrupts();
@@ -99,7 +97,7 @@ implements Timer
      */
     int latch = 1193182/(1000/calibrateTimeMs);
             
-    timer.counter2(I82c54.MODE0, latch);
+    I82c54.counter2(I82c54.MODE0, latch);
     setTimerIcr(0xFFFFFFFF);
     // Wait for the gate to go active
     VM.sysWrite("Wait for gate to go active ");

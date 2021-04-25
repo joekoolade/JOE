@@ -12,7 +12,7 @@
  */
 package org.mmtk.utility.heap.layout;
 
-import static org.mmtk.utility.Constants.*;
+import static org.mmtk.utility.Constants.LOG_BYTES_IN_ADDRESS_SPACE;
 
 import org.mmtk.utility.Conversions;
 import org.mmtk.utility.Log;
@@ -49,7 +49,7 @@ public final class FragmentedMmapper extends Mmapper {
   /**
    * Enable messages at runtime
    */
-  private static final boolean VERBOSE = false;
+  private static final boolean VERBOSE = true;
 
   /**
    * Enable messages in the BootImageWriter log file

@@ -12,29 +12,15 @@
  */
 package org.jikesrvm;
 
-import org.jam.driver.net.NapiManager;
-import org.jam.driver.serial.PcBootSerialPort;
-import org.jam.driver.serial.SerialPortBaudRate;
-import org.jam.net.ethernet.Ethernet;
-import org.jam.net.ethernet.EthernetAddr;
-import org.jam.net.inet4.Arp;
-import org.jam.net.inet4.InetAddress;
-import org.jam.runtime.StartUp;
-import org.jam.system.Trace;
-import org.jam.tests.LdivTests;
-import org.jam.tests.Sleep;
-
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_SYSFAIL;
-import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_PRINTED_HELP_MESSAGE;
+import static org.jikesrvm.runtime.SysCall.sysCall;
+import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 
-import org.jam.board.pc.I8259A;
-import org.jam.board.pc.IMCR;
 import org.jam.board.pc.Platform;
-import org.jikesrvm.ia32.ThreadLocalState;
+import org.jam.driver.serial.PcBootSerialPort;
+import org.jam.driver.serial.SerialPortBaudRate;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
 import org.jikesrvm.architecture.StackFrameLayout;
@@ -44,40 +30,33 @@ import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.BootstrapClassLoader;
 import org.jikesrvm.classloader.ClassNameHelpers;
 import org.jikesrvm.classloader.JMXSupport;
+import org.jikesrvm.classloader.MemberReference;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMember;
-import org.jikesrvm.classloader.MemberReference;
 import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.classloader.TypeDescriptorParsing;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.compilers.baseline.BaselineCompiler;
 import org.jikesrvm.compilers.common.BootImageCompiler;
 import org.jikesrvm.compilers.common.RuntimeCompiler;
+import org.jikesrvm.ia32.ThreadLocalState;
 import org.jikesrvm.mm.mminterface.MemoryManager;
-import org.jikesrvm.mm.mminterface.Selected;
-import org.jikesrvm.runtime.ArchEntrypoints;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Callbacks;
 import org.jikesrvm.runtime.CommandLineArgs;
 import org.jikesrvm.runtime.DynamicLibrary;
 import org.jikesrvm.runtime.Entrypoints;
-import org.jikesrvm.runtime.ExitStatus;
+import org.jikesrvm.runtime.FileSystem;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Reflection;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
-import org.jikesrvm.scheduler.IdleThread;
 import org.jikesrvm.runtime.SysCall;
 import org.jikesrvm.runtime.Time;
-
-import static org.jikesrvm.runtime.SysCall.sysCall;
-
 import org.jikesrvm.scheduler.Lock;
 import org.jikesrvm.scheduler.MainThread;
-import org.jikesrvm.scheduler.Synchronization;
 import org.jikesrvm.scheduler.RVMThread;
-import org.jikesrvm.scheduler.TestThread;
-import org.jikesrvm.runtime.FileSystem;
+import org.jikesrvm.scheduler.Synchronization;
 import org.jikesrvm.tuningfork.TraceEngine;
 import org.jikesrvm.util.Services;
 import org.vmmagic.pragma.Entrypoint;
@@ -93,8 +72,6 @@ import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
-
-import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 /**
  * A virtual machine.
  */
@@ -242,6 +219,7 @@ public class VM extends Properties {
                     Magic.objectAsAddress(BootRecord.the_boot_record));
       VM.sysWriteln("Setting up memory manager: bootThread = ", Magic.objectAsAddress(RVMThread.bootThread));
     }
+    Platform.initTimers();
     MemoryManager.boot(BootRecord.the_boot_record);
 
     // Reset the options for the baseline compiler to avoid carrying

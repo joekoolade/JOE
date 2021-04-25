@@ -763,7 +763,8 @@ public class BootImageWriter {
     bootRecord.bootImageRMapEnd   = bootImageRMapAddress.plus(bootImage.getRMapSize());
     bootRecord.initialHeapSize    = Extent.fromIntZeroExtend(0x1000000);
     bootRecord.maximumHeapSize    = Extent.fromIntZeroExtend(0x4000000);
-
+    bootRecord.bytesInPage        = Extent.fromIntZeroExtend(0x1000);
+    
     // Update field of boot record now by re-copying
     //
     if (verbosity.isAtLeast(SUMMARY)) say("re-copying boot record (and its TIB)");

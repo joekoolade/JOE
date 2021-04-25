@@ -119,6 +119,7 @@ public final class MemoryManager {
    */
   @Interruptible
   public static void boot(BootRecord theBootRecord) {
+    Options.verbose.setValue(9);
     Extent pageSize = BootRecord.the_boot_record.bytesInPage;
     org.jikesrvm.runtime.Memory.setPageSize(pageSize);
     HeapLayout.mmapper.markAsMapped(BOOT_IMAGE_DATA_START, BOOT_IMAGE_DATA_SIZE);
