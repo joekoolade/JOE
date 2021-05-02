@@ -146,7 +146,6 @@ public class VM extends Properties {
     writingBootImage = false;
     runningVM = true;
     booting=true;
-    verboseBoot = 1; // BootRecord.the_boot_record.verboseBoot;
     ThreadLocalState.setCurrentThread(RVMThread.bootThread);
     /*
      * Setup the serial port
@@ -256,7 +255,7 @@ public class VM extends Properties {
 
     // Initialize class loader.
     //
-    String bootstrapClasses = CommandLineArgs.getBootstrapClasses();
+    String bootstrapClasses = ""; // CommandLineArgs.getBootstrapClasses();
     if (verboseBoot >= 1) VM.sysWriteln("Initializing bootstrap class loader: ", bootstrapClasses);
     Callbacks.addClassLoadedMonitor(JMXSupport.CLASS_LOADING_JMX_SUPPORT);
     RVMClassLoader.boot();      // Wipe out cached application class loader

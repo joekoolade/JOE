@@ -186,7 +186,14 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   @java.lang.Override
   public void sysCopy(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Address src, org.vmmagic.unboxed.Extent cnt)
   {
-    VM.sysWriteln("COPY ", dst);
+    VM.sysWrite("COPY ", dst);
+    VM.sysWrite(" ", src);
+    VM.sysWriteln(" ", cnt.toInt());
+    int next;
+    for (next = 0; next < cnt.toInt(); next += 4)
+    {
+      dst.store(src.loadInt(Offset.zero().plus(next)), Offset.zero().plus(next));
+    }
   }
 
   @java.lang.Override
