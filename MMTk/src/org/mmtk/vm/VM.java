@@ -12,6 +12,7 @@
  */
 package org.mmtk.vm;
 
+import org.mmtk.utility.Log;
 import org.mmtk.utility.gcspy.Color;
 import org.mmtk.utility.gcspy.drivers.AbstractDriver;
 import org.mmtk.utility.options.Options;
@@ -216,6 +217,8 @@ public final class VM {
    * @return A concrete VM-specific HeavyCondLock instance.
    */
   public static Monitor newHeavyCondLock(String name) {
+    Log.write("New heavy cond lock: ");
+    Log.writeln(name);
     return factory.newMonitor(name);
   }
 

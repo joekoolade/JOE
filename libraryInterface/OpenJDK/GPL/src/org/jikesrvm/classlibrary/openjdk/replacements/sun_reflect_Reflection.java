@@ -35,7 +35,7 @@ import org.vmmagic.pragma.ReplaceMember;
 @ReplaceClass(className = "sun.reflect.Reflection")
 public class sun_reflect_Reflection {
 
-  private static final boolean DEBUG_GET_CALLER_CLASS = false;
+  private static final boolean DEBUG_GET_CALLER_CLASS = true;
 
   @ReplaceMember
   public static Class<?> getCallerClass(int i) {
@@ -46,28 +46,37 @@ public class sun_reflect_Reflection {
     VM.disableGC();
 
     b.init();
-    b.up(); // skip sun.reflect.Reflection.getCallerClass (this call)
-
-    /* Skip Method.invoke and Constructor.newInstance, (if the caller was called by reflection) */
-    if (b.currentMethodIs_Java_Lang_Reflect_Method_InvokeMethod() || b.currentMethodIs_Java_Lang_Reflect_Constructor_NewInstance()) {
+    int up = i;
+    while (up-- > 0)
+    {
       b.up();
     }
-    /* Work around OpenJDK's work around for Reflection.getCallerClass(..) in java.lang.reflect.Method.invoke(..).
-     * The OpenJDK implementation of getCallerClass assumes a fixed stack depth of 2. The Jikes RVM implementation
-     * is different so we have to work around OpenJDK's work around */
-    if (b.currentMethodIs_Java_Lang_Reflect_Method_GetCallerClass()) {
-      b.up();
-    }
-
-    /* Skip JNI if necessary */
-    while (b.currentMethodIsPartOfJikesRVMJNIImplementation()) {
-      b.up();
-    }
-
-    /* Don't skip if we're already in the application */
-    if (b.currentMethodIsInClassLibrary()) {
-      b.up(); // skip method that contains the call
-    }
+    // b.up(); // skip sun.reflect.Reflection.getCallerClass (this call)
+    //
+    // /* Skip Method.invoke and Constructor.newInstance, (if the caller was called
+    // by reflection) */
+    // if (b.currentMethodIs_Java_Lang_Reflect_Method_InvokeMethod() ||
+    // b.currentMethodIs_Java_Lang_Reflect_Constructor_NewInstance()) {
+    // b.up();
+    // }
+    // /* Work around OpenJDK's work around for Reflection.getCallerClass(..) in
+    // java.lang.reflect.Method.invoke(..).
+    // * The OpenJDK implementation of getCallerClass assumes a fixed stack depth of
+    // 2. The Jikes RVM implementation
+    // * is different so we have to work around OpenJDK's work around */
+    // if (b.currentMethodIs_Java_Lang_Reflect_Method_GetCallerClass()) {
+    // b.up();
+    // }
+    //
+    // /* Skip JNI if necessary */
+    // while (b.currentMethodIsPartOfJikesRVMJNIImplementation()) {
+    // b.up();
+    // }
+    //
+    // /* Don't skip if we're already in the application */
+    // if (b.currentMethodIsInClassLibrary()) {
+    // b.up(); // skip method that contains the call
+    // }
     RVMType ret = b.getCurrentClass();
     VM.enableGC();
 

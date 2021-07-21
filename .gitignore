@@ -1,5 +1,5 @@
 jikesrvm.iml
-
+.gitignore
 # Local configuration
 /.ant.properties
 
@@ -43,3 +43,5 @@ jikesrvm.iml
 /testing/tests/jni/out.*
 /testing/tests/SPECjbb2000/results
 /test-output/
+.java-version
+/classes/

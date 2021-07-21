@@ -12,12 +12,12 @@
  */
 package org.jikesrvm.scheduler;
 
+import static org.jikesrvm.objectmodel.ThinLockConstants.TL_THREAD_ID_SHIFT;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_DUMP_STACK_AND_DIE;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_MAIN_THREAD_COULD_NOT_LAUNCH;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN;
 import static org.jikesrvm.runtime.SysCall.sysCall;
-import static org.jikesrvm.objectmodel.ThinLockConstants.TL_THREAD_ID_SHIFT;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -47,7 +47,6 @@ import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.mm.mminterface.ThreadContext;
 import org.jikesrvm.objectmodel.ObjectModel;
 import org.jikesrvm.osr.ObjectHolder;
-import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Memory;
@@ -165,7 +164,7 @@ public final class RVMThread extends ThreadContext {
   protected static final boolean traceBind = false;
 
   /** Trace thread start/stop */
-  protected static final boolean traceAcct = false;
+  protected static final boolean traceAcct = true;
 
   /** Trace execution */
   protected static final boolean trace = false;
@@ -2684,7 +2683,9 @@ public final class RVMThread extends ThreadContext {
       thread = fakeThread;
     }
     // Create the real thread
+    VM.sysWriteln("Create real boot thread");
     thread = java.lang.JikesRVMSupport.createThread(this, "Jikes_RVM_Boot_Thread");
+    VM.sysWriteln("Boot thread ", Magic.objectAsAddress(thread));
   }
 
   /**
@@ -3250,7 +3251,7 @@ public final class RVMThread extends ThreadContext {
    */
   @Inline
   public static boolean isTrampolineIP(Address ip) {
-    return getCurrentThread().getStackTrampolineBridgeIP().EQ(ip);
+    return false; // getCurrentThread().getStackTrampolineBridgeIP().EQ(ip);
   }
 
   /**

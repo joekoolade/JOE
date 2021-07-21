@@ -213,8 +213,8 @@ public class Reflection {
     // critical: no yieldpoints/GCpoints between here and the invoke of code!
     //           We may have references hidden in the GPRs and Spills arrays!!!
     RVMThread.getCurrentThread().enableYieldpoints();
-
-    if (!returnIsPrimitive) {
+    if (!returnIsPrimitive)
+    {
       return Magic.invokeMethodReturningObject(code, GPRs, FPRs, FPRmeta, Spills);
     }
 

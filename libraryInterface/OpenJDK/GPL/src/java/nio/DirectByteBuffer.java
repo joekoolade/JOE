@@ -141,12 +141,19 @@ class DirectByteBuffer
     // Invoked only by JNI: NewDirectByteBuffer(void*, long)
     //
     DirectByteBuffer(long addr, int cap) {
-        super(-1, 0, cap, cap, false);
+      super(-1, 0, cap, cap);
         address = addr;
         cleaner = null;
     }
 
 
+    DirectByteBuffer(long addr, int cap, Object buffer)
+    {
+      super(-1, 0, cap, cap, false);
+      address = addr;
+      cleaner = null;
+      this.viewedBuffer = buffer;
+    }
 
     // For memory-mapped buffers -- invoked by FileChannelImpl via reflection
     //

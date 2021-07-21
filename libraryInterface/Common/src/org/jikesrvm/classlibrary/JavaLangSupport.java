@@ -21,8 +21,8 @@ import org.jikesrvm.Configuration;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.StackFrameLayout;
 import org.jikesrvm.classloader.Atom;
-import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.BootstrapClassLoader;
+import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMField;
@@ -30,9 +30,9 @@ import org.jikesrvm.classloader.RVMMember;
 import org.jikesrvm.classloader.RVMType;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.objectmodel.ObjectModel;
-import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.jikesrvm.runtime.CommandLineArgs;
 import org.jikesrvm.runtime.Entrypoints;
+import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.jikesrvm.scheduler.Synchronization;
 import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.NoInline;
@@ -290,7 +290,7 @@ public final class JavaLangSupport {
     /* java.library.path
     Now the library path.  This is the path used for system
     dynamically-loaded libraries, the things that end in ".so" on Linux. */
-    insertLibraryPath(p);
+    // insertLibraryPath(p);
 
     String bootClassPath = BootstrapClassLoader.getBootstrapRepositories();
     p.put("java.boot.class.path", bootClassPath);
@@ -306,7 +306,7 @@ public final class JavaLangSupport {
     the extensions stored with the other bits of the JDK.   So, this would
     really need to be prepended to the list of VM classes, wouldn't it?  Or
     appended, perhaps? */
-    String s = CommandLineArgs.getEnvironmentArg("java.ext.dirs");
+    String s = "/ext"; // CommandLineArgs.getEnvironmentArg("java.ext.dirs");
     if (s == null) {
       s = "";
     } else {
@@ -317,7 +317,7 @@ public final class JavaLangSupport {
     /* We also set java.class.path in setApplicationRepositories().
      *  We'll treat setting the java.class.path property as essentially
      * equivalent to using the -classpath argument. */
-    s = CommandLineArgs.getEnvironmentArg("java.class.path");
+    s = "/classpath"; // CommandLineArgs.getEnvironmentArg("java.class.path");
     if (s != null) {
       p.put("java.class.path", s);
       RVMClassLoader.stashApplicationRepositories(s);
@@ -329,14 +329,15 @@ public final class JavaLangSupport {
      * this just in case later revisions of the class libraries start to require
      * some of them in the boot process; otherwise, we could wait for them to
      * be set in CommandLineArgs.lateProcessCommandLineArguments() */
-    final String[] clProps = new String[] {"os.name", "os.arch", "os.version", "user.name", "user.home", "user.dir", "java.home"};
-
-    for (final String prop : clProps) {
-      s = CommandLineArgs.getEnvironmentArg(prop);
-      if (s != null) {
-        p.put(prop, s);
-      }
-    }
+    // final String[] clProps = new String[] {"os.name", "os.arch", "os.version",
+    // "user.name", "user.home", "user.dir", "java.home"};
+    //
+    // for (final String prop : clProps) {
+    // s = CommandLineArgs.getEnvironmentArg(prop);
+    // if (s != null) {
+    // p.put(prop, s);
+    // }
+    // }
   }
 
   public static void setTimezoneProperties(Properties p) {

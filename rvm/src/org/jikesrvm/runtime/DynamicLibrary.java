@@ -13,8 +13,9 @@
 package org.jikesrvm.runtime;
 
 import java.util.Iterator;
-import org.jikesrvm.architecture.StackFrameLayout;
+
 import org.jikesrvm.VM;
+import org.jikesrvm.architecture.StackFrameLayout;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.util.ImmutableEntryHashMapRVM;
 import org.jikesrvm.util.StringUtilities;
@@ -196,6 +197,8 @@ public final class DynamicLibrary {
    * @return 0 on failure, 1 on success
    */
   public static synchronized int load(String libName) {
+    if (VM.joeMode)
+      return 1;
     DynamicLibrary dl = dynamicLibraries.get(libName);
     if (dl != null) {
       return 1; // success: already loaded
