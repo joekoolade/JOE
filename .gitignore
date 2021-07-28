@@ -43,3 +43,13 @@ jikesrvm.iml
 /testing/tests/jni/out.*
 /testing/tests/SPECjbb2000/results
 /test-output/
+*.class
+*.sh
+classpath-0.98/
+jdk8/
+jdk6/
+icedtea6-1.13.13/
+*.exp
+classes/
+*.args
+asm-3.0.jar
