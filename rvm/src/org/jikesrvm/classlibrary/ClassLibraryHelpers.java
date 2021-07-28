@@ -12,7 +12,9 @@
  */
 package org.jikesrvm.classlibrary;
 
-import static org.jikesrvm.classloader.ClassLoaderConstants.*;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_PRIVATE;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_SYNTHETIC;
+
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.MemberReference;
@@ -94,18 +96,25 @@ public class ClassLibraryHelpers {
       ClassLibraryHelpers.rvmThreadField = rvmThreadField;
       if (VM.TraceClassLoading) traceFieldAddition(RVM_THREAD_FIELD_NAME_FOR_RVM_THREAD, typeRef);
       return newDeclaredFields;
-    } else if (typeRef == TypeReference.findOrCreate(java.lang.Class.class)) {
-      RVMField rvmTypeField = createField(typeRef, "Lorg/jikesrvm/classloader/RVMType;", RVM_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASS);
-      RVMField pdField = createField(typeRef, "Ljava/security/ProtectionDomain;", PROTECTIOND_DOMAIN_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASSS);
-      RVMField[] newDeclaredFields = new RVMField[declaredFields.length + 2];
-      System.arraycopy(declaredFields, 0, newDeclaredFields, 0, declaredFields.length);
-      newDeclaredFields[newDeclaredFields.length - 2] = rvmTypeField;
-      newDeclaredFields[newDeclaredFields.length - 1] = pdField;
-      ClassLibraryHelpers.rvmTypeField = rvmTypeField;
-      ClassLibraryHelpers.protectionDomainField = pdField;
-      if (VM.TraceClassLoading) traceFieldAddition(RVM_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASS, typeRef);
-      if (VM.TraceClassLoading) traceFieldAddition(PROTECTIOND_DOMAIN_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASSS, typeRef);
-      return newDeclaredFields;
+      // } else if (typeRef == TypeReference.findOrCreate(java.lang.Class.class)) {
+      // RVMField rvmTypeField = createField(typeRef,
+      // "Lorg/jikesrvm/classloader/RVMType;",
+      // RVM_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASS);
+      // RVMField pdField = createField(typeRef, "Ljava/security/ProtectionDomain;",
+      // PROTECTIOND_DOMAIN_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASSS);
+      // RVMField[] newDeclaredFields = new RVMField[declaredFields.length + 2];
+      // System.arraycopy(declaredFields, 0, newDeclaredFields, 0,
+      // declaredFields.length);
+      // newDeclaredFields[newDeclaredFields.length - 2] = rvmTypeField;
+      // newDeclaredFields[newDeclaredFields.length - 1] = pdField;
+      // ClassLibraryHelpers.rvmTypeField = rvmTypeField;
+      // ClassLibraryHelpers.protectionDomainField = pdField;
+      // if (VM.TraceClassLoading)
+      // traceFieldAddition(RVM_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASS, typeRef);
+      // if (VM.TraceClassLoading)
+      // traceFieldAddition(PROTECTIOND_DOMAIN_TYPE_FIELD_NAME_FOR_JAVA_LANG_CLASSS,
+      // typeRef);
+      // return newDeclaredFields;
     } else if (typeRef == TypeReference.findOrCreate(java.lang.reflect.Constructor.class)) {
       RVMField rvmMethodField = createField(typeRef, "Lorg/jikesrvm/classloader/RVMMethod;", RVM_METHOD_FIELD_NAME_FOR_JAVA_LANG_REFLECT_CONSTRUCTOR);
       RVMField[] newDeclaredFields = new RVMField[declaredFields.length + 1];

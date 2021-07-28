@@ -12,15 +12,18 @@
  */
 package org.mmtk.utility.heap.layout;
 
-import static org.mmtk.utility.Constants.*;
+import static org.mmtk.utility.Constants.LOG_BYTES_IN_ADDRESS_SPACE;
 
-import org.mmtk.utility.*;
-
+import org.mmtk.utility.Conversions;
+import org.mmtk.utility.Log;
 import org.mmtk.vm.Lock;
 import org.mmtk.vm.VM;
-
-import org.vmmagic.unboxed.*;
-import org.vmmagic.pragma.*;
+import org.vmmagic.pragma.Uninterruptible;
+import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.AddressArray;
+import org.vmmagic.unboxed.Extent;
+import org.vmmagic.unboxed.ObjectReference;
+import org.vmmagic.unboxed.Word;
 
 /**
  * This class implements mmapping and protection of virtual memory.
@@ -46,7 +49,7 @@ public final class ByteMapMmapper extends Mmapper {
   private static final int MMAP_NUM_CHUNKS = (LOG_BYTES_IN_ADDRESS_SPACE == 32) ?
     1 << (LOG_BYTES_IN_ADDRESS_SPACE - VMLayoutConstants.LOG_MMAP_CHUNK_BYTES) :
     1 << (33 - VMLayoutConstants.LOG_MMAP_CHUNK_BYTES);
-  public static final boolean verbose = false;
+  public static final boolean verbose         = true;
 
   /****************************************************************************
    * Class variables
@@ -117,6 +120,8 @@ public final class ByteMapMmapper extends Mmapper {
    */
   @Override
   public void markAsMapped(Address start, int bytes) {
+    Log.write("Marking ", start);
+    Log.writeln(" ", bytes);
     int startChunk = addressToMmapChunksDown(start);
     int endChunk = addressToMmapChunksUp(start.plus(bytes));
     for (int i = startChunk; i <= endChunk; i++)

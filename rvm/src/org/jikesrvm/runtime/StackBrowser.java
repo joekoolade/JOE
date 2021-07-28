@@ -28,6 +28,7 @@ import org.vmmagic.unboxed.Offset;
  */
 public final class StackBrowser {
 
+  private static final boolean DEBUG = false;
   /** Method associated with current stack location */
   private RVMMethod currentMethod;
   /** Bytecode associated with current stack location */
@@ -65,7 +66,16 @@ public final class StackBrowser {
 
     Address prevFP = fp;
     Address newFP = Magic.getCallerFramePointer(fp);
+    if (DEBUG)
+    {
+      VM.sysWrite("newFP ", newFP);
+      VM.sysWriteln("-->", newFP.loadAddress());
+    }
     if (newFP.EQ(StackFrameLayout.getStackFrameSentinelFP())) {
+      return false;
+    }
+    if (newFP.loadAddress(Offset.zero().plus(3 * 8)).EQ(StackFrameLayout.getStackFrameSentinelFP()))
+    {
       return false;
     }
     // getReturnAddress has to be put here, consider the case

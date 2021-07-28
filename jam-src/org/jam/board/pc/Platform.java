@@ -5,25 +5,19 @@
  */
 package org.jam.board.pc;
 
-import java.net.UnknownHostException;
-
 import org.jam.cpu.intel.Apic;
 import org.jam.cpu.intel.ApicTimer;
 import org.jam.cpu.intel.CpuId;
 import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.Tsc;
 import org.jam.driver.net.I82559c;
-import org.jam.driver.net.VirtioNet;
 import org.jam.driver.serial.PcSerialPort;
 import org.jam.interfaces.Timer;
-import org.jam.net.InetProtocolProcessor;
-import org.jam.net.inet4.InetAddress;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RoundRobin;
 import org.jikesrvm.scheduler.Scheduler;
 import org.vmmagic.pragma.NonMoving;
-import org.vmmagic.unboxed.ObjectReference;
 
 /**
  * @author Joe Kulig
@@ -51,26 +45,33 @@ public class Platform {
     final private static int COM3 = 0x3E8;
     final private static int COM4 = 0x2E8;
 
+    public final static void initTimers()
+    {
+      // new PcSystemTimer();
+      I82c54.init();
+      Tsc.calibrate(50);
+    }
+
     public static void boot()
     {
         CpuId.boot();
         CpuId.print();
         Pci.boot();
         Pci.enumeratePci();
-        pit = new PcSystemTimer();
-        timer = pit;
-        // new PcSystemTimer();
-        Tsc.calibrate(50);
         apicTimer = new ApicTimer();
         apicTimer.calibrate();
         VM.sysWriteln(apicTimer.toString());
         // Tsc.rtcCalibrate();
         serialPort = new PcSerialPort(COM1);
         // VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
+        VM.sysWriteln("scheduler");
         scheduler = new RoundRobin();
+        VM.sysWriteln("idt");
         Idt.init();
+        VM.sysWriteln("apic");
         apic = new Apic();
         apic.boot();
+        VM.sysWriteln("ioapic");
         ioApic = new QemuIoApic();
         ioApic.boot();
         VM.sysWrite(ioApic.toString());

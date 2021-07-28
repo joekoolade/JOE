@@ -7,18 +7,15 @@
  */
 package org.jam.board.pc;
 
-import java.util.TreeMap;
-
+import org.jam.interfaces.Timer;
+import org.jam.util.PriorityQueue;
 import org.jikesrvm.VM;
-import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Time;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.scheduler.ThreadQueue;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
-import org.jam.interfaces.Timer;
-import org.jam.util.PriorityQueue;
 
 /**
  * @author joe
@@ -29,7 +26,6 @@ public class PcSystemTimer
 implements Timer
 {
 
-    public I82c54 timer;
     public long tick;                                        // in milliseconds
     private static final int  sourceFreq     = 1193180;                    // i82c54 source frequency is 1.193180 Mhz
     private static final int  ticksPerSecond = 1000;
@@ -54,8 +50,7 @@ implements Timer
         /*
          * Set the time for the PC system timer. Default is an interrupt every 1.193 ms.
          */
-        timer = new I82c54();
-        timer.counter0(I82c54.MODE2, counterDivisor);
+        I82c54.counter0(I82c54.MODE2, counterDivisor);
         /*
          * Allocate irq handler stack
          */

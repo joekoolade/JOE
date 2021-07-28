@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.scheduler.RVMThread;
@@ -130,7 +131,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
       RVMType type = null;
       try {
         // Debugging:
-        // VM.sysWriteln("loadVMClass: trying to resolve className " + className);
+        VM.sysWriteln("loadVMClass: trying to resolve className " + className);
         type = RVMClassLoader.defineClassInternal(className, dataInputStream, this);
         loaded.put(className, type);
         if (VM.writingBootImage) replacement.attemptToLoadReplacementClassIfNeededForVmClass(className);

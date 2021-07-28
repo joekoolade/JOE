@@ -12,24 +12,23 @@
  */
 package java.lang;
 
-import java.security.ProtectionDomain;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.classlibrary.ClassLibraryHelpers;
 import org.jikesrvm.classlibrary.ClassLoaderSupport;
 import org.jikesrvm.classlibrary.JavaLangInstrument;
 import org.jikesrvm.classloader.Atom;
+import org.jikesrvm.classloader.RVMField;
 import org.jikesrvm.classloader.RVMType;
 import org.jikesrvm.runtime.Magic;
-import org.jikesrvm.classloader.RVMField;
-
-import org.vmmagic.pragma.*;
-import org.vmmagic.unboxed.Offset;
-
+import org.jikesrvm.runtime.StackBrowser;
 import org.jikesrvm.scheduler.RVMThread;
+import org.vmmagic.pragma.Uninterruptible;
+import org.vmmagic.unboxed.Offset;
 
 /**
  * Library support interface of Jikes RVM
@@ -42,6 +41,7 @@ public class JikesRVMSupport {
   private static final RVMField JavaLangStringOffsetField = RVMType.JavaLangStringType.findDeclaredField(OFFSET_ATOM);
   private static final Offset STRING_CHARS_OFFSET = JavaLangStringCharsField.getOffset();
   private static final Offset STRING_OFFSET_OFFSET = JavaLangStringOffsetField.getOffset();
+  private static final boolean  DEBUG_GET_CALLER_CLASS    = false;
 
   /**
    * Call the Object finalize method on the given object
@@ -85,32 +85,81 @@ public class JikesRVMSupport {
   }
 
   public static Class<?> createClass(RVMType type) {
-    Class<?> createdClass = ClassLibraryHelpers.allocateObjectForClassAndRunNoArgConstructor(java.lang.Class.class);
-    RVMField rvmTypeField = ClassLibraryHelpers.rvmTypeField;
-    Magic.setObjectAtOffset(createdClass, rvmTypeField.getOffset(), type);
-    return createdClass;
+    return Class.create(type);
   }
 
   public static Class<?> createClass(RVMType type, ProtectionDomain pd) {
-    Class<?> c = createClass(type);
+    Class<?> c = Class.create(type);
     setClassProtectionDomain(c, pd);
     return c;
   }
 
+  public static Class<?> getCallerClass(int i)
+  {
+    // TODO OPENJDK/ICEDTEA this implementation is rather messy. If we have to
+    // adjust this again,
+    // we ought to write a better one, with a test case for all the cases.
+
+    StackBrowser b = new StackBrowser();
+    VM.disableGC();
+
+    b.init();
+    b.up(); // skip sun.reflect.Reflection.getCallerClass (this call)
+
+    /*
+     * Skip Method.invoke and Constructor.newInstance, (if the caller was called by
+     * reflection)
+     */
+    if (b.currentMethodIs_Java_Lang_Reflect_Method_InvokeMethod()
+    || b.currentMethodIs_Java_Lang_Reflect_Constructor_NewInstance())
+    {
+      b.up();
+    }
+    /*
+     * Work around OpenJDK's work around for Reflection.getCallerClass(..) in
+     * java.lang.reflect.Method.invoke(..). The OpenJDK implementation of
+     * getCallerClass assumes a fixed stack depth of 2. The Jikes RVM implementation
+     * is different so we have to work around OpenJDK's work around
+     */
+    if (b.currentMethodIs_Java_Lang_Reflect_Method_GetCallerClass())
+    {
+      b.up();
+    }
+
+    /* Skip JNI if necessary */
+    while (b.currentMethodIsPartOfJikesRVMJNIImplementation())
+    {
+      b.up();
+    }
+
+    /* Don't skip if we're already in the application */
+    if (b.currentMethodIsInClassLibrary())
+    {
+      b.up(); // skip method that contains the call
+    }
+    RVMType ret = b.getCurrentClass();
+    VM.enableGC();
+
+    Class<?> clazz = ret.getClassForType();
+    if (DEBUG_GET_CALLER_CLASS)
+    {
+      VM.sysWriteln("Returning caller class " + clazz + " for stack:");
+      RVMThread.dumpStack();
+    }
+    return clazz;
+  }
+
   public static RVMType getTypeForClass(Class<?> c) {
-    RVMField rvmTypeField = ClassLibraryHelpers.rvmTypeField;
-    return (RVMType) Magic.getObjectAtOffset(c, rvmTypeField.getOffset());
+    return c.type;
   }
 
   @Uninterruptible
   public static RVMType getTypeForClassUninterruptible(Class<?> c) {
-    RVMField rvmTypeField = ClassLibraryHelpers.rvmTypeField;
-    return (RVMType) Magic.getObjectAtOffset(c, rvmTypeField.getOffset());
+    return c.type;
   }
 
   public static void setClassProtectionDomain(Class<?> c, ProtectionDomain pd) {
-    RVMField protectionDomainField = ClassLibraryHelpers.protectionDomainField;
-    Magic.setObjectAtOffset(c, protectionDomainField.getOffset(), pd);
+    c.pd = pd;
   }
 
   /***

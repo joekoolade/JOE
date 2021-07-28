@@ -12,28 +12,55 @@
  */
 package org.mmtk.plan;
 
-import static org.mmtk.utility.Constants.*;
+import static org.mmtk.utility.Constants.LOG_BYTES_IN_PAGE;
 import static org.mmtk.vm.VM.EXIT_CODE_REFLECTION_FAILURE;
 
-import org.mmtk.policy.MarkSweepSpace;
-import org.mmtk.policy.Space;
 import org.mmtk.policy.ImmortalSpace;
-import org.mmtk.policy.RawPageSpace;
 import org.mmtk.policy.LargeObjectSpace;
-import org.mmtk.utility.alloc.LinearScan;
+import org.mmtk.policy.MarkSweepSpace;
+import org.mmtk.policy.RawPageSpace;
+import org.mmtk.policy.Space;
 import org.mmtk.utility.Conversions;
 import org.mmtk.utility.HeaderByte;
+import org.mmtk.utility.Log;
+import org.mmtk.utility.alloc.LinearScan;
 import org.mmtk.utility.heap.HeapGrowthManager;
 import org.mmtk.utility.heap.VMRequest;
 import org.mmtk.utility.heap.layout.HeapLayout;
-import org.mmtk.utility.Log;
-import org.mmtk.utility.options.*;
+import org.mmtk.utility.options.CycleTriggerThreshold;
+import org.mmtk.utility.options.DebugAddress;
+import org.mmtk.utility.options.EagerMmapSpaces;
+import org.mmtk.utility.options.FullHeapSystemGC;
+import org.mmtk.utility.options.HarnessAll;
+import org.mmtk.utility.options.IgnoreSystemGC;
+import org.mmtk.utility.options.MetaDataLimit;
+import org.mmtk.utility.options.NoFinalizer;
+import org.mmtk.utility.options.NoReferenceTypes;
+import org.mmtk.utility.options.NurserySize;
+import org.mmtk.utility.options.NurseryZeroing;
+import org.mmtk.utility.options.Options;
+import org.mmtk.utility.options.PerfEvents;
+import org.mmtk.utility.options.PretenureThresholdFraction;
+import org.mmtk.utility.options.SanityCheck;
+import org.mmtk.utility.options.StressFactor;
+import org.mmtk.utility.options.Threads;
+import org.mmtk.utility.options.UseReturnBarrier;
+import org.mmtk.utility.options.UseShortStackScans;
+import org.mmtk.utility.options.VariableSizeHeap;
+import org.mmtk.utility.options.Verbose;
+import org.mmtk.utility.options.VerboseTiming;
 import org.mmtk.utility.sanitychecker.SanityChecker;
-import org.mmtk.utility.statistics.Timer;
 import org.mmtk.utility.statistics.Stats;
+import org.mmtk.utility.statistics.Timer;
 import org.mmtk.vm.VM;
-import org.vmmagic.pragma.*;
-import org.vmmagic.unboxed.*;
+import org.vmmagic.pragma.Inline;
+import org.vmmagic.pragma.Interruptible;
+import org.vmmagic.pragma.Uninterruptible;
+import org.vmmagic.pragma.Unpreemptible;
+import org.vmmagic.unboxed.Address;
+import org.vmmagic.unboxed.Extent;
+import org.vmmagic.unboxed.ObjectReference;
+import org.vmmagic.unboxed.Word;
 
 /**
  * This abstract class implements the global core functionality for all
@@ -328,15 +355,15 @@ public abstract class Plan {
   protected void spawnCollectorThreads(int numThreads) {
     // Create our parallel workers
     parallelWorkers.initGroup(numThreads, defaultCollectorContext);
-
+    Log.writeln("init group done");
     // Create the concurrent worker threads.
     if (VM.activePlan.constraints().needsConcurrentWorkers()) {
       concurrentWorkers.initGroup(numThreads, defaultCollectorContext);
     }
-
+    Log.writeln("worker threads created");
     // Create our control thread.
     VM.collection.spawnCollectorContext(controlCollectorContext);
-
+    Log.writeln("control thread created");
     // Allow mutators to trigger collection.
     initialized = true;
   }

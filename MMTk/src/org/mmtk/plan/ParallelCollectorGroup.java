@@ -14,8 +14,8 @@ package org.mmtk.plan;
 
 import org.mmtk.vm.Monitor;
 import org.mmtk.vm.VM;
-
-import org.vmmagic.pragma.*;
+import org.vmmagic.pragma.Interruptible;
+import org.vmmagic.pragma.Uninterruptible;
 
 /**
  * This class represents a pool of collector contexts that can be triggered
@@ -81,7 +81,7 @@ public class ParallelCollectorGroup {
   public void initGroup(int size, Class<? extends ParallelCollector> klass) {
     this.lock = VM.newHeavyCondLock("CollectorContextGroup");
     this.triggerCount = 1;
-    this.contexts = new ParallelCollector[size];
+    contexts = new ParallelCollector[size];
     for (int i = 0; i < size; i++) {
       try {
         contexts[i] = klass.newInstance();

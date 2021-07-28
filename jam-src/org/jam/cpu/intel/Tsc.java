@@ -7,7 +7,6 @@
 package org.jam.cpu.intel;
 
 import org.jam.board.pc.I82c54;
-import org.jam.board.pc.Platform;
 import org.jam.board.pc.RTC;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
@@ -99,7 +98,6 @@ public class Tsc {
         long tscmin, tscmax;
         int pitcnt = 0;
         
-        I82c54 timer = Platform.pit.timer;
         Address keyboardController = Address.fromIntZeroExtend(0x61);
         
         Magic.disableInterrupts();
@@ -118,7 +116,7 @@ public class Tsc {
                 
         tscmax = 0;
         tscmin = Long.MAX_VALUE;
-        timer.counter2(I82c54.MODE0, latch);
+        I82c54.counter2(I82c54.MODE0, latch);
         tsc = t1 = t2 = getCycles();
         // Wait for the gate to go active
         while((keyboardController.ioLoadByte() & 0x20) != 0)
