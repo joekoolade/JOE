@@ -207,6 +207,7 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   public org.vmmagic.unboxed.Address sysMalloc(int length)
   {
     VM.sysWriteln("MALLOC ", length);
+
     return null;
   }
 

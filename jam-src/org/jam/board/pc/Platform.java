@@ -64,10 +64,14 @@ public class Platform {
         // Tsc.rtcCalibrate();
         serialPort = new PcSerialPort(COM1);
         // VM.sysWriteln("Timer: ", ObjectReference.fromObject(timer));
+        VM.sysWriteln("scheduler");
         scheduler = new RoundRobin();
+        VM.sysWriteln("idt");
         Idt.init();
+        VM.sysWriteln("apic");
         apic = new Apic();
         apic.boot();
+        VM.sysWriteln("ioapic");
         ioApic = new QemuIoApic();
         ioApic.boot();
         VM.sysWrite(ioApic.toString());

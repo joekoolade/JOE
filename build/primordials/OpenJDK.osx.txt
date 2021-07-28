@@ -272,3 +272,7 @@ Ljava/io/FileDescriptor;
 Ljava/io/Writer;
 Ljava/io/Serializable;
 Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater;
+Ljava/util/ArrayDeque;
+Ljava/util/ArrayDeque$1;
+Ljava/util/ArrayDeque$DeqIterator;
+Ljava/util/ArrayDeque$DescendingIterator;

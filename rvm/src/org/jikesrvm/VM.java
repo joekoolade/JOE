@@ -570,7 +570,7 @@ public class VM extends Properties {
       runClassInitializer("java.lang.annotation.ElementType");
     }
     if (!VM.BuildForOpenJDK) {
-    runClassInitializer("java.lang.Thread$State");
+      runClassInitializer("java.lang.Thread$State");
     }
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.nio.charset.EncodingHelper");
@@ -582,9 +582,11 @@ public class VM extends Properties {
     {
       runClassInitializer("java.lang.Package");
     }
-
+    runClassInitializer("java.nio.charset.Charset");
+    runClassInitializer("sun.nio.cs.StandardCharsets");
     if (!VM.BuildForOpenJDK) {
-    if (verboseBoot >= 1) VM.sysWriteln("initializing standard streams");
+      if (verboseBoot >= 1)
+        VM.sysWriteln("initializing standard streams");
     // Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
       FileSystem.initializeStandardStreamsForGnuClasspath();
     }
