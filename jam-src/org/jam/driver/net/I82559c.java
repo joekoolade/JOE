@@ -6,23 +6,20 @@
  */
 package org.jam.driver.net;
 
-import static org.jam.driver.net.CucCommand.*;
-import static org.jam.driver.net.RuState.*;
+import static org.jam.driver.net.CucCommand.RESUME;
+import static org.jam.driver.net.CucCommand.START;
+import static org.jam.driver.net.RuState.SUSPENDED;
 
 import java.util.LinkedList;
 
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
-import org.jam.board.pc.Platform;
 import org.jam.cpu.intel.Tsc;
-import org.jam.net.EtherType;
-import org.jam.net.InetProtocolProcessor;
 import org.jam.net.NetworkInterface;
 import org.jam.net.Route;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.ArpTable;
-import org.jam.net.inet4.ArpThread;
 import org.jam.net.inet4.InetAddress;
 import org.jam.net.inet4.SendPacket;
 import org.jam.system.NoDeviceFoundException;

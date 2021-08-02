@@ -474,7 +474,6 @@ public abstract class Charset
         // (cs = lookupExtendedCharset(charsetName)) != null ||
         // (cs = lookupViaProviders(charsetName)) != null)
         {
-          VM.sysWriteln("found ", charsetName);
             cache(charsetName, cs);
             return cs;
         }

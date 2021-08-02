@@ -584,6 +584,9 @@ public class VM extends Properties {
     }
     runClassInitializer("java.nio.charset.Charset");
     runClassInitializer("sun.nio.cs.StandardCharsets");
+    runClassInitializer("sun.nio.cs.Surrogate$Parser");
+    runClassInitializer("sun.nio.cs.Surrogate$Generator");
+    runClassInitializer("sun.nio.cs.Surrogate");
     if (!VM.BuildForOpenJDK) {
       if (verboseBoot >= 1)
         VM.sysWriteln("initializing standard streams");
