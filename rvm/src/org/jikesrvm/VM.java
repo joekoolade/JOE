@@ -741,6 +741,9 @@ public class VM extends Properties {
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
     mainThread = new MainThread(applicationArguments, mainThreadGroup);
     
+    System.setOut(Platform.serialPort.getPrintStream());
+    System.setErr(Platform.serialPort.getPrintStream());
+    System.out.println("System out printout!");
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
     mainThread.start();
