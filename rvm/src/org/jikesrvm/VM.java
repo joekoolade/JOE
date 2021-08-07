@@ -739,14 +739,14 @@ public class VM extends Properties {
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
-    mainThread = new MainThread(applicationArguments, mainThreadGroup);
+//    mainThread = new MainThread(applicationArguments, mainThreadGroup);
     
     System.setOut(Platform.serialPort.getPrintStream());
     System.setErr(Platform.serialPort.getPrintStream());
     System.out.println("System out printout!");
     // Schedule "main" thread for execution.
-    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
-    mainThread.start();
+//    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
+//    mainThread.start();
 
     // End of boot thread.
     //
@@ -756,6 +756,12 @@ public class VM extends Properties {
     }
 
     RVMThread.getCurrentThread().terminate();  
+    // Say good bye to the boot thread
+    Magic.enableInterrupts();
+    Platform.ioApic.enableInterrupts();
+    Magic.yield();
+    VM.shutdown(1);
+    VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 

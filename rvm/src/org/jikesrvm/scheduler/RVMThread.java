@@ -3062,9 +3062,11 @@ public final class RVMThread extends ThreadContext {
   
   /** Uninterruptible final portion of thread termination. */
   void finishThreadTermination() {
-    sysCall.sysThreadTerminate();
-    if (VM.VerifyAssertions)
-      VM._assert(VM.NOT_REACHED);
+      execStatus = TERMINATED;
+      if(!isBootThread())
+      {
+          Magic.yield();
+      }
   }
 
   /*
