@@ -12,12 +12,14 @@
  */
 package org.jikesrvm.ia32;
 
-import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;
+import static org.jikesrvm.ia32.BaselineConstants.WORDSIZE;
 import static org.jikesrvm.ia32.RegisterConstants.ESP;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.INVISIBLE_METHOD_ID;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_BODY_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_HEADER_SIZE;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP;
+import static org.jikesrvm.ia32.StackframeLayoutConstants.THREAD_START_METHOD_ID;
+import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.AbstractRegisters;
@@ -41,6 +43,8 @@ public final class Registers extends AbstractRegisters {
   /** Frame pointer */
   @Entrypoint
   public Address fp;
+
+  private static final int CS = 8;
 
   @Override
   public void clear() {
@@ -110,6 +114,57 @@ public final class Registers extends AbstractRegisters {
   @Uninterruptible
   public void initializeStack(Address ip, Address sp) {
     Address fp;
+    VM.sysWrite("sp0: ", sp);
+    VM.sysWriteln(" ip: ", ip);
+    // sp = sp.minus(STACKFRAME_HEADER_SIZE); // last word of header
+    // fp = sp.minus(SizeConstants.BYTES_IN_ADDRESS + STACKFRAME_BODY_OFFSET);
+    // Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
+    // Magic.setCompiledMethodID(fp, INVISIBLE_METHOD_ID);
+    // VM.sysWrite("sp1: ", sp); VM.sysWriteln(" fp: ", fp);
+    /*
+     * Setup the interrupt return and registers
+     * 
+     * Top of Stack 0 IP0; sentinel IP STACKFRAME_SENTINEL_FP FP0; sentinel FP
+     * INVISIBLE_METHOD_ID cmd id0; invisible method id 0x200 code segment IP FP
+     * THREAD_START_METHOD_ID
+     */
+    if (VM.buildFor32Addr())
+    {
+      sp.store(0, Offset.zero()); // IP0
+      sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(4)); // FP0
+      sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(8)); // cmd id0; invisible method id
+      sp.store(0x200, Offset.zero().minus(12)); // EFLAGS
+      sp.store(8, Offset.zero().minus(16)); // CS
+      sp.store(ip, Offset.zero().minus(20)); // IP
+      sp.store(sp.minus(8), Offset.zero().minus(24)); // FP
+      sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(28)); // thread start method id
+      this.ip = ip;
+      this.fp = sp.minus(24);
+      // set the sp
+      getGPRs().set(ESP.value(), sp.minus(52).toWord());
+    } else
+    {
+      /*
+       * Need align stack on 16-byte boundary
+       */
+      // sp = Address.fromIntZeroExtend(sp.plus(15).toInt() & ~0xF).plus(8);
+      sp.store(0, Offset.zero()); // IP0
+      sp.store(STACKFRAME_SENTINEL_FP, Offset.zero().minus(WORDSIZE)); // FP0
+      sp.store(INVISIBLE_METHOD_ID, Offset.zero().minus(WORDSIZE * 2)); // cmd id0; invisible method id
+      sp.store(0, Offset.zero().minus(WORDSIZE * 3)); // Stack selector, NULL
+      sp.store(sp.minus(WORDSIZE * 9).toInt(), Offset.zero().minus(WORDSIZE * 4)); // Stack selector, NULL
+      sp.store(0x200, Offset.zero().minus(WORDSIZE * 5)); // RFLAGS
+      sp.store(CS, Offset.zero().minus(WORDSIZE * 6)); // code selector
+      sp.store(ip, Offset.zero().minus(WORDSIZE * 7)); // RIP
+      sp.store(0, Offset.zero().minus(WORDSIZE * 8)); // err code 0
+      sp.store(THREAD_START_METHOD_ID, Offset.zero().minus(WORDSIZE * 9)); // thread start method id
+      this.ip = ip;
+      this.fp = sp.minus(WORDSIZE * 8);
+      // set the sp
+      getGPRs().set(ESP.value(), sp.minus(WORDSIZE * 7).toWord());
+    }
+    VM.sysWriteln("fp: ", this.fp);
+
     sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
     fp = sp.minus(BYTES_IN_ADDRESS).minus(STACKFRAME_BODY_OFFSET);
     Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
@@ -117,6 +172,7 @@ public final class Registers extends AbstractRegisters {
 
     sp = sp.minus(BYTES_IN_ADDRESS);                                 // allow for one local
     getGPRs().set(ESP.value(), sp.toWord());
+
     this.fp = fp;
     this.ip = ip;
   }

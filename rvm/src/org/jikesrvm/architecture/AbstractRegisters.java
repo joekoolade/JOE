@@ -16,14 +16,14 @@ import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.ArchEntrypoints;
 import org.jikesrvm.runtime.Magic;
+import org.vmmagic.pragma.Entrypoint;
+import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.Untraced;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 import org.vmmagic.unboxed.WordArray;
-import org.vmmagic.pragma.Entrypoint;
-import org.vmmagic.pragma.NonMoving;
-import org.vmmagic.pragma.Uninterruptible;
 
 /**
  * The machine state comprising a thread's execution context, used both for
@@ -37,7 +37,7 @@ public abstract class AbstractRegisters {
   /** General purpose registers */
   @Untraced
   @Entrypoint(fieldMayBeFinal = true)
-  private final WordArray gprs;
+  public final WordArray  gprs;
   @Entrypoint(fieldMayBeFinal = true)
   private final WordArray gprsShadow;
   /** Floating point registers */
@@ -49,6 +49,7 @@ public abstract class AbstractRegisters {
   /** Instruction address register */
   @Entrypoint
   protected Address ip;
+  public Address          fp;
 
   /**
    * Do exception registers currently contain live values? Set by C hardware

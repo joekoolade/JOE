@@ -8,8 +8,6 @@ package org.jam.cpu.intel;
 
 import org.jam.board.pc.Platform;
 import org.jam.system.Trace;
-import org.jikesrvm.compilers.common.assembler.ia32.Assembler;
-import org.jikesrvm.compilers.common.CodeArray;
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
@@ -17,8 +15,6 @@ import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.pragma.InterruptHandler;
-import org.vmmagic.pragma.NoBoundsCheck;
-import org.vmmagic.pragma.NoNullCheck;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
@@ -450,7 +446,7 @@ public final class Idt implements SegmentDescriptorTypes {
 //           Magic.halt();
            // Switch to the interrupt stack
 //           Magic.switchStack(Platform.scheduler.getHandlerStack());
-//           VM.sysWriteln("int48/yield");
+VM.sysWrite("int48/yield ^^ ");
            Trace.irqStart(48);
            RVMThread.isInterrupted = true;
            // RVMThread.yieldpoint(0, null);

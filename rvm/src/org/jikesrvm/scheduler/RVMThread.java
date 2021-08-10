@@ -12,6 +12,8 @@
  */
 package org.jikesrvm.scheduler;
 
+import static org.jikesrvm.ia32.RegisterConstants.ESI;
+import static org.jikesrvm.ia32.RegisterConstants.ESP;
 import static org.jikesrvm.objectmodel.ThinLockConstants.TL_THREAD_ID_SHIFT;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_DUMP_STACK_AND_DIE;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION;
@@ -530,8 +532,12 @@ public final class RVMThread extends ThreadContext {
   @Entrypoint
   Address sp;
   
+  public Address sentinelFp;
+
   @Entrypoint
   Address fxStateAddress;
+  final private static int FXSTATESIZE = 128; // in integers; size in bytes is 512
+  private int[]            fxStateRegisters;
   
   /**
    * "hidden parameter" for interface invocation thru the IMT
@@ -1717,10 +1723,37 @@ public final class RVMThread extends ThreadContext {
       Address ip = Magic.objectAsAddress(instructions);
       Address sp = Magic.objectAsAddress(stack).plus(stack.length);
 
+      contextRegisters.gprs.set(ESI.value(), Magic.objectAsAddress(this).toWord());
+      VM.sysWrite("ip: ", ip);
+      VM.sysWrite(" sp: ", sp);
+      VM.sysWriteln(" esi: ", contextRegisters.gprs.get(ESI.value()));
       // Initialize the a thread stack as if "startoff" method had been called
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       contextRegisters.initializeStack(ip, sp);
 
+      sentinelFp = contextRegisters.fp;
+      // Points to framepointer sentinel
+      this.framePointer = contextRegisters.fp;
+      this.sp = contextRegisters.gprs.get(ESP.value()).toAddress();
+      VM.sysWrite("rvmthread sp: ", this.sp);
+      VM.sysWriteln(" gpr: ", Magic.objectAsAddress(contextRegisters.gprs));
+
+      /*
+       * Set up the FP/SSE/MMX state area
+       */
+      fxStateRegisters = MemoryManager.newNonMovingIntArray(FXSTATESIZE + 4); // creates 516 byte area
+      /*
+       * Align to a sixteen byte boundary
+       */
+      fxStateAddress = Magic.objectAsAddress(fxStateRegisters);
+      // VM.sysWriteln("FX STATE0: ", fxStateAddress);
+      if ((fxStateAddress.toInt() & 0xF) != 0)
+      {
+        /*
+         * Align to a 16 byte boundary
+         */
+        fxStateAddress = Address.fromIntSignExtend(fxStateAddress.plus(16).toInt() & ~0xF);
+      }
       VM.enableGC();
 
       assignThreadSlot();
@@ -1741,6 +1774,9 @@ public final class RVMThread extends ThreadContext {
       } else {
         onStackReplacementEvent = null;
       }
+
+      VM.sysWrite(this.name);
+      VM.sysWriteln(" slot: ", threadSlot);
 
       if (thread == null) {
         // create wrapper Thread if doesn't exist
@@ -5957,4 +5993,33 @@ static void tracebackWithoutLock() {
     sloppyExecStatusHistogram[oldState]++;
     sloppyExecStatusHistogram[newState]++;
   }
+
+  /**
+   * @param framePointer
+   */
+  public void setStackPointer(Address a)
+  {
+    this.sp = a;
+  }
+
+  public Address getStackPointer()
+  {
+    return sp;
+  }
+
+  public void setFramePointer(Address a)
+  {
+    framePointer = a;
+  }
+
+  public Address getFramePointer()
+  {
+    return framePointer;
+  }
+
+  public static boolean isGC()
+  {
+    return gcInProgress;
+  }
+
 }
