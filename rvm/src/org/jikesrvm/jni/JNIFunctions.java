@@ -117,7 +117,6 @@ import org.vmmagic.unboxed.Offset;
  */
 @SuppressWarnings({"unused", "UnusedDeclaration"})
 // methods are called from native code
-@NativeBridge
 public class JNIFunctions {
 
   private static final String ERROR_MSG_WRONG_IMPLEMENTATION =

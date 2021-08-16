@@ -50,12 +50,12 @@ public class Trace
      */
     public static void irqStart(int irqNum)
     {
-        events[head].setTime();
-        events[head].irqType();
-        events[head].setParameter(0, 1);
-        events[head].setParameter(1, irqNum);
-        events[head].setParameter(2, Magic.objectAsAddress(Magic.getThreadRegister()).toLong());
-        next();
+//        events[head].setTime();
+//        events[head].irqType();
+//        events[head].setParameter(0, 1);
+//        events[head].setParameter(1, irqNum);
+//        events[head].setParameter(2, Magic.objectAsAddress(Magic.getThreadRegister()).toLong());
+//        next();
     }
     /**
      * Add trace event for end of irq
@@ -63,12 +63,12 @@ public class Trace
      */
     public static void irqEnd(int irqNum)
     {
-        events[head].setTime();
-        events[head].irqType();
-        events[head].setParameter(0, 2);
-        events[head].setParameter(1, irqNum);
-        events[head].setParameter(2, Magic.objectAsAddress(Magic.getThreadRegister()).toLong());
-        next();
+//        events[head].setTime();
+//        events[head].irqType();
+//        events[head].setParameter(0, 2);
+//        events[head].setParameter(1, irqNum);
+//        events[head].setParameter(2, Magic.objectAsAddress(Magic.getThreadRegister()).toLong());
+//        next();
     }
     /**
      * Add trace event for scheduling event

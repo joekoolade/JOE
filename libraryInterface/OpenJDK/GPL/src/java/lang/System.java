@@ -797,7 +797,7 @@ public final class System
     {
       sm.checkPropertyAccess(key);
     }
-
+    VM.sysWriteln("get property ", key);
     return props.getProperty(key);
   }
 
@@ -838,7 +838,6 @@ public final class System
     {
       sm.checkPropertyAccess(key);
     }
-
     return props.getProperty(key, def);
   }
 
@@ -1267,7 +1266,7 @@ public final class System
 
   private static Properties initSystemProperties()
   {
-    Properties props = new Properties();
+    props = new Properties();
     initProperties(props); // initialized by the VM
 
     return props;

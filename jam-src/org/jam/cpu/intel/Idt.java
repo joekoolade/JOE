@@ -446,15 +446,15 @@ public final class Idt implements SegmentDescriptorTypes {
 //           Magic.halt();
            // Switch to the interrupt stack
 //           Magic.switchStack(Platform.scheduler.getHandlerStack());
-VM.sysWrite("int48/yield ^^ ");
-           Trace.irqStart(48);
+//           VM.sysWrite("int48/yield ^^ ");
+//           Trace.irqStart(48);
            RVMThread.isInterrupted = true;
            // RVMThread.yieldpoint(0, null);
            Platform.scheduler.addThread(Magic.getThreadRegister());
            Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context
            RVMThread.isInterrupted = false;
-           Trace.irqEnd(48);
+//           Trace.irqEnd(48);
            Magic.restoreThreadContextNoErrCode();
 //           Magic.halt();
            // The interrupt handler annotation will emit the IRET

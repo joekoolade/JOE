@@ -3464,15 +3464,16 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
 
   private void genPrologue() {
     if (shouldPrint) asm.comment("prologue for " + method);
-    if (klass.hasBridgeFromNativeAnnotation()) {
-      // replace the normal prologue with a special prolog
-      JNICompiler.generateGlueCodeForJNIMethod(asm, method, compiledMethod.getId());
-      // set some constants for the code generation of the rest of the method
-      // firstLocalOffset is shifted down because more registers are saved
-      firstLocalOffset = STACKFRAME_BODY_OFFSET.minus(JNICompiler.SAVED_GPRS_FOR_JNI << LG_WORDSIZE);
+    firstLocalOffset = Offset.zero();
+    if(method.hasInterruptHandlerAnnotation())
+    {
+        // no prologue
+        return;
+    }
+    else if (klass.hasBridgeFromNativeAnnotation()) {
     } else {
 
-      genStackOverflowCheck();
+      //genStackOverflowCheck();
 
       /* paramaters are on the stack and/or in registers;  There is space
        * on the stack for all the paramaters;  Parameter slots in the
@@ -3517,41 +3518,7 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
 
       int savedRegistersSize;
 
-      if (method.hasBaselineSaveLSRegistersAnnotation()) {
-        if (VM.VerifyAssertions) VM._assert(EBP_SAVE_OFFSET.toInt() == -4 * WORDSIZE);
-        asm.emitPUSH_Reg(EBP);
-        savedRegistersSize = SAVED_GPRS_FOR_SAVE_LS_REGISTERS << LG_WORDSIZE;
-      } else {
-        savedRegistersSize = SAVED_GPRS << LG_WORDSIZE;       // default
-      }
-
-      /* handle "dynamic brige" methods:
-       * save all registers except FP, SP, TR, S0 (scratch), and
-       * EDI and EBX saved above.
-       */
-      // TODO: (SJF): When I try to reclaim ESI, I may have to save it here?
-      if (klass.hasDynamicBridgeAnnotation()) {
-        savedRegistersSize += 2 << LG_WORDSIZE;
-        if (VM.VerifyAssertions) VM._assert(T0_SAVE_OFFSET.toInt() == -4 * WORDSIZE);
-        asm.emitPUSH_Reg(T0);
-        if (VM.VerifyAssertions) VM._assert(T1_SAVE_OFFSET.toInt() == -5 * WORDSIZE);
-        asm.emitPUSH_Reg(T1);
-        if (SSE2_FULL) {
-          // TODO: Store SSE2 Control word?
-          adjustStack(-BASELINE_XMM_STATE_SIZE, true); // adjust stack to bottom of saved area
-          if (VM.VerifyAssertions) VM._assert(XMM_SAVE_OFFSET.toInt() == (-5 * WORDSIZE) - BASELINE_XMM_STATE_SIZE);
-          asm.emitMOVQ_RegDisp_Reg(SP, Offset.fromIntSignExtend(24), XMM3);
-          asm.emitMOVQ_RegDisp_Reg(SP, Offset.fromIntSignExtend(16), XMM2);
-          asm.emitMOVQ_RegDisp_Reg(SP, Offset.fromIntSignExtend(8), XMM1);
-          asm.emitMOVQ_RegInd_Reg(SP, XMM0);
-          savedRegistersSize += BASELINE_XMM_STATE_SIZE;
-        } else {
-          if (VM.VerifyAssertions) VM._assert(FPU_SAVE_OFFSET.toInt() == (-5 * WORDSIZE) - X87_FPU_STATE_SIZE);
-          adjustStack(-X87_FPU_STATE_SIZE, true); // adjust stack to bottom of saved area
-          asm.emitFNSAVE_RegInd(SP);
-          savedRegistersSize += X87_FPU_STATE_SIZE;
-        }
-      }
+      savedRegistersSize = SAVED_GPRS << LG_WORDSIZE;       // default
 
       // copy registers to callee's stackframe
       firstLocalOffset = STACKFRAME_BODY_OFFSET.minus(savedRegistersSize);
@@ -3593,7 +3560,6 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
 
       if (method.isSynchronized()) genMonitorEnter();
 
-      genThreadSwitchTest(RVMThread.PROLOGUE);
     }
   }
 
@@ -3605,32 +3571,6 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
 
     if (VM.VerifyAssertions) VM._assert(method.isForOsrSpecialization());
 
-    if (isInterruptible) {
-      Offset offset = Entrypoints.stackLimitField.getOffset();
-      if (VM.BuildFor32Addr) {
-        // S0<-limit
-        asm.emitMOV_Reg_RegDisp(S0, THREAD_REGISTER, offset);
-        asm.emitSUB_Reg_Reg(S0, SP);
-        asm.emitADD_Reg_Imm(S0, method.getOperandWords() << LG_WORDSIZE);
-      } else {
-        // S0<-limit
-        asm.emitMOV_Reg_RegDisp_Quad(S0, THREAD_REGISTER, offset);
-        asm.emitSUB_Reg_Reg_Quad(S0, SP);
-        asm.emitADD_Reg_Imm_Quad(S0, method.getOperandWords() << LG_WORDSIZE);
-      }
-      asm.emitBranchLikelyNextInstruction();
-      ForwardReference fr = asm.forwardJcc(LT);    // Jmp around trap
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_STACK_OVERFLOW + RVM_TRAP_BASE); // trap
-      fr.resolve(asm);
-    } else {
-      // TODO!! make sure stackframe of uninterruptible method doesn't overflow
-    }
-
-    /* never do monitor enter for synced method since the specialized
-     * code starts after original monitor enter.
-     */
-
-    genThreadSwitchTest(RVMThread.PROLOGUE);
   }
 
   /**
@@ -3640,24 +3580,22 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
    */
   private void genEpilogue(int returnSize, int bytesPopped) {
     if (klass.hasBridgeFromNativeAnnotation()) {
-      // pop locals and parameters, get to saved GPR's
-      adjustStack((method.getLocalWords() << LG_WORDSIZE) + (returnSize - bytesPopped), true);
-      JNICompiler.generateEpilogForJNIMethod(asm, this.method);
     } else if (klass.hasDynamicBridgeAnnotation()) {
-      // we never return from a DynamicBridge frame
-      asm.emitINT_Imm(0xFF);
+    } else if (method.hasInterruptHandlerAnnotation()) {
+        // generate return from interrupt
+          if(VM.buildFor32Addr())
+          {
+              asm.emitIRET();
+          }
+          else
+          {
+              asm.emitIRETQ();
+          }
+          return;
     } else {
       // normal method
-      if (method.hasBaselineSaveLSRegistersAnnotation()) {
-        // There is one more word out of the total that is for callee-saves, hense 4 * WORDSIZE here rather than 3 * WORDSIZE below.
-        int spaceToRelease = fp2spOffset(NO_SLOT).toInt() - bytesPopped - (4 * WORDSIZE);
-        adjustStack(spaceToRelease, true);
-        if (VM.VerifyAssertions) VM._assert(EBP_SAVE_OFFSET.toInt() == -(4 * WORDSIZE));
-        asm.emitPOP_Reg(EBP);             // restore nonvolatile EBP register
-      } else {
-        int spaceToRelease = fp2spOffset(NO_SLOT).toInt() - bytesPopped - (3 * WORDSIZE);
-        adjustStack(spaceToRelease, true);
-      }
+      int spaceToRelease = fp2spOffset(NO_SLOT).toInt() - bytesPopped - (3 * WORDSIZE);
+      adjustStack(spaceToRelease, true);
       if (VM.VerifyAssertions) VM._assert(EBX_SAVE_OFFSET.toInt() == -(3 * WORDSIZE));
       asm.emitPOP_Reg(EBX);  // restore non-volatile EBX register
       if (VM.VerifyAssertions) VM._assert(EDI_SAVE_OFFSET.toInt() == -(2 * WORDSIZE));
@@ -4235,215 +4173,6 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
    */
   private boolean genMagic(MethodReference m) {
     if (BaselineMagic.generateMagic(asm, m, method, fp2spOffset(NO_SLOT))) {
-      return true;
-    } else if (m.isSysCall()) {
-      TypeReference[] args = m.getParameterTypes();
-      TypeReference rtype = m.getReturnType();
-      Offset offsetToLastArg = THREE_SLOTS; // the three regs saved in (1)
-      Offset offsetToFirstArg = offsetToLastArg.plus((m.getParameterWords() - 1) << LG_WORDSIZE);
-      boolean[] inRegister = VM.BuildFor32Addr ? null : new boolean[args.length];
-      int paramBytes = 0;
-
-      // (1) save three RVM nonvolatile/special registers
-      //     we don't have to save EBP: the callee will
-      //     treat it as a framepointer and save/restore
-      //     it for us.
-      asm.emitPUSH_Reg(EBX);
-      asm.emitPUSH_Reg(ESI);
-      asm.emitPUSH_Reg(EDI);
-
-      // (2) Pass args in registers passing from left-to-right
-      //     (NB avoid the first argument holding the target function address)
-      int gpRegistersInUse = 0;
-      int fpRegistersInUse = 0;
-      Offset offsetToJavaArg = offsetToFirstArg;
-      if (VM.BuildFor64Addr) {
-        for (int i = 1; i < args.length; i++) {
-          TypeReference arg = args[i];
-          if (arg.isFloatType()) {
-            if (fpRegistersInUse < NATIVE_PARAMETER_FPRS.length) {
-              inRegister[i] = true;
-              offsetToJavaArg = offsetToJavaArg.minus(WORDSIZE);
-              asm.emitMOVSS_Reg_RegDisp((XMM)NATIVE_PARAMETER_FPRS[fpRegistersInUse], SP, offsetToJavaArg);
-              fpRegistersInUse++;
-            } else { // skip stack slot
-              offsetToJavaArg = offsetToJavaArg.minus(WORDSIZE);
-            }
-          } else if (arg.isDoubleType()) {
-            if (fpRegistersInUse < NATIVE_PARAMETER_FPRS.length) {
-              inRegister[i] = true;
-              offsetToJavaArg = offsetToJavaArg.minus(2 * WORDSIZE);
-              asm.emitMOVSD_Reg_RegDisp((XMM)NATIVE_PARAMETER_FPRS[fpRegistersInUse], SP, offsetToJavaArg);
-              fpRegistersInUse++;
-            } else { // skip stack slots
-              offsetToJavaArg = offsetToJavaArg.minus(2 * WORDSIZE);
-            }
-          } else if (arg.isLongType()) {
-            if (gpRegistersInUse < NATIVE_PARAMETER_GPRS.length) {
-              inRegister[i] = true;
-              offsetToJavaArg = offsetToJavaArg.minus(2 * WORDSIZE);
-              asm.emitMOV_Reg_RegDisp_Quad(NATIVE_PARAMETER_GPRS[gpRegistersInUse], SP, offsetToJavaArg);
-              gpRegistersInUse++;
-            } else { // skip stack slots
-              offsetToJavaArg = offsetToJavaArg.minus(2 * WORDSIZE);
-            }
-          } else if (arg.isWordLikeType() || arg.isReferenceType()) {
-            if (gpRegistersInUse < NATIVE_PARAMETER_GPRS.length) {
-              inRegister[i] = true;
-              offsetToJavaArg = offsetToJavaArg.minus(WORDSIZE);
-              asm.emitMOV_Reg_RegDisp_Quad(NATIVE_PARAMETER_GPRS[gpRegistersInUse], SP, offsetToJavaArg);
-              gpRegistersInUse++;
-            } else { // skip stack slot
-              offsetToJavaArg = offsetToJavaArg.minus(WORDSIZE);
-            }
-          } else {
-            if (gpRegistersInUse < NATIVE_PARAMETER_GPRS.length) {
-              inRegister[i] = true;
-              offsetToJavaArg = offsetToJavaArg.minus(WORDSIZE);
-              asm.emitMOV_Reg_RegDisp(NATIVE_PARAMETER_GPRS[gpRegistersInUse], SP, offsetToJavaArg);
-              gpRegistersInUse++;
-            } else { // skip stack slot
-              offsetToJavaArg = offsetToJavaArg.minus(WORDSIZE);
-            }
-          }
-        }
-      }
-
-      // (3) Stack alignment
-      ForwardReference dontRealignStack = null;
-      int argsToPush = 0;
-      if (VM.BuildFor64Addr) {
-        for (int i = args.length - 1; i >= 1; i--) {
-          if (!inRegister[i]) {
-            TypeReference arg = args[i];
-            argsToPush++; // 1 stack slot for each data type
-          }
-        }
-        asm.emitTEST_Reg_Imm(SP, 0x8);
-        if ((argsToPush & 1) != 0) {
-          dontRealignStack = asm.forwardJcc(NE);
-        } else {
-          dontRealignStack = asm.forwardJcc(EQ);
-        }
-      }
-
-      Offset initialOffsetToFirstArg = offsetToFirstArg;
-      Offset initialOffsetToLastArg = offsetToLastArg;
-      // Generate argument pushing and call code upto twice, once with realignment
-      ForwardReference afterCalls = null;
-      for (int j = VM.BuildFor32Addr ? 1 : 0;  j < 2; j++) {
-        if (j == 0) {
-          adjustStack(-WORDSIZE, true);
-          offsetToFirstArg = offsetToFirstArg.plus(WORDSIZE);
-          offsetToLastArg = offsetToLastArg.plus(WORDSIZE);
-        } else {
-          if (dontRealignStack != null) dontRealignStack.resolve(asm);
-          offsetToFirstArg = initialOffsetToFirstArg;
-          offsetToLastArg = initialOffsetToLastArg;
-          paramBytes = 0;
-        }
-        // (4) Stack remaining args to target function from right-to-left
-        //     (NB avoid the first argument holding the target function address)
-        offsetToJavaArg = offsetToLastArg;
-        for (int i = args.length - 1; i >= 1; i--) {
-          TypeReference arg = args[i];
-          if (VM.BuildFor32Addr) {
-            if (arg.isLongType() || arg.isDoubleType()) {
-              asm.emitPUSH_RegDisp(SP, offsetToJavaArg.plus(WORDSIZE));
-              asm.emitPUSH_RegDisp(SP, offsetToJavaArg.plus(WORDSIZE));
-              offsetToJavaArg = offsetToJavaArg.plus(4 * WORDSIZE);
-              offsetToFirstArg = offsetToFirstArg.plus(2 * WORDSIZE);
-              offsetToLastArg = offsetToLastArg.plus(2 * WORDSIZE);
-              paramBytes += 2 * WORDSIZE;
-            } else {
-              asm.emitPUSH_RegDisp(SP, offsetToJavaArg);
-              offsetToJavaArg = offsetToJavaArg.plus(2 * WORDSIZE);
-              offsetToFirstArg = offsetToFirstArg.plus(WORDSIZE);
-              offsetToLastArg = offsetToLastArg.plus(WORDSIZE);
-              paramBytes += WORDSIZE;
-            }
-          } else {
-            if (!inRegister[i]) {
-              if (arg.isLongType() || arg.isDoubleType()) {
-                asm.emitPUSH_RegDisp(SP, offsetToJavaArg);
-                offsetToJavaArg = offsetToJavaArg.plus(3 * WORDSIZE);
-                offsetToFirstArg = offsetToFirstArg.plus(WORDSIZE);
-                offsetToLastArg = offsetToLastArg.plus(WORDSIZE);
-                paramBytes += WORDSIZE;
-              } else {
-                asm.emitPUSH_RegDisp(SP, offsetToJavaArg);
-                offsetToJavaArg = offsetToJavaArg.plus(2 * WORDSIZE);
-                offsetToFirstArg = offsetToFirstArg.plus(WORDSIZE);
-                offsetToLastArg = offsetToLastArg.plus(WORDSIZE);
-                paramBytes += WORDSIZE;
-              }
-            } else {
-              if (arg.isLongType() || arg.isDoubleType()) {
-                offsetToJavaArg = offsetToJavaArg.plus(2 * WORDSIZE);
-              } else {
-                offsetToJavaArg = offsetToJavaArg.plus(WORDSIZE);
-              }
-            }
-          }
-        }
-        if (VM.VerifyAssertions) VM._assert(offsetToFirstArg.EQ(offsetToJavaArg));
-
-        // (5) invoke target function with address given by the first argument
-        if (VM.BuildFor32Addr) {
-          asm.emitMOV_Reg_RegDisp(S0, SP, offsetToFirstArg);
-          asm.emitCALL_Reg(S0);
-        } else {
-          asm.emitMOV_Reg_RegDisp_Quad(T0, SP, offsetToFirstArg);
-          asm.emitCALL_Reg(T0);
-        }
-
-        // (6) pop space for arguments
-        if (j == 0) {
-          offsetToFirstArg = offsetToFirstArg.minus(WORDSIZE);
-          offsetToLastArg = offsetToLastArg.minus(WORDSIZE);
-          adjustStack(paramBytes + WORDSIZE, true);
-          afterCalls = asm.forwardJMP();
-        } else {
-          adjustStack(paramBytes, true);
-        }
-      }
-
-      if (afterCalls != null) afterCalls.resolve(asm);
-
-      // (7) restore RVM registers
-      asm.emitPOP_Reg(EDI);
-      asm.emitPOP_Reg(ESI);
-      asm.emitPOP_Reg(EBX);
-
-      // (8) pop expression stack (including the first parameter)
-      adjustStack(m.getParameterWords() << LG_WORDSIZE, true);
-
-      // (9) push return value
-      if (rtype.isLongType()) {
-        if (VM.BuildFor32Addr) {
-          asm.emitPUSH_Reg(T1);
-          asm.emitPUSH_Reg(T0);
-        } else {
-          adjustStack(-WORDSIZE, true);
-          asm.emitPUSH_Reg(T0);
-        }
-      } else if (rtype.isDoubleType()) {
-        adjustStack(-2 * WORDSIZE, true);
-        if (VM.BuildFor32Addr) {
-          asm.emitFSTP_RegInd_Reg_Quad(SP, FP0);
-        } else {
-          asm.emitMOVSD_RegInd_Reg(SP, XMM0);
-        }
-      } else if (rtype.isFloatType()) {
-        adjustStack(-WORDSIZE, true);
-        if (VM.BuildFor32Addr) {
-          asm.emitFSTP_RegInd_Reg(SP, FP0);
-        } else {
-          asm.emitMOVSS_RegInd_Reg(SP, XMM0);
-        }
-      } else if (!rtype.isVoidType()) {
-        asm.emitPUSH_Reg(T0);
-      }
       return true;
     } else {
       return false;

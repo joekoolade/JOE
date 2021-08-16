@@ -1472,15 +1472,25 @@ public final class RVMThread extends ThreadContext {
   @Interruptible
   // except not really, since we don't enable yieldpoints yet
   public static void boot() {
-    outOfMemoryError = new OutOfMemoryError();
+      VM.sysWriteln("boot0");
+//    outOfMemoryError = new OutOfMemoryError();
+    VM.sysWriteln("boot1");
     dumpLock = new Monitor();
+    VM.sysWriteln("boot2");
     acctLock = new NoYieldpointsMonitor();
+    VM.sysWriteln("boot3");
     debugLock = new NoYieldpointsMonitor();
+    VM.sysWriteln("boot4");
     outputLock = new NoYieldpointsMonitor();
+    VM.sysWriteln("boot5");
     softHandshakeDataLock = new Monitor();
+    VM.sysWriteln("boot6");
     handshakeLock = new Monitor();
+    VM.sysWriteln("boot7");
     doProfileReport = new Latch(false);
+    VM.sysWriteln("boot8");
     monitorBySlot[getCurrentThread().threadSlot] = new NoYieldpointsMonitor();
+    VM.sysWriteln("boot9");
     communicationLockBySlot[getCurrentThread().threadSlot] = new Monitor();
     sysCall.sysStashVMThread(getCurrentThread());
 

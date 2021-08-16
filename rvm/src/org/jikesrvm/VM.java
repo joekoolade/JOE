@@ -356,11 +356,14 @@ public class VM extends Properties {
       // Early set-up for the boot thread is required for OpenJDK.
       if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
       RVMThread.getCurrentThread().setupBootJavaThread();
+      VM.sysWriteln("boot thread setup done!");
     }
     RVMThread.boot();
-    if (!VM.BuildForOpenJDK) {
-    if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
-    RVMThread.getCurrentThread().setupBootJavaThread();
+    VM.sysWriteln("rvmthread boot done");
+    if (!VM.BuildForOpenJDK)
+    {
+        if (verboseBoot >= 1) VM.sysWriteln("Setting up boot thread");
+        RVMThread.getCurrentThread().setupBootJavaThread();
     }
 
     if (verboseBoot >= 1) VM.sysWriteln("Booting DynamicLibrary");
@@ -483,7 +486,7 @@ public class VM extends Properties {
     if (VM.BuildForGnuClasspath || VM.BuildForOpenJDK) {
       runClassInitializer("java.net.URLClassLoader");
     }
-    if (VM.BuildForOpenJDK) {
+    if (!VM.joeMode) {
       runClassInitializer("sun.misc.URLClassPath");
     }
 

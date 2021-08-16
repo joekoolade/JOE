@@ -46,44 +46,51 @@ public class sun_reflect_Reflection {
     VM.disableGC();
 
     b.init();
-    int up = i;
-    while (up-- > 0)
+//    int up = i;
+//    VM.sysWriteln("up ", up);
+//    while (up-- > 0)
+//    {
+//      b.up();
+//    }
+    b.up(); // skip sun.reflect.Reflection.getCallerClass (this call)
+    b.up();
+    /*
+     * Skip Method.invoke and Constructor.newInstance, (if the caller was called by
+     * reflection)
+     */
+    if (b.currentMethodIs_Java_Lang_Reflect_Method_InvokeMethod() || b.currentMethodIs_Java_Lang_Reflect_Constructor_NewInstance())
     {
-      b.up();
+        b.up();
     }
-    // b.up(); // skip sun.reflect.Reflection.getCallerClass (this call)
-    //
-    // /* Skip Method.invoke and Constructor.newInstance, (if the caller was called
-    // by reflection) */
-    // if (b.currentMethodIs_Java_Lang_Reflect_Method_InvokeMethod() ||
-    // b.currentMethodIs_Java_Lang_Reflect_Constructor_NewInstance()) {
-    // b.up();
-    // }
-    // /* Work around OpenJDK's work around for Reflection.getCallerClass(..) in
-    // java.lang.reflect.Method.invoke(..).
-    // * The OpenJDK implementation of getCallerClass assumes a fixed stack depth of
-    // 2. The Jikes RVM implementation
-    // * is different so we have to work around OpenJDK's work around */
-    // if (b.currentMethodIs_Java_Lang_Reflect_Method_GetCallerClass()) {
-    // b.up();
-    // }
-    //
-    // /* Skip JNI if necessary */
-    // while (b.currentMethodIsPartOfJikesRVMJNIImplementation()) {
-    // b.up();
-    // }
-    //
-    // /* Don't skip if we're already in the application */
-    // if (b.currentMethodIsInClassLibrary()) {
-    // b.up(); // skip method that contains the call
-    // }
+    /*
+     * Work around OpenJDK's work around for Reflection.getCallerClass(..) in
+     * java.lang.reflect.Method.invoke(..). The OpenJDK implementation of
+     * getCallerClass assumes a fixed stack depth of 2. The Jikes RVM implementation
+     * is different so we have to work around OpenJDK's work around
+     */
+    if (b.currentMethodIs_Java_Lang_Reflect_Method_GetCallerClass())
+    {
+        b.up();
+    }
+    
+    /* Skip JNI if necessary */
+    while (b.currentMethodIsPartOfJikesRVMJNIImplementation())
+    {
+        b.up();
+    }
+    
+    /* Don't skip if we're already in the application */
+    if (b.currentMethodIsInClassLibrary())
+    {
+        b.up(); // skip method that contains the call
+    }
     RVMType ret = b.getCurrentClass();
     VM.enableGC();
 
     Class<?> clazz = ret.getClassForType();
     if (DEBUG_GET_CALLER_CLASS) {
       VM.sysWriteln("Returning caller class " + clazz + " for stack:");
-      RVMThread.dumpStack();
+//      RVMThread.dumpStack();
     }
     return clazz;
   }

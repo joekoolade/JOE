@@ -3246,6 +3246,22 @@ public class Assembler extends AbstractAssembler {
       // if(lister != null) lister.
     }
   
+    public final void emitIRET()
+    {
+      int miStart = mi;
+      setMachineCodes(mi++, (byte)0xCF);
+      if(lister != null) lister.OP(miStart, "IRETD");
+    }
+  
+    public final void emitIRETQ()
+    {
+      int miStart = mi;
+      generateREXprefix(true, null, null, null);
+      setMachineCodes(mi++, (byte)0xCF);
+      if(lister != null) lister.OP(miStart, "IRETQ");
+    }
+  
+  
   /*
    * BELOW HERE ARE AUTOMATICALLY-GENERATED INSTRUCTIONS.  DO NOT EDIT.
    *

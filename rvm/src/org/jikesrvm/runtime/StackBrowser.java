@@ -28,7 +28,7 @@ import org.vmmagic.unboxed.Offset;
  */
 public final class StackBrowser {
 
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
   /** Method associated with current stack location */
   private RVMMethod currentMethod;
   /** Bytecode associated with current stack location */
@@ -57,12 +57,7 @@ public final class StackBrowser {
    */
   private boolean upOneFrameInternal(boolean set) {
     Address fp;
-    if (currentMethod != null && currentMethod.getDeclaringClass().hasBridgeFromNativeAnnotation()) {
-      // Elide native frames
-      fp = RuntimeEntrypoints.unwindNativeStackFrame(currentFramePointer);
-    } else {
-        fp = currentFramePointer;
-    }
+    fp = currentFramePointer;
 
     Address prevFP = fp;
     Address newFP = Magic.getCallerFramePointer(fp);
