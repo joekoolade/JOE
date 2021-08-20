@@ -28,7 +28,7 @@ import org.vmmagic.unboxed.Offset;
  */
 public final class StackBrowser {
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
   /** Method associated with current stack location */
   private RVMMethod currentMethod;
   /** Bytecode associated with current stack location */

@@ -165,16 +165,16 @@ public final class Registers extends AbstractRegisters {
     }
     VM.sysWriteln("fp: ", this.fp);
 
-    sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
-    fp = sp.minus(BYTES_IN_ADDRESS).minus(STACKFRAME_BODY_OFFSET);
-    Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
-    Magic.setCompiledMethodID(fp, INVISIBLE_METHOD_ID);
-
-    sp = sp.minus(BYTES_IN_ADDRESS);                                 // allow for one local
-    getGPRs().set(ESP.value(), sp.toWord());
-
-    this.fp = fp;
-    this.ip = ip;
+//    sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
+//    fp = sp.minus(BYTES_IN_ADDRESS).minus(STACKFRAME_BODY_OFFSET);
+//    Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
+//    Magic.setCompiledMethodID(fp, INVISIBLE_METHOD_ID);
+//
+//    sp = sp.minus(BYTES_IN_ADDRESS);                                 // allow for one local
+//    getGPRs().set(ESP.value(), sp.toWord());
+//
+//    this.fp = fp;
+//    this.ip = ip;
   }
 
   /**

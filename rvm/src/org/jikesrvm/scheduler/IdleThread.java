@@ -46,7 +46,7 @@ public class IdleThread extends SystemThread {
             // rvmThread.checkBlock();
             Magic.pause();
             idling++;
-            if(idling > 100000000)
+            if(idling > 10000000)
             {
               VM.sysWriteln("IDLING ... ");
                 // RVMThread.dumpVirtualMachine();

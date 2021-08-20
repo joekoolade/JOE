@@ -107,6 +107,8 @@ public class CpuId {
     extendedCpuId2();
     extendedCpuId3();
     extendedCpuId4();
+    cpuId15();
+    cpuId16();
   }
 
     static void cpuId0()
@@ -220,6 +222,32 @@ public class CpuId {
       hasPBE = (regs[3] & 0x80000000) != 0;
     }
     
+    static void cpuId15()
+    {
+        long misc_enable = MSR.readMsr(0x1a0);
+        VM.sysWriteln("ia32_misc_enable ", misc_enable);
+        misc_enable |= (1<<22);
+        MSR.writeMsr(0x1a0, misc_enable);
+        Magic.cpuId(0x15, regs);
+        if(trace)
+        {
+            VM.sysWriteln("numerator ", regs[0]);
+            VM.sysWriteln("denominator ", regs[1]);
+            VM.sysWriteln("core crystal clock ", regs[2]);
+        }
+    }
+    
+    static void cpuId16()
+    {
+        Magic.cpuId(0x16, regs);
+        if (trace)
+        {
+            VM.sysWriteln("core base ", regs[0]);
+            VM.sysWriteln("core max ", regs[1]);
+            VM.sysWriteln("bus ", regs[2]);
+        }
+    }
+
     static void extendedCpuId0()
     {
       Magic.cpuId(0x80000000, regs);

@@ -91,7 +91,7 @@ implements Timer
     keyboardControllerValue |= 0x1;
     keyboardController.ioStore(keyboardControllerValue);
     
-    int calibrateTimeMs=100;
+    int calibrateTimeMs=10;
     /*
      * Convert to a latch time
      */

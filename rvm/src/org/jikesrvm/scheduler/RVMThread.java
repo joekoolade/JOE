@@ -1453,7 +1453,6 @@ public final class RVMThread extends ThreadContext {
   }
 
   static void bind(int cpuId) {
-    if (VM.VerifyAssertions) VM._assert(sysCall.sysThreadBindSupported() == 1);
     sysCall.sysThreadBind(cpuId);
   }
 

@@ -47,7 +47,6 @@ public class Platform {
 
     public final static void initTimers()
     {
-      // new PcSystemTimer();
       I82c54.init();
       Tsc.calibrate(50);
     }
@@ -87,5 +86,6 @@ public class Platform {
             VM.sysWriteln("No VirtioNet device found!");
         }
         net.boot();
+        timer = new PcSystemTimer();
     }
 }

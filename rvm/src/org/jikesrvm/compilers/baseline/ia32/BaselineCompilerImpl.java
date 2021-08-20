@@ -3520,6 +3520,34 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
 
       savedRegistersSize = SAVED_GPRS << LG_WORDSIZE;       // default
 
+      /* handle "dynamic brige" methods:
+       * save all registers except FP, SP, TR, S0 (scratch), and
+       * EDI and EBX saved above.
+       */
+      // TODO: (SJF): When I try to reclaim ESI, I may have to save it here?
+      if (klass.hasDynamicBridgeAnnotation()) {
+        savedRegistersSize += 2 << LG_WORDSIZE;
+        if (VM.VerifyAssertions) VM._assert(T0_SAVE_OFFSET.toInt() == -4 * WORDSIZE);
+        asm.emitPUSH_Reg(T0);
+        if (VM.VerifyAssertions) VM._assert(T1_SAVE_OFFSET.toInt() == -5 * WORDSIZE);
+        asm.emitPUSH_Reg(T1);
+        if (SSE2_FULL) {
+          // TODO: Store SSE2 Control word?
+          adjustStack(-BASELINE_XMM_STATE_SIZE, true); // adjust stack to bottom of saved area
+          if (VM.VerifyAssertions) VM._assert(XMM_SAVE_OFFSET.toInt() == (-5 * WORDSIZE) - BASELINE_XMM_STATE_SIZE);
+          asm.emitMOVQ_RegDisp_Reg(SP, Offset.fromIntSignExtend(24), XMM3);
+          asm.emitMOVQ_RegDisp_Reg(SP, Offset.fromIntSignExtend(16), XMM2);
+          asm.emitMOVQ_RegDisp_Reg(SP, Offset.fromIntSignExtend(8), XMM1);
+          asm.emitMOVQ_RegInd_Reg(SP, XMM0);
+          savedRegistersSize += BASELINE_XMM_STATE_SIZE;
+        } else {
+          if (VM.VerifyAssertions) VM._assert(FPU_SAVE_OFFSET.toInt() == (-5 * WORDSIZE) - X87_FPU_STATE_SIZE);
+          adjustStack(-X87_FPU_STATE_SIZE, true); // adjust stack to bottom of saved area
+          asm.emitFNSAVE_RegInd(SP);
+          savedRegistersSize += X87_FPU_STATE_SIZE;
+        }
+      }
+
       // copy registers to callee's stackframe
       firstLocalOffset = STACKFRAME_BODY_OFFSET.minus(savedRegistersSize);
       Offset firstParameterOffset = Offset.fromIntSignExtend(savedRegistersSize + STACKFRAME_HEADER_SIZE + (parameterWords << LG_WORDSIZE) - WORDSIZE);
