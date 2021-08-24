@@ -420,6 +420,8 @@ public class Entrypoints {
       getField(org.jikesrvm.jni.JNIEnvironment.class, "externalJNIFunctions", org.vmmagic.unboxed.Address.class);
   public static final RVMField JNIEnvSavedJTOCField;
 
+  public static final RVMField monitorField = getField(org.jikesrvm.scheduler.Monitor.class, "monitor", org.vmmagic.unboxed.Word.class);
+
   public static final RVMField JNIEnvBasePointerOnEntryToNative;
   public static final RVMField JNIGlobalRefsField;
   public static final RVMField JNIRefsField;
