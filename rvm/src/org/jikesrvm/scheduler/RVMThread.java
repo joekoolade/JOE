@@ -1471,25 +1471,15 @@ public final class RVMThread extends ThreadContext {
   @Interruptible
   // except not really, since we don't enable yieldpoints yet
   public static void boot() {
-      VM.sysWriteln("boot0");
-//    outOfMemoryError = new OutOfMemoryError();
-    VM.sysWriteln("boot1");
+    outOfMemoryError = new OutOfMemoryError();
     dumpLock = new Monitor();
-    VM.sysWriteln("boot2");
     acctLock = new NoYieldpointsMonitor();
-    VM.sysWriteln("boot3");
     debugLock = new NoYieldpointsMonitor();
-    VM.sysWriteln("boot4");
     outputLock = new NoYieldpointsMonitor();
-    VM.sysWriteln("boot5");
     softHandshakeDataLock = new Monitor();
-    VM.sysWriteln("boot6");
     handshakeLock = new Monitor();
-    VM.sysWriteln("boot7");
     doProfileReport = new Latch(false);
-    VM.sysWriteln("boot8");
     monitorBySlot[getCurrentThread().threadSlot] = new NoYieldpointsMonitor();
-    VM.sysWriteln("boot9");
     communicationLockBySlot[getCurrentThread().threadSlot] = new Monitor();
     sysCall.sysStashVMThread(getCurrentThread());
 
@@ -2467,22 +2457,22 @@ public final class RVMThread extends ThreadContext {
    */
   @NoInline // so we can get the fp
   public static void enterNative() {
-    RVMThread t = getCurrentThread();
-    if (ALWAYS_LOCK_ON_STATE_TRANSITION) {
-      t.enterNativeBlocked();
-    } else {
-      int oldState, newState;
-      do {
-        oldState = t.getExecStatus();
-        if (oldState == IN_JAVA) {
-          newState = IN_NATIVE;
-        } else {
-          t.assertAcceptableStates(IN_JAVA_TO_BLOCK);
-          t.enterNativeBlocked();
-          return;
-        }
-      } while (!(t.attemptFastExecStatusTransition(oldState, newState)));
-    }
+//    RVMThread t = getCurrentThread();
+//    if (ALWAYS_LOCK_ON_STATE_TRANSITION) {
+//      t.enterNativeBlocked();
+//    } else {
+//      int oldState, newState;
+//      do {
+//        oldState = t.getExecStatus();
+//        if (oldState == IN_JAVA) {
+//          newState = IN_NATIVE;
+//        } else {
+//          t.assertAcceptableStates(IN_JAVA_TO_BLOCK);
+//          t.enterNativeBlocked();
+//          return;
+//        }
+//      } while (!(t.attemptFastExecStatusTransition(oldState, newState)));
+//    }
     // NB this is not a correct assertion, as there is a race.  we could succeed in
     // CASing the status to IN_NATIVE, but then someone else could asynchronosly
     // set it to whatever they want.
@@ -2497,19 +2487,19 @@ public final class RVMThread extends ThreadContext {
    * @return true if thread transitioned to IN_JAVA, otherwise false
    */
   public static boolean attemptLeaveNativeNoBlock() {
-    if (ALWAYS_LOCK_ON_STATE_TRANSITION)
-      return false;
-    RVMThread t = getCurrentThread();
-    int oldState, newState;
-    do {
-      oldState = t.getExecStatus();
-      if (oldState == IN_NATIVE || oldState == IN_JNI) {
-        newState = IN_JAVA;
-      } else {
-        t.assertAcceptableStates(BLOCKED_IN_NATIVE,BLOCKED_IN_JNI);
-        return false;
-      }
-    } while (!(t.attemptFastExecStatusTransition(oldState, newState)));
+//    if (ALWAYS_LOCK_ON_STATE_TRANSITION)
+//      return false;
+//    RVMThread t = getCurrentThread();
+//    int oldState, newState;
+//    do {
+//      oldState = t.getExecStatus();
+//      if (oldState == IN_NATIVE || oldState == IN_JNI) {
+//        newState = IN_JAVA;
+//      } else {
+//        t.assertAcceptableStates(BLOCKED_IN_NATIVE,BLOCKED_IN_JNI);
+//        return false;
+//      }
+//    } while (!(t.attemptFastExecStatusTransition(oldState, newState)));
     return true;
   }
 
@@ -2521,13 +2511,13 @@ public final class RVMThread extends ThreadContext {
    */
   @Unpreemptible("May block if the thread was asked to do so; otherwise does no actions that would lead to blocking")
   public static void leaveNative() {
-    if (!attemptLeaveNativeNoBlock()) {
-      if (traceReallyBlock) {
-        VM.sysWriteln("Thread #", getCurrentThreadSlot(),
-            " is leaving native blocked");
-      }
-      getCurrentThread().leaveNativeBlocked();
-    }
+//    if (!attemptLeaveNativeNoBlock()) {
+//      if (traceReallyBlock) {
+//        VM.sysWriteln("Thread #", getCurrentThreadSlot(),
+//            " is leaving native blocked");
+//      }
+//      getCurrentThread().leaveNativeBlocked();
+//    }
   }
 
   public static void enterJNIFromCallIntoNative() {
