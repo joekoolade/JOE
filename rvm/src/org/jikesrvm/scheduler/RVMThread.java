@@ -1528,9 +1528,9 @@ public final class RVMThread extends ThreadContext {
 
     softRendezvous();
 
-    acctLock.lockNoHandshake();
+    lock();
     aboutToTerminate[aboutToTerminateN++] = threadSlot;
-    acctLock.unlock();
+    unlock();
   }
 
   /**
@@ -1546,19 +1546,19 @@ public final class RVMThread extends ThreadContext {
     if (!neverKillThreads) {
       restart: while (true) {
         int notKilled = 0;
-        acctLock.lockNoHandshake();
+        lock();
         for (int i = 0; i < aboutToTerminateN; ++i) {
           RVMThread t = threadBySlot[aboutToTerminate[i]];
           if (t.getExecStatus() == TERMINATED) {
             aboutToTerminate[i--] = aboutToTerminate[--aboutToTerminateN];
-            acctLock.unlock();
+            unlock();
             t.releaseThreadSlot();
             continue restart;
           } else {
             notKilled++;
           }
         }
-        acctLock.unlock();
+        unlock();
         if (notKilled > 0 && traceAboutToTerminate) {
           VM.sysWriteln("didn't kill ", notKilled, " threads");
         }
@@ -1582,7 +1582,7 @@ public final class RVMThread extends ThreadContext {
       numThreads = 1;
     } else {
       processAboutToTerminate();
-      acctLock.lockNoHandshake();
+      lock();
       if (freeSlotN > 0) {
         threadSlot = freeSlots[--freeSlotN];
       } else {
@@ -1591,7 +1591,7 @@ public final class RVMThread extends ThreadContext {
         }
         threadSlot = nextSlot++;
       }
-      acctLock.unlock();
+      unlock();
       // before we actually use this slot, ensure that there is a monitor
       // for it. note that if the slot doesn't have a monitor, then we
       // "own" it since we allocated it above but haven't done anything
@@ -1602,9 +1602,9 @@ public final class RVMThread extends ThreadContext {
       }
       if (communicationLockBySlot[threadSlot] == null) {
         Monitor m = new Monitor();
-        handshakeLock.lockWithHandshake();
+        lock();
         communicationLockBySlot[threadSlot] = m;
-        handshakeLock.unlock();
+        unlock();
       }
       // TODO is this actually needed? The synchronization for locks
       // should normally take care of required barriers and bar
@@ -1614,13 +1614,13 @@ public final class RVMThread extends ThreadContext {
                      * tables until the thread slot is inited
                      */
 
-      acctLock.lockNoHandshake();
+      lock();
       threadBySlot[threadSlot] = this;
 
       threadIdx = numThreads++;
       threads[threadIdx] = this;
 
-      acctLock.unlock();
+      unlock();
     }
     lockingId = threadSlot << TL_THREAD_ID_SHIFT;
     if (traceAcct) {
@@ -1634,7 +1634,7 @@ public final class RVMThread extends ThreadContext {
    */
   @NoCheckStore
   void releaseThreadSlot() {
-    acctLock.lockNoHandshake();
+    lock();
     RVMThread replacementThread = threads[numThreads - 1];
     threads[threadIdx] = replacementThread;
     replacementThread.threadIdx = threadIdx;
@@ -1650,7 +1650,7 @@ public final class RVMThread extends ThreadContext {
     threads[--numThreads] = null;
     threadBySlot[threadSlot] = null;
     freeSlots[freeSlotN++] = threadSlot;
-    acctLock.unlock();
+    unlock();
   }
 
    /**
@@ -2119,91 +2119,91 @@ public final class RVMThread extends ThreadContext {
     // NB: anything this method calls CANNOT change the contextRegisters
     // or the JNI env. as well, this code will be running concurrently
     // with stop-the-world GC!
-    boolean commitSoftRendezvous;
-    monitor().lockNoHandshake();
-    if (jni) {
-      jniEnteredBlocked++;
-      setExecStatus(BLOCKED_IN_JNI);
-    } else {
-      nativeEnteredBlocked++;
-      setExecStatus(BLOCKED_IN_NATIVE);
-    }
-    acknowledgeBlockRequests();
-    handleHandshakeRequest();
-    commitSoftRendezvous = softRendezvousCheckAndClear();
-    monitor().unlock();
-    if (traceBlock)
-      VM.sysWriteln("Thread #", threadSlot,
-          " done with the locking part of native entry.");
-    if (commitSoftRendezvous)
-      softRendezvousCommit();
+//    boolean commitSoftRendezvous;
+//    monitor().lockNoHandshake();
+//    if (jni) {
+//      jniEnteredBlocked++;
+//      setExecStatus(BLOCKED_IN_JNI);
+//    } else {
+//      nativeEnteredBlocked++;
+//      setExecStatus(BLOCKED_IN_NATIVE);
+//    }
+//    acknowledgeBlockRequests();
+//    handleHandshakeRequest();
+//    commitSoftRendezvous = softRendezvousCheckAndClear();
+//    monitor().unlock();
+//    if (traceBlock)
+//      VM.sysWriteln("Thread #", threadSlot,
+//          " done with the locking part of native entry.");
+//    if (commitSoftRendezvous)
+//      softRendezvousCommit();
     if (traceBlock)
       VM.sysWriteln("Thread #", threadSlot, " done enter native blocked.");
   }
 
   @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
   private void leaveNativeBlockedImpl() {
-    checkBlockNoSaveContext();
+//    checkBlockNoSaveContext();
   }
 
   private void enterNativeBlocked() {
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
-    enterNativeBlockedImpl(false);
-    assertAcceptableStates(IN_NATIVE,BLOCKED_IN_NATIVE);
+//    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
+//    enterNativeBlockedImpl(false);
+//    assertAcceptableStates(IN_NATIVE,BLOCKED_IN_NATIVE);
   }
 
   @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
   private void leaveNativeBlocked() {
-    assertAcceptableStates(IN_NATIVE,BLOCKED_IN_NATIVE);
-    leaveNativeBlockedImpl();
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
+//    assertAcceptableStates(IN_NATIVE,BLOCKED_IN_NATIVE);
+//    leaveNativeBlockedImpl();
+//    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
   }
 
   private void enterJNIBlocked() {
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
-    enterNativeBlockedImpl(true);
-    assertAcceptableStates(IN_JNI,BLOCKED_IN_JNI);
+//    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
+//    enterNativeBlockedImpl(true);
+//    assertAcceptableStates(IN_JNI,BLOCKED_IN_JNI);
   }
 
   @Unpreemptible("May block if the thread was asked to do so, but otherwise does no actions that would cause blocking")
   private void leaveJNIBlocked() {
-    assertAcceptableStates(IN_JNI,BLOCKED_IN_JNI);
-    leaveNativeBlockedImpl();
-    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
+//    assertAcceptableStates(IN_JNI,BLOCKED_IN_JNI);
+//    leaveNativeBlockedImpl();
+//    assertAcceptableStates(IN_JAVA,IN_JAVA_TO_BLOCK);
   }
 
   @Entrypoint
   public static void enterJNIBlockedFromJNIFunctionCall() {
-    RVMThread t = getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #",t.getThreadSlot(), " in enterJNIBlockedFromJNIFunctionCall");
-      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
-    }
-    t.enterJNIBlocked();
+//    RVMThread t = getCurrentThread();
+//    if (traceReallyBlock) {
+//      VM.sysWriteln("Thread #",t.getThreadSlot(), " in enterJNIBlockedFromJNIFunctionCall");
+//      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
+//    }
+//    t.enterJNIBlocked();
   }
 
   @Entrypoint
   public static void enterJNIBlockedFromCallIntoNative() {
-    RVMThread t = getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #",t.getThreadSlot(), " in enterJNIBlockedFromCallIntoNative");
-      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
-    }
-    t.enterJNIBlocked();
+//    RVMThread t = getCurrentThread();
+//    if (traceReallyBlock) {
+//      VM.sysWriteln("Thread #",t.getThreadSlot(), " in enterJNIBlockedFromCallIntoNative");
+//      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
+//    }
+//    t.enterJNIBlocked();
   }
 
   @Entrypoint
   @Unpreemptible("May block if the thread was asked to do so, but otherwise will not block")
   static void leaveJNIBlockedFromJNIFunctionCall() {
-    RVMThread t = getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #", t.getThreadSlot(),
-          " in leaveJNIBlockedFromJNIFunctionCall");
-      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
-      VM.sysWriteln("state = ", READABLE_EXEC_STATUS[t.getExecStatus()]);
-      VM.sysWriteln("jtoc = ", Magic.getJTOC());
-    }
-    t.leaveJNIBlocked();
+//    RVMThread t = getCurrentThread();
+//    if (traceReallyBlock) {
+//      VM.sysWriteln("Thread #", t.getThreadSlot(),
+//          " in leaveJNIBlockedFromJNIFunctionCall");
+//      VM.sysWriteln("thread address = ",Magic.objectAsAddress(t));
+//      VM.sysWriteln("state = ", READABLE_EXEC_STATUS[t.getExecStatus()]);
+//      VM.sysWriteln("jtoc = ", Magic.getJTOC());
+//    }
+//    t.leaveJNIBlocked();
   }
 
   /**
@@ -2212,14 +2212,14 @@ public final class RVMThread extends ThreadContext {
   @Entrypoint
   @Unpreemptible("May block if the thread was asked to do so, but otherwise will not block")
   public static void leaveJNIBlockedFromCallIntoNative() {
-    RVMThread t = getCurrentThread();
-    if (traceReallyBlock) {
-      VM.sysWriteln("Thread #", t.getThreadSlot(),
-          " in leaveJNIBlockedFromCallIntoNative");
-      VM.sysWriteln("state = ", READABLE_EXEC_STATUS[t.getExecStatus()]);
-      VM.sysWriteln("jtoc = ", Magic.getJTOC());
-    }
-    t.leaveJNIBlocked();
+//    RVMThread t = getCurrentThread();
+//    if (traceReallyBlock) {
+//      VM.sysWriteln("Thread #", t.getThreadSlot(),
+//          " in leaveJNIBlockedFromCallIntoNative");
+//      VM.sysWriteln("state = ", READABLE_EXEC_STATUS[t.getExecStatus()]);
+//      VM.sysWriteln("jtoc = ", Magic.getJTOC());
+//    }
+//    t.leaveJNIBlocked();
   }
 
   private int setBlockedExecStatus() {
@@ -2436,9 +2436,9 @@ public final class RVMThread extends ThreadContext {
    */
   @NoInline
   public static void saveThreadState() {
-    Address curFP = Magic.getFramePointer();
-    getCurrentThread().contextRegisters.setInnermost(Magic.getReturnAddressUnchecked(curFP),
-                                                     Magic.getCallerFramePointer(curFP));
+//    Address curFP = Magic.getFramePointer();
+//    getCurrentThread().contextRegisters.setInnermost(Magic.getReturnAddressUnchecked(curFP),
+//                                                     Magic.getCallerFramePointer(curFP));
   }
 
   /**
@@ -2522,42 +2522,42 @@ public final class RVMThread extends ThreadContext {
 
   public static void enterJNIFromCallIntoNative() {
     // FIXME: call these in PPC instead of doing it in machine code...
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
-        RVMThread.IN_JNI)) {
-      RVMThread.enterJNIBlockedFromCallIntoNative();
-    }
+//    getCurrentThread().observeExecStatus();
+//    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
+//        RVMThread.IN_JNI)) {
+//      RVMThread.enterJNIBlockedFromCallIntoNative();
+//    }
   }
 
   @Unpreemptible
   public static void leaveJNIFromCallIntoNative() {
     // FIXME: call these in PPC instead of doing it in machine code...
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
-        RVMThread.IN_JAVA)) {
-      RVMThread.leaveJNIBlockedFromCallIntoNative();
-    }
+//    getCurrentThread().observeExecStatus();
+//    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
+//        RVMThread.IN_JAVA)) {
+//      RVMThread.leaveJNIBlockedFromCallIntoNative();
+//    }
   }
 
   public static void enterJNIFromJNIFunctionCall() {
     // FIXME: call these instead of doing it in machine code...  currently this
     // is never called.
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
-        RVMThread.IN_JNI)) {
-      RVMThread.enterJNIBlockedFromJNIFunctionCall();
-    }
+//    getCurrentThread().observeExecStatus();
+//    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JAVA,
+//        RVMThread.IN_JNI)) {
+//      RVMThread.enterJNIBlockedFromJNIFunctionCall();
+//    }
   }
 
   @Unpreemptible
   public static void leaveJNIFromJNIFunctionCall() {
     // FIXME: call these instead of doing it in machine code...  currently this
     // is never called.
-    getCurrentThread().observeExecStatus();
-    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
-        RVMThread.IN_JAVA)) {
-      RVMThread.leaveJNIBlockedFromJNIFunctionCall();
-    }
+//    getCurrentThread().observeExecStatus();
+//    if (!getCurrentThread().attemptFastExecStatusTransition(RVMThread.IN_JNI,
+//        RVMThread.IN_JAVA)) {
+//      RVMThread.leaveJNIBlockedFromJNIFunctionCall();
+//    }
   }
 
   public void unblock(BlockAdapter ba) {
@@ -2613,12 +2613,12 @@ public final class RVMThread extends ThreadContext {
         VM.sysWriteln("Timer ticks = ", timerTicks);
         doProfileReport.openNoHandshake();
         // snapshot the threads
-        acctLock.lockNoHandshake();
+        lock();
         int numDebugThreads = numThreads;
         for (int i = 0; i < numThreads; ++i) {
           debugThreads[i] = threads[i];
         }
-        acctLock.unlock();
+        unlock();
         // do the magic
         for (int i = 0; i < numDebugThreads; ++i) {
           debugThreads[i].handleDebugRequestForThread();
@@ -2889,7 +2889,7 @@ public final class RVMThread extends ThreadContext {
     // N.B.: cannot hit a yieldpoint between setting execStatus and starting the
     // thread!!
     setExecStatus(IN_JAVA);
-    acctLock.lockNoHandshake();
+    lock();
     numActiveThreads++;
     if (isSystemThread()) {
       numActiveSystemThreads++;
@@ -2898,7 +2898,7 @@ public final class RVMThread extends ThreadContext {
     if (daemon) {
       numActiveDaemons++;
     }
-    acctLock.unlock();
+    unlock();
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " starting!");
     sysCall.sysThreadCreate(contextRegisters.getInnermostInstructionAddress(),
@@ -2907,6 +2907,20 @@ public final class RVMThread extends ThreadContext {
     if (!isSystemThread()) {
       JMXSupport.increaseStartedThreadCount();
     }
+    /*
+     * Need to setup the stack so it looks like it
+     * is returning from an interrupt
+     * 
+     * Top of Stack
+     * 0        IP0; sentinel IP
+     * 0        FP0; sentinel FP
+     * 0        cmd id0; invisible method id
+     * 0x200
+     * code segment
+     * IP
+     * FP
+     */
+//     Platform.scheduler.addThread(this);
   }
 
   /**
@@ -6021,4 +6035,12 @@ static void tracebackWithoutLock() {
     return gcInProgress;
   }
 
+  static void lock()
+  {
+      Magic.disableInterrupts();
+  }
+  static void unlock()
+  {
+      Magic.enableInterrupts();
+  }
 }

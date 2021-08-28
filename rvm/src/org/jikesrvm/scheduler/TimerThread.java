@@ -46,12 +46,12 @@ public class TimerThread extends SystemThread {
     if (verbose >= 1) VM.sysWriteln("TimerThread run routine entered");
     try {
       for (;;) {
-        sysCall.sysNanoSleep(1000L * 1000L * VM.interruptQuantum);
-
+        // sysCall.sysNanoSleep(1000L * 1000L * VM.interruptQuantum);
+        RVMThread.sleep(1000);
         if (VM.BuildForAdaptiveSystem) {
           // grab the lock to prevent threads from getting GC'd while we are
           // iterating (since this thread doesn't stop for GC)
-          RVMThread.acctLock.lockNoHandshake();
+          RVMThread.lock();
           RVMThread.timerTicks++;
           for (int i = 0; i < RVMThread.numThreads; ++i) {
             RVMThread candidate = RVMThread.threads[i];
@@ -60,7 +60,7 @@ public class TimerThread extends SystemThread {
               candidate.takeYieldpoint = 1;
             }
           }
-          RVMThread.acctLock.unlock();
+          RVMThread.unlock();
         }
 
         RVMThread.checkDebugRequest();
