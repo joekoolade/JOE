@@ -2956,7 +2956,7 @@ public final class RVMThread extends ThreadContext {
 
     if (traceAcct)
       VM.sysWriteln("doing accounting...");
-    acctLock.lockNoHandshake();
+    lock();
 
     // if the thread terminated because of an exception, remove
     // the mark from the exception register object, or else the
@@ -2993,7 +2993,7 @@ public final class RVMThread extends ThreadContext {
       VM.sysWriteln("  terminateSystem = ", terminateSystem);
     }
 
-    acctLock.unlock();
+    unlock();
 
     if (traceAcct)
       VM.sysWriteln("done with accounting.");

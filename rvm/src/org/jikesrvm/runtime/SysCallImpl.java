@@ -373,6 +373,7 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   public void sysThreadYield()
   {
     VM.sysWriteln("THREAD YIELD");
+    Magic.yield();
   }
 
   @java.lang.Override
