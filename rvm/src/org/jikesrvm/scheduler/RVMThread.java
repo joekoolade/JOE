@@ -16,8 +16,6 @@ import static org.jikesrvm.ia32.RegisterConstants.ESI;
 import static org.jikesrvm.ia32.RegisterConstants.ESP;
 import static org.jikesrvm.objectmodel.ThinLockConstants.TL_THREAD_ID_SHIFT;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_DUMP_STACK_AND_DIE;
-import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION;
-import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_MAIN_THREAD_COULD_NOT_LAUNCH;
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_RECURSIVELY_SHUTTING_DOWN;
 import static org.jikesrvm.runtime.SysCall.sysCall;
 
@@ -397,6 +395,8 @@ public final class RVMThread extends ThreadContext {
    */
   @Untraced
   RVMThread next;
+  @Untraced
+  RVMThread prev;
 
   /**
    * The queue that the thread is on, or null if the thread is not on a queue
@@ -1011,7 +1011,11 @@ public final class RVMThread extends ThreadContext {
     /** The thread is waiting without a timeout. */
     WAITING,
     /** The thread is waiting with a timeout. */
-    TIMED_WAITING
+    TIMED_WAITING,
+    /** The thread is sleeping */
+    SLEEPING,
+    /** Thread is parking */
+    PARKING,
   }
 
   /**
@@ -1208,6 +1212,8 @@ public final class RVMThread extends ThreadContext {
 
   /** In dump stack and dying */
   protected static boolean exitInProgress = false;
+
+  private static boolean worldStopped;
 
   /** Extra debug from traces */
   protected static final boolean traceDetails = false;
@@ -2998,35 +3004,35 @@ public final class RVMThread extends ThreadContext {
     if (traceAcct)
       VM.sysWriteln("done with accounting.");
 
-    if (terminateSystem) {
-      if (traceAcct)
-        VM.sysWriteln("terminating system.");
-      if (uncaughtExceptionCount > 0)
-      /* Use System.exit so that any shutdown hooks are run. */ {
-        if (VM.TraceExceptionDelivery) {
-          VM.sysWriteln("Calling sysExit due to uncaught exception.");
-        }
-        callSystemExit(EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION);
-      } else if (thread instanceof MainThread) {
-        MainThread mt = (MainThread) thread;
-        if (!mt.launched) {
-          /*
-           * Use System.exit so that any shutdown hooks are run. It is possible
-           * that shutdown hooks may be installed by static initializers which
-           * were run by classes initialized before we attempted to run the main
-           * thread. (As of this writing, 24 January 2005, the Classpath
-           * libraries do not do such a thing, but there is no reason why we
-           * should not support this.) This was discussed on
-           * jikesrvm-researchers on 23 Jan 2005 and 24 Jan 2005.
-           */
-          callSystemExit(EXIT_STATUS_MAIN_THREAD_COULD_NOT_LAUNCH);
-        }
-      }
-      /* Use System.exit so that any shutdown hooks are run. */
-      callSystemExit(0);
-      if (VM.VerifyAssertions)
-        VM._assert(VM.NOT_REACHED);
-    }
+//    if (terminateSystem) {
+//      if (traceAcct)
+//        VM.sysWriteln("terminating system.");
+//      if (uncaughtExceptionCount > 0)
+//      /* Use System.exit so that any shutdown hooks are run. */{
+//        if (VM.TraceExceptionDelivery) {
+//          VM.sysWriteln("Calling sysExit due to uncaught exception.");
+//        }
+//        callSystemExit(VM.EXIT_STATUS_DYING_WITH_UNCAUGHT_EXCEPTION);
+//      } else if (thread instanceof MainThread) {
+//        MainThread mt = (MainThread) thread;
+//        if (!mt.launched) {
+//          /*
+//           * Use System.exit so that any shutdown hooks are run. It is possible
+//           * that shutdown hooks may be installed by static initializers which
+//           * were run by classes initialized before we attempted to run the main
+//           * thread. (As of this writing, 24 January 2005, the Classpath
+//           * libraries do not do such a thing, but there is no reason why we
+//           * should not support this.) This was discussed on
+//           * jikesrvm-researchers on 23 Jan 2005 and 24 Jan 2005.
+//           */
+//          callSystemExit(VM.EXIT_STATUS_MAIN_THREAD_COULD_NOT_LAUNCH);
+//        }
+//      }
+//      /* Use System.exit so that any shutdown hooks are run. */
+//      callSystemExit(0);
+//      if (VM.VerifyAssertions)
+//        VM._assert(VM.NOT_REACHED);
+//    }
 
     if (traceAcct)
       VM.sysWriteln("making joinable...");
@@ -3034,10 +3040,10 @@ public final class RVMThread extends ThreadContext {
     // this works.  we use synchronized because we cannot use the thread's
     // monitor().  see comment in join().  this is fine, because we're still
     // "running" from the standpoint of GC.
-    synchronized (this) {
+//    synchronized (this) {
       isJoinable = true;
-      notifyAll();
-    }
+//      notifyAll();
+//    }
     if (traceAcct)
       VM.sysWriteln("Thread #", threadSlot, " is joinable.");
 
@@ -3525,17 +3531,13 @@ public final class RVMThread extends ThreadContext {
       // if there was a thread waiting, awaken it
       if (toAwaken != null) {
         // is this where the problem is coming from?
-        toAwaken.monitor().lockedBroadcastNoHandshake();
+        Platform.scheduler.addThread(toAwaken);
       }
       // block
       monitor().lockNoHandshake();
       while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
              (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
-        if (hasTimeout) {
-          monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
-        } else {
-          monitor().waitWithHandshake();
-        }
+        Magic.yield();
       }
       // figure out if anything special happened while we were blocked
       if (hasInterrupt) {
@@ -3670,7 +3672,8 @@ public final class RVMThread extends ThreadContext {
     RVMThread toAwaken = l.waiting.dequeue();
     l.mutex.unlock();
     if (toAwaken != null) {
-      toAwaken.monitor().lockedBroadcastNoHandshake();
+        VM.sysWriteln("notifying ", toAwaken.threadSlot);
+        Platform.scheduler.addThread(toAwaken);
     }
   }
 
@@ -3724,16 +3727,16 @@ public final class RVMThread extends ThreadContext {
       l.mutex.unlock();
       if (toAwaken == null)
         break;
-      toAwaken.monitor().lockedBroadcastNoHandshake();
+      Platform.scheduler.addThread(toAwaken);
     }
   }
 
   public void stop(Throwable cause) {
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     asyncThrowable = cause;
-    takeYieldpoint = 1;
-    monitor().broadcast();
-    monitor().unlock();
+//    takeYieldpoint = 1;
+//    monitor().broadcast();
+//    monitor().unlock();
   }
 
   /*
@@ -3763,11 +3766,7 @@ public final class RVMThread extends ThreadContext {
     waiting = hasTimeout ? Waiting.TIMED_WAITING : Waiting.WAITING;
     while (!parkingPermit && !hasInterrupt && asyncThrowable == null &&
            (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
-      if (hasTimeout) {
-        monitor().timedWaitAbsoluteWithHandshake(whenWakeupNanos);
-      } else {
-        monitor().waitWithHandshake();
-      }
+      Magic.yield();
     }
     waiting = Waiting.RUNNABLE;
     parkingPermit = false;
@@ -3860,7 +3859,7 @@ public final class RVMThread extends ThreadContext {
   @NoCheckStore
   public static int snapshotHandshakeThreads(SoftHandshakeVisitor v) {
     // figure out which threads to consider
-    acctLock.lockNoHandshake(); // get a consistent view of which threads are live.
+    lock(); // get a consistent view of which threads are live.
 
     int numToHandshake = 0;
     for (int i = 0; i < numThreads; ++i) {
@@ -3876,7 +3875,7 @@ public final class RVMThread extends ThreadContext {
         handshakeThreads[numToHandshake++] = t;
       }
     }
-    acctLock.unlock();
+    unlock();
     return numToHandshake;
   }
 
@@ -4059,6 +4058,9 @@ public final class RVMThread extends ThreadContext {
     }
   }
 
+  /*
+   * TODO: more possible merging
+   */
   /**
    * Stop all mutator threads. This is current intended to be run by a single thread.
    *
@@ -4122,8 +4124,7 @@ public final class RVMThread extends ThreadContext {
   @NoCheckStore
   @Unpreemptible
   public static void unblockAllMutatorsForGC() {
-    RVMThread.handshakeLock.lockNoHandshake();
-    RVMThread.acctLock.lockNoHandshake();
+    lock();
     int numToHandshake = 0;
     for (int i = 0; i < RVMThread.numThreads; i++) {
       RVMThread t = RVMThread.threads[i];
@@ -4136,7 +4137,7 @@ public final class RVMThread extends ThreadContext {
       RVMThread.handshakeThreads[i].unblock(RVMThread.gcBlockAdapter);
       RVMThread.handshakeThreads[i] = null; // Help GC
     }
-    RVMThread.handshakeLock.unlock();
+    unlock();
   }
 
   @Uninterruptible
@@ -4220,6 +4221,7 @@ public final class RVMThread extends ThreadContext {
         handshakeThreads[i] = null; // help GC
       }
     }
+    worldStopped=true;
 
     processAboutToTerminate(); /*
                                 * ensure that any threads that died while
@@ -4254,7 +4256,8 @@ public final class RVMThread extends ThreadContext {
     handshakeLock.lockWithHandshake();
 
     RVMThread current = getCurrentThread();
-    acctLock.lockNoHandshake();
+    worldStopped=false;
+    Magic.disableInterrupts();
     int numToHandshake = 0;
     for (int i = 0; i < numThreads;++i) {
       RVMThread t = threads[i];
@@ -4264,7 +4267,7 @@ public final class RVMThread extends ThreadContext {
         handshakeThreads[numToHandshake++] = t;
       }
     }
-    acctLock.unlock();
+    Magic.enableInterrupts();
     for (int i = 0; i < numToHandshake;++i) {
       handshakeThreads[i].unblock(ba);
       handshakeThreads[i] = null; // help GC
@@ -4287,6 +4290,10 @@ public final class RVMThread extends ThreadContext {
   @Unpreemptible
   public static void hardHandshakeResume() {
     hardHandshakeResume(handshakeBlockAdapter,allButGC);
+  }
+
+  public static boolean worldStopped() {
+    return worldStopped;
   }
 
   /**
@@ -4799,7 +4806,14 @@ public final class RVMThread extends ThreadContext {
    * stop-the-world garbage collection and ignore handshakes
    */
   public boolean ignoreHandshakesAndGC() {
-    if (systemThread == null) return false;
+    if(this==idleThread)
+    {
+      return true;
+    }
+    if (systemThread == null) 
+    {
+      return false;
+    }
     return systemThread instanceof TimerThread;
   }
 
