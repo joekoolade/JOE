@@ -16,6 +16,7 @@ import static org.jikesrvm.objectmodel.ThinLockConstants.TL_LOCK_ID_MASK;
 import static org.jikesrvm.objectmodel.ThinLockConstants.TL_LOCK_ID_SHIFT;
 import static org.jikesrvm.objectmodel.ThinLockConstants.TL_THREAD_ID_SHIFT;
 
+import org.jam.board.pc.Platform;
 import org.jikesrvm.VM;
 import org.jikesrvm.objectmodel.ObjectModel;
 import org.jikesrvm.runtime.Callbacks;
@@ -248,13 +249,18 @@ public final class Lock {
       ownerId = threadId;
       recursionCount = 1;
     } else {
+        /*
+         * queue thread
+         */
       entering.enqueue(me);
       mutex.unlock();
-      me.monitor().lockNoHandshake();
-      while (entering.isQueued(me)) {
-        me.monitor().waitWithHandshake(); // this may spuriously return
+      /*
+       * give up processor and wait for the unlock
+       */
+      while(entering.isQueued(me))
+      {
+          Magic.yield();
       }
-      me.monitor().unlock();
       return false;
     }
     mutex.unlock(); // thread-switching benign
@@ -298,7 +304,11 @@ public final class Lock {
     }
     mutex.unlock(); // does a Magic.sync();  (thread-switching benign)
     if (toAwaken != null) {
-      toAwaken.monitor().lockedBroadcastNoHandshake();
+      //toAwaken.monitor().lockedBroadcastNoHandshake();
+        /*
+         * Schedule the locked thread
+         */
+        Platform.scheduler.addThread(toAwaken);
     }
   }
 
@@ -397,6 +407,11 @@ public final class Lock {
     VM.sysWriteln(":");
     VM.sysWrite(" lockedObject: ");
     VM.sysWriteHex(Magic.objectAsAddress(lockedObject));
+    if(lockedObject == null) 
+    {
+        VM.sysWrite("\n");
+        return;
+    }
     VM.sysWrite("   thin lock = ");
     VM.sysWriteHex(Magic.objectAsAddress(lockedObject).loadAddress(ObjectModel.defaultThinLockOffset()));
     VM.sysWrite(" object type = ");
