@@ -2926,7 +2926,7 @@ public final class RVMThread extends ThreadContext {
      * IP
      * FP
      */
-//     Platform.scheduler.addThread(this);
+     Platform.scheduler.addThread(this);
   }
 
   /**

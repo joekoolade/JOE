@@ -25,7 +25,7 @@ import org.jikesrvm.runtime.Magic;
 @Uninterruptible
 @NonMoving
 public class ThreadQueue {
-  protected static final boolean trace = false;
+  protected static final boolean trace = true;
 
   @Untraced RVMThread head;
 
@@ -44,7 +44,10 @@ public class ThreadQueue {
           Magic.objectAsAddress(this));
     }
     if (VM.VerifyAssertions)
+    {
+        VM.sysWriteln("queueOn ", Magic.objectAsAddress(t.queuedOn));
       VM._assert(t.queuedOn == null);
+    }
     t.next = null;
     if (tail == null) {
       head = t;

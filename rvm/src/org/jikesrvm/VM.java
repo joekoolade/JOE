@@ -344,7 +344,8 @@ public class VM extends Properties {
     // Enable multiprocessing.
     // Among other things, after this returns, GC and dynamic class loading are enabled.
     if (verboseBoot >= 1) VM.sysWriteln("Booting scheduler");
-
+    Platform.initScheduler();
+    
     ThreadGroup mainThreadGroup = null;
     if (VM.BuildForOpenJDK) {
       // Create initial thread group. This has to be done before creating other threads.

@@ -20,24 +20,12 @@ import org.vmmagic.unboxed.Address;
 @NonMoving
 public class RoundRobin
 implements Scheduler {
-    private int[] stack;
-    private Address stackTop;
     private final static int STACK_SIZE = 256;
     private ThreadQueue runQueue;
     private int idling = 0;
     
     public RoundRobin()
     {
-        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE);
-        /*
-         * Put in the sentinel
-         */
-        stack[STACK_SIZE-1] = 0;    // IP = 0
-        stack[STACK_SIZE-2] = 0;    // FP = 0
-        stack[STACK_SIZE-3] = 0;    // cmid = 0
-        
-        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
-        VM.sysWriteln("roundrobin stack top: ", stackTop);
         runQueue = new ThreadQueue();
     }
     /* 
@@ -106,7 +94,7 @@ implements Scheduler {
     public Address getHandlerStack()
     {
         // TODO Auto-generated method stub
-        return stackTop;
+        return null;
     }
     /* (non-Javadoc)
      * @see org.jikesrvm.scheduler.Scheduler#noRunnableThreads()
