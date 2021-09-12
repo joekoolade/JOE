@@ -13,10 +13,10 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.Untraced;
-import org.jikesrvm.runtime.Magic;
 
 /**
  * An unsynchronized queue data structure for Threads. The current uses are all
@@ -43,6 +43,22 @@ public class ThreadQueue {
       VM.sysWriteln("enqueueing ", t.getThreadSlot(), " onto ",
           Magic.objectAsAddress(this));
     }
+    /*
+     * If it is already queuedon, the don't schedule
+     */
+    if (t.queuedOn != null)
+    {
+      if (trace)
+      {
+        VM.sysWrite("Already scheduled ", t.getThreadSlot());
+        VM.sysWrite(" tail: ", Magic.objectAsAddress(tail));
+        VM.sysWrite(" head: ", Magic.objectAsAddress(head));
+        VM.sysWrite(" next: ", Magic.objectAsAddress(t.next));
+        VM.sysWriteln(" prev: ", Magic.objectAsAddress(t.prev));
+        t.dumpStack();
+      }
+      return;
+    }
     if (VM.VerifyAssertions)
     {
         VM.sysWriteln("queueOn ", Magic.objectAsAddress(t.queuedOn));
@@ -68,6 +84,10 @@ public class ThreadQueue {
       head = result.next;
       if (head == null) {
         tail = null;
+        result.prev = null;
+      } else
+      {
+        head.prev = null;
       }
       if (VM.VerifyAssertions)
         VM._assert(result.queuedOn == this);
@@ -128,7 +148,7 @@ public class ThreadQueue {
    * @return whether the given thread was removed from the queue
    */
   public boolean remove(RVMThread t) {
-    if (t.queuedOn != this)
+    if (t.queuedOn != this || t.queuedOn == null)
       return false;
     if (trace) {
       VM.sysWriteln("removing ", t.getThreadSlot(), " from ",

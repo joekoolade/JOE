@@ -115,6 +115,7 @@ public final class SpinLock {
    */
   public void lock() {
     if (!VM.runningVM) return;
+    Magic.disableInterrupts();
     VM.disableYieldpoints();
     RVMThread i = RVMThread.getCurrentThread();
     RVMThread p;
@@ -177,6 +178,7 @@ public final class SpinLock {
    */
   public void unlock() {
     if (!VM.runningVM) return;
+    Magic.enableInterrupts();
     Magic.fence(); // commit changes while lock was held so they are visible to the next processor that acquires the lock
     Offset latestContenderOffset = Entrypoints.latestContenderField.getOffset();
     RVMThread i = RVMThread.getCurrentThread();

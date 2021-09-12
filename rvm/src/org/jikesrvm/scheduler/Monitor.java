@@ -18,13 +18,13 @@ import org.jam.board.pc.Platform;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.Magic;
-import org.vmmagic.pragma.Uninterruptible;
-import org.vmmagic.pragma.Unpreemptible;
-import org.vmmagic.pragma.NonMoving;
-import org.vmmagic.pragma.NoInline;
-import org.vmmagic.pragma.NoOptCompile;
 import org.vmmagic.pragma.BaselineSaveLSRegisters;
 import org.vmmagic.pragma.Entrypoint;
+import org.vmmagic.pragma.NoInline;
+import org.vmmagic.pragma.NoOptCompile;
+import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
+import org.vmmagic.pragma.Unpreemptible;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
 
@@ -408,8 +408,8 @@ public class Monitor {
       }
       if (trace)
       {
-          VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
-          // VM.sysWriteln("T#", thread.threadSlot);
+        VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
+        VM.sysWriteln("T#", thread.threadSlot);
       }
       /*
        * Wakeup next thread trying to get the lock
@@ -426,7 +426,7 @@ public class Monitor {
        * Time to give up the processor
        */
       Magic.enableInterrupts();
-//      Magic.yield();
+      Magic.yield();
       /*
        * Keep looping until thread can get the monitor lock
        */
@@ -671,6 +671,7 @@ public class Monitor {
               VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
           }
           Platform.scheduler.addThread(waitingThread);
+          Magic.yield();
           waitingThread = waiting.dequeue();
       }
   }

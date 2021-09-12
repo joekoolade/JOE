@@ -15,8 +15,8 @@ package org.jikesrvm.scheduler;
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
-import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 
 /**
  * Finalizer thread.
@@ -34,7 +34,7 @@ import org.vmmagic.pragma.NonMoving;
 @NonMoving
 public class FinalizerThread extends SystemThread {
 
-  private static final int verbose = 0; // currently goes up to 2
+  private static final int verbose = 2; // currently goes up to 2
 
   private final Object[] none = new Object[0];
   private static boolean shouldRun;
@@ -48,6 +48,7 @@ public class FinalizerThread extends SystemThread {
 
   @Uninterruptible
   public static void schedule() {
+    VM.sysWriteln("FinalizerThread schedule()");
     schedLock.lockNoHandshake();
     shouldRun = true;
     schedLock.broadcast();
