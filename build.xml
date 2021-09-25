@@ -47,11 +47,11 @@
   <property name="mmtk-vm-harness.java" location="MMTk/ext/vm/harness"/>
   <property name="vmmagic-stub.java" location="common/vmmagic/src"/>
   <property name="options.java" location="common/options/src"/>
-  <property name="tuningforklib.java" location="external/tuningforklib/src"/>	
+  <property name="tuningforklib.java" location="external/tuningforklib/src"/>
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
   <property name="jam.java" location="jam-src" />
 
-  <!-- Location of .dat files for options -->	
+  <!-- Location of .dat files for options -->
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
   <!-- Location of files for SysCalls. These are subject to annotation processing -->
@@ -59,7 +59,7 @@
   <!-- Bootloader directory -->
   <property name="bl.dir" location="${basedir}/tools/bootloader"/>
 
-  <!-- Directories for IR and BURS (used in gen-opt-ir and gen-opt-ir-uptodate-check targets) -->	
+  <!-- Directories for IR and BURS (used in gen-opt-ir and gen-opt-ir-uptodate-check targets) -->
   <property name="build.ir.dir" location="${basedir}/rvm/src-generated/opt-ir"/>
   <property name="build.burs.dir" location="${basedir}/rvm/src-generated/opt-burs"/>
 
@@ -119,7 +119,7 @@
   <property name="mmtk.java.version" value="1.6"/>
   <property name="harness.java.version" value="1.6"/>
   <property name="rvm.java.version" value="1.6"/>
-	
+
   <!-- Default heap layout -->
   <property name="target.heap-layout" value="32BIT"/>
 
@@ -187,7 +187,7 @@
           <isset property="openjdk.classlib"/>
 	</and>
       </condition>
-    </fail>      
+    </fail>
     <fail message="No class library specified. Make sure classlib.provider is defined.">
       <condition>
 	<not>
@@ -328,7 +328,7 @@
         <ant antfile="build/components/dacapo.xml" target="ensure"/>
       </sequential>
     </if>
-    <ant antfile="build/components/asm.xml" target="ensure"/>
+<!--    <ant antfile="build/components/asm.xml" target="ensure"/> -->
     <if>
       <conditions>
         <isset property="include.gcspy-client"/>
@@ -353,9 +353,11 @@
         </ant>
       </sequential>
     </if>
+<!--
     <ant antfile="build/components/junit.xml" target="ensure"/>
     <ant antfile="build/components/hamcrest.xml" target="ensure"/>
     <ant antfile="build/components/mockito.xml" target="ensure"/>
+-->
     <if>
       <conditions>
         <equals arg1="${require.checkstyle}" arg2="true"/>
@@ -525,7 +527,7 @@ Check to make sure all required properties are specified. This includes properti
     <echo message="${javacc.dir}"/>
     <javacc target="${basedir}/MMTk/harness/src-generated/org/mmtk/harness/lang/parser/Parser.jj" javacchome="${javacc.dir}" outputdirectory="${generated.mmtk-harness-parser.java}"/>
     <mkdir dir="${build.mmtk-harness.classes}"/>
-    <javac srcdir="${mmtk-harness.java}:${mmtk-harness-vmmagic.java}:${mmtk-vm-harness.java}:${generated.mmtk-harness-parser.java}" 
+    <javac srcdir="${mmtk-harness.java}:${mmtk-harness-vmmagic.java}:${mmtk-vm-harness.java}:${generated.mmtk-harness-parser.java}"
         destdir="${build.mmtk-harness.classes}" debug="true" debugLevel="${debugLevel}"
         source="${harness.java.version}" target="${harness.java.version}" includeantruntime="false">
       <classpath>
@@ -743,8 +745,8 @@ Check to make sure all required properties are specified. This includes properti
       	</sequential>
       </if>
     </sequential>
-  </macrodef>	
-  	
+  </macrodef>
+
   <target name="jburg-uptodate-check" depends="check-properties, prepare-ant-tasks">
     <uptodate-check filename="JBurg-uptodate" property="jburg" srcdir1="${basedir}/rvm/src-generated/opt-burs/jburg/"/>
 
@@ -758,7 +760,7 @@ Check to make sure all required properties are specified. This includes properti
       </sequential>
     </if>
   </target>
-  	
+
   <!-- build tool used to create burs -->
   <target name="build-jburg" depends="check-properties" unless="jburg.uptodate">
     <property name="build.jburg.dir" location="${build.dir}/${host.name}/jburg"/>
@@ -779,7 +781,7 @@ Check to make sure all required properties are specified. This includes properti
     </exec>
     <touch file="${generated.dir}/JBurg-uptodate"/>
   </target>
-	
+
   <target name="gen-opt-ir-uptodate-check" depends="prepare-build-helpers,check-properties, prepare-ant-tasks, jburg-uptodate-check">
     <uptodate-check filename="Opt-IR-uptodate" property="opt-ir-files" srcdir1="${build.ir.dir}" srcdir2="${build.burs.dir}"/>
 
@@ -962,10 +964,10 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="gen-ia32-assembler-uptodate-check" depends="check-properties, prepare-ant-tasks, compile-vmmagic-stub">
     <property name="ia32-assembler-opt.dir" location="${basedir}/rvm/src-generated/ia32-assembler-opt"/>
-    <property name="build.ia32-assembler.dir" location="${basedir}/rvm/src-generated/ia32-assembler"/>  	
+    <property name="build.ia32-assembler.dir" location="${basedir}/rvm/src-generated/ia32-assembler"/>
 
     <uptodate-check filename="IA32-Assembler-uptodate" property="ia32-assembler" srcdir1="${ia32-assembler-opt.dir}" srcdir2="${build.ia32-assembler.dir}" srcdir3="${build.vmmagic-stub.classes}" />
-  </target>	
+  </target>
 
   <target name="gen-ia32-assembler" depends="prepare-build-helpers,check-properties,compile-vmmagic-stub" unless="ia32-assembler.uptodate">
     <mkdir dir="${generated.java}/org/jikesrvm/compilers/common/assembler/ia32"/>
@@ -1029,7 +1031,7 @@ Check to make sure all required properties are specified. This includes properti
       </classpath>
       <jvmarg value="-DgenerateToDir=${generated.java}/org/jikesrvm/compilers/opt/mir2mc/ia32"/>
     </java>
-    <touch file="${generated.dir}/IA32-Assembler-uptodate"/>  	
+    <touch file="${generated.dir}/IA32-Assembler-uptodate"/>
   </target>
 
   <target name="gen-config-source" depends="check-properties,get-git-version">
@@ -1065,7 +1067,7 @@ Check to make sure all required properties are specified. This includes properti
     </condition>
     <condition property="pp_RVM_FOR_OSX" value="true" else="false">
       <equals arg1="${target.os}" arg2="OSX" />
-    </condition>    
+    </condition>
     <condition property="pp_RVM_FOR_SSE2" value="true" else="false">
       <not>
         <equals arg1="${target.arch.sse2}" arg2="none"/>
@@ -1108,7 +1110,7 @@ Check to make sure all required properties are specified. This includes properti
           tofile="${generated.config.java}/org/jikesrvm/Configuration.java">
       <filterset>
         <filter token="_RVM_VERSION_" value="Jikes RVM ${rvm.version} (r${git.revision})"/>
-        <filter token="_RVM_CONFIGURATION_" value="${config.name}"/>      	
+        <filter token="_RVM_CONFIGURATION_" value="${config.name}"/>
         <filter token="_RVM_ARCH_HELPER_" value="${pp_RVM_ARCH_HELPER}"/>
         <filter token="_RVM_FOR_POWERPC_" value="${pp_RVM_FOR_POWERPC}"/>
         <filter token="_RVM_FOR_LITTLE_ENDIAN_" value="${pp_RVM_FOR_LITTLE_ENDIAN}"/>
@@ -1175,7 +1177,7 @@ Check to make sure all required properties are specified. This includes properti
         <isset property="jburg.uptodate"/>
         <isset property="opt-ir.uptodate"/>
         <isset property="ia32-assembler.uptodate"/>
-     	
+
         <!-- Still necessary because gen-vmmagic-word needs to be run -->
         <available file="${generated.dir}/SourceGenerated"/>
       </and>
@@ -1239,10 +1241,10 @@ Check to make sure all required properties are specified. This includes properti
     <attribute name="srcdir"/>
     <element name="ObjectFiles"/>
     <sequential>
-      <!-- Nothing to do on non-Windows platforms --> 
+      <!-- Nothing to do on non-Windows platforms -->
     </sequential>
   </macrodef>
-  
+
   <!-- Macro to link object files into a DLL -->
   <macrodef name="CreateDLL">
     <attribute name="dllname"/>
@@ -1265,7 +1267,7 @@ Check to make sure all required properties are specified. This includes properti
              <ObjectFiles/>
            </exec>
          </sequential>
-       </if>    
+       </if>
       <if>
          <conditions>
            <not>
@@ -1283,7 +1285,7 @@ Check to make sure all required properties are specified. This includes properti
       </if>
     </sequential>
   </macrodef>
-  
+
   <!-- Macro to link object files into a DLL -->
   <macrodef name="CreateEXE">
     <attribute name="exename"/>
@@ -1301,7 +1303,7 @@ Check to make sure all required properties are specified. This includes properti
       </exec>
     </sequential>
    </macrodef>
-    
+
   <!-- Set properties for class libraries -->
   <target name="choose-classlib" depends="prepare-ant-tasks">
     <property name="classlib.library-interface.common.java" location="libraryInterface/Common/src"/>
@@ -1324,7 +1326,7 @@ Check to make sure all required properties are specified. This includes properti
         <property name="classlib.library-interface.cpl.java" location="libraryInterface/OpenJDK/EPL/src"/>
         <property name="classlib.library-interface.non-cpl.java" location="libraryInterface/OpenJDK/GPL/src"/>
       </sequential>
-    </if>      
+    </if>
   </target>
 
   <target name="compile" depends="compile-mmtk,compile-options,prepare-source,prepare-config-source,update-eclipse-project,choose-classlib,do-checkstyle">
@@ -1350,7 +1352,7 @@ Check to make sure all required properties are specified. This includes properti
       <conditions>
         <equals arg1="${classlib.provider}" arg2="GNU Classpath"/>
       </conditions>
-      <sequential>       
+      <sequential>
         <javac destdir="${build.classes}"
                debug="true"
                fork="true"
@@ -1387,7 +1389,7 @@ Check to make sure all required properties are specified. This includes properti
       <conditions>
         <equals arg1="${classlib.provider}" arg2="OpenJDK"/>
       </conditions>
-      <sequential>       
+      <sequential>
         <javac destdir="${build.classes}"
                debug="true"
                fork="true"
@@ -1463,12 +1465,12 @@ Check to make sure all required properties are specified. This includes properti
         <pathelement location="${build.classes}"/>
       </classpath>
       <compilerarg value="-proc:only"/>
--->      
+-->
       <!-- Processor needs to be specified explicitly, otherwise lookup will fail -->
 <!--
       <compilerarg value="-processor"/>
       <compilerarg value="org.jikesrvm.tools.annotation_processing.SysCallProcessor"/>
- 
+
       <compilerarg value="-processorpath"/>
       <compilerarg value="${helpers.classes}"/>
       <compilerarg value="-s"/>
@@ -1551,7 +1553,7 @@ Check to make sure all required properties are specified. This includes properti
 
     <delete dir="${junit.reports.bootstrap}"/>
     <mkdir dir="${junit.reports.bootstrap}"/>
-    
+
     <junit haltonfailure="yes" printsummary="true" showoutput="true">
       <sysproperty key="jikesrvm.junit.runner.vm" value="bootstrap"/>
       <classpath>
@@ -1641,7 +1643,7 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="package-classpath" if="classpath.classlib">
     <!-- create a rt.jar for the RVM -->
-    <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false"> 
+    <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
       <include name="java/**"/>
       <include name="sun/**"/>
       <include name="gnu/**"/>
@@ -1661,12 +1663,12 @@ Check to make sure all required properties are specified. This includes properti
       <fileset dir="${build.options.classes}"/>
     </jar>
   </target>
-  
+
   <target name="prepare-asm" depends="package,check-components-properties">
     <mkdir dir="${build.asm.classes}"/>
     <javac srcdir="${jikesrvm.dir}/tools/asm-tasks/src" destdir="${build.asm.classes}" debug="true" classpath="${asm.jar}:${build.vm.jar}:${build.rt.jar}" includeantruntime="false"/>
  </target>
-  
+
   <target name="gen-asm" depends="package,prepare-asm">
     <mkdir dir="${generated.asm}"/>
     <java classname="org.jikesrvm.tools.asm.AnnotationAdder" failonerror="true">
@@ -1685,7 +1687,7 @@ Check to make sure all required properties are specified. This includes properti
       <include name="sun/**"/>
       <include name="gnu/**"/>
     </zip>
-  </target>	
+  </target>
 
   <!-- **************************************************************************** -->
   <!-- *                                                                          * -->
@@ -1771,7 +1773,7 @@ Check to make sure all required properties are specified. This includes properti
                     files="ClassLibrary_Throwables.txt,${primordials.openjdk},RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
         </concat>
       </sequential>
-    </if> 
+    </if>
 
     <replaceregexp file="${build.base}/Primordials.txt" match=".*#.*" replace="" byline="true"/>
   </target>
@@ -1926,7 +1928,7 @@ Check to make sure all required properties are specified. This includes properti
   <!-- Generate JNI headers for booter -->
   <target name="gen-jni-headers" depends="gen-asm">
     <mkdir dir="${build.native}"/>
-    <javah outputFile="${build.native}/org_jikesrvm_runtime_DynamicLibrary.h" 
+    <javah outputFile="${build.native}/org_jikesrvm_runtime_DynamicLibrary.h"
            classpath="${build.vm.jar}">
       <class name="org.jikesrvm.runtime.DynamicLibrary"/>
     </javah>
@@ -1992,7 +1994,7 @@ const char *rvm_target_configuration = "${target.file}";
 
     <property name="rvm.c.args" value="${c.args} ${rvm.includes} ${rvm.defines}"/>
   </target>
-  
+
   <target name="build-gcspy-stub" depends="check-bootloader-properties" if="include.gcspy-stub">
     <CompileCtoObj cfile="${jikesrvm.dir}/tools/gcspy-stub/src/gcspy_main_server.c"
                    objfile="${build.base}/${target.obj-prefix}gcspy${target.obj-ext}"
@@ -2132,7 +2134,7 @@ const char *rvm_target_configuration = "${target.file}";
         <arg value="${build.base}/${target.obj-prefix}main${target.obj-ext}"/>
       </ObjectFiles>
     </CreateEXE>
-    
+
     <antcall target="build-debug-symbols"/>
   </target>
 
@@ -2238,7 +2240,7 @@ target.jni-suffix=${target.jni-suffix}
     <mkdir dir="${dist.base}/lib"/>
     <copy todir="${dist.base}/lib">
       <fileset dir="${openjdk.lib.dir}">
-      </fileset>      
+      </fileset>
     </copy>
     <if>
       <conditions>
@@ -2471,7 +2473,7 @@ target.jni-suffix=${target.jni-suffix}
       <conditions>
         <equals arg1="${require.checkstyle}" arg2="true"/>
       </conditions>
-      <sequential> 
+      <sequential>
         <antcall target="checkstyle"/>
       </sequential>
     </if>
@@ -2480,7 +2482,7 @@ target.jni-suffix=${target.jni-suffix}
   <target name="set-checkstyle-as-required">
     <property name="require.checkstyle" value="true"/>
   </target>
-  
+
   <target name="checkstyle-preparation" depends="set-checkstyle-as-required,prepare-source,prepare-config-source,choose-classlib"/>
 
   <target name="checkstyle" depends="checkstyle-preparation,checkstyle-openjdk-libinterface,compile-plugins-into-single-jar">
@@ -2513,7 +2515,7 @@ target.jni-suffix=${target.jni-suffix}
 
     <fail if="checkstyle.failed" message="Checkstyle failures must be corrected!"/>
   </target>
-  
+
   <target name="checkstyle-openjdk-libinterface" depends="checkstyle-preparation">
     <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties" classpath="${checkstyle.jar}:${checkstyle.plugin.combined.jar}"/>
 
@@ -2525,7 +2527,7 @@ target.jni-suffix=${target.jni-suffix}
           <formatter type="xml" tofile="${build.dir}/checkstyle/report-openjdk.xml"/>
           <fileset dir="libraryInterface/OpenJDK/GPL" includes="**/*.java"/>
     </checkstyle>
-    
+
     <xslt in="${build.dir}/checkstyle/report-openjdk.xml"
            out="${build.dir}/checkstyle/report-openjdk.txt"
            style="build/checkstyle/text-output.xsl"/>
