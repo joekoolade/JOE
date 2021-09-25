@@ -40,7 +40,7 @@ public class ThreadQueue {
 
   public void enqueue(RVMThread t) {
     if (trace) {
-      VM.sysWriteln("enqueueing ", t.getThreadSlot(), " onto ",
+      VM.sysWriteln("enqueue:", t.getThreadSlot(), " onto ",
           Magic.objectAsAddress(this));
     }
     /*
@@ -51,11 +51,12 @@ public class ThreadQueue {
       if (trace)
       {
         VM.sysWrite("Already scheduled ", t.getThreadSlot());
+        VM.sysWrite("on ", Magic.objectAsAddress(t.queuedOn));
         VM.sysWrite(" tail: ", Magic.objectAsAddress(tail));
         VM.sysWrite(" head: ", Magic.objectAsAddress(head));
         VM.sysWrite(" next: ", Magic.objectAsAddress(t.next));
         VM.sysWriteln(" prev: ", Magic.objectAsAddress(t.prev));
-        t.dumpStack();
+        VM.sysFail("Queued on");
       }
       return;
     }
@@ -96,7 +97,9 @@ public class ThreadQueue {
     }
     if (trace) {
       if (result == null) {
-        VM.sysWriteln("dequeueing null from ", Magic.objectAsAddress(this));
+        if (tail != null)
+          VM.sysWriteln("dequeue: tail NOT NULL");
+        VM.sysWriteln("dequeue: no threads on ", Magic.objectAsAddress(this));
       } else {
         VM.sysWriteln("dequeueing ", result.getThreadSlot(), " from ",
             Magic.objectAsAddress(this));

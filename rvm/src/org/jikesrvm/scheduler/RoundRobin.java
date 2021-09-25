@@ -7,7 +7,6 @@
 package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
-import org.jikesrvm.mm.mminterface.MemoryManager;
 import org.jikesrvm.runtime.Magic;
 import org.mmtk.plan.Plan;
 import org.vmmagic.pragma.NonMoving;
@@ -51,10 +50,12 @@ implements Scheduler {
         /*
          * Setup to restore from new thread
          */
-        VM.sysWrite(Magic.objectAsAddress(Magic.getThreadRegister()));
-        VM.sysWriteln("->", Magic.objectAsAddress(nextThread));
-        VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
-        VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
+        VM.sysWrite("nextThread: ", Magic.objectAsAddress(currentThread));
+        VM.sysWrite("/", currentThread.threadSlot);
+        VM.sysWrite("->", Magic.objectAsAddress(nextThread));
+        VM.sysWriteln("/", nextThread.threadSlot);
+        // VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
+        // VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
         // VM.sysWriteln("gpr ",
         // Magic.objectAsAddress(nextThread.contextRegisters.gprs));
         /*
