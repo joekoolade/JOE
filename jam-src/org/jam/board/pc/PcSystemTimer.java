@@ -37,6 +37,7 @@ implements Timer
     private final static int STACK_SIZE = 512;
     private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
+	private static final boolean trace1 = false;
     private PriorityQueue timerQueue;
     private ThreadQueue threadQueue;
     
@@ -132,12 +133,15 @@ implements Timer
     
     private void checkTimers()
     {
+    	if(trace) VM.sysWrite('C');
         if(timerQueue.isEmpty())
         {
             return;
         }
         long timerExpiration = timerQueue.rootValue();
-        
+        long time = Time.nanoTime();
+//        VM.sysWrite("T", time); VM.sysWrite("|");
+        if(trace) VM.sysWrite('T');
         if(Time.nanoTime() < timerExpiration)
         {
             return;
@@ -146,7 +150,7 @@ implements Timer
         /*
          * Remove the thread from the timer and schedule it
          */
-        if(trace) VM.sysWriteln("Timer expired! ", timerExpiration);
+        if(trace1) VM.sysWriteln("Timer expired! ", timerExpiration);
         //Magic.disableInterrupts();
         RVMThread thread = (RVMThread) timerQueue.remove(timerExpiration);
         if(thread == null)
@@ -173,9 +177,8 @@ implements Timer
 //        timerTicks = time_ns / TIMERTICKSPERNSECS;
         if(trace)
         {
-//          VM.sysWriteln("timer ticks: ", timerTicks);
-          VM.sysWriteln("time_ns: ", time_ns);
-//          VM.sysWriteln("expire: ", timerTicks+tick);
+          VM.sysWrite("T0: ", time_ns);
+          VM.sysWriteln("/", RVMThread.getCurrentThread().getThreadSlot());
         }
         /*
          * set expiration time and put on the queue
@@ -183,7 +186,7 @@ implements Timer
 //        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
         Magic.disableInterrupts();
         timerQueue.insert(time_ns, RVMThread.getCurrentThread());
-        threadQueue.enqueue(RVMThread.getCurrentThread());
+//        threadQueue.enqueue(RVMThread.getCurrentThread());
         Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
@@ -201,6 +204,11 @@ implements Timer
       Magic.disableInterrupts();
       RVMThread t =  (RVMThread) timerQueue.remove(timeKey);
       Magic.enableInterrupts();
+      if(trace)
+      {
+        VM.sysWrite("T1: ", timeKey);
+        VM.sysWriteln("/", t.getThreadSlot());
+      }
       return t;
     }
     

@@ -68,7 +68,7 @@ public class Monitor {
   private static final boolean DEBUG_UNLOCK = false;
   private static final int LOCKED = 1;
   private static final int UNLOCKED = 0;
-  public static boolean trace = true;
+  final private static boolean trace = false;
   @Entrypoint
   Word monitor;
   int holderSlot = -1; // use the slot so that we're even more GC safe
@@ -408,7 +408,7 @@ public class Monitor {
       }
       if (trace)
       {
-        VM.sysWrite("Timed Wait", Magic.objectAsAddress(this));
+        VM.sysWrite("Wait", Magic.objectAsAddress(this));
         VM.sysWriteln("T#", thread.threadSlot);
       }
       /*
@@ -460,6 +460,7 @@ public class Monitor {
     int recCount = this.recCount;
     this.recCount = 0;
     holderSlot = -1;
+    RVMThread thread = RVMThread.getCurrentThread();
 //    sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);
     /*
      * start a timer for this monitor
@@ -470,6 +471,7 @@ public class Monitor {
 //      VM.sysWrite("/T#", monitorThread.threadSlot);
       VM.sysWriteln("/", whenWakeupNanos);
     }
+    waiting.enqueue(thread);
     /*
      * Release the monitor
      */

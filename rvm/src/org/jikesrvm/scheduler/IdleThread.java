@@ -8,6 +8,7 @@ package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.MemoryManager;
+import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.ObjectReference;
 
@@ -34,37 +35,17 @@ public class IdleThread extends SystemThread
    * This is the idling loop when there is nothing else to be done
    */
   @Override
-  public void run()
-  {
-    VM.sysWriteln("Starting the Idle Thread");
-    /*
-     * For now just pause because we will be doing is spinning until a process
-     * becomes available. Later on may want to do some power saving stuff.
-     */
-    int idling = 0;
-    while (true)
-    {
-      // rvmThread.checkBlock();
-      try
-      {
-        RVMThread.sleep(1000, 0);
-      } catch (InterruptedException e)
-      {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      idling++;
-      VM.sysWriteln("IDLING ... ");
-    }
+	public void run() {
+		VM.sysWriteln("Starting the Idle Thread");
+		/*
+		 * For now just pause because we will be doing is spinning until a process
+		 * becomes available. Later on may want to do some power saving stuff.
+		 */
+		int idling = 0;
+		while (true) {
+			Magic.halt();
+		}
 
-  }
+	}
 
-  private void doSomething()
-  {
-    loop++;
-    if ((loop % 100000) == 0)
-    {
-      VM.sysWrite("$%");
-    }
-  }
 }

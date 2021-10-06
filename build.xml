@@ -123,6 +123,11 @@
   <!-- Default heap layout -->
   <property name="target.heap-layout" value="32BIT"/>
 
+  <property name="asm.jar" value="components/asm.jar"/>
+  <property name="junit.jar" value="components/junit-4.12.jar"/>
+  <property name="hamcrest.jar" value="components/hamcrest-all-1.3.0RC2.jar"/>
+  <property name="mockito.jar" value="components/mockito-all-1.9.5-rc1.jar"/>
+
   <!-- **************************************************************************** -->
   <!-- *                                                                          * -->
   <!-- *             Property initialization section of the build                 * -->

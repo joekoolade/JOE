@@ -450,6 +450,7 @@ public final class Idt implements SegmentDescriptorTypes {
 //           Trace.irqStart(48);
            RVMThread.isInterrupted = true;
            // RVMThread.yieldpoint(0, null);
+//           VM.sysWrite('Y');
            Platform.scheduler.addThread(Magic.getThreadRegister());
            Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context

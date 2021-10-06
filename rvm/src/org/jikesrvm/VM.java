@@ -763,6 +763,7 @@ public class VM extends Properties {
     // Say good bye to the boot thread
     Magic.enableInterrupts();
     Platform.ioApic.enableInterrupts();
+    booting = false;
     Magic.yield();
     VM.shutdown(1);
     VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");
@@ -904,17 +905,17 @@ public class VM extends Properties {
   private static Offset sysWriteLockOffset = Offset.max();
 
   private static void swLock() {
-    if (!VM.runningVM && !VM.writingBootImage) return;
-    if (sysWriteLockOffset.isMax()) return;
-    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
-      ;
-    }
+//    if (!VM.runningVM && !VM.writingBootImage) return;
+//    if (sysWriteLockOffset.isMax()) return;
+//    while (!Synchronization.testAndSet(Magic.getJTOC(), sysWriteLockOffset, 1)) {
+//      ;
+//    }
   }
 
   private static void swUnlock() {
-    if (!VM.runningVM && !VM.writingBootImage) return;
-    if (sysWriteLockOffset.isMax()) return;
-    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
+//    if (!VM.runningVM && !VM.writingBootImage) return;
+//    if (sysWriteLockOffset.isMax()) return;
+//    Synchronization.fetchAndStore(Magic.getJTOC(), sysWriteLockOffset, 0);
   }
 
   /**

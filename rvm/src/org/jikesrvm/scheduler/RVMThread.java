@@ -2635,6 +2635,11 @@ public final class RVMThread extends ThreadContext {
     }
   }
 
+  public boolean isRunnable()
+  {
+	  return waiting == Waiting.RUNNABLE;
+  }
+  
   void timerTick() {
     if (shouldBeSampled()) {
       timeSliceExpired++;
@@ -3445,14 +3450,15 @@ public final class RVMThread extends ThreadContext {
   @Interruptible
   public static void sleep(long ns) throws InterruptedException {
     RVMThread t = getCurrentThread();
-    t.waiting = Waiting.TIMED_WAITING;
     long atStart = sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
     t.monitor().lockNoHandshake();
+    t.waiting = Waiting.TIMED_WAITING;
     while (!t.hasInterrupt && t.asyncThrowable == null &&
         sysCall.sysNanoTime() < whenEnd) {
       t.monitor().timedWaitAbsoluteWithHandshake(whenEnd);
     }
+    t.waiting = Waiting.RUNNABLE;
     boolean throwInterrupt = false;
     Throwable throwThis = null;
     if (t.hasInterrupt) {
@@ -3464,7 +3470,6 @@ public final class RVMThread extends ThreadContext {
       t.asyncThrowable = null;
     }
     t.monitor().unlock();
-    t.waiting = Waiting.RUNNABLE;
     if (throwThis != null) {
       RuntimeEntrypoints.athrow(throwThis);
     }

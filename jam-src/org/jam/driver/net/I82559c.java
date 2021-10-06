@@ -1086,7 +1086,7 @@ private static final boolean DEBUG_TX = true;
   private void writeFlush()
   {
     // Just a benign status read
-    //scbStatus();
+    scbStatus();
   }
 
   /**

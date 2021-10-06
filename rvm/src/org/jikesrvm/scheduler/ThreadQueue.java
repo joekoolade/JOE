@@ -25,7 +25,7 @@ import org.vmmagic.pragma.Untraced;
 @Uninterruptible
 @NonMoving
 public class ThreadQueue {
-  protected static final boolean trace = true;
+  protected static final boolean trace = false;
 
   @Untraced RVMThread head;
 
@@ -52,18 +52,18 @@ public class ThreadQueue {
       {
         VM.sysWrite("Already scheduled ", t.getThreadSlot());
         VM.sysWrite("on ", Magic.objectAsAddress(t.queuedOn));
-        VM.sysWrite(" tail: ", Magic.objectAsAddress(tail));
-        VM.sysWrite(" head: ", Magic.objectAsAddress(head));
-        VM.sysWrite(" next: ", Magic.objectAsAddress(t.next));
-        VM.sysWriteln(" prev: ", Magic.objectAsAddress(t.prev));
+        VM.sysWrite(" tail: ", tail.getThreadSlot());
+        VM.sysWrite(" head: ", head.getThreadSlot());
+        VM.sysWrite(" next: ", t.next.getThreadSlot());
+        VM.sysWriteln(" prev: ", t.prev.getThreadSlot());
         VM.sysFail("Queued on");
       }
       return;
     }
     if (VM.VerifyAssertions)
     {
-        VM.sysWriteln("queueOn ", Magic.objectAsAddress(t.queuedOn));
-      VM._assert(t.queuedOn == null);
+//        if(trace) VM.sysWriteln("queueOn ", Magic.objectAsAddress(t.queuedOn));
+        VM._assert(t.queuedOn == null);
     }
     t.next = null;
     if (tail == null) {
@@ -98,7 +98,7 @@ public class ThreadQueue {
     if (trace) {
       if (result == null) {
         if (tail != null)
-          VM.sysWriteln("dequeue: tail NOT NULL");
+          VM.sysWriteln("dequeue: tail NOT NULL ", tail.getThreadSlot());
         VM.sysWriteln("dequeue: no threads on ", Magic.objectAsAddress(this));
       } else {
         VM.sysWriteln("dequeueing ", result.getThreadSlot(), " from ",

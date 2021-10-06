@@ -22,6 +22,8 @@ implements Scheduler {
     private final static int STACK_SIZE = 256;
     private ThreadQueue runQueue;
     private int idling = 0;
+    final private static boolean trace = false;
+	private static final boolean traceNext = false;
     
     public RoundRobin()
     {
@@ -36,24 +38,19 @@ implements Scheduler {
         RVMThread nextThread;
         
         RVMThread currentThread = Magic.getThreadRegister();
-        if(runQueue.peek() == null)
+        nextThread = runQueue.dequeue();
+        if(nextThread == null)
         {
             nextThread = RVMThread.idleThread;
-        }
-        else
-        {
-            /*
-             * Get the next runnable candidate
-             */
-            nextThread = runQueue.dequeue();
         }
         /*
          * Setup to restore from new thread
          */
-        VM.sysWrite("nextThread: ", Magic.objectAsAddress(currentThread));
-        VM.sysWrite("/", currentThread.threadSlot);
-        VM.sysWrite("->", Magic.objectAsAddress(nextThread));
-        VM.sysWriteln("/", nextThread.threadSlot);
+        if(traceNext)
+        {
+	        VM.sysWrite("nextThread: ",  currentThread.threadSlot);
+	        VM.sysWrite("->", nextThread.threadSlot);
+        }
         // VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
         // VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
         // VM.sysWriteln("gpr ",
@@ -70,22 +67,27 @@ implements Scheduler {
      */
     public void addThread(RVMThread thread)
     {
-        if(thread.isOnQueue()) return;
+		if (thread.isOnQueue()) 
+		{
+			if(trace) VM.sysWrite('Q');
+			return;
+		}
         /*
          * See if we are in a garbage collection. If so
          * then put the thread onto the gcWait queue
          */
-        if(Plan.gcInProgress() && thread.isCollectorThread()==false && thread.ignoreHandshakesAndGC()==false)
-        {
-            RVMThread.gcWait.enqueue(thread);
-        }
+//        if(Plan.gcInProgress() && thread.isCollectorThread()==false && thread.ignoreHandshakesAndGC()==false)
+//        {
+//            RVMThread.gcWait.enqueue(thread);
+//        }
         /*
          * See if thread is already queued somewhere else
          * like a monitor
          */
-        else if(!thread.isTerminated())
+        else if(!thread.isTerminated() && thread.isRunnable())
         {
-          runQueue.enqueue(thread);
+        	if(trace) VM.sysWrite('A');
+        	runQueue.enqueue(thread);
         }
     }
     
