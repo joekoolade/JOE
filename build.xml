@@ -50,7 +50,9 @@
   <property name="tuningforklib.java" location="external/tuningforklib/src"/>
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
   <property name="jam.java" location="jam-src" />
-
+  <property name="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib"/>
+  <property name="openjdk.classes.jar" value="rt.jar"/>
+  	
   <!-- Location of .dat files for options -->
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
@@ -226,8 +228,6 @@
   </target>
 
   <target name="check-openjdk-properties" depends="check-components-properties,check-classlibrary-properties" if="openjdk.classlib">
-    <propertycopy name="openjdk.lib.dir" from="${target.name}.openjdk.lib.dir"/>
-    <test-file name="openjdk.lib.dir" location="${components.file}"/>
     <property name="config.portable-native-sync" value="false"/>
     <property name="build.extra.rt.jars" value=""/>
     <condition property="openjdk.lib.arch" value="amd64" else="unknown">
@@ -311,7 +311,7 @@
         </and>
       </conditions>
       <sequential>
-        <ant antfile="build/components/openjdk.xml" target="ensure"/>
+      <!--   <ant antfile="build/components/openjdk.xml" target="ensure"/> -->
       </sequential>
     </if>
     <if>
@@ -682,8 +682,7 @@ Check to make sure all required properties are specified. This includes properti
         <arg value="-p"/>
         <arg value="BURS"/>
         <arg value="ir.brg"/>
-        <redirector
-          output="${generated.dir}/main/java/org/jikesrvm/compilers/opt/lir2mir/@{arch}_@{addressSize}/jburg.out"/>
+      	<arg value="${generated.dir}/main/java/org/jikesrvm/compilers/opt/lir2mir/@{arch}_@{addressSize}/jburg.out"/>
       </exec>
 
       <copy file="${basedir}/rvm/src-generated/opt-burs/jburg/burg.template"
@@ -1406,7 +1405,7 @@ Check to make sure all required properties are specified. This includes properti
                sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
                includeantruntime="false">
           <bootclasspath>
-            <pathelement location="${openjdk.lib.dir}/classes.jar"/>
+            <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
           </bootclasspath>
           <classpath>
             <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1436,7 +1435,7 @@ Check to make sure all required properties are specified. This includes properti
                includeantruntime="false"
                createMissingPackageInfoClass="false">
           <bootclasspath>
-            <pathelement location="${openjdk.lib.dir}/classes.jar"/>
+            <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
           </bootclasspath>
           <classpath>
             <pathelement location="${helpers.classes}"/>
@@ -1629,7 +1628,7 @@ Check to make sure all required properties are specified. This includes properti
     <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
       <include name="java/**"/>
       <include name="sun/**"/>
-      <zipfileset src="${openjdk.lib.dir}/classes.jar"/>
+      <zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
       <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
     </zip>
     <jar destfile="${build.vm.jar}" update="true" compress="false">
