@@ -1680,6 +1680,7 @@ public final class RVMThread extends ThreadContext {
     this.contextRegistersSave = this.contextRegistersSaveShadow = ArchitectureFactory.createRegisters();
     this.exceptionRegisters = this.exceptionRegistersShadow = ArchitectureFactory.createRegisters();
 
+    VM.sysWriteln("RVMThread create: ", name);
     if (VM.runningVM) {
       feedlet = TraceEngine.engine.makeFeedlet(name, name);
     }
@@ -5461,7 +5462,7 @@ public final class RVMThread extends ThreadContext {
    * @param what the string for the what parameter
    */
   public static void trace(String who, String what) {
-    outputLock.lockNoHandshake();
+//    outputLock.lockNoHandshake();
     VM.sysWrite("[");
     RVMThread t = getCurrentThread();
     t.dump();
@@ -5477,7 +5478,7 @@ public final class RVMThread extends ThreadContext {
     VM.sysWrite(": ");
     VM.sysWrite(what);
     VM.sysWriteln();
-    outputLock.unlock();
+//    outputLock.unlock();
   }
 
  /**

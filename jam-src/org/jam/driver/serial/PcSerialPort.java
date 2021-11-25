@@ -3,8 +3,8 @@ package org.jam.driver.serial;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayDeque;
 
+import org.jam.util.ArrayDeque;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;

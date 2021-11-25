@@ -826,6 +826,11 @@ public final class RVMArray extends RVMType {
   public static void arraycopy(char[] src, int srcIdx, char[] dst, int dstIdx, int len) {
     // Don't do any of the assignments if the offsets and lengths
     // are in error
+//	  VM.sysWrite("rvm arraycopy ", srcIdx);
+//	  VM.sysWrite(" ", dstIdx);
+//	  VM.sysWrite(" ", len);
+//	  VM.sysWrite(" ", Magic.objectAsAddress(src));
+//	  VM.sysWriteln(" ", Magic.objectAsAddress(dst));
     if (srcIdx >= 0 &&
         dstIdx >= 0 &&
         len >= 0 &&

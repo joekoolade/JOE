@@ -339,6 +339,8 @@ public class VM extends Properties {
 
     if (VM.BuildForOpenJDK) {
       runClassInitializer("java.lang.Thread");
+      runClassInitializer("java.net.NetPermission");
+      runClassInitializer("sun.security.util.SecurityConstants");
     }
 
     // Enable multiprocessing.
@@ -476,6 +478,8 @@ public class VM extends Properties {
       runClassInitializer("java.io.File"); // needed for when we initialize the
       // system/application class loader.
     }
+    runClassInitializer("java.lang.Integer");
+    runClassInitializer("java.lang.Integer$IntegerCache");
     runClassInitializer("java.lang.String");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.security.provider.DefaultPolicy");
@@ -485,7 +489,7 @@ public class VM extends Properties {
     /* Needed for ApplicationClassLoader, which in turn is needed by
        VMClassLoader.getSystemClassLoader()  */
     if (VM.BuildForGnuClasspath || VM.BuildForOpenJDK) {
-      runClassInitializer("java.net.URLClassLoader");
+      //runClassInitializer("java.net.URLClassLoader");
     }
     if (!VM.joeMode) {
       runClassInitializer("sun.misc.URLClassPath");
@@ -494,7 +498,7 @@ public class VM extends Properties {
     /* Used if we start up Jikes RVM with the -jar argument; that argument
      * means that we need a working -jar before we can return an
      * Application Class Loader. */
-    runClassInitializer("java.net.URLConnection");
+    // runClassInitializer("java.net.URLConnection");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("gnu.java.net.protocol.jar.Connection$JarFileCache");
       runClassInitializer("java.lang.ClassLoader$StaticData");
@@ -797,6 +801,7 @@ public class VM extends Properties {
     TypeReference tRef =
         TypeReference.findOrCreate(BootstrapClassLoader.getBootstrapClassLoader(), classDescriptor);
     RVMClass cls = (RVMClass) tRef.peekType();
+    if(cls==null) sysWriteln("cls is NULL");
     if (cls.isEnum() && VM.BuildForOpenJDK) {
       sysWrite("Not attempting to run class initializer for ");
       sysWrite(className);
@@ -816,8 +821,8 @@ public class VM extends Properties {
     } else {
       RVMMethod clinit = cls.getClassInitializerMethod();
       if (clinit != null) {
+          if (verboseBoot >= 10) VM.sysWriteln("invoking method " + clinit);
         clinit.compile();
-        if (verboseBoot >= 10) VM.sysWriteln("invoking method " + clinit);
         try {
           Magic.invokeClassInitializer(clinit.getCurrentEntryCodeArray());
         } catch (Error e) {

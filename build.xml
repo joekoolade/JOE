@@ -1402,7 +1402,7 @@ Check to make sure all required properties are specified. This includes properti
                source="${rvm.java.version}"
                target="${rvm.java.version}"
                srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-               sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
+               sourcepath="${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
                includeantruntime="false">
           <bootclasspath>
             <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
@@ -1625,9 +1625,16 @@ Check to make sure all required properties are specified. This includes properti
   <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-openjdk"/>
 
   <target name="package-openjdk" if="openjdk.classlib">
-    <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
+ <!--   <zip destfile="${build.rt.jar}" update="true" duplicate="preserve" basedir="${build.classes}" compress="false">
       <include name="java/**"/>
       <include name="sun/**"/>
+      <zipfileset dir="${build.classes}"/>
+    </zip>
+    -->
+    <zip destfile="${build.rt.jar}" update="true" duplicate="preserve" basedir="${build.classes}" compress="false">
+      <include name="java/**"/>
+      <include name="sun/**"/>
+      <zipfileset dir="${build.classes}"/>
       <zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
       <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
     </zip>
@@ -1834,7 +1841,7 @@ Check to make sure all required properties are specified. This includes properti
     <echo message="Number of threads for compilation = ${readableThreadCount}"/>
     <java classname="org.jikesrvm.tools.bootImageWriter.BootImageWriter"
           fork="yes"
-          maxmemory="600M"
+          maxmemory="1000M"
           failonerror="false"
           resultproperty="bootimage-writer.result"
           dir="${build.base}">

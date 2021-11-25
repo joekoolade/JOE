@@ -567,8 +567,8 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   @java.lang.Override
   public long sysCurrentTimeMillis()
   {
-    VM.sysWriteln("CURRENT TIME MILLIS ");
-    return 0;
+    // VM.sysWriteln("CURRENT TIME MILLIS ");
+    return 1;
   }
 
   @java.lang.Override
