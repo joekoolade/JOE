@@ -339,7 +339,7 @@ public class VM extends Properties {
 
     if (VM.BuildForOpenJDK) {
       runClassInitializer("java.lang.Thread");
-      runClassInitializer("java.net.NetPermission");
+      if (VM.BuildForLinux) runClassInitializer("java.net.NetPermission");
       runClassInitializer("sun.security.util.SecurityConstants");
     }
 

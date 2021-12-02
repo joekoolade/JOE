@@ -50,9 +50,23 @@
   <property name="tuningforklib.java" location="external/tuningforklib/src"/>
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
   <property name="jam.java" location="jam-src" />
+<!--
   <property name="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib"/>
   <property name="openjdk.classes.jar" value="rt.jar"/>
-  	
+-->
+  <condition property="openjdk.lib.dir" value="/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes">
+  	<os family="mac"/>
+  </condition>
+  <condition property="openjdk.classes.jar" value="classes.jar">
+  	<os family="mac"/>
+  </condition>
+	
+  <condition property="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib">
+  	<os family="unix"/>
+  </condition>
+  <condition property="openjdk.classes.jar" value="rt.jar">
+  	<os family="unix"/>
+  </condition>
   <!-- Location of .dat files for options -->
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
