@@ -1,0 +1,2099 @@
+-*-outline-*-
+
+Jikes RVM NEWS -- History of significant changes
+
+This file contains the release notes since Jikes RVM 2.0.0, released
+on October 14, 2001,
+
+* Jikes RVM 3.1.4 (February 18, 2016)
+
+Release Notes - JikesRVM - Version 3.1.4
+
+** New Feature
+    * [RVM-95] - Switch to building Classpath with javac (stop download of ecj?)
+    * [RVM-122] - restructure sys.C into multiple source files.
+    * [RVM-153] - Make org.mmtk.utility.heap.PageResource#ZERO_ON_RELEASE configurable and set to true in stress test-run
+    * [RVM-1110] - Visualization of opt compiler CFGs using dot output format
+
+** Improvement
+    * [RVM-134] - Make register operand register and type fields private
+    * [RVM-174] - Reduce/remove use of ArchitectureSpecific
+    * [RVM-262] - Improving typing of PPC Assembler registers
+    * [RVM-268] - Update JikesRVM copies of classes (e.g. Constructor) to match the 1.5/current Classpath API
+    * [RVM-463] - Replace calls to StringBuffer with CPStringBuilder where appropriate
+    * [RVM-584] - Automate calculation of compilerDNA from compiler-dna test run Report.xml
+    * [RVM-773] - Upgrade to Classpath 0.99
+    * [RVM-829] - Assertions on invalid 8bit assembler operations
+    * [RVM-999] - Increase robustness of RVMThread.dumpStack
+    * [RVM-1013] - MMTk Harness Improvements Jan 2013
+    * [RVM-1033] - Compiler-DNA test run based on freely available benchmark
+    * [RVM-1048] - Upgrade to ECJ 4.2.2
+    * [RVM-1057] - Automatic checking of assertion coding style
+    * [RVM-1059] - Test for org.jikesrvm.tools.oth.OptTestHarness
+    * [RVM-1079] - Convert non-ArchitectureSpecific constant interfaces to constant classes
+    * [RVM-1081] - Convert remaining constant interfaces to constant classes
+    * [RVM-1083] - Remove scratch fields from the optimizing compiler IR
+    * [RVM-1087] - Move static nested classes out of LinearScan
+    * [RVM-1088] - Remove outdated and broken PPC-specific instruction scheduler
+    * [RVM-1090] - Improve documentation of register allocator data structures with respect to contracts of equals(), hashCode() and compareTo()
+    * [RVM-1097] - Parameterize HeapLayoutConstants to be in sync with address changes in .properties files
+    * [RVM-1115] - [change from MRP] Refactor build system to improve support for building C code on other platforms
+    * [RVM-1133] - Automatic checking of imports in architecture packages
+
+** Bug
+    * [RVM-629] - Incorrect usage of @Untraced?
+    * [RVM-692] - Classpath Thread operations not supported because VMThreadMXBeanImpl is not implemented
+    * [RVM-781] - GNU Classpath 0.98 causes performance regression in luindex
+    * [RVM-837] - ExtremeAssertions builds fail on ppc using IBM Java6 SR4 and SR5
+    * [RVM-853] - Protocol handlers do not work with Jikes RVM
+    * [RVM-857] - Changes to Strings made via JNI do not propagate back
+    * [RVM-867] - Incomplete comment for alignAllocation in Allocator.java
+    * [RVM-868] - Method resolution code unable to resolve methods in some cases
+    * [RVM-873] - "NullPointerException within uninterruptible region" when executing RVM in x86_64 debian
+    * [RVM-875] - Intermittent ClassFormatError whilst running Xalan
+    * [RVM-876] - Unnecessary CAS with multiple collector threads attempting to forward
+    * [RVM-942] - GNU Classpath does not build on x86-64_linux under Debian Squeeze anymore
+    * [RVM-953] - Immix fails with unclear error message in builds without assertions when hardcoded thread limit is exceeded
+    * [RVM-957] - Optimizing compiler (at O1+) produces incorrect code for scalac benchmark due to bug in SImpleEscape
+    * [RVM-959] - Incorrect rvm.lib library name on OS X
+    * [RVM-966] - VM death due to OutOfMemoryError does not always return non-zero exit status
+    * [RVM-988] - AddressInputStream does not follow API specification
+    * [RVM-1002] - Parameters for "deliverHardwareException" are not pushed in right way
+    * [RVM-1016] - PowerPC optimizing compiler generates wrong code for the PPC_ORC and PPC_ORCr operators
+    * [RVM-1018] - Code patching caused by classloading can cause deadlock on PPC in dacapo 2006-MR-2 eclipse
+    * [RVM-1020] - Wrong path in GCSpy component build file
+    * [RVM-1022] - MMTk signals out of memory after a successful emergency collection
+    * [RVM-1025] - Nursery is created for non-generational garbage collectors
+    * [RVM-1026] - Address conflict caused by overlapping of normal spaces with nursery
+    * [RVM-1027] - Crash when bootimage runner uses longjmp
+    * [RVM-1028] - VMProcess should use notfiyAll() instead of notify()
+    * [RVM-1031] - Assertion failure in GenNurseryTraceLocal.isLive when finalizing objects marked with @NonMoving
+    * [RVM-1035] - Test-runs must use extra.rvm.args instead of extra.args in almost all cases
+    * [RVM-1036] - Optimizing compiler never inserts checkstore checks in inlined code
+    * [RVM-1040] - Add an Ant target to run unit tests on an existing RVM image
+    * [RVM-1050] - Memory.memcopy(Address, Address, Extent) can corrupt memory when memory areas overlap
+    * [RVM-1053] - GenerationContext.resync() deletes all null check guards
+    * [RVM-1066] - Parsing of -Xbootclasspath command line arguments leads to different results for different argument positions
+    * [RVM-1067] - Overly eager clearing of Soft references
+    * [RVM-1075] - Undefined behaviour during thread termination in sysThreadStartup
+    * [RVM-1076] - Miscompilation of write barriers for unboxed types on PPC64 causes ExtremeAssertionsBaseBaseUsePrimitiveWriteBarriers to segfault during RVMThread.boot()
+    * [RVM-1078] - SplitBasicBlock does not correctly count instructions when splitting basic blocks
+    * [RVM-1080] - Fixes for invalid operations on unboxed types
+    * [RVM-1082] - Assertion failure in org.jikesrvm.mm.mmtk.Lock on PPC64
+    * [RVM-1086] - Memory leak during thread creation in bootimage runner
+    * [RVM-1106] - Assertion failure in AssemblerOpt when emitting CMPXCHG8B
+    * [RVM-1108] - Correct implementation of full memory fences in the compilers
+    * [RVM-1109] - Jikes RVM doesn't update TIBs of array classes for recompiled java.lang.Object methods
+    * [RVM-1116] - [bugfix from MRP] JNI compiler fails to pass > 1 FP arg if not using SSE2
+    * [RVM-1120] - Assertion failures in IA32 assembler during baseline compilation when running Jython on x64
+    * [RVM-1124] - IR for Magic generated by the optimizing compiler can be non-canonical
+    * [RVM-1127] - bootloader build fails under OSX
+    * [RVM-1128] - User Guide - Quick Start Guide needs updating
+
+** Task
+    * [RVM-888] - Process MMTk patch subbmitted via SF tracker
+    * [RVM-1107] - Remove support for AIX from the code base
+    * [RVM-1111] - Remove support for Mac OS on PowerPC
+    * [RVM-1130] - Add -X:verboseSignalHandling command line option to mimic behaviour of -X:verbose before the bootloader changes
+
+** Sub-task
+    * [RVM-126] - Implement VM interfaces of the simplest beans (Runtime, ClassLoading, Compilation)
+    * [RVM-750] - Implement Thread.setPriority
+    * [RVM-1043] - Apply compatibility changes from MRP and Da Feng in preparation for x64 support
+    * [RVM-1104] - Enable WhitespaceAround Checkstyle check and fix revealed failures
+
+** Test
+    * [RVM-1041] - Unit test for org.jikesrvm.compilers.opt.bc2ir.GenerationContext
+    * [RVM-1072] - Unit test for org.jikesrvm.compilers.opt.bc2ir.OperandStack
+    * [RVM-1077] - Unit test for org.jikesrvm.compilers.opt.regalloc.ScratchMap
+    * [RVM-1098] - Add test that uses the benchmarking suite from the Scala Benchmarking Project
+
+
+* Jikes RVM 3.1.3 (February 12, 2013)
+
+** Improvement
+    * [RVM-962] - Initial pass over the source code to remove duplicated comments
+    * [RVM-965] - Consolidate EmptyIterator implementations
+    * [RVM-970] - This patch creates an environment to perform unit-tests both in the boostrap VM and Jikes RVM. Added a working example (ExampleTest).
+    * [RVM-973] - Initial pass over the source code for cosmetic comment changes
+    * [RVM-974] - Cleanup assertions in the RVM (add missing VM.VerifyAssertions, use VM.NOT_REACHED instead of false)
+    * [RVM-975] - Updated JUnit to 4.10
+    * [RVM-976] - Remove *Enumeration classes that were made useless by generics
+    * [RVM-980] - Custom Test Runner to Distinguish Testing VM
+    * [RVM-981] - Added Mockito to components
+    * [RVM-984] - Don't run unit tests on the built RVM image by default
+    * [RVM-1012] - Add memory barriers to implement JMM volatile semantics in PPC baseline compiler
+    * [RVM-1014] - Move static nested classes out of BC2IR
+
+** Bug
+    * [RVM-916] - Rule missing in set_caught_exception (BURS)
+    * [RVM-954] - @Target of @Pragma meta-annotation incorrect
+    * [RVM-963] - Pettis-Hansen code reordering causes boot image compilation to be non-deterministic
+    * [RVM-967] - Sticky Immix incorrectly tries to forward mature objects
+    * [RVM-969] - "Comparison method violates its general contract" when building on OpenJDK 7
+    * [RVM-972] - .hgignore ignores build//components/
+    * [RVM-978] - parallel sweep wrong
+    * [RVM-987] - Add a null check for the thread object to sun.misc.Unsafe.park(...)
+    * [RVM-990] - Assertion failures in RCHeader makeUnlogged() when running unit tests on BaseBaseGenRC
+    * [RVM-1000] - Strings from IcedTea 1.7 don't have count and offset fields
+    * [RVM-1003] -  fop (DaCapo 9.12) fails with NPE for input size small
+    * [RVM-1004] - NPE while opt-compiling LogManager.checkAccess during bootimage writing
+
+** Test
+    * [RVM-971] - Unit Tests for org.jikesrvm.util
+    * [RVM-982] - Added JUnit Test and fix for org.jikesrvm.compilers/opt/util/Stack.java
+    * [RVM-983] - Added JUnit Test for org/jikesrvm/compilers/opt/util/Tree.java and fixes for the bugs found
+    * [RVM-992] - Add remaining unit tests from the Google Summer of Code unit testing project
+
+* Jikes RVM 3.1.2  (February 24, 2012)
+
+Please note, Jikes RVM now requires the host JVM to be Java 6 or better. 
+The system will no longer build using a Java 5 JVM as the host.
+
+** Improvement
+    * [RVM-300] - Only download checkstyle when needed
+    * [RVM-903] - Update to latest JSR-166
+    * [RVM-922] - Remove the build warnings concerning includeantruntime that since in Ant 1.8
+    * [RVM-944] - compiler warnings while building bootImageRunner
+
+** Bug
+    * [RVM-364] - ant real-clean doesn't clean up fully
+    * [RVM-675] - Chunk linked list broken on discontiguous space
+    * [RVM-813] - Incomplete dependencies on .dat files when determining whether or not to regenerate sources
+    * [RVM-825] - Replay compilation does not account for custom class loaders
+    * [RVM-870] - Deadlock in RVMThread code
+    * [RVM-897] - Default setting for numprocessors is 1.   Probably should be all.
+    * [RVM-899] - Deadlock when using ExecutorService with Futures
+    * [RVM-900] - aligned32Copy can copy 8 bytes when number of bytes to copy is 0
+    * [RVM-905] - respect volatile store semantics
+    * [RVM-906] - GCspy version out of date in gcspy.xml
+    * [RVM-908] - URL changes of dependencies cause build with Apache Harmony to fail
+    * [RVM-910] - Download URL for JUnit changed
+    * [RVM-911] - Missing rule for int_ifcmp module BURS
+    * [RVM-914] - ObjectInputStream Deserialization does not handle Enum types correctly.
+    * [RVM-915] - isAnonymousClass check in RVMClass is incorrect
+    * [RVM-917] - A url for checkstyle 4.3 does not exist.
+    * [RVM-927] - VMChannel.write will return wrong number of bytes written when writing one byte from a ByteBuffer
+    * [RVM-931] - "malloc returned something that is in RVM address space" on Mac OS X Lion
+    * [RVM-932] - Documentation refers to subversion rather than mercurial
+    * [RVM-934] - Process @SysCallTemplate with Java 6 Annotations API instead of APT
+    * [RVM-936] - Jikes RVM fails to build on Ubuntu 11.10 with undefined references in sys.c
+    * [RVM-938] -  -X:cpuAffinity not found in SystemAppCL
+    * [RVM-943] - MMTk HeapGrowthManager heap growth ratio computation has discontinuities
+    * [RVM-945] - incorrect compiler ID passed to notifyMethodCompile callback
+    * [RVM-948] - start-time and end-time almost same in generated test reports.
+    * [RVM-949] - Sticky MS performance compared to MS
+    * [RVM-951] - Bulk copy optimization & compare and swap incorporation for Sticky MS & Sticky Immix
+
+** Sub-task
+    * [RVM-785] - handleHandshakeRequest should be called from enterNativeBlockedImpl
+
+* Jikes RVM 3.1.1  (July 4, 2010)
+** New Feature
+    * [RVM-839] - Support for Reference Types in the MMTk Harness
+    * [RVM-841] - Make it possible to query the compiler to direct optimization
+    * [RVM-845] - Primitive write barrier support
+
+** Improvement
+    * [RVM-846] - MMTk Harness: Provide command-line option for watching addresses
+    * [RVM-848] - Update bootimage writter with known static fields for Harmony classlib
+    * [RVM-861] - Refactor bulkCopy optimisations for RVMArray arraycopy's
+
+** Bug
+    * [RVM-184] - MarkCompactLocal.compact():80 assertion failure
+    * [RVM-604] - Require two different host JVMs to successfully build on Linux/PowerPC
+    * [RVM-639] - Spec JVM 98 javac failing with Harmony
+    * [RVM-693] - Regression in TestSerialization with Harmony
+    * [RVM-827] - Crash in GC while running Eclipse IDE
+    * [RVM-831] - Incomplete implementation of GetFieldID and GetStaticFieldID
+    * [RVM-832] - Mature space mutator allocator reset before semi-space flip
+    * [RVM-833] - GC failures with ia32 BaseBase compiler, ExtremeAssertions and -X:gc:verbose=1
+    * [RVM-834] - Assertion failure in ExtremeAssertionsBaseBaseSemiSpace
+    * [RVM-836] - Static initialization loop in Generational collectors
+    * [RVM-838] - MMTk Harness 'Spawn' script fails with an NPE on multiprocessors
+    * [RVM-840] - MMTk Harness fails on Poisoned heap collector
+    * [RVM-854] - Failed to find a value to spill when 
+    * [RVM-856] - RVM fails to build under OS X 10.6
+    * [RVM-860] - ExtremeAssertionsOptAdaptive compiler failure for jvm98 _227_mtrt on ppc32
+    * [RVM-862] - 2 static fields using an identic slot
+    * [RVM-863] - BumpPointer.scanRegion can cause a page fault
+    * [RVM-864] - Build failure using IBM Java 6 SDK as host JVM on linux-ia32
+    * [RVM-879] - Mark Compact does not work with Native Threads
+    * [RVM-887] - RVM failure at startup when using -Xbootclasspath (Trying to load a class too early in the booting process)
+    * [RVM-889] - JSR166 tck fails EntryTest, PriorityQueueTest and PriorityBlockingQueueTest
+    * [RVM-890] - MarkCompact broken by new threading model
+    * [RVM-894] - MMTk Harness doesn't allow Log.writeln in constructors
+
+* Jikes RVM 3.1.0  (June 10, 2009)
+
+It's been almost nine months since the release of Jikes RVM 3.0.1, and
+quite a bit has changed in Jikes RVM. 
+
+We'd like to call out several items that may be of particular interest
+to the community. 
+  1. Jikes RVM has switched to using native threading instead of
+     m-to-n (aka green) threading.
+  2. The default mature space collector has changed from Mark-Sweep to Immix. 
+  3. Jikes RVM is now licensed under the Eclipse Public License (EPL).
+  4. The 3.1 release significantly improves over the performance of  
+     3.0.1, with speedups of 10% and 21% on average for DaCapo and SPEC  
+     benchmarks respectively on an Intel C2Q.  Highlights include a 29%  
+     improvement in jbb and a 32% improvement in jython.
+
+Details are given below, or are browsable online in our JIRA instance
+at http://jira.codehaus.org/browse/RVM/fixforversion/14620.
+
+** New Feature
+    * [RVM-641] - Make Immix the default mature space collector
+    * [RVM-682] - Assertion checking in sysMalloc
+    * [RVM-802] - Debugging hooks in MMTk
+    * [RVM-806] - Heavyweight sanity checker for MMTk Harness
+    * [RVM-807] - Simple type system for MMTk Harness scripting language
+
+** Bug
+    * [RVM-460] - Not accounting for nursery promotion AND defrag in GenImmix
+    * [RVM-498] - ppc-linux32 dying on SPEC jbb 2005 with 4 threads
+    * [RVM-613] - asking if a method has a hasBaselineSaveLSRegistersAnnotation triggers classloading (and thus GC) when GC is disabled during OSR
+    * [RVM-625] - FullAdaptiveImmix and FullAdaptiveStickyImmix broken on ppc32-linux
+    * [RVM-638] - Crash in Poisoned configs on PPC (aix/linux, 32/64) apparently relating to clone
+    * [RVM-662] - Error growing discontiguous space
+    * [RVM-664] - Occasional digest validation errors on lusearch performance runs
+    * [RVM-683] - Fix race in AOS controller/organizer synchronication during startup
+    * [RVM-690] - Class loader and reflection problems for unboxed types
+    * [RVM-696] - Don't recomend copying project contents with eclipse-project
+    * [RVM-698] - Don't clear most significant bits for <32bit return types on Intel [breaks Ubuntu 8.10]
+    * [RVM-700] - Not running class initializer for InetAddress causing ServerSocket failures
+    * [RVM-701] - Edge Counter and Dynamic Call Graph output after run fails
+    * [RVM-703] - Throwable.getStackTrace() implementation is incorrect
+    * [RVM-704] - Regressions from 2.9.1 not allowing jetty web server to run
+    * [RVM-708] - Bad reference map created by IA32 baseline compiler
+    * [RVM-712] - Uninterruptible code should not be allowed to call UnpremptibleNoWarn methods
+    * [RVM-722] - Bug in Static Spliting induces unconditional OSR invalidations when running _228_jack in measure compilation mode
+    * [RVM-729] - enabling simple_escape_ipa causes a ClassCastException
+    * [RVM-732] - Exception in thread "MainThread" java.security.AccessControlException: permission (java.lang.RuntimePermission exitVM) not granted: no protection domains
+    * [RVM-733] - rvm crash when closing a file in ExitMonitor.notifyExit(int value)
+    * [RVM-738] - Fix debugging output when extracting long variable values for OSR
+    * [RVM-743] - compress-3GC fails with OOME
+    * [RVM-744] - Terminal not in grammar: read_ceiling (BURS)
+    * [RVM-748] - Bug in type checking when > 32767 types
+    * [RVM-756] - Intel unnecessarily restricts boot image to be at addresses > 0x30000000
+    * [RVM-774] - Incorrect implementation of static initializers in the case of initializers that throw exceptions
+    * [RVM-795] - Baseline GC Maps with JSRs fails to set reference flag for aload operations
+    * [RVM-800] - In TemplateCompilerFramework.genCode, case JBC_anewarray,  I don't believe that the array resolution and instantiation path is ever taken
+    * [RVM-808] - OutOfMemoryError when allocating a 200 MB tab
+    * [RVM-811] - Immix: "Chunk map overflow" on jbb2005 ppc64-linux
+    * [RVM-814] - Wrong exception from Java reflection
+    * [RVM-828] - Do not search superclasses for a method unless no method is found.
+
+** Improvement
+    * [RVM-91] - Modularize threading system (native thread support)
+    * [RVM-283] - Increase frequency of timer-based method sampling
+    * [RVM-362] - Sort accumulating operands on to LHS of commutative operations
+    * [RVM-462] - Immix code still contains huge number of experimental variables
+    * [RVM-532] - Harmony's OSMemory implementation uses JNI
+    * [RVM-612] - Assertion checking on stack height in baseline compiler
+    * [RVM-689] - Update MMTk tutorial
+    * [RVM-709] - Document meaning of constants in build reference maps
+    * [RVM-725] - Increase command line options for tuning opt compiler behaviour
+    * [RVM-736] - Disable ImmutableEntryHashSetRVM.remove()
+    * [RVM-737] - Support local variable table for methods
+    * [RVM-739] - Made org.jikesrvm.compilers.opt.util.Pair generic and moved it to package org.jikesrvm.util
+    * [RVM-740] - Support for floating point conditional moves on Intel with SSE
+    * [RVM-741] - Support for negation and abs() using SSE2 bit masks
+    * [RVM-775] - Cleanup up code that obtains targets of pseudo_invokestatic instruction
+    * [RVM-791] - Clean up and modularize locking
+    * [RVM-801] - Minor change: Reorganize ClassFileReader by moving code for reading in the constant pool into a separate function
+    * [RVM-803] - Use for-each loop in RVMClass wherever possible
+
+** Tasks and Sub-tasks
+    * [RVM-817] - Change Jikes RVM license from Common Public License to Eclipse Public License
+    * [RVM-685] - Implement x86 64 JNI Compiler
+    * [RVM-751] - Implement PowerPC syscalls
+    * [RVM-759] - Stack maps seem to be broken
+    * [RVM-779] - Update userguide to decribe native threads
+    * [RVM-783] - Fix baseline Intel 64bit reference maps
+    * [RVM-786] - Adjust sampling mechanism in AOS to account for native threads
+    * [RVM-787] - Outline exception raising code in gnu.java.lang.CPStringBuilder to enable better inlining
+    * [RVM-29] - Track website traffic via sourceforge logo requests
+
+* Jikes RVM 3.0.1  (October 16, 2008)
+
+** New Feature
+    * [RVM-507] - Initial prototype of TuningFork trace generation in Jikes RVM
+    * [RVM-515] - Make boot image writer traversal of object graph configurable
+    * [RVM-517] - Reflection optimization
+    * [RVM-528] - Support for eclipse-project with Harmony class libraries
+    * [RVM-634] - Add RuntimePure annotation to indicate when a Pure annotation should only be respected at runtime
+    * [RVM-673] - Implement Inline.When.AssertionsDisabled pragma
+
+** Improvement
+    * [RVM-291] - Immortal objects with address based hashing should set their hashed bit during boot image writing
+    * [RVM-443] - Avoid back references in java.lang.reflect VMXXX classes
+    * [RVM-476] - Make lock allocation thread-model-agnostic.
+    * [RVM-627] - Use java.nio for writing boot image
+    * [RVM-632] - Space improvements of RVMClass.objectCache
+    * [RVM-633] - Avoid the use of Reflection to invoke Object.finalize()
+    * [RVM-644] - Reduce copying of char[] in java.lang.reflect.Proxy
+    * [RVM-650] - Ask users to submit bug reports on Jikes RVM crashes
+
+** Bug
+    * [RVM-172] - Failing DaCapo benchmarks on PPC 32 OS X
+    * [RVM-288] - Assertion failure in inline oracle
+    * [RVM-318] - java.util.Scanner is unimplemented
+    * [RVM-346] - SPECjvm98: Invalid runs should not be SUCCESSes
+    * [RVM-410] - Problem with changes to stack walk
+    * [RVM-440] - Poisoned tests failing in finalizer thread
+    * [RVM-471] - Stack frame alignment broken for Intel on OS/X
+    * [RVM-605] - Possible fix for FreeListPageResource.releasePages()
+    * [RVM-606] - Problems with OSR guarded inlining of invokeinterface 
+    * [RVM-614] - BaseBasePoisoned build segfaults during VM bootup on pcc64-linux
+    * [RVM-617] - DaCapo bloat fails with Apache Harmony class library
+    * [RVM-619] - DaCapo eclipse fails with Apache Harmony class library
+    * [RVM-621] - DaCapo xalan fails with Apache Harmony class library
+    * [RVM-623] - Intel 16bit operations with immediate operands in some cases generate 32bit immediate operands rather than 16bit
+    * [RVM-631] - Bug in new Finalization code
+    * [RVM-636] - Crash in reflection during JSR-166 TCK
+    * [RVM-643] - Invalid InstructionFormat usage in Simplifier, but real bug is that IR is semantically malformed
+    * [RVM-645] - Bug in LiveAnalysis related to modeling of dataflow through Exception edges in the FCFG
+    * [RVM-646] - Immix defrag broken
+    * [RVM-652] - build failure on IA32 OS X 10.5 (Leopard)
+
+** Task and Sub-task
+    * [RVM-651] - Add support to Intel assembler for REX prefix byte
+    * [RVM-667] - Modify the implementation of table switch
+    * [RVM-669] - Build/boot image runner support for x86 64
+    * [RVM-671] - Fix spill location size estimates
+
+* Jikes RVM 3.0.0  (August 7, 2008)
+
+We're very happy to announce the release of Jikes RVM version 3.0.0.
+The road towards 3.0 began just about two years ago and a large number of
+people, both on the core team and from our user community at large,
+have contributed to making it a success. Thank You!
+
+The detailed release notes for major changes since 2.9.3 can be found
+below, but we'd like to highlight some of the larger themes that went
+into the 3.0 release (many of which have already been released in 
+the 2.9.x releases we've made along the way).
+  ** Normalization of source code and build process
+    *** Complete rewrite of the build/test systems to use ant.
+    *** Jikes RVM can be developed in Eclipse using the JDT
+    *** Extensive restructuring of package structure
+    *** Removal of VM_ and OPT_ prefixes from all source files.
+  ** Increased system stability and performance
+    *** A new continuous testing system (http://jikesrvm.anu.edu.au/cattrack)
+    *** Concerted stability and performance drives
+  ** Java 5 support
+    *** Support for Java 5 language features
+    *** Use of Java 5 language features throughout the code base
+    
+Detailed list (89 issues closed in the 3 months since 2.9.3)
+
+** New Feature
+    * [RVM-358] - Initial support for Apache Harmony class library
+    * [RVM-480] - Spec JVM 2008 regression test
+    * [RVM-534] - MMTk Test harness
+    * [RVM-540] - Implement java.lang.Compiler
+    * [RVM-591] - Support for jdocs.com javadoc
+    * [RVM-592] - Checks on creating ObjectReferences
+
+** Improvement
+    * [RVM-72] - NonMoving annotations for classes instances of which should be allocated to the immortal heap
+    * [RVM-273] - Remove VM_ prefix from all VM classes
+    * [RVM-275] - Remove VMOpt prefix from opt compiler classes that go into bootimage
+    * [RVM-282] - Make dumpVirtualMachine more defensive
+    * [RVM-329] - Specialize IA32 assembler for lister vs. non-lister
+    * [RVM-333] - Annotations used for VM Pragmas (NoInline, Uninterruptible, etc) probably should not be as closed linked to classloaders
+    * [RVM-445] - Clean up handling of JTOC
+    * [RVM-449] - Handle instanceof and checkcast in ShortArray scalar replacer
+    * [RVM-477] - Gather new compiler DNA
+    * [RVM-501] - BuildWithAllClasses is (practically) unused
+    * [RVM-502] - Dead code elimination of pure calls
+    * [RVM-505] - Eliminate calls to VM_Class.getClass..FromStackFrame when stack frame is determinable
+    * [RVM-508] - Have hash map where entries are completely immutable saving references from boot image root set
+    * [RVM-510] - Create top level common directory to make it easier to split out and share useful components from rvm and MMTk
+    * [RVM-511] - Split out MMTk option processing support
+    * [RVM-512] - Experiment with freezing bucket array in VM_HashMap/VM_HashSet
+    * [RVM-513] - Large arrays in boot image cause memory leak
+    * [RVM-525] - Upgrade to GNU classpath 0.97.2
+    * [RVM-537] - Implement inline mustImplementInterface sequence for invokeinterface in baseline compilers
+    * [RVM-538] - Inline checkcast/instanceof sequences in baseline compiler for simple cases
+    * [RVM-572] - Remove OSR_ and BC_ prefixes from OnStackReplacement code
+    * [RVM-593] - Extra checks on references being traced in rvm
+    * [RVM-603] - Improve intel baseline prologue/epilogue/call by use push/pop instead of mov [sp]
+    * [RVM-594] - Naming of MM_Interface
+
+** Bug
+    * [RVM-46] - CaffieneMark failures on AIX/PPC
+    * [RVM-47] - DaCapo regressions on AIX/PPC
+    * [RVM-58] - Linker errors under AIX/ppc
+    * [RVM-105] - sysNetSelect doesnt seem to be avoiding the syswrap select
+    * [RVM-187] - VM_OptGenericMapIterator: findGCMapIndex failed
+    * [RVM-221] - Specialized scanning broken on ppc64-aix?
+    * [RVM-234] - Annotation issues: not implemented via proxy classes, support for serialization
+    * [RVM-269] - unresolved invokeinterface on <null> should force classloading before rasiing NPE
+    * [RVM-271] - Timeouts for stress are not correct
+    * [RVM-303] - Cannot modify accessible final instance fields
+    * [RVM-325] - Spec JVM 98 jack failing with OOMs
+    * [RVM-327] - Performance degredation in IA32 assembler
+    * [RVM-332] - Eclipse 3.2 fails to run on the RVM
+    * [RVM-369] - PPC32-OSX - Crash in GC when a stack contains native frames
+    * [RVM-372] - Integer overflow in sysNanoTime
+    * [RVM-423] - Fop performance strangeness
+    * [RVM-442] - All poisoned tests fail PPC 32
+    * [RVM-454] - The sub-test TestAnnotationInheritance of the basic tests is excluded until it can be fixed
+    * [RVM-458] - Poisoned bit test highlights JNI problem
+    * [RVM-469] - Fix IA32 assembler to use Address instead of Offset for absolute addressing
+    * [RVM-482] - Crash when running Production_Opt0_perf portion of compiler-dna test run
+    * [RVM-483] - Conditionalize fsqrt generation on PowerPC
+    * [RVM-492] - Dumping empty stack kills VM
+    * [RVM-493] - VM_Annotation.readValue doesn't use the correct classloader
+    * [RVM-494] - Conversion between type descriptors, class names, and file names in VM_Atom behaves inconsistently
+    * [RVM-495] - Crash during first major GC on PPC64 tests when running with -X:processors=2
+    * [RVM-497] - New scan boot image assertion failing poisoned tests
+    * [RVM-499] - Overflowing JTOC during DaCapo eclipse run on PPC64 AIX
+    * [RVM-500] - No such field error: TreeMap$SubMap.minKey
+    * [RVM-504] - Increase time out on DaCapo eclipse for rvmppclnx64
+    * [RVM-506] - The field last in VM_HashMap and VM_HashSet is only ever set to null
+    * [RVM-514] - Pure on mathMagic breaks dacapo sunflow
+    * [RVM-521] - Freshly checked out r14346 fails to build with an uninterruptible violation
+    * [RVM-526] - GNU Classpath build: paths too long in check_jni.sh
+    * [RVM-527] - Harmony doesn't build 32bit libraries as necessary for x86_64 build
+    * [RVM-529] - Implement reflection API for Harmony
+    * [RVM-531] - Boot image stack size too small
+    * [RVM-541] - gc stress failures
+    * [RVM-542] - Incorrect encoding of inner class native method names
+    * [RVM-543] - Invoking JNI_OnLoad of unrelated libraries when loading a library with no JNI_OnLoad
+    * [RVM-544] - Class argument in NewObject ignored
+    * [RVM-547] - Building the boot image with the opt compiler and Harmony fails
+    * [RVM-550] - Implementation of isZero magic in PPC baseline compiler can overflow expression stack and corrupt stack frame
+    * [RVM-571] - BigDecimal Pure annotations causes crash on SPECjbb2005 for FullAdaptiveMarkSweep
+    * [RVM-582] - Fix all javadoc "syntax" errors
+    * [RVM-583] - Incorrect rounding on simplified integer divide
+    * [RVM-585] - RVM Identity HashMap doesn't use identity hashCode.. only identity.equals
+    * [RVM-587] - IdentityHashMaps in the bootimage
+    * [RVM-588] - Assertion failure in BC2IR for primitive array load
+    * [RVM-597] - Array index out of bounds in BC2IR generation context
+    * [RVM-598] - Increase use of unpreemptible
+    * [RVM-599] - New poisoned test failures on x86
+    * [RVM-608] - Object replacement ignores finalizer methods
+
+** Task and Sub-Task
+    * [RVM-37] - Doccument the command line options
+    * [RVM-42] - Build/Test infrastructiure to compute compiler DNA
+    * [RVM-490] - Null Pointer Exception in gnu.xml.transform.ParameterNode.clone
+    * [RVM-518] - Change build logic so that the VM prefix on a class name does not control inclusion in the bootimage
+    * [RVM-519] - Rename classes currently with VM_ prefix that will be confusing without it
+    * [RVM-520] - Update userguide to remove VM_ (and OPT_) prefix globally.
+
+*Jikes RVM 2.9.3 Release Notes (May 9, 2008)
+
+** Sub-task
+    * [RVM-224] - Push OSR-specific fields in VM_NormalMethod to subclass/side data structure
+    * [RVM-450] - Prevent compilation at max opt level before some dynamic call graph information has been gathered
+    * [RVM-453] - Testing framework missing failures in basic tests that use diff for sanity.
+
+** Bug
+    * [RVM-196] - VM_Processor not assignable with VM_GreenScheduler
+    * [RVM-314] - Support for Java 1.4 assertions
+    * [RVM-315] - java.lang.Method.invoke changes the parameters
+    * [RVM-316] - A Null pointer for the UTF8CHARSET in java.util.zip.ZipFile$PartialInputStream
+    * [RVM-326] - Failing basic tests don't signal failure
+    * [RVM-330] - Thread.sleep() does not handle interrupts correctly
+    * [RVM-339] - Image bloat (code +25% & data +5%)
+    * [RVM-340] - Annotations don't handle arrays of primitive types correctly
+    * [RVM-342] - NPE with advice files
+    * [RVM-347] - PPC 64 regressions and Intel stress regressions since the introduction of read barriers
+    * [RVM-351] - Javac regression
+    * [RVM-352] - Running many iterations of _200_check fails floating point remainder test
+    * [RVM-353] - Production Opt 0 builds broken
+    * [RVM-355] - Complete SPEC JVM with 20 iterations dies in GC
+    * [RVM-357] - Fatal error when synchronising on null objects
+    * [RVM-365] - PPC (AIX) Stack Scanning Appears Broken
+    * [RVM-368] - Compiler confusion over equal but non-identical objects
+    * [RVM-374] - Static field allocation is non-deterministic
+    * [RVM-380] - We create a lot (15909) optimization plan atomic elements using 572724bytes in the boot image
+    * [RVM-383] - Branch likely and unlikely prefixes show up as LOCK prefixes in x86 disassembler output
+    * [RVM-394] - Tune inlining of arraycopy
+    * [RVM-412] - Latent branch optimization bug when maximizing blocks
+    * [RVM-424] - Multianewarray confusion in opt compiler
+    * [RVM-439] - OSR triggering code misuses suspend/resume
+    * [RVM-447] - Inline size estimation reduction factor calculation over rates precise information causing bloat and slow down
+    * [RVM-452] - Off-by-one error in "VMField.checkReadAccess" and "VM.checkWriteAccess"
+    * [RVM-456] - Clean build broken
+    * [RVM-464] - Opt compiler ldc_w for class literal broken
+    * [RVM-466] - Four tests in test run "tiny" fail when compiled with -X:aos:initial_compiler=opt -X:aos:enable_recompilation=false
+    * [RVM-467] - BURS performing illegal reordering to before PEI
+    * [RVM-468] - Instanceof test differs in opt compiler from baseline for instanceof/checkcast of magic[][]
+    * [RVM-478] - Redesign AIX native method Linkage conventions to protect CMID field from being smashed by native code saved CR
+
+** Improvement
+    * [RVM-81] - Annotations in java.lang classes
+    * [RVM-195] - Enable inlining of @Pure methods
+    * [RVM-274] - Remove OPT_ prefix from all opt compiler classes
+    * [RVM-276] - opt compiler package structure
+    * [RVM-304] - Improve performance of chacter encoder when encoding to and from arrays
+    * [RVM-305] - Add final annotations to java.io.OutputStreamWriter
+    * [RVM-308] - Greater use of StringBuilder rather than StringBuffer
+    * [RVM-309] - Greater use of "<Number>.valueOf" rather than "new <Number>"
+    * [RVM-310] - Class library fields that could be final aren't final
+    * [RVM-311] - String toUpperCase and toLowerCase perform a String.equals to see if the Locale is Turkey per invocation
+    * [RVM-322] - Intel assembler register naming improvement required
+    * [RVM-331] - Implement support for MMX registers
+    * [RVM-343] - Support for hardware SQRT instruction
+    * [RVM-344] - Simplifier rule for square root operator
+    * [RVM-378] - Avoid replicating field and method vectors
+    * [RVM-379] - Don't replicate OSR_EncodedOSRMaps
+    * [RVM-381] - Upgrade to Classpath 0.97
+    * [RVM-385] - Refactor reflection to use VM interface
+    * [RVM-387] - Baseline compiler emits RegDisp instructions when the Disp is 0
+    * [RVM-390] - VM_Statics/JTOC space saving has cost us single iteration fop performance
+    * [RVM-391] - Assign CPU # to each VM_Processor to have more predictable performance results. 
+    * [RVM-392] - Improvements to ZipEntry
+    * [RVM-395] - Local common sub-expression elimination of Pure method calls
+    * [RVM-408] - Simple elimination of stack traces
+    * [RVM-417] - Switch performance runs to using a profiled image
+    * [RVM-421] - Pre-allocate 1 set of exception registers for athrow
+    * [RVM-422] - Update to latest Classpath j.u.c.CopyOnWriteArrayList
+    * [RVM-431] - Fix processor JNI entry/collector rendezvous race
+    * [RVM-433] - Increase final fields in java.nio
+    * [RVM-435] - Don't allocate memory when converting C buffers to Strings or Classes
+    * [RVM-437] - Integer.toString doesn't keep cache of common values
+    * [RVM-451] - Structure of code in GNU Classpath java.util.Vector and java.util.Arraylist interacts poorly with inlining
+
+** New Feature
+    * [RVM-210] - Add Image sizes tracking to Regression report and mailout
+    * [RVM-319] - Create X10 test harness
+    * [RVM-406] - Add Immix garbage collector
+    * [RVM-441] - Sticky mark bits collector
+    * [RVM-457] - Immix Garbage Collectors
+
+** Task
+    * [RVM-425] - Implement 2d array helper for PPC baseline
+
+
+** Wish
+    * [RVM-266] - Provide preliminary support for a non-copying unsynchronised StringBuffer implementation
+
+
+*Jikes RVM 2.9.2 Release Notes (October 20, 2007)
+
+** Highlights
+
+*** r13697: Switch from hijacking pthread system calls to using Classpath's
+    portable native sync (which uses JNI for locking rather than pthread locks).
+
+*** r13676: ASM based tool to add annotations to class library.
+
+*** r13413: Initial support for IA32 Solaris, capable of running basic tests
+    and partially running DaCapo benchmarks.
+
+*** r13404: Added support for using the perfctr library to access hardware
+    performance counters (http://user.it.uu.se/~mikpe/linux/perfctr/).
+    To use this, perfctr must be installed on the host (involves a kernel
+    patch), and config.include.perfctr must be set to true at build
+    time (or simply use the "-p" option to buildit).  At run time, the MMTk
+    harness mechanism must be used to report the counter values at the end
+    of the harnessed execution.
+
+*** r13223: Fixes to enable the Jikes RVM to run on PPC32 OS/X, this
+    functionality had been broken for at least half a year.
+
+*** r13106: refactored thread model to separate out the decision of green and
+    native threading. Improvements required in the area of OSR and collector
+    threads. This solves many issues with thread model including RFE-1147574,
+    RVM-62, RVM-64, RVM-55, RVM-125. The M-to-N greenthread model now passes
+    the majority of the JSR-166 TCK (some issues are class library related)
+    so java.util.concurrent can be used with the RVM. A stub is provided so
+    that native thread support can be added at a later date.
+
+** From JIRA:
+
+** Sub-task
+    * [RVM-217] - Recode spin loop in org.mmtk.utility.deque.Deque spinWait to reduce frequency of nanoTime calls
+    * [RVM-230] - Determine whether patching Classpath sources is preferable to bytecode engineering adding annotations
+
+** Bug
+    * [RVM-55] - A thread that is interrupted prior to being scheduled won't interrupt
+    * [RVM-62] - Interrupted exceptions are generated in the caller of Thread.interrupt instead of by the 
+                 thread throwing the interrupted exception
+    * [RVM-63] - Unsafe.park time values are incorrectly scaled
+    * [RVM-87] - NPE in ScanThread.setUpFrame:360
+    * [RVM-99] - MeasureCompilation reporting broken in production/development builds on ia32-linux
+    * [RVM-104] - eclipse occasionally fails with segmentation fault
+    * [RVM-105] - sysNetSelect doesnt seem to be avoiding the syswrap select
+    * [RVM-109] - Restore documentation to org.vmmagic.pragma.*
+    * [RVM-112] - Verification error when building Jikes RVM 2.9.1 using HotSpot as host JVM. 
+    * [RVM-113] - MarkCompactLocal.compact():80 assertion failure
+    * [RVM-114] - Ensure time is positive in test results
+    * [RVM-124] - NullPointerExceptions in stress tests
+    * [RVM-125] - Waiting on a lock that should raise illegal monitor state exception will actual fail on an assert
+    * [RVM-129] - GCTrace fails with "Cannot understand directive!"
+    * [RVM-131] - Collection.joinCollection() called when thread switching disabled
+    * [RVM-133] - Increase the amount of memory used during nightly tests
+    * [RVM-140] - Conflicting virtual address request for space "trace" on ppc32-linux
+    * [RVM-141] - SharedDeque assertion failure during exit for GCTrace
+    * [RVM-143] - VM_BuildBB.determineTheBasicBlock may not be correct for goto_w operation
+    * [RVM-144] - JikesRVM can't load certain classes e.g. GNU Classpath examples or its own Ant tasks
+    * [RVM-150] - Unexpectedly large processor lock contention
+    * [RVM-154] - A shutdown hook can hang RVM
+    * [RVM-155] - SynchronizationBarrier.removeProcessor assertion failure
+    * [RVM-159] - OSR-guarded inlining should not be allowed in uninterruptible code
+    * [RVM-181] - ClassCastException in OPT_Simplifier when running antlr DaCapo
+    * [RVM-182] - invalid frame address
+    * [RVM-183] - Thread sitting on >1 queue
+    * [RVM-187] - VM_OptGenericMapIterator: findGCMapIndex failed
+    * [RVM-194] - Assertion failure in OSR State Extractor running chart
+    * [RVM-196] - VM_Processor not assignable with VM_GreenScheduler
+    * [RVM-198] - NPE when unlocking lock
+    * [RVM-201] - Classpath AWT is broken
+    * [RVM-203] - terminal not in grammar: new
+    * [RVM-204] - Reduce wasted code space on inline allocation path
+    * [RVM-206] - Stack walking in MMTk not correctly identifying not yet obsolete methods?
+    * [RVM-209] - Bootimage bloat broke ppc64-aix images
+    * [RVM-213] - jbb2005 performance regression
+    * [RVM-216] - MMTk assertion failure during jbb large heap performance runs
+    * [RVM-219] - Address.attempt*() compiles incorrectly on IA32 with Jikes 2.9.1
+    * [RVM-220] - jbb2005 GC performance mode: Warning: number of GC phases exceeds MAX_PHASES
+    * [RVM-242] - Build break:  BaseBaseGCTrace 
+    * [RVM-245] - Change to deques appears to have significantly reduced hsqldb performance
+    * [RVM-270] - NPEs from barrier code not working
+    * [RVM-277] - lusearch fails on PPC32 due to validation error
+    * [RVM-279] - Performance regression
+    * [RVM-293] - Class loaders do not isolate packages with the same name
+    * [RVM-297] - Classpath 0.96 configure problems with JDK 1.6
+    * [RVM-298] - DaCapo chart broken on classpath 0.96
+    * [RVM-299] - possible performance regression on xalan on classpath 0.96
+    * [RVM-301] - JSR 166 failures
+
+** Improvement
+    * [RVM-16] - Constant folding values from TIBs produces failures
+    * [RVM-27] - float/double to int/long conversions are overly expensive
+    * [RVM-51] - Switch from pthread hijacking back to portable native sync for gtk AWT threading
+    * [RVM-54] - Switch to Claspath's java.lang.Thread
+    * [RVM-64] - Flexible thread model
+    * [RVM-82] - Exceptions in Uninterruptible code should result in immediate fatal errors
+    * [RVM-94] - Enable SSE C/C++ compiler flags
+    * [RVM-164] - Use clock_gettime to implement sysNanoTime
+    * [RVM-179] - Move java/lang/String out of libraryInterface and into a patch against Classpath
+    * [RVM-185] - Reduce cost of ThreadLocal(s) to improve Jython performance
+    * [RVM-189] - Use will never move information from MM_Interface when generating constant operands
+    * [RVM-191] - Improve inline size estimator in VM_NormalMethod to account for getstatic of final primitive 
+                  fields being folded by opt compiler
+    * [RVM-218] - Use VM_Magic.pause in spinwait loops
+    * [RVM-282] - Make dumpVirtualMachine more defensive
+    * [RVM-285] - Switch AOS call graph profiling to use CBS framework from Arnold & Grove 2005
+
+** New Feature
+    * [RVM-121] - Separate code space for dynamically generated code
+    * [RVM-231] - Alignment checking (for IA32 and debugging purposes only)
+
+** Task
+    * [RVM-38] - VM_BaselineBootImageCompiler should use System.nanoTime rather than DNA for compilation time
+    * [RVM-286] - _201_compress took a 10% hit when we switched to Arnold/Grove call graph profiling; investigate
+
+** Bug Fixes
+
+*** r13004: constant folding of TIBs is now safe as precise information on
+    register operands has been fixed.
+
+** Other Notes
+
+*** r12922: Incorrect annotating code as logically uninterruptible on
+    interruptible code will now produce an error.
+
+*Jikes RVM 2.9.1 Release Notes (July 2, 2007)
+** Highlights
+
+*** A major stability drive has resulted in Jikes RVM being able to
+    reliably run the entire DaCapo benchmark suite on ia32-linux.
+    The following issues were resolved to make this possible:
+
+    multiple benchmarks:
+    r12809: Missed lock prefix (stack scanning failures).
+    r12737: GC map iterator crashed on dynamic link frames.
+
+    eclipse:
+    r12302: Classpath RandomAccessFile incorrectly truncated.
+    r12394: PLOS exhaustion bug in MMTk.
+    r12375: ThinLock of interface from OPT code.
+    r12815: Bad GC map in JNI methods.
+    r12722: Fix for GC map bugs around expection throws.
+
+    lusearch:
+    r12602: Floating point precision (SSE2).
+    r12633: Parallel hardware traps.
+
+    hsqldb:
+    r12683: Invalid assertion in VM_Thread.
+
+    xalan:
+    r12742: Missing static initializer broke jar caching (halves runtime).
+    r12753: FileOutputStream wastefully copying arrays (halves runtime).
+
+*** New eclipse-project ant target to make it easy to get up and running
+    in eclipse.
+
+*** As part of the stability drive, many O2 optimizations in the
+    optimizing compiler have been moved to O3 (and thus are not enabled by
+    default). The performance impact of this has been mixed. For example, 
+    on ia32-linux SPECjvm98 performance actually improved by 29% due to
+    massive improvements in mtrt and mpegaudio enabled by SSE2. Performance 
+    on SPECjbb2005 degraded by 3-10%. There were significant gains on some 
+    individual DaCapo benchmarks (most notably xalan). 
+    Re-building an aggressive O2 optimization package by stabilizing 
+    current O3 optimizations and by building new optimization passes will be 
+    one of the focus areas for the project going forward.
+
+*** The Intel back-end no longer has accumulate LIR form, we go directly from
+    non-accumulate form LIR to accumulate form MIR. This simplifies and
+    improves instruction selection by reducing the replication of rules to
+    accomodate for accumulate form expansion.
+
+*** Switch to using Classpath's Throwable code and implemented VMThrowable.
+    Implemented a certain amount of stack frame elision and added support for
+    getStackTrace.
+
+*** Support for @Pure and @RuntimeFinal annotations. The former allows
+    simplification of non-side effecting code without inlining (particularly
+    useful when we can't inline with syscalls or jni). The latter provides support
+    for booleans that are constant during runtime but vary at boot image write
+    time. These booleans can be constant folded now.
+
+*** The recommended version of GNU classpath is 0.95.
+    Earlier versions of GNU classpath are not supported.
+
+*** SSA expression folding has been expanded to cover far more cases than
+    previously. This leads to a > 1% speedup on benchmarks such as SpecJBB'05.
+
+*** Source code analysis of the code base has been enabled using PMD
+    (http://pmd.sourceforge.net/). Basic analysis is enabled by default and
+    this will expand over time.
+
+*** Methods in VM_Type that duplicated functionality in VM_TypeReference
+    now delegate to associated VM_TypeReference.
+
+*** The ability to force a garbage collection after N allocations or at every
+    exception delivery has been revived and is controlled by the configuration
+    variable config.stress-gc-interval which should be set to non-zero value to
+    enable.
+
+*** Simplistic debug symbols to show boot image method entry points in
+    gdb. Resolved issues with rvm script so this works with rvm -gdb now.
+
+*** New faster primary regression machine (Core 2 Duo) for ia32-linux
+    at ANU. Resolved performance issues with previous regression machine.
+
+*** Introduced the capability to patch against classpath versions. This allows
+    us to keep backported performance optimizations and/or bug fixes
+
+*** Implementation of returning global JNI references from C to Java.
+
+*** VM_ prefix added to classes that must be included in the primordial
+    class list. Classes affected include; PrintLN, PrintContainer,
+    ApplicationClassLoader, DebuggerThread, FinalizerThread, MainThread,
+    PPC_Disassembler, opcode_tab and opcodeXX.
+
+*** Classes in the adaptive package have been reorganized into packages
+    to match the directory layout in 2.4.6 release.
+
+*** Classes that resided in the objectmodel directory in 2.4.6 have
+    been moved in to the "org.jikesrvm.objectmodel" package.
+
+*** Classes that resided in the scheduler directory in 2.4.6 have
+    been moved in to the "org.jikesrvm.scheduler" package.
+
+*** Classes that resided in the runtime directory in 2.4.6 have
+    been moved in to the "org.jikesrvm.runtime" package.
+
+*** Streamline some Intel operations, rotates, prefer branches to conditional
+    operations, use xor instead of move to zero a register.
+
+** Bug fixes
+
+*** Baseline GC map bug for handler blocks affecting SPECjbb2000
+    (r12685).
+
+*** Classpath race in cloning of XML Node affecting SPECjbb2005
+    (r12395).
+
+*** Fix final field chasing in OPT_Simplifier and re-enable constant
+    folding for fields.
+
+*** A GC map generation problem caused by casting Address to Objects
+    and has been eliminated.
+
+*** Fix for annotations that carry values.
+
+*** Fix saturation on branch profile counters.
+
+*** Fix IA32_Test's register restrictions to avoid generating incorrect code.
+
+** Other Notes
+
+*** Support for Intel branch hints, used in the baseline compiler that
+    can't modify its code layout.
+
+*** We now check for illegal upcasts from unboxed vmmagic to Java types.
+
+*Jikes RVM 2.9.0.1 Release Notes (April 1, 2007)
+*** Backport commit 11875 to fix bug when building GNU classpath for
+    for the first time.
+
+
+*Jikes RVM 2.9.0 Release Notes (March 15, 2007)
+** Highlights
+
+*** The five months since the release of 2.4.6 have been one of the most
+    active periods in the open source history of the project.  A number
+    of significant changes have been made to clean up and modernize the
+    code base to enable future evolution.
+
+*** We have made large scale changes to the structure of the source code
+    to prepare for development of Jikes RVM from within standard Java IDEs.
+
+*** There is a new, ant-based, build and test system that have replaced
+    jconfigure and RunSanityTests.
+
+*** We now use ecj (the Eclipse Java compiler) instead of jikes to compile
+    our Java source files and have eliminated the preprocessor.
+
+*** The userguide has been moved from latex into a wiki.  It has been updated
+    to describe the new build and test systems.
+    The release tarball contains a pdf and html version of the userguide.
+
+*** We now support Java5, we have switched to using the generics branch
+    of GNU Classpath, and much of Jikes RVM has been rewritten to use
+    Java 5 language features and generic types.
+
+*** We have switched to using Java5 annotations for pragmas/magic.
+
+*** The recommended version of GNU classpath is 0.93-generics.
+    Earlier versions of GNU classpath are not supported.
+
+*** Support in the PPC baseline compiler for storing local variables in
+    registers.
+
+*** Refactor of type system and JTOC.
+
+*** Support for packing subword sized fields in objects. Removal of hand
+    packed fields. Various memory savings.
+
+*** System calls now supported in any file using SysCall annotation on a
+    native method. VM_SysCall now generates implementation from annotation.
+    VMMath now implemented using system calls.
+
+*** Support for chasing final fields reached from literal or static final
+    fields. Greater optimization of object constant operands.
+
+*** Greater support for 387 constants. Simplification of 387 BURS rules.
+
+** Bug fixes
+
+*** Yes...many :)  For details: svn log -r10915:11866
+
+** Other Notes
+
+*** The Quick compiler has been deleted.  It is now available as a
+    patch on the research tracker, or via older releases (2.3.4
+    through 2.4.6).
+
+*** The HPM (Hardware Performance Monitor) code has been deleted.
+    It is now available on the research tracker (item 1613215),
+    by svn diff -r11162:11161, or in releases through 2.4.6.
+
+*** This release is known to not work on OS X.  We would like to get this
+    platform working again;  if you use Jikes RVM on OS X and are willing to
+    help fix it, please let us know.
+
+
+
+*Jikes RVM 2.4.6 Release Notes (released October 19, 2006)
+** Highlights
+*** The recommended version of GNU classpath for Jikes RVM 2.4.6 is 0.92.
+    Earlier versions of GNU classpath are not supported.
+
+*** A large scale restructuring of the source tree was performed
+    to prepare for making it easier to develop Jikes RVM using Eclipse.
+    All files except for the Java source to Jikes RVM itself was moved
+    out of the RVM_ROOT/rvm directory.  RVM_ROOT/rvm itself has not yet
+    been reorganized so that package/directory structures match, but we
+    anticipate this happening in the near future.
+
+*** Major refactoring of VM<->MM interface
+
+*** MMTk: Added nurseries to each LOS and created a distinct "primitive large
+    object space" (PLOS).
+
+*** The optimizing compiler is now reentrant and a command line options
+    to enable parallel bootimage compilation has been added to jbuild
+    (-numThreads=<n>).
+
+*** Updates and improvements to GCspy support (patch 1576064).
+
+** Bug fixes
+   Too many to list individually in the release notes. Yeah!
+   Overall a significant increase in system stability since 2.4.5.
+   See svnlog -r10694:10905 for the gory details.
+
+** Other Notes
+
+*** Change bootimage options for the opt compiler to use default static
+    inlining heurisitcs (instead of being more aggressive).  This reduces
+    bootimage size by 20%, bootimage build time by 2-3x, and appears to have
+    minimal performance impact.
+
+*** We now implement JNI_OnLoad functionality.
+
+*** Modifications to the boot image writer and VM.boot so that certain
+    known fields are populated during boot image write time, thereby
+    avoiding the need to run class initializers in VM.boot. Typically
+    we fail to populate a field value when it's part of the bootstrap
+    JVM and in some way protected. Further improvements to this mechanism
+    are in progress.
+
+*** If GNU classpath is built with JAWT support, the Jikes RVM build process
+    now copies the additional native libraries it requires.
+
+*** Added regression testing support for latest version (2006-10-RC2) of
+    DaCapo benchmarks and for SPECjbb2005. Also updated soot test to 2.2.3.
+
+*** We can now build using the IBM 5.0 JVMs as hosts.  However, you
+    must set HOST_VM_TYPE=IBM-50 to activate code in the bootimage
+    writer makefile that works around what appears to be a JIT bug.
+
+*** GNU classpath support for java.lang.instrumentation and the
+    -javaagent command line argument was added.
+
+
+*Jikes RVM 2.4.5 Release Notes (released August 14, 2006)
+** Highlights
+*** The recommended version of GNU classpath for Jikes RVM 2.4.5 is 0.92.
+    GNU classpath version 0.91 will work, but Jikes RVM 2.4.5 will not
+    compile against versions of GNU classpath before 0.91.
+
+*** Classpath AWT and Swing tests now run with the Jikes RVM. We have changed
+    from using the portable native sync code, and addressed issues with M-to-N
+    threading.
+
+*** We can now load and run Java 1.5.0 Java class files. Support includes
+    building the Jikes RVM using a 1.5.0 javac compiler and running the
+    SPEC JBB 2005 benchmark. Includes reflection support for generic types.
+
+*** MMTk changes & refactors.  A mark-compact collector has been added.  A
+    number of key bugs have been fixed, both in the vm (eg baseline GC
+    maps), and in MMTk proper.  Completed a major refactoring of
+    "locals" to explicitly separate per-mutator and per-collector
+    contexts.  This generalizes away from assumptions of the current
+    Jikes RVM threading model.
+
+*** We can now load runtime and non-runtime annotations. Runtime support
+    is limited as Classpath is missing the base annotation definitions.
+    A work around is to switch on non-runtime annotation loading in the RVM.
+    NOTE: This requires classpath 0.91 or better.
+
+*** Added ability to perform boot image root scanning, and thus avoid
+    tracing through the boot image at each full heap GC. As a result,
+    we've added a third region to the bootimage; all config files must
+    now define BOOTIMAGE_RMAP_ADDRESS in addition to BOOTIMAGE_DATA_ADDRESS
+    and BOOTIMAGE_CODE_ADDRESS.
+
+** Bug fixes
+1442437: to match Sun behavior, java.lang.Class.newInstance now passes
+         through exceptions instead of wrapping in InstantiationExceptions.
+	 NOTE: This requires classpath 0.90 or better.
+
+1505824: Exit cleanly when the jar file given to -jar doesn't contain a valid manifest
+
+1494784: Intermittent build failure on IA32 due to imprecise estimation of
+         instruction size in code used for short forward jump optimization.
+
+1147554: MarkSweep double-mark: corrects performance problem in MMTk MarkSweep
+         code which was marking both a bit in the object and a side mark map.
+
+** Other Notes
+*** IA32 BURS improvement for special case of COND_MOV contibuted by
+    Garrett Kolpin
+*** Improvements to OPT_Simplifier to catch a number of additional cases.
+
+
+*Jikes RVM 2.4.4 Release Notes (released March 15, 2006)
+** Highlights
+*** The recommended version of GNU classpath for Jikes RVM 2.4.3 is 0.90.
+   Classpath 0.18, 0.19, and 0.20 are likely to still work, but have not
+   been tested.
+
+** Bug fixes
+** Other Notes
+*** There is now an x86_64-pc-linux-gnu config file for build Jikes RVM.
+
+
+*Jikes RVM 2.4.3 Release Notes (released February 24, 2006)
+** Highlights
+*** The recommended version of GNU classpath for Jikes RVM 2.4.3 is 0.20.
+   Classpath 0.19 and 0.18 are likely to still work, but have not been tested.
+   Support for all version of GNU classpath prior to 0.18 has been removed.
+
+*** Simple GC sanity checking tool added to MMTk. Contact: Daniel Frampton.
+
+*** The RVM bootimage is now generated into two separate files, one for
+    code and one for data.  These files are mapped separately into distinct
+    address ranges.  As a result of this change, instead of defining
+    BOOTIMAGE_LOAD_ADDRESS in your config file, you must define
+    BOOTIMAGE_DATA_ADDRESS and BOOTIMAGE_CODE_ADDRESS.
+    All the default configu files (config/*) have been updated,
+    but if you have local copies of these files, you will need to update them.
+
+*** Loop Versioning optimization in the opt compiler
+    contributed by Ian Rogers and Jisheng Zhao.
+    Loop versioning replicates loop bodies and removes from one of
+    those loop bodies runtime exceptions that can be explicitly
+    tested. The phase runs as an SSA optimization so as only to
+    consider true dependencies. To capture the loop structure the
+    phase uses an annotated LST node. The annotations capture
+    information about the initial and terminal loop iterator values,
+    as well as the loop iterator instructions. This phase is currently
+    disabled by default until we can fix bugs in the optimizing compiler
+    that it exposes.
+
+*** The optimizing compiler's Local CSE pass now exploits commutativity,
+    patch contributed by Bernardo Pastorelli.
+
+** Bug fixes
+*** defect 1240267: remove FIXED_JTOC option
+*** defect 1411486: Bug in IA32 BT (Bit Test) instruction
+
+
+*Jikes RVM 2.4.2 Release Notes (released on November 21, 2005)
+**Highlights
+**The recommended version of GNU classpath for Jikes RVM 2.4.2 is 0.19.
+Classpath 0.18 is expected to still work, Classpath 0.15 and 0.17 may
+still work, but have not been tested.
+
+** RunSanityTest support for DaCapo benchmark suite. DaCapo is now included
+in the nightly Jikes RVM regression tests.  We continue to solicit
+contributions of more RunSanityTest harnesses for additional benchmarks.
+
+** Numerous bug fixes in the opt compiler to better maintain IR invariants
+during. Contributed by Ian Rogers.
+
+**Bug Fixes
+*** defect 1293619: Null Pointer Exception in VM_TypeReference
+*** Minor fixes for OS X builds.
+
+
+*Jikes RVM 2.4.1 Release Notes (released on September 15, 2005)
+
+*Highlights
+**The recommended version of GNU classpath for Jikes RVM 2.4.1 is 0.18.
+Classpath 0.17 is expected to still work, Classpath 0.15 may still
+work, but has not been tested.
+
+** Support for triggering recompilation of dynamically loaded methods
+It is now possible for an application running on Jikes RVM to request
+that the system recompile all dynamically loaded methods at any point
+in the application.  This can be accomplished by a new VM_Callbacks
+method.  Details are in the user's guide.
+
+*Jikes RVM 2.4.0 Release Notes (released on August 11, 2005)
+
+*Highlights
+** OS X is working again.
+Support for running Jikes RVM on OS X has been restored.
+
+** Major MMTk Refactoring.
+The most significant refactoring to MMTk since the initial release has
+been completed. The MMTk Plan class hierarchy has been split to more
+clearly distinguish global and local state, and move toward a more natural
+Java style. This has involved substantial changes to the plan hierarchy,
+which is now structured a set of subpackages under org.mmtk.plan. For more
+information on the MMTk refactoring please refer to the tutorial and
+cheatsheet in the MMTk/doc directory, both of which are intended to
+assist with users migrating collectors to the new release.
+
+**The recommended version of GNU classpath for Jikes RVM 2.4.0 is 0.17.
+Classpath 0.15 is expected to still work, but has not been tested.
+
+** Support for compiler replay
+Contribution of compiler replay.  Compiler replay is an experimental
+methodology that eliminates memory allocation and mutator variations due
+to non-deterministic sampling and adaptive optimizations.
+
+
+*Jikes RVM 2.3.6 Release Notes (released on May 23, 2005)
+
+*Highlights
+** Just like 2.3.5, this release of Jikes RVM does not work on OSX.
+If you use Jikes RVM on OSX please help us fix it so subsequent
+releases will support OSX again.
+
+**The recommended version of GNU classpath for Jikes RVM 2.3.6 is 0.15.
+Classpath 0.14 is expected to still work.
+Some older versions of classpath (0.10 and higher) might still work,
+but have not been tested.
+Subsequent releases of Jikes RVM will remove support for all versions of
+GNU classpath prior to 0.15.
+
+** We have fixed defect 1189786 which represented a significant regression in
+Jikes RVM 2.3.5.
+
+** After source code cleanups, most jikes warnings are now enabled by default.
+
+
+
+*Jikes RVM 2.3.5 Release Notes (released on April 8, 2005)
+*Highlights
+** This release of Jikes RVM does not work on OSX.
+If you use Jikes RVM on OSX please help us fix it so subsequent
+releases will support OSX again.
+
+**The recommended version of GNU classpath for this release of Jikes RVM is 0.14.
+Furthermore, all of the configuration logic that controls classpath
+version has been moved to $RVM_ROOT/config/classpath-version.  We
+suggest you may want to modify your local configuration files to source
+this file, to make it easier to track changes in classpath version
+across releases of Jikes RVM.
+
+**We can build with Jikes versions 1.20, 1.21, 1.22, and CVS Head.
+
+**We detect the version of the Jikes compiler in use and print warning
+messages if that version has not been tested.
+
+**Quick Compiler (missing from the original 2.3.4 release notes)
+Release 2.3.4 marked the first public appearance
+of the "Quick" compiler for the PowerPC architecture targets.
+
+The Quick compiler is supposed to be rather smarter than the Base
+compiler about register use without being nearly as complex as the Opt
+compiler.
+
+Rather smarter means that stack and local variables are kept in
+registers if possible, not in memory.
+
+Not nearly as complex means, for instance, that the Quick compiler code
+generator works in a single pass, with no intermediate representations.
+Right now the only additional optimizations are to remember if stack or
+local variable values are already in a temporary or work register and
+hence don't need to be loaded, and to postpone local variable stores
+until it becomes obvious that the value really needs to be written.
+
+One purpose of the Quick compiler is to explore how close to the
+performance of the Opt compiler we can come by using just the most
+beneficial optimizations. Also, we hope to use it as a starting point
+for experimenting with other optimizations without having to deal with
+the implementation details of the Opt compiler and the complex
+interactions among the many optimizations performed by the Opt compiler.
+
+*Other Notes:
+**We've moved to http://jikesrvm.sourceforge.net.
+We'll try to update the documentation, but please point out anything
+that we missed.
+
+**The release notes are now in a file called NEWS instead of
+the old ReleaseNotes-<revision-number> files.  Further, NEWS is an
+archive; it is contains release notes for all open source versions of
+Jikes RVM.
+
+**The java.version system property is now at 1.4.2
+(This is missing from the original 2.3.4 release notes)
+
+Claiming to be at java.version 1.4.2 is a lie, of course -- we don't
+really support all 1.4 features, such as assertions.  However, it is a
+necessary lie, since Eclipse 3.0 explicitly tests java.version and
+insists upon at least 1.4.1 to run.
+
+Similarly, java.specification.version is up to 1.4 and
+java.vm.version is at 1.4.2.
+
+*Bug Fixes:
+**The problems with timezones that several users have reported with the change to daylight savings times and Jikes RVM 2.3.4/classpath 0.12 are not a problem in Jikes RVM 2.3.5/classpath 0.14.
+**Calling VM.sysFail during boot image writing no longer generates a bogus "vm internal error" message.
+***VM_Scheduler.traceback and VM_Scheduler.dumpStack now work properly
+even when Jikes RVM is writing the boot image.  This, in turn, means
+that we no longer generate internal errors if we have to call
+VM.sysFail during boot image writing time.
+
+
+
+*Jikes RVM 2.3.4 Release Notes (released December 21, 2004)
+THe following four sections of the document contain the Jikes RVM
+2.3.4 release notes.  They are:
+**Highlights
+**Other Notes
+**Bug Fixes
+**Internal Changes
+
+*Highlights of the Jikes RVM 2.3.4 release:
+
+**We now run Eclipse 3.0
+You can use Jikes RVM to run Eclipse 3.0; this lets you run a free
+IDE with a free VM.
+
+**The port to PowerPC64 is virtually complete.  There are a few fringe opt
+compiler bugs remaining, but functionality has advanced to the point where
+development and production images of Jikes RVM are passing almost all
+regression tests.
+
+**MMTk has been moved out of $RVM_ROOT/rvm/src/vm/memory managers to
+$RVM_ROOT/MMTk.  It has also been reorganized to have the directory structure
+match its package structure and thus is "Eclipse-friendly."  MMTk's
+option parsing has been rewritten.  There are other internal
+changes as well.
+
+**Major revision of the object model. All objects (arrays and scalars)
+are now layed out in a "forwards" direction. This simplifies and enables
+many common GC techniques (scannable heap; card-marking) at the cost of a
+slight performance hit on AIX/PowerPC due to the need to make some null checks
+explicit. See VM_ObjectModel.java for more details.
+
+**XML parsing with Xalan
+Jikes RVM can now be configured so it always uses the Xalan XML
+parser.  See the configuration file variable XALAN_J_DIR.
+
+**We have switched to GNU Classpath version 0.12.
+Versions 0.10 and 0.11 can still be used, if you set appropriate
+options in the configuration file, but we recommend Classpath 0.12.
+
+**CPU hogging fixed
+Jikes RVM used to busy-wait when it was idle, waiting for I/O or
+timeouts.  It now sleeps properly, which is nice if you're trying
+to do something else on your workstation at the same time that you're
+using Jikes RVM.  This closes long-standing defect # 2046.
+
+*Other Notes for the Jikes RVM 2.3.4 release:
+**The memory size options now all take sizes in bytes by default.  (INCOMPATIBLE CHANGE)
+They used to use a mix of default units: Megabytes (Mebibytes),
+Kilobytes (Kibibytes), and "Log 2 of the frequency (in bytes)".  They
+now all default to bytes; please update any scripts you have
+appropriately.  This affects -Xmx, -Xms, and the -X:gc:* options.
+
+**The MMAP_COPY_ON_WRITE feature now works on PowerPC/Linux and PowerPC/OSX.
+(This feature was discussed in the 2.3.3 release notes.)
+
+**The AttachCurrentThread JNI function is now partly implemented;
+it now works in the common case where a thread is already attached to the VM.
+
+**RVM_BOOTCLASSPATH_APPEND is a new environment variable that Jikes RVM
+will recognize when booting.  You can use it to add extensions to the
+VM.  Set it just as you would set the CLASSPATH environment variable.
+
+**Major re-implementation of AOS's feedback-directed inlining and the opt
+compiler's default inlining policy. Result is simpler code, lower
+overhead profiling, and more effective inlining decisions.
+
+*Bug Fixes in the Jikes RVM 2.3.4 release:
+**The JNI AttachCurrentThread function now returns proper error status if it
+cannot complete properly.  It used to (incorrectly) always return
+JNI_OK.
+**Class.getResourceAsStream() and Class.getResource() would fail
+with a NullPointerException when invoked on a Class object that was
+loaded by the Bootstrap Class Loader.
+**Defect #3601 is fixed -- java.lang.Thread no longer inherits from VM_Thread.
+**Stack trace printing for trouble in the boot thread is fixed;
+it no longer inappropriately elides frames.
+
+*Internal Changes in the Jikes RVM 2.3.4 relesae:
+**The VM_Magic classes have been moved to the org.vmmagic namespace,
+and rationalized. Further work on refactoring magic usage (mainly in Jikes
+RVM as opposed to MMTk) is ongoing.
+
+
+
+
+*Jikes RVM 2.3.3 release notes sections
+The following three sections of the document contain the Jikes RVM
+2.3.3 release notes.  They are:
+**Highlights
+**Other Notes
+**Bug Fixes
+
+*Highlights of the Jikes RVM 2.3.3 release include:
+
+**GNU Classpath 0.10
+Jikes RVM now uses GNU Classpath version 0.10 on all platforms.  Jikes
+RVM 2.3.3 should work with classpath version 0.08, 0.09 or 0.10.
+However, we recommend that users switch to classpath 0.10, to get the
+new features and because we run our nightly regression tests against
+Classpath 0.10.
+
+(If hand-building GNU Classpath 0.10 or 0.09 on AIX, follow the
+directions in rvm/doc/classpath-0.10-on-AIX.txt)
+
+**GCspy garbage collection visualization tool
+
+Jikes RVM now includes support for the GCspy tool for visualizing the
+garbage collector's behaviour.  Many thanks to Richard Jones of the
+University of Kent for this contribution.  (This item should have been
+included in the 2.3.2 release notes, but was inadvertently omitted.)
+Documentation is in the user's guide.
+
+**PowerPC/Linux/64 support with baseline compiler
+Jikes RVM now runs on 64-bit PowerPC Linux to the same extent as it
+does on 64-bit PowerPC AIX.  All regression tests pass with the
+baseline compiler.  Porting of the opt compiler to 64 bit PowerPC is
+an open work item; contributions welcome!
+
+**Startup time slashed
+The startup time for Jikes RVM to run a simple "Hello World" program
+on Linux/x86 went down by a factor of 8.  This is because we now use
+mmap()'s copy-on-write feature, instead of reading all 30 MB of boot
+image into an area mmap()'d with MAP_ANONYMOUS.
+(There is a long comment in src/tools/bootImageRunner/IA32/libvm.C
+describing this; search for the preprocessor condition #ifdef
+MMAP_COPY_ON_WRITE).  If this creates problems, disable them by
+#undefining MMAP_COPY_ON_WRITE in libvm.C.
+
+This change should be ported to PowerPC Linux by someone who runs that
+platform.
+
+**Jikes RVM installable as a production runtime environment
+You can install Jikes RVM on your system as a production runtime
+environment for Java.  Once you've built Jikes RVM, cd to
+src/tools/install and read the file README to find out how to
+install a Jikes RVM executable as /usr/bin/rvm (or in some other
+location of your choice).
+
+**JNI 1.2 and 1.4 implemented
+We have implemented all of the missing functions from JNI 1.2 and 1.4.
+There are still aspects of the JNI implementation that can be
+improved; volunteers welcome.
+
+**MMTk
+Improvements to write barrier implementation, cleanup to mechanisms
+for specifying alignment constraints in allocation code, and
+refactoring of reference processing (java.lang.ref.*).
+
+*Other Notes for the Jikes RVM 2.3.3 release:
+
+**Compiler DNA updated -- x86 adaptive system now uses Opt level O2 sometimes.
+The compiler DNA (the precomputed cost & benefit of using various
+compiler/optimization levels) has been updated.  Due to improvements
+over the past 10 months, the optimizing compiler's level 2 is now
+better than level 1, on average, on both platforms.  (Previously,
+this was not the case on IA32.)  The result is that the adaptive
+system may now choose to use Opt level 2 on some methods because
+its model can now determine that it will sometimes be beneficial
+to do so.
+
+*Bug Fixes for the Jikes RVM 2.3.3 release:
+** Calls to the JNI function pair
+GetPrimitiveArrayCritical/ReleasePrimitiveArrayCritical can now be nested.
+** Fixed a bug in the GC map iterator code (both platforms) that was returning
+references multiple times in dynamic linking frames.
+** Fixed a bug in the GC map iterator code on PPC that was failing to return
+spilled parameters in dynamic linking frames.
+
+
+
+
+*Jikes RVM 2.3.2 release notes sections:
+The following three sections of the document contain the Jikes RVM
+2.3.2 release notes.  They are:
+**Highlights
+**Other Notes
+**Bug Fixes
+
+*Highlights of the Jikes RVM 2.3.2 release include:
+** Jikes RVM 2.3.2 requires classpath 0.08.
+
+**64-bit port of baseline compiler and runtime system to PowerPC64/AIX is
+complete. We have been passing all regression tests on PPC64/AIX for
+over a month. NOTE: porting of the optimizing compiler has not yet begun
+(contributions/collaborations welcome) and therefore no configuration
+with the optimizing compiler will work in 64 bit mode.
+
+** The default GC plan for the prototype, prototype-opt, development,
+and production configurations has been changed from CopyMS to GenMS.
+GenMS is a generational collector with an Appel-style nursery and a
+mark-sweep mature space.
+
+** Jikes RVM now runs on newer versions of Linux/PowerPC that store the
+pthread id in R2.  Building Jikes RVM with RVM_FOR_SINGLE_VIRTUAL_PROCESSOR=0
+is reported to work on top of these newer Linux releases, which resolves a
+long-standing limitation of Jikes RVM on Linux/PowerPC.
+
+**Source Code editing support
+There are now VIM and Emacs style files supporting the Jikes RVM coding
+style for C, Java, and C++.  See rvm/etc/README.  (This should have
+been in the 2.3.1 release announcement but was not.)
+
+**You can build Jikes RVM entirely with free software tools
+You can now build Jikes RVM using the Kaffe virtual machine.  Details
+in the installation section in the user's guide.
+
+*Other Notes for the Jikes RVM 2.3.2 release:
+
+**Performance improvements in VM_Memory copying routines used by
+System.arraycopy and copying GC resulted in 10% improvement in
+SPECjbb2000 throughput.
+
+*Bug Fixes for the Jikes RVM 2.3.2 release:
+** Fixed problems in alignment support in JMTk that were causing crashes
+in GC on PowerPC/AIX when doubleword alignment of long[] and double[]
+was enabled. This is a bug that was introduced in version 2.3.1 and is
+fixed in 2.3.2.
+
+** Fixed performance problem in profile-directed inlining where the
+AI Organizer forces recompilation of methods in an attempt to inline
+runtime service routines that won't be inlined no matter how many
+times we try.  Problem has always existed, but became much more severe
+in 2.3.0 release when we disabled the inlining of allocation sequences
+if the size of the object was not known at compile time.
+
+** Fixed bug in which non-virtualizable interface calls where not being
+considered as candidates for feedback-directed inlining.
+
+** We now provide all of the mandatory system properties
+for the Java 1.4.2 API.
+
+** Fixed bug in which the time zone code always thought
+the user was on New York time.
+
+** We now can print a meaningful message when we get
+an ErrorInInitializerError in the early stages of booting the VM
+before it is able to load in new classes.  We had incorrectly left
+ErrorInInitializerError out of the VM's list of boot classes.
+
+** If an uncaught exception is thrown while booting,
+we no longer try to print to the uninitialized System.err stream.
+That used to trigger a NullPointerException.
+
+
+
+
+*Jikes RVM 2.3.1 Release Notes (released on December 10, 2003)
+The following three sections of the document contain the Jikes RVM
+2.3.1 release notes.  They are:
+**Highlights
+**Other Notes
+**Bug Fixes
+
+*Highlights of Jikes RVM 2.3.1 include:
+
+**Mac OSX is now supported!
+Generously contributed by Chris Hoffman of the University of
+Massachusetts (USA).
+***Details:
+If you want to build Jikes RVM for Mac OSX, you will need to patch
+your copy (version 0.06 or better) of GNU Classpath with the patch
+file located in etc/gnu-classpath-on-mac-osx.patch.
+
+** Seven user contributions incorporated since 2.3.0
+*** Contributions were improvements to JMTk from Robin Garner,
+port to OSX from Chris Hoffman, refCount coalescing extension from Ian
+Warrington, bug fixes for the OSX port and opt compiler on PPC from
+Alan Lawrence, implementation of -jar cmd line arg from Anders Biehl
+Norgaard, and support for getting the classpath from CLASSPATH envar
+from Philippe Faes.
+
+** Switched to classpath 0.07
+*** Classpath 0.06 is expected to also work with this release of Jikes RVM,
+but we recommend upgrading to the latest classpath release.
+
+**Source Code editing support
+There are now VIM and Emacs style files supporting the Jikes RVM coding
+style for C, Java, and C++.  See rvm/etc/README.
+
+**Build system improvements:
+***If you run "jbuild" with --trace,
+you actually get all of the relevant shell commands printed out.
+
+***Under jbuild --trace=make, whenever we change directories, we report it
+This is parseable by Emacs's compilation-mode.  --trace=make is
+enabled automatically by "--trace" without any arguments.
+
+***More error-checking functionality added to the build system.
+
+***Cleaned up a couple of bogus warnings
+one could get in some versions of the Bourne-Again Shell (Bash).
+
+***We can make automatic binary installations of Jikes RVM
+There's a new generated script, "$RVM_BUILD/jbuild.install", that does
+this.  Handy way to save off a configuration that works before making
+changes.  Also lets us make a binary distribution of Jikes RVM, should
+it be desirable.
+
+***New build options, JAVAC_WARNING_FLAGS and JIKES_WARNING_FLAGS
+These variables replace the former hardcoded "-nowarn", and can be set
+arbitrarily. They default to "-nowarn" for historical compatibility.
+It means you can now get helpful warnings from the Java compiler.
+
+**Improvements to automatic download of GNU Classpath libraries.
+***We now use wget to download a classpath release instead of doing a
+cvs checkout.  This avoids the problematic aclocal/autoconf/etc step
+and means that automatic downloading should work for all users and is
+now the recommended default.
+
+**Progress in PowerPC64 port: we can run hello world
+***The Jikes RVM port to PPC64 has progressed to the point where a prototype
+configuration boots and can run many simple programs.
+Getting this far requires that lots of things are working, so it is a
+fairly significant step.  However, there is more work to do with
+prototype and we haven't started work on the opt compiler. This is very
+much a work in progress (and members of the community are encouraged
+to help!).
+
+*Other notes for Jikes RVM 2.3.1:
+
+***We have fixed all C and C++ compiler warnings in the Linux/x86 source
+code, under GCC 2.96, GCC 3.3, and GCC 3.3.1.  The only exception is
+warnings from GCC 2.96 of the form:
+
+        ihnpdsm.C:4942: warning: `unused' attribute ignored
+
+They are benign; ignore them.
+
+***__linuxsmp__ has now been officially exorcised from the source.
+
+*Bug Fixes in Jikes RVM 2.3.1:
+
+***Debugging output no longer can drift into InterfaceDeclarations.h;
+GenerateInterfaceDeclarations.java takes a new "-out" option.
+
+***--trace=preprocessor now lists all of the directories consistently.
+
+***Cross-building from Linux to AIX now works better.
+You can now set RVM_ROOT and RVM_BUILD to different values on the host
+and the target machines.
+****Details:
+If you don't have RVM_ROOT and/or RVM_BUILD set in your environment
+when you run the booter on the target, then "jbuild -booter" will use
+the (recorded) values from the host.  If you do have one or both of
+them set, they'll be used as appropriate.
+
+It is now the case that, when you run "jconfigure" and "jbuild", you
+should have your PATH set so that there is some Bash version in it
+somewhere under the name "bash".
+
+*** Other misc bugs fixed as well; see the bug tracking software.
+
+
+
+
+*Jikes RVM 2.3.0.1 Release Notes (released on September 3, 2003)
+2.3.0.1 is minor release of Jikes RVM to fix a few regressions in Jikes
+RVM 2.3.0.
+
+(1) Fixed build on Linux/IA32 with RVM_FOR_SINGLE_VIRTUAL_PROCESSOR=1.
+
+The following three sections of the document contain the Jikes RVM
+2.3.2 release notes.  They are:
+**Highlights
+**Other Notes
+**Bug Fixes
+
+
+
+
+*Jikes RVM 2.3.0 Release Notes (released on August 28, 2003)
+This is release 2.3.0 of the Jikes RVM.
+
+There are a number of major changes and significant improvements in
+overall system stability and functionality since Jikes RVM 2.2.2.
+
+Highlights of this release include:
+ + Now using classpath version 0.06
+   - lots of improved functionality in classpath
+   - fixes several critical defects in Jikes RVM
+ + Build process:
+   - ksh has been replaced with bash
+   - improved robustness and error detection in all build tools
+ + GC/Memory management:
+   - MarkSweep and CopyMS Plans are considered stable
+   - CopyMS is now recommended as the default memory manager
+   - RefCount plan is functional (does not support finalization or parallel GC)
+   - heapsize dynamically grows/shrinks based on utilization and load
+   - implementation of soft, weak, and phantom references from Chris Hoffman
+   - numerous bug fixes and performance improvements
+   - numerous code cleanups from Robin Garner and Andrew Grey.
+ + Simplified configuration of Jikes RVM
+   - Added 4 logical configs to help new users pick a 'good' one
+   - All builds with opt compiler use adaptive system
+ + Baseline compiler is re-entrant; parallel baseline compilation enabled
+ + includes Arnold and Ryder Instrumentation Sampling Framework (PLDI'01)
+ + Some progress on port to 64 bit PowerPC
+    - Numerous code cleanups
+    - More use of VM_Address, VM_Word, etc.
+    - Complete reimplementation of syscalls (see VM_SysCall)
+ + Includes 9 user contributions since 2.2.2;
+
+Other notes:
+
+We fixed all Javadoc warnings in the source code.
+
+VM_Time.now() replaced by VM_Time.cycles(). Internal interval timing
+should now be done using hardware cycle counters (VM_Time.cycles)
+instead of getting the time of day. VM_Time.currentTimeMicros() can be
+used to get the same functionality as VM_Time.now(), but is less
+efficient than VM_Time.cycles().
+
+A number of other miscellaneous bugs in version 2.2.2
+are fixed in the 2.3.0 release.  See the developerWorks bug
+tracking software tool and CVS history for details.
+
+
+Expansions of some of the highlights listed above:
+
++ Classpath 0.06
+  Although many programs may still work with Jikes RVM 2.3.0 and
+  GNU classpath 0.05 we strongly recommend switching to classpath 0.06.
+  We no longer test Jikes RVM with classpath 0.05.
+
++ logical configurations
+  There are a large number of possible Jikes RVM configurations.
+  Therefore we define four ``logical'' configurations that are most
+  suitable for casual or novice users of the system.
+  The mapping of logical to actual configurations may vary from release
+  to release.  In particular, it is expected that the choice of garbage
+  collector for these logical configurations may be different as JMTk
+  evolves. The four configurations are:
+  (1) prototype
+      A simple, fast to build, but low performance configuration of
+      Jikes RVM.   This configuration does not include the
+      optimizing compiler or adaptive system.  Most useful for rapid
+      prototyping of the core virtual machine.
+  (2) prototype-opt
+      A simple, fast to build, but low performance configuration of
+      Jikes RVM.  Unlike prototype, this configuration does
+      include the optimizing compiler and adaptive system. Most useful
+      for rapid prototyping of the core virtual machine, adaptive
+      system, and optimizing compiler.
+  (3) development
+      A fully functional configuration of Jikes RVM with reasonable
+      performance that includes the adaptive system and optimizing
+      compiler. This configuration takes longer to build than the two
+      prototype configurations.
+  (4) production
+      The same as the development configuration, except all assertions
+      are disabled.  This is the highest performance configuration of
+      Jikes RVM and is the one to use for benchmarking and
+      performance analysis. Build times are similar to the development
+      configuration.
+
++ Jikes RVM's Java preprocessor documented, and more robust:
+  The preprocessor is now documented, both in the User's Guide and via a
+  --help option.  It is also a lot more robust than it used to be.
+  We wrote up-to-date documentation for the preprocessor.  We also fixed
+  some deficiencies where certain errors in using the preprocessor would
+  lead to silent failures.  The preprocessor was generating incorrect
+  exit status codes under some failure conditions; these are fixed.  All
+  buffer overflows are now caught and fixed.  All GCC warnings fixed in
+  the preprocessor.
+
+  The preprocessor now notices incorrect syntax (extra trailing
+  characters after a conditional) and correctly complains about it.
+
+  The preprocessor now handles failures and fatal signals by
+  conservatively deleting the output file in progress.  This keeps us
+  from having half-updated files sitting around.
+
++ improvements in build process to make it stop on errors:
+  Any error occurring during a build of Jikes RVM now cause the build
+  process to immediately abort.  We had, in the past, at least twice a
+  month received reports that a built RVM failed to work, where upon
+  investigation we discovered that the build process had encountered
+  errors earlier, and these earlier errors were the real source of the
+  problem.
+
++ ksh => bash
+  Jikes RVM's build process is now entirely free of KSH.  This makes it
+  more convenient for Linux users to install the system.
+
++ The optimizing compiler now contains an implementation of the
+  Instrumentation Sampling Framework from the Arnold and Ryder PLDI'01
+  paper.    This infrastructure can be used to reduce the overhead of
+  collecting profiling information using instrumentation.   For details,
+  see the user guide section "Using the Jikes RVM to Profile an
+  Application -> Instrumentation Sampling Framework."
+
+
+
+*Jikes RVM 2.2.2 Release Notes (released on June 6, 2003)
+This is release 2.2.2 of the Jikes RVM.
+
+Highlights of this release include:
+  + Support for the hybrid library configuration has been
+    removed and the library support code refactored to simplify
+    the interface between the GNU Classpath libraries and Jikes RVM.
+  + Defect 3383 has been resolved.  We now recomend using the
+    Blackdown 1.4.1 SDK to build Jikes RVM on Linux/IA32 and the
+    IBM 1.4 SDK to build Jikes RVM on AIX/PowerPC.
+  + PowerPC hardware performance monitor tracing support for
+    multiprocessors on AIX 5.
+  + Work has stated on a port of Jikes RVM to 64 bit PowerPC.
+    This release includes a number of source code cleanups
+    (some complete, other still in progress) to make the system portable
+    across 32 and 64 bit systems.
+  + A major rewrite of the PowerPC baseline compiler to enable it to
+    generate code for both 32 and 64 bit PowerPC. As part of the redesign,
+    the use of an explict SP register was eliminated and all accesses to
+    the expression stack are done by computing offsets from the FP at
+    compile time.
+    NOTE: The 64 bit PowerPC version of the baseline compiler
+    is very much a work in progress and is NOT expected to work in this
+    release.
+  + Magic class (VM_AddressArray, etc) were added to enable arrays of
+    addresses to be safely created.  The classloader was enhanced to
+    treat VM_Address etc as primitive types.
+  + Changed PowerPC version of VM_Assembler.java to uniformly use PowerPC
+    mnemonics for the instructions.
+  + The OutOfMemoryError exception is now thrown by the GC system.
+
+Other notes:
+  + Changes to configuration files:
+        added MAXIMUM_MAPPABLE_ADDRESS and dropped the "" from
+        BOOTIMAGE_LOAD_ADDRESS
+  + sysCalls were moved from VM to VM_SysCall.  Naming conventions were
+    changed to make parameter/return types explicit in name.
+  + a number of obsolete command line arguments were removed.
+    Do rvm -help and rvm -X to see the current set of supported options.
+
+A number of other miscellaneous bugs in version 2.2.1
+are fixed in the 2.2.2 release.  See the developerWorks bug
+tracking software tool and CVS history for details.
+
+
+*Jikes RVM 2.2.1 Release Notes (released on April 7, 2003)
+This is release 2.2.1 of the Jikes RVM.
+This release includes several major pieces of new
+functionality and a number of bug fixes.
+
+Highlights of this release include:
+  + Jikes RVM is now based entirely on the GNU Classpath libraries.
+    The prior hybrid library solution is still supported in
+    this release, but will be removed in subsequent releases.
+    See the userguide for details on how to build with the hybrid libraries.
+  + Jikes RVM can run a significant subset of the Eclipse IDE.
+  + Separate name spaces for classloaders.
+  + Implementation of JNI for Linux/PowerPC.
+  + The addition of an on-stack replacement mechanism to
+    enable the adaptive system transfer execution from long-running
+    baseline compiled frames and to recover from speculative
+    optimizations.  More details can be found in a CGO 2003 paper.
+  + Extensions for PowerPC hardware performance counters on AIX 5.
+
+Other notes:
+  + Future release of Jikes RVM will not support using the OTI
+    class libaries.
+  + We continue to anticipate moving completely to JMTk and removing
+    support for the watson collectors in a future release of Jikes RVM.
+    This should happen in the 2.2.2 release depending on the
+    performance of the JMTk MarkSweep collector.
+
+A number of other miscellaneous bugs in version 2.2.0
+are fixed in the 2.2.1 release.  See the developerWorks bug
+tracking software tool and CVS history for details.
+
+
+*Jikes RVM 2.2.0 Release Notes (released on December 17, 2002)
+This is release 2.2.0 of the Jikes RVM.
+This release includes several major pieces of new
+functionality and a number of bug fixes.
+
+Highlights of this release include:
+  + Jikes RVM now mostly uses the GNU Classpath class
+    libraries. All library packages except java.lang,
+    java.lang.ref, java.lang.reflect, java.io, java.net,
+    and java.util are from Classpath.
+    We are optimistic that release 2.2.1 of Jikes RVM will
+    be based entirely on the GNU Classpath libraries.
+  + The introduction of JMTk (Java Memory management Tool kit).
+  + Numerous extensions and bug fixes to core VM functionality
+    to support running a wider range of applications.
+  + Support for gathering and exploiting dynamic
+    branch probabilities for conditional and multi-way branches.
+  + Introduction of packages in the Jikes RVM source code.
+  + A bytecode verifier contributed by L. Zhang (UCSB)
+  + Support for Intel cycle counter contributed by
+    H. Lee and J. Palm (Colorado)
+  + Support for PowerPC hardware performance counters on AIX 5.
+
+Other notes:
+  + As announced in the 2.1.1 release notes support for
+    VM_Magic.pragmaInline and VM_Magic.pragmaNoInline
+    has been removed.  Code must use the exception-based
+    pragma mechanism.
+  + jdp is no longer supported. See the userguide for details.
+  + We anticipate moving completely to JMTk and removing support
+    for the watson collectors in a future release of Jikes RVM.
+    This may happen as soon as the 2.2.1 release depending on JMTk
+    performance and stability.
+
+A large number of other miscellaneous bugs in version 2.1.1
+are fixed in the 2.2.0 release.  See the developerWorks bug
+tracking software tool and CVS history for details.
+
+
+*Jikes RVM 2.1.1 Release Notes (released on July 2, 2002)
+This is release 2.1.1 of the Jikes RVM. The main purpose of
+this release is bug fixes.
+
+IMPORTANT NOTE: We are aware of a bug in the IBM DK for
+  Linux/IA32 v1.3.1 when building Jikes RVM.  Stick with
+  version v1.3.0 until this bug can be resolved.
+
+Highlights of this release include:
+ - Introduction of a new method-level runtime exception
+   pragma mechanism, contributed by Chapman Flack.  The
+   system now relies on this mechanism for method-level
+   pragmas for uninterruptibility and inlining directives.
+ - Restructuring of baseline compiler to increase the
+   amount of platform-independent shared code.
+ - Stricter enforcement of uninterruptibility rules.
+ - Improvements to SSA optimization package to reduce
+   register pressure.  These changes make O2 profitable
+   for use by the adaptive system on IA32.
+ - The VM_CompilerInfo classes were folded into the
+   VM_CompiledMethod classes.
+
+NOTE: VM_Magic.pragmaInline and VM_Magic.pragmaNoInline
+are deprecated, and will not be supported in the 2.1.2
+release.  Migrate code to use the new runtime exception
+pragma mechanism.
+
+To see more details on other miscellaneous bug fixes, see
+the developerWorks bug tracking software tool and CVS
+history.  The following bugs in version 2.1.0 are
+fixed in 2.1.1:
+  2094: PPC: frem and drem incorrect
+  2104: don't put <clinit> method for bootimage classes
+        in bootimage
+  2916: Race condition: installing code and invalidation
+        of speculative opts
+  2938: jazzlib documentation in userguide
+  2949: OptAdaptive hangs on SPECjbb2000
+  2988: VM_Lock.allocate can result in threadswitch
+
+
+*Jikes RVM 2.1.0 Release Notes (released on June 10, 2002)
+This is release 2.1.0 of the Jikes RVM. This release
+provides some significant refactoring and new functionality,
+as well as bug fixes.
+
+IMPORTANT: new prerequisite!  The Jikes RVM now requires
+  JazzLib. The jconfigure script will download it automatically.
+
+IMPORTANT NOTE: We are aware of a bug in the IBM DK for
+  Linux/IA32 v1.3.1 when building Jikes RVM.  Stick with
+  version v1.3.0 until this bug can be resolved.
+
+IMPORTANT NOTE: The concurrent collector is no longer
+  functional in Jikes RVM 2.1.0.
+
+Highlights of this release include:
+ - Introduction of a plug-in parameterized object model, as
+   described in the ECOOP 2002 paper by Bacon, Fink & Grove.
+   The MarkSweep configurations now have a one-word header
+   for most objects.  All configurations now use 32-bit
+   address-based hashing.
+ - Introduction of a "magic" VM_Address type, representing
+   a raw address manipulated by the VM.  Currently both
+   platforms implement VM_Address as an unsigned
+   32-bit integer.
+ - Significant refactoring of the memory management system,
+   to reduce replicated code and support more functionality.
+ - Signficant refactoring of the VM interface to the
+   standard libraries, introducing the
+   com.ibm.JikesRVM.librarySupport package to help porting
+   to use another standard library implementation.
+ - The original PowerPC linear scan implementation is
+   deleted, and the new IA32 linear scan implementation
+   has been refactored and ported to support both IA32 and
+   PowerPC.
+ - The optimizing compiler now inlines trivial callees even
+   at optimization level zero.
+ - Significant improvements in speed of the optimizing
+   compiler's register allocation and Heap Array SSA
+   construction phases.
+ - Some more support for miscellaneous library functions
+   including class loaders and some system services.
+ - Miscellaneous enhancements to JDP.
+ - Support for reading/using Soot-style class file annotations.
+ - Elimination of the classloading lock (VM_ClassLoader.lock).
+
+To see more details on other miscellaneous bug fixes, see
+the developerWorks bug tracking software tool and CVS
+history.  The following bugs in version 2.0.3 are
+fixed in 2.1.0:
+ 2128: getMostRecentlyGeneratedCompilerInfo
+ 2359: update RunSanityTests default
+ 2739: static synchronized methods in boot image
+ 2763: jdp 'thread' command broken
+ 2772: IA32: problems with physical registers in LIR
+ 2794: Classes resolved but not in boot image
+ 2806: IA32: genThreadSwitchTest for deterministic thread
+       switching
+ 2823: VM_Lister of CMPXCHG
+ 2831: BaseBase GC Map bug for Native Bridge
+
+
+*Jikes RVM 2.0.3 Release Notes (released on March 11, 2002)
+This is release 2.0.3 of the Jikes RVM. The main purpose
+of this release is bug fixes.
+
+Highlights include:
+  -- Linux/IA32 jdp improvements including: many bug
+     fixes for BaseOpt and OptOpt bootimages; requiring
+     hex values to be prefixed with '0x' or '0X';
+     clarifications in the help messages and userguide;
+     stepline command fixed for BaseBase builds; print
+     variable-name command fixed for BaseBase when
+     LoadLocalVariableTable is true. jdp still works
+     better with BaseBase builds.
+  -- Regression tests now have test-specific timeout
+     values
+  -- Improvements in opt's code placement phase:
+       (1) callee's with pragmaNoInline are marked
+           as infrequent
+       (2) uses dominator information to propagate
+           infrequency
+  -- Code cleanups in opt compiler's LIR:
+       (1) constant materialization delayed until
+           translation to LIR
+       (2) REF_ operators maintained through LIR.
+  -- Backpatching-based dynamic linking eliminated
+     from baseline PPC; table-based dynamic linking now
+     used by all compilers on all platforms.
+  -- Updated compiler DNA values for both AIX/PPC and
+     Linux/IA32; these values are used by the adaptive
+     system's cost/benefit model.
+
+To see more details on other miscellaneous bug fixes, see
+the developerWorks bug tracking software tool and CVS
+history.  The following bugs in version 2.0.2 are
+fixed in 2.0.3:
+   2526: Invalid ref reported while scanning stack
+         (BaseBaseSemispace)
+   2585: IA32 baseline compiler - pragmaInline warnings
+         unreachable
+   2586: VM_EdgeListener.update not thread safe
+   2594: Method.getParameterTypes() doesn't resolve
+         returned classes
+   2616: LINTEL: bad GC map on SPECjbb2000
+   2623: Array index out of bounds in
+         OPT_ShortArrayReplacer
+   2629: Null Ptr exception in adaptive code using a
+         saved cmid
+   2664: Reflective operations on primitive types
+   2665: GC points moving into uninterruptible regions
+   2719: Threads on IO queue can starve
+   2736: java.lang.Math.random is not properly initialized
+         in boot image
+
+
+*Jikes RVM 2.0.2 Release Notes (released on January 17, 2002)
+This is release 2.0.2 of the Jikes RVM. The main purposes
+of this release are bug fixes, performance improvements for
+IA32, and minor improvements to the build process.
+
+Important:
+  Starting in the 2.0.2 release, jconfigure now requires that
+  your RVM_TARGET_CONFIG file defines preprocessor directives
+  that specify the target architecture, operating system, and
+  whether or not your pthread library can support JikesRVM.
+  See the sample files in $RVM_ROOT/config.
+  Set RVM_FOR_SINGLE_VIRTUAL_PROCESSOR as follows:
+    -- AIX/PowerPC:    0 (SMP is supported)
+    -- Linux/PowerPC:  1 (SMP is not supported)
+    -- Linux/IA32:     1 with a 2.2 kernel (SMP is not supported)
+                       0 with a 2.4 kernel and glibc compiled to
+                         use the GS segment register to access
+                         pthread-specific state.
+
+Highlights include:
+  -- Improved IA32 performance (15% on specJVM98)
+  -- Change in IA32 register convention to make EBP
+     a nonvolatile regster (RVM 2.0.2 does not use a
+     register to hold the framepointer on IA32).
+  -- Simple static splitting transformation to create
+     intraprocedural hot traces based on static infrequent bit
+  -- Redundant conditional branch elimination based on
+     global value numbers and dominator information.
+  -- Code-patch guard for guarded inlining (IA32 only).
+  -- Adaptive configurations now GC dead code.
+  -- Baseline compiler now recognizes some options. See -X:base
+  -- Some improvements to speed of building bootImage
+
+
+To see more details on other miscellaneous bug fixes, see
+the developerWorks bug tracking software tool.
+The following bugs in version 2.0.1 are fixed in 2.0.2:
+  -- 2035 LINTEL: clear FP state when delivering an exception
+  -- 2044 LINTEL: VM_Magic.resumeThreadExecution
+  -- 2126 LINTEL: RegisterOperands in memory operands
+  -- 2368 LINTEL: FastBaseBaseSemispace build takes forever
+  -- 2391 Expression Folding Fast image bug
+  -- 2412 JVM_FOR_SINGLE_VIRTUAL_PROCESSOR does not compile
+  -- 2414 race condition in generational GC write barrier
+  -- 2455 LINTEL: O0 compilation of _202_jess
+  -- 2493 Cross-platform linux builds broken
+  -- 2501 race condition in VM_Type.getClassForType
+  -- 2543 Large (>512M) large heap crash
+  -- miscellaneous latent bugs with SSA construction after CFG transformations
+
+
+*Jikes RVM 2.0.1 Release Notes (released on November 14, 2001)
+This is release 2.0.1 of the Jikes RVM. The main purposes
+of this release are bug fixes, performance improvements for
+IA32, and improvements to the build process.
+
+Highlights include:
+
+  - Linux/IA32 SMP (pthreads) support on Linux 2.4.
+    (Handling for threads that are stuck in native code
+    is not fully supported on Linux at this time.)
+  - Improved IA32 floating-point instruction selection in
+    optimizing compiler.
+  - IA32 optimizer generates conditional moves.
+  - Improved load balancing.
+  - New optimization to coalesce moves after leaving SSA
+    form.
+  - New branch straightening optimization.
+  - New expression folding optimization.
+  - Improved iterative Heap Array SSA load elimination.
+  - Improvements in BURS infrastructure that increase the
+    effectiveness of opt compiler's instruction selection.
+  - IA32 baseline compiler support for write barriers.
+  - Numerous fixes for PowerPC/Linux build.
+  - New MethodCompilation callback.
+
+To see more details on other miscellaneous bug fixes, see
+the developerWorks bug tracking software tool.
+The following bugs in version 2.0.0 are fixed in 2.0.1:
+  - 2015: GC crashes if invoked during exception delivery
+  - 2123: missing defs of guard registers in opts' IR.
+  - 2164: PPC/Linux build
+  - 2221: adaptive system hangs/exits
+  - 2227: rvm hangs instead of throwing NoSuchFieldError
+  - 2245: PPC/Linux build
+  - 2248: hangs during BC2IR due to operand lattice bug
+  - 2286: PPC defined TSR as nonvolatile register
+
+
+*Jikes RVM 2.0.0 Release Notes (released on October 14, 2001)
+This release is the first open source release of the Jikes
+RVM. Previous releases, (1.0, 1.1), were released under a different
+license (and name!) to 16 academic universities. This release features
+major improvements to the code base and project infrastructure. Below
+we highlight these changes.
+
+Code base
+
+    * better functionality on Linux/IA32, including the release of the
+      optimizing compiler and adaptive system for this architecture
+    * concurrent reference counting memory manager
+    * improved file documentation and user s guide
+    * compatibility with the UMass GC toolkit
+    * many bug fixes
+
+Project infrastructure
+
+    * visible CVS repository, allowing users to use the same code base
+      as Jikes RVM developers
+    * developerWorks tools to submit/track bugs/features
+    * browsable CVS repository that allows easy diffs of any revisions
+      of a file, as well as annotation of files based on who wrote
+      which line
+    * online javadoc-produced API and user s guide
+    * 4 mailing lists, including one that reports nightly regression
+      tests results

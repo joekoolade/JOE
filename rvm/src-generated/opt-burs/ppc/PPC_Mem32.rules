@@ -1,0 +1,95 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+# BURS rules for memory access (load/stores) 
+# that are specific to a 32 bit platform.
+#
+# See PPC_Common.rules for the format of this file
+#
+#####
+# LONG_LOAD
+#####
+r: LONG_LOAD(r,INT_CONSTANT)
+21
+EMIT_INSTRUCTION
+LONG_LOAD_addi(P(p), Load.getClearResult(P(p)),                  \\
+                           R(Load.getClearAddress(P(p))), IC(Load.getClearOffset(P(p))), \\
+                           Load.getClearLocation(P(p)), Load.getClearGuard(P(p)));
+
+r:      LONG_LOAD(r,REF_MOVE(ADDRESS_CONSTANT))
+21
+EMIT_INSTRUCTION
+LONG_LOAD_addis(P(p), Load.getClearResult(P(p)),                 \\
+                            R(Load.getClearAddress(P(p))),                         \\
+                            R(Load.getClearOffset(P(p))), AC(Move.getClearVal(PR(p))),   \\
+                            Load.getClearLocation(P(p)), Load.getClearGuard(P(p)));
+
+r: LONG_LOAD(r,r)
+21
+EMIT_INSTRUCTION
+LONG_LOAD_addx(P(p), Load.getClearResult(P(p)),                  \\
+                           R(Load.getClearAddress(P(p))), R(Load.getClearOffset(P(p))), \\
+                           Load.getClearLocation(P(p)), Load.getClearGuard(P(p)));
+
+#####
+# LONG_STORE
+#####
+stm: LONG_STORE(r,OTHER_OPERAND(r,INT_CONSTANT))
+22
+EMIT_INSTRUCTION
+LONG_STORE_addi(P(p), R(Store.getClearValue(P(p))),              \\
+                            R(Store.getClearAddress(P(p))),                        \\
+                            IC(Store.getClearOffset(P(p))),                         \\
+                            Store.getClearLocation(P(p)),                          \\
+                            Store.getClearGuard(P(p)));
+
+stm:      LONG_STORE(r,OTHER_OPERAND(r,REF_MOVE(ADDRESS_CONSTANT)))
+22
+EMIT_INSTRUCTION
+LONG_STORE_addis(P(p), R(Store.getClearValue(P(p))),             \\
+                             R(Store.getClearAddress(P(p))),                       \\
+                             R(Store.getClearOffset(P(p))),                        \\
+                             AC(Move.getClearVal(PRR(p))),                          \\
+                             Store.getClearLocation(P(p)),                         \\
+                             Store.getClearGuard(P(p)));
+
+stm: LONG_STORE(r,OTHER_OPERAND(r,r))
+22
+EMIT_INSTRUCTION
+LONG_STORE_addx(P(p), R(Store.getClearValue(P(p))),              \\
+                            R(Store.getClearAddress(P(p))),                        \\
+                            R(Store.getClearOffset(P(p))),                         \\
+                            Store.getClearLocation(P(p)),                          \\
+                            Store.getClearGuard(P(p)));
+
+#####
+# PREPARE
+#####
+r:      PREPARE_ADDR(r, r)
+11
+EMIT_INSTRUCTION
+EMIT(MIR_Load.mutate(P(p), PPC_LWARX, Prepare.getResult(P(p)),   \\
+                              R(Prepare.getAddress(P(p))), Prepare.getOffset(P(p)),           \\
+                              Prepare.getLocation(P(p)),                  \\
+                              Prepare.getGuard(P(p))));
+
+##################################
+# Stores (register to memory moves)
+##################################
+#####
+# ATTEMPT (atomic compare-exchange)
+#####
+r:      ATTEMPT_ADDR(r, r)
+11
+EMIT_INSTRUCTION
+EMIT(P(p));  // Leave for ComplexLIR2MIRExpansion
+

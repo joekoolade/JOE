@@ -1,0 +1,61 @@
+/*
+ *  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License. You
+ *  may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  See the COPYRIGHT.txt file distributed with this work for information
+ *  regarding copyright ownership.
+ */
+package org.mmtk.harness.lang.ast;
+
+import org.mmtk.harness.lang.Visitor;
+import org.mmtk.harness.lang.parser.Token;
+import org.mmtk.harness.lang.type.Type;
+
+/**
+ * Unary expressions.
+ */
+public class UnaryExpression extends AbstractAST implements Expression {
+  /** The operator */
+  private Operator op;
+  /** The expression */
+  private Expression expr;
+
+  /** The type of the result - calculated by the type checker pass */
+  private Type type;
+
+  /**
+   * Create a unary expression.
+   * @param op The operation.
+   * @param expr The single argument (unary, y'know)
+   */
+  public UnaryExpression(Token t, Operator op, Expression expr) {
+    super(t);
+    this.op = op;
+    this.expr = expr;
+  }
+
+  public Operator getOperator() {
+    return op;
+  }
+  public Expression getOperand() {
+    return expr;
+  }
+
+  @Override
+  public Object accept(Visitor v) {
+    return v.visit(this);
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
+  }
+}

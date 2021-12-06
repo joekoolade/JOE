@@ -1,0 +1,53 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="junit" default="build" basedir=".">
+
+  <import file="base.xml"/>
+
+  <property name="junit.version" value="4.12"/>
+  <property name="junit.description" value="jUnit"/>
+  <property name="junit.web-archive" value="junit-${junit.version}.jar"/>
+
+  <property name="junit.package.dir" value="${components.dir}/junit/${junit.version}"/>
+  <property name="junit.dir" location="${junit.package.dir}/junit${junit.version}"/>
+
+  <target name="init-junit-properties" depends="prepare-ant-tasks">
+    <condition property="junit.from-web" value="true">
+      <or>
+        <not>
+          <available file="${junit.dir}/constants.properties"/>
+        </not>
+        <isset property="junit.force-download"/>
+      </or>
+    </condition>
+  </target>
+
+  <target name="fetch" depends="init-junit-properties" if="junit.from-web">
+    <mkdir dir="${junit.package.dir}"/>
+    <cachedGet key="${junit.web-archive}"
+         src="https://github.com/junit-team/junit4/releases/download/r${junit.version}/${junit.web-archive}"
+         dest="${junit.package.dir}/${junit.web-archive}"/>
+    <copy file="${junit.package.dir}/${junit.web-archive}" todir="${junit.dir}"/>
+    <writeComponentConstants dir="${junit.dir}"/>
+  </target>
+
+  <target name="build" depends="fetch">
+    <setComponentsConfig key="junit.jar" value="${junit.dir}/${junit.web-archive}"/>
+  </target>
+
+  <target name="ensure" depends="prepare-ant-tasks">
+    <ensureUptodate name="junit" dir="${junit.dir}"/>
+    <setComponentsConfig key="junit.jar" value="${junit.dir}/junit-${junit.version}.jar"/>
+  </target>
+
+</project>

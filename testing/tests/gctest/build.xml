@@ -1,0 +1,115 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="gctest" default="test" basedir=".">
+
+  <condition property="arg" value="perf" else="base">
+    <equals arg1="${test.mode}" arg2="performance"/>
+  </condition>
+  <condition property="test.max.heapsize" value="300" else="150">
+    <equals arg1="${test.mode}" arg2="performance"/>
+  </condition>
+  <condition property="test.time.limit" value="1200" else="300">
+    <equals arg1="${test.mode}" arg2="performance"/>
+  </condition>
+
+  <import file="../../../build/tests.xml"/>
+
+  <property name="main.java" location="${basedir}/src"/>
+
+  <property name="build.classes" location="${build.tests.dir}/classes"/>
+
+  <property name="test.class.path" value="${build.classes}"/>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                            Compile the tests                             * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <macrodef name="gcTest">
+    <attribute name="class"/>
+    <attribute name="initialHeapSize" default="60"/>
+  	<attribute name="maxHeapSize" default="150" />
+    <sequential>
+      <rvm tag="@{class}" class="@{class}" args="${arg}" initialHeapSize="@{initialHeapSize}" maxHeapSize="@{maxHeapSize}"/>
+      <findStatistic tag="@{class}" pattern="ALL TESTS PASSED" key="success"/>
+      <outputResults tag="@{class}"/>
+    </sequential>
+  </macrodef>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                            Compile the tests                             * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="compile" depends="init">
+    <mkdir dir="${build.classes}"/>
+    <javac srcdir="${main.java}" destdir="${build.classes}" debug="true" source="1.6" target="1.6" includeantruntime="false">
+      <classpath>
+        <pathelement path="${test.rvm.dir}/jksvm.jar"/>
+        <pathelement path="${test.rvm.dir}/rvmrt.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                            Run the tests                                 * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="test" depends="compile">
+    <startResults/>
+
+    <gcTest class="FinalizeTest"/>
+    <gcTest class="InlineAllocation"/>
+    <gcTest class="ReferenceTest"/>
+    <gcTest class="SoftReferenceClearingTest"/>
+    <gcTest class="ReferenceStress"/>
+
+    <!-- FixedLive has specific statistics and in performance mode forces O2 initial compilation -->
+    <condition property="fixedlive.aosArgs"
+               value="-X:aos:enable_recompilation=false -X:aos:initial_compiler=opt -X:irc:O2"
+               else="">
+        <equals arg1="${test.mode}" arg2="performance"/>
+    </condition>
+    <rvm tag="FixedLive" class="FixedLive" rvmArgs="${fixedlive.aosArgs}" args="${arg}" initialHeapSize="120"/>
+    <outputTestStart tag="FixedLive"/>
+    <findStatistic tag="FixedLive" pattern="ALL TESTS PASSED" key="success"/>
+    <if>
+      <conditions>
+        <equals arg1="${test.mode}" arg2="performance"/>
+      </conditions>
+      <sequential>
+        <outputStatisticStart/>
+        <extractStatistic tag="FixedLive" key="TracingRate" pattern="Tracing rate: (.*) Mb/s, sigma .* Mb/s, z-score .*"/>
+        <extractStatistic tag="FixedLive" key="TracingRateSigma" pattern="Tracing rate: .* Mb/s, sigma (.*) Mb/s, z-score .*"/>
+        <extractStatistic tag="FixedLive" key="TracingRateZScore" pattern="Tracing rate: .* Mb/s, sigma .* Mb/s, z-score (.*)"/>
+        <extractStatistic tag="FixedLive" key="AllocationRate" pattern="Allocation rate: (.*) Mb/s, sigma .* Mb/s, z-score .*"/>
+        <extractStatistic tag="FixedLive" key="AllocationRateSigma" pattern="Allocation rate: .* Mb/s, sigma (.*) Mb/s, z-score .*"/>
+        <extractStatistic tag="FixedLive" key="AllocationRateZScore" pattern="Allocation rate: .* Mb/s, sigma .* Mb/s, z-score (.*)"/>
+        <outputStatisticEnd/>
+      </sequential>
+    </if>
+    <outputTestResults tag="FixedLive"/>
+    <outputTestEnd/>
+    <displayTestResults tag="FixedLive"/>
+
+    <gcTest class="LargeAlloc"/>
+    <gcTest class="Exhaust" initialHeapSize="50" maxHeapSize="75"/>
+
+    <finishResults/>
+  </target>
+
+</project>

@@ -36,20 +36,48 @@ This is interoperable with current Java compilers, class files, and libraries. O
 
 ## How To Build
 
-Ant is used to compile and build the JOE files and image. To build after the initial repository clone:
+You can build from Mac OS or Linux. You will need Java OpenJDK6. You will also need jenv, brew, bison, and the gcc compiler, gcc-10.
+
+### Mac OS One Time Setup
 ```
-ant compile
-ant compile-classpath
-ant build
+% brew tap homebrew/cask-versions
+% brew install java6
+% brew install ant@1.9
+% ln -s /usr/local/Cellar/ant@1.9/1.9.16/bin/ant /usr/local/bin/ant1.9
+
+% /Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java -version
+java version "1.6.0_65"
+Java(TM) SE Runtime Environment (build 1.6.0_65-b14-468)
+Java HotSpot(TM) 64-Bit Server VM (build 20.65-b04-468, mixed mode)
+
+% cd <top of JOE repo>
+% cat > .ant.properties
+config.name=BaseBaseRefCount
+host.name=x86_64-osx
+skip.unit.tests=1
+<ctrl-D>
+
+% jenv local 1.6
+% export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home
 ```
-The system builds with Java 1.8. Earlier Java versions should work also. OpenJDK 1.11 DOES NOT work.
+### Linux One Time Setup
+```
+% sh -c ./jdk-6u45-linux-x64-rpm.bin
+% yum install gcc bison flex ant-1.9
+% export JAVA_HOME=/usr/java/jdk1.6.0_45/
+```
+### Building JOE
+```
+% cd <top of JOE repo>
+% ant1.9 build-bootimage
+```
 
 ## How To Add External Classes
 
 Precompiled classes can be added to the image and loaded by the runtime. This allows users to run  programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load the program and run it. To have classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example. The classes must be compiled for Java version 1.5.
 
 ```
-FAMILYs-MacBook-Pro:JOE joe$ ls -R ext/bin
+joe$ ls -R ext/bin
 com	hello
 
 ext/bin/com:

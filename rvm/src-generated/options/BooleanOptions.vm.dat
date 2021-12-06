@@ -1,0 +1,40 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+DECL
+# Structure of DECL FULL_NAME DEFAULT_VALUE {SHORT_NAME}
+DESCRIP
+
+MeasureCompilation false measureCompilation
+Time all compilations and report on exit
+
+MeasureCompilationPhases false measureCompilationPhases
+Time all compilation sub-phases and report on exit
+
+stackTraceFull false
+Stack traces to consist of VM and application frames
+
+stackTraceAtExit false
+Dump a stack trace (via VM.syswrite) upon exit
+
+TraceClassLoading false verboseTraceClassLoading
+More detailed tracing then -verbose:class
+
+ErrorsFatal false errorsFatal
+Exit when non-fatal errors are detected; used for regression testing
+
+traceJNI false
+Trace when calls into JNI happen
+
+countThreadTransitions false
+Count, and report, the number of thread state transitions.  This works better on IA32 than on PPC at the moment.
+

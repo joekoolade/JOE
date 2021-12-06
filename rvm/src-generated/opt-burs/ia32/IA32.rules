@@ -1,0 +1,672 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+# BURS rules for IA32
+#
+# The format of PRODUCTION is 'non-terminal:	rule'
+PRODUCTION
+# COST is a Java expression that evaluates to an integer.
+# The following conventions are more or less followed:
+#   Each instruction generated has a base cost of 10
+#   A basic (r,r) or (r,riv) costs 3 more
+#   A (m,riv) costs 7
+#   A (r,m) costs 5
+#   Better basic opcodes decrease cost by 2
+COST
+# For definition of FLAGS bits see BURS_TreeNode.java
+FLAGS
+# Code
+TEMPLATE
+
+##################################
+# Definitions of non-terminals and
+# mapping of leaves into non-terminals
+##################################
+# the non-terminal r can be mapped to non-terminal stm at no cost
+stm:	r
+0
+NOFLAGS
+// No code emitted
+
+# the terminal REGISTER maps to non-terminal r
+r:	REGISTER
+0
+NOFLAGS
+// No code emitted
+
+# the nonterminal czr can map to non-terminal r
+# czr indicates that (1) a register result is produced
+# and (2) as a side-effect of producing that result the condition registers
+# are set as if the result was compared to 0.
+r:	czr
+0
+NOFLAGS
+// No code emitted
+
+# the nonterminal czr can map to non-terminal cz
+# cz indicates that the condition registers like a compare instruction
+cz:	czr
+0
+NOFLAGS
+// No code emitted
+
+# the nonterminal szpr can map to non-terminal r
+# szpr indicates that (1) a register result is produced
+# and (2) that the condition registers SF, ZF, PF are set based on the result.
+# are set as if the result was compared to 0.
+r:	szpr
+0
+NOFLAGS
+// No code emitted
+
+# the nonterminal szpr can map to non-terminal szp
+# szp indicates that the condition registers SF, ZF, PF are set.
+szp:	szpr
+0
+NOFLAGS
+// No code emitted
+
+# the non-terminal riv is either an r or an INT_CONSTANT
+riv:	r
+0
+NOFLAGS
+// No code emitted
+
+riv:	INT_CONSTANT
+0
+NOFLAGS
+// No code emitted
+
+# the non-terminal rlv is either an r or an lv
+rlv:	r
+0
+NOFLAGS
+// No code emitted
+
+rlv:	LONG_CONSTANT
+0
+NOFLAGS
+// No code emitted
+
+# A non-terminal that can be anything
+any:	NULL
+0
+NOFLAGS
+// No code emitted
+
+any:	riv
+0
+NOFLAGS
+// No code emitted
+
+any:	ADDRESS_CONSTANT
+0
+NOFLAGS
+// No code emitted
+
+any:	LONG_CONSTANT
+0
+NOFLAGS
+// No code emitted
+
+any:	OTHER_OPERAND(any, any)
+0
+NOFLAGS
+// No code emitted
+
+##################################
+# A few operators are passed through unchanged
+##################################
+stm:	IG_PATCH_POINT
+10
+EMIT_INSTRUCTION
+EMIT(InlineGuard.mutate(P(p), IG_PATCH_POINT, null, null, null, InlineGuard.getTarget(P(p)), InlineGuard.getBranchProfile(P(p))));
+
+stm:	UNINT_BEGIN
+10
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+stm:	UNINT_END
+10
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+stm:	YIELDPOINT_PROLOGUE
+10
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+stm:	YIELDPOINT_EPILOGUE
+10
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+stm:	YIELDPOINT_BACKEDGE
+10
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+r: FRAMESIZE
+10
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, Nullary.getClearResult(P(p)), new UnknownConstantOperand()));
+
+##################################
+#
+##################################
+stm:	LOWTABLESWITCH(r)
+10
+EMIT_INSTRUCTION
+LOWTABLESWITCH(P(p));
+
+stm:	RESOLVE
+10
+EMIT_INSTRUCTION
+RESOLVE(P(p));
+
+##################################
+# NOPs can simply be dropped
+##################################
+stm:	NOP
+10
+NOFLAGS
+// drop on floor
+
+#####
+# GUARD_MOVE
+#####
+# note: ignoring guard registers, thus no uses
+r:	GUARD_MOVE
+11
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+#####
+# GUARD_COMBINE
+#####
+# note: ignoring guard registers, thus no uses
+r:	GUARD_COMBINE
+11
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+#####
+# NULL_CHECK
+#####
+stm:	NULL_CHECK(riv)
+11
+EMIT_INSTRUCTION
+EMIT(P(p));
+
+#####
+# IR_PROLOGUE:
+#####
+stm:	IR_PROLOGUE
+11
+EMIT_INSTRUCTION
+PROLOGUE(P(p));
+
+###########
+# Rules for exceptions
+###########
+r:	GET_CAUGHT_EXCEPTION
+11
+EMIT_INSTRUCTION
+GET_EXCEPTION_OBJECT(P(p));
+
+stm:	SET_CAUGHT_EXCEPTION(r)
+11
+EMIT_INSTRUCTION
+SET_EXCEPTION_OBJECT(P(p));
+
+stm: SET_CAUGHT_EXCEPTION(INT_CONSTANT)
+20
+EMIT_INSTRUCTION
+SET_EXCEPTION_OBJECT(P(p));
+
+stm: SET_CAUGHT_EXCEPTION(LONG_CONSTANT)
+20
+EMIT_INSTRUCTION
+SET_EXCEPTION_OBJECT(P(p));
+
+##################################
+# Trap operations
+##################################
+#####
+# TRAP
+#####
+stm:	TRAP
+10
+EMIT_INSTRUCTION
+EMIT(MIR_Trap.mutate(P(p), IA32_INT, Trap.getGuardResult(P(p)), Trap.getTCode(P(p))));
+
+#####
+# TRAP_IF
+#####
+stm:	TRAP_IF(r, INT_CONSTANT)
+10
+EMIT_INSTRUCTION
+TRAP_IF_IMM(P(p), false);
+
+stm:	TRAP_IF(r, LONG_CONSTANT)
+10
+EMIT_INSTRUCTION
+TRAP_IF_IMM(P(p), true);
+
+stm:	TRAP_IF(r, r)
+10
+EMIT_INSTRUCTION
+EMIT(MIR_TrapIf.mutate(P(p), IA32_TRAPIF, \\
+                       TrapIf.getGuardResult(P(p)), \\
+		       TrapIf.getVal1(P(p)), \\
+		       TrapIf.getVal2(P(p)), \\
+		       COND(TrapIf.getCond(P(p))), \\
+		       TrapIf.getTCode(P(p))));
+
+### Memory operands ###
+stm:	TRAP_IF(load32, riv)
+15
+EMIT_INSTRUCTION
+EMIT(MIR_TrapIf.mutate(P(p), IA32_TRAPIF, \\
+                       TrapIf.getGuardResult(P(p)), \\
+		       consumeMO(), \\
+		       TrapIf.getVal2(P(p)), \\
+		       COND(TrapIf.getCond(P(p))), \\
+		       TrapIf.getTCode(P(p))));
+
+stm:	TRAP_IF(riv, load32)
+15
+EMIT_INSTRUCTION
+EMIT(MIR_TrapIf.mutate(P(p), IA32_TRAPIF, \\
+                       TrapIf.getGuardResult(P(p)), \\
+		       TrapIf.getVal1(P(p)), \\
+	               consumeMO(), \\
+		       COND(TrapIf.getCond(P(p))), \\
+		       TrapIf.getTCode(P(p))));
+
+##################################
+# Loads (memory to register moves)
+##################################
+#####
+# other load8 patterns
+#####
+# load8_16_32 & 0xff ===> uload8
+uload8:	INT_AND(load8_16_32, INT_CONSTANT)
+VR(p) == 0xff ? 0 : INFINITE
+EMIT_INSTRUCTION
+pushMO(setSize(consumeMO(),1));
+
+r:	INT_AND(load8_16_32, INT_CONSTANT)
+VR(p) == 0xff ? 15 : INFINITE
+EMIT_INSTRUCTION
+EMIT(MIR_Unary.mutate(P(p), IA32_MOVZX__B, Binary.getResult(P(p)), setSize(consumeMO(),1)));
+
+# int2byte(load8_16_32)
+r:	INT_2BYTE(load8_16_32)
+20
+EMIT_INSTRUCTION
+EMIT(MIR_Unary.mutate(P(p), IA32_MOVSX__B, Unary.getResult(P(p)), setSize(consumeMO(),1)));
+
+# load8 << 24 >>> 24 ===> uload8
+r:	INT_USHR(INT_SHL(load8_16_32, INT_CONSTANT), INT_CONSTANT)
+VR(p) == 24 && VLLR(p) == 24 ? 15 : INFINITE
+EMIT_INSTRUCTION
+EMIT(MIR_Unary.mutate(P(p), IA32_MOVZX__B, Binary.getResult(P(p)), setSize(consumeMO(),1)));
+
+#####
+# other load16 patterns
+#####
+# load16_32 & 0xffff ===> uload16
+r:	INT_AND(load16_32, INT_CONSTANT)
+VR(p) == 0xffff ? 15 : INFINITE
+EMIT_INSTRUCTION
+EMIT(MIR_Unary.mutate(P(p), IA32_MOVZX__W, Binary.getResult(P(p)), setSize(consumeMO(),2)));
+
+# load16_32 << 16 >>> 16 ===> uload16 (_201_compress)
+r:	INT_USHR(INT_SHL(load16_32, INT_CONSTANT), INT_CONSTANT)
+VR(p) == 16 && VLR(p) == 16 ? 15 : INFINITE
+EMIT_INSTRUCTION
+EMIT(MIR_Unary.mutate(P(p), IA32_MOVZX__W, Binary.getResult(P(p)), setSize(consumeMO(),2)));
+
+##################################
+# Stores (register to memory moves)
+##################################
+#####
+# SHORT_STORE
+#####
+stm:	SHORT_STORE(riv, OTHER_OPERAND(riv, riv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_S(P(p), W), Store.getValue(P(p))));
+
+# Can avoid sign/zero extension when we are just doing a transfer of bits
+# from one memory location to another.
+stm:	SHORT_STORE(load16, OTHER_OPERAND(riv, riv))
+25
+EMIT_INSTRUCTION
+Register tmp = regpool.getInteger(); \\
+EMIT(CPOS(PL(p), MIR_Move.create(IA32_MOV, new RegisterOperand(tmp, TypeReference.Int), consumeMO()))); \\
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_S(P(p), W), new RegisterOperand(tmp, TypeReference.Int)));
+
+# Can use long offset
+stm:    SHORT_STORE(rlv, OTHER_OPERAND(rlv, rlv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_S(P(p), W), Store.getValue(P(p))));
+
+# Can use long offset
+stm:    SHORT_STORE(riv, OTHER_OPERAND(rlv, rlv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_S(P(p), W), Store.getValue(P(p))));
+
+#####
+# SHORT_ASTORE
+#####
+stm:	SHORT_ASTORE(riv, OTHER_OPERAND(riv, riv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), W_S, W), AStore.getValue(P(p))));
+
+# Can avoid sign/zero extension when we are just doing a transfer of bits
+# from one memory location to another.
+stm:	SHORT_ASTORE(load16, OTHER_OPERAND(riv, riv))
+25
+EMIT_INSTRUCTION
+Register tmp = regpool.getInteger(); \\
+EMIT(CPOS(PL(p), MIR_Move.create(IA32_MOV, new RegisterOperand(tmp, TypeReference.Int), consumeMO()))); \\
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), W_S, W), new RegisterOperand(tmp, TypeReference.Int)));
+
+stm:	SHORT_ASTORE(riv, OTHER_OPERAND(r, r))
+10
+EMIT_INSTRUCTION
+RegisterOperand index = AStore.getIndex(P(p)).asRegister(); \\
+if (VM.BuildFor64Addr && index.getRegister().isInteger()) { \\
+  CLEAR_UPPER_32(P(p), index.copy().asRegister()); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), W_S, W), AStore.getValue(P(p)))); \\
+} else { \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), W_S, W), AStore.getValue(P(p)))); \\
+}
+
+#####
+# INT_ASTORE
+#####
+stm:	INT_ASTORE(riv, OTHER_OPERAND(riv, riv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), DW_S, DW), AStore.getValue(P(p))));
+
+stm:	INT_ASTORE(riv, OTHER_OPERAND(r, r))
+10
+EMIT_INSTRUCTION
+RegisterOperand index=AStore.getIndex(P(p)).asRegister(); \\
+if (VM.BuildFor64Addr && index.getRegister().isInteger()) { \\
+  CLEAR_UPPER_32(P(p), index.copy().asRegister()); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), DW_S, DW), AStore.getValue(P(p)))); \\
+} else { \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), DW_S, DW), AStore.getValue(P(p)))); \\
+}
+
+stm:	INT_ASTORE(riv, OTHER_OPERAND(rlv, rlv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), DW_S, DW), AStore.getValue(P(p))));
+
+stm:	INT_ASTORE(riv, OTHER_OPERAND(rlv, riv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), DW_S, DW), AStore.getValue(P(p))));
+
+stm:	INT_ASTORE(riv, OTHER_OPERAND(riv, rlv))
+15
+EMIT_INSTRUCTION
+EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), DW_S, DW), AStore.getValue(P(p))));
+
+#####
+# LONG_ASTORE
+#####
+stm:	LONG_ASTORE(r, OTHER_OPERAND(riv, riv))
+30
+EMIT_INSTRUCTION
+if (VM.BuildFor32Addr){\\
+  RegisterOperand hval = (RegisterOperand)AStore.getClearValue(P(p)); \\
+  hval.setType(TypeReference.Int); \\
+  RegisterOperand lval = new RegisterOperand(regpool.getSecondReg(hval.getRegister()), TypeReference.Int); \\
+  EMIT(CPOS(P(p), MIR_Move.create(IA32_MOV, MO_AS(P(p), QW_S, DW, DW).copy(), hval))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, DW), lval));\\
+} else {\\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, QW), AStore.getValue(P(p))));\\
+}
+
+stm:	LONG_ASTORE(r, OTHER_OPERAND(rlv, rlv))
+15
+EMIT_INSTRUCTION
+if (VM.BuildFor32Addr) {\\
+  RegisterOperand hval = (RegisterOperand)AStore.getClearValue(P(p)); \\
+  hval.setType(TypeReference.Int); \\
+  RegisterOperand lval = new RegisterOperand(regpool.getSecondReg(hval.getRegister()), TypeReference.Int); \\
+  EMIT(CPOS(P(p), MIR_Move.create(IA32_MOV, MO_AS(P(p), QW_S, DW, DW).copy(), hval))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, DW), lval));\\
+} else {\\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, QW), AStore.getValue(P(p))));\\
+}
+
+stm:	LONG_ASTORE(r, OTHER_OPERAND(r, r))
+10
+EMIT_INSTRUCTION
+RegisterOperand index=AStore.getIndex(P(p)).asRegister();\\
+if (VM.BuildFor64Addr && index.getRegister().isInteger()) { \\
+  CLEAR_UPPER_32(P(p), index.copy().asRegister()); \\
+}\\
+if (VM.BuildFor32Addr) {\\
+  RegisterOperand hval = (RegisterOperand)AStore.getClearValue(P(p)); \\
+  hval.setType(TypeReference.Int); \\
+  RegisterOperand lval = new RegisterOperand(regpool.getSecondReg(hval.getRegister()), TypeReference.Int); \\
+  EMIT(CPOS(P(p), MIR_Move.create(IA32_MOV, MO_AS(P(p), QW_S, DW, DW).copy(), hval))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, DW), lval));\\
+} else {\\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, QW), AStore.getValue(P(p))));\\
+}
+
+stm:	LONG_ASTORE(LONG_CONSTANT, OTHER_OPERAND(riv, riv))
+26
+EMIT_INSTRUCTION
+if (VM.BuildFor32Addr) {\\
+  LongConstantOperand val = LC(AStore.getValue(P(p))); \\
+  EMIT(CPOS(P(p), MIR_Move.create(IA32_MOV, MO_AS(P(p), QW_S, DW, DW).copy(), IC(val.upper32())))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, DW), IC(val.lower32())));\\
+} else {\\
+  LongConstantOperand val = LC(AStore.getValue(P(p))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, QW), LC(val)));\\
+}
+
+stm:	LONG_ASTORE(LONG_CONSTANT, OTHER_OPERAND(rlv, riv))
+26
+EMIT_INSTRUCTION
+if (VM.BuildFor32Addr) {\\
+  LongConstantOperand val = LC(AStore.getValue(P(p))); \\
+  EMIT(CPOS(P(p), MIR_Move.create(IA32_MOV, MO_AS(P(p), QW_S, DW, DW).copy(), IC(val.upper32())))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, DW), IC(val.lower32())));\\
+} else {\\
+  LongConstantOperand val = LC(AStore.getValue(P(p))); \\
+  EMIT(MIR_Move.mutate(P(p), IA32_MOV, MO_AS(P(p), QW_S, QW), LC(val)));\\
+}
+
+##################################
+# Control flow
+##################################
+#####
+# LONG_CMP
+#####
+r:	LONG_CMP(rlv,rlv)
+10*13
+EMIT_INSTRUCTION
+LONG_CMP(P(p), Binary.getResult(P(p)), Binary.getVal1(P(p)), Binary.getVal2(P(p)));
+
+#####
+# GOTO
+#####
+stm:	GOTO
+11
+EMIT_INSTRUCTION
+EMIT(MIR_Branch.mutate(P(p), IA32_JMP, Goto.getTarget(P(p))));
+
+#####
+# PREFETCH
+#####
+stm:	PREFETCH(r)
+11
+EMIT_INSTRUCTION
+EMIT(MIR_CacheOp.mutate(P(p), IA32_PREFETCHNTA, R(CacheOp.getRef(P(p)))));
+
+#####
+# WRITE_FLOOR
+#####
+stm:	WRITE_FLOOR
+11
+EMIT_INSTRUCTION
+EMIT(P(p)); // Pass through to maintain barrier semantics for code motion
+
+#####
+# READ_CEILING
+#####
+stm:	READ_CEILING
+11
+EMIT_INSTRUCTION
+EMIT(P(p)); // Pass through to maintain barrier semantics for code motion
+
+#####
+# FENCE
+#####
+stm:	FENCE
+11
+EMIT_INSTRUCTION
+EMIT(MIR_Empty.mutate(P(p), IA32_MFENCE));
+
+#####
+# PAUSE
+#####
+stm:	PAUSE
+11
+EMIT_INSTRUCTION
+EMIT(MIR_Empty.mutate(P(p), IA32_PAUSE));
+
+#####
+# ILLEGAL_INSTRUCTION
+#####
+stm:	ILLEGAL_INSTRUCTION
+11
+EMIT_INSTRUCTION
+EMIT(MIR_Empty.mutate(P(p), IA32_UD2));
+
+##################################
+# Calling convention
+##################################
+#####
+# RET
+#####
+stm:	RETURN(NULL)
+13
+EMIT_INSTRUCTION
+EMIT(MIR_Return.mutate(P(p), IA32_RET, null, null, null));
+
+stm:	RETURN(INT_CONSTANT)
+11
+EMIT_INSTRUCTION
+EMIT(MIR_Return.mutate(P(p), IA32_RET, null, Return.getVal(P(p)), null));
+
+stm:	RETURN(r)
+13
+EMIT_INSTRUCTION
+RegisterOperand ret = R(Return.getVal(P(p)));            \\
+RegisterOperand ret2 = null;	                            \\
+if (VM.BuildFor32Addr && ret.getType().isLongType()) {                                 \\
+  ret.setType(TypeReference.Int);                           \\
+  ret2 = new RegisterOperand(regpool.getSecondReg(ret.getRegister()), TypeReference.Int); \\
+}                                                            \\
+EMIT(MIR_Return.mutate(P(p), IA32_RET, null, ret, ret2));
+
+stm:	RETURN(LONG_CONSTANT)
+11
+EMIT_INSTRUCTION
+LongConstantOperand val = LC(Return.getVal(P(p))); \\
+if (VM.BuildFor32Addr) {                           \\
+  EMIT(MIR_Return.mutate(P(p), IA32_RET, null, IC(val.upper32()), IC(val.lower32()))); \\
+} else {                                           \\
+  EMIT(MIR_Return.mutate(P(p), IA32_RET, null, val, null)); \\
+}
+
+#####
+# CALL
+#####
+r:	CALL(r, any)
+13
+EMIT_INSTRUCTION
+CALL(P(p), Call.getAddress(P(p)));
+
+# a recursive call that has been optimized to a branch to entry block
+r:	CALL(BRANCH_TARGET, any)
+13
+EMIT_INSTRUCTION
+CALL(P(p), Call.getAddress(P(p)));
+
+r:	CALL(INT_LOAD(riv, riv), any)
+11
+EMIT_INSTRUCTION
+CALL(P(p), MO_L(PL(p), DW));
+
+r:	CALL(INT_CONSTANT, any)
+23
+EMIT_INSTRUCTION
+RegisterOperand temp = regpool.makeTemp(TypeReference.Int); \\
+EMIT(MIR_Move.create(IA32_MOV, temp, Call.getAddress(P(p)))); \\
+CALL(P(p), temp.copyRO());
+
+r:	CALL(LONG_LOAD(rlv, rlv), any)
+11
+EMIT_INSTRUCTION
+CALL(P(p), MO_L(PL(p), QW));
+
+r:	SYSCALL(r, any)
+13
+EMIT_INSTRUCTION
+SYSCALL(P(p), Call.getAddress(P(p)));
+
+r:	SYSCALL(INT_LOAD(riv, riv), any)
+11
+EMIT_INSTRUCTION
+SYSCALL(P(p), MO_L(PL(p), DW));
+
+r:	SYSCALL(INT_CONSTANT, any)
+23
+EMIT_INSTRUCTION
+RegisterOperand temp = regpool.makeTemp(TypeReference.Int); \\
+EMIT(MIR_Move.create(IA32_MOV, temp, Call.getAddress(P(p)))); \\
+SYSCALL(P(p), temp.copyRO());
+
+#####
+# RDTSC
+#####
+r:      GET_TIME_BASE
+15
+EMIT_INSTRUCTION
+GET_TIME_BASE(P(p), Nullary.getResult(P(p)));
+
+########
+# osr instruction
+########
+stm:	YIELDPOINT_OSR(any, any)
+10
+EMIT_INSTRUCTION
+OSR(burs, P(p));
+

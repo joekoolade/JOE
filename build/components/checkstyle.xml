@@ -1,0 +1,54 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="checkstyle" default="build" basedir=".">
+
+  <import file="base.xml"/>
+
+  <property name="checkstyle.version" value="6.19"/>
+  <property name="checkstyle.description" value="Checkstyle"/>
+
+  <property name="checkstyle.package.dir" value="${components.dir}/checkstyle/${checkstyle.version}"/>
+  <property name="checkstyle.dir" location="${checkstyle.package.dir}/checkstyle-${checkstyle.version}"/>
+  <property name="checkstyle.jar" location="${checkstyle.dir}/checkstyle-${checkstyle.version}-all.jar"/>
+
+  <target name="init-checkstyle-properties" depends="prepare-ant-tasks">
+    <condition property="checkstyle.from-web" value="true">
+      <or>
+        <not>
+          <available file="${checkstyle.package.dir}/constants.properties"/>
+        </not>
+        <isset property="checkstyle.force-download"/>
+      </or>
+    </condition>
+  </target>
+
+  <target name="fetch" depends="init-checkstyle-properties" if="checkstyle.from-web">
+    <property name="checkstyle.file-from-web" value="checkstyle-${checkstyle.version}-all.jar"/>
+    <mkdir dir="${checkstyle.package.dir}"/>
+    <cachedGet key="${checkstyle.file-from-web}"
+         src="https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${checkstyle.version}/${checkstyle.file-from-web}"
+         dest="${checkstyle.package.dir}/${checkstyle.file-from-web}"/>
+    <copy file="${checkstyle.package.dir}/${checkstyle.file-from-web}" todir="${checkstyle.package.dir}/checkstyle-${checkstyle.version}"/>
+    <writeComponentConstants dir="${checkstyle.package.dir}"/>
+  </target>
+
+  <target name="build" depends="fetch">
+    <setComponentsConfig key="checkstyle.jar" value="${checkstyle.jar}"/>
+    <setComponentsConfig key="checkstyle.dir" value="${checkstyle.dir}"/>
+  </target>
+
+  <target name="ensure" depends="prepare-ant-tasks">
+    <ensureUptodate name="checkstyle" dir="${checkstyle.package.dir}"/>
+  </target>
+
+</project>

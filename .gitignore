@@ -1,49 +1,57 @@
-*.o
-*.d
-*.a
-*.class
-.cproject
-.project
-ews/
-/llvm*
-.dir
-*.orig
-*.bak
-*.d.*
-*.exe
-Classpath.h
-*.stackdump
-*.dump
-.settings/
-/vmkit
-/joeq*
-.gitignore~
-/jikesrvm-3.1.3
-/gcc*
-/soot*
-/jc*
-.hg
-joeq.tbz2
-CVS/
-/linux-*
-generated/
-.metadata/
-.classpath
-jnode-master/
-/stderr.txt
-/bin/
+jikesrvm.iml
+.gitignore
+# Local configuration
+/.ant.properties
 
-*.rej
+# Files for Eclipse project
+/.project
+/.settings
+/.classpath
+/.pmd
+/.checkstyle
+/eclipse/
 
-classpath-0.98/src.jar
+# MMTk harness
+/MMTk/harness/src-generated/org/mmtk/harness/lang/parser/*.java
 
-jikesrvm-hg/tools/bootImageWriter/src/jam.out
+# local test run
+/build/test-runs/local*.properties
 
-jikesrvm-hg/Assembler.java
-jam.ms3
-jikesrvm-hg/dragon4
+# Generated JavaLex files
+/testing/tests/javalex/qb1.*.lex
+/testing/tests/javalex/qb1.*.lex.java
+
+# Directories generated during build
+/components/
+/dist/
+/generated/
+/results/
 /target/
-externals.txt
-ljoe
-rjoe
-djoe
+
+# Other stuff
+/MMTk/bin
+/MMTk/doc/cheatsheet/cheatsheet.blg
+/MMTk/doc/cheatsheet/cheatsheet.aux
+/MMTk/doc/cheatsheet/cheatsheet.bbl
+/MMTk/doc/cheatsheet/cheatsheet.log
+/testing/tests/gctest/cp
+/testing/tests/gctest/out.*
+/rvm/TAGS.ALL
+/rvm/TAGS.Makefiles
+/tools/bootImageRunner/Classes.tmp
+/testing/tests/jni/cp
+/testing/tests/jni/out.*
+/testing/tests/SPECjbb2000/results
+/test-output/
+*.class
+*.sh
+classpath-0.98/
+jdk8/
+jdk6/
+icedtea6-1.13.13/
+*.exp
+classes/
+*.args
+asm-3.0.jar
+.java-version
+/classes/

@@ -1,0 +1,315 @@
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+#
+NAME
+# structure of SIZES: NUMDEFS NUMDEFUSES NUMUSES NUMVAR VARDORU NUMALT
+SIZES
+# structure of SIG: { "D/DU/U NAME TYPE [opt]" }
+SIG
+# structure of VARSIG: NAME TYPE [PLURAL]
+#                                use PLURAL if NAME"s" is not plural for NAME
+VARSIG
+
+Move
+1 0 1
+"D Result RegisterOperand" "U Val Operand"
+
+
+Return
+0 0 1
+"U Val Operand opt"
+
+
+Prologue
+0 0 0 1 D -1
+
+"Formal RegisterOperand"
+
+InstrumentedCounter
+0 0 3
+"U Data IntConstantOperand" "U Index IntConstantOperand" "U Increment Operand"
+
+
+Empty
+0 0 0
+
+
+
+Nullary
+1 0 0
+"D Result RegisterOperand"
+
+
+New
+1 0 1
+"D Result RegisterOperand" "U Type TypeOperand"
+
+
+NewArray
+1 0 2
+"D Result RegisterOperand" "U Type TypeOperand" "U Size Operand"
+
+
+Multianewarray
+1 0 1 1 U -1
+"D Result RegisterOperand" \
+"U Type TypeOperand"
+"Dimension Operand"
+
+# how do we verify that the operand is a ref?
+Athrow
+0 0 1
+"U Value Operand"
+
+
+# how do we verify that the operand is a ref?
+MonitorOp
+0 0 2
+"U Ref Operand" "U Guard Operand"
+
+
+# how do we verify that the operand is a ref?
+CacheOp
+0 0 1
+"U Ref Operand"
+
+
+# how do we verify that the operand is a ref?
+NullCheck
+1 0 1
+"D GuardResult RegisterOperand" "U Ref Operand"
+
+
+ZeroCheck
+1 0 1
+"D GuardResult RegisterOperand" "U Value Operand"
+
+
+BoundsCheck
+1 0 3
+"D GuardResult RegisterOperand" "U Ref Operand" "U Index Operand" "U Guard Operand"
+
+
+StoreCheck
+1 0 3
+"D GuardResult RegisterOperand" "U Ref Operand" "U Val Operand" "U Guard Operand"
+
+
+TypeCheck
+1 0 3
+"D Result RegisterOperand" "U Ref Operand" "U Type TypeOperand" "U Guard Operand opt"
+
+
+InstanceOf
+1 0 3
+"D Result RegisterOperand" "U Type TypeOperand" "U Ref Operand" \
+"U Guard Operand opt"
+
+
+Trap
+1 0 1
+"D GuardResult RegisterOperand" "U TCode TrapCodeOperand"
+
+
+TrapIf
+1 0 4
+"D GuardResult RegisterOperand" "U Val1 Operand" "U Val2 Operand" \
+"U Cond ConditionOperand" "U TCode TrapCodeOperand"
+
+
+IfCmp
+1 0 5
+"D GuardResult RegisterOperand" "U Val1 Operand" "U Val2 Operand" \
+"U Cond ConditionOperand" "U Target BranchOperand" "U BranchProfile BranchProfileOperand"
+
+
+IfCmp2
+1 0 8
+"D GuardResult RegisterOperand" "U Val1 Operand" "U Val2 Operand" \
+"U Cond1 ConditionOperand" "U Target1 BranchOperand" "U BranchProfile1 BranchProfileOperand" \
+"U Cond2 ConditionOperand" "U Target2 BranchOperand" "U BranchProfile2 BranchProfileOperand"
+
+
+InlineGuard
+0 0 5
+"U Value Operand" "U Guard Operand" "U Goal Operand" \
+"U Target BranchOperand" "U BranchProfile BranchProfileOperand"
+
+
+BooleanCmp
+1 0 4
+"D Result RegisterOperand" "U Val1 Operand" "U Val2 Operand" \
+"U Cond ConditionOperand" "U BranchProfile BranchProfileOperand"
+
+
+CondMove
+1 0 5
+"D Result RegisterOperand" "U Val1 Operand" "U Val2 Operand" \
+"U Cond ConditionOperand" "U TrueValue Operand" \
+"U FalseValue Operand"
+
+
+Goto
+0 0 1
+"U Target BranchOperand"
+
+
+Label
+0 0 1
+"U Block BasicBlockOperand"
+
+
+BBend
+0 0 1
+"U Block BasicBlockOperand"
+
+
+# identical to Move, but implies computation as well.
+Unary
+1 0 1
+"D Result RegisterOperand" "U Val Operand"
+
+
+# Like Unary, but consumes a guard operand too.
+GuardedUnary
+1 0 2
+"D Result RegisterOperand" "U Val Operand" "U Guard Operand"
+
+
+Binary
+1 0 2
+"D Result RegisterOperand" "U Val1 Operand" "U Val2 Operand"
+
+
+# Like Binary, but consumes a guard operand too.
+GuardedBinary
+1 0 3
+"D Result RegisterOperand" "U Val1 Operand" "U Val2 Operand" "U Guard Operand"
+
+
+GuardedSet
+0 0 2
+"U Ref Operand" "U Val Operand" "U Guard Operand"
+
+
+ALoad
+1 0 4
+"D Result RegisterOperand" \
+"U Array Operand" "U Index Operand" "U Location LocationOperand" \
+"U Guard Operand"
+
+
+GetField
+1 0 4
+"D Result RegisterOperand" "U Ref Operand" \
+"U Offset Operand" \
+"U Location LocationOperand" "U Guard Operand"
+
+
+GetStatic
+1 0 2
+"D Result RegisterOperand" "U Offset Operand" \
+"U Location LocationOperand"
+
+
+Load
+1 0 4
+"D Result RegisterOperand" \
+"U Address Operand" "U Offset Operand" "U Location LocationOperand" \
+"U Guard Operand opt"
+
+
+AStore
+0 0 5
+"U Value Operand" "U Array Operand" "U Index Operand" \
+"U Location LocationOperand" "U Guard Operand"
+
+
+PutField
+0 0 5
+"U Value Operand" "U Ref Operand" \
+"U Offset Operand" \
+"U Location LocationOperand" "U Guard Operand"
+
+
+PutStatic
+0 0 3
+"U Value Operand" "U Offset Operand " "U Location LocationOperand"
+
+
+Store
+0 0 5
+"U Value Operand" "U Address Operand" "U Offset Operand" \
+"U Location LocationOperand" "U Guard Operand opt"
+
+
+Prepare
+1 0 4
+"D Result RegisterOperand" "U Address Operand" \
+"U Offset Operand" \
+"U Location LocationOperand" "U Guard Operand opt"
+
+
+Attempt
+1 0 6
+"D Result RegisterOperand" "U Address Operand" \
+"U Offset Operand" \
+"U OldValue Operand" "U NewValue Operand" \
+"U Location LocationOperand" "U Guard Operand opt"
+
+
+Call
+1 0 3 1 U 8
+"D Result RegisterOperand" \
+"U Address Operand" "U Method MethodOperand" "U Guard Operand opt"
+"Param Operand"
+
+TableSwitch
+0 0 7 2 U -1
+"U Value Operand" "U Unknown1 Operand" "U Unknown2 Operand" \
+"U Low IntConstantOperand" "U High IntConstantOperand" \
+"U Default BranchOperand" "U DefaultBranchProfile BranchProfileOperand"
+"Target BranchOperand" "BranchProfile BranchProfileOperand"
+
+LookupSwitch
+0 0 5 3 U -1
+"U Value Operand" "U Unknown1 Operand" \
+"U Unknown2 Operand" "U Default BranchOperand" \
+"U DefaultBranchProfile BranchProfileOperand"
+"Match IntConstantOperand Matches" "Target BranchOperand" \
+"BranchProfile BranchProfileOperand"
+
+LowTableSwitch
+0 0 1 2 U -1
+"U Index RegisterOperand"
+"Target BranchOperand" "BranchProfile BranchProfileOperand"
+
+Phi
+1 0 0 2 U -1
+"D Result Operand"
+"Value Operand" "Pred BasicBlockOperand"
+
+OsrBarrier
+0 0 1 1 U -1
+"U TypeInfo OsrTypeInfoOperand"
+"Element Operand"
+
+OsrPoint
+0 0 1 1 U -1
+"U InlinedTypeInfo InlinedOsrTypeInfoOperand"
+"Element Operand"
+
+# Bogus instruction format only used by template generation code.
+ARCH_INDEPENDENT_INSTR_FORMAT_END
+0 0 0 0 0
+
+

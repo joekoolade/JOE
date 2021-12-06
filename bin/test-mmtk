@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+#  This file is part of the Jikes RVM project (http://jikesrvm.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License. You
+#  may obtain a copy of the License at
+#
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  See the COPYRIGHT.txt file distributed with this work for information
+#  regarding copyright ownership.
+
+# Temporary script
+
+TEST_DIR=MMTk/harness/test-scripts
+JARFILE=dist/mmtk-harness.jar
+
+trap 'exit -1' INT
+
+plans="CopyMS GenCopy GenImmix GenMS Immix MC MS Poisoned PrimitiveWB RC GenRC SS StickyImmix StickyMS"
+
+#opts="$opts gcEvery=SAFEPOINT"
+
+jvm_opts="-ea"
+build=true
+buildonly=false
+clean=true
+results=
+stats=true
+
+scripts="$(cd $TEST_DIR; ls -1 *.script | sed 's/\.script//')"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -plan) plans="$2"; shift;;
+    -opts) opts="$opts $2"; shift;;
+    -script) scripts="$2"; shift;;
+    -nobuild) build=false;;
+    -build) build=true;;
+    -buildonly) buildonly=true;;
+    -clean) clean=true;;
+    -noclean) clean=false;;
+    -results) results="/$2"; shift;;
+    -stats) stats="true";;
+    -nostats) stats="false";;
+    *) echo "Unknown parameter $1"
+       echo "Usage: $0 [-plan plan] [-opts harness-options]"
+       echo "          [-script script1[ script2...]] (put multiple script names in quotes)"
+       echo "          [-[no]build]                   [Don't] build MMTk Harness before running tests"
+       echo "          [-[no]clean]                   [Don't] delete old results before running tests"
+       echo "          [-buildonly]                   Build only, don't run any tests"
+       echo "          [-nostats]                     Suppress listing pass/fail statistics after running tests"
+       echo "          [-results]                     Results directory"
+       exit 1;;
+  esac
+  shift
+done
+
+RESULTS=results/mmtk${results}
+
+if [ $build = true ]; then
+  ant clean compile-mmtk mmtk-harness
+  if [ $buildonly = true ]; then
+    exit 0;
+  fi
+fi
+if [ $clean = true ]; then
+  rm -rf $RESULTS
+fi
+mkdir -p $RESULTS
+
+if [ ! -z "$JAVA_HOME" ]; then
+  JAVA=$JAVA_HOME/bin/java
+else
+  JAVA=java
+fi
+
+for plan in $plans
+do
+  mkdir -p ${RESULTS}/$plan
+  for scriptname in ${scripts}
+  do
+    script=$TEST_DIR/$scriptname.script
+    if [ ! -f $script ]; then
+      echo "Script $script does not exist"
+      exit 1;
+    fi
+    starttime=$(date +%s)
+    (
+      echo $JAVA ${jvm_opts} -jar $JARFILE $script plan=$plan $opts
+      $JAVA ${jvm_opts} -jar $JARFILE $script plan=$plan $opts
+    ) &> ${RESULTS}/temp.out
+    RC=$?
+    endtime=$(date +%s)
+    elapsed=$[endtime-starttime]
+    if [ $RC == 0 ]
+    then
+      logfile=${RESULTS}/$plan/$scriptname.out.pass
+      printf "PASSED: %s %-15s %-15s (%s sec) %s\\n" "${results#/}" $plan $scriptname $elapsed $logfile
+      mv ${RESULTS}/temp.out $logfile
+    else
+      logfile=${RESULTS}/$plan/$scriptname.out.fail
+      printf "FAILED: %s %-15s %-15s (%s sec) %s\\n" "${results#/}" $plan $scriptname $elapsed $logfile
+      mv ${RESULTS}/temp.out $logfile
+    fi
+  done
+done
+
+if [ $stats = true ]; then
+  passed=`find ${RESULTS} -name "*.pass" | wc -l`
+  failed=`find ${RESULTS} -name "*.fail" | wc -l`
+
+  echo
+  echo "FAILURES:"
+  find ${RESULTS} -name "*.fail" | sed -e "s/results\/mmtk\///g" -e "s/\.out\.fail$//g" -e "s/\// /g"
+  echo
+  echo "PASSED $passed/$[passed + failed] tests ($[(100 * passed) / (passed + failed)]%)"
+fi

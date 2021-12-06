@@ -1,0 +1,159 @@
+/*
+ *  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License. You
+ *  may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  See the COPYRIGHT.txt file distributed with this work for information
+ *  regarding copyright ownership.
+ */
+
+
+option baseHeap "3072k";
+option baseHeap64 "3400k";
+option fixedNursery "128k";
+
+/*
+ * Create a list of random integers, then sort the list using quicksort.
+ */
+void main() {
+  runTest(1);
+  runTest(10);
+  runTest(100);
+  runTest(1000);
+  runTest(10000);
+}
+
+void runTest(int size) {
+  print("=== Testing list of size ",size," ===");
+  test(size);
+  print("=== test ",size," complete, heap should now be empty ===");
+  gc();
+}
+
+void test(int size) {
+  int n = 0;
+  object list = null;
+  int initial_sum = 0;
+  while (n < size) {
+    int x = random(0,200000);
+    list = cons(x,list);
+    initial_sum = initial_sum + x;
+    n = n + 1;
+  }
+  print("  List constructed, sorting ...");
+  gc();
+  object sorted = qsort(list);
+  print("  Sort complete, checking ...");
+  gc();
+  checkList(sorted,size,initial_sum);
+}
+
+/*
+ * Utility functions for managing lists of ints
+ */
+ 
+/* List constructor */
+object cons(int head, object tail) {
+  object result = alloc(1,1);       // Allocate a list cell
+  result.int[0] = head;
+  result.object[0] = tail;
+  return result;
+}
+
+/* List destructors */
+int head(object list) {
+  return list.int[0];
+}
+
+object tail(object list) {
+  return list.object[0];
+}
+
+/* Classic recursive append operation */
+object append(object part1, object part2) {
+  if (part1 == null) {
+    return part2;
+  } else {
+    return cons(head(part1),append(tail(part1),part2));
+  }
+}
+
+/* List-based quicksort */
+object qsort(object list) {
+  if (list == null) {
+    return list;
+  } else {
+    int median = head(list);
+    object part = partition(median,tail(list));
+    return append(qsort(part.object[0]),cons(median,qsort(part.object[1])));
+  }
+}
+
+/* partition a list around a pivot, returning a pair of lists */
+object partition(int pivot,object list) {
+  object result = alloc(2,0);  
+  result.object[0] = null;
+  result.object[1] = null;
+  if (list != null) {
+    part2(result,pivot,list);
+  }
+  return result;
+}
+
+/* 
+ * Perform a partition, putting the low elements into parts.object[0],
+ * and the high elements into parts.object[1]
+ */
+void part2(object parts,int pivot, object list) {
+  while (list != null) {
+    int hd = head(list);
+    if (hd < pivot) {
+      parts.object[0] = cons(hd,parts.object[0]);
+    } else {
+      parts.object[1] = cons(hd,parts.object[1]);
+    }
+    list = tail(list);
+  }  
+}
+
+/*
+ * Print a list
+ */
+void printList(object list) {
+  if (list == null) {
+    return;
+  } else {
+    print (head(list));
+    printList(tail(list));
+  }
+}
+
+/*
+ * Sanity check a list - ensure that the elements are in
+ * monotonic order, and the list is the right length.
+ */
+void checkList(object list, int len, int initial_sum) {
+  int count = 0;
+  int sum = 0;
+  if (list != null) {
+    int v1 = head(list);
+    count = 1;
+    sum = v1;
+    list = tail(list);
+    while (list != null) {
+      int v2 = head(list);
+      count = count + 1;
+      sum = sum + v2;
+      assert (v1 <= v2, "unsorted values in list :( ", v1, ", ", v2);
+      v1 = v2;
+      list = tail(list);
+    }
+  }
+  assert(count == len, "list has changed length (expected ",len," found ",count,")");
+  assert(initial_sum == sum, "Sorting has changed the sum of elements");
+}
+ 

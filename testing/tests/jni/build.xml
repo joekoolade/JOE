@@ -1,0 +1,115 @@
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<project name="jni" default="test" basedir=".">
+
+  <property name="test.max.heapsize" value="64"/>
+  <condition property="test.time.limit" value="1000" else="180">
+    <equals arg1="${test.mode}" arg2="gcstress"/>
+  </condition>
+
+  <import file="../../../build/tests.xml"/>
+
+  <property name="main.java" location="${basedir}/src"/>
+
+  <property name="build.classes" location="${build.tests.dir}/classes"/>
+  <property name="build.native" location="${build.tests.dir}/native"/>
+
+  <property name="test.class.path" value="${build.classes}"/>
+
+  <import file="../../../build.xml"/>
+  
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                            Macro to run the tests                        * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <macrodef name="jniTest">
+    <attribute name="class"/>
+    <attribute name="args" default=""/>
+    <sequential>
+      <javah classpath="${build.classes}" outputFile="${build.native}/@{class}.h">
+        <class name="@{class}"/>
+      </javah>
+      <CompileCtoObj cfile="${main.java}/@{class}.c"
+                     objfile="${build.tests.dir}/${target.obj-prefix}@{class}${target.obj-ext}"
+                     cargs="-I${build.native} -I${jikesrvm.dir}/tools/bootloader/jni/ ${c.args}"/>
+      <CreateDLL outdir="${build.tests.dir}" dllname="@{class}" srcdir="${main.java}">
+        <ObjectFiles>
+          <arg value="${build.tests.dir}/${target.obj-prefix}@{class}${target.obj-ext}"/>
+        </ObjectFiles>
+      </CreateDLL>
+      <rvm tag="@{class}" class="@{class}" args="@{args}" rvmArgs="-Djava.library.path=${build.tests.dir}"/>
+      <findStatistic tag="@{class}" pattern="PASS:" key="pass"/>
+      <outputResults tag="@{class}"/>
+    </sequential>
+  </macrodef>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                            Compile the tests                             * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="compile" depends="init">
+    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.native}"/>
+    <javac srcdir="${main.java}" destdir="${build.classes}" debug="true" source="1.6" target="1.6" includeantruntime="false">
+      <exclude name="StackResize.java"/>
+      <exclude name="NativeThreadsWorker.java"/>
+      <exclude name="tNativeThreads.java"/>
+      <classpath>
+        <pathelement path="${test.rvm.dir}/jksvm.jar"/>
+        <pathelement path="${test.rvm.dir}/rvmrt.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- *                                                                          * -->
+  <!-- *                            Run the tests                                 * -->
+  <!-- *                                                                          * -->
+  <!-- **************************************************************************** -->
+
+  <target name="test" depends="compile">
+    <startResults/>
+
+    <!-- JNI 1.1 -->
+    <jniTest class="Allocation"/>
+    <jniTest class="ArgumentPassing"/>
+    <jniTest class="ArrayFunctions"/>
+    <jniTest class="ClassQuery"/>
+    <jniTest class="CriticalCopy"/>
+    <jniTest class="FieldAccess"/>
+    <jniTest class="MethodInvocation"/>
+    <jniTest class="MonitorTest"/>
+    <jniTest class="NativeException"/>
+    <jniTest class="NullIdentity"/>
+    <jniTest class="StringFunctions"/>
+    <jniTest class="TestGC"/>
+    <jniTest class="TestNestedGC"/>
+    <jniTest class="t3GT3" args="-quiet"/>
+
+    <!-- JNI 1.2 -->
+    <jniTest class="JNI12"/>
+    <jniTest class="StringRegion"/>
+    <jniTest class="JNI_OnLoad"/>
+
+    <!-- JNI 1.4 -->
+    <jniTest class="TestJNIDirectBuffers"/>
+    <jniTest class="TestJNIGetFieldID"/>
+
+    <finishResults/>
+  </target>
+
+</project>

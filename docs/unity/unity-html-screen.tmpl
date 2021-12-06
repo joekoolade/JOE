@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+ ~  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ ~
+ ~  This file is licensed to You under the Eclipse Public License (EPL);
+ ~  You may not use this file except in compliance with the License. You
+ ~  may obtain a copy of the License at
+ ~
+ ~      http://www.opensource.org/licenses/eclipse-1.0.php
+ ~
+ ~  See the COPYRIGHT.txt file distributed with this work for information
+ ~  regarding copyright ownership.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+  <meta name="description" content="The Jikes Research Virtual Machine"/>
+  <meta name="keywords" content="virtual machine, java, research"/>
+  <link rel="stylesheet" type="text/css" media="screen,projection" href="/stylesheets/screen.css"/>
+  <link rel="stylesheet" type="text/css" media="screen,projection"
+        href="http://media.codehaus.org/styles/unity-code.css"/>
+  <link rel="stylesheet" type="text/css" media="print" href="/stylesheets/print.css"/>
+  <link type="text/css" rel="stylesheet" href="http://docs.codehaus.org/s/en_GB/3278/15/2.0.11/_/download/batch/com.atlassian.confluence.ext.newcode-macro-plugin:syntaxhighlighter/com.atlassian.confluence.ext.newcode-macro-plugin:syntaxhighlighter.css" media="all">
+<link type="text/css" rel="stylesheet" href="http://docs.codehaus.org/s/en_GB/3278/15/2.0.11/_/download/batch/com.atlassian.confluence.ext.newcode-macro-plugin:sh-theme-confluence/com.atlassian.confluence.ext.newcode-macro-plugin:sh-theme-confluence.css" media="all">
+<meta id="confluence-context-path" name="confluence-context-path" content="">
+<meta id="confluence-base-url" name="confluence-base-url" content="http://docs.codehaus.org">
+
+
+  <!-- The confluence jQuery library -->
+  <script type="text/javascript" src="http://docs.codehaus.org/s/en_GB/3278/15/68/_/download/superbatch/js/batch.js" ></script>
+
+  <!-- The syntax highlighter macro -->
+  <script type="text/javascript" src="http://docs.codehaus.org/s/en_GB/3278/15/2.0.11/_/download/batch/com.atlassian.confluence.ext.newcode-macro-plugin:syntaxhighlighter/com.atlassian.confluence.ext.newcode-macro-plugin:syntaxhighlighter.js"> </script>
+  <!-- The 'brushes' for the syntax highlighter macro -->
+  <script type="text/javascript" src="http://docs.codehaus.org/s/en_GB/3278/15/2.0.11/_/download/batch/com.atlassian.confluence.ext.newcode-macro-plugin:syntaxhighlighter-brushes/com.atlassian.confluence.ext.newcode-macro-plugin:syntaxhighlighter-brushes.js" ></script>
+
+  <title>Jikes RVM - ${page.pageKey}</title>
+</head>
+
+<body>
+  <div id="header">
+      <h1 class="headerTitle">
+        <a href="/" title="Browse to homepage">
+          Jikes <span>RVM</span>
+        </a>
+      </h1>
+
+      <div class="subHeader">
+        <span class="doNotDisplay">Quick Links: </span>
+        $!{quicklinksFragment}
+      </div>
+  </div>
+
+  <div id="side-bar">
+
+      <div class="leftSideBar">
+        #if (${navigationFragment})
+        ${navigationFragment}
+        #end
+      </div>
+
+      <div class="rightSideBar">
+
+        <p class="sideBarTitle">Search</p>
+        <form action="http://docs.codehaus.org/dosearchsite.action" method="get">
+          <div class="sideBarText">
+            <input type="hidden" name="searchQuery.spaceKey" value="RVM"/>
+            <input type="text" name="searchQuery.queryString" value=""/>
+          </div>
+        </form>
+        <p class="sideBarTitle">Feeds</p>
+        <div class="sideBarText"><a href="http://docs.codehaus.org/spaces/rss.action?key=RVM&amp;newPages=false" title="Site Feed" class="feed">Site</a></div>
+
+        <div class="sideBarText"><a href="http://docs.codehaus.org/spaces/blogrss.action?key=RVM&amp;" title="News Feed" class="feed">News</a></div>
+
+        <p class="sideBarTitle">Page Details</p>
+
+        <div class="sideBarText">
+          <a href="http://docs.codehaus.org/pages/editpage.action?spaceKey=${space.spaceKey}&title=${page.pageKeyEncoded}">Edit Page</a>
+        </div>
+        <div class="sideBarText">
+          <a href="http://docs.codehaus.org/display/${space.spaceKey}/${page.pageKeyEncoded}?showComments=true&showCommentArea=true#addcomment">Add Comment</a>
+        </div>
+
+        <p class="sideBarTitle">Validation</p>
+
+        <div class="sideBarText">Validate the <a href="http://validator.w3.org/check/referer">XHTML</a>
+          and <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> of this page.</div>
+        </div>
+    </div>
+
+  <div id="main-copy">
+     <h1 class="page-title">${page.pageKey}</h1>
+     $!{pageFragment}
+  </div>
+
+  <div id="footer">
+    <div class="doNotPrint">
+      <a href="/Site+Map">Site Map</a> |
+      <a href="/Feedback">Feedback</a> |
+      <a href="/Help">Help</a>
+    </div>
+
+    <div>
+      Copyright &copy; 2007, The Jikes RVM Project |
+      <a href="http://www.oswd.org/design/preview/id/1192">Gila Two</a> design by <a href="http://www.oswd.org/email.phtml?user=haran" title="Email the author">haran</a>. |
+      Powered by Atlassian <a href="http://atlassian.com/confluence/">Confluence</a> and <a href="http://www.codehaus.org">Codehaus</a>.
+    </div>
+  </div>
+</body>
+</html>

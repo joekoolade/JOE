@@ -1,0 +1,46 @@
+/*
+ *  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License. You
+ *  may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  See the COPYRIGHT.txt file distributed with this work for information
+ *  regarding copyright ownership.
+ */
+void main() {
+  int initial = 1;
+  recurse(initial,10);
+  print(initial);
+
+  object initial_o = alloc(0,1);
+  initial_o.int[0] = 1;
+  recurse_o(initial_o,10);
+  print(initial_o.int[0]);
+}
+
+void recurse(int v1, int depth) {
+  v1 = v1 * 2;
+  int saved_depth = depth + 0;
+  if (depth > 0) {
+    print(v1,",",depth);
+    recurse(v1,depth-1);
+  }
+  if (saved_depth != depth) {
+    print("help! variables escaping scope!!");
+  }
+}
+
+void recurse_o(object v1, int depth) {
+  object v2 = alloc(0,1);
+  v2.int[0] = v1.int[0] * 2;
+  if (depth > 0) {
+    print(v2.int[0],",",depth);
+    recurse_o(v2,depth-1);
+  }
+  if (v2.int[0] != v1.int[0] * 2) {
+    print("help! variables escaping scope!!");
+  }
+}
