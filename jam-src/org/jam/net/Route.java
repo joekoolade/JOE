@@ -1,12 +1,12 @@
 package org.jam.net;
 
 import org.jam.net.inet4.InetAddress;
+import org.jam.util.ArrayList;
+import org.jam.util.ListIterator;
 import org.jikesrvm.VM;
 import org.jam.driver.net.I82559c;
 import org.jam.net.NetworkInterface;
 import java.net.NoRouteToHostException;
-import java.util.ArrayList;
-import java.util.ListIterator;
 
 public class Route {
 	private static final boolean DEBUG = false;
@@ -163,6 +163,7 @@ public class Route {
 	}
 
 	private static void addRoute(Route newRoute) {
+		VM.sysWriteln("addRoute ", newRoute.toString());
 		if(routeTable.isEmpty()) routeTable.add(newRoute);
         else
         {
