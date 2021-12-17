@@ -13,6 +13,7 @@ import org.jam.cpu.intel.Tsc;
 import org.jam.driver.net.I82559c;
 import org.jam.driver.serial.PcSerialPort;
 import org.jam.interfaces.Timer;
+import org.jam.net.inet4.InetAddress;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RoundRobin;
@@ -80,9 +81,8 @@ public class Platform {
         VM.sysWrite(ioApic.toString());
         try
         {
-//            InetAddress inet = new InetAddress("10.0.2.15");
-//            net = new I82559c(inet, 0xffffff00);
-            net = new I82559c();
+            InetAddress inet = new InetAddress("10.0.2.15");
+            net = new I82559c(inet, 0xffffff00);
         }
         catch (NoDeviceFoundException e)
         {

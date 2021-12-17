@@ -16,7 +16,7 @@ public class Connection {
     public Connection(InetSocketAddress localAddress, InetSocketAddress remoteAddress, IpProto proto) throws NoRouteToHostException
     {
         // look up the route
-        remote = new InetAddress(remoteAddress.getAddress());
+        remote = new InetAddress(remoteAddress.getAddress().getAddress());
         remotePort = remoteAddress.getPort();
         System.out.println("remote addr " + remote);
         route = Route.find(remote);
@@ -24,7 +24,7 @@ public class Connection {
         byte[] addr = null;
         if (localAddress !=null)
         {
-            local = new InetAddress(localAddress.getAddress());
+            local = new InetAddress(localAddress.getAddress().getAddress());
         }
         else
         {

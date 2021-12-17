@@ -10,7 +10,7 @@ import static org.jam.driver.net.CucCommand.RESUME;
 import static org.jam.driver.net.CucCommand.START;
 import static org.jam.driver.net.RuState.SUSPENDED;
 
-import java.util.LinkedList;
+import org.jam.util.LinkedList;
 
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
@@ -255,6 +255,7 @@ private static final boolean DEBUG_TX = true;
       this.netmask = netmask;
       Route.addRoute(ipAddress, InetAddress.HOST, 0xffffffff, this);
       Route.addRoute(new InetAddress(ipAddress.inet4()&netmask), InetAddress.HOST, netmask, this);
+      VM.sysWriteln("i82559c done");
   }
   
   private void scbIrq(ScbIrqMasks mask)
