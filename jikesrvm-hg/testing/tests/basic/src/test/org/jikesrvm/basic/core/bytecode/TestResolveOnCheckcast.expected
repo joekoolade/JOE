@@ -1,4 +1,0 @@
-Registering transformer
-Transforming class: test/org/jikesrvm/basic/core/bytecode/TestResolveOnCheckcast
-Transforming class: test/org/jikesrvm/basic/core/bytecode/TestResolveOnCheckcast$A
-Got CCE
