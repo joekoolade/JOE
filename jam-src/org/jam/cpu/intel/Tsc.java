@@ -159,9 +159,9 @@ public class Tsc {
     public static void udelay(long microseconds)
     {
       long start=getCycles();
-      if(DEBUG) VM.sysWrite("udelay: ", start); 
+      if(DEBUG) VM.sysWriteln("udelay: ", start); 
       long end = getCycles() + (microseconds * cyclesPer1000Ns);
-      if(DEBUG) VM.sysWriteln(" ", end);
+//      if(DEBUG) VM.sysWriteln(" ", end);
       while(getCycles() < end)
       {
         // just spin here

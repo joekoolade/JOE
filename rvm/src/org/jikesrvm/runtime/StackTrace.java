@@ -139,8 +139,9 @@ public class StackTrace {
       fp =  contextRegisters.getInnermostFramePointer();
     }
     fp = Magic.getCallerFramePointer(fp);
-    while (Magic.getCallerFramePointer(fp).NE(StackFrameLayout.getStackFrameSentinelFP())) {
+    while (fp.NE(Address.zero()) && Magic.getCallerFramePointer(fp).NE(StackFrameLayout.getStackFrameSentinelFP())) {
       int compiledMethodId = Magic.getCompiledMethodID(fp);
+//      VM.sysWrite("cfu ", fp); VM.sysWriteln(" ", compiledMethodId);
       if (compiledMethodId != StackFrameLayout.getInvisibleMethodID()) {
         CompiledMethod compiledMethod =
           CompiledMethods.getCompiledMethod(compiledMethodId);
@@ -148,13 +149,14 @@ public class StackTrace {
             compiledMethod.hasBridgeFromNativeAnnotation()) {
           // skip native frames, stopping at last native frame preceeding the
           // Java To C transition frame
+//        	VM.sysWriteln("unwindNativeStackFrame");
           fp = RuntimeEntrypoints.unwindNativeStackFrame(fp);
         }
       }
       stackFrameCount++;
       fp = Magic.getCallerFramePointer(fp);
     }
-    //VM.sysWriteln("stack frame count = ",stackFrameCount);
+//    VM.sysWriteln("stack frame count = ",stackFrameCount);
     return stackFrameCount;
   }
 
@@ -180,7 +182,7 @@ public class StackTrace {
     }
     ip = Magic.getReturnAddress(fp);
     fp = Magic.getCallerFramePointer(fp);
-    while (Magic.getCallerFramePointer(fp).NE(StackFrameLayout.getStackFrameSentinelFP())) {
+    while (fp.NE(Address.zero()) && Magic.getCallerFramePointer(fp).NE(StackFrameLayout.getStackFrameSentinelFP())) {
       //VM.sysWriteln("at stackFrameCount = ",stackFrameCount);
       int compiledMethodId = Magic.getCompiledMethodID(fp);
       compiledMethods[stackFrameCount] = compiledMethodId;

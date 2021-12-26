@@ -1041,7 +1041,7 @@ public class RuntimeEntrypoints {
     Address hijackedCalleeFp = RVMThread.getCurrentThread().getHijackedReturnCalleeFp();
     boolean leapfroggedReturnBarrier = false;
     if (VM.VerifyAssertions) VM._assert(hijackedCalleeFp.isZero() || hijackedCalleeFp.GE(fp));
-    while (Magic.getCallerFramePointer(fp).NE(StackFrameLayout.getStackFrameSentinelFP())) {
+    while (fp.NE(Address.zero()) &&  Magic.getCallerFramePointer(fp).NE(StackFrameLayout.getStackFrameSentinelFP())) {
       if (!hijackedCalleeFp.isZero() && hijackedCalleeFp.LE(fp)) {
         leapfroggedReturnBarrier = true;
       }

@@ -6,9 +6,9 @@
  */
 package org.jam.driver.net;
 
-import java.util.Iterator;
-import java.util.LinkedList;
+import org.jam.util.Iterator;
 
+import org.jam.util.LinkedList;
 import org.jikesrvm.VM;
 
 /**
@@ -29,7 +29,7 @@ public class NapiManager implements Runnable {
     }
   }
 
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
 
   private static LinkedList<NapiEntry> networkInterfaces = new LinkedList<NapiEntry>();
 

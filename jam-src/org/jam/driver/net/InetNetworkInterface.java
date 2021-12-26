@@ -116,6 +116,6 @@ public class InetNetworkInterface
         inetThread.setName("INET Thread");
         arpThread.start();
         inetThread.start();
-        Dhcp.discover(networkInterface);
+//        Dhcp.discover(networkInterface);
     }
 }

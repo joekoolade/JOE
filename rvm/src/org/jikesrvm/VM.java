@@ -19,6 +19,7 @@ import static org.jikesrvm.runtime.SysCall.sysCall;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 
 import org.jam.board.pc.Platform;
+import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.system.Trace;
@@ -595,6 +596,7 @@ public class VM extends Properties {
     runClassInitializer("sun.nio.cs.Surrogate$Parser");
     runClassInitializer("sun.nio.cs.Surrogate$Generator");
     runClassInitializer("sun.nio.cs.Surrogate");
+    runClassInitializer("java.util.Random");
     if (!VM.BuildForOpenJDK) {
       if (verboseBoot >= 1)
         VM.sysWriteln("initializing standard streams");
@@ -707,6 +709,15 @@ public class VM extends Properties {
       runClassInitializer("java.lang.ClassLoader$StaticData");
     }
     
+    /*
+     * Add all JOE specific classes here
+     */
+    if (VM.joeMode)
+    {
+    	VM.sysWriteln("Initialize JOE specific classes");
+    	runClassInitializer("org.jam.driver.net.NapiManager");
+    }
+    
     if (VM.BuildForAdaptiveSystem) {
       CompilerAdvice.postBoot();
     }
@@ -763,6 +774,14 @@ public class VM extends Properties {
       VM.sysWriteln("Boot sequence completed; finishing boot thread");
     }
 
+    Thread napiThread = new Thread(new NapiManager());
+    napiThread.setName("NAPI Manager");
+    VM.sysWriteln("Starting NAPI");
+    napiThread.start();
+    VM.sysWriteln("NAPI done");
+    Platform.net.inetBoot();
+    VM.sysWriteln("INET boot done");
+    
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
     Magic.enableInterrupts();

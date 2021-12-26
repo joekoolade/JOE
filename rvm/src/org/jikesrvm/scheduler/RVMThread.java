@@ -321,7 +321,7 @@ public final class RVMThread extends ThreadContext {
   }
 
   /** debugging flag for return barrier trampoline */
-  public static final boolean DEBUG_STACK_TRAMPOLINE = false;
+  public static final boolean DEBUG_STACK_TRAMPOLINE = true;
 
   /** pointer to bridge code for return barrier trampoline */
   public static CodeArray stackTrampolineBridgeInstructions;

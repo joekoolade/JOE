@@ -551,4 +551,134 @@ public class LinkedList<E>
         return result;
     }
 
+    /**
+     * Returns an iterator over the elements in this list (in proper
+     * sequence).<p>
+     *
+     * This implementation merely returns a list iterator over the list.
+     *
+     * @return an iterator over the elements in this list (in proper sequence)
+     */
+    public Iterator<E> iterator() {
+        return listIterator(0);
+    }
+
+    /**
+     * Returns a list-iterator of the elements in this list (in proper
+     * sequence), starting at the specified position in the list.
+     * Obeys the general contract of <tt>List.listIterator(int)</tt>.<p>
+     *
+     * The list-iterator is <i>fail-fast</i>: if the list is structurally
+     * modified at any time after the Iterator is created, in any way except
+     * through the list-iterator's own <tt>remove</tt> or <tt>add</tt>
+     * methods, the list-iterator will throw a
+     * <tt>ConcurrentModificationException</tt>.  Thus, in the face of
+     * concurrent modification, the iterator fails quickly and cleanly, rather
+     * than risking arbitrary, non-deterministic behavior at an undetermined
+     * time in the future.
+     *
+     * @param index index of the first element to be returned from the
+     *              list-iterator (by a call to <tt>next</tt>)
+     * @return a ListIterator of the elements in this list (in proper
+     *         sequence), starting at the specified position in the list
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @see List#listIterator(int)
+     */
+    public ListIterator<E> listIterator(int index) {
+        return new ListItr(index);
+    }
+
+    private class ListItr implements ListIterator<E> {
+        private Entry<E> lastReturned = header;
+        private Entry<E> next;
+        private int nextIndex;
+        private int expectedModCount = 0;
+
+        ListItr(int index) {
+            if (index < 0 || index > size)
+                throw new IndexOutOfBoundsException("Index: "+index+
+                                                    ", Size: "+size);
+            if (index < (size >> 1)) {
+                next = header.next;
+                for (nextIndex=0; nextIndex<index; nextIndex++)
+                    next = next.next;
+            } else {
+                next = header;
+                for (nextIndex=size; nextIndex>index; nextIndex--)
+                    next = next.previous;
+            }
+        }
+
+        public boolean hasNext() {
+            return nextIndex != size;
+        }
+
+        public E next() {
+            checkForComodification();
+            if (nextIndex == size)
+                throw new NoSuchElementException();
+
+            lastReturned = next;
+            next = next.next;
+            nextIndex++;
+            return lastReturned.element;
+        }
+
+        public boolean hasPrevious() {
+            return nextIndex != 0;
+        }
+
+        public E previous() {
+            if (nextIndex == 0)
+                throw new NoSuchElementException();
+
+            lastReturned = next = next.previous;
+            nextIndex--;
+            checkForComodification();
+            return lastReturned.element;
+        }
+
+        public int nextIndex() {
+            return nextIndex;
+        }
+
+        public int previousIndex() {
+            return nextIndex-1;
+        }
+
+        public void remove() {
+            checkForComodification();
+            Entry<E> lastNext = lastReturned.next;
+            try {
+                LinkedList.this.remove(lastReturned);
+            } catch (NoSuchElementException e) {
+                throw new IllegalStateException();
+            }
+            if (next==lastReturned)
+                next = lastNext;
+            else
+                nextIndex--;
+            lastReturned = header;
+            expectedModCount++;
+        }
+
+        public void set(E e) {
+            if (lastReturned == header)
+                throw new IllegalStateException();
+            checkForComodification();
+            lastReturned.element = e;
+        }
+
+        public void add(E e) {
+            checkForComodification();
+            lastReturned = header;
+            addBefore(e, next);
+            nextIndex++;
+            expectedModCount++;
+        }
+
+        final void checkForComodification() {
+        }
+    }
+
 }
