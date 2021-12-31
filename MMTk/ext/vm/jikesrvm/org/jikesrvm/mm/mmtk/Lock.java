@@ -79,7 +79,7 @@ import org.jikesrvm.scheduler.ThreadQueue;
 
   public Lock() {
     id = lockCount++;
-    queue = new ThreadQueue();
+    queue = new ThreadQueue("mmtkLock");
     state = CLEAR;
   }
 

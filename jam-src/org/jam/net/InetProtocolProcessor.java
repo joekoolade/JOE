@@ -44,7 +44,11 @@ implements Runnable
                 }
                 System.out.println("inetpp got rx");
                 Packet packet = rxQueue.get();
-                if(Ethernet.isIPv4(packet))
+                if(packet == null)
+                {
+                	VM.sysWriteln("inetpp: rx is null");
+                }
+                else if(Ethernet.isIPv4(packet))
                 {
                     packet.pull(Ethernet.HEADER_SIZE);
                     ip.receive(new InetPacket(packet));

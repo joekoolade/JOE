@@ -2379,8 +2379,22 @@ final class BaselineMagic {
     @Override
     void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
       asm.emitRDTSC();       // read timestamp counter instruction
-      asm.emitPUSH_Reg(EDX); // upper 32 bits
-      asm.emitPUSH_Reg(EAX); // lower 32 bits
+      if(VM.BuildFor32Addr)
+      {
+          asm.emitPUSH_Reg(EDX); // upper 32 bits
+          asm.emitPUSH_Reg(EAX); // lower 32 bits
+      }
+      else
+      {
+    	  /*
+    	   * Need to shift upper 32 bits over and 
+    	   * OR into lower
+    	   */
+	      asm.emitSHL_Reg_Imm_Quad(EDX, 32); // upper 32 bits
+	      asm.emitOR_Reg_Reg_Quad(EAX, EDX);
+	      asm.emitPUSH_Reg(EAX); // lower 32 bits
+	      asm.emitPUSH_Reg(EAX); // lower 32 bits
+      }
     }
   }
   static {

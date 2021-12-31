@@ -26,12 +26,14 @@ import org.vmmagic.pragma.Untraced;
 @NonMoving
 public class ThreadQueue {
   protected static final boolean trace = false;
-
+  String name;
+  
   @Untraced RVMThread head;
 
   @Untraced RVMThread tail;
 
-  public ThreadQueue() {
+  public ThreadQueue(String name) {
+	  this.name = name;
   }
 
   public boolean isEmpty() {

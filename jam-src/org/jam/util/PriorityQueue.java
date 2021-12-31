@@ -90,6 +90,7 @@ public class PriorityQueue {
     numElements++;
 
     if (numElements == queue.length) {
+    	VM.sysWriteln("priority queue resize: ", numElements);
       PriorityQueueNode[] tmp = new PriorityQueueNode[(int) (queue.length * 1.5)];
       System.arraycopy(queue, 0, tmp, 0, queue.length);
       for (int i = queue.length; i < tmp.length; i++) {

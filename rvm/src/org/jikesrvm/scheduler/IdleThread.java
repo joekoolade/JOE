@@ -43,6 +43,7 @@ public class IdleThread extends SystemThread
 		 */
 		int idling = 0;
 		while (true) {
+			idling++;
 			Magic.halt();
 		}
 

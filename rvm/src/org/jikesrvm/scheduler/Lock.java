@@ -206,8 +206,8 @@ public final class Lock {
    */
   public Lock() {
     mutex = new SpinLock();
-    entering = new ThreadQueue();
-    waiting = new ThreadQueue();
+    entering = new ThreadQueue("lockEntering");
+    waiting = new ThreadQueue("lockWaiting");
   }
 
   /**

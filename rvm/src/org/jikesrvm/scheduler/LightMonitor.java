@@ -37,8 +37,8 @@ public final class LightMonitor {
   int recCount;
 
   public LightMonitor() {
-    waiting = new ThreadQueue();
-    entering = new ThreadQueue();
+    waiting = new ThreadQueue("lmWaiting");
+    entering = new ThreadQueue("lmEntering");
     mutex = new SpinLock();
   }
 

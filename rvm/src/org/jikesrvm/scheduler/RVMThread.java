@@ -413,6 +413,19 @@ public final class RVMThread extends ThreadContext {
     return queuedOn != null;
   }
 
+  public String getThreadQueueName()
+  {
+	  String name;
+	  if(queuedOn != null)
+	  {
+		  name = queuedOn.name;
+	  }
+	  else
+	  {
+		  name = "$noqueue$";
+	  }
+	  return name;
+  }
   /**
    * Used to handle contention for spin locks
    */
@@ -748,7 +761,7 @@ public final class RVMThread extends ThreadContext {
    */
   boolean isBlockedForGC;
 
-  static ThreadQueue gcWait = new ThreadQueue();
+  static ThreadQueue gcWait = new ThreadQueue("gcWait");
   /**
    * An integer token identifying the last stack trace request
    */
@@ -2606,6 +2619,7 @@ public final class RVMThread extends ThreadContext {
   @NoCheckStore
   public static void checkDebugRequest() {
     if (debugRequested) {
+    	VM.sysWriteln("checkDebugRequest");
       debugLock.lockNoHandshake();
       if (debugRequested) {
         debugRequested = false;
@@ -3453,6 +3467,7 @@ public final class RVMThread extends ThreadContext {
     RVMThread t = getCurrentThread();
     long atStart = sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
+    VM.sysWriteln("sleeping ", t.getName());
     t.monitor().lockNoHandshake();
     t.waiting = Waiting.TIMED_WAITING;
     while (!t.hasInterrupt && t.asyncThrowable == null &&

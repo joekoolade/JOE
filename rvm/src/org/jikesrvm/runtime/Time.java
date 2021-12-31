@@ -12,6 +12,7 @@
  */
 package org.jikesrvm.runtime;
 
+import org.jikesrvm.VM;
 import org.vmmagic.pragma.Uninterruptible;
 
 /**
@@ -22,6 +23,7 @@ public class Time {
 
   /** boot time in milliseconds */
   private static long bootTime;
+private static long lastTime;
 
   public static void boot() {
     bootTime = currentTimeMillis();
@@ -60,7 +62,14 @@ public class Time {
    * @return a monotonic timer value in nanoseconds.
    */
   public static long nanoTime() {
-    return SysCall.sysCall.sysNanoTime();
+    long time = SysCall.sysCall.sysNanoTime();
+    if(time > lastTime) lastTime = time;
+    if(time < lastTime)
+    {
+    	VM.sysWrite("nanotime ", time);
+    	VM.sysWriteln(" ", lastTime);
+    }
+    return time;
   }
 
   /**
