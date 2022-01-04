@@ -577,7 +577,7 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
 	  long time = Magic.getTimeBase();
 	  
     // VM.sysWriteln("NANOTIME");
-    return (time / ((long)Tsc.cyclesPer1000Ns) * 1000L);
+    return (time / Tsc.cyclesPer1000Ns * 1000L);
   }
 
   @java.lang.Override

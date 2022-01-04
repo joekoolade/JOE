@@ -17,7 +17,7 @@ import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.ReflectionBase;
 import org.jikesrvm.util.ImmutableEntryHashSetRVM;
-
+import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.Uninterruptible;
 
 /**
@@ -42,11 +42,13 @@ public final class TypeReference {
    * The type name. For example, the primitive type int is "I", the
    * class java.lang.String is "Ljava/lang/String;"
    */
+  @Entrypoint(fieldMayBeFinal = true)
   final Atom name;
 
   /**
    * The id of this type reference.
    */
+  @Entrypoint(fieldMayBeFinal = true)
   final int id;
 
   /**

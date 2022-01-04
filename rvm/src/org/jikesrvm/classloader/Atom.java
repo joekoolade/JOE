@@ -32,6 +32,7 @@ import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Statics;
 import org.jikesrvm.util.ImmutableEntryHashMapRVM;
 import org.jikesrvm.util.StringUtilities;
+import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.Pure;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Offset;
@@ -82,16 +83,19 @@ public final class Atom {
    * A reference to either a unicode String encoding the atom, an offset in the
    * JTOC holding a unicode string encoding the atom or null.
    */
+  @Entrypoint(fieldMayBeFinal = true)
   private Object unicodeStringOrJTOCoffset;
 
   /**
    * The utf8 value this atom represents
    */
+  @Entrypoint(fieldMayBeFinal = true)
   private final byte[] val;
 
   /**
    * The id of this atom
    */
+  @Entrypoint(fieldMayBeFinal = true)
   private final int id;
 
   /**

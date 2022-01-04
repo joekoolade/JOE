@@ -486,19 +486,21 @@ public class Monitor {
      */
     Platform.timer.startTimer(whenWakeupNanos);
     Platform.timer.removeTimer(whenWakeupNanos);
+    VM.sysWriteln("timedWait: thread is up", thread.getThreadSlot());
     /*
      * Re-acquire the lock
      */
-    waiting.enqueue(thread);
     while(!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
     {
+      locking.enqueue(thread);
         Magic.yield();
     }
-    thread = waiting.dequeue();
+//    waiting.dequeue();
     if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
     if (VM.VerifyAssertions) VM._assert(this.recCount == 0);
     this.recCount = recCount;
     holderSlot = RVMThread.getCurrentThreadSlot();
+    VM.sysWriteln("timedWait: thread is done", thread.getThreadSlot());
   }
   /**
    * Wait until someone calls {@link #broadcast()}, or until at least
@@ -584,8 +586,8 @@ public class Monitor {
   @NoOptCompile
   private void timedWaitAbsoluteWithHandshakeImpl(long whenWakeupNanos) {
     timedWaitAbsoluteNoHandshake(whenWakeupNanos);
-    int recCount = unlockCompletely();
-    relockWithHandshakeImpl(recCount);
+//    int recCount = unlockCompletely();
+//    relockWithHandshakeImpl(recCount);
   }
   /**
    * Wait until someone calls {@link #broadcast()}, or until at least the given
@@ -631,7 +633,7 @@ public class Monitor {
     /*
      * Get the waiting thread
      */
-    RVMThread waitingThread = waiting.dequeue();
+    RVMThread waitingThread = locking.dequeue();
     if(waitingThread != null)
     {
         /*
@@ -662,7 +664,7 @@ public class Monitor {
       /*
        * Get the waiting thread
        */
-      RVMThread waitingThread = waiting.dequeue();
+      RVMThread waitingThread = locking.dequeue();
       while (waitingThread != null)
       {
           /*
@@ -677,7 +679,7 @@ public class Monitor {
           }
           Platform.scheduler.addThread(waitingThread);
           Magic.yield();
-          waitingThread = waiting.dequeue();
+          waitingThread = locking.dequeue();
       }
   }
 

@@ -17,6 +17,7 @@ import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_PROTECTED;
 import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_PUBLIC;
 
 import org.jikesrvm.VM;
+import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Offset;
 
@@ -37,23 +38,27 @@ public abstract class RVMMember extends AnnotatedElement {
   /**
    * The canonical MemberReference for this member
    */
+  @Entrypoint(fieldMayBeFinal = true)
   protected final MemberReference memRef;
 
   /**
    * The modifiers associated with this member.
    */
+  @Entrypoint(fieldMayBeFinal = true)
   protected final short modifiers;
 
   /**
    * The signature is a string representing the generic type for this
    * field or method declaration, may be null
    */
+  @Entrypoint(fieldMayBeFinal = true)
   private final Atom signature;
 
   /**
    * The member's jtoc/obj/tib offset in bytes.
    * Set by {@link RVMClass#resolve()}
    */
+  @Entrypoint(fieldMayBeFinal = true)
   protected int offset;
 
   /**

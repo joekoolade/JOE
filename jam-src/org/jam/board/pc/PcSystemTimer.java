@@ -38,7 +38,7 @@ implements Timer
     private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
 	private static final boolean trace1 = false;
-	private static final boolean timerTrace = false;
+	private static final boolean timerTrace = true;
     private PriorityQueue timerQueue;
     private ThreadQueue threadQueue;
     
@@ -146,11 +146,11 @@ implements Timer
         }
         long timerExpiration = timerQueue.rootValue();
         long time = Time.nanoTime();
-		if (timerTrace && (lastCheck % 100) == 0) 
-		{
-			VM.sysWrite("\nT", time);
-			VM.sysWriteln("|", timerExpiration);
-		}
+//		if (timerTrace && (lastCheck % 100) == 0) 
+//		{
+//			VM.sysWrite("\nT", time);
+//			VM.sysWriteln("|", timerExpiration);
+//		}
 //        if(trace) VM.sysWrite('T');
         if(time < timerExpiration)
         {
@@ -185,11 +185,11 @@ implements Timer
          * convert to ticks (milliseconds)
          */
 //        timerTicks = time_ns / TIMERTICKSPERNSECS;
-        if(timerTrace)
-        {
-          VM.sysWrite("\nT0: ", time_ns);
-          VM.sysWriteln("/", RVMThread.getCurrentThread().getThreadSlot());
-        }
+//        if(timerTrace)
+//        {
+//          VM.sysWrite("\nT0: ", time_ns);
+//          VM.sysWriteln("/", RVMThread.getCurrentThread().getThreadSlot());
+//        }
         /*
          * set expiration time and put on the queue
          */
@@ -214,11 +214,11 @@ implements Timer
       Magic.disableInterrupts();
       RVMThread t =  (RVMThread) timerQueue.remove(timeKey);
       Magic.enableInterrupts();
-      if(timerTrace)
-      {
-        VM.sysWrite("\nT1: ", timeKey);
-        VM.sysWriteln("/", t.getThreadSlot());
-      }
+//      if(timerTrace)
+//      {
+//        VM.sysWrite("\nT1: ", timeKey);
+//        VM.sysWriteln("/", t.getThreadSlot());
+//      }
       return t;
     }
     

@@ -194,6 +194,7 @@ public abstract class RVMType extends AnnotatedElement {
   /**
    * Canonical type reference for this RVMType instance
    */
+  @Entrypoint(fieldMayBeFinal = true)
   protected final TypeReference typeRef;
 
   /**

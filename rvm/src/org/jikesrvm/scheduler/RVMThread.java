@@ -3473,7 +3473,9 @@ public final class RVMThread extends ThreadContext {
     while (!t.hasInterrupt && t.asyncThrowable == null &&
         sysCall.sysNanoTime() < whenEnd) {
       t.monitor().timedWaitAbsoluteWithHandshake(whenEnd);
+      VM.sysWriteln("timedWait done ", t.getName());
     }
+    VM.sysWriteln("wakeup ", t.getName());
     t.waiting = Waiting.RUNNABLE;
     boolean throwInterrupt = false;
     Throwable throwThis = null;

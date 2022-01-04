@@ -68,6 +68,7 @@ import org.jikesrvm.architecture.ArchitectureFactory;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.BootstrapClassLoader;
 import org.jikesrvm.classloader.JMXSupport;
+import org.jikesrvm.classloader.MemberReference;
 import org.jikesrvm.classloader.RVMArray;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
@@ -106,6 +107,8 @@ import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
+
+import static org.jikesrvm.runtime.EntrypointHelper.getField;
 
 /**
  * Construct an RVM virtual machine bootimage.
@@ -787,6 +790,8 @@ public class BootImageWriter {
       fail("unable to update boot record: " + e);
     }
 
+    objectReaderOffsets();
+    
     if (VM.BuildWithGCTrace) {
       /* Set the values in fields updated during the build process */
       Offset prevAddrOffset = Entrypoints.tracePrevAddressField.getOffset();
@@ -1408,6 +1413,43 @@ public class BootImageWriter {
     }
   }
 
+  private static void objectReaderOffsets()
+  {
+    Offset offset;
+    
+    VM.sysWriteln("ObjectReader offsets");
+    offset = getField(org.jikesrvm.classloader.RVMType.class, "dimension", int.class).getOffset();
+    VM.sysWriteln("objectreader: rvmtype dimension ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.RVMType.class, "typeRef", TypeReference.class).getOffset();
+    VM.sysWriteln("objectreader: rvmtype typeRef ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.RVMClass.class, "instanceFields", RVMField[].class).getOffset();
+    VM.sysWriteln("objectreader: rvmclass instanceFields ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.TypeReference.class, "id", int.class).getOffset();
+    VM.sysWriteln("objectreader: typereference id ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.TypeReference.class, "name", Atom.class).getOffset();
+    VM.sysWriteln("objectreader: typereference name ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.Atom.class, "unicodeStringOrJTOCoffset", Object.class).getOffset();
+    VM.sysWriteln("objectreader: atom unicodeStringOrJTOCoffset ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.Atom.class, "val", byte[].class).getOffset();
+    VM.sysWriteln("objectreader: atom val ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.Atom.class, "id", int.class).getOffset();
+    VM.sysWriteln("objectreader: atom id ", Integer.toHexString(offset.toInt()));
+    
+    offset = getField(org.jikesrvm.classloader.RVMMember.class, "memRef", MemberReference.class).getOffset();
+    VM.sysWriteln("objectreader: rvmmember memRef ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.RVMMember.class, "modifiers", short.class).getOffset();
+    VM.sysWriteln("objectreader: rvmmember modifiers ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.RVMMember.class, "signature", Atom.class).getOffset();
+    VM.sysWriteln("objectreader: rvmmember signature ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.RVMMember.class, "offset", int.class).getOffset();
+    VM.sysWriteln("objectreader: rvmmember offset ", Integer.toHexString(offset.toInt()));
+
+    offset = getField(org.jikesrvm.classloader.RVMField.class, "size", byte.class).getOffset();
+    VM.sysWriteln("objectreader: rvmfield size ", Integer.toHexString(offset.toInt()));
+    offset = getField(org.jikesrvm.classloader.RVMField.class, "reference", boolean.class).getOffset();
+    VM.sysWriteln("objectreader: rvmfield reference ", Integer.toHexString(offset.toInt()));
+  }
+  
   static Word getWordValue(Object addr, String msg, boolean warn) {
     if (addr == null) return Word.zero();
     Word value = Word.zero();

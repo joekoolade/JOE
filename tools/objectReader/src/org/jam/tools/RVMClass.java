@@ -9,9 +9,9 @@ import org.jam.tools.ArrayType;
 public class RVMClass 
 extends JObject
 {
-    private static final int TYPE_REF_OFFSET = 8;           // RVMType: TypeReference typeRef
-    private static final int DIMENSION_OFFSET = 0x40;       // RVMType: int dimesion
-    private static final int INSTANCES_ARRAY_OFFSET = 0xC0; // RVMClass: RVMFields instanceFields[]
+    private static final int TYPE_REF_OFFSET = 0x10; // 8;           // RVMType: TypeReference typeRef
+    private static final int DIMENSION_OFFSET = 0x48; // 0x40;       // RVMType: int dimesion
+    private static final int INSTANCES_ARRAY_OFFSET = 0xc8; // 0xC0; // RVMClass: RVMFields instanceFields[]
     private TypeRef typeRef;
     private LongArray fieldInstances;
     private static final boolean DEBUG = false;

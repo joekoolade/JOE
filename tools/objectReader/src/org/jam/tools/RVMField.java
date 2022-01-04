@@ -4,12 +4,12 @@ public class RVMField
 extends JObject
 implements Comparable<RVMField>
 {
-    private static final int MEMBER_REF_OFFSET = 0x10;
-    private static final int SIGNATURE_OFFSET = 0x18;
-    private static final int MODIFIER_OFFSET = 0x20;
-    private static final int SIZE_OFFSET = 0x22;
-    private static final int REF_OFFSET = 0x23;
-    private static final int OFFSET_OFFSET = 0x24;
+    private static final int MEMBER_REF_OFFSET = 0x18;
+    private static final int SIGNATURE_OFFSET = 0x20;
+    private static final int MODIFIER_OFFSET = 0x28;
+    private static final int SIZE_OFFSET = 0x2a;
+    private static final int REF_OFFSET = 0x2b;
+    private static final int OFFSET_OFFSET = 0x2c;
     private static final boolean DEBUG = false;
     
     final private MemberReference member;

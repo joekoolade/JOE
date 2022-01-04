@@ -32,6 +32,7 @@ import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.Barriers;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Statics;
+import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
@@ -51,11 +52,13 @@ public final class RVMField extends RVMMember {
   /**
    * The size of the field in bytes
    */
+  @Entrypoint(fieldMayBeFinal = true)
   private final byte size;
 
   /**
    * Does the field hold a reference value?
    */
+  @Entrypoint(fieldMayBeFinal = true)
   private final boolean reference;
 
   /**

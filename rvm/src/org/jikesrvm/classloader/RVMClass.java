@@ -153,6 +153,7 @@ public final class RVMClass extends RVMType {
   private RVMField[] staticFields;
 
   /** fields distinct for each instance of class */
+  @Entrypoint
   private RVMField[] instanceFields;
 
   /** Total size of per-instance data, in bytes  */
