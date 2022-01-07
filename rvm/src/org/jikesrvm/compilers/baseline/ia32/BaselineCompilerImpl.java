@@ -3587,7 +3587,8 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
       }
 
       if (method.isSynchronized()) genMonitorEnter();
-
+            
+      genThreadSwitchTest(RVMThread.PROLOGUE);
     }
   }
 
@@ -3598,6 +3599,7 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
   protected void emit_deferred_prologue() {
 
     if (VM.VerifyAssertions) VM._assert(method.isForOsrSpecialization());
+    genThreadSwitchTest(RVMThread.PROLOGUE);
 
   }
 
