@@ -787,7 +787,7 @@ public class VM extends Properties {
     Magic.enableInterrupts();
     Platform.ioApic.enableInterrupts();
     booting = false;
-    Magic.yield();
+    RVMThread.yieldNoHandshake();
     VM.shutdown(1);
     VM.sysWriteln("Boot thread has been resurrected! This is bad!!!");
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);

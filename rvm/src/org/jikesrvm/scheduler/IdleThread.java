@@ -44,7 +44,12 @@ public class IdleThread extends SystemThread
 		int idling = 0;
 		while (true) {
 			idling++;
-			Magic.halt();
+			try {
+        RVMThread.sleep(2000,0);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 		}
 
 	}

@@ -633,6 +633,9 @@ public abstract class OutOfLineMachineCode {
     Offset gprsOffset = ArchEntrypoints.registersGPRsField.getOffset();
     Offset regsOffset = Entrypoints.threadContextRegistersField.getOffset();
 
+    // Disable interrupts
+    asm.emitCLI();
+    
     // (1) Save hardware state of thread we are switching off of.
     if (VM.BuildFor32Addr) {
       asm.emitMOV_Reg_RegDisp(S0, T0, regsOffset);      // S0 = T0.contextRegisters
@@ -652,6 +655,8 @@ public abstract class OutOfLineMachineCode {
                                 Offset.fromIntZeroExtend(NONVOLATILE_GPRS[i].value() << LG_WORDSIZE),
                                 NONVOLATILE_GPRS[i]);
       }
+      // Save the Thread register, ESI
+      asm.emitMOV_RegDisp_Reg(S0, Offset.fromIntZeroExtend(ESI.value() << LG_WORDSIZE), ESI);
     } else {
       asm.emitADD_Reg_Imm_Quad(SP, 2 * WORDSIZE);                // discard 2 words of parameters (T0, T1)
       asm.emitMOV_Reg_RegDisp_Quad(S0, S0, gprsOffset);  // S0 = T0.contextRegisters.gprs;
@@ -662,6 +667,8 @@ public abstract class OutOfLineMachineCode {
                                      Offset.fromIntZeroExtend(NONVOLATILE_GPRS[i].value() << LG_WORDSIZE),
                                      NONVOLATILE_GPRS[i]);
       }
+      // Save the Thread register, ESI
+      asm.emitMOV_RegDisp_Reg_Quad(S0, Offset.fromIntZeroExtend(ESI.value() << LG_WORDSIZE), ESI);
     }
 
     // (2) Set currentThread.beingDispatched to false
@@ -688,6 +695,8 @@ public abstract class OutOfLineMachineCode {
                                 Offset.fromIntZeroExtend(NONVOLATILE_GPRS[i].value() <<
                                                          LG_WORDSIZE));
       }
+      // Restore the Thread ID, ESI
+      asm.emitMOV_Reg_RegDisp(ESI, S0, Offset.fromIntZeroExtend(ESI.value() << LG_WORDSIZE));
     } else {
       asm.emitMOV_RegDisp_Reg_Quad(THREAD_REGISTER, ArchEntrypoints.framePointerField.getOffset(), S0);
       asm.emitMOV_Reg_RegDisp_Quad(S0, T1, gprsOffset); // S0 := restoreRegs.gprs[]
@@ -698,7 +707,12 @@ public abstract class OutOfLineMachineCode {
                                      S0,
                                      Offset.fromIntZeroExtend(NONVOLATILE_GPRS[i].value() << LG_WORDSIZE));
       }
-    }
+      asm.emitMOV_Reg_RegDisp_Quad(ESI, S0, Offset.fromIntZeroExtend(ESI.value() << LG_WORDSIZE));
+   }
+    
+    // Turn on interrupts
+    asm.emitSTI();
+    
     asm.emitJMP_RegDisp(T1, ipOffset);            // return to (save) return address
     return asm.getMachineCodes();
   }

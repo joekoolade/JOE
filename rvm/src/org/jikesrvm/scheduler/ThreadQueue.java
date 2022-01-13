@@ -25,7 +25,7 @@ import org.vmmagic.pragma.Untraced;
 @Uninterruptible
 @NonMoving
 public class ThreadQueue {
-  protected static final boolean trace = false;
+  protected static final boolean trace = true;
   String name;
   
   @Untraced RVMThread head;
@@ -43,7 +43,7 @@ public class ThreadQueue {
   public void enqueue(RVMThread t) {
     if (trace) {
       VM.sysWriteln("enqueue:", t.getThreadSlot(), " onto ",
-          Magic.objectAsAddress(this));
+          name);
     }
     /*
      * If it is already queuedon, the don't schedule
@@ -53,13 +53,13 @@ public class ThreadQueue {
       if (trace)
       {
         VM.sysWrite("Already scheduled ", t.getThreadSlot());
-        VM.sysWrite("on ", Magic.objectAsAddress(t.queuedOn));
-        VM.sysWrite(" tail: ", tail.getThreadSlot());
-        VM.sysWrite(" head: ", head.getThreadSlot());
-        VM.sysWrite(" next: ", t.next.getThreadSlot());
-        VM.sysWriteln(" prev: ", t.prev.getThreadSlot());
-        VM.sysFail("Queued on");
+        VM.sysWrite("on ", t.queuedOn.name);
+        VM.sysWrite(" tail: ", tail.getName());
+        VM.sysWrite(" head: ", head.getName());
+        VM.sysWrite(" next: ", t.next.getName());
+        VM.sysWriteln(" prev: ", t.prev.getName());
       }
+      VM.sysFail("Queued on");
       return;
     }
     if (VM.VerifyAssertions)
@@ -100,11 +100,11 @@ public class ThreadQueue {
     if (trace) {
       if (result == null) {
         if (tail != null)
-          VM.sysWriteln("dequeue: tail NOT NULL ", tail.getThreadSlot());
-        VM.sysWriteln("dequeue: no threads on ", Magic.objectAsAddress(this));
+          VM.sysWriteln("dequeue: tail NOT NULL ", tail.getName());
+        VM.sysWriteln("dequeue: no threads on ", name);
       } else {
         VM.sysWriteln("dequeueing ", result.getThreadSlot(), " from ",
-            Magic.objectAsAddress(this));
+            name);
       }
     }
     return result;
@@ -157,7 +157,7 @@ public class ThreadQueue {
       return false;
     if (trace) {
       VM.sysWriteln("removing ", t.getThreadSlot(), " from ",
-          Magic.objectAsAddress(this));
+          name);
     }
     for (RVMThread cur = null; cur != tail; cur = getNext(cur)) {
       if (getNext(cur) == t) {

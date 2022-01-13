@@ -31,7 +31,7 @@ implements Timer
     private static final int  ticksPerSecond = 1000;
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
-    public int BOLT = 10;   // schedule new process
+    public int BOLT = 1000;   // schedule new process
 //    private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;
@@ -121,7 +121,6 @@ implements Timer
         /*
          * We took a timer tick and there are threads that are runnable.
          */
-        RVMThread currentThread = Magic.getThreadRegister();
         
         /*
          * Current thread has had its time allotment so put it on queue 
@@ -130,8 +129,16 @@ implements Timer
         if(((int)tick % BOLT) == 0)
         {
 //            VM.sysWrite('R');
+            RVMThread currentThread = Magic.getThreadRegister();
             Platform.scheduler.addThread(currentThread);
-            Platform.scheduler.nextThread();
+            currentThread.disableYieldpoints();
+            RVMThread next = Platform.scheduler.nextThread();
+            if(next == null)
+            {
+              VM.sysWriteln("Nothing to run!");
+              return;
+            }
+            next.enableYieldpoints();
         }
     }
     
@@ -160,7 +167,6 @@ implements Timer
         /*
          * Remove the thread from the timer and schedule it
          */
-        //Magic.disableInterrupts();
         RVMThread thread = (RVMThread) timerQueue.remove(timerExpiration);
         if(thread == null)
         {
@@ -168,9 +174,7 @@ implements Timer
             VM.sysFail(timerQueue.toString());
         }
         if(timerTrace) { VM.sysWrite("\nTimer expired! ", timerExpiration); VM.sysWriteln(" ", thread.threadSlot); }
-        threadQueue.remove(thread);
         Platform.scheduler.addThread(thread);
-        //Magic.enableInterrupts();
     }
     
     /**
@@ -193,15 +197,13 @@ implements Timer
         /*
          * set expiration time and put on the queue
          */
-//        timerQueue.put(timerTicks+tick, RVMThread.getCurrentThread());
         Magic.disableInterrupts();
         timerQueue.insert(time_ns, RVMThread.getCurrentThread());
-//        threadQueue.enqueue(RVMThread.getCurrentThread());
         Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
          */
-        Magic.yield();
+        Platform.scheduler.schedule();
     }
     
     /**

@@ -8,7 +8,6 @@ package org.jikesrvm.scheduler;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
-import org.mmtk.plan.Plan;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.unboxed.Address;
 
@@ -18,9 +17,7 @@ import org.vmmagic.unboxed.Address;
  */
 @NonMoving
 public class RoundRobin implements Scheduler {
-  private final static int STACK_SIZE = 256;
   private ThreadQueue runQueue;
-  private int idling = 0;
   final private static boolean trace = false;
   private static final boolean traceNext = false;
 
@@ -28,24 +25,44 @@ public class RoundRobin implements Scheduler {
     runQueue = new ThreadQueue("runQueue");
   }
 
+  public void schedule()
+  {
+    RVMThread currentThread = RVMThread.getCurrentThread();
+    if(!currentThread.isOnQueue())
+    {
+      addThread(currentThread);
+    }
+    RVMThread nextThread = runQueue.dequeue();
+    while(nextThread == null)
+    {
+      VM.sysWrite("halt!");
+      Magic.halt();
+      nextThread = runQueue.dequeue();
+    }
+
+    Magic.threadSwitch(currentThread, nextThread.getContextRegisters());
+    /*
+     * nextThread is running here
+     */
+  }
+  
   /*
    * Current thread must be scheduled before calling calling
    * 
    */
-  public void nextThread() {
+  public RVMThread nextThread() {
     RVMThread nextThread;
 
-    RVMThread currentThread = Magic.getThreadRegister();
     nextThread = runQueue.dequeue();
-    if (nextThread == null) {
-      nextThread = RVMThread.idleThread;
-    }
+//    if (nextThread == null) {
+//      nextThread = RVMThread.idleThread;
+//    }
     /*
      * Setup to restore from new thread
      */
-    if (traceNext) {
-      VM.sysWrite("nextThread: ", currentThread.threadSlot);
-      VM.sysWrite(" ", nextThread.threadSlot);
+    if (traceNext && nextThread != null) {
+      VM.sysWrite("nextThread: ", nextThread.threadSlot);
+      VM.sysWriteln(" ", nextThread.getName());
     }
     // VM.sysWrite("next thread sp: ", nextThread.getStackPointer());
     // VM.sysWriteln(" current sp: ", currentThread.getStackPointer());
@@ -54,7 +71,7 @@ public class RoundRobin implements Scheduler {
     /*
      * Set the thread register
      */
-    Magic.setThreadRegister(nextThread);
+    return nextThread;
   }
 
   /**

@@ -3447,13 +3447,15 @@ public final class RVMThread extends ThreadContext {
   }
 
   public static void yieldNoHandshake() {
-    sysCall.sysThreadYield();
+//    sysCall.sysThreadYield();
+    Platform.scheduler.schedule();
   }
 
   @UnpreemptibleNoWarn
   public static void yieldWithHandshake() {
     getCurrentThread().checkBlock();
-    sysCall.sysThreadYield();
+//    sysCall.sysThreadYield();
+    Platform.scheduler.schedule();
   }
   /**
    * Suspend execution of current thread for specified number of seconds (or
