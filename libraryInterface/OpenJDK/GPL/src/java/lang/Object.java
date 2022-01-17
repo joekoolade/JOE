@@ -515,7 +515,7 @@ public class Object {
      * @see        java.lang.Object#notifyAll()
      */
     public final void wait() throws InterruptedException {
-        wait(0);
+      RVMThread.wait(this);
     }
 
     /**

@@ -25,7 +25,7 @@ import org.vmmagic.pragma.Untraced;
 @Uninterruptible
 @NonMoving
 public class ThreadQueue {
-  protected static final boolean trace = true;
+  protected static final boolean trace = false;
   String name;
   
   @Untraced RVMThread head;

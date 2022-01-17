@@ -38,7 +38,7 @@ implements Timer
     private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
 	private static final boolean trace1 = false;
-	private static final boolean timerTrace = true;
+	private static final boolean timerTrace = false;
     private PriorityQueue timerQueue;
     private ThreadQueue threadQueue;
     
@@ -128,17 +128,17 @@ implements Timer
          */
         if(((int)tick % BOLT) == 0)
         {
-//            VM.sysWrite('R');
+            VM.sysWrite('R');
             RVMThread currentThread = Magic.getThreadRegister();
-            Platform.scheduler.addThread(currentThread);
-            currentThread.disableYieldpoints();
-            RVMThread next = Platform.scheduler.nextThread();
-            if(next == null)
-            {
-              VM.sysWriteln("Nothing to run!");
-              return;
-            }
-            next.enableYieldpoints();
+//            Platform.scheduler.addThread(currentThread);
+            currentThread.enableYieldpoints();
+//            RVMThread next = Platform.scheduler.nextThread();
+//            if(next == null)
+//            {
+//              VM.sysWriteln("Nothing to run!");
+//              return;
+//            }
+//            next.enableYieldpoints();
         }
     }
     
@@ -197,9 +197,9 @@ implements Timer
         /*
          * set expiration time and put on the queue
          */
-        Magic.disableInterrupts();
+//        Magic.disableInterrupts();
         timerQueue.insert(time_ns, RVMThread.getCurrentThread());
-        Magic.enableInterrupts();
+//        Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
          */

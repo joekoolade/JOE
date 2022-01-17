@@ -3469,15 +3469,15 @@ public final class RVMThread extends ThreadContext {
     RVMThread t = getCurrentThread();
     long atStart = sysCall.sysNanoTime();
     long whenEnd = atStart + ns;
-    VM.sysWriteln("sleeping ", t.getName());
+//    VM.sysWrite("sleeping ", t.getName());
+//    VM.sysWriteln(" ", ns/1000000);
     t.monitor().lockNoHandshake();
     t.waiting = Waiting.TIMED_WAITING;
     while (!t.hasInterrupt && t.asyncThrowable == null &&
         sysCall.sysNanoTime() < whenEnd) {
       t.monitor().timedWaitAbsoluteWithHandshake(whenEnd);
-      VM.sysWriteln("timedWait done ", t.getName());
     }
-    VM.sysWriteln("wakeup ", t.getName());
+//    VM.sysWriteln("wakeup ", t.getName());
     t.waiting = Waiting.RUNNABLE;
     boolean throwInterrupt = false;
     Throwable throwThis = null;
@@ -3559,10 +3559,13 @@ public final class RVMThread extends ThreadContext {
         Platform.scheduler.addThread(toAwaken);
       }
       // block
+      VM.sysWriteln("wait ", getName());
+      if(hasTimeout) VM.sysWriteln("with timeout");
       monitor().lockNoHandshake();
+      VM.sysWriteln("monitor lock ", getName());
       while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
              (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
-        Magic.yield();
+        yieldNoHandshake();
       }
       // figure out if anything special happened while we were blocked
       if (hasInterrupt) {
@@ -3573,9 +3576,11 @@ public final class RVMThread extends ThreadContext {
         throwThis = asyncThrowable;
         asyncThrowable = null;
       }
+      VM.sysWriteln("notified");
       monitor().unlock();
       if (l.waiting.isQueued(this)) {
         l.mutex.lock();
+        VM.sysWriteln("from interrupt or stop()");
         l.waiting.remove(this); /*
                                  * in case we got here due to an interrupt or a
                                  * stop() rather than a notify

@@ -35,7 +35,7 @@ public class RoundRobin implements Scheduler {
     RVMThread nextThread = runQueue.dequeue();
     while(nextThread == null)
     {
-      VM.sysWrite("halt!");
+//      VM.sysWrite("halt!");
       Magic.halt();
       nextThread = runQueue.dequeue();
     }
@@ -98,7 +98,7 @@ public class RoundRobin implements Scheduler {
     /*
      * See if thread is already queued somewhere else like a monitor
      */
-    else if (!thread.isTerminated() && thread.isRunnable()) {
+    else if (!thread.isTerminated()) {
       if (trace)
         VM.sysWrite("|A", thread.threadSlot);
       runQueue.enqueue(thread);

@@ -259,7 +259,7 @@ public final class Lock {
        */
       while(entering.isQueued(me))
       {
-          Magic.yield();
+          RVMThread.yieldNoHandshake();
       }
       return false;
     }

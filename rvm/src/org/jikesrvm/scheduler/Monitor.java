@@ -74,7 +74,7 @@ public class Monitor {
   int holderSlot = -1; // use the slot so that we're even more GC safe
   int recCount;
   public int acquireCount;
-  ThreadQueue waiting;  // threads waiting to be notified
+//  ThreadQueue waiting;  // threads waiting to be notified
   ThreadQueue locking;  // threads trying to acquire the monitor
   private static Offset monitorOffset = Entrypoints.monitorField.getOffset();
 
@@ -86,7 +86,7 @@ public class Monitor {
   public Monitor() {
 //    monitor = sysCall.sysMonitorCreate();
       monitor = Word.zero();
-      waiting = new ThreadQueue("monitorWaiting");
+//      waiting = new ThreadQueue("monitorWaiting");
       locking = new ThreadQueue("monitorLocking");
   }
 
@@ -374,10 +374,6 @@ public class Monitor {
   {
       RVMThread thread = RVMThread.getCurrentThread();
       /*
-       * put thread onto the wait queue
-       */
-      waiting.enqueue(thread);
-      /*
        * Save current monitor state and reset
        */
       int recCount = this.recCount;
@@ -407,6 +403,10 @@ public class Monitor {
 //           */
 //          Platform.scheduler.addThread(waitingThread);
 //      }
+      /*
+       * put thread onto the wait queue
+       */
+      locking.enqueue(thread);
       /*
        * Time to give up the processor
        */
@@ -468,7 +468,7 @@ public class Monitor {
      */
     Platform.timer.startTimer(whenWakeupNanos);
 //    Platform.timer.removeTimer(whenWakeupNanos);
-    VM.sysWriteln("timedWait: thread is up", thread.getThreadSlot());
+//    VM.sysWriteln("timedWait: thread is up", thread.getName());
     /*
      * Re-acquire the lock
      */
@@ -482,7 +482,7 @@ public class Monitor {
     if (VM.VerifyAssertions) VM._assert(this.recCount == 0);
     this.recCount = recCount;
     holderSlot = RVMThread.getCurrentThreadSlot();
-    VM.sysWriteln("timedWait: thread is done", thread.getThreadSlot());
+//    VM.sysWriteln("timedWait: thread is done", thread.getThreadSlot());
   }
   /**
    * Wait until someone calls {@link #broadcast()}, or until at least
