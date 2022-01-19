@@ -159,7 +159,7 @@ implements Timer
 //			VM.sysWriteln("|", timerExpiration);
 //		}
 //        if(trace) VM.sysWrite('T');
-        if(time < timerExpiration)
+        if(time < timerExpiration || timerQueue.isEmpty())
         {
             return;
         }
@@ -167,7 +167,7 @@ implements Timer
         /*
          * Remove the thread from the timer and schedule it
          */
-        RVMThread thread = (RVMThread) timerQueue.remove(timerExpiration);
+        RVMThread thread = (RVMThread) timerQueue.deleteMin();
         if(thread == null)
         {
             VM.sysWrite("timer expire: ", timerExpiration);
@@ -199,6 +199,8 @@ implements Timer
          */
 //        Magic.disableInterrupts();
         timerQueue.insert(time_ns, RVMThread.getCurrentThread());
+//        VM.sysWriteln("startTimer: ", timerQueue.toString());
+//        VM.sysWrite("/t/", RVMThread.getCurrentThreadSlot());
 //        Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
@@ -213,9 +215,7 @@ implements Timer
      */
     public RVMThread removeTimer(long timeKey)
     {
-      Magic.disableInterrupts();
       RVMThread t =  (RVMThread) timerQueue.remove(timeKey);
-      Magic.enableInterrupts();
 //      if(timerTrace)
 //      {
 //        VM.sysWrite("\nT1: ", timeKey);

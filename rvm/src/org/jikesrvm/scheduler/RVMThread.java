@@ -3796,7 +3796,7 @@ public final class RVMThread extends ThreadContext {
     waiting = hasTimeout ? Waiting.TIMED_WAITING : Waiting.WAITING;
     while (!parkingPermit && !hasInterrupt && asyncThrowable == null &&
            (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
-      Magic.yield();
+      yieldNoHandshake();
     }
     waiting = Waiting.RUNNABLE;
     parkingPermit = false;

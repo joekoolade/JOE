@@ -28,7 +28,7 @@ public class RoundRobin implements Scheduler {
   public void schedule()
   {
     RVMThread currentThread = RVMThread.getCurrentThread();
-    if(!currentThread.isOnQueue())
+    if(!currentThread.isOnQueue() && currentThread.isRunnable())
     {
       addThread(currentThread);
     }

@@ -66,7 +66,7 @@ public class PriorityQueue {
     int current = startingElement;
     int parent = numElements / 2;
     // keep checking parents that violate the magic condition
-    while (parent > 0 && queue[parent].priority < queue[current].priority) {
+    while (parent > 0 && queue[parent].priority >= queue[current].priority) {
       //        System.out.println("Parent: "+ parent +", Current: "+ current);
       //        System.out.println("Contents before: "+ this);
       // exchange parrent and current values
@@ -129,13 +129,13 @@ public class PriorityQueue {
 
       // find the smaller of the two children
       int smaller;
-      if (child2 <= numElements && queue[child2].priority > queue[child1].priority) {
+      if (child2 <= numElements && queue[child2].priority <= queue[child1].priority) {
         smaller = child2;
       } else {
         smaller = child1;
       }
 
-      if (queue[smaller].priority <= queue[current].priority) {
+      if (queue[smaller].priority > queue[current].priority) {
         break;
       } else {
         // exchange parrent and current values
