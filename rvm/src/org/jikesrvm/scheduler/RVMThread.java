@@ -2670,6 +2670,7 @@ public final class RVMThread extends ThreadContext {
 
   /** Enable yieldpoints on this thread. */
   public void enableYieldpoints() {
+    if(yieldpointsEnabledCount == 1) return;
     ++yieldpointsEnabledCount;
     if (VM.VerifyAssertions)
       VM._assert(yieldpointsEnabledCount <= 1);

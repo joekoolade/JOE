@@ -31,7 +31,7 @@ implements Timer
     private static final int  ticksPerSecond = 1000;
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
-    public int BOLT = 1000;   // schedule new process
+    public int BOLT = 10;   // schedule new process
 //    private int stack[];
     Address stackTop;
     private final static int STACK_SIZE = 512;

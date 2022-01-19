@@ -29,7 +29,7 @@ public class NapiManager implements Runnable {
     }
   }
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
 
   private static LinkedList<NapiEntry> networkInterfaces = new LinkedList<NapiEntry>();
 
@@ -129,7 +129,6 @@ public class NapiManager implements Runnable {
         if (networkInterfaces.isEmpty())
         {
           interfaceSlot = 0;
-          if(DEBUG) VM.sysWrite('*');
           Thread.sleep(1000);
         }
         else
