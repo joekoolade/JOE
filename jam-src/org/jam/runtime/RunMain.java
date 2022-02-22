@@ -16,12 +16,12 @@ implements Run
         if(args == null)
         {
             this.args = new String[1];
-            this.args[0] =threadClass;
+            this.args[0] = threadClass;
         }
         else
         {
             this.args = new String[args.length + 1];
-            this.args[0] =threadClass;
+            this.args[0] = threadClass;
             int index = 1;
             for(; index < args.length; index++)
             {

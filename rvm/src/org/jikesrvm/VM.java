@@ -22,6 +22,7 @@ import org.jam.board.pc.Platform;
 import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.runtime.StartUp;
 import org.jam.system.Trace;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
@@ -92,6 +93,8 @@ public class VM extends Properties {
   public static MainThread mainThread;
   public static boolean booting;
   public static final boolean joeMode = true;
+  public static String runClasses[];
+  
   //----------------------------------------------------------------------//
   //                          Initialization.                             //
   //----------------------------------------------------------------------//
@@ -774,6 +777,17 @@ public class VM extends Properties {
       VM.sysWriteln("Boot sequence completed; finishing boot thread");
     }
 
+    if(BootRecord.the_boot_record.testMode)
+    {
+        int i;
+        String[] mainClasses = BootRecord.the_boot_record.runMainClasses;
+        for(i=0; i < mainClasses.length; i++)
+        {
+          VM.sysWriteln("Starting Main class: " + mainClasses[i]);
+          
+        }
+        StartUp.testModeRun(mainClasses);
+    }
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     VM.sysWriteln("Starting NAPI");
@@ -781,6 +795,7 @@ public class VM extends Properties {
     VM.sysWriteln("NAPI done");
     Platform.net.inetBoot();
     VM.sysWriteln("INET boot done");
+    
     
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread

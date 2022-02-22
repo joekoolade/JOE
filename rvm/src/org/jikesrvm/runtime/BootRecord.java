@@ -195,6 +195,12 @@ public class BootRecord {
   @Untraced // because bootloader code must be able to access it
   public FunctionTable JNIFunctions;
 
+  public boolean testMode;
+  /*
+   * Classes that contain a main() to run
+   */
+  public String runMainClasses[];
+  
   // Additional RVM entrypoints
   //
   /**

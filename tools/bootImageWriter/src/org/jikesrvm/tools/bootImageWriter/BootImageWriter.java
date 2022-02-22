@@ -40,8 +40,11 @@ import static org.jikesrvm.tools.bootImageWriter.Verbosity.SUMMARY;
 import static org.jikesrvm.tools.bootImageWriter.Verbosity.TYPE_NAMES;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
@@ -54,6 +57,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -92,6 +96,7 @@ import org.jikesrvm.runtime.Entrypoints;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Statics;
 import org.jikesrvm.scheduler.RVMThread;
+import org.jikesrvm.tools.bootImageWriter.BootImageMap.Entry;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.ClassNameComparator;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.IdenticalComparator;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.NonFinalReferenceDensityComparator;
@@ -132,7 +137,8 @@ import static org.jikesrvm.runtime.EntrypointHelper.getField;
  *    -profile                 time major phases of bootimage writing
  *    -xclasspath <path>       OBSOLETE compatibility aid
  *    -numThreads=N            number of parallel compilation threads we should create
- *
+ *    -testMode                run all main programs found in ext/ sequentially
+ *    
  * </pre>
  */
 public class BootImageWriter {
@@ -193,6 +199,13 @@ public class BootImageWriter {
     }
   }
 
+  private static final class ClassFileFilter implements FilenameFilter
+  {
+    public boolean accept(File dir, String fileName)
+    {
+      return fileName.endsWith(".class");
+    }
+  }
   /**
    * Entries yet to be written into the boot image
    */
@@ -322,6 +335,11 @@ public class BootImageWriter {
 
   private static boolean jamming=false;
 
+  private static boolean testMode;
+
+  private static ArrayList<String> mainClass = new ArrayList<String>();
+  private static String[] mainClassStrings;
+  
   /**
    * Main.
    * @param args command line arguments
@@ -501,7 +519,6 @@ public class BootImageWriter {
         littleEndian = true;
         continue;
       }
-      
       if (args[i].equals("-jam")) {
     	  if (++i >= args.length)
     		  fail("Need to specify jam files");
@@ -510,6 +527,13 @@ public class BootImageWriter {
     	  jamming = true;
     	  continue;
       }
+      if(args[i].equals("-testMode"))
+      {
+        testMode = true;
+        continue;
+      }
+      if(args[i].length()==0) continue;
+      
       fail("unrecognized command line argument: " + args[i]);
     }
 
@@ -561,6 +585,23 @@ public class BootImageWriter {
       }
     }
 
+    
+    /*
+     * Test mode will look for all classes in the ext/ directory and add them to
+     * the primordial list. A list of classes that contain main() functions will be
+     * inserted into the boot image. 
+     */
+    if(testMode)
+    {
+      testModeclassFiles = getClassFiles("ext/bin");
+      try {
+        appendClassImageFile(testModeclassFiles);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        fail("Test class append failed! " + e.getMessage());
+      }
+    }
     //
     // Initialize the bootimage.
     // Do this earlier than we logically need to because we need to
@@ -999,6 +1040,81 @@ public class BootImageWriter {
     }
   }
 
+  static ArrayList<String> getClassFiles(String path)
+  {
+    ArrayList<String> classFileList = new ArrayList<String>();
+    
+    File pathFile = new File(path);
+    File pathFileList[] = pathFile.listFiles();
+    int index;
+    for(index = 0; index < pathFileList.length; index++)
+    {
+      if(pathFileList[index].isDirectory())
+      {
+        try {
+          classFileList.addAll(getClassFiles(pathFileList[index].getCanonicalPath()));
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+      else
+      {
+        try {
+          String file = pathFileList[index].getCanonicalPath();
+          if(file.endsWith(".class"))
+          {
+            classFileList.add(file);
+          }
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          say("IOexception: " + pathFileList[index].getAbsolutePath());
+        }
+      }
+    }
+    return classFileList;
+  }
+  
+  static void appendClassImageFile(ArrayList<String> files) throws IOException
+  {
+    /*
+     * Add classes to ClassesForImage.txt
+     */
+    ArrayList<String> extClasses = new ArrayList<String>();
+    FileWriter cfiFile = new FileWriter("Primordials.txt", true);
+    Iterator<String> iter = files.iterator();
+    while(iter.hasNext())
+    {
+      String line = iter.next();
+      // find the 'ext/bin/' substring
+      int packageIndex = line.indexOf("ext/bin/") + 8;
+      StringBuilder classLine = new StringBuilder("L");
+      int suffixIndex = line.indexOf(".class");
+      classLine.append(line.substring(packageIndex, suffixIndex)).append(";\n");
+      if(line.indexOf('$') == -1)
+      {
+        String clName = line.replace('/', '.').substring(packageIndex, suffixIndex);
+        extClasses.add(clName);
+        try {
+          Class cl = Class.forName(clName);
+          cl.getMethod("main", String[].class);
+        } catch (ClassNotFoundException e) {
+          continue;
+        } catch (NoSuchMethodException e) {
+          continue;
+        } catch (SecurityException e) {
+          say("SecurityException: " + clName + ": " + e.getMessage());
+        }
+        mainClass .add(clName);
+        say("main class: " + clName);
+        
+      }
+      cfiFile.write(classLine.toString());
+    }
+    cfiFile.close();
+    mainClassStrings = new String[mainClass.size()];
+    mainClass.toArray(mainClassStrings);
+  }
   /**
    * Print a report of space usage in the boot image.
    */
@@ -1245,6 +1361,8 @@ public class BootImageWriter {
       bootImage.resetAllocator();
       bootRecord.tocRegister = jtocAddress.plus(intArrayType.getInstanceSize(Statics.middleOfTable));
 
+      bootRecord.runMainClasses = mainClassStrings;
+      bootRecord.testMode = testMode;
       // set up some stuff we need for compiling
       ArchitectureFactory.initOutOfLineMachineCode();
 
@@ -1297,7 +1415,7 @@ public class BootImageWriter {
       // at bootimage writing time.
       FunctionTable functionTable = BuildJNIFunctionTable.buildTable();
       JNIEnvironment.initFunctionTable(functionTable);
-
+      
       //
       // Collect the VM class Field to JDK class Field correspondence
       // This will be needed when building the images of each object instance
@@ -1982,6 +2100,8 @@ public class BootImageWriter {
   private static final int OBJECT_HEADER_SIZE = 8;
   private static Hashtable<Object,Integer> traversed = null;
   private static final Integer VISITED = 0;
+
+  private static ArrayList<String> testModeclassFiles;
 
   /**
    * Traverse an object (and, recursively, any of its fields or elements that
