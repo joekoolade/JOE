@@ -3141,7 +3141,7 @@ public final class RVMThread extends ThreadContext {
       execStatus = TERMINATED;
       if(!isBootThread())
       {
-          Magic.yield();
+          yieldNoHandshake();
       }
   }
 
