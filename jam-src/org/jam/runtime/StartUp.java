@@ -50,6 +50,7 @@ public class StartUp
     {
         Thread testThread = new Thread(new RunTests(tests));
         
+        testThread.setName("Test Mode");
         testThread.start();
     }
 }
