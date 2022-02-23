@@ -48,13 +48,8 @@ public class StartUp
     
     public final static void testModeRun(String tests[]) 
     {
-        int i = 0;
-        for (i = 0; i < tests.length; i++) 
-        {
-            String args[] = new String[1];
-            args[0] = tests[i];
-            MainThread program = new MainThread(args);
-            program.run();
-        }
+        Thread testThread = new Thread(new RunTests(tests));
+        
+        testThread.start();
     }
 }

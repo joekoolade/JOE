@@ -177,6 +177,10 @@ public final class StackframeLayoutConstants {
   public static final Address STACKFRAME_SENTINEL_FP = Address.fromIntSignExtend(-2);
   /** marker for "assembler" frames that have no associated RVMMethod */
   public static final int INVISIBLE_METHOD_ID = -1;
+  /*
+   * TODO: use different value for interrupt method; fix stack layout in startoff() so that
+   * a stack walkback points to stack sentinel
+   */
   public static final int INTERRUPT_METHOD_ID = -2;     // an interrupt frame  
   public static final int THREAD_START_METHOD_ID = -3;  // thread starup frame
 

@@ -66,7 +66,7 @@ public final class StackBrowser {
       VM.sysWrite("newFP ", newFP);
       VM.sysWriteln("-->", newFP.loadAddress());
     }
-    if (newFP.EQ(StackFrameLayout.getStackFrameSentinelFP())) {
+    if (newFP.EQ(StackFrameLayout.getStackFrameSentinelFP()) || newFP.EQ(Address.zero())) {
       return false;
     }
     if (newFP.loadAddress(Offset.zero().plus(3 * 8)).EQ(StackFrameLayout.getStackFrameSentinelFP()))
@@ -82,6 +82,7 @@ public final class StackBrowser {
     while (cmid == StackFrameLayout.getInvisibleMethodID()) {
       prevFP = newFP;
       newFP = Magic.getCallerFramePointer(newFP);
+      if(DEBUG) VM.sysWriteln("SB next ", newFP);
       if (newFP.EQ(StackFrameLayout.getStackFrameSentinelFP())) {
         return false;
       }
