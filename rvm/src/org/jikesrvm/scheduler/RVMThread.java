@@ -152,7 +152,7 @@ public final class RVMThread extends ThreadContext {
    * debug and statistics
    */
   /** Trace thread blockage */
-  protected static final boolean traceBlock = false;
+  protected static final boolean traceBlock = true;
 
   /** Trace when a thread is really blocked */
   protected static final boolean traceReallyBlock = false || traceBlock;
@@ -164,7 +164,7 @@ public final class RVMThread extends ThreadContext {
   protected static final boolean traceBind = false;
 
   /** Trace thread start/stop */
-  protected static final boolean traceAcct = true;
+  protected static final boolean traceAcct = false;
 
   /** Trace execution */
   protected static final boolean trace = false;
@@ -4103,6 +4103,7 @@ public final class RVMThread extends ThreadContext {
   public static void blockAllMutatorsForGC() {
     RVMThread.handshakeLock.lockNoHandshake();
     while (true) {
+        VM.sysWriteln("%GC%");
       // (1) Find all the threads that need to be blocked for GC
       RVMThread.acctLock.lockNoHandshake();
       int numToHandshake = 0;
@@ -4113,11 +4114,13 @@ public final class RVMThread extends ThreadContext {
         }
       }
       RVMThread.acctLock.unlock();
+      VM.sysWriteln("%GC ", numToHandshake);
 
       // (2) Remove any threads that have already been blocked from the list.
       for (int i = 0; i < numToHandshake; i++) {
         RVMThread t = RVMThread.handshakeThreads[i];
         t.monitor().lockNoHandshake();
+        VM.sysWriteln("handshake ", i);
         if (t.blockedFor(RVMThread.gcBlockAdapter) || RVMThread.notRunning(t.asyncBlock(RVMThread.gcBlockAdapter))) {
           // Already blocked or not running, remove.
           RVMThread.handshakeThreads[i--] = RVMThread.handshakeThreads[--numToHandshake];
@@ -4125,6 +4128,7 @@ public final class RVMThread extends ThreadContext {
         }
         t.monitor().unlock();
       }
+      VM.sysWriteln("%GC2%");
 
       // (3) Quit trying to block threads if all threads are either blocked
       //     or not running (a thread is "not running" if it is NEW or TERMINATED;
@@ -4137,7 +4141,7 @@ public final class RVMThread extends ThreadContext {
 
       // (4) Request a block for GC from all other threads.
       for (int i = 0; i < numToHandshake; i++) {
-        if (false) VM.sysWriteln("Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
+        if (true) VM.sysWriteln("Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
         RVMThread t = RVMThread.handshakeThreads[i];
         RVMThread.observeExecStatusAtSTW(t.block(RVMThread.gcBlockAdapter));
         RVMThread.handshakeThreads[i] = null; // help GC

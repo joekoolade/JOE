@@ -509,8 +509,10 @@ Check to make sure all required properties are specified. This includes properti
 	<property name="testing-basic.java" location="testing/tests/basic/src"/>
 
 	<target name="testmode" depends="compile-vmmagic">
+		<mkdir dir="${build.test-classes}"/>
+    <mkdir dir="${build.base}/ext/bin"/>
 		<delete includeEmptyDirs="true">
-			<fileset dir="${build.test-classes}" includes="**/*"/>
+			<fileset dir="${build.test-classes}" includes="**/*" excludes="test/**/*"/>
 		</delete>
 		<javac srcdir="${testing-basic.java}" destdir="${build.test-classes}"
 	   source="${rvm.java.version}" target="${rvm.java.version}" includeAntRuntime="false">
@@ -523,6 +525,9 @@ Check to make sure all required properties are specified. This includes properti
       <include name="test/org/jikesrvm/basic/core/intrinsics/TestMagic.java"/>
 		  <include name="test/org/jikesrvm/basic/core/intrinsics/TestOffset.java"/>
       <include name="test/org/jikesrvm/basic/core/intrinsics/TestSynchronization.java"/>
+			<include name="test/org/jikesrvm/basic/core/threads/*"/>
+			<exclude name="test/org/jikesrvm/basic/core/threads/TestShutdown*.java"/>
+			<exclude name="test/org/jikesrvm/basic/core/threads/TestSleepForever.java"/>
 		</javac>
 		<delete includeEmptyDirs="true">
 			<fileset dir="${build.base}/ext/bin" includes="**/*"/>
@@ -1400,7 +1405,9 @@ Check to make sure all required properties are specified. This includes properti
      we will not need to delete class dir here. We will also be able to
      compile ALL classes in one sweep.
     -->
+<!--
     <delete dir="${build.classes}"/>
+-->
     <mkdir dir="${build.classes}"/>
     <if>
       <conditions>
@@ -1415,7 +1422,7 @@ Check to make sure all required properties are specified. This includes properti
                source="${rvm.java.version}"
                target="${rvm.java.version}"
                srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
-               sourcepath="${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
+               sourcepath="${main.java}:${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
                includeantruntime="false">
           <bootclasspath>
             <pathelement location="${classpath.lib.dir}/classpath.jar"/>
@@ -1452,7 +1459,7 @@ Check to make sure all required properties are specified. This includes properti
                source="${rvm.java.version}"
                target="${rvm.java.version}"
                srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-               sourcepath="${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
+               sourcepath="${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
                includeantruntime="false">
           <bootclasspath>
             <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
@@ -1462,6 +1469,7 @@ Check to make sure all required properties are specified. This includes properti
           </classpath>
           <include name="Dummy.java"/>
           <include name="OptDummy.java"/>
+        	<include name="org/jikesrvm/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/openjdk/replacements/**"/>
           <include name="org/apache/**/*.java"/>
           <include name="sun/**/*.java"/>
@@ -1705,7 +1713,7 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="package-classpath" if="classpath.classlib">
     <!-- create a rt.jar for the RVM -->
-    <zip destfile="${build.rt.jar}" duplicate="preserve" basedir="${build.classes}" compress="false">
+    <zip destfile="${build.rt.jar}" update="true" duplicate="preserve" basedir="${build.classes}" compress="false">
       <include name="java/**"/>
       <include name="sun/**"/>
       <include name="gnu/**"/>
@@ -1904,7 +1912,7 @@ Check to make sure all required properties are specified. This includes properti
       <classpath>
         <pathelement location="${build.bootimage-writer.dir}"/>
         <path refid="rvm.class.path"/>
-      	<pathelement location="ext/bin"/>
+      	<pathelement location="${build.base}/ext/bin"/>
       </classpath>
 
       <sysproperty key="mmtk.hostjvm" value="org.jikesrvm.mm.mmtk.Factory"/>
@@ -1914,7 +1922,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="-log"/>
       <arg path="${build.base}/BootImageWriterOutput.txt"/>
       <arg value="-classpath"/>
-      <arg path="${rvm.class.path}:ext/bin"/>
+      <arg path="${rvm.class.path}:${build.base}/ext/bin"/>
       <arg value="-n"/>
       <arg path="${build.base}/Primordials.txt"/>
       <arg value="-oc"/>
@@ -2503,6 +2511,10 @@ target.jni-suffix=${target.jni-suffix}
   <target name="clean" description="Delete all the intermediate and image files.">
     <delete dir="${build.dir}"/>
     <delete dir="${dist.base}"/>
+  </target>
+
+  <target name="clean-classes" description="Delete all the build classes.">
+    <delete dir="${build.classes}/*"/>
   </target>
 
   <target name="very-clean" depends="clean" description="Delete all the intermediate and image files.">

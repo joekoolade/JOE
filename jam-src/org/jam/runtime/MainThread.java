@@ -19,6 +19,7 @@ import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.classloader.TypeReference;
 import org.jikesrvm.runtime.Callbacks;
+import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Reflection;
 import org.vmmagic.pragma.Entrypoint;
 

@@ -200,6 +200,7 @@ public class BootRecord {
    * Classes that contain a main() to run
    */
   public String runMainClasses[];
+  public String testClasses[];
   
   // Additional RVM entrypoints
   //

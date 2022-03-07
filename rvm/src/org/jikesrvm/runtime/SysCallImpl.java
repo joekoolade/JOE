@@ -9,7 +9,8 @@ import org.vmmagic.unboxed.Offset;
 @org.vmmagic.pragma.Uninterruptible
 public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
 {
-
+    final private static boolean  DEBUG = false;
+  
   @java.lang.Override
   public void sysConsoleWriteChar(char v)
   {
@@ -172,41 +173,44 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   @java.lang.Override
   public int sysArg(int argno, byte[] buf, int buflen)
   {
-    VM.sysWriteln("ARG ", argno);
+    if(DEBUG) VM.sysWriteln("ARG ", argno);
     return 0;
   }
 
   @java.lang.Override
   public int sysGetenv(byte[] varName, byte[] buf, int limit)
   {
-    VM.sysWriteln("GETENV ", varName[0]);
+      if(DEBUG) VM.sysWriteln("GETENV ", varName[0]);
     return 0;
   }
 
   @java.lang.Override
   public void sysCopy(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Address src, org.vmmagic.unboxed.Extent cnt)
   {
-    VM.sysWrite("COPY ", dst);
-    VM.sysWrite(" ", src);
-    VM.sysWriteln(" ", cnt.toInt());
-    int next;
-    for (next = 0; next < cnt.toInt(); next += 4)
-    {
-      dst.store(src.loadInt(Offset.zero().plus(next)), Offset.zero().plus(next));
-    }
+      if (DEBUG)
+      {
+          VM.sysWrite("COPY ", dst);
+          VM.sysWrite(" ", src);
+          VM.sysWriteln(" ", cnt.toInt());
+      }
+      int next;
+      for (next = 0; next < cnt.toInt(); next += 4)
+      {
+          dst.store(src.loadInt(Offset.zero().plus(next)), Offset.zero().plus(next));
+      }
   }
 
   @java.lang.Override
   public void sysMemmove(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Address src,
   org.vmmagic.unboxed.Extent cnt)
   {
-    VM.sysWriteln("MEMMOVE ", dst);
+      if(DEBUG) VM.sysWriteln("MEMMOVE ", dst);
   }
 
   @java.lang.Override
   public org.vmmagic.unboxed.Address sysMalloc(int length)
   {
-    VM.sysWriteln("MALLOC ", length);
+      if(DEBUG) VM.sysWriteln("MALLOC ", length);
 
     return null;
   }
@@ -214,21 +218,21 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   @java.lang.Override
   public org.vmmagic.unboxed.Address sysCalloc(int length)
   {
-    VM.sysWriteln("CALLOC ", length);
+      if(DEBUG) VM.sysWriteln("CALLOC ", length);
     return null;
   }
 
   @java.lang.Override
   public void sysFree(org.vmmagic.unboxed.Address location)
   {
-    VM.sysWriteln("FREE ", location);
+      if(DEBUG) VM.sysWriteln("FREE ", location);
   }
 
   @java.lang.Override
   public void sysZeroNT(org.vmmagic.unboxed.Address dst, org.vmmagic.unboxed.Extent cnt)
   {
-    VM.sysWrite("ZERONT ", dst);
-    VM.sysWriteln(" ", cnt.toInt());
+      if(DEBUG) VM.sysWrite("ZERONT ", dst);
+      if(DEBUG) VM.sysWriteln(" ", cnt.toInt());
   }
 
   @java.lang.Override
@@ -243,73 +247,73 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   @java.lang.Override
   public void sysZeroPages(org.vmmagic.unboxed.Address dst, int cnt)
   {
-    VM.sysWriteln("ZEROPAGES ", dst);
+      if(DEBUG) VM.sysWriteln("ZEROPAGES ", dst);
   }
 
   @java.lang.Override
   public void sysSyncCache(org.vmmagic.unboxed.Address address, int size)
   {
-    VM.sysWriteln("SYNCACHE ", address);
+      if(DEBUG) VM.sysWriteln("SYNCACHE ", address);
   }
 
   @java.lang.Override
   public int sysPerfEventInit(int events)
   {
-    VM.sysWriteln("PERFEVENT INIT ", events);
+      if(DEBUG) VM.sysWriteln("PERFEVENT INIT ", events);
     return 0;
   }
 
   @java.lang.Override
   public int sysPerfEventCreate(int id, byte[] name)
   {
-    VM.sysWriteln("PERFEVENT CREATE ", id);
+      if(DEBUG) VM.sysWriteln("PERFEVENT CREATE ", id);
     return 0;
   }
 
   @java.lang.Override
   public void sysPerfEventEnable()
   {
-    VM.sysWriteln("PERFEVENT ENABLE");
+      if(DEBUG) VM.sysWriteln("PERFEVENT ENABLE");
   }
 
   @java.lang.Override
   public void sysPerfEventDisable()
   {
-    VM.sysWriteln("PERFEVENT DISABLE");
+      if(DEBUG) VM.sysWriteln("PERFEVENT DISABLE");
   }
 
   @java.lang.Override
   public int sysPerfEventRead(int id, long[] values)
   {
-    VM.sysWriteln("PERFEVENT READ ", values.length);
+      if(DEBUG) VM.sysWriteln("PERFEVENT READ ", values.length);
     return 0;
   }
 
   @java.lang.Override
   public int sysReadByte(int fd)
   {
-    VM.sysWriteln("READ BYTE ", fd);
+      if(DEBUG) VM.sysWriteln("READ BYTE ", fd);
     return 0;
   }
 
   @java.lang.Override
   public int sysWriteByte(int fd, int data)
   {
-    VM.sysWriteln("WRITE BYTE ", fd);
+      if(DEBUG) VM.sysWriteln("WRITE BYTE ", fd);
     return 0;
   }
 
   @java.lang.Override
   public int sysReadBytes(int fd, org.vmmagic.unboxed.Address buf, int cnt)
   {
-    VM.sysWriteln("READ BYTES ", buf);
+      if(DEBUG) VM.sysWriteln("READ BYTES ", buf);
     return 0;
   }
 
   @java.lang.Override
   public int sysWriteBytes(int fd, org.vmmagic.unboxed.Address buf, int cnt)
   {
-    VM.sysWriteln("WRITE BYTES ", buf);
+      if(DEBUG) VM.sysWriteln("WRITE BYTES ", buf);
     return 0;
   }
 
@@ -317,10 +321,12 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   public org.vmmagic.unboxed.Address sysMMap(org.vmmagic.unboxed.Address start, org.vmmagic.unboxed.Extent length,
   int protection, int flags, int fd, org.vmmagic.unboxed.Offset offset)
   {
-    VM.sysWriteln("MMAP ", start);
-    VM.sysWrite(" ", length.toInt());
-    VM.sysWriteln(" ", offset.toInt());
-
+      if (DEBUG)
+      {
+          VM.sysWriteln("MMAP ", start);
+          VM.sysWrite(" ", length.toInt());
+          VM.sysWriteln(" ", offset.toInt());
+      }
     return start;
   }
 
@@ -328,17 +334,19 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   public org.vmmagic.unboxed.Address sysMMapErrno(org.vmmagic.unboxed.Address start, org.vmmagic.unboxed.Extent length,
   int protection, int flags, int fd, org.vmmagic.unboxed.Offset offset)
   {
-    VM.sysWrite("MMAP ERRNO ", start);
-    VM.sysWrite(" ", length.toInt());
-    VM.sysWriteln(" ", offset.toInt());
-
-    return start;
+      if (DEBUG)
+      {
+          VM.sysWrite("MMAP ERRNO ", start);
+          VM.sysWrite(" ", length.toInt());
+          VM.sysWriteln(" ", offset.toInt());
+      }
+      return start;
   }
 
   @java.lang.Override
   public int sysMProtect(org.vmmagic.unboxed.Address start, org.vmmagic.unboxed.Extent length, int prot)
   {
-    VM.sysWriteln("MPROTECT ", start);
+      if(DEBUG) VM.sysWriteln("MPROTECT ", start);
     return 0;
   }
 
@@ -352,21 +360,21 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   public org.vmmagic.unboxed.Word sysThreadCreate(org.vmmagic.unboxed.Address ip, org.vmmagic.unboxed.Address fp,
   org.vmmagic.unboxed.Address tr, org.vmmagic.unboxed.Address jtoc)
   {
-    VM.sysWriteln("THREAD CREATE ", tr);
+      if(DEBUG) VM.sysWriteln("THREAD CREATE ", tr);
     return null;
   }
 
   @java.lang.Override
   public int sysThreadBindSupported()
   {
-    VM.sysWriteln("THREAD BIND");
+      if(DEBUG) VM.sysWriteln("THREAD BIND");
     return 0;
   }
 
   @java.lang.Override
   public void sysThreadBind(int cpuId)
   {
-    VM.sysWriteln("TRHEAD BIND ", cpuId);
+      if(DEBUG) VM.sysWriteln("TRHEAD BIND ", cpuId);
   }
 
   @java.lang.Override
@@ -379,35 +387,35 @@ public final class SysCallImpl extends org.jikesrvm.runtime.SysCall
   @java.lang.Override
   public org.vmmagic.unboxed.Word sysGetThreadId()
   {
-    VM.sysWriteln("GETTHREAD ID");
+      if(DEBUG) VM.sysWriteln("GETTHREAD ID");
     return null;
   }
 
   @java.lang.Override
   public org.vmmagic.unboxed.Word sysGetThreadPriorityHandle()
   {
-    VM.sysWriteln("GETTHREAD PRIORITY HANDLE");
+      if(DEBUG) VM.sysWriteln("GETTHREAD PRIORITY HANDLE");
     return null;
   }
 
   @java.lang.Override
   public int sysGetThreadPriority(org.vmmagic.unboxed.Word thread, org.vmmagic.unboxed.Word handle)
   {
-    VM.sysWriteln("GETTHREAD PRIORITY");
+      if(DEBUG) VM.sysWriteln("GETTHREAD PRIORITY");
     return 0;
   }
 
   @java.lang.Override
   public int sysSetThreadPriority(org.vmmagic.unboxed.Word thread, org.vmmagic.unboxed.Word handle, int priority)
   {
-    VM.sysWriteln("SETTHREAD PRIORITY ", thread);
+      if(DEBUG) VM.sysWriteln("SETTHREAD PRIORITY ", thread);
     return 0;
   }
 
   @java.lang.Override
   public int sysStashVMThread(org.jikesrvm.scheduler.RVMThread vmThread)
   {
-    VM.sysWriteln("STASH VMTHREAD ", Magic.objectAsAddress(vmThread));
+      if(DEBUG) VM.sysWriteln("STASH VMTHREAD ", Magic.objectAsAddress(vmThread));
     return 0;
   }
 

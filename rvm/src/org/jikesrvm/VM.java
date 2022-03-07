@@ -780,13 +780,21 @@ public class VM extends Properties {
     if(BootRecord.the_boot_record.testMode)
     {
         int i;
-        String[] mainClasses = BootRecord.the_boot_record.runMainClasses;
-        for(i=0; i < mainClasses.length; i++)
+        String[] classes = BootRecord.the_boot_record.testClasses;
+        int prevVerbose = verboseBoot;
+        verboseBoot = 2;
+        for(i=0; i < classes.length; i++)
         {
-          VM.sysWriteln("Starting Main class: " + mainClasses[i]);
-          
+            VM.sysWriteln("Initializing class: " + classes[i]);
+            runClassInitializer(classes[i]);;
         }
-        StartUp.testModeRun(mainClasses);
+        verboseBoot = prevVerbose;
+        classes = BootRecord.the_boot_record.runMainClasses;
+        for(i=0; i < classes.length; i++)
+        {
+          VM.sysWriteln("Starting Main class: " + classes[i]);
+        }
+        StartUp.testModeRun(classes);
     }
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
@@ -835,7 +843,10 @@ public class VM extends Properties {
     TypeReference tRef =
         TypeReference.findOrCreate(BootstrapClassLoader.getBootstrapClassLoader(), classDescriptor);
     RVMClass cls = (RVMClass) tRef.peekType();
-    if(cls==null) sysWriteln("cls is NULL");
+    if(cls==null) {
+        sysWriteln("cls is NULL");
+        return;
+    }
     if (cls.isEnum() && VM.BuildForOpenJDK) {
       sysWrite("Not attempting to run class initializer for ");
       sysWrite(className);

@@ -171,7 +171,8 @@ implements Timer
         if(thread == null)
         {
             VM.sysWrite("timer expire: ", timerExpiration);
-            VM.sysFail(timerQueue.toString());
+            return;
+//            VM.sysFail(timerQueue.toString());
         }
         if(timerTrace) { VM.sysWrite("\nTimer expired! ", timerExpiration); VM.sysWriteln(" ", thread.threadSlot); }
         Platform.scheduler.addThread(thread);

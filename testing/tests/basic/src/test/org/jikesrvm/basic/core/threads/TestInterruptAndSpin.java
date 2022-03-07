@@ -47,6 +47,7 @@ public class TestInterruptAndSpin {
         throw new InterruptedException("Dummy"); // placate compiler
 
       System.out.println("TestInterruptAndSpin SUCCESS");
+      t.stop();
 
     } catch (InterruptedException e) {
       // This should not have happened

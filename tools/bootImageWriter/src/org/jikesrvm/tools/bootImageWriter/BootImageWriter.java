@@ -339,6 +339,8 @@ public class BootImageWriter {
 
   private static ArrayList<String> mainClass = new ArrayList<String>();
   private static String[] mainClassStrings;
+  private static String[] testClassStrings;
+  
   
   /**
    * Main.
@@ -1091,27 +1093,32 @@ public class BootImageWriter {
       StringBuilder classLine = new StringBuilder("L");
       int suffixIndex = line.indexOf(".class");
       classLine.append(line.substring(packageIndex, suffixIndex)).append(";\n");
-      if(line.indexOf('$') == -1)
+      String clName = line.replace('/', '.').substring(packageIndex, suffixIndex);
+      extClasses.add(clName);
+//      say("ext class: " + clName);
+      main: if(line.indexOf('$') == -1)
       {
-        String clName = line.replace('/', '.').substring(packageIndex, suffixIndex);
-        extClasses.add(clName);
         try {
           Class cl = Class.forName(clName);
           cl.getMethod("main", String[].class);
         } catch (ClassNotFoundException e) {
           continue;
         } catch (NoSuchMethodException e) {
-          continue;
+          break main;
         } catch (SecurityException e) {
           say("SecurityException: " + clName + ": " + e.getMessage());
         }
-        mainClass .add(clName);
-        say("main class: " + clName);
+        mainClass.add(clName);
+//        say("main class: " + clName);
         
       }
+      say("file: "+ clName);
       cfiFile.write(classLine.toString());
     }
+    cfiFile.flush();
     cfiFile.close();
+    testClassStrings = new String[extClasses.size()];
+    extClasses.toArray(testClassStrings);
     mainClassStrings = new String[mainClass.size()];
     mainClass.toArray(mainClassStrings);
   }
@@ -1362,6 +1369,7 @@ public class BootImageWriter {
       bootRecord.tocRegister = jtocAddress.plus(intArrayType.getInstanceSize(Statics.middleOfTable));
 
       bootRecord.runMainClasses = mainClassStrings;
+      bootRecord.testClasses = testClassStrings;
       bootRecord.testMode = testMode;
       // set up some stuff we need for compiling
       ArchitectureFactory.initOutOfLineMachineCode();
