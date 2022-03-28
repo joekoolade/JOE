@@ -2287,7 +2287,7 @@ public final class RVMThread extends ThreadContext {
     if (traceBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
           " is requesting that thread #", threadSlot, " blocks.");
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     int token = ba.requestBlock(this);
     if (getCurrentThread() == this) {
       if (traceBlock)
@@ -2319,39 +2319,43 @@ public final class RVMThread extends ThreadContext {
         // broadcast() happens _before_ the setting of the flags that the
         // other threads would be awaiting, but that is fine, since we're
         // still holding the lock anyway.
-        monitor().broadcast();
+//        monitor().broadcast();
         if (newState == IN_JAVA_TO_BLOCK) {
-          if (!asynchronous) {
-            if (traceBlock)
-              VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
-                  " is waiting for thread #", threadSlot, " to block.");
-            while (ba.hasBlockRequest(this, token) && !ba.isBlocked(this) && !isAboutToTerminate) {
-              if (traceBlock)
-                VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
-                    " is calling wait until thread #", threadSlot, " blocks.");
-              // will this deadlock when the thread dies?
-              if (VM.VerifyAssertions) {
-                // do a timed wait, and assert that the thread did not disappear
-                // into native in the meantime
-                monitor().timedWaitRelativeNoHandshake(1000L * 1000L * 1000L); // 1 sec
-                if (traceReallyBlock) {
-                  VM.sysWriteln("Thread #", threadSlot, "'s status is ",
-                      READABLE_EXEC_STATUS[getExecStatus()]);
-                }
-                assertUnacceptableStates(IN_NATIVE);
-              } else {
-                monitor().waitNoHandshake();
-              }
-              if (traceBlock)
-                VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
-                    " has returned from the wait call.");
-            }
-            if (isAboutToTerminate) {
-              result = TERMINATED;
-            } else {
-              result = getExecStatus();
-            }
-          }
+            ba.setBlocked(this, true);
+//          if (!asynchronous) {
+//            if (traceBlock)
+//              VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
+//                  " is waiting for thread #", threadSlot, " to block.");
+//            while (ba.hasBlockRequest(this, token) && !ba.isBlocked(this) && !isAboutToTerminate) 
+//            {
+//              if (traceBlock)
+//                VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
+//                    " is calling wait until thread #", threadSlot, " blocks.");
+//              // will this deadlock when the thread dies?
+////              if (VM.VerifyAssertions) {
+////                // do a timed wait, and assert that the thread did not disappear
+////                // into native in the meantime
+////                monitor().timedWaitRelativeNoHandshake(1000L * 1000L * 1000L); // 1 sec
+////                if (traceReallyBlock) {
+////                  VM.sysWriteln("Thread #", threadSlot, "'s status is ",
+////                      READABLE_EXEC_STATUS[getExecStatus()]);
+////                }
+////                assertUnacceptableStates(IN_NATIVE);
+////              } else {
+////                monitor().waitNoHandshake();
+////              }
+//              yieldNoHandshake();
+//              if (traceBlock)
+//                VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
+//                    " has returned from the wait call.");
+//              Magic.halt();
+//            }
+//            if (isAboutToTerminate) {
+//              result = TERMINATED;
+//            } else {
+//              result = getExecStatus();
+//            }
+//          }
         } else if (newState == BLOCKED_IN_NATIVE || newState == BLOCKED_IN_JNI) {
           // we own the thread for now - it cannot go back to executing Java
           // code until we release the lock. before we do so we change its
@@ -2365,7 +2369,7 @@ public final class RVMThread extends ThreadContext {
         }
       }
     }
-    monitor().unlock();
+//    monitor().unlock();
     if (traceReallyBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
           " is done telling thread #", threadSlot, " to block.");
@@ -2373,9 +2377,9 @@ public final class RVMThread extends ThreadContext {
   }
 
   public boolean blockedFor(BlockAdapter ba) {
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     boolean result = ba.isBlocked(this);
-    monitor().unlock();
+//    monitor().unlock();
     return result;
   }
 
@@ -4119,14 +4123,14 @@ public final class RVMThread extends ThreadContext {
       // (2) Remove any threads that have already been blocked from the list.
       for (int i = 0; i < numToHandshake; i++) {
         RVMThread t = RVMThread.handshakeThreads[i];
-        t.monitor().lockNoHandshake();
-        VM.sysWriteln("handshake ", i);
+//        t.monitor().lockNoHandshake();
+        VM.sysWrite("handshake ", i);
         if (t.blockedFor(RVMThread.gcBlockAdapter) || RVMThread.notRunning(t.asyncBlock(RVMThread.gcBlockAdapter))) {
           // Already blocked or not running, remove.
           RVMThread.handshakeThreads[i--] = RVMThread.handshakeThreads[--numToHandshake];
           RVMThread.handshakeThreads[numToHandshake] = null; // help GC
         }
-        t.monitor().unlock();
+//        t.monitor().unlock();
       }
       VM.sysWriteln("%GC2%");
 
@@ -4141,7 +4145,10 @@ public final class RVMThread extends ThreadContext {
 
       // (4) Request a block for GC from all other threads.
       for (int i = 0; i < numToHandshake; i++) {
-        if (true) VM.sysWriteln("Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
+        if (true) {
+            VM.sysWrite("Waiting for ", RVMThread.handshakeThreads[i].getThreadSlot(), " to block.");
+            VM.sysWriteln(" ", i);
+        }
         RVMThread t = RVMThread.handshakeThreads[i];
         RVMThread.observeExecStatusAtSTW(t.block(RVMThread.gcBlockAdapter));
         RVMThread.handshakeThreads[i] = null; // help GC

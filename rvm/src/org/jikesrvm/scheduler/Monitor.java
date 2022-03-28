@@ -475,7 +475,7 @@ public class Monitor {
     while(!Magic.attemptInt(this, monitorOffset, UNLOCKED, LOCKED))
     {
       locking.enqueue(thread);
-      RVMThread.yieldNoHandshake();
+      RVMThread.yieldWithHandshake();
     }
 //    waiting.dequeue();
     if (VM.VerifyAssertions) VM._assert(holderSlot == -1);
