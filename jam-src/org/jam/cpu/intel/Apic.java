@@ -10,6 +10,7 @@ import org.jam.board.pc.I82c54;
 import org.jam.board.pc.Platform;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -183,6 +184,7 @@ public class Apic {
     registers.store(registerValue, SPVR);
   }
   
+  @Uninterruptible
   public void eoi()
   {
     registers.store(0, EOI);

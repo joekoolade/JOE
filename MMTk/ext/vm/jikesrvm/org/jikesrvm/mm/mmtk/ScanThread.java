@@ -94,7 +94,7 @@ import org.vmmagic.unboxed.Offset;
    * MULTIPLE GC THREADS WILL PRODUCE SCRAMBLED OUTPUT so only
    * use these when running with PROCESSORS=1
    */
-  private static final int DEFAULT_VERBOSITY = 0 /*0*/;
+  private static final int DEFAULT_VERBOSITY = 2 /*0*/;
   private static final int FAILURE_VERBOSITY = 4;
 
   /***********************************************************************
@@ -300,7 +300,7 @@ import org.vmmagic.unboxed.Offset;
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
       while (Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
-        if (false) {
+        if (true) {
           VM.sysWriteln("Thread ",RVMThread.getCurrentThreadSlot()," at fp = ",fp);
         }
         prevFp = scanFrame(verbosity);

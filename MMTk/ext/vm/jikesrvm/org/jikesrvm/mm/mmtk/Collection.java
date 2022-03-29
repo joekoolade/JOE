@@ -89,7 +89,7 @@ public class Collection extends org.mmtk.vm.Collection {
      * off in JNI-land cannot run.
      */
     RVMThread t = ((Selected.Mutator) m).getThread();
-    t.monitor().lockNoHandshake();
+//    t.monitor().lockNoHandshake();
     // are these the only unexpected states?
     t.assertUnacceptableStates(RVMThread.IN_JNI,RVMThread.IN_NATIVE);
     int execStatus = t.getExecStatus();
@@ -112,7 +112,7 @@ public class Collection extends org.mmtk.vm.Collection {
        which is where the stack scan starts. */
       t.contextRegisters.setInnermost(Address.zero(), t.getJNIEnv().topJavaFP());
     }
-    t.monitor().unlock();
+//    t.monitor().unlock();
   }
 
   @Override

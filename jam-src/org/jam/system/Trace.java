@@ -48,6 +48,7 @@ public class Trace
      * Add trace event for beginning of irq
      * @param irqNum
      */
+    @Uninterruptible
     public static void irqStart(int irqNum)
     {
 //        events[head].setTime();
@@ -61,6 +62,7 @@ public class Trace
      * Add trace event for end of irq
      * @param irqNum
      */
+    @Uninterruptible
     public static void irqEnd(int irqNum)
     {
 //        events[head].setTime();
