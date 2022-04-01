@@ -299,7 +299,8 @@ import org.vmmagic.unboxed.Offset;
       /* At start of loop:
          fp -> frame for method invocation being processed
          ip -> instruction pointer in the method (normally a call site) */
-      while (Magic.getCallerFramePointer(fp).NE(sentinelFp)) {
+      while (Magic.getCallerFramePointer(fp).NE(sentinelFp) && Magic.getCallerFramePointer(fp).EQ(Address.zero())) 
+      {
         if (true) {
           VM.sysWriteln("Thread ",RVMThread.getCurrentThreadSlot()," at fp = ",fp);
         }

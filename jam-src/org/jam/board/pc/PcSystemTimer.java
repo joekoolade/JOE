@@ -15,6 +15,7 @@ import org.jikesrvm.runtime.Time;
 import org.jikesrvm.scheduler.RVMThread;
 import org.jikesrvm.scheduler.ThreadQueue;
 import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -89,6 +90,7 @@ implements Timer
      * 
      * context array is builtin into the stack.
      */
+    @Uninterruptible
     public void handler()
     {
         tick++;
@@ -107,7 +109,8 @@ implements Timer
 //        Platform.masterPic.eoi();
     }
     
-    final private void schedule()
+   @Uninterruptible
+   final private void schedule()
     {
         /*
          * If there are no threads waiting run then
@@ -143,6 +146,7 @@ implements Timer
     }
     
     private static int lastCheck = 0;
+    @Uninterruptible
     private void checkTimers()
     {
     	lastCheck++;
@@ -182,6 +186,7 @@ implements Timer
      * Set timer for a thread
      * @param time_ns time to sleep in nanoseconds.
      */
+    @Uninterruptible
     public void startTimer(long time_ns)
     {
         long timerTicks;

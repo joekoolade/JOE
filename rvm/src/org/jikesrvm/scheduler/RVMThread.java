@@ -2588,11 +2588,11 @@ public final class RVMThread extends ThreadContext {
     if (traceBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
           " is requesting that thread #", threadSlot, " unblocks.");
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     ba.clearBlockRequest(this);
     ba.setBlocked(this, false);
-    monitor().broadcast();
-    monitor().unlock();
+//    monitor().broadcast();
+//    monitor().unlock();
     if (traceBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
           " is done requesting that thread #", threadSlot, " unblocks.");
