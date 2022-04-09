@@ -31,8 +31,10 @@ public class ThreadQueue {
   @Untraced RVMThread head;
 
   @Untraced RVMThread tail;
-
+  int size;
+  
   public ThreadQueue(String name) {
+      size = 0;
 	  this.name = name;
   }
 
@@ -75,6 +77,7 @@ public class ThreadQueue {
     }
     tail = t;
     t.queuedOn = this;
+    size++;
   }
 
   public RVMThread peek() {
@@ -107,6 +110,7 @@ public class ThreadQueue {
             name);
       }
     }
+    size--;
     return result;
   }
 
@@ -175,6 +179,7 @@ public class ThreadQueue {
         }
         t.next = null;
         t.queuedOn = null;
+        size--;
         return true;
       }
     }

@@ -88,7 +88,6 @@ public class PriorityQueue {
    */
   public void insert(long _priority, Object _data) {
     numElements++;
-
     if (numElements == queue.length) {
     	VM.sysWriteln("priority queue resize: ", numElements);
       PriorityQueueNode[] tmp = new PriorityQueueNode[(int) (queue.length * 1.5)];
@@ -118,7 +117,6 @@ public class PriorityQueue {
     queue[1].priority = queue[numElements].priority;
     queue[1].data = queue[numElements].data;
     numElements--;
-
     // reheapify!!!
     int current = 1;
 

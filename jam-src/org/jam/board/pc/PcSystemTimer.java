@@ -54,25 +54,7 @@ implements Timer
          * Set the time for the PC system timer. Default is an interrupt every 1.193 ms.
          */
         I82c54.counter0(I82c54.MODE2, counterDivisor);
-        /*
-         * Allocate irq handler stack
-         */
-//        stack = MemoryManager.newNonMovingIntArray(STACK_SIZE); // new int[STACK_SIZE];
-        /*
-         * Put in the sentinel
-         */
-//        stack[STACK_SIZE-1] = 0;    // IP = 0
-//        stack[STACK_SIZE-2] = 0;    // FP = 0
-//        stack[STACK_SIZE-3] = 0;    // cmid = 0
-        
-        /*
-         * On a stack switch, the new stack is popped so need to count for this
-         * in the stackTop field. This space will contain the interrupted thread's
-         * stack pointer.
-         */
-//        stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
         timerQueue = new PriorityQueue();
-        threadQueue = new ThreadQueue("pcSystemTimer");
     }
 
     public final long getTime()
@@ -134,7 +116,8 @@ implements Timer
             VM.sysWrite('R');
             RVMThread currentThread = Magic.getThreadRegister();
 //            Platform.scheduler.addThread(currentThread);
-            currentThread.enableYieldpoints();
+//            currentThread.enableYieldpoints();
+            currentThread.takeYieldpoint = 1;
 //            RVMThread next = Platform.scheduler.nextThread();
 //            if(next == null)
 //            {
@@ -178,7 +161,7 @@ implements Timer
             return;
 //            VM.sysFail(timerQueue.toString());
         }
-        if(timerTrace) { VM.sysWrite("\nTimer expired! ", timerExpiration); VM.sysWriteln(" ", thread.threadSlot); }
+        if(timerTrace) { VM.sysWrite("\nE0:", timerExpiration); VM.sysWriteln(" ", thread.threadSlot); }
         Platform.scheduler.addThread(thread);
     }
     
@@ -190,16 +173,17 @@ implements Timer
     public void startTimer(long time_ns)
     {
         long timerTicks;
-        
+        RVMThread t = RVMThread.getCurrentThread();
+        t.disableYieldpoints();
         /*
          * convert to ticks (milliseconds)
          */
-//        timerTicks = time_ns / TIMERTICKSPERNSECS;
-//        if(timerTrace)
-//        {
-//          VM.sysWrite("\nT0: ", time_ns);
-//          VM.sysWriteln("/", RVMThread.getCurrentThread().getThreadSlot());
-//        }
+        timerTicks = time_ns / TIMERTICKSPERNSECS;
+        if(true)
+        {
+          VM.sysWrite("\nT0: ", time_ns);
+          VM.sysWriteln("/", t.getThreadSlot());
+        }
         /*
          * set expiration time and put on the queue
          */
@@ -212,6 +196,7 @@ implements Timer
          * give it up and schedule a new thread
          */
         Platform.scheduler.schedule();
+        t.enableYieldpoints();
     }
     
     /**

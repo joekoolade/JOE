@@ -301,6 +301,7 @@ public final class RVMThread extends ThreadContext {
     return state == NEW || state == TERMINATED;
   }
 
+  
   /** Registers used by return barrier trampoline */
   @Entrypoint
   private AbstractRegisters trampolineRegisters = ArchitectureFactory.createRegisters();
@@ -489,6 +490,13 @@ public final class RVMThread extends ThreadContext {
    */
   public static boolean threadingInitialized = false;
 
+  public static final int INIT = 0;
+  public static final int RUNNABLE = 1;
+  public static final int MONITOR_WAIT = 2;
+  public static final int LOCK_WAIT = 3;
+  public static final int MONITOR_TIMER = 4;
+  
+  public int threadStatus;
   /**
    * Number of timer ticks we've seen
    */
@@ -1374,6 +1382,11 @@ public final class RVMThread extends ThreadContext {
    */
   public Feedlet feedlet;
 
+  /**
+   * Number of interrupts nested
+   */
+  public static int interruptLevel = 0;
+  
   /**
    * @param slot the thread's slot
    * @return a NoYieldpointsCondLock for a given thread slot.
@@ -2591,7 +2604,7 @@ public final class RVMThread extends ThreadContext {
 //    monitor().lockNoHandshake();
     ba.clearBlockRequest(this);
     ba.setBlocked(this, false);
-//    monitor().broadcast();
+    monitor().broadcast();
 //    monitor().unlock();
     if (traceBlock)
       VM.sysWriteln("Thread #", getCurrentThread().threadSlot,
@@ -2656,7 +2669,7 @@ public final class RVMThread extends ThreadContext {
 
   public boolean isRunnable()
   {
-	  return waiting == Waiting.RUNNABLE;
+	  return threadStatus == RUNNABLE;
   }
   
   void timerTick() {
@@ -4362,12 +4375,12 @@ public final class RVMThread extends ThreadContext {
     // the no-yieldpoints code. At worst, setting takeYieldpoint to 0 will be
     // lost (because some other thread sets it to non-0), but in that case we'll
     // just come back here and reset it to 0 again.
-    if (!t.yieldpointsEnabled()) {
+    if (!t.yieldpointsEnabled() || (interruptLevel != 0)) {
       if (VM.VerifyAssertions)
         VM._assert(!t.yieldToOSRRequested);
       if (traceBlock && !wasAtYieldpoint) {
         VM.sysWriteln("Thread #", t.threadSlot, " deferring yield!");
-        dumpStack();
+        // dumpStack();
       }
       t.yieldpointRequestPending = true;
       t.takeYieldpoint = 0;
@@ -4377,11 +4390,12 @@ public final class RVMThread extends ThreadContext {
     t.yieldpointsTakenFully++;
 
     Throwable throwThis = null;
-    t.monitor().lockNoHandshake();
+//    t.monitor().lockNoHandshake();
 
     int takeYieldpointVal = t.takeYieldpoint;
     if (takeYieldpointVal != 0) {
       t.takeYieldpoint = 0;
+      VM.sysWrite("$YY$");
       // do two things: check if we should be blocking, and act upon
       // handshake requests. This also has the effect of reasserting that
       // we are in fact IN_JAVA (as opposed to IN_JAVA_TO_BLOCK).
@@ -4489,7 +4503,7 @@ public final class RVMThread extends ThreadContext {
         t.asyncThrowable = null;
       }
     }
-    t.monitor().unlock();
+//    t.monitor().unlock();
     t.atYieldpoint = false;
     if (throwThis != null) {
       throwFromUninterruptible(throwThis);

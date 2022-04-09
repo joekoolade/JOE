@@ -259,7 +259,8 @@ public final class Lock {
        */
       while(entering.isQueued(me))
       {
-          RVMThread.yieldNoHandshake();
+         me.threadStatus = RVMThread.LOCK_WAIT;
+         RVMThread.yieldNoHandshake();
       }
       return false;
     }
@@ -308,6 +309,7 @@ public final class Lock {
         /*
          * Schedule the locked thread
          */
+        me.threadStatus = RVMThread.RUNNABLE;
         Platform.scheduler.addThread(toAwaken);
     }
   }

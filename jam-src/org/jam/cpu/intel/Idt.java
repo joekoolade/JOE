@@ -334,11 +334,13 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            // Save registers on the interrupted stack
            Magic.saveContext();
+           RVMThread.interruptLevel++;
            Trace.irqStart(32);
            Platform.timer.handler();
            Platform.apic.eoi();
            Trace.irqEnd(32);
           // Restore back to the interrupt stack and context
+           RVMThread.interruptLevel--;
            Magic.restoreThreadContextNoErrCode();
            // The interrupt handler annotation will emit the IRET
            // good bye
@@ -366,12 +368,12 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            // Save registers on the interrupted stack
            Magic.saveContext();
-           // Switch to the interrupt stack
-//           Magic.switchStack(Platform.timer.getHandlerStack());
+           RVMThread.interruptLevel++;
            Trace.irqStart(36);
            Platform.serialPort.handler();
            Platform.apic.eoi();
            Trace.irqEnd(36);
+           RVMThread.interruptLevel--;
            // Restore back to the interrupt stack and context
            Magic.restoreThreadContextNoErrCode();
            // The interrupt handler annotation will emit the IRET
@@ -443,18 +445,15 @@ public final class Idt implements SegmentDescriptorTypes {
        {
            // Save registers on the interrupted stack
            Magic.saveContext();
-//           Magic.halt();
-           // Switch to the interrupt stack
-//           Magic.switchStack(Platform.scheduler.getHandlerStack());
-//           VM.sysWrite("int48/yield ^^ ");
+           RVMThread.interruptLevel++;
 //           Trace.irqStart(48);
            RVMThread.isInterrupted = true;
-           // RVMThread.yieldpoint(0, null);
 //           VM.sysWrite('Y');
            Platform.scheduler.addThread(Magic.getThreadRegister());
            Platform.scheduler.nextThread();
            // Restore back to the interrupt stack and context
            RVMThread.isInterrupted = false;
+           RVMThread.interruptLevel--;
 //           Trace.irqEnd(48);
            Magic.restoreThreadContextNoErrCode();
 //           Magic.halt();
@@ -659,13 +658,13 @@ public final class Idt implements SegmentDescriptorTypes {
        {
          // Save registers on the interrupted stack
          Magic.saveContext();
-         // Switch to the interrupt stack
-//         Magic.switchStack(Platform.timer.getHandlerStack());
+         RVMThread.interruptLevel++;
          Trace.irqStart(87);
          Platform.serialPort.handler();
          Platform.apic.eoi();
          Trace.irqEnd(87);
          // Restore back to the interrupt stack and context
+         RVMThread.interruptLevel--;
          Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET
          // good bye
@@ -711,12 +710,12 @@ public final class Idt implements SegmentDescriptorTypes {
        {
          // Save registers on the interrupted stack
          Magic.saveContext();
-         // Switch to the interrupt stack
-//         Magic.switchStack(Platform.timer.getHandlerStack());
+         RVMThread.interruptLevel++;
          Trace.irqStart(95);
          Platform.timer.handler();
          Platform.apic.eoi();
          Trace.irqEnd(95);
+         RVMThread.interruptLevel--;
          // Restore back to the interrupt stack and context
          Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET

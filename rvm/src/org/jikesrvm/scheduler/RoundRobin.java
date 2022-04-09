@@ -9,6 +9,7 @@ package org.jikesrvm.scheduler;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -25,25 +26,27 @@ public class RoundRobin implements Scheduler {
     runQueue = new ThreadQueue("runQueue");
   }
 
+  @Uninterruptible
   public void schedule()
   {
-    RVMThread currentThread = RVMThread.getCurrentThread();
-    if(!currentThread.isOnQueue() && currentThread.isRunnable())
-    {
-      addThread(currentThread);
-    }
-    RVMThread nextThread = runQueue.dequeue();
-    while(nextThread == null)
-    {
+      RVMThread currentThread = RVMThread.getCurrentThread();
+      if (!currentThread.isOnQueue() && currentThread.isRunnable())
+      {
+          VM.sysWrite("A:", currentThread.getThreadSlot());
+          addThread(currentThread);
+      }
+      RVMThread nextThread = runQueue.dequeue();
+      while (nextThread == null)
+      {
 //      VM.sysWrite("halt!");
-      Magic.halt();
-      nextThread = runQueue.dequeue();
-    }
+          Magic.halt();
+          nextThread = runQueue.dequeue();
+      }
 
-    Magic.threadSwitch(currentThread, nextThread.getContextRegisters());
-    /*
-     * nextThread is running here
-     */
+      Magic.threadSwitch(currentThread, nextThread.getContextRegisters());
+      /*
+       * nextThread is running here
+       */
   }
   
   /*
@@ -101,6 +104,8 @@ public class RoundRobin implements Scheduler {
     else if (!thread.isTerminated()) {
       if (trace)
         VM.sysWrite("|A", thread.threadSlot);
+      thread.threadStatus = RVMThread.RUNNABLE;
+      thread.enableYieldpoints();
       runQueue.enqueue(thread);
     }
   }
