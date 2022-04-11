@@ -5,6 +5,7 @@ import java.util.Iterator;
 public class JikesObject 
 extends JObject
 {
+    private static final boolean DEBUG = false;
     private TIB tib;
     protected RVMClass type;
     
@@ -96,25 +97,34 @@ extends JObject
                 {
                     if(name.equals(args[2]) == false) continue;
                 }
-                int offset = aField.getOffset();
-                switch(aField.getSize())
+                if(aField.isString())
                 {
-                case 1:
-                    value = getByte(offset) & 0xFFL;
-                    break;
-                case 2:
-                    value = getShort(offset) & 0xFFFFL;
-                    break;
-                case 4:
-                    value = getInt(offset) & 0xFFFFFFFFL;
-                    break;
-                case 8:
-                    value = getLong(offset);
-                    break;
-                 default:
-                     System.out.println("Unknown size: "+aField.getSize());
+                    int offset = aField.getOffset();
+                    String str = getString((int)getLong(offset));
+                    System.out.println((name + " = " + str));
                 }
-                System.out.println(name + " = " + Long.toHexString(value));
+                else
+                {
+                    int offset = aField.getOffset();
+                    switch(aField.getSize())
+                    {
+                    case 1:
+                        value = getByte(offset) & 0xFFL;
+                        break;
+                    case 2:
+                        value = getShort(offset) & 0xFFFFL;
+                        break;
+                    case 4:
+                        value = getInt(offset) & 0xFFFFFFFFL;
+                        break;
+                    case 8:
+                        value = getLong(offset);
+                        break;
+                     default:
+                         System.out.println("Unknown size: "+aField.getSize());
+                    }
+                    System.out.println(name + " = " + Long.toHexString(value));
+                }
             }
 
         }
@@ -143,6 +153,21 @@ extends JObject
         
     }
     
+    public String getString(int address)
+    {
+        String str=null;
+        if(DEBUG) System.out.println("getString " + Integer.toHexString(address));
+        JikesObject stringObj = new JikesObject(getMemory(), address);
+        if(stringObj.isString()==false)
+        {
+            return Integer.toHexString(address);
+        }
+        int charArray = stringObj.getField("value");
+        JikesObject carray = new JikesObject(getMemory(), charArray);
+        str = new String(carray.getCharArray(0));
+        return str;
+    }
+
     /**
      * Return a string representation of the object
      */

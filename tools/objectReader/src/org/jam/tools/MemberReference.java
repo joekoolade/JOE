@@ -31,4 +31,9 @@ public class MemberReference extends JObject
     {
         return type.getTypeName();
     }
+    
+    public boolean isString()
+    {
+        return descriptor.getString().equals("Ljava/lang/String;");
+    }
 }

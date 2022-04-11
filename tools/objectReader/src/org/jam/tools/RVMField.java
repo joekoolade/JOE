@@ -63,4 +63,9 @@ implements Comparable<RVMField>
     {
         return offset - aField.offset;
     }
+    
+    public boolean isString()
+    {
+        return member.isString();
+    }
 }
