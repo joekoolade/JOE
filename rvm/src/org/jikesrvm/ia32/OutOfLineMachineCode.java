@@ -634,7 +634,7 @@ public abstract class OutOfLineMachineCode {
     Offset regsOffset = Entrypoints.threadContextRegistersField.getOffset();
 
     // Disable interrupts
-    asm.emitCLI();
+//    asm.emitCLI();
     
     // (1) Save hardware state of thread we are switching off of.
     if (VM.BuildFor32Addr) {
@@ -711,7 +711,7 @@ public abstract class OutOfLineMachineCode {
    }
     
     // Turn on interrupts
-    asm.emitSTI();
+//    asm.emitSTI();
     
     asm.emitJMP_RegDisp(T1, ipOffset);            // return to (save) return address
     return asm.getMachineCodes();

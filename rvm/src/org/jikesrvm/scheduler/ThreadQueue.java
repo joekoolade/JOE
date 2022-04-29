@@ -84,34 +84,39 @@ public class ThreadQueue {
     return head;
   }
 
-  public RVMThread dequeue() {
-    RVMThread result = head;
-    if (result != null) {
-      head = result.next;
-      if (head == null) {
-        tail = null;
-        result.prev = null;
-      } else
+  public RVMThread dequeue()
+  {
+      RVMThread result = head;
+      if (result != null)
       {
-        head.prev = null;
+          size--;
+          head = result.next;
+          if (head == null)
+          {
+              tail = null;
+              result.prev = null;
+          }
+          else
+          {
+              head.prev = null;
+          }
+          if (VM.VerifyAssertions) VM._assert(result.queuedOn == this);
+          result.next = null;
+          result.queuedOn = null;
       }
-      if (VM.VerifyAssertions)
-        VM._assert(result.queuedOn == this);
-      result.next = null;
-      result.queuedOn = null;
-    }
-    if (trace) {
-      if (result == null) {
-        if (tail != null)
-          VM.sysWriteln("dequeue: tail NOT NULL ", tail.getName());
-        VM.sysWriteln("dequeue: no threads on ", name);
-      } else {
-        VM.sysWriteln("dequeueing ", result.getThreadSlot(), " from ",
-            name);
+      if (trace)
+      {
+          if (result == null)
+          {
+              if (tail != null) VM.sysWriteln("dequeue: tail NOT NULL ", tail.getName());
+              VM.sysWriteln("dequeue: no threads on ", name);
+          }
+          else
+          {
+              VM.sysWriteln("dequeueing ", result.getThreadSlot(), " from ", name);
+          }
       }
-    }
-    size--;
-    return result;
+      return result;
   }
 
   /**

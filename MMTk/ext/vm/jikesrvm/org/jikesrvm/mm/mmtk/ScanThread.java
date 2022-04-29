@@ -145,8 +145,7 @@ import org.vmmagic.unboxed.Offset;
 
     Address ip = regs.getInnermostInstructionAddress();
     Address fp = regs.getInnermostFramePointer();
-    regs.clear();
-    regs.setInnermost(ip,fp);
+//    regs.setInnermost(ip,fp);
 
     scanThread(thread, trace, processCodeLocations, gprs, Address.zero(), newRootsSufficient);
   }

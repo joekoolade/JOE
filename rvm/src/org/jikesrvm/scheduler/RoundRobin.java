@@ -30,9 +30,10 @@ public class RoundRobin implements Scheduler {
   public void schedule()
   {
       RVMThread currentThread = RVMThread.getCurrentThread();
+      currentThread.disableYieldpoints();
       if (!currentThread.isOnQueue() && currentThread.isRunnable())
       {
-          VM.sysWrite("A:", currentThread.getThreadSlot());
+//          VM.sysWrite("A:", currentThread.getThreadSlot());
           addThread(currentThread);
       }
       RVMThread nextThread = runQueue.dequeue();
@@ -47,12 +48,14 @@ public class RoundRobin implements Scheduler {
       /*
        * nextThread is running here
        */
+      currentThread.enableYieldpoints();
   }
   
   /*
    * Current thread must be scheduled before calling calling
-   * 
+   * †
    */
+  @Uninterruptible
   public RVMThread nextThread() {
     RVMThread nextThread;
 
@@ -82,6 +85,7 @@ public class RoundRobin implements Scheduler {
    * 
    * @param thread the thread to put on the run queue
    */
+  @Uninterruptible
   public void addThread(RVMThread thread) {
     if (thread.isOnQueue()) {
       if (trace) {

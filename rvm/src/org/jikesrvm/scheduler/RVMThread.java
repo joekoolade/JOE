@@ -1983,7 +1983,7 @@ public final class RVMThread extends ThreadContext {
     // NB: anything this method calls CANNOT change the contextRegisters
     // or the JNI env. as well, this code will be running concurrently
     // with stop-the-world GC!
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     isBlocking = true;
     if (traceBlock)
       VM.sysWriteln("Thread #", threadSlot,
@@ -2005,9 +2005,9 @@ public final class RVMThread extends ThreadContext {
       // 2) if the block requests get cleared when we release the lock,
       // we won't call wait, since we reacquire the lock prior to checking
       // for block requests.
-      int recCount = monitor().unlockCompletely();
+//      int recCount = monitor().unlockCompletely();
       softRendezvousCommit();
-      monitor().relockNoHandshake(recCount);
+//      monitor().relockNoHandshake(recCount);
     }
 
     if (traceBlock)
@@ -2038,8 +2038,8 @@ public final class RVMThread extends ThreadContext {
       // request?
       // answer: we get awoken, reloop, and acknowledge the GC block
       // request.
-      monitor().waitNoHandshake();
-
+//      monitor().waitNoHandshake();
+      yieldNoHandshake();
       if (traceBlock)
         VM.sysWriteln("Thread #", threadSlot,
             " has awoken; checking if we're still blocked");
@@ -2055,7 +2055,7 @@ public final class RVMThread extends ThreadContext {
     isBlocking = false;
     // deal with requests that came up while we were blocked.
     handleHandshakeRequest();
-    monitor().unlock();
+//    monitor().unlock();
 
     if (traceBlock)
       VM.sysWriteln("Thread #", threadSlot, " is unblocked");
@@ -3482,7 +3482,7 @@ public final class RVMThread extends ThreadContext {
    * @param ns the number of nanoseconds to sleep for
    * @throws InterruptedException when the sleep is interrupted
    */
-  @Interruptible
+  @Uninterruptible
   public static void sleep(long ns) throws InterruptedException {
     RVMThread t = getCurrentThread();
     long atStart = sysCall.sysNanoTime();
@@ -4378,10 +4378,10 @@ public final class RVMThread extends ThreadContext {
     if (!t.yieldpointsEnabled() || (interruptLevel != 0)) {
       if (VM.VerifyAssertions)
         VM._assert(!t.yieldToOSRRequested);
-      if (traceBlock && !wasAtYieldpoint) {
-        VM.sysWriteln("Thread #", t.threadSlot, " deferring yield!");
-        // dumpStack();
-      }
+//      if (traceBlock && !wasAtYieldpoint) {
+//        VM.sysWriteln("Thread #", t.threadSlot, " deferring yield!");
+//        // dumpStack();
+//      }
       t.yieldpointRequestPending = true;
       t.takeYieldpoint = 0;
       t.atYieldpoint = false;
@@ -4395,7 +4395,7 @@ public final class RVMThread extends ThreadContext {
     int takeYieldpointVal = t.takeYieldpoint;
     if (takeYieldpointVal != 0) {
       t.takeYieldpoint = 0;
-      VM.sysWrite("$YY$");
+//      VM.sysWrite("$YY$");
       // do two things: check if we should be blocking, and act upon
       // handshake requests. This also has the effect of reasserting that
       // we are in fact IN_JAVA (as opposed to IN_JAVA_TO_BLOCK).
@@ -4508,6 +4508,7 @@ public final class RVMThread extends ThreadContext {
     if (throwThis != null) {
       throwFromUninterruptible(throwThis);
     }
+    yieldNoHandshake();
   }
 
   @Unpreemptible

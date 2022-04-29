@@ -113,7 +113,7 @@ implements Timer
          */
         if(((int)tick % BOLT) == 0)
         {
-            VM.sysWrite('R');
+//            VM.sysWrite('R');
             RVMThread currentThread = Magic.getThreadRegister();
 //            Platform.scheduler.addThread(currentThread);
 //            currentThread.enableYieldpoints();
@@ -157,7 +157,7 @@ implements Timer
         RVMThread thread = (RVMThread) timerQueue.deleteMin();
         if(thread == null)
         {
-            VM.sysWrite("timer expire: ", timerExpiration);
+//            VM.sysWrite("timer expire: ", timerExpiration);
             return;
 //            VM.sysFail(timerQueue.toString());
         }
@@ -179,7 +179,7 @@ implements Timer
          * convert to ticks (milliseconds)
          */
         timerTicks = time_ns / TIMERTICKSPERNSECS;
-        if(true)
+        if(timerTrace)
         {
           VM.sysWrite("\nT0: ", time_ns);
           VM.sysWriteln("/", t.getThreadSlot());

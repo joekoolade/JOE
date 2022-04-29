@@ -69,6 +69,7 @@ public class Monitor {
   private static final int LOCKED = 1;
   private static final int UNLOCKED = 0;
   final private static boolean trace = false;
+  private static final boolean traceBroadcast = true;
   @Entrypoint
   Word monitor;
   int holderSlot = -1; // use the slot so that we're even more GC safe
@@ -667,10 +668,9 @@ public class Monitor {
            * 
            * Do not have to unlock monitor since that is being done at a higher level
            */
-          if (trace)
+          if (traceBroadcast)
           {
-              VM.sysWrite("Broadcast/", Magic.objectAsAddress(this));
-              VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
+              VM.sysWriteln("Broadcast T#", waitingThread.threadSlot);
           }
           waitingThread.threadStatus = RVMThread.RUNNABLE;
           Platform.scheduler.addThread(waitingThread);

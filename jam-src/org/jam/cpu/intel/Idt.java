@@ -713,9 +713,9 @@ public final class Idt implements SegmentDescriptorTypes {
          RVMThread.interruptLevel++;
          Trace.irqStart(95);
          Platform.timer.handler();
-         Platform.apic.eoi();
          Trace.irqEnd(95);
          RVMThread.interruptLevel--;
+         Platform.apic.eoi();
          // Restore back to the interrupt stack and context
          Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET
