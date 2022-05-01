@@ -69,7 +69,7 @@ public class Monitor {
   private static final int LOCKED = 1;
   private static final int UNLOCKED = 0;
   final private static boolean trace = false;
-  private static final boolean traceBroadcast = true;
+  private static final boolean traceBroadcast = false;
   @Entrypoint
   Word monitor;
   int holderSlot = -1; // use the slot so that we're even more GC safe
