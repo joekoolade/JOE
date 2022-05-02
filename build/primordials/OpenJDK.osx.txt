@@ -298,3 +298,4 @@ Ljavax/security/auth/AuthPermission;
 Ljava/net/SocketPermission;
 Ljava/lang/SecurityManager;
 Ljava/util/Random;
+Ljava/util/AbstractList$ListItr;
