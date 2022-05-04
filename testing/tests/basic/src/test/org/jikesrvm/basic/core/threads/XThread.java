@@ -116,6 +116,8 @@ abstract class XThread extends Thread {
     final Set<Integer> keySet = records.keySet();
     final ArrayList<Integer> ids = new ArrayList<Integer>(keySet.size());
     ids.addAll(keySet);
+    System.out.println("ids size " + ids.size());
+    if(ids.size() <= 1) return;
     Collections.sort(ids);
 
     for (final Integer id : ids) {

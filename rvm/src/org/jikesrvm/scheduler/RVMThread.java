@@ -1357,6 +1357,8 @@ public final class RVMThread extends ThreadContext {
    */
   public static final RVMThread[] debugThreads = new RVMThread[MAX_THREADS];
 
+private static final boolean threadTrace = false;
+
   /**
    * Number of active threads in the system.
    */
@@ -1706,7 +1708,7 @@ public final class RVMThread extends ThreadContext {
     this.contextRegistersSave = this.contextRegistersSaveShadow = ArchitectureFactory.createRegisters();
     this.exceptionRegisters = this.exceptionRegistersShadow = ArchitectureFactory.createRegisters();
 
-    VM.sysWriteln("RVMThread create: ", name);
+    if(threadTrace) VM.sysWriteln("RVMThread create: ", name);
     if (VM.runningVM) {
       feedlet = TraceEngine.engine.makeFeedlet(name, name);
     }
@@ -1756,9 +1758,12 @@ public final class RVMThread extends ThreadContext {
       Address sp = Magic.objectAsAddress(stack).plus(stack.length);
 
       contextRegisters.gprs.set(ESI.value(), Magic.objectAsAddress(this).toWord());
-      VM.sysWrite("ip: ", ip);
-      VM.sysWrite(" sp: ", sp);
-      VM.sysWriteln(" esi: ", contextRegisters.gprs.get(ESI.value()));
+      if (threadTrace)
+      {
+          VM.sysWrite("ip: ", ip);
+          VM.sysWrite(" sp: ", sp);
+          VM.sysWriteln(" esi: ", contextRegisters.gprs.get(ESI.value()));
+      }
       // Initialize the a thread stack as if "startoff" method had been called
       // by an empty baseline-compiled "sentinel" frame with one local variable.
       contextRegisters.initializeStack(ip, sp);
@@ -1767,8 +1772,11 @@ public final class RVMThread extends ThreadContext {
       // Points to framepointer sentinel
       this.framePointer = contextRegisters.fp;
       this.sp = contextRegisters.gprs.get(ESP.value()).toAddress();
-      VM.sysWrite("rvmthread sp: ", this.sp);
-      VM.sysWriteln(" gpr: ", Magic.objectAsAddress(contextRegisters.gprs));
+      if (threadTrace)
+      {
+          VM.sysWrite("rvmthread sp: ", this.sp);
+          VM.sysWriteln(" gpr: ", Magic.objectAsAddress(contextRegisters.gprs));
+      }
 
       /*
        * Set up the FP/SSE/MMX state area
@@ -1807,9 +1815,11 @@ public final class RVMThread extends ThreadContext {
         onStackReplacementEvent = null;
       }
 
-      VM.sysWrite(this.name);
-      VM.sysWriteln(" slot: ", threadSlot);
-
+      if (threadTrace)
+      {
+          VM.sysWrite(this.name);
+          VM.sysWriteln(" slot: ", threadSlot);
+      }
       if (thread == null) {
         // create wrapper Thread if doesn't exist
         this.thread = java.lang.JikesRVMSupport.createThread(this, name);
@@ -3577,10 +3587,10 @@ public final class RVMThread extends ThreadContext {
         Platform.scheduler.addThread(toAwaken);
       }
       // block
-      VM.sysWriteln("wait ", getName());
-      if(hasTimeout) VM.sysWriteln("with timeout");
+//      VM.sysWriteln("wait ", getName());
+//      if(hasTimeout) VM.sysWriteln("with timeout");
       monitor().lockNoHandshake();
-      VM.sysWriteln("monitor lock ", getName());
+//      VM.sysWriteln("monitor lock ", getName());
       while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
              (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
         yieldNoHandshake();
@@ -3594,11 +3604,11 @@ public final class RVMThread extends ThreadContext {
         throwThis = asyncThrowable;
         asyncThrowable = null;
       }
-      VM.sysWriteln("notified");
+//      VM.sysWriteln("notified");
       monitor().unlock();
       if (l.waiting.isQueued(this)) {
         l.mutex.lock();
-        VM.sysWriteln("from interrupt or stop()");
+//        VM.sysWriteln("from interrupt or stop()");
         l.waiting.remove(this); /*
                                  * in case we got here due to an interrupt or a
                                  * stop() rather than a notify

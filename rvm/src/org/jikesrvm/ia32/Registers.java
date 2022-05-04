@@ -114,8 +114,8 @@ public final class Registers extends AbstractRegisters {
   @Uninterruptible
   public void initializeStack(Address ip, Address sp) {
     Address fp;
-    VM.sysWrite("sp0: ", sp);
-    VM.sysWriteln(" ip: ", ip);
+//    VM.sysWrite("sp0: ", sp);
+//    VM.sysWriteln(" ip: ", ip);
     // sp = sp.minus(STACKFRAME_HEADER_SIZE); // last word of header
     // fp = sp.minus(SizeConstants.BYTES_IN_ADDRESS + STACKFRAME_BODY_OFFSET);
     // Magic.setCallerFramePointer(fp, STACKFRAME_SENTINEL_FP);
