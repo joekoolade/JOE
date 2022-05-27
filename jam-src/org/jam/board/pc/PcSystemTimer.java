@@ -22,6 +22,7 @@ import org.vmmagic.unboxed.Address;
  * @author joe
  *
  */
+@Uninterruptible
 @NonMoving
 public class PcSystemTimer
 implements Timer
@@ -169,12 +170,11 @@ implements Timer
      * Set timer for a thread
      * @param time_ns time to sleep in nanoseconds.
      */
-    @Uninterruptible
     public void startTimer(long time_ns)
     {
         long timerTicks;
         RVMThread t = RVMThread.getCurrentThread();
-        t.disableYieldpoints();
+//        t.disableYieldpoints();
         /*
          * convert to ticks (milliseconds)
          */
@@ -187,16 +187,17 @@ implements Timer
         /*
          * set expiration time and put on the queue
          */
-//        Magic.disableInterrupts();
+        if(VM.VerifyAssertions) VM._assert(!t.isOnQueue(), "timer: thread on queue");
+        Magic.disableInterrupts();
         timerQueue.insert(time_ns, RVMThread.getCurrentThread());
 //        VM.sysWriteln("startTimer: ", timerQueue.toString());
 //        VM.sysWrite("/t/", RVMThread.getCurrentThreadSlot());
-//        Magic.enableInterrupts();
+        Magic.enableInterrupts();
         /*
          * give it up and schedule a new thread
          */
         Platform.scheduler.schedule();
-        t.enableYieldpoints();
+//        t.enableYieldpoints();
     }
     
     /**

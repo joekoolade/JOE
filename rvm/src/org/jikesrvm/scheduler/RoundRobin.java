@@ -16,6 +16,7 @@ import org.vmmagic.unboxed.Address;
  * @author Joe Kulig
  *
  */
+@Uninterruptible
 @NonMoving
 public class RoundRobin implements Scheduler {
   private ThreadQueue runQueue;
@@ -26,11 +27,10 @@ public class RoundRobin implements Scheduler {
     runQueue = new ThreadQueue("runQueue");
   }
 
-  @Uninterruptible
   public void schedule()
   {
       RVMThread currentThread = RVMThread.getCurrentThread();
-      currentThread.disableYieldpoints();
+//      currentThread.disableYieldpoints();
       if (!currentThread.isOnQueue() && currentThread.isRunnable())
       {
 //          VM.sysWrite("A:", currentThread.getThreadSlot());
@@ -48,7 +48,7 @@ public class RoundRobin implements Scheduler {
       /*
        * nextThread is running here
        */
-      currentThread.enableYieldpoints();
+//      currentThread.enableYieldpoints();
   }
   
   /*
@@ -109,7 +109,7 @@ public class RoundRobin implements Scheduler {
       if (trace)
         VM.sysWrite("|A", thread.threadSlot);
       thread.threadStatus = RVMThread.RUNNABLE;
-      thread.enableYieldpoints();
+//      thread.enableYieldpoints();
       runQueue.enqueue(thread);
     }
   }
@@ -129,6 +129,7 @@ public class RoundRobin implements Scheduler {
    * 
    * @see org.jikesrvm.scheduler.Scheduler#noRunnableThreads()
    */
+  @Uninterruptible
   public boolean noRunnableThreads() {
     return runQueue.isEmpty();
   }

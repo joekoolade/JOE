@@ -14,12 +14,14 @@ package org.jam.util;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RVMThread;
+import org.vmmagic.pragma.Uninterruptible;
 
 /**
  * This class implements a priority queue using the standard
  * (balanced partially-ordered tree, i.e., "heap") algorithm.
  * Smaller priority objects are in the front of the queue.
  */
+@Uninterruptible
 public class PriorityQueue {
 
   /**

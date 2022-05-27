@@ -26,10 +26,10 @@ import org.vmmagic.pragma.Untraced;
 @NonMoving
 public class ThreadQueue {
   protected static final boolean trace = false;
+  private static final boolean trace0 = false;  // traces remove()
   String name;
   
   @Untraced RVMThread head;
-
   @Untraced RVMThread tail;
   int size;
   
@@ -69,15 +69,32 @@ public class ThreadQueue {
 //        if(trace) VM.sysWriteln("queueOn ", Magic.objectAsAddress(t.queuedOn));
         VM._assert(t.queuedOn == null);
     }
-    t.next = null;
-    if (tail == null) {
-      head = t;
-    } else {
-      tail.next = t;
+    if(head == null)
+    {
+        head = t;
+        tail = t;
+        t.next = null;
+        t.prev = null;
+        size = 1;
     }
-    tail = t;
+    else
+    {
+        t.prev = tail;
+        tail.next = t;
+        t.next = null;
+        tail = t;
+        size++;
+    }
     t.queuedOn = this;
-    size++;
+//    t.next = null;
+//    if (tail == null) {
+//      head = t;
+//    } else {
+//      tail.next = t;
+//    }
+//    tail = t;
+//    t.queuedOn = this;
+//    size++;
   }
 
   public RVMThread peek() {
@@ -89,19 +106,22 @@ public class ThreadQueue {
       RVMThread result = head;
       if (result != null)
       {
-          size--;
-          head = result.next;
+          size -= 1;
+          head = head.next;
           if (head == null)
           {
               tail = null;
               result.prev = null;
+              result.next = null;
+              size = 0;
           }
           else
           {
               head.prev = null;
+              result.next = null;
+              result.prev = null;
           }
           if (VM.VerifyAssertions) VM._assert(result.queuedOn == this);
-          result.next = null;
           result.queuedOn = null;
       }
       if (trace)
@@ -115,6 +135,11 @@ public class ThreadQueue {
           {
               VM.sysWriteln("dequeueing ", result.getThreadSlot(), " from ", name);
           }
+      }
+      if (head==null && tail==null && size > 0)
+      {
+          VM.sysWriteln("queue size > 0: ", size);
+          VM._assert(false);
       }
       return result;
   }
@@ -164,13 +189,13 @@ public class ThreadQueue {
   public boolean remove(RVMThread t) {
     if (t.queuedOn != this || t.queuedOn == null)
       return false;
-    if (trace) {
+    if (trace0) {
       VM.sysWriteln("removing ", t.getThreadSlot(), " from ",
           name);
     }
     for (RVMThread cur = null; cur != tail; cur = getNext(cur)) {
       if (getNext(cur) == t) {
-        if (trace) {
+        if (trace0) {
           VM.sysWriteln("found!  before:");
           dump();
         }
@@ -178,7 +203,7 @@ public class ThreadQueue {
         if (tail == t) {
           tail = cur;
         }
-        if (trace) {
+        if (trace0) {
           VM.sysWriteln("after:");
           dump();
         }
