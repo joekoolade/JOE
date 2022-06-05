@@ -410,6 +410,7 @@ public final class RVMThread extends ThreadContext {
   /**
    * @return True if this thread is currently on a queue.
    */
+  @Uninterruptible
   public boolean isOnQueue() {
     return queuedOn != null;
   }
@@ -2677,6 +2678,7 @@ private static final boolean threadTrace = false;
     }
   }
 
+  @Uninterruptible
   public boolean isRunnable()
   {
 	  return threadStatus == RUNNABLE;
@@ -3158,6 +3160,7 @@ private static final boolean threadTrace = false;
     finishThreadTermination();
   }
 
+  @Uninterruptible
   public boolean isTerminated()
   {
     return execStatus == TERMINATED;
@@ -5173,6 +5176,7 @@ private static final boolean threadTrace = false;
    * @return the thread's context registers (saved registers when thread is
    *         suspended by scheduler).
    */
+  @Uninterruptible
   public AbstractRegisters getContextRegisters() {
     return contextRegisters;
   }

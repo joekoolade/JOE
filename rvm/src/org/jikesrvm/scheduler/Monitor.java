@@ -325,7 +325,9 @@ public class Monitor {
          * schedule thread trying to acquire the monitor
          */
         waitingThread.threadStatus = RVMThread.RUNNABLE;
+        RVMThread.getCurrentThread().disableYieldpoints();
         Platform.scheduler.addThread(waitingThread);
+        RVMThread.getCurrentThread().enableYieldpoints();
       }
     }
     if(DEBUG_UNLOCK)

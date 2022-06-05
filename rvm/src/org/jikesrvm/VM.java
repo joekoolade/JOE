@@ -899,6 +899,7 @@ public class VM extends Properties {
    * {@code if (VM.VerifyAssertions) VM._assert(xxx);}
    * @param b the assertion to verify
    */
+  @Uninterruptible
   @Inline(value = Inline.When.AllArgumentsAreConstant)
   public static void _assert(boolean b) {
     _assert(b, null, null);

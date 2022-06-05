@@ -16,6 +16,7 @@ import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.scheduler.RVMThread;
 import org.vmmagic.pragma.InterruptHandler;
 import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -27,6 +28,7 @@ import org.vmmagic.unboxed.Offset;
  *         a procedure used to service the associated exception/interrupt
  */
 @NonMoving
+@Uninterruptible
 public final class Idt implements SegmentDescriptorTypes {
     private static Idt       idt                            = new Idt(96);
     int                      codeSegment;
