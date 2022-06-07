@@ -8,6 +8,7 @@ import org.jam.util.ArrayDeque;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.pragma.NonMoving;
+import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
 
@@ -161,6 +162,7 @@ public class PcSerialPort {
        comPort.ioStore(IER, 0);
     }
 
+    @Uninterruptible
     public final void handler()
 	{
 	    int interruptId;

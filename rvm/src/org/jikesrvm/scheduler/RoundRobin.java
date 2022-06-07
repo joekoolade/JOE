@@ -30,7 +30,7 @@ public class RoundRobin implements Scheduler {
   public void schedule()
   {
       RVMThread currentThread = RVMThread.getCurrentThread();
-//      currentThread.disableYieldpoints();
+      Magic.disableInterrupts();
       if (!currentThread.isOnQueue() && currentThread.isRunnable())
       {
 //          VM.sysWrite("A:", currentThread.getThreadSlot());
@@ -40,15 +40,16 @@ public class RoundRobin implements Scheduler {
       while (nextThread == null)
       {
 //      VM.sysWrite("halt!");
+          Magic.enableInterrupts();
           Magic.halt();
+          Magic.disableInterrupts();
           nextThread = runQueue.dequeue();
       }
-
+      Magic.enableInterrupts();
       Magic.threadSwitch(currentThread, nextThread.getContextRegisters());
       /*
        * nextThread is running here
        */
-//      currentThread.enableYieldpoints();
   }
   
   /*

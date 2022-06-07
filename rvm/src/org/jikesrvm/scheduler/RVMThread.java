@@ -2698,6 +2698,7 @@ private static final boolean threadTrace = false;
   }
 
   /** Enable yieldpoints on this thread. */
+  @Uninterruptible
   public void enableYieldpoints() {
     if(yieldpointsEnabledCount == 1) return;
     ++yieldpointsEnabledCount;
@@ -2710,6 +2711,7 @@ private static final boolean threadTrace = false;
   }
 
   /** Disable yieldpoints on this thread. */
+  @Uninterruptible
   public void disableYieldpoints() {
     --yieldpointsEnabledCount;
   }
@@ -3477,9 +3479,12 @@ private static final boolean threadTrace = false;
     unblock(suspendBlockAdapter);
   }
 
+  @Uninterruptible
   public static void yieldNoHandshake() {
 //    sysCall.sysThreadYield();
+      getCurrentThread().disableYieldpoints();
     Platform.scheduler.schedule();
+    getCurrentThread().enableYieldpoints();
   }
 
   @UnpreemptibleNoWarn

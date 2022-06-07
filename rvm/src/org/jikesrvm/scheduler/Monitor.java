@@ -453,6 +453,7 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
+  @Uninterruptible
   public void timedWaitAbsoluteNoHandshake(long whenWakeupNanos) {
     int recCount = this.recCount;
     this.recCount = 0;
@@ -535,8 +536,7 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @BaselineSaveLSRegisters
-  @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
+  @Uninterruptible
   public void waitWithHandshake() {
 //    RVMThread.saveThreadState();
     waitWithHandshakeImpl();
@@ -572,14 +572,13 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @BaselineSaveLSRegisters
-  @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
+  @Uninterruptible
   public void timedWaitAbsoluteWithHandshake(long whenWakeupNanos) {
 //    RVMThread.saveThreadState();
     timedWaitAbsoluteWithHandshakeImpl(whenWakeupNanos);
   }
   @NoInline
-  @Unpreemptible
+  @Uninterruptible
   @NoOptCompile
   private void timedWaitAbsoluteWithHandshakeImpl(long whenWakeupNanos) {
     timedWaitAbsoluteNoHandshake(whenWakeupNanos);
@@ -607,13 +606,12 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @BaselineSaveLSRegisters
-  @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")
+  @Uninterruptible
   public void timedWaitRelativeWithHandshake(long delayNanos) {
     timedWaitRelativeWithHandshakeImpl(delayNanos);
   }
   @NoInline
-  @Unpreemptible
+  @Uninterruptible
   @NoOptCompile
   private void timedWaitRelativeWithHandshakeImpl(long delayNanos) {
     timedWaitRelativeNoHandshake(delayNanos);
@@ -645,7 +643,9 @@ public class Monitor {
           VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
         }
         waitingThread.threadStatus = RVMThread.RUNNABLE;
+        RVMThread.getCurrentThread().disableYieldpoints();
         Platform.scheduler.addThread(waitingThread);
+        RVMThread.getCurrentThread().enableYieldpoints();
     }
   }
   /**

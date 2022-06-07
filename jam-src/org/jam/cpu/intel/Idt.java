@@ -28,7 +28,6 @@ import org.vmmagic.unboxed.Offset;
  *         a procedure used to service the associated exception/interrupt
  */
 @NonMoving
-@Uninterruptible
 public final class Idt implements SegmentDescriptorTypes {
     private static Idt       idt                            = new Idt(96);
     int                      codeSegment;
