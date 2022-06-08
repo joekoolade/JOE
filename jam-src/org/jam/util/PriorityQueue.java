@@ -21,7 +21,6 @@ import org.vmmagic.pragma.Uninterruptible;
  * (balanced partially-ordered tree, i.e., "heap") algorithm.
  * Smaller priority objects are in the front of the queue.
  */
-@Uninterruptible
 public class PriorityQueue {
 
   /**
@@ -64,6 +63,7 @@ public class PriorityQueue {
    * is satisfied, i.e., bubble up
    * @param startingElement the position to start at
    */
+  @Uninterruptible
   private void reheapify(int startingElement) {
     int current = startingElement;
     int parent = numElements / 2;
@@ -88,6 +88,7 @@ public class PriorityQueue {
    * @param _priority  the priority of the inserted object
    * @param _data the object to insert
    */
+  @Uninterruptible
   public void insert(long _priority, Object _data) {
     numElements++;
     if (numElements == queue.length) {
@@ -111,6 +112,7 @@ public class PriorityQueue {
    * Remove and return the front (minimum) object
    * @return the front (minimum) object or null if the queue is empty.
    */
+  @Uninterruptible
   public Object deleteMin() {
     if (isEmpty()) return null;
 
@@ -151,6 +153,7 @@ public class PriorityQueue {
     return returnValue;
   }
 
+  @Uninterruptible
   public final Object remove(long time)
   {
       Object result = null;
@@ -178,6 +181,8 @@ public class PriorityQueue {
       }
       return result;
   }
+  
+  @Uninterruptible
   private void shiftUp(int index)
   {
       while(index < numElements)

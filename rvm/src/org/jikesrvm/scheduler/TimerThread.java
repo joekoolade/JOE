@@ -47,7 +47,6 @@ public class TimerThread extends SystemThread {
       for (;;) {
         // sysCall.sysNanoSleep(1000L * 1000L * VM.interruptQuantum);
         RVMThread.sleep(1000000000);
-        VM.sysWriteln("TimerThread UP!");
         if (VM.BuildForAdaptiveSystem) {
           // grab the lock to prevent threads from getting GC'd while we are
           // iterating (since this thread doesn't stop for GC)

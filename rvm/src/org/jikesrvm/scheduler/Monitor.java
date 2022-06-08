@@ -62,8 +62,8 @@ import org.vmmagic.unboxed.Word;
  *     until you unblock.</li>
  * </ul>
  */
-@Uninterruptible
 @NonMoving
+@Uninterruptible
 public class Monitor {
   private static final boolean DEBUG_UNLOCK = false;
   private static final int LOCKED = 1;
@@ -453,7 +453,6 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @Uninterruptible
   public void timedWaitAbsoluteNoHandshake(long whenWakeupNanos) {
     int recCount = this.recCount;
     this.recCount = 0;
@@ -536,7 +535,6 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @Uninterruptible
   public void waitWithHandshake() {
 //    RVMThread.saveThreadState();
     waitWithHandshakeImpl();
@@ -572,13 +570,11 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @Uninterruptible
   public void timedWaitAbsoluteWithHandshake(long whenWakeupNanos) {
 //    RVMThread.saveThreadState();
     timedWaitAbsoluteWithHandshakeImpl(whenWakeupNanos);
   }
   @NoInline
-  @Uninterruptible
   @NoOptCompile
   private void timedWaitAbsoluteWithHandshakeImpl(long whenWakeupNanos) {
     timedWaitAbsoluteNoHandshake(whenWakeupNanos);
@@ -606,12 +602,10 @@ public class Monitor {
    */
   @NoInline
   @NoOptCompile
-  @Uninterruptible
   public void timedWaitRelativeWithHandshake(long delayNanos) {
     timedWaitRelativeWithHandshakeImpl(delayNanos);
   }
   @NoInline
-  @Uninterruptible
   @NoOptCompile
   private void timedWaitRelativeWithHandshakeImpl(long delayNanos) {
     timedWaitRelativeNoHandshake(delayNanos);

@@ -529,6 +529,8 @@ Check to make sure all required properties are specified. This includes properti
 			<exclude name="test/org/jikesrvm/basic/core/threads/TestShutdown*.java"/>
 			<exclude name="test/org/jikesrvm/basic/core/threads/TestSleepForever.java"/>
 			<exclude name="test/org/jikesrvm/basic/core/threads/TestParallelHardwareTrap.java"/>
+			<exclude name="test/org/jikesrvm/basic/core/threads/TestMagicAttemptPrepareLong.java"/>
+      <exclude name="test/org/jikesrvm/basic/core/threads/TestBackEdgeGC.java"/>
 		</javac>
 		<delete includeEmptyDirs="true">
 			<fileset dir="${build.base}/ext/bin" includes="**/*"/>
