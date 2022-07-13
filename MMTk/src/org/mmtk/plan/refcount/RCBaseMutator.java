@@ -163,10 +163,10 @@ public class RCBaseMutator extends StopTheWorldMutator {
         immortal.linearScan(btSweepImmortal);
       }
       rc.release();
-      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(modBuffer.isEmpty());
-      if (!RCBase.BUILD_FOR_GENRC) {
-        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(decBuffer.isEmpty());
-      }
+//      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(modBuffer.isEmpty());
+//      if (!RCBase.BUILD_FOR_GENRC) {
+//        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(decBuffer.isEmpty());
+//      }
       return;
     }
 

@@ -3194,9 +3194,11 @@ private static final boolean threadTrace = false;
   // TODO fix this -- related to SaveVolatile
   @Entrypoint
   @Unpreemptible("Becoming another thread interrupts the current thread, avoid preemption in the process")
-  public static void yieldpointFromPrologue() {
-    Address fp = Magic.getFramePointer();
-    yieldpoint(PROLOGUE, fp);
+  public static void yieldpointFromPrologue()
+  {
+      if (interruptLevel > 0) return;
+      Address fp = Magic.getFramePointer();
+      yieldpoint(PROLOGUE, fp);
   }
 
   /**
@@ -3212,9 +3214,11 @@ private static final boolean threadTrace = false;
   // TODO fix this -- related to SaveVolatile
   @Entrypoint
   @Unpreemptible("Becoming another thread interrupts the current thread, avoid preemption in the process")
-  public static void yieldpointFromBackedge() {
-    Address fp = Magic.getFramePointer();
-    yieldpoint(BACKEDGE, fp);
+  public static void yieldpointFromBackedge()
+  {
+      if (interruptLevel > 0) return;
+      Address fp = Magic.getFramePointer();
+      yieldpoint(BACKEDGE, fp);
   }
 
   /**
@@ -3435,9 +3439,11 @@ private static final boolean threadTrace = false;
   // TODO fix this -- related to SaveVolatile
   @Entrypoint
   @Unpreemptible("Becoming another thread interrupts the current thread, avoid preemption in the process")
-  public static void yieldpointFromEpilogue() {
-    Address fp = Magic.getFramePointer();
-    yieldpoint(EPILOGUE, fp);
+  public static void yieldpointFromEpilogue()
+  {
+      if (interruptLevel > 0) return;
+      Address fp = Magic.getFramePointer();
+      yieldpoint(EPILOGUE, fp);
   }
 
   /*
@@ -3597,7 +3603,7 @@ private static final boolean threadTrace = false;
       // block
 //      VM.sysWriteln("wait ", getName());
 //      if(hasTimeout) VM.sysWriteln("with timeout");
-      monitor().lockNoHandshake();
+//      monitor().lockNoHandshake();
 //      VM.sysWriteln("monitor lock ", getName());
       while (l.waiting.isQueued(this) && !hasInterrupt && asyncThrowable == null &&
              (!hasTimeout || sysCall.sysNanoTime() < whenWakeupNanos)) {
@@ -3613,7 +3619,7 @@ private static final boolean threadTrace = false;
         asyncThrowable = null;
       }
 //      VM.sysWriteln("notified");
-      monitor().unlock();
+//      monitor().unlock();
       if (l.waiting.isQueued(this)) {
         l.mutex.lock();
 //        VM.sysWriteln("from interrupt or stop()");
@@ -3787,14 +3793,14 @@ private static final boolean threadTrace = false;
           getCurrentThread().getLockingId() + " but was held by " + l.getOwnerId() +
           ") ", o);
     }
+    Magic.disableInterrupts();
     for (;;) {
-      l.mutex.lock();
       RVMThread toAwaken = l.waiting.dequeue();
-      l.mutex.unlock();
       if (toAwaken == null)
         break;
       Platform.scheduler.addThread(toAwaken);
     }
+    Magic.enableInterrupts();
   }
 
   public void stop(Throwable cause) {

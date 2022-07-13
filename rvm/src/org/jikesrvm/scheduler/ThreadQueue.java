@@ -61,6 +61,7 @@ public class ThreadQueue {
         VM.sysWrite(" next: ", t.next.getName());
         VM.sysWriteln(" prev: ", t.prev.getName());
       }
+      VM.sysWriteln(t.queuedOn.name);
       VM.sysFail("Queued on");
       return;
     }
@@ -121,7 +122,11 @@ public class ThreadQueue {
               result.next = null;
               result.prev = null;
           }
-          if (VM.VerifyAssertions) VM._assert(result.queuedOn == this);
+          if (VM.VerifyAssertions) 
+          {
+              if(result.queuedOn != this) VM.sysWriteln("queuedOn: ", result.queuedOn.name);
+              VM._assert(result.queuedOn == this);
+          }
           result.queuedOn = null;
       }
       if (trace)

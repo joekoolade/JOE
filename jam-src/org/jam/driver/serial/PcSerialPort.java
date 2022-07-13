@@ -245,12 +245,15 @@ public class PcSerialPort {
 	/**
 	 * Enable the transmit holding register empty interrupt
 	 */
+    @Uninterruptible
 	private void enableTransmitInterrupts()
 	{
         byte ierReg = comPort.ioLoadByte(IER);
         ierReg |= IER_THREI;
         comPort.ioStore(IER, ierReg);
 	}
+    
+    
 	public void write(char val) 
 	{
 	    int retry = 0;

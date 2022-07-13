@@ -116,7 +116,7 @@ public final class SpinLock {
   public void lock() {
     if (!VM.runningVM) return;
     Magic.disableInterrupts();
-    VM.disableYieldpoints();
+//    VM.disableYieldpoints();
     RVMThread i = RVMThread.getCurrentThread();
     RVMThread p;
     int attempts = 0;

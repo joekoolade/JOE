@@ -35,15 +35,15 @@ abstract class XThread extends Thread {
     }
   }
 
-  private static final Map<Integer, ThreadRecord> records = new HashMap<Integer, ThreadRecord>();
-  private static final ThreadRecord mainRecord = new ThreadRecord("Main", null);
+  private static Map<Integer, ThreadRecord> records = new HashMap<Integer, ThreadRecord>();
+  private static ThreadRecord mainRecord = new ThreadRecord("Main", null);
 
   static {
     records.put(0, mainRecord);
   }
 
   private static int maxId = 1;
-  static boolean holdMessages = false; // !"false".equals(System.getProperty("tests.DeterministicOutput"));
+  static boolean holdMessages = true; // !"false".equals(System.getProperty("tests.DeterministicOutput"));
 
   private final ThreadRecord record;
   private final int id;
@@ -60,6 +60,14 @@ abstract class XThread extends Thread {
     tsay("creating");
   }
 
+  public static void init()
+  {
+      records = new HashMap<Integer, ThreadRecord>();
+      mainRecord = new ThreadRecord("Main", null);
+      records.put(0, mainRecord);
+      maxId = 1;
+      holdMessages = true;
+  }
   @Override
   public synchronized void start() {
     tsay("starting");
@@ -101,14 +109,17 @@ abstract class XThread extends Thread {
   }
 
   public static synchronized void joinOnAll() {
+      System.out.println("joinOnAll start");
     for (ThreadRecord record : records.values()) {
       if (null != record.thread && record.thread.isAlive()) {
         try {
+            System.out.println("joining");
           record.thread.join();
         } catch (final InterruptedException ie) {
         }
       }
     }
+    System.out.println("joinOnAll end");
   }
 
   public static synchronized void outputMessages() {
@@ -116,8 +127,6 @@ abstract class XThread extends Thread {
     final Set<Integer> keySet = records.keySet();
     final ArrayList<Integer> ids = new ArrayList<Integer>(keySet.size());
     ids.addAll(keySet);
-    System.out.println("ids size " + ids.size());
-    if(ids.size() <= 1) return;
     Collections.sort(ids);
 
     for (final Integer id : ids) {
@@ -127,6 +136,7 @@ abstract class XThread extends Thread {
         output(id, name, message);
       }
     }
+    records.clear();
   }
 
   private static void output(final int id,

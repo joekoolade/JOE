@@ -115,6 +115,7 @@ public final class Idt implements SegmentDescriptorTypes {
 	 * 
 	 */
 	@NonMoving
+	@Uninterruptible
 	static class InterruptVectors {
 	    @InterruptHandler
 	    public static void int0()
@@ -715,8 +716,8 @@ public final class Idt implements SegmentDescriptorTypes {
          Trace.irqStart(95);
          Platform.timer.handler();
          Trace.irqEnd(95);
-         RVMThread.interruptLevel--;
          Platform.apic.eoi();
+         RVMThread.interruptLevel--;
          // Restore back to the interrupt stack and context
          Magic.restoreThreadContextNoErrCode();
          // The interrupt handler annotation will emit the IRET

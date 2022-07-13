@@ -12,6 +12,7 @@
  */
 package org.jikesrvm.mm.mmtk;
 
+import org.jam.board.pc.Platform;
 import org.jikesrvm.VM;
 
 import org.vmmagic.unboxed.*;
@@ -122,12 +123,13 @@ import org.jikesrvm.scheduler.ThreadQueue;
           queue.enqueue(me);
           Magic.fence();
           state = LOCKED_QUEUED;
-          me.monitor().lockNoHandshake();
+//          me.monitor().lockNoHandshake();
           while (queue.isQueued(me)) {
             // use waitNoHandshake instead of waitWithHandshake because this is NOT a GC point!
-            me.monitor().waitNoHandshake();
+//            me.monitor().waitNoHandshake();
+              RVMThread.yieldNoHandshake();
           }
-          me.monitor().unlock();
+//          me.monitor().unlock();
         }
       }
     }
@@ -168,7 +170,8 @@ import org.jikesrvm.scheduler.ThreadQueue;
         } else {
           state = CLEAR_QUEUED;
         }
-        toAwaken.monitor().lockedBroadcastNoHandshake();
+        Platform.scheduler.addThread(toAwaken);
+//        toAwaken.monitor().lockedBroadcastNoHandshake();
         break;
       }
     }

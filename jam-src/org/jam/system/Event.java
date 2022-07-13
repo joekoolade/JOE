@@ -25,21 +25,25 @@ public class Event
         this.type = type;
     }
     
+    @Uninterruptible
     public void setTime()
     {
         time = Magic.getTimeBase();
     }
     
+    @Uninterruptible
     public void setParameter(int index, long val)
     {
         params[index] = val;
     }
     
+    @Uninterruptible
     public long getParameter(int index)
     {
         return params[index];
     }
     
+    @Uninterruptible
     public void setParameter(long[] params)
     {
         int i=0;
@@ -48,16 +52,19 @@ public class Event
             this.params[i] = params[i];
         }
     }
+    @Uninterruptible
     public void irqType()
     {
         type = IRQ;
     }
     
+    @Uninterruptible
     public void scheduleType()
     {
         type = SCHEDULE;
     }
     
+    @Uninterruptible
     public void swType()
     {
         type = SW;
