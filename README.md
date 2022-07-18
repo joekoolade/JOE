@@ -71,7 +71,16 @@ skip.unit.tests=1
 % cd <top of JOE repo>
 % ant1.9 build-bootimage
 ```
+### Running testmode
 
+The below will build and run VM tests
+
+```
+% cd <top of JOE repo>
+% ant1.9 testmode build-bootimage
+% cd target/BaseBaseSemiSpace_x86_64-osx
+% ../../scripts/rjoe
+```
 ## How To Add External Classes
 
 Precompiled classes can be added to the image and loaded by the runtime. This allows users to run  programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load the program and run it. To have classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example. The classes must be compiled for Java version 1.5.
@@ -95,9 +104,10 @@ HwThread.class
 ## How To Run
 
 To run the image, jam.out:
+
 ```
-cd jikesrvm-hgÍ/target/BaseBaseSemiSpace_x86_64-osx
-../../../scripts/rjoe
+cd target/BaseBaseSemiSpace_x86_64-osx
+../../scripts/rjoe
 ```
 
 The jam.out in the top directory will run org.jam.test.Sleep thread.
