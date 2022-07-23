@@ -183,6 +183,35 @@ public class PriorityQueue {
   }
   
   @Uninterruptible
+  public final Object remove(Object thread)
+  {
+      Object result = null;
+      
+      /*
+       * Loop thru the queue to find a matching key
+       */
+      int index=1;
+      PriorityQueueNode node;
+      for(; index <= numElements; index++)
+      {
+          node = queue[index];
+          if(node.data == thread)
+          {
+              result = node.data;
+              /*
+               * Shift up
+               */
+              shiftUp(index);
+              numElements--;
+              reheapify(1);
+              break;
+          }
+              
+      }
+      return result;
+  }
+  
+  @Uninterruptible
   private void shiftUp(int index)
   {
       while(index < numElements)

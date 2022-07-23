@@ -109,17 +109,14 @@ abstract class XThread extends Thread {
   }
 
   public static synchronized void joinOnAll() {
-      System.out.println("joinOnAll start");
     for (ThreadRecord record : records.values()) {
       if (null != record.thread && record.thread.isAlive()) {
         try {
-            System.out.println("joining");
           record.thread.join();
         } catch (final InterruptedException ie) {
         }
       }
     }
-    System.out.println("joinOnAll end");
   }
 
   public static synchronized void outputMessages() {

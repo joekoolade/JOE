@@ -3514,7 +3514,7 @@ private static final boolean threadTrace = false;
 //    VM.sysWrite("sleeping ", t.getName());
 //    VM.sysWriteln(" ", ns/1000000);
     t.monitor().lockNoHandshake();
-    t.waiting = Waiting.TIMED_WAITING;
+    t.waiting = Waiting.SLEEPING;
     while (!t.hasInterrupt && t.asyncThrowable == null &&
         sysCall.sysNanoTime() < whenEnd) {
       t.monitor().timedWaitAbsoluteWithHandshake(whenEnd);
@@ -3582,10 +3582,12 @@ private static final boolean threadTrace = false;
         }
       }
       // get lock for object
+//      Magic.disableInterrupts();
+      disableYieldpoints();
       Lock l = ObjectModel.getHeavyLock(o, true);
 
       // release the lock
-      l.mutex.lock();
+//      l.mutex.lock();
       // this thread is supposed to own the lock on o
       if (VM.VerifyAssertions) VM._assert(l.getOwnerId() == getLockingId());
       RVMThread toAwaken = l.entering.dequeue();
@@ -3593,13 +3595,14 @@ private static final boolean threadTrace = false;
       waitCount = l.getRecursionCount();
       l.setOwnerId(0);
       l.waiting.enqueue(this);
-      l.mutex.unlock();
-
+//      l.mutex.unlock();
       // if there was a thread waiting, awaken it
       if (toAwaken != null) {
         // is this where the problem is coming from?
         Platform.scheduler.addThread(toAwaken);
       }
+      enableYieldpoints();
+//      Magic.enableInterrupts();
       // block
 //      VM.sysWriteln("wait ", getName());
 //      if(hasTimeout) VM.sysWriteln("with timeout");
@@ -4900,10 +4903,10 @@ private static final boolean threadTrace = false;
 
   /** @return whether the thread started and not terminated */
   public boolean isAlive() {
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     observeExecStatus();
     boolean result = execStatus != NEW && execStatus != TERMINATED && !isAboutToTerminate;
-    monitor().unlock();
+//    monitor().unlock();
     return result;
   }
 
@@ -4964,12 +4967,25 @@ private static final boolean threadTrace = false;
    *
    * @see java.lang.Thread#interrupt()
    */
-  @Interruptible
   public void interrupt() {
-    monitor().lockNoHandshake();
+      Magic.disableInterrupts();
     hasInterrupt = true;
-    monitor().broadcast();
-    monitor().unlock();
+    if(waiting == Waiting.SLEEPING)
+    {
+        monitor().broadcast();
+    }
+    else if(waiting != Waiting.RUNNABLE)
+    {
+        if(Platform.timer.removeTimer(this))
+        {
+            Platform.scheduler.addThread(this);
+        }
+        else
+        {
+            VM.sysWriteln("interrrupt: "+getName()+" not on timer");
+        }
+    }
+    Magic.enableInterrupts();
   }
 
   /**
@@ -5025,7 +5041,7 @@ private static final boolean threadTrace = false;
    */
   @Interruptible
   public Thread.State getState() {
-    monitor().lockNoHandshake();
+//    monitor().lockNoHandshake();
     try {
       observeExecStatus();
       switch (execStatus) {
@@ -5058,7 +5074,7 @@ private static final boolean threadTrace = false;
         return null;
       }
     } finally {
-      monitor().unlock();
+//      monitor().unlock();
     }
   }
 

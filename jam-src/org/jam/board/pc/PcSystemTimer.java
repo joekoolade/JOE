@@ -187,7 +187,7 @@ implements Timer
         /*
          * set expiration time and put on the queue
          */
-        if(VM.VerifyAssertions) VM._assert(!t.isOnQueue(), "timer: thread on queue");
+        //if(VM.VerifyAssertions) VM._assert(!t.isOnQueue(), "timer: thread on queue");
         Magic.disableInterrupts();
         timerQueue.insert(time_ns, RVMThread.getCurrentThread());
 //        VM.sysWriteln("startTimer: ", timerQueue.toString());
@@ -219,8 +219,10 @@ implements Timer
     /**
      * Remove timer associated with thread
      */
-    public void removeTimer(RVMThread thr)
+    @Uninterruptible
+    public boolean removeTimer(RVMThread thr)
     {
-      
+        RVMThread t =  (RVMThread) timerQueue.remove(thr);
+        return t != null;
     }
 }
