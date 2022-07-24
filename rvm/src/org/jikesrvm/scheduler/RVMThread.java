@@ -4976,14 +4976,9 @@ private static final boolean threadTrace = false;
     }
     else if(waiting != Waiting.RUNNABLE)
     {
-        if(Platform.timer.removeTimer(this))
-        {
-            Platform.scheduler.addThread(this);
-        }
-        else
-        {
-            VM.sysWriteln("interrrupt: "+getName()+" not on timer");
-        }
+        Platform.timer.removeTimer(this);
+        this.queuedOn.remove(this);
+        Platform.scheduler.addThread(this);
     }
     Magic.enableInterrupts();
   }

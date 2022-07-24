@@ -163,7 +163,7 @@ public final class Registers extends AbstractRegisters {
       // set the sp
       getGPRs().set(ESP.value(), sp.minus(WORDSIZE * 7).toWord());
     }
-    VM.sysWriteln("fp: ", this.fp);
+//    VM.sysWriteln("fp: ", this.fp);
 
 //    sp = sp.minus(STACKFRAME_HEADER_SIZE);                   // last word of header
 //    fp = sp.minus(BYTES_IN_ADDRESS).minus(STACKFRAME_BODY_OFFSET);

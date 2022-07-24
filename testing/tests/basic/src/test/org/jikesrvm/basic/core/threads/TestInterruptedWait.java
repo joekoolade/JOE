@@ -45,7 +45,7 @@ public class TestInterruptedWait {
         lock.wait(2000);
       } catch (InterruptedException e) {
         System.out.println("TestInterruptedWait SUCCESS");
-        System.exit(0);
+        return;
       }
     }
 
