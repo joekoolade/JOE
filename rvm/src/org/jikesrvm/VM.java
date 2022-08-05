@@ -22,6 +22,7 @@ import org.jam.board.pc.Platform;
 import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.runtime.RunMain;
 import org.jam.runtime.StartUp;
 import org.jam.system.Trace;
 import org.jikesrvm.adaptive.controller.Controller;
@@ -600,6 +601,9 @@ public class VM extends Properties {
     runClassInitializer("sun.nio.cs.Surrogate$Generator");
     runClassInitializer("sun.nio.cs.Surrogate");
     runClassInitializer("java.util.Random");
+    
+    runClassInitializer("tests.java.net.DatagramClientServer");
+    
     if (!VM.BuildForOpenJDK) {
       if (verboseBoot >= 1)
         VM.sysWriteln("initializing standard streams");
@@ -769,7 +773,9 @@ public class VM extends Properties {
     // Schedule "main" thread for execution.
 //    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
-
+    RunMain runMain = new RunMain("DatagramClientServer");
+    runMain.run();
+    
     // End of boot thread.
     //
     if (VM.TraceThreads) RVMThread.trace("VM.boot", "completed - terminating");
