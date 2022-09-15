@@ -1,10 +1,8 @@
 package org.jam.net;
 
-import java.net.DatagramPacket;
-import java.nio.ByteBuffer;
-
 import org.jam.driver.net.Packet;
 import org.jam.driver.net.PacketBuffer;
+import org.jam.java.net.DatagramPacket;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.Arp;
 import org.jikesrvm.classloader.RVMArray;
@@ -33,15 +31,14 @@ public class InetPacket implements Packet {
 		netInterface = connection.getNetworkInterface();
 	}
 
-	public InetPacket(ByteBuffer src, Connection connection, int headroom)
+	public InetPacket(byte[] srcBuffer, int size, Connection connection, int headroom)
     {
-        int bufferSize = src.capacity()+UDP_HEADROOM;
-        byte[] srcBuffer = src.array();
+        int bufferSize = size+UDP_HEADROOM;
         buffer = new byte[bufferSize];
-        RVMArray.arraycopy(srcBuffer, 0, buffer, UDP_HEADROOM, src.capacity());
+        RVMArray.arraycopy(srcBuffer, 0, buffer, UDP_HEADROOM, size);
         System.out.println("InetPacket1 "+bufferSize);
         offset = UDP_HEADROOM - headroom;
-        packetSize = src.capacity() + headroom;
+        packetSize = size + headroom;
         this.connection = connection;
         netInterface = connection.getNetworkInterface();
     }

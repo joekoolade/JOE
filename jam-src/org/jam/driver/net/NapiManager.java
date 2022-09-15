@@ -6,6 +6,7 @@
  */
 package org.jam.driver.net;
 
+import org.jam.net.NetworkInterface;
 import org.jam.util.Iterator;
 
 import org.jam.util.LinkedList;
@@ -19,10 +20,10 @@ import org.jikesrvm.VM;
  */
 public class NapiManager implements Runnable {
   final static class NapiEntry {
-    NapiInterface netIf;
+      NetworkInterface netIf;
     int           timer;
 
-    public NapiEntry(NapiInterface netIf, int timer)
+    public NapiEntry(NetworkInterface netIf, int timer)
     {
       this.netIf = netIf;
       this.timer = timer;
@@ -36,7 +37,7 @@ public class NapiManager implements Runnable {
   /**
    * @param i82559c
    */
-  public static void addInterface(NapiInterface networkCard)
+  public static void addInterface(NetworkInterface networkCard)
   {
     if (networkInterfaces.isEmpty())
     {
@@ -93,7 +94,7 @@ public class NapiManager implements Runnable {
     }
   }
 
-  public static void remove(NapiInterface netInterface)
+  public static void remove(NetworkInterface netInterface)
   {
     networkInterfaces.remove(netInterface);
   }

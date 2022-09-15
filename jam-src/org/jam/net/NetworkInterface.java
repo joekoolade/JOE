@@ -17,4 +17,14 @@ public interface NetworkInterface {
     EthernetAddr arp(InetAddress inet);
     EthernetAddr getEthernetAddress();
     void setEthernetAddress(EthernetAddr macAddress);
+    void poll();
+    /*
+     * How much work should be done per poll
+     */
+    int work();
+    /*
+     * How often to schedule the poll
+     */
+    int schedule();
+    void receive();
 }

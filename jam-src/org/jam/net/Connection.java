@@ -1,6 +1,5 @@
 package org.jam.net;
 
-import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 
 import org.jam.net.inet4.InetAddress;
@@ -13,18 +12,18 @@ public class Connection {
     private IpProto protocol;
     private Route route;
 
-    public Connection(InetSocketAddress localAddress, InetSocketAddress remoteAddress, IpProto proto) throws NoRouteToHostException
+    public Connection(InetAddress localAddress, InetAddress remoteAddress, int port, IpProto proto)
     {
         // look up the route
-        remote = new InetAddress(remoteAddress.getAddress().getAddress());
-        remotePort = remoteAddress.getPort();
+        remote = remoteAddress;
+        remotePort = port;
         System.out.println("remote addr " + remote);
         route = Route.find(remote);
         System.out.println("getting local address "+localAddress);
         byte[] addr = null;
         if (localAddress !=null)
         {
-            local = new InetAddress(localAddress.getAddress().getAddress());
+            local = localAddress;
         }
         else
         {

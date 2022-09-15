@@ -165,5 +165,11 @@ implements Timer
     // TODO Auto-generated method stub
     return null;
   }
+
+    public boolean removeTimer(RVMThread thread)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
   
 }

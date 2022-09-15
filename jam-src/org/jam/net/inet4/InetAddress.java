@@ -396,4 +396,24 @@ public class InetAddress
         }
         return false;
     }
+    
+    public String getHostName()
+    {
+        return string;
+    }
+    
+    public String getHostAddress()
+    {
+        return string;
+    }
+
+    public static InetAddress anyLocalAddress()
+    {
+        return null;
+    }
+
+    public static InetAddress getByName(String hostname)
+    {
+        return null;
+    }
 }

@@ -33,7 +33,7 @@ import org.vmmagic.unboxed.Offset;
  *
  */
 public class I82559c extends InetNetworkInterface 
-implements NetworkInterface, NapiInterface, BufferFree 
+implements NetworkInterface, BufferFree 
 {
   final PciDevice pci;
   final Address csr;
@@ -769,11 +769,7 @@ private static final boolean DEBUG_TX = true;
   
   public void receive()
   {
-    while(true)
-    {
       rxClean();
-      Tsc.udelay(10000);
-    }
   }
   
   final private int advanceRfdIndex(int index, int step)

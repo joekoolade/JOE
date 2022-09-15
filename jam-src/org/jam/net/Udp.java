@@ -5,21 +5,18 @@
  */
 package org.jam.net;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
 import java.net.NoRouteToHostException;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InterruptedIOException;
 
+import org.jam.net.inet4.InetAddress;
+import org.jam.util.ArrayDeque;
 import org.jam.driver.net.Packet;
+import org.jam.java.net.DatagramPacket;
+import org.jam.java.net.InetSocketAddress;
+import org.jam.java.net.SocketAddress;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
@@ -43,8 +40,8 @@ public class Udp {
     private static final boolean DEBUG_TRACE = true;
     private static InetConnections connectionTable = new InetConnections();
     
-    InetSocketAddress localAddress;
-    InetSocketAddress remoteAddress;
+    InetAddress localAddress;
+    InetAddress remoteAddress;
     int ttl;
     private Connection connection;
     private int pseudoHeaderSum;
@@ -57,6 +54,8 @@ public class Udp {
     private static UdpStats stats;
     
     private ArrayDeque<Packet> packetFifo;
+    private int localPort;
+    private int remotePort;
     
     public Udp()
     {
@@ -68,25 +67,27 @@ public class Udp {
     /**
      * @param inetSocketAddress
      */
-    public void bind(InetSocketAddress inetSocketAddress) throws SocketException, IOException
+    public void bind(InetAddress inetSocketAddress, int port)
     {
         localAddress = inetSocketAddress;
+        localPort = port;
         // put it in the connection table
-        connectionTable.add(inetSocketAddress, this);
+        connectionTable.add(inetSocketAddress, port, this);
     }
 
     /**
      * @param inetSocketAddress
      * @param i
      */
-    public void connect(InetSocketAddress inetSocketAddress, int i)
+    public void connect(InetAddress inetSocketAddress, int port)
     {
         remoteAddress = inetSocketAddress;
+        remotePort = port;
         if (localAddress == null)
         {
-            localAddress = new InetSocketAddress(10000);
+            localAddress = new InetAddress(10000);
         }
-        connectionTable.add(localAddress, this);
+        connectionTable.add(localAddress, port, this);
         // check if address is routable
         // Create a new connection
     }
@@ -110,11 +111,15 @@ public class Udp {
     /**
      * @return
      */
-    public InetSocketAddress getLocalAddress() throws IOException
+    public InetAddress getLocalAddress()
     {
         return localAddress;
     }
 
+    public int getLocalPort()
+    {
+        return localPort;
+    }
     /**
      * @param packet
      * @throws IOException
@@ -146,9 +151,9 @@ public class Udp {
         Address udpPacket = packet.getPacketAddress();
         // Setup the udp packet header
         // source port
-        udpPacket.store(ByteOrder.hostToNetwork((short) localAddress.getPort()));
+        udpPacket.store(ByteOrder.hostToNetwork((short) localPort));
         // desination port
-        udpPacket.store(ByteOrder.hostToNetwork((short) remoteAddress.getPort()), DESTINATION_PORT);
+        udpPacket.store(ByteOrder.hostToNetwork((short) remotePort), DESTINATION_PORT);
         // packet length
         udpPacket.store(ByteOrder.hostToNetwork((short) packet.getSize()), LENGTH);
         // packet checksum
@@ -237,17 +242,17 @@ public class Udp {
     {
         this.packet = packet;
     }
-    private void initConnection(DatagramPacket packet) throws NoRouteToHostException
+    private void initConnection(DatagramPacket packet)
     {
         if(DEBUG_TRACE) VM.sysWriteln("udp initConnection");
         if(packet != null)
         {
             if(remoteAddress==null)
             {
-                remoteAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
+                remoteAddress = packet.getAddress();
             }
         }
-        connection = new Connection(localAddress, remoteAddress, IpProto.UDP);
+        connection = new Connection(localAddress, remoteAddress, packet.getPort(), IpProto.UDP);
     }
 
     /**
@@ -353,7 +358,7 @@ public class Udp {
      * @param packet
      * @return
      */
-    public SocketAddress receive(DatagramPacket packet) throws SocketTimeoutException, InterruptedIOException
+    public InetAddress receive(DatagramPacket packet) throws SocketTimeoutException, InterruptedIOException
     {
         Packet p;
         int waiting=0;
@@ -453,7 +458,7 @@ public class Udp {
      * @param address
      * @param netIf
      */
-    public void joinGroup(InetSocketAddress address, NetworkInterface netIf)
+    public void joinGroup(InetAddress address, NetworkInterface netIf)
     {
         // TODO Auto-generated method stub
 
@@ -463,7 +468,7 @@ public class Udp {
      * @param address
      * @param netIf
      */
-    public void leaveGroup(InetSocketAddress address, NetworkInterface netIf)
+    public void leaveGroup(InetAddress address, NetworkInterface netIf)
     {
         // TODO Auto-generated method stub
 
@@ -517,64 +522,68 @@ public class Udp {
 
     }
 
-    public InetSocketAddress getPeerAddress()
+    public InetAddress getPeerAddress()
     {
         // TODO Auto-generated method stub
         return remoteAddress;
     }
 
-    public int write(ByteBuffer src) throws IOException
-    {
-        VM.sysWriteln("udp write");
-//        disableCheckSum = true;
-        if (connection == null)
-        {
-            try
-            {
-                initConnection(null);
-            }
-            catch (NoRouteToHostException e)
-            {
-                throw new IOException("No Route");
-            }
-        }
-        if (src.capacity() > 0xFFFF)
-        {
-            throw new IOException("Packet too big");
-        }
-        packet = new InetPacket(src, connection, UDP_HEADER_SIZE);
-        send();
-        return 0;
-    }
+//    public int write(ByteBuffer src) throws IOException
+//    {
+//        VM.sysWriteln("udp write");
+////        disableCheckSum = true;
+//        if (connection == null)
+//        {
+//            try
+//            {
+//                initConnection(null);
+//            }
+//            catch (NoRouteToHostException e)
+//            {
+//                throw new IOException("No Route");
+//            }
+//        }
+//        if (src.capacity() > 0xFFFF)
+//        {
+//            throw new IOException("Packet too big");
+//        }
+//        packet = new InetPacket(src, connection, UDP_HEADER_SIZE);
+//        send();
+//        return 0;
+//    }
 
-    public long writeGathering(ByteBuffer[] srcs, int offset2, int length2)
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public int read(ByteBuffer dst)
+    public long writeGathering(byte[] srcs, int offset2, int length2)
     {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    public long readScattering(ByteBuffer[] dsts, int offset2, int length2)
+    public int read(byte[] dst)
     {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    public SocketAddress receive(ByteBuffer dst)
+    public long readScattering(byte[] dsts, int offset2, int length2)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public SocketAddress receive(byte[] dst)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public int send(ByteBuffer src, InetSocketAddress dst)
+    public int send(byte[] src, InetSocketAddress dst)
     {
         // TODO Auto-generated method stub
         return 0;
     }
 
+    public void send(byte[] addr, int port, byte[] data, int length)
+    {
+        
+    }
 }

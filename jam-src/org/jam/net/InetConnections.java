@@ -1,6 +1,5 @@
 package org.jam.net;
 
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 
 import org.jam.net.inet4.InetAddress;
@@ -19,10 +18,10 @@ public class InetConnections
         table = new HashMap<Long, Udp>();
     }
     
-    public final void add(InetSocketAddress addr, Udp connection)
+    public final void add(InetAddress addr, int port, Udp connection)
     {
-        byte[] inet = addr.getAddress().getAddress();
-        long key = ((long)addr.getPort() << 32) | (inet[0] << 24) | (inet[1] << 16) | (inet[2] << 8) | inet[3];
+        byte[] inet = addr.asArray();
+        long key = ((long)port << 32) | (inet[0] << 24) | (inet[1] << 16) | (inet[2] << 8) | inet[3];
         System.out.println("InetConnections add "+addr);
         table.put(key, connection);
     }
