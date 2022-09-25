@@ -24,6 +24,7 @@
 
 [Lorg/jikesrvm/runtime/CommandLineArgs$Prefix;
 [Lorg/jikesrvm/runtime/CommandLineArgs$PrefixType;
+[Lorg/jikesrvm/runtime/ExternalFile;
 
 [Lorg/jikesrvm/classloader/RVMAnnotation;
 [Lorg/jikesrvm/classloader/RVMAnnotation$AnnotationMember;

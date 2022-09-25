@@ -42,6 +42,7 @@ import static org.jikesrvm.tools.bootImageWriter.Verbosity.TYPE_NAMES;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -93,6 +94,7 @@ import org.jikesrvm.objectmodel.TIB;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Callbacks;
 import org.jikesrvm.runtime.Entrypoints;
+import org.jikesrvm.runtime.ExternalFile;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Statics;
 import org.jikesrvm.scheduler.RVMThread;
@@ -340,6 +342,8 @@ public class BootImageWriter {
   private static ArrayList<String> mainClass = new ArrayList<String>();
   private static String[] mainClassStrings;
   private static String[] testClassStrings;
+
+  private static ExternalFile[] extFiles;
   
   
   /**
@@ -539,6 +543,7 @@ public class BootImageWriter {
       fail("unrecognized command line argument: " + args[i]);
     }
 
+    verbosity = TYPE_NAMES;
     if (verbosity.isAtLeast(Verbosity.DETAILED))
       traversed = new Hashtable<Object,Integer>(500);
 
@@ -603,6 +608,14 @@ public class BootImageWriter {
         e.printStackTrace();
         fail("Test class append failed! " + e.getMessage());
       }
+    }
+    else
+    {
+        /*
+         * Just take the files in ext/bin and put them in an array of ExternalFile objects
+         */
+        extFiles = getExtFiles("../../ext/bin");
+        System.out.println("External Files: " + extFiles.length);
     }
     //
     // Initialize the bootimage.
@@ -918,6 +931,90 @@ public class BootImageWriter {
     }
 
     if (verbosity.isAtLeast(SUMMARY)) say("done");
+  }
+
+  private static ArrayList<File> getMoreExtFiles(File dir)
+  {
+      ArrayList<File> files = new ArrayList<File>();
+      
+      File dirFiles[] = dir.listFiles();
+      
+      for(int index=0; index < dirFiles.length; index++)
+      {
+          /*
+           * Process directories
+           */
+          if(dirFiles[index].isDirectory())
+          {
+              files.addAll(getMoreExtFiles(dirFiles[index]));
+          }
+          else
+          {
+              files.add(dirFiles[index]);
+          }
+      }
+      return files;
+  }
+  
+  private static ExternalFile[] getExtFiles(String path)
+  {
+    ExternalFile[] extFilesOut = null;
+    ArrayList<File> extFiles = new ArrayList<File>();
+    
+    File extDir = new File(path);
+    try
+    {
+        System.out.println("extdir=" + extDir.getCanonicalPath());
+    } catch (IOException e1)
+    {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+    }
+    File files[] = extDir.listFiles();
+    int index;
+    for(index = 0; index < files.length; index++)
+    {
+        /*
+         * Process a directory by getting all the files in that directory
+         */
+        if(files[index].isDirectory())
+        {
+            extFiles.addAll(getMoreExtFiles(files[index]));
+        }
+        else
+        {
+            extFiles.add(files[index]);
+        }
+        
+        /*
+         * Start creating the external files
+         */
+        extFilesOut = new ExternalFile[extFiles.size()];
+        Iterator<File> iter = extFiles.iterator();
+        index = 0;
+        while(iter.hasNext())
+        {
+            byte[] data = null;
+            File file = iter.next();
+            try
+            {
+                FileInputStream fis = new FileInputStream(file);
+                data = new byte[(int) file.length()];
+                fis.read(data);
+                extFilesOut[index] = new ExternalFile(file.getCanonicalPath(), data);
+                System.out.println(extFilesOut[index]);
+                index++;
+            } catch (FileNotFoundException e)
+            {
+                System.out.println("No file: " + file.getName());
+            } catch (IOException e)
+            {
+                System.out.println("file read error: " + file.getName());
+            }
+            
+        }
+    }
+    return extFilesOut;
   }
 
   private static void writeMultibootFile() throws IOException {
@@ -1371,6 +1468,7 @@ public class BootImageWriter {
       bootRecord.runMainClasses = mainClassStrings;
       bootRecord.testClasses = testClassStrings;
       bootRecord.testMode = testMode;
+      bootRecord.files = extFiles;
       // set up some stuff we need for compiling
       ArchitectureFactory.initOutOfLineMachineCode();
 

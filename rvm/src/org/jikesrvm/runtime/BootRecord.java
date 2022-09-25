@@ -201,6 +201,7 @@ public class BootRecord {
    */
   public String runMainClasses[];
   public String testClasses[];
+  public ExternalFile files[];
   
   // Additional RVM entrypoints
   //

@@ -29,6 +29,7 @@ import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
 import org.jikesrvm.architecture.StackFrameLayout;
 import org.jikesrvm.classlibrary.ClassLibraryHelpers;
+import org.jikesrvm.classlibrary.ClassLoaderSupport;
 import org.jikesrvm.classlibrary.JavaLangSupport;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.BootstrapClassLoader;
@@ -52,6 +53,7 @@ import org.jikesrvm.runtime.Callbacks;
 import org.jikesrvm.runtime.CommandLineArgs;
 import org.jikesrvm.runtime.DynamicLibrary;
 import org.jikesrvm.runtime.Entrypoints;
+import org.jikesrvm.runtime.ExternalFile;
 import org.jikesrvm.runtime.FileSystem;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.RuntimeEntrypoints;
@@ -773,6 +775,18 @@ public class VM extends Properties {
     // Schedule "main" thread for execution.
 //    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
+    /*
+     * Load external classes
+     */
+    ExternalFile extFile[] = BootRecord.the_boot_record.files;
+    if(extFile == null) VM.sysWriteln("No external files");
+    else VM.sysWriteln("External files = ", extFile.length);
+    VM.TraceClassLoading = true;
+    for(int i=0; i < extFile.length; i++)
+    {
+        VM.sysWriteln("Loading external class " + extFile[i].name);
+        loadExternalClass(extFile[i]);
+    }
     RunMain runMain = new RunMain("DatagramClientServer");
     runMain.run();
     
@@ -829,6 +843,12 @@ public class VM extends Properties {
     VM.sysExit(EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
   }
 
+  private static void loadExternalClass(ExternalFile file)
+  {
+      Class cls = ClassLoaderSupport.defineClass(null, file.name, file.data, 0, file.data.length, null);
+      ClassLoaderSupport.resolveClass(cls);
+  }
+  
   /**
    * Run {@code <clinit>} method of specified class, if that class appears
    * in bootimage and actually has a clinit method (we are flexible to
