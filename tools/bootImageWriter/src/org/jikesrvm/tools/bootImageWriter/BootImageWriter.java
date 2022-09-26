@@ -543,7 +543,6 @@ public class BootImageWriter {
       fail("unrecognized command line argument: " + args[i]);
     }
 
-    verbosity = TYPE_NAMES;
     if (verbosity.isAtLeast(Verbosity.DETAILED))
       traversed = new Hashtable<Object,Integer>(500);
 
