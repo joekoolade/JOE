@@ -787,7 +787,7 @@ public class VM extends Properties {
         VM.sysWriteln("Loading external class " + extFile[i].name);
         loadExternalClass(extFile[i]);
     }
-    RunMain runMain = new RunMain("DatagramClientServer");
+    RunMain runMain = new RunMain("tests.java.net.DatagramClientServer");
     runMain.run();
     
     // End of boot thread.
@@ -845,7 +845,9 @@ public class VM extends Properties {
 
   private static void loadExternalClass(ExternalFile file)
   {
-      Class cls = ClassLoaderSupport.defineClass(null, file.name, file.data, 0, file.data.length, null);
+      VM.sysWriteln("defining "+file.getClassName());
+      Class cls = ClassLoaderSupport.defineClass(null, file.getClassName(), file.data, 0, file.data.length, null);
+      VM.sysWriteln("defined "+file.getClassName());
       ClassLoaderSupport.resolveClass(cls);
   }
   

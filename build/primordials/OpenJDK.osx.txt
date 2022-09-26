@@ -299,3 +299,5 @@ Ljava/net/SocketPermission;
 Ljava/lang/SecurityManager;
 Ljava/util/Random;
 Ljava/util/AbstractList$ListItr;
+Ljava/io/ByteArrayInputStream;
+Ljava/io/ByteArrayOutputStream;
