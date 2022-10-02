@@ -298,6 +298,17 @@ Ljavax/security/auth/AuthPermission;
 Ljava/net/SocketPermission;
 Ljava/lang/SecurityManager;
 Ljava/util/Random;
+
 Ljava/util/AbstractList$ListItr;
+Ljava/util/RandomAccessSubList;
+Ljava/util/SubList;
+Ljava/util/SubList$1;
 Ljava/io/ByteArrayInputStream;
 Ljava/io/ByteArrayOutputStream;
+Ljava/net/InetAddress$Cache;
+Ljava/net/InetAddress$Cache$Type;
+Ljava/net/InetAddress$InetAddressHolder;
+Ljava/net/InetAddress$CacheEntry;
+Ljava/net/Inet4AddressImpl;
+Ljava/net/Inet4Address;
+Ljava/net/DatagramSocket;
