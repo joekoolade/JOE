@@ -957,7 +957,7 @@ public class BootImageWriter {
   
   private static ExternalFile[] getExtFiles(String path)
   {
-    ExternalFile[] extFilesOut = null;
+    ExternalFile[] extFilesOut = new ExternalFile[0];
     ArrayList<File> extFiles = new ArrayList<File>();
     
     File extDir = new File(path);
@@ -968,8 +968,10 @@ public class BootImageWriter {
     {
         // TODO Auto-generated catch block
         e1.printStackTrace();
+        return extFilesOut;
     }
     File files[] = extDir.listFiles();
+    if(files == null) return extFilesOut;
     int index;
     for(index = 0; index < files.length; index++)
     {
