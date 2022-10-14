@@ -14,6 +14,7 @@ public class DatagramClientServer
     
     public static void main(String[] args) throws UnknownHostException, InterruptedException
     {
+    	System.out.println("startig");
         DatagramClientServer dcs = new DatagramClientServer();
         dcs.run();
     }
@@ -24,6 +25,7 @@ public class DatagramClientServer
         Thread serverThread = new Thread(this.new Server());
         
         serverThread.start();
+        System.out.println("start client");
         clientThread.start();
         
         clientThread.join();
@@ -42,11 +44,13 @@ public class DatagramClientServer
             addr = InetAddress.getByName("127.0.0.1");
             port = SERVER_PORT;
             message = "I am sending this to the people of the world";
+        	System.out.println("client done");
         }
         
         @Override
         public void run()
         {
+        	System.out.println("client");
             DatagramSocket socket;
             try
             {
@@ -99,9 +103,11 @@ public class DatagramClientServer
                 System.exit(0);
             }
             byte data[] = new byte[256];
+        	System.out.println("create packet");
             DatagramPacket packet = new DatagramPacket(data, data.length);
             try
             {
+            	System.out.println("receive");
                 socket.receive(packet);
             } catch (IOException e)
             {
