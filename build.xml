@@ -68,6 +68,9 @@
   <condition property="openjdk.classes.jar" value="rt.jar">
   	<os family="unix"/>
   </condition>
+	
+  <property name="ant.jar" value="/usr/local/Cellar/ant/1.10.9/libexec/lib/ant.jar"/>
+
   <!-- Location of .dat files for options -->
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
@@ -1768,7 +1771,7 @@ Check to make sure all required properties are specified. This includes properti
   <!-- *                                                                          * -->
   <!-- **************************************************************************** -->
 
-  <target name="gen-primordial-list">
+  <target name="gen-primordial-list" depends="prepare-ant-tasks">
 
     <fileset id="primordials.main" dir="${build.classes}">
       <include name="org/**/*.class" />
@@ -1816,9 +1819,7 @@ Check to make sure all required properties are specified. This includes properti
     <condition property="primordials.arch" value=",RVM_PPC.txt" else=",RVM_IA32.txt">
       <equals arg1="${target.arch}" arg2="ppc"/>
     </condition>
-    <condition property="primordials.openjdk"
-               value="OpenJDK.osx.txt"
-               else="OpenJDK.linux.txt">
+    <condition property="primordials.openjdk" value="OpenJDK.osx.txt" else="OpenJDK.linux.txt">
       <os family="mac"/>
     </condition>
 
@@ -1837,12 +1838,12 @@ Check to make sure all required properties are specified. This includes properti
 
     <if>
       <conditions>
-	<equals arg1="${classlib.provider}" arg2="OpenJDK"/>
+		<equals arg1="${classlib.provider}" arg2="OpenJDK"/>
       </conditions>
       <sequential>
-	<concat destfile="${build.base}/Primordials.txt">
-	  <filelist dir="${build.base}" files="ClassesForImage.txt"/>
-          <filelist dir="${primordials.dir}"
+		<concat destfile="${build.base}/Primordials.txt">
+	  	<filelist dir="${build.base}" files="ClassesForImage.txt"/>
+        <filelist dir="${primordials.dir}"
                     files="ClassLibrary_Throwables.txt,${primordials.openjdk},RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
         </concat>
       </sequential>

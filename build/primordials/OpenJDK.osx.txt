@@ -298,7 +298,6 @@ Ljavax/security/auth/AuthPermission;
 Ljava/net/SocketPermission;
 Ljava/lang/SecurityManager;
 Ljava/util/Random;
-
 Ljava/util/AbstractList$ListItr;
 Ljava/util/RandomAccessSubList;
 Ljava/util/SubList;
@@ -312,3 +311,5 @@ Ljava/net/InetAddress$CacheEntry;
 Ljava/net/Inet4AddressImpl;
 Ljava/net/Inet4Address;
 Ljava/net/DatagramSocket;
+Ljava/net/MulticastSocket;
+Ljava/net/DefaultDatagramSocketImplFactory;
