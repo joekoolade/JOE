@@ -33,7 +33,7 @@ import java.io.IOException;
 class Inet4AddressImpl implements InetAddressImpl {
     public String getLocalHostName() throws UnknownHostException
     {
-        return null;
+        return "localhost";
     }
     public InetAddress[] lookupAllHostAddr(String hostname) throws UnknownHostException
     {

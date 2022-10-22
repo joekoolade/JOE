@@ -755,6 +755,7 @@ class DatagramSocket {
             }
             // If the security check succeeds, or the datagram is
             // connected then receive the packet
+            System.out.println("DatagramSocket recvieve");
             getImpl().receive(p);
             if (explicitFilter && tmp == null) {
                 // packet was not filtered, account for it here

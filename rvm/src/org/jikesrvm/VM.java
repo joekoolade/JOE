@@ -603,6 +603,7 @@ public class VM extends Properties {
     runClassInitializer("sun.nio.cs.Surrogate$Generator");
     runClassInitializer("sun.nio.cs.Surrogate");
     runClassInitializer("java.util.Random");
+    runClassInitializer("java.net.InetAddress");
     
     runClassInitializer("tests.java.net.DatagramClientServer");
     

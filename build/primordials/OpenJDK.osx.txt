@@ -304,6 +304,7 @@ Ljava/util/SubList;
 Ljava/util/SubList$1;
 Ljava/io/ByteArrayInputStream;
 Ljava/io/ByteArrayOutputStream;
+Ljava/net/InetAddress;
 Ljava/net/InetAddress$Cache;
 Ljava/net/InetAddress$Cache$Type;
 Ljava/net/InetAddress$InetAddressHolder;

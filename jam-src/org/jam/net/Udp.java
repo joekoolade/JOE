@@ -362,6 +362,7 @@ public class Udp {
     {
         Packet p;
         int waiting=0;
+        System.out.println("udp.receive()");
         while((p=get())==null)
         { 
             waiting++;
@@ -369,6 +370,7 @@ public class Udp {
             {
                 try
                 {
+                	System.out.println("udp.wait()");
                     this.wait();
                 } catch (IllegalMonitorStateException e)
                 {

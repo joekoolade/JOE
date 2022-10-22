@@ -1544,20 +1544,20 @@ class InetAddress implements java.io.Serializable {
         }
     }
 
-    private static final long FIELDS_OFFSET;
-    private static final sun.misc.Unsafe UNSAFE;
+    private static final long FIELDS_OFFSET=0;
+    private static final sun.misc.Unsafe UNSAFE=null;
 
-    static {
-        try {
-            sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
-            FIELDS_OFFSET = unsafe.objectFieldOffset(
-                InetAddress.class.getDeclaredField("holder")
-            );
-            UNSAFE = unsafe;
-        } catch (NoSuchFieldException e) {
-            throw new Error(e);
-        }
-    }
+//    static {
+//        try {
+//            sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
+//            FIELDS_OFFSET = unsafe.objectFieldOffset(
+//                InetAddress.class.getDeclaredField("holder")
+//            );
+//            UNSAFE = unsafe;
+//        } catch (NoSuchFieldException e) {
+//            throw new Error(e);
+//        }
+//    }
 
     private void readObject (ObjectInputStream s) throws
                          IOException, ClassNotFoundException {
@@ -1611,7 +1611,7 @@ class InetAddressImplFactory {
         if (isIPv6Supported()) {
             o = InetAddress.loadImpl("Inet6AddressImpl");
         } else {
-            o = InetAddress.loadImpl("Inet4AddressImpl");
+            o = new Inet4AddressImpl(); //.loadImpl("Inet4AddressImpl");
         }
         return (InetAddressImpl)o;
     }

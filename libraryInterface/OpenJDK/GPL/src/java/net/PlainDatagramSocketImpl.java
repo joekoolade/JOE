@@ -189,8 +189,14 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
   {
 //    synchronized(RECEIVE_LOCK)
 //      {
+	    System.out.println("PDS receive");
         org.jam.net.inet4.InetAddress sockAddr = null;
-        org.jam.net.inet4.InetAddress inetAddr = new org.jam.net.inet4.InetAddress(packet.getAddress().getAddress());
+        org.jam.net.inet4.InetAddress inetAddr = null;
+        if(packet.getAddress() != null)
+        {
+        	inetAddr = new org.jam.net.inet4.InetAddress(packet.getAddress().getAddress());
+        }
+        
         while (true)
           {
             try

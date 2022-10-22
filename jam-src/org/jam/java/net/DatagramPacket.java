@@ -283,7 +283,7 @@ class DatagramPacket {
      * @see #getPort()
      */
     public synchronized void setPort(int iport) {
-        if (iport < 0 || iport > 0xFFFF) {
+        if (iport < -1 || iport > 0xFFFF) {
             throw new IllegalArgumentException("Port out of range:"+ iport);
         }
         port = iport;
