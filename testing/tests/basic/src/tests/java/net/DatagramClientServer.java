@@ -14,7 +14,7 @@ public class DatagramClientServer
     
     public static void main(String[] args) throws UnknownHostException, InterruptedException
     {
-    	System.out.println("startig");
+    	System.out.println("starting");
         DatagramClientServer dcs = new DatagramClientServer();
         dcs.run();
     }
@@ -28,8 +28,8 @@ public class DatagramClientServer
         System.out.println("start client");
         clientThread.start();
         
-        clientThread.join();
         serverThread.join();
+        clientThread.join();
         System.out.println("done");
     }
     
