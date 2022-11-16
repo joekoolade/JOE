@@ -15,6 +15,7 @@ import org.jam.util.LinkedList;
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
 import org.jam.cpu.intel.Tsc;
+import org.jam.net.InetNexus;
 import org.jam.net.NetworkInterface;
 import org.jam.net.Route;
 import org.jam.net.ethernet.Ethernet;
@@ -32,7 +33,7 @@ import org.vmmagic.unboxed.Offset;
  * @author Joe Kulig
  *
  */
-public class I82559c extends InetNetworkInterface 
+public class I82559c 
 implements NetworkInterface, BufferFree 
 {
   final PciDevice pci;
@@ -222,6 +223,8 @@ private static final boolean DEBUG_TX = true;
   
   private long txPackets=0;
   private long txBytes=0;
+private InetAddress ipAddress;
+private int netmask;
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -243,12 +246,17 @@ private static final boolean DEBUG_TX = true;
     rfdFreeList = new LinkedList<ReceiveFrameDescriptor>();
     transmitting = false;
     txQueue = new NetworkQueue();
-    arpTable = new ArpTable();
+//    arpTable = new ArpTable();
     setNetworkInterface(this);
     Route.addRoute(InetAddress.HOST, InetAddress.HOST, 0xffffffff, this);
   }
   
-  public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
+  private void setNetworkInterface(I82559c i82559c) {
+	// TODO Auto-generated method stub
+	
+}
+
+public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
   {
       this();
       ipAddress = inet;
@@ -762,7 +770,7 @@ private static final boolean DEBUG_TX = true;
     }
     
 //    rxQueue.put(rfd.packet());
-    inet4.put(rfd.packet());
+    InetNexus.put(rfd.packet());
 //    rfds[rfdToClean] = null;
 //    free(rfd);
   }
@@ -1137,4 +1145,46 @@ private static final boolean DEBUG_TX = true;
         frame.setSource(macAddress);
         transmit(frame);
     }
+
+	@Override
+	public InetAddress getInetAddress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getNetMask() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getMtu() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setMtu(int mtu) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setNetMask(int mask) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setInetAddress(InetAddress inetAddress) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public EthernetAddr arp(InetAddress inet) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

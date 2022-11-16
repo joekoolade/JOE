@@ -9,7 +9,7 @@ import org.jam.net.NetworkInterface;
 import java.net.NoRouteToHostException;
 
 public class Route {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
     NetworkInterface networkIf;
 	InetAddress destination;
 	InetAddress gateway;
@@ -227,8 +227,8 @@ public class Route {
 
     private boolean canRoute(InetAddress address)
     {
-        
-        return (address.inet4() & netmask) == destination.inet4();
+        if(DEBUG) System.out.println("canRoute: " + address  + " || " + destination);
+        return (address.inet4() & netmask) == (destination.inet4() & netmask);
     }
 
     public static void addRoute(InetAddress destination, InetAddress gateway, int netmask, NetworkInterface netIf)

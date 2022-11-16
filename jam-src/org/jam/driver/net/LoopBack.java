@@ -4,6 +4,7 @@ import org.jam.net.NetworkInterface;
 import org.jam.net.Route;
 import org.jam.net.ethernet.EthernetAddr;
 import org.jam.net.inet4.InetAddress;
+import org.jam.net.InetNexus;
 import org.jam.net.inet4.SendPacket;
 
 public class LoopBack implements NetworkInterface {
@@ -40,10 +41,12 @@ public class LoopBack implements NetworkInterface {
 
 	@Override
 	public void send(SendPacket packet) {
-		// TODO Auto-generated method stub
-
 	}
 
+	public static void send(Packet packet)
+	{
+		InetNexus.receive(packet);		
+	}
 	@Override
 	public void send(EthernetAddr destination, Packet packet, short protocol) {
 		// TODO Auto-generated method stub
@@ -83,6 +86,30 @@ public class LoopBack implements NetworkInterface {
 	@Override
 	public void setEthernetAddress(EthernetAddr macAddress) {
 
+	}
+
+	@Override
+	public void poll() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int work() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int schedule() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void receive() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,7 +1,0 @@
-Directory will contain board specific classes. Will also contain vendor specific directories
- and platform specific directories. The direcotory layout will look like this:
- 
- boards/<boards>
- boards/<vendor>/<boards>
- boards/<vendor>/<platform>/<boards>
- boards/<platform>/<boards>

@@ -9,28 +9,38 @@ import org.jam.net.inet4.ArpThread;
 import org.jikesrvm.VM;
 import org.jikesrvm.scheduler.RVMThread;
 
-public class InetProtocolProcessor
+public class InetNexus
 implements Runnable
 {
-    private NetworkQueue rxQueue;
-    private ArpThread arp;
+    private static NetworkQueue rxQueue;
+    private static ArpThread arp;
     private static int QUEUE_SIZE = 256;
-    private Ip ip;
+    private static Ip ip;
+	private static Thread arpThread;
+	private static InetNexus nexus;
+	private static Thread inetThread;
     
-    public InetProtocolProcessor(ArpThread arp)
-    {
-        this.arp = arp;
-        rxQueue = new NetworkQueue();
-        ip = new Ip();
-    }
     public void run()
     {
         processPackets();
     }
 
+	public static void boot() {
+        rxQueue = new NetworkQueue();
+        ip = new Ip();
+		arp = new ArpThread();
+		arpThread = new Thread(arp);
+		arpThread.setName("ARP Thread");
+		nexus = new InetNexus();
+		inetThread = new Thread(nexus);
+		inetThread.setName("INET Thread");
+		arpThread.start();
+		inetThread.start();
+	}
+
     private void processPackets()
     {
-        System.out.println("INET protocol processor started");
+        System.out.println("INET nexus started");
         while(true)
         {
             try
@@ -38,11 +48,11 @@ implements Runnable
                 /*
                  * Wait for packets to be added to queue.
                  */
-                synchronized (this)
+                synchronized (InetNexus.class)
                 {
                     wait();
                 }
-                System.out.println("inetpp got rx");
+                System.out.println("nexus got rx");
                 Packet packet = rxQueue.get();
                 if(Ethernet.isIPv4(packet))
                 {
@@ -51,7 +61,7 @@ implements Runnable
                 }
                 else if(Ethernet.isArp(packet))
                 {
-                    System.out.println("inetpp arp packet");
+                    System.out.println("nexus arp packet");
                     packet.pull(Ethernet.HEADER_SIZE);
                     Arp arp = new Arp(packet);
                     packet.free();
@@ -64,7 +74,7 @@ implements Runnable
         }
     }
 
-    public void put(Packet packet)
+    public static void put(Packet packet)
     {
         /*
          * Add packet to queue and notify processPackets(). 
@@ -73,6 +83,11 @@ implements Runnable
          */
         rxQueue.put(packet);
         VM.sysWriteln("inetpp notify");
-        RVMThread.nosyncNotify(this);
+        RVMThread.nosyncNotify(InetNexus.class);
+    }
+    
+    public static void receive(Packet packet)
+    {
+    	put(packet);
     }
 }

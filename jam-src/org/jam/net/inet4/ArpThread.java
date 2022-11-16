@@ -3,7 +3,6 @@ package org.jam.net.inet4;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.jam.driver.net.InetNetworkInterface;
 import org.jam.net.NetworkInterface;
 import org.jam.net.ethernet.EthernetAddr;
 
@@ -19,12 +18,10 @@ public class ArpThread
 implements Runnable
 {
     private ArpTable arpTable;
-    private NetworkInterface netIf;
     private HashMap<Integer, Arp> arpRequests;
     
-    public ArpThread(NetworkInterface networkInterface)
+    public ArpThread()
     {
-        netIf = networkInterface;
         arpTable = new ArpTable();
         arpRequests = new HashMap<Integer, Arp>(); // make map sendingip, arprequest
     }
@@ -36,7 +33,7 @@ implements Runnable
         {
             try
             {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
             }
             catch (InterruptedException e)
             {
@@ -61,7 +58,7 @@ implements Runnable
         }
     }
     
-    public void request(InetAddress senderIp, InetAddress targetIp)
+    public void request(InetAddress senderIp, InetAddress targetIp, NetworkInterface netIf)
     {
         Arp arpRequest = new Arp(netIf.getEthernetAddress(), senderIp, targetIp);
         System.out.println("at: arp request");

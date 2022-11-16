@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.jam.net.inet4.InetAddress;
 
 /**
- * Keeps try of ipv4 connections
+ * Keeps track of ipv4 connections
  * @author joe
  *
  */

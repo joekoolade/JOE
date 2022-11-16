@@ -11,8 +11,10 @@ import org.jam.cpu.intel.CpuId;
 import org.jam.cpu.intel.Idt;
 import org.jam.cpu.intel.Tsc;
 import org.jam.driver.net.I82559c;
+import org.jam.driver.net.LoopBack;
 import org.jam.driver.serial.PcSerialPort;
 import org.jam.interfaces.Timer;
+import org.jam.net.InetNexus;
 import org.jam.net.inet4.InetAddress;
 import org.jam.system.NoDeviceFoundException;
 import org.jikesrvm.VM;
@@ -37,6 +39,8 @@ public class Platform {
     public static ApicTimer apicTimer;
     public static Apic apic;
     public static Timer timer;
+    public static LoopBack localHost;
+    
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
     final private static int SLAVEPICPORT = 0xA0;
@@ -91,5 +95,8 @@ public class Platform {
         }
         net.boot();
         timer = new PcSystemTimer();
+        localHost = new LoopBack();
+        InetNexus.boot();
+
     }
 }

@@ -822,7 +822,7 @@ public class VM extends Properties {
     VM.sysWriteln("Starting NAPI");
     napiThread.start();
     VM.sysWriteln("NAPI done");
-    Platform.net.inetBoot();
+//    Platform.net.inetBoot();
     VM.sysWriteln("INET boot done");
     
     
