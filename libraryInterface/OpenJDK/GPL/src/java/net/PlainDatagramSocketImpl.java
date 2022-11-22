@@ -84,7 +84,7 @@ public final class PlainDatagramSocketImpl extends DatagramSocketImpl
    */
   public PlainDatagramSocketImpl() 
   {
-    udp = new Udp();
+    udp = Udp.udpFactory();
   }
 
   protected Udp getChannel()

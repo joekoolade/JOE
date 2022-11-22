@@ -39,6 +39,7 @@ public class Udp {
     private static final boolean DEBUG = true;
     private static final boolean DEBUG_TRACE = true;
     private static InetConnections connectionTable = new InetConnections();
+    private static Udp udp;
     
     InetAddress localAddress;
     InetAddress remoteAddress;
@@ -57,13 +58,21 @@ public class Udp {
     private int localPort;
     private int remotePort;
     
-    public Udp()
+    private Udp()
     {
-        ip = new Ip();
-        if(stats == null) stats = new UdpStats();
-        packetFifo = new ArrayDeque<Packet>();
+	        ip = new Ip();
+	        if(stats == null) stats = new UdpStats();
+	        packetFifo = new ArrayDeque<Packet>();
     }
 
+    public static Udp udpFactory()
+    {
+    	if(udp == null)
+    	{
+    		udp = new Udp();
+    	}
+    	return udp;
+    }
     /**
      * @param inetSocketAddress
      */
