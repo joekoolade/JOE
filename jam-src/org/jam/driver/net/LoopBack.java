@@ -50,7 +50,7 @@ public class LoopBack implements NetworkInterface {
 	@Override
 	public void send(EthernetAddr destination, Packet packet, short protocol) {
 		// TODO Auto-generated method stub
-
+		InetNexus.receive(packet);
 	}
 
 	@Override

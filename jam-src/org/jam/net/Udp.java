@@ -187,7 +187,7 @@ public class Udp {
     
     private final void receive(int sourceAddress, int destinationAddress)
     {
-        if(DEBUG_TRACE) System.out.println("udp.receive2");
+        if(DEBUG_TRACE) System.out.println("udp.receive");
         Address udpHeader = packet.getPacketAddress();
         int ulen = ByteOrder.networkToHost(udpHeader.loadShort(LENGTH));
         if(DEBUG_TRACE) System.out.println("udp.receive2 "+ulen);
@@ -196,7 +196,7 @@ public class Udp {
          */
         if(ulen > packet.getSize())
         {        
-            if(DEBUG_TRACE) System.out.println("udp.receive2 "+packet.getSize());
+            if(DEBUG_TRACE) System.out.println("udp.receive3 "+packet.getSize());
             stats.inError();
             return;
         }
@@ -217,7 +217,7 @@ public class Udp {
     {
         if(DEBUG_TRACE) System.out.println("udp.put");
         packetFifo.add(packet);
-        if(DEBUG_TRACE) System.out.println("udp.put notify");
+        if(DEBUG_TRACE) System.out.println("udp.put notify "+this);
         notify();
     }
     
@@ -362,7 +362,7 @@ public class Udp {
     {
         Packet p;
         int waiting=0;
-        System.out.println("udp.receive()");
+        System.out.println("udp.receive_dp()");
         while((p=get())==null)
         { 
             waiting++;
@@ -370,8 +370,8 @@ public class Udp {
             {
                 try
                 {
-                	System.out.println("udp.wait()");
-                    this.wait();
+                	System.out.println("udp.wait() "+this);
+                	wait();
                 } catch (IllegalMonitorStateException e)
                 {
                     // TODO Auto-generated catch block
@@ -383,7 +383,7 @@ public class Udp {
                 }
             }
         }
-        System.out.println("udp.receive3 "+waiting);
+        System.out.println("udp.receive4 "+waiting);
         packet.setLength(p.getSize()-UDP_HEADER_SIZE);
         System.arraycopy(p.getArray(), p.getOffset()+UDP_HEADER_SIZE, packet.getData(), packet.getOffset(), p.getSize()-UDP_HEADER_SIZE);
         return remoteAddress;

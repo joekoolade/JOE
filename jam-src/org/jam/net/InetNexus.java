@@ -50,7 +50,7 @@ implements Runnable
                  */
                 synchronized (InetNexus.class)
                 {
-                    wait();
+                	InetNexus.class.wait();
                 }
                 System.out.println("nexus got rx");
                 Packet packet = rxQueue.get();
@@ -58,6 +58,10 @@ implements Runnable
                 {
                     packet.pull(Ethernet.HEADER_SIZE);
                     ip.receive(new InetPacket(packet));
+                }
+                else if(packet.getPacketAddress().loadByte() >= 0x45)
+                {
+                	ip.receive(new InetPacket(packet));
                 }
                 else if(Ethernet.isArp(packet))
                 {
