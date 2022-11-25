@@ -89,14 +89,14 @@ public class Properties extends Options {
    * When true, it generates messages to the sysWrite stream summarizing
    * class loading activities
    */
-  public static boolean verboseClassLoading = true;
+  public static boolean verboseClassLoading = false;
 
   /**
    * The following is set on by -verbose:jni command line argument.
    * When true, it generates messages to the sysWrite stream summarizing
    * JNI activities
    */
-  public static boolean verboseJNI = true;
+  public static boolean verboseJNI = false;
 
   // Runtime subsystem tracing.
   //
@@ -105,7 +105,7 @@ public class Properties extends Options {
   public static final boolean TraceFileSystem = false;
   public static final boolean TraceThreads = false;
   public static final boolean TraceStackTrace        = false;
-  public static final boolean TraceExceptionDelivery = true;
+  public static final boolean TraceExceptionDelivery = false;
 
   // Baseline compiler reference map tracing.
   //

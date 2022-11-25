@@ -782,7 +782,6 @@ public class VM extends Properties {
     ExternalFile extFile[] = BootRecord.the_boot_record.files;
     if(extFile == null) VM.sysWriteln("No external files");
     else VM.sysWriteln("External files = ", extFile.length);
-    VM.TraceClassLoading = true;
     for(int i=0; i < extFile.length; i++)
     {
         VM.sysWriteln("Loading external class " + extFile[i].name);
