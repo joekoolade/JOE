@@ -123,4 +123,36 @@ public class Adler32 implements Checksum {
 		return ((s2 << 16) | s1);
 	}
 
+	public Adler32 copy() 
+	{
+		Adler32 foo = new Adler32();
+		foo.s1 = this.s1;
+		foo.s2 = this.s2;
+		return foo;
+	}
+
+	// The following logic has come from zlib.1.2.
+	static long combine(long adler1, long adler2, long len2) 
+	{
+		long BASEL = (long) BASE;
+		long sum1;
+		long sum2;
+		long rem; // unsigned int
+
+		rem = len2 % BASEL;
+		sum1 = adler1 & 0xffffL;
+		sum2 = rem * sum1;
+		sum2 %= BASEL; // MOD(sum2);
+		sum1 += (adler2 & 0xffffL) + BASEL - 1;
+		sum2 += ((adler1 >> 16) & 0xffffL) + ((adler2 >> 16) & 0xffffL) + BASEL - rem;
+		if (sum1 >= BASEL)
+			sum1 -= BASEL;
+		if (sum1 >= BASEL)
+			sum1 -= BASEL;
+		if (sum2 >= (BASEL << 1))
+			sum2 -= (BASEL << 1);
+		if (sum2 >= BASEL)
+			sum2 -= BASEL;
+		return sum1 | (sum2 << 16);
+	}
 }
