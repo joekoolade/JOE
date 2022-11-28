@@ -90,6 +90,7 @@
 
   <property name="build.vmmagic-stub.classes" location="${build.dir}/vmmagic-stub/classes"/>
   <property name="build.options.classes" location="${build.dir}/options/classes"/>
+  <property name="build.mmtk.classes" location="${build.dir}/mmt/classes"/>
   <property name="build.mmtk.jar" location="${build.dir}/mmtk/mmtk.jar"/>
   <property name="build.mmtk-harness.jar" location="${build.dir}/mmtk/mmtk-harness.jar"/>
   <property name="build.native" location="${build.base}/c"/>

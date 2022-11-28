@@ -78,6 +78,7 @@ Lorg/jikesrvm/scheduler/Lock;
 [Lorg/mmtk/utility/statistics/Counter;
 [Lorg/mmtk/utility/statistics/Timer;
 [Lorg/mmtk/vm/ReferenceProcessor$Semantics;
+Lorg/mmtk/policy/ImmortalLocal;
 
 [Lorg/jikesrvm/scheduler/RVMThread$Waiting;
 
