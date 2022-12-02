@@ -80,11 +80,6 @@ class Inflater {
 
     private static byte[] emptyBuf = new byte[0];
 
-    static {
-        /* Zip library is loaded from System.initializeSystemClass */
-        initIDs();
-    }
-
     /**
      * Creates a new decompressor. If the parameter 'nowrap' is true then
      * the ZLIB header and checksum fields will not be used. This provides
@@ -385,15 +380,33 @@ class Inflater {
         long strm;
     }
 
-    private native static void initIDs();
-    private native static long init(boolean nowrap);
-    private native static void setDictionary(long addr, byte[] b, int off,
-                                             int len);
-    private native int inflateBytes(long addr, byte[] b, int off, int len)
-            throws DataFormatException;
-    private native static int getAdler(long addr);
-    private native static long getBytesRead(long addr);
-    private native static long getBytesWritten(long addr);
-    private native static void reset(long addr);
-    private native static void end(long addr);
+    private static long init(boolean nowrap)
+    {
+        return 0;
+    }
+    private static void setDictionary(long addr, byte[] b, int off, int len)
+    {
+    }
+    private int inflateBytes(long addr, byte[] b, int off, int len) throws DataFormatException
+    {
+        return 0;
+    }
+    private static int getAdler(long addr)
+    {
+        return 0;
+    }
+    private static long getBytesRead(long addr)
+    {
+        return 0;
+    }
+    private static long getBytesWritten(long addr)
+    {
+        return 0;
+    }
+    private static void reset(long addr)
+    {
+    }
+    private static void end(long addr)
+    {
+    }
 }

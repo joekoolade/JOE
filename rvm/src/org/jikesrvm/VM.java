@@ -532,13 +532,13 @@ public class VM extends Properties {
     if (VM.BuildForGnuClasspath) {
     runClassInitializer("java.util.Locale");
     runClassInitializer("java.util.ResourceBundle");
-      runClassInitializer("java.util.zip.CRC32");
     }
     if (VM.BuildForOpenJDK) {
-      // runClassInitializer("java.util.zip.ZipEntry");
+       runClassInitializer("java.util.zip.ZipEntry");
+        runClassInitializer("java.util.zip.CRC32");
     }
-    // runClassInitializer("java.util.zip.Inflater");
-
+    runClassInitializer("java.util.zip.Inflater");
+    runClassInitializer("java.util.zip.Deflate");
 
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.util.zip.DeflaterHuffman");

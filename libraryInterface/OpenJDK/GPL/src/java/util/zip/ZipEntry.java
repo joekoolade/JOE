@@ -53,13 +53,6 @@ class ZipEntry implements ZipConstants, Cloneable {
      */
     public static final int DEFLATED = 8;
 
-    static {
-        /* Zip library is loaded from System.initializeSystemClass */
-        initIDs();
-    }
-
-    private static native void initIDs();
-
     /**
      * Creates a new zip entry with the specified name.
      *
