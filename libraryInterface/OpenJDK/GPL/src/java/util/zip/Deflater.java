@@ -1,471 +1,171 @@
+/* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 1996, 2009, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
+Copyright (c) 2011 ymnk, JCraft,Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright 
+     notice, this list of conditions and the following disclaimer in 
+     the documentation and/or other materials provided with the distribution.
+
+  3. The names of the authors may not be used to endorse or promote products
+     derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JCRAFT,
+INC. OR ANY CONTRIBUTORS TO THIS SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+/*
+ * This program is based on zlib-1.1.3, so all credit should go authors
+ * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
+ * and contributors of zlib.
  */
 
 package java.util.zip;
 
-/**
- * This class provides support for general purpose compression using the
- * popular ZLIB compression library. The ZLIB compression library was
- * initially developed as part of the PNG graphics standard and is not
- * protected by patents. It is fully described in the specifications at
- * the <a href="package-summary.html#package_description">java.util.zip
- * package description</a>.
- *
- * <p>The following code fragment demonstrates a trivial compression
- * and decompression of a string using <tt>Deflater</tt> and
- * <tt>Inflater</tt>.
- *
- * <blockquote><pre>
- * try {
- *     // Encode a String into bytes
- *     String inputString = "blahblahblah\u20AC\u20AC";
- *     byte[] input = inputString.getBytes("UTF-8");
- *
- *     // Compress the bytes
- *     byte[] output = new byte[100];
- *     Deflater compresser = new Deflater();
- *     compresser.setInput(input);
- *     compresser.finish();
- *     int compressedDataLength = compresser.deflate(output);
- *
- *     // Decompress the bytes
- *     Inflater decompresser = new Inflater();
- *     decompresser.setInput(output, 0, compressedDataLength);
- *     byte[] result = new byte[100];
- *     int resultLength = decompresser.inflate(result);
- *     decompresser.end();
- *
- *     // Decode the bytes into a String
- *     String outputString = new String(result, 0, resultLength, "UTF-8");
- * } catch(java.io.UnsupportedEncodingException ex) {
- *     // handle
- * } catch (java.util.zip.DataFormatException ex) {
- *     // handle
- * }
- * </pre></blockquote>
- *
- * @see         Inflater
- * @author      David Connelly
- */
-public
-class Deflater {
+final public class Deflater extends ZStream{
 
-    private final ZStreamRef zsRef;
-    private byte[] buf = new byte[0];
-    private int off, len;
-    private int level, strategy;
-    private boolean setParams;
-    private boolean finish, finished;
+  static final private int MAX_WBITS=15;        // 32K LZ77 window
+  static final private int DEF_WBITS=MAX_WBITS;
 
-    /**
-     * Compression method for the deflate algorithm (the only one currently
-     * supported).
-     */
-    public static final int DEFLATED = 8;
+  static final private int Z_NO_FLUSH=0;
+  static final private int Z_PARTIAL_FLUSH=1;
+  static final private int Z_SYNC_FLUSH=2;
+  static final private int Z_FULL_FLUSH=3;
+  static final private int Z_FINISH=4;
 
-    /**
-     * Compression level for no compression.
-     */
-    public static final int NO_COMPRESSION = 0;
+  static final private int MAX_MEM_LEVEL=9;
 
-    /**
-     * Compression level for fastest compression.
-     */
-    public static final int BEST_SPEED = 1;
+  static final private int Z_OK=0;
+  static final private int Z_STREAM_END=1;
+  static final private int Z_NEED_DICT=2;
+  static final private int Z_ERRNO=-1;
+  static final private int Z_STREAM_ERROR=-2;
+  static final private int Z_DATA_ERROR=-3;
+  static final private int Z_MEM_ERROR=-4;
+  static final private int Z_BUF_ERROR=-5;
+  static final private int Z_VERSION_ERROR=-6;
 
-    /**
-     * Compression level for best compression.
-     */
-    public static final int BEST_COMPRESSION = 9;
+  private boolean finished = false;
 
-    /**
-     * Default compression level.
-     */
-    public static final int DEFAULT_COMPRESSION = -1;
+  public Deflater(){
+    super();
+  }
 
-    /**
-     * Compression strategy best used for data consisting mostly of small
-     * values with a somewhat random distribution. Forces more Huffman coding
-     * and less string matching.
-     */
-    public static final int FILTERED = 1;
+  public Deflater(int level) throws GZIPException {
+    this(level, MAX_WBITS);
+  }
 
-    /**
-     * Compression strategy for Huffman coding only.
-     */
-    public static final int HUFFMAN_ONLY = 2;
+  public Deflater(int level, boolean nowrap) throws GZIPException {
+    this(level, MAX_WBITS, nowrap);
+  }
 
-    /**
-     * Default compression strategy.
-     */
-    public static final int DEFAULT_STRATEGY = 0;
+  public Deflater(int level, int bits) throws GZIPException {
+    this(level, bits, false);
+  }
 
-    /**
-     * Creates a new compressor using the specified compression level.
-     * If 'nowrap' is true then the ZLIB header and checksum fields will
-     * not be used in order to support the compression format used in
-     * both GZIP and PKZIP.
-     * @param level the compression level (0-9)
-     * @param nowrap if true then use GZIP compatible compression
-     */
-    public Deflater(int level, boolean nowrap) {
-        this.level = level;
-        this.strategy = DEFAULT_STRATEGY;
-        this.zsRef = new ZStreamRef(init(level, DEFAULT_STRATEGY, nowrap));
+  public Deflater(int level, int bits, boolean nowrap) throws GZIPException {
+    super();
+    int ret = init(level, bits, nowrap);
+    if(ret!=Z_OK)
+      throw new GZIPException(ret+": "+msg);
+  }
+
+  public Deflater(int level, int bits, int memlevel, JZlib.WrapperType wrapperType) throws GZIPException {
+    super();
+    int ret = init(level, bits, memlevel, wrapperType);
+    if(ret!=Z_OK)
+      throw new GZIPException(ret+": "+msg);
+  }
+
+  public Deflater(int level, int bits, int memlevel) throws GZIPException {
+    super();
+    int ret = init(level, bits, memlevel);
+    if(ret!=Z_OK)
+      throw new GZIPException(ret+": "+msg);
+  }
+
+  public int init(int level){
+    return init(level, MAX_WBITS);
+  }
+  public int init(int level, boolean nowrap){
+    return init(level, MAX_WBITS, nowrap);
+  }
+  public int init(int level, int bits){
+    return init(level, bits, false);
+  }
+  public int init(int level, int bits, int memlevel, JZlib.WrapperType wrapperType){
+    if(bits < 9 || bits > 15){
+      return Z_STREAM_ERROR;
     }
+    if(wrapperType == JZlib.W_NONE) {
+      bits *= -1;
+    }
+    else if(wrapperType == JZlib.W_GZIP) {
+        bits += 16;
+    }
+    else if(wrapperType == JZlib.W_ANY) {
+        return Z_STREAM_ERROR;
+    }
+    else if(wrapperType == JZlib.W_ZLIB) {
+    }
+    return init(level, bits, memlevel);
+  }
+  public int init(int level, int bits, int memlevel){
+    finished = false;
+    dstate=new Deflate(this);
+    return dstate.deflateInit(level, bits, memlevel);
+  }
+  public int init(int level, int bits, boolean nowrap){
+    finished = false;
+    dstate=new Deflate(this);
+    return dstate.deflateInit(level, nowrap?-bits:bits);
+  }
 
-    /**
-     * Creates a new compressor using the specified compression level.
-     * Compressed data will be generated in ZLIB format.
-     * @param level the compression level (0-9)
-     */
-    public Deflater(int level) {
-        this(level, false);
+  public int deflate(int flush){
+    if(dstate==null){
+      return Z_STREAM_ERROR;
     }
+    int ret = dstate.deflate(flush);
+    if(ret == Z_STREAM_END)
+      finished = true;
+    return ret;
+  }
+  public int end(){
+    finished = true;
+    if(dstate==null) return Z_STREAM_ERROR;
+    int ret=dstate.deflateEnd();
+    dstate=null;
+    free();
+    return ret;
+  }
+  public int params(int level, int strategy){
+    if(dstate==null) return Z_STREAM_ERROR;
+    return dstate.deflateParams(level, strategy);
+  }
+  public int setDictionary (byte[] dictionary, int dictLength){
+    if(dstate == null)
+      return Z_STREAM_ERROR;
+    return dstate.deflateSetDictionary(dictionary, dictLength);
+  }
 
-    /**
-     * Creates a new compressor with the default compression level.
-     * Compressed data will be generated in ZLIB format.
-     */
-    public Deflater() {
-        this(DEFAULT_COMPRESSION, false);
-    }
+  public boolean finished(){
+    return finished;
+  }
 
-    /**
-     * Sets input data for compression. This should be called whenever
-     * needsInput() returns true indicating that more input data is required.
-     * @param b the input data bytes
-     * @param off the start offset of the data
-     * @param len the length of the data
-     * @see Deflater#needsInput
-     */
-    public void setInput(byte[] b, int off, int len) {
-        if (b== null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        synchronized (zsRef) {
-            this.buf = b;
-            this.off = off;
-            this.len = len;
-        }
-    }
-
-    /**
-     * Sets input data for compression. This should be called whenever
-     * needsInput() returns true indicating that more input data is required.
-     * @param b the input data bytes
-     * @see Deflater#needsInput
-     */
-    public void setInput(byte[] b) {
-        setInput(b, 0, b.length);
-    }
-
-    /**
-     * Sets preset dictionary for compression. A preset dictionary is used
-     * when the history buffer can be predetermined. When the data is later
-     * uncompressed with Inflater.inflate(), Inflater.getAdler() can be called
-     * in order to get the Adler-32 value of the dictionary required for
-     * decompression.
-     * @param b the dictionary data bytes
-     * @param off the start offset of the data
-     * @param len the length of the data
-     * @see Inflater#inflate
-     * @see Inflater#getAdler
-     */
-    public void setDictionary(byte[] b, int off, int len) {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        synchronized (zsRef) {
-            ensureOpen();
-            setDictionary(zsRef.address(), b, off, len);
-        }
-    }
-
-    /**
-     * Sets preset dictionary for compression. A preset dictionary is used
-     * when the history buffer can be predetermined. When the data is later
-     * uncompressed with Inflater.inflate(), Inflater.getAdler() can be called
-     * in order to get the Adler-32 value of the dictionary required for
-     * decompression.
-     * @param b the dictionary data bytes
-     * @see Inflater#inflate
-     * @see Inflater#getAdler
-     */
-    public void setDictionary(byte[] b) {
-        setDictionary(b, 0, b.length);
-    }
-
-    /**
-     * Sets the compression strategy to the specified value.
-     * @param strategy the new compression strategy
-     * @exception IllegalArgumentException if the compression strategy is
-     *                                     invalid
-     */
-    public void setStrategy(int strategy) {
-        switch (strategy) {
-          case DEFAULT_STRATEGY:
-          case FILTERED:
-          case HUFFMAN_ONLY:
-            break;
-          default:
-            throw new IllegalArgumentException();
-        }
-        synchronized (zsRef) {
-            if (this.strategy != strategy) {
-                this.strategy = strategy;
-                setParams = true;
-            }
-        }
-    }
-
-    /**
-     * Sets the current compression level to the specified value.
-     * @param level the new compression level (0-9)
-     * @exception IllegalArgumentException if the compression level is invalid
-     */
-    public void setLevel(int level) {
-        if ((level < 0 || level > 9) && level != DEFAULT_COMPRESSION) {
-            throw new IllegalArgumentException("invalid compression level");
-        }
-        synchronized (zsRef) {
-            if (this.level != level) {
-                this.level = level;
-                setParams = true;
-            }
-        }
-    }
-
-    /**
-     * Returns true if the input data buffer is empty and setInput()
-     * should be called in order to provide more input.
-     * @return true if the input data buffer is empty and setInput()
-     * should be called in order to provide more input
-     */
-    public boolean needsInput() {
-        return len <= 0;
-    }
-
-    /**
-     * When called, indicates that compression should end with the current
-     * contents of the input buffer.
-     */
-    public void finish() {
-        synchronized (zsRef) {
-            finish = true;
-        }
-    }
-
-    /**
-     * Returns true if the end of the compressed data output stream has
-     * been reached.
-     * @return true if the end of the compressed data output stream has
-     * been reached
-     */
-    public boolean finished() {
-        synchronized (zsRef) {
-            return finished;
-        }
-    }
-
-    /**
-     * Fills specified buffer with compressed data. Returns actual number
-     * of bytes of compressed data. A return value of 0 indicates that
-     * needsInput() should be called in order to determine if more input
-     * data is required.
-     * @param b the buffer for the compressed data
-     * @param off the start offset of the data
-     * @param len the maximum number of bytes of compressed data
-     * @return the actual number of bytes of compressed data
-     */
-    public int deflate(byte[] b, int off, int len) {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        synchronized (zsRef) {
-            return deflateBytes(zsRef.address(), b, off, len);
-        }
-    }
-
-    /**
-     * Fills specified buffer with compressed data. Returns actual number
-     * of bytes of compressed data. A return value of 0 indicates that
-     * needsInput() should be called in order to determine if more input
-     * data is required.
-     * @param b the buffer for the compressed data
-     * @return the actual number of bytes of compressed data
-     */
-    public int deflate(byte[] b) {
-        return deflate(b, 0, b.length);
-    }
-
-    /**
-     * Returns the ADLER-32 value of the uncompressed data.
-     * @return the ADLER-32 value of the uncompressed data
-     */
-    public int getAdler() {
-        synchronized (zsRef) {
-            ensureOpen();
-            return getAdler(zsRef.address());
-        }
-    }
-
-    /**
-     * Returns the total number of uncompressed bytes input so far.
-     *
-     * <p>Since the number of bytes may be greater than
-     * Integer.MAX_VALUE, the {@link #getBytesRead()} method is now
-     * the preferred means of obtaining this information.</p>
-     *
-     * @return the total number of uncompressed bytes input so far
-     */
-    public int getTotalIn() {
-        return (int) getBytesRead();
-    }
-
-    /**
-     * Returns the total number of uncompressed bytes input so far.</p>
-     *
-     * @return the total (non-negative) number of uncompressed bytes input so far
-     * @since 1.5
-     */
-    public long getBytesRead() {
-        synchronized (zsRef) {
-            ensureOpen();
-            return getBytesRead(zsRef.address());
-        }
-    }
-
-    /**
-     * Returns the total number of compressed bytes output so far.
-     *
-     * <p>Since the number of bytes may be greater than
-     * Integer.MAX_VALUE, the {@link #getBytesWritten()} method is now
-     * the preferred means of obtaining this information.</p>
-     *
-     * @return the total number of compressed bytes output so far
-     */
-    public int getTotalOut() {
-        return (int) getBytesWritten();
-    }
-
-    /**
-     * Returns the total number of compressed bytes output so far.</p>
-     *
-     * @return the total (non-negative) number of compressed bytes output so far
-     * @since 1.5
-     */
-    public long getBytesWritten() {
-        synchronized (zsRef) {
-            ensureOpen();
-            return getBytesWritten(zsRef.address());
-        }
-    }
-
-    /**
-     * Resets deflater so that a new set of input data can be processed.
-     * Keeps current compression level and strategy settings.
-     */
-    public void reset() {
-        synchronized (zsRef) {
-            ensureOpen();
-            reset(zsRef.address());
-            finish = false;
-            finished = false;
-            off = len = 0;
-        }
-    }
-
-    /**
-     * Closes the compressor and discards any unprocessed input.
-     * This method should be called when the compressor is no longer
-     * being used, but will also be called automatically by the
-     * finalize() method. Once this method is called, the behavior
-     * of the Deflater object is undefined.
-     */
-    public void end() {
-        synchronized (zsRef) {
-            long addr = zsRef.address();
-            zsRef.clear();
-            if (addr != 0) {
-                end(addr);
-                buf = null;
-            }
-        }
-    }
-
-    /**
-     * Closes the compressor when garbage is collected.
-     */
-    protected void finalize() {
-        end();
-    }
-
-    private void ensureOpen() {
-        assert Thread.holdsLock(zsRef);
-        if (zsRef.address() == 0)
-            throw new NullPointerException("Deflater has been closed");
-    }
-
-    private static long init(int level, int strategy, boolean nowrap)
-    {
-        return 0;
-    }
-    private static void setDictionary(long addr, byte[] b, int off, int len)
-    {
-    }
-    private int deflateBytes(long addr, byte[] b, int off, int len)
-    {
-        return 0;
-    }
-    private static int getAdler(long addr)
-    {
-        return 0;
-    }
-    private static long getBytesRead(long addr)
-    {
-        return 0;
-    }
-    private static long getBytesWritten(long addr)
-    {
-        return 0;
-    }
-    private static void reset(long addr)
-    {
-    }
-    private static void end(long addr)
-    {
-        
-    }
+  public int copy(Deflater src){
+    this.finished = src.finished;
+    return Deflate.deflateCopy(this, src);
+  }
 }

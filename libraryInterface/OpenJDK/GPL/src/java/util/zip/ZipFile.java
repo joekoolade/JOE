@@ -67,13 +67,6 @@ class ZipFile implements ZipConstants {
      */
     public static final int OPEN_DELETE = 0x4;
 
-    static {
-        /* Zip library is loaded from System.initializeSystemClass */
-        initIDs();
-    }
-
-    private static native void initIDs();
-
     /**
      * Opens a zip file for reading.
      *
@@ -154,9 +147,18 @@ class ZipFile implements ZipConstants {
         return locsig;
     }
 
-    private static native long open(String name, int mode, long lastModified);
-    private static native int getTotal(long jzfile);
-    private static native boolean startsWithLOC(long jzfile);
+    private static long open(String name, int mode, long lastModified)
+    {
+        return 0;
+    }
+    private static int getTotal(long jzfile)
+    {
+        return 0;
+    }
+    private static boolean startsWithLOC(long jzfile)
+    {
+        return false;
+    }
 
 
     /**
@@ -194,11 +196,13 @@ class ZipFile implements ZipConstants {
         return null;
     }
 
-    private static native long getEntry(long jzfile, String name,
-                                        boolean addSlash);
+    private static long getEntry(long jzfile, String name,  boolean addSlash)
+    {
+        return 0;
+    }
 
     // freeEntry releases the C jzentry struct.
-    private static native void freeEntry(long jzfile, long jzentry);
+    private static void freeEntry(long jzfile, long jzentry) {}
 
     /**
      * Returns an input stream for reading the contents of the specified
@@ -271,14 +275,14 @@ class ZipFile implements ZipConstants {
                         len = 1;
                         eof = true;
                     }
-                    inf.setInput(buf, 0, len);
+                    inf.setInput(buf, 0, len, false);
                 }
                 private boolean eof;
 
                 public int available() throws IOException {
                     if (isClosed)
                         return 0;
-                    long avail = zfin.size() - inf.getBytesWritten();
+                    long avail = zfin.size() - inf.getTotalOut();
                     return avail > (long) Integer.MAX_VALUE ?
                         Integer.MAX_VALUE : (int) avail;
                 }
@@ -288,21 +292,31 @@ class ZipFile implements ZipConstants {
         }
     }
 
-    private static native int getMethod(long jzentry);
+    private static int getMethod(long jzentry)
+    {
+        return 0;
+    }
 
     /*
      * Gets an inflater from the list of available inflaters or allocates
      * a new one.
      */
-    private Inflater getInflater() {
+    private Inflater getInflater() throws IOException {
         synchronized (inflaters) {
             int size = inflaters.size();
             if (size > 0) {
                 Inflater inf = (Inflater)inflaters.remove(size - 1);
-                inf.reset();
+                inf.init();
                 return inf;
             } else {
-                return new Inflater(true);
+                try 
+                {
+                    return new Inflater(true);
+                }
+                catch(GZIPException e)
+                {
+                    throw new IOException(e);
+                }
             }
         }
     }
@@ -372,7 +386,10 @@ class ZipFile implements ZipConstants {
             };
     }
 
-    private static native long getNextEntry(long jzfile, int i);
+    private static long getNextEntry(long jzfile, int i)
+    {
+        return 0;
+    }
 
     /**
      * Returns the number of entries in the ZIP file.
@@ -434,7 +451,9 @@ class ZipFile implements ZipConstants {
         close();
     }
 
-    private static native void close(long jzfile);
+    private static void close(long jzfile)
+    {
+    }
 
     private void ensureOpen() {
         if (closeRequested) {
@@ -535,13 +554,24 @@ class ZipFile implements ZipConstants {
 
     }
 
-    private static native int read(long jzfile, long jzentry,
-                                   long pos, byte[] b, int off, int len);
+    private static int read(long jzfile, long jzentry, long pos, byte[] b, int off, int len)
+    {
+        return 0;
+    }
 
-    private static native long getCSize(long jzentry);
+    private static long getCSize(long jzentry)
+    {
+        return 0;
+    }
 
-    private static native long getSize(long jzentry);
+    private static long getSize(long jzentry)
+    {
+        return 0;
+    }
 
     // Temporary add on for bug troubleshooting
-    private static native String getZipMessage(long jzfile);
+    private static String getZipMessage(long jzfile)
+    {
+        return null;
+    }
 }

@@ -1,412 +1,180 @@
+/* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 1996, 2009, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
+Copyright (c) 2011 ymnk, JCraft,Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright 
+     notice, this list of conditions and the following disclaimer in 
+     the documentation and/or other materials provided with the distribution.
+
+  3. The names of the authors may not be used to endorse or promote products
+     derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JCRAFT,
+INC. OR ANY CONTRIBUTORS TO THIS SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+/*
+ * This program is based on zlib-1.1.3, so all credit should go authors
+ * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
+ * and contributors of zlib.
  */
 
 package java.util.zip;
 
-/**
- * This class provides support for general purpose decompression using the
- * popular ZLIB compression library. The ZLIB compression library was
- * initially developed as part of the PNG graphics standard and is not
- * protected by patents. It is fully described in the specifications at
- * the <a href="package-summary.html#package_description">java.util.zip
- * package description</a>.
- *
- * <p>The following code fragment demonstrates a trivial compression
- * and decompression of a string using <tt>Deflater</tt> and
- * <tt>Inflater</tt>.
- *
- * <blockquote><pre>
- * try {
- *     // Encode a String into bytes
- *     String inputString = "blahblahblah\u20AC\u20AC";
- *     byte[] input = inputString.getBytes("UTF-8");
- *
- *     // Compress the bytes
- *     byte[] output = new byte[100];
- *     Deflater compresser = new Deflater();
- *     compresser.setInput(input);
- *     compresser.finish();
- *     int compressedDataLength = compresser.deflate(output);
- *
- *     // Decompress the bytes
- *     Inflater decompresser = new Inflater();
- *     decompresser.setInput(output, 0, compressedDataLength);
- *     byte[] result = new byte[100];
- *     int resultLength = decompresser.inflate(result);
- *     decompresser.end();
- *
- *     // Decode the bytes into a String
- *     String outputString = new String(result, 0, resultLength, "UTF-8");
- * } catch(java.io.UnsupportedEncodingException ex) {
- *     // handle
- * } catch (java.util.zip.DataFormatException ex) {
- *     // handle
- * }
- * </pre></blockquote>
- *
- * @see         Deflater
- * @author      David Connelly
- *
- */
-public
-class Inflater {
-    private final ZStreamRef zsRef;
-    private byte[] buf = emptyBuf;
-    private int off, len;
-    private boolean finished;
-    private boolean needDict;
+final public class Inflater extends ZStream{
 
-    private static byte[] emptyBuf = new byte[0];
+  static final private int MAX_WBITS=15;        // 32K LZ77 window
+  static final private int DEF_WBITS=MAX_WBITS;
 
-    /**
-     * Creates a new decompressor. If the parameter 'nowrap' is true then
-     * the ZLIB header and checksum fields will not be used. This provides
-     * compatibility with the compression format used by both GZIP and PKZIP.
-     * <p>
-     * Note: When using the 'nowrap' option it is also necessary to provide
-     * an extra "dummy" byte as input. This is required by the ZLIB native
-     * library in order to support certain optimizations.
-     *
-     * @param nowrap if true then support GZIP compatible compression
-     */
-    public Inflater(boolean nowrap) {
-        zsRef = new ZStreamRef(init(nowrap));
-    }
+  static final private int Z_NO_FLUSH=0;
+  static final private int Z_PARTIAL_FLUSH=1;
+  static final private int Z_SYNC_FLUSH=2;
+  static final private int Z_FULL_FLUSH=3;
+  static final private int Z_FINISH=4;
 
-    /**
-     * Creates a new decompressor.
-     */
-    public Inflater() {
-        this(false);
-    }
+  static final private int MAX_MEM_LEVEL=9;
 
-    /**
-     * Sets input data for decompression. Should be called whenever
-     * needsInput() returns true indicating that more input data is
-     * required.
-     * @param b the input data bytes
-     * @param off the start offset of the input data
-     * @param len the length of the input data
-     * @see Inflater#needsInput
-     */
-    public void setInput(byte[] b, int off, int len) {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        synchronized (zsRef) {
-            this.buf = b;
-            this.off = off;
-            this.len = len;
-        }
-    }
+  static final private int Z_OK=0;
+  static final private int Z_STREAM_END=1;
+  static final private int Z_NEED_DICT=2;
+  static final private int Z_ERRNO=-1;
+  static final private int Z_STREAM_ERROR=-2;
+  static final private int Z_DATA_ERROR=-3;
+  static final private int Z_MEM_ERROR=-4;
+  static final private int Z_BUF_ERROR=-5;
+  static final private int Z_VERSION_ERROR=-6;
 
-    /**
-     * Sets input data for decompression. Should be called whenever
-     * needsInput() returns true indicating that more input data is
-     * required.
-     * @param b the input data bytes
-     * @see Inflater#needsInput
-     */
-    public void setInput(byte[] b) {
-        setInput(b, 0, b.length);
-    }
+  public Inflater() {
+    super();
+    init();
+  }
 
-    /**
-     * Sets the preset dictionary to the given array of bytes. Should be
-     * called when inflate() returns 0 and needsDictionary() returns true
-     * indicating that a preset dictionary is required. The method getAdler()
-     * can be used to get the Adler-32 value of the dictionary needed.
-     * @param b the dictionary data bytes
-     * @param off the start offset of the data
-     * @param len the length of the data
-     * @see Inflater#needsDictionary
-     * @see Inflater#getAdler
-     */
-    public void setDictionary(byte[] b, int off, int len) {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        synchronized (zsRef) {
-            ensureOpen();
-            setDictionary(zsRef.address(), b, off, len);
-            needDict = false;
-        }
-    }
+  public Inflater(JZlib.WrapperType wrapperType) throws GZIPException {
+    this(DEF_WBITS, wrapperType);
+  }
 
-    /**
-     * Sets the preset dictionary to the given array of bytes. Should be
-     * called when inflate() returns 0 and needsDictionary() returns true
-     * indicating that a preset dictionary is required. The method getAdler()
-     * can be used to get the Adler-32 value of the dictionary needed.
-     * @param b the dictionary data bytes
-     * @see Inflater#needsDictionary
-     * @see Inflater#getAdler
-     */
-    public void setDictionary(byte[] b) {
-        setDictionary(b, 0, b.length);
-    }
+  public Inflater(int w, JZlib.WrapperType wrapperType) throws GZIPException {
+    super();
+    int ret = init(w, wrapperType);
+    if(ret!=Z_OK)
+      throw new GZIPException(ret+": "+msg);
+  }
 
-    /**
-     * Returns the total number of bytes remaining in the input buffer.
-     * This can be used to find out what bytes still remain in the input
-     * buffer after decompression has finished.
-     * @return the total number of bytes remaining in the input buffer
-     */
-    public int getRemaining() {
-        synchronized (zsRef) {
-            return len;
-        }
-    }
+  public Inflater(int w) throws GZIPException {
+    this(w, false);
+  }
 
-    /**
-     * Returns true if no data remains in the input buffer. This can
-     * be used to determine if #setInput should be called in order
-     * to provide more input.
-     * @return true if no data remains in the input buffer
-     */
-    public boolean needsInput() {
-        synchronized (zsRef) {
-            return len <= 0;
-        }
-    }
+  public Inflater(boolean nowrap) throws GZIPException {
+    this(DEF_WBITS, nowrap);
+  }
 
-    /**
-     * Returns true if a preset dictionary is needed for decompression.
-     * @return true if a preset dictionary is needed for decompression
-     * @see Inflater#setDictionary
-     */
-    public boolean needsDictionary() {
-        synchronized (zsRef) {
-            return needDict;
-        }
-    }
+  public Inflater(int w, boolean nowrap) throws GZIPException {
+    super();
+    int ret = init(w, nowrap);
+    if(ret!=Z_OK)
+      throw new GZIPException(ret+": "+msg);
+  }
 
-    /**
-     * Returns true if the end of the compressed data stream has been
-     * reached.
-     * @return true if the end of the compressed data stream has been
-     * reached
-     */
-    public boolean finished() {
-        synchronized (zsRef) {
-            return finished;
-        }
-    }
+  private boolean finished = false;
+  private boolean needDict = true;
 
-    /**
-     * Uncompresses bytes into specified buffer. Returns actual number
-     * of bytes uncompressed. A return value of 0 indicates that
-     * needsInput() or needsDictionary() should be called in order to
-     * determine if more input data or a preset dictionary is required.
-     * In the latter case, getAdler() can be used to get the Adler-32
-     * value of the dictionary required.
-     * @param b the buffer for the uncompressed data
-     * @param off the start offset of the data
-     * @param len the maximum number of uncompressed bytes
-     * @return the actual number of uncompressed bytes
-     * @exception DataFormatException if the compressed data format is invalid
-     * @see Inflater#needsInput
-     * @see Inflater#needsDictionary
-     */
-    public int inflate(byte[] b, int off, int len)
-        throws DataFormatException
-    {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        synchronized (zsRef) {
-            ensureOpen();
-            return inflateBytes(zsRef.address(), b, off, len);
-        }
-    }
+  public int init(){
+    return init(DEF_WBITS);
+  }
 
-    /**
-     * Uncompresses bytes into specified buffer. Returns actual number
-     * of bytes uncompressed. A return value of 0 indicates that
-     * needsInput() or needsDictionary() should be called in order to
-     * determine if more input data or a preset dictionary is required.
-     * In the latter case, getAdler() can be used to get the Adler-32
-     * value of the dictionary required.
-     * @param b the buffer for the uncompressed data
-     * @return the actual number of uncompressed bytes
-     * @exception DataFormatException if the compressed data format is invalid
-     * @see Inflater#needsInput
-     * @see Inflater#needsDictionary
-     */
-    public int inflate(byte[] b) throws DataFormatException {
-        return inflate(b, 0, b.length);
-    }
+  public int init(JZlib.WrapperType wrapperType){
+    return init(DEF_WBITS, wrapperType);
+  }
 
-    /**
-     * Returns the ADLER-32 value of the uncompressed data.
-     * @return the ADLER-32 value of the uncompressed data
-     */
-    public int getAdler() {
-        synchronized (zsRef) {
-            ensureOpen();
-            return getAdler(zsRef.address());
-        }
+  public int init(int w, JZlib.WrapperType wrapperType) {
+    boolean nowrap = false;
+    if(wrapperType == JZlib.W_NONE){
+      nowrap = true;
     }
+    else if(wrapperType == JZlib.W_GZIP) {
+      w += 16;
+    }
+    else if(wrapperType == JZlib.W_ANY) {
+      w |= Inflate.INFLATE_ANY;
+    }
+    else if(wrapperType == JZlib.W_ZLIB) {
+    }
+    return init(w, nowrap);
+  }
 
-    /**
-     * Returns the total number of compressed bytes input so far.
-     *
-     * <p>Since the number of bytes may be greater than
-     * Integer.MAX_VALUE, the {@link #getBytesRead()} method is now
-     * the preferred means of obtaining this information.</p>
-     *
-     * @return the total number of compressed bytes input so far
-     */
-    public int getTotalIn() {
-        return (int) getBytesRead();
-    }
+  public int init(boolean nowrap){
+    return init(DEF_WBITS, nowrap);
+  }
 
-    /**
-     * Returns the total number of compressed bytes input so far.</p>
-     *
-     * @return the total (non-negative) number of compressed bytes input so far
-     * @since 1.5
-     */
-    public long getBytesRead() {
-        synchronized (zsRef) {
-            ensureOpen();
-            return getBytesRead(zsRef.address());
-        }
-    }
+  public int init(int w){
+    return init(w, false);
+  }
 
-    /**
-     * Returns the total number of uncompressed bytes output so far.
-     *
-     * <p>Since the number of bytes may be greater than
-     * Integer.MAX_VALUE, the {@link #getBytesWritten()} method is now
-     * the preferred means of obtaining this information.</p>
-     *
-     * @return the total number of uncompressed bytes output so far
-     */
-    public int getTotalOut() {
-        return (int) getBytesWritten();
-    }
+  public int init(int w, boolean nowrap){
+    finished = false;
+    istate=new Inflate(this);
+    return istate.inflateInit(nowrap?-w:w);
+  }
 
-    /**
-     * Returns the total number of uncompressed bytes output so far.</p>
-     *
-     * @return the total (non-negative) number of uncompressed bytes output so far
-     * @since 1.5
-     */
-    public long getBytesWritten() {
-        synchronized (zsRef) {
-            ensureOpen();
-            return getBytesWritten(zsRef.address());
-        }
-    }
+  public int inflate(int f){
+    if(istate==null) return Z_STREAM_ERROR;
+    int ret = istate.inflate(f);
+    if(ret == Z_STREAM_END) 
+      finished = true;
+    return ret;
+  }
 
-    /**
-     * Resets inflater so that a new set of input data can be processed.
-     */
-    public void reset() {
-        synchronized (zsRef) {
-            ensureOpen();
-            reset(zsRef.address());
-            buf = emptyBuf;
-            finished = false;
-            needDict = false;
-            off = len = 0;
-        }
-    }
+  public int end(){
+    finished = true;
+    if(istate==null) return Z_STREAM_ERROR;
+    int ret=istate.inflateEnd();
+//    istate = null;
+    return ret;
+  }
 
-    /**
-     * Closes the decompressor and discards any unprocessed input.
-     * This method should be called when the decompressor is no longer
-     * being used, but will also be called automatically by the finalize()
-     * method. Once this method is called, the behavior of the Inflater
-     * object is undefined.
-     */
-    public void end() {
-        synchronized (zsRef) {
-            long addr = zsRef.address();
-            zsRef.clear();
-            if (addr != 0) {
-                end(addr);
-                buf = null;
-            }
-        }
-    }
+  public int sync(){
+    if(istate == null)
+      return Z_STREAM_ERROR;
+    return istate.inflateSync();
+  }
 
-    /**
-     * Closes the decompressor when garbage is collected.
-     */
-    protected void finalize() {
-        end();
-    }
+  public int syncPoint(){
+    if(istate == null)
+      return Z_STREAM_ERROR;
+    return istate.inflateSyncPoint();
+  }
 
-    private void ensureOpen () {
-        assert Thread.holdsLock(zsRef);
-        if (zsRef.address() == 0)
-            throw new NullPointerException("Inflater has been closed");
-    }
+  public int setDictionary(byte[] dictionary, int dictLength){
+    if(istate == null)
+      return Z_STREAM_ERROR;
+    needDict = false;
+    return istate.inflateSetDictionary(dictionary, dictLength);
+  }
 
-    private static class NativeStrm {
-        long strm;
-    }
-
-    private static long init(boolean nowrap)
-    {
-        return 0;
-    }
-    private static void setDictionary(long addr, byte[] b, int off, int len)
-    {
-    }
-    private int inflateBytes(long addr, byte[] b, int off, int len) throws DataFormatException
-    {
-        return 0;
-    }
-    private static int getAdler(long addr)
-    {
-        return 0;
-    }
-    private static long getBytesRead(long addr)
-    {
-        return 0;
-    }
-    private static long getBytesWritten(long addr)
-    {
-        return 0;
-    }
-    private static void reset(long addr)
-    {
-    }
-    private static void end(long addr)
-    {
-    }
+  public boolean needsDictionary()
+  {
+      return needDict;
+  }
+  
+  public boolean needsInput()
+  {
+      return avail_in <= 0;
+  }
+  
+  public boolean finished(){
+    return istate.mode==12 /*DONE*/;
+  }
 }

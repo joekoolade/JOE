@@ -38,7 +38,7 @@ package java.util.zip;
  * ZStream
  *
  */
-public class ZStream{
+public class ZStream {
 
   static final private int MAX_WBITS=15;        // 32K LZ77 window
   static final private int DEF_WBITS=MAX_WBITS;
