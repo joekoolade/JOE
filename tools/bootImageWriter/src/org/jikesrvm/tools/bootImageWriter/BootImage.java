@@ -161,34 +161,35 @@ public class BootImage implements BootImageInterface {
     private SymTabSection symbolTable;
     private StrTabSection stringTable;
 
-  /**
-   * @param ltlEndian write words low-byte first?
-   * @param t turn tracing on?
-   */
-    BootImage(boolean ltlEndian, boolean t, String imageCodeFileName, String imageDataFileName,
-    String imageRMapFileName, String elfImage) throws IOException
+    /**
+     * @param ltlEndian write words low-byte first?
+     * @param t         turn tracing on?
+     */
+    BootImage(boolean ltlEndian, boolean t, String imageCodeFileName, String imageDataFileName, String imageRMapFileName, String elfImage) throws IOException
     {
-    this.imageCodeFileName = imageCodeFileName;
-    this.imageDataFileName = imageDataFileName;
-    this.imageRMapFileName = imageRMapFileName;
+        this.imageCodeFileName = imageCodeFileName;
+        this.imageDataFileName = imageDataFileName;
+        this.imageRMapFileName = imageRMapFileName;
         jamoutFile = elfImage;
-    dataOut = new RandomAccessFile(imageDataFileName,"rw");
+        dataOut = new RandomAccessFile(imageDataFileName, "rw");
         dataOut.setLength(0);
-    codeOut = new RandomAccessFile(imageCodeFileName,"rw");
+        codeOut = new RandomAccessFile(imageCodeFileName, "rw");
         codeOut.setLength(0);
         if (mapByteBuffers)
         {
-      bootImageData = dataOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_DATA_SIZE);
-      bootImageCode = codeOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_CODE_SIZE);
-    } else {
-      bootImageData = ByteBuffer.allocate(BOOT_IMAGE_DATA_SIZE);
-      bootImageCode = ByteBuffer.allocate(BOOT_IMAGE_CODE_SIZE);
-    }
-    ByteOrder endian = ltlEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
-    bootImageData.order(endian);
-    bootImageCode.order(endian);
-    referenceMap = new byte[BOOT_IMAGE_DATA_SIZE >> LOG_BYTES_IN_ADDRESS];
-    trace = t;
+            bootImageData = dataOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_DATA_SIZE);
+            bootImageCode = codeOut.getChannel().map(MapMode.READ_WRITE, 0, BOOT_IMAGE_CODE_SIZE);
+        } else
+        {
+            bootImageData = ByteBuffer.allocate(BOOT_IMAGE_DATA_SIZE);
+            bootImageCode = ByteBuffer.allocate(BOOT_IMAGE_CODE_SIZE);
+        }
+        System.out.println("BOOTIMAGE data="+BOOT_IMAGE_DATA_SIZE+" code="+BOOT_IMAGE_CODE_SIZE);
+        ByteOrder endian = ltlEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+        bootImageData.order(endian);
+        bootImageCode.order(endian);
+        referenceMap = new byte[BOOT_IMAGE_DATA_SIZE >> LOG_BYTES_IN_ADDRESS];
+        trace = t;
         stringTable = new Section.StrTabSection(".strtab", Section.SHF_ALLOC, 0);
         symbolTable = new Section.SymTabSection(".symtab", Section.SHF_ALLOC, 0, stringTable);
     }

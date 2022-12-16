@@ -24,6 +24,7 @@ import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.runtime.RunMain;
 import org.jam.runtime.StartUp;
+import org.jam.runtime.SystemJars;
 import org.jam.system.Trace;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
@@ -539,7 +540,6 @@ public class VM extends Properties {
     }
     runClassInitializer("java.util.zip.Inflater");
     runClassInitializer("java.util.zip.Deflate");
-
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.util.zip.DeflaterHuffman");
       runClassInitializer("java.util.zip.InflaterDynHeader");
@@ -560,11 +560,11 @@ public class VM extends Properties {
     runClassInitializer("java.io.FileDescriptor");
       runClassInitializer("java.io.FilePermission");
     }
-    // runClassInitializer("java.util.jar.JarFile");
+     runClassInitializer("java.util.jar.JarFile");
     if (VM.BuildForGnuClasspath) {
       runClassInitializer("java.util.zip.ZipFile$PartialInputStream");
     }
-    // runClassInitializer("java.util.zip.ZipFile");
+     runClassInitializer("java.util.zip.ZipFile");
     if (VM.BuildForOpenJDK) {
       // runClassInitializer("java.io.ObjectStreamClass"); // needed because JNI needs
       // to be executed to initialize the class
@@ -732,6 +732,7 @@ public class VM extends Properties {
       CompilerAdvice.postBoot();
     }
 
+    VM.sysWriteln("Java System size ", SystemJars.systemJar.length);
     VM.sysWriteln("contextRegister offset ", Entrypoints.threadContextRegistersField.getOffset());
     VM.sysWriteln("gprs offset ", ArchEntrypoints.registersGPRsField.getOffset());
     VM.sysWriteln("sp offset ", Entrypoints.stackPointerField.getOffset());

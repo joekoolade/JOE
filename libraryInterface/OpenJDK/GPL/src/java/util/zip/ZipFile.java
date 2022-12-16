@@ -26,10 +26,14 @@
 package java.util.zip;
 
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.io.IOException;
 import java.io.EOFException;
 import java.io.File;
 import java.util.Vector;
+
+import org.jikesrvm.VM;
+
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
@@ -50,6 +54,11 @@ class ZipFile implements ZipConstants {
     private final boolean locsig;  // if zip file starts with LOCSIG (usually true)
     private boolean closeRequested;
 
+    private int endLoc = 0;
+    private int zipEntries;
+    private int centSize;
+    private int centHeader;
+    private int zipCommentSize;
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
 
@@ -129,6 +138,62 @@ class ZipFile implements ZipConstants {
         this.locsig = startsWithLOC(jzfile);
     }
 
+    public ZipFile(byte buffer[]) throws IOException
+    {
+        name = "";
+        
+        findEndSig(buffer);
+        total = buffer.length;
+        locsig = true;
+    }
+    
+    private void findEndSig(byte buf[]) throws GZIPException
+    {
+        int offset;
+        /*
+         * quick check for 'PK' local signature
+         */
+        if(buf[0] != 'P' && buf[1] != 'K') throw new GZIPException("Not a ZIP/JAR file");
+        
+        /*
+         * Locate the End Central Directory signature. Will scan the last 50 end blocks of
+         * the zip file for the End signature
+         */
+        int block = 0;
+findEndSig:
+        for(block=1; block < 50; block++)
+        {
+            offset=buf.length - (ENDSIZ * block);
+            int endScan = offset + (ENDSIZ-3);
+            /*
+             * Scan for the END signature
+             */
+            for(; offset < endScan; offset++)
+            {
+                if(buf[offset]=='P' &&
+                   buf[offset+1]=='K' &&
+                   buf[offset+2]=='\005' &&
+                   buf[offset+3]=='\006')
+                {
+                    endLoc = offset;
+                    break findEndSig;
+                }
+            }
+        }
+        if(endLoc == 0) throw new GZIPException("Not End Location found");
+        /*
+         * Found the End signature. Now lets fill in some information
+         */
+        ByteBuffer endBuf = ByteBuffer.wrap(buf, endLoc, ENDHDR);
+        zipEntries = endBuf.getShort(ENDTOT);
+        centSize = endBuf.getInt(ENDSIZ);
+        centHeader = endBuf.getInt(ENDOFF);
+        zipCommentSize = endBuf.getInt(ENDCOM);
+        VM.sysWrite("Entries ", zipEntries);
+        VM.sysWrite(" CDsize ", centSize);
+        VM.sysWrite(" CDoffset ", centHeader);
+        VM.sysWriteln(" comment size ", zipCommentSize);
+    }
     static {
 //        sun.misc.SharedSecrets.setJavaUtilZipFileAccess(
 //            new sun.misc.JavaUtilZipFileAccess() {

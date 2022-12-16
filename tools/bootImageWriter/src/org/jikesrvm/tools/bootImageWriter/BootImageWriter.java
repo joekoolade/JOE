@@ -68,6 +68,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.jam.runtime.SystemJars;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.ArchitectureFactory;
 import org.jikesrvm.classloader.Atom;
@@ -344,6 +345,8 @@ public class BootImageWriter {
   private static String[] testClassStrings;
 
   private static ExternalFile[] extFiles;
+
+private static String javaSystemJar;
   
   
   /**
@@ -538,6 +541,12 @@ public class BootImageWriter {
         testMode = true;
         continue;
       }
+      if(args[i].equals("-javaSystemJar"))
+      {
+          if (++i >= args.length) fail("Need to specify System Java classpath jar");
+          javaSystemJar = args[i];
+          continue;
+      }
       if(args[i].length()==0) continue;
       
       fail("unrecognized command line argument: " + args[i]);
@@ -616,6 +625,8 @@ public class BootImageWriter {
         extFiles = getExtFiles("../../ext/bin");
         System.out.println("External Files: " + extFiles.length);
     }
+    
+    appendJarFile(javaSystemJar);
     //
     // Initialize the bootimage.
     // Do this earlier than we logically need to because we need to
@@ -932,7 +943,31 @@ public class BootImageWriter {
     if (verbosity.isAtLeast(SUMMARY)) say("done");
   }
 
-  private static ArrayList<File> getMoreExtFiles(File dir)
+  private static void appendJarFile(String fileName)
+{
+      if(fileName==null) return;
+      
+      try
+    {
+        RandomAccessFile jarFile = new RandomAccessFile(fileName, "r");
+        
+        byte[] fileData = new byte[(int)jarFile.length()];
+        jarFile.read(fileData);
+        SystemJars.systemJar = fileData;
+        jarFile.close();
+    } catch (FileNotFoundException e)
+    {
+        System.out.println(e);
+        return;
+    } catch (IOException e)
+    {
+        System.out.println(e);
+        return;
+    }
+      
+}
+
+private static ArrayList<File> getMoreExtFiles(File dir)
   {
       ArrayList<File> files = new ArrayList<File>();
       
