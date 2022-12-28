@@ -18,6 +18,9 @@ import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_SYSFAIL;
 import static org.jikesrvm.runtime.SysCall.sysCall;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 
+import java.io.IOException;
+import java.util.zip.ZipFile;
+
 import org.jam.board.pc.Platform;
 import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
@@ -732,7 +735,6 @@ public class VM extends Properties {
       CompilerAdvice.postBoot();
     }
 
-    VM.sysWriteln("Java System size ", SystemJars.systemJar.length);
     VM.sysWriteln("contextRegister offset ", Entrypoints.threadContextRegistersField.getOffset());
     VM.sysWriteln("gprs offset ", ArchEntrypoints.registersGPRsField.getOffset());
     VM.sysWriteln("sp offset ", Entrypoints.stackPointerField.getOffset());
@@ -777,6 +779,18 @@ public class VM extends Properties {
     // Schedule "main" thread for execution.
 //    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
+
+    VM.sysWriteln("Java System size ", SystemJars.systemJar.length);
+    try
+    {
+        ZipFile javaZip = new ZipFile(SystemJars.systemJar);
+    }
+    catch(IOException e)
+    {
+        VM.sysWriteln(e.toString());
+    }
+    VM.shutdown(1);
+
     /*
      * Load external classes
      */

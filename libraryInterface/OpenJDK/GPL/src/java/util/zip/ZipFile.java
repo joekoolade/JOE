@@ -27,6 +27,7 @@ package java.util.zip;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.io.IOException;
 import java.io.EOFException;
 import java.io.File;
@@ -61,7 +62,8 @@ class ZipFile implements ZipConstants {
     private int zipCommentSize;
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
-
+    private static final int END_HDR_SIZE = 22;
+    
     /**
      * Mode flag to open a zip file for reading.
      */
@@ -163,11 +165,13 @@ class ZipFile implements ZipConstants {
 findEndSig:
         for(block=1; block < 50; block++)
         {
-            offset=buf.length - (ENDSIZ * block);
-            int endScan = offset + (ENDSIZ-3);
+            offset=buf.length - (ENDHDR * block);
+            int endScan = offset + ENDHDR;
             /*
              * Scan for the END signature
              */
+            VM.sysWrite("scanning from ", offset);
+            VM.sysWriteln(" to ", endScan);
             for(; offset < endScan; offset++)
             {
                 if(buf[offset]=='P' &&
@@ -184,14 +188,20 @@ findEndSig:
         /*
          * Found the End signature. Now lets fill in some information
          */
+        VM.sysWriteln("endloc ", endLoc);
         ByteBuffer endBuf = ByteBuffer.wrap(buf, endLoc, ENDHDR);
-        zipEntries = endBuf.getShort(ENDTOT);
+        for(int i=0; i < ENDHDR; i++)
+        {
+            VM.writeHex(buf[endLoc+i] & 0xFF); VM.sysWrite(' ');
+        }
+        endBuf.order(ByteOrder.LITTLE_ENDIAN);
+        zipEntries = endBuf.getShort(ENDTOT) & 0xFFFF;
         centSize = endBuf.getInt(ENDSIZ);
         centHeader = endBuf.getInt(ENDOFF);
         zipCommentSize = endBuf.getInt(ENDCOM);
         VM.sysWrite("Entries ", zipEntries);
-        VM.sysWrite(" CDsize ", centSize);
-        VM.sysWrite(" CDoffset ", centHeader);
+        VM.sysWrite(" CDsize "); VM.writeHex(centSize);
+        VM.sysWrite(" CDoffset "); VM.writeHex(centHeader);
         VM.sysWriteln(" comment size ", zipCommentSize);
     }
     static {
