@@ -30,7 +30,7 @@ public class JavaFsDev
     return true;
   }
 
-  public static boolean createFileExclusively(String path, boolean restrictive)
+  public static boolean createFileExclusively(String path)
   {
     return true;
   }

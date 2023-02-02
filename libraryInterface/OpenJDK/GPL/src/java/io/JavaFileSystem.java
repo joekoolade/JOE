@@ -293,9 +293,9 @@ public class JavaFileSystem extends FileSystem
 
   /* -- File operations -- */
 
-  public boolean createFileExclusively(String path, boolean restrictive) throws IOException
+  public boolean createFileExclusively(String path) throws IOException
   {
-    return JavaFsDev.createFileExclusively(path, restrictive);
+    return JavaFsDev.createFileExclusively(path);
   }
 
   public boolean delete(File f)

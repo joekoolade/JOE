@@ -28,6 +28,9 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+
+import org.vmmagic.unboxed.Address;
+
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 import sun.misc.VM;
@@ -45,11 +48,8 @@ class DirectLongBufferS
 
 
 
-    // Cached unsafe-access object
-    protected static final Unsafe unsafe = Bits.unsafe();
-
     // Cached array base offset
-    private static final long arrayBaseOffset = (long)unsafe.arrayBaseOffset(long[].class);
+    private static final long arrayBaseOffset = 0;
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -246,11 +246,11 @@ class DirectLongBufferS
     }
 
     public long get() {
-        return (Bits.swap(unsafe.getLong(ix(nextGetIndex()))));
+        return (Bits.swap(Address.fromLong(ix(nextGetIndex())).loadLong()));
     }
 
     public long get(int i) {
-        return (Bits.swap(unsafe.getLong(ix(checkIndex(i)))));
+        return (Bits.swap(Address.fromLong(ix(checkIndex(i))).loadLong()));
     }
 
 
@@ -294,7 +294,7 @@ class DirectLongBufferS
 
     public LongBuffer put(long x) {
 
-        unsafe.putLong(ix(nextPutIndex()), Bits.swap((x)));
+        Address.fromLong(ix(nextPutIndex())).store(Bits.swap(x));
         return this;
 
 
@@ -303,7 +303,7 @@ class DirectLongBufferS
 
     public LongBuffer put(int i, long x) {
 
-        unsafe.putLong(ix(checkIndex(i)), Bits.swap((x)));
+        Address.fromLong(ix(checkIndex(i))).store(Bits.swap(x));
         return this;
 
 
@@ -329,7 +329,7 @@ class DirectLongBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 3);
+            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 3);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +387,7 @@ class DirectLongBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), rem << 3);
+        Bits.copyMemory(ix(pos), ix(0), rem << 3);
         position(rem);
         limit(capacity());
         discardMark();
@@ -461,30 +461,4 @@ class DirectLongBufferS
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -461,30 +461,4 @@ class DirectDoubleBufferRS
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

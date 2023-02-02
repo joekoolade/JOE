@@ -28,6 +28,9 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+
+import org.vmmagic.unboxed.Address;
+
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 import sun.misc.VM;
@@ -45,11 +48,8 @@ class DirectCharBufferU
 
 
 
-    // Cached unsafe-access object
-    protected static final Unsafe unsafe = Bits.unsafe();
-
     // Cached array base offset
-    private static final long arrayBaseOffset = (long)unsafe.arrayBaseOffset(char[].class);
+    private static final long arrayBaseOffset = 0;
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -246,16 +246,16 @@ class DirectCharBufferU
     }
 
     public char get() {
-        return ((unsafe.getChar(ix(nextGetIndex()))));
+        return (Address.fromLong(ix(nextGetIndex())).loadChar());
     }
 
     public char get(int i) {
-        return ((unsafe.getChar(ix(checkIndex(i)))));
+        return (Address.fromLong(ix(checkIndex(i))).loadChar());
     }
 
 
     char getUnchecked(int i) {
-        return ((unsafe.getChar(ix(i))));
+        return (Address.fromLong(ix(i)).loadChar());
     }
 
 
@@ -294,7 +294,7 @@ class DirectCharBufferU
 
     public CharBuffer put(char x) {
 
-        unsafe.putChar(ix(nextPutIndex()), ((x)));
+        Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
 
 
@@ -303,7 +303,7 @@ class DirectCharBufferU
 
     public CharBuffer put(int i, char x) {
 
-        unsafe.putChar(ix(checkIndex(i)), ((x)));
+        Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
 
 
@@ -329,7 +329,7 @@ class DirectCharBufferU
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 1);
+            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 1);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +387,7 @@ class DirectCharBufferU
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), rem << 1);
+        Bits.copyMemory(ix(pos), ix(0), rem << 1);
         position(rem);
         limit(capacity());
         discardMark();
@@ -461,30 +461,5 @@ class DirectCharBufferU
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

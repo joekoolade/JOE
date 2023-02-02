@@ -28,6 +28,9 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+
+import org.vmmagic.unboxed.Address;
+
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 import sun.misc.VM;
@@ -45,11 +48,8 @@ class DirectDoubleBufferU
 
 
 
-    // Cached unsafe-access object
-    protected static final Unsafe unsafe = Bits.unsafe();
-
     // Cached array base offset
-    private static final long arrayBaseOffset = (long)unsafe.arrayBaseOffset(double[].class);
+    private static final long arrayBaseOffset = 0;
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -246,11 +246,11 @@ class DirectDoubleBufferU
     }
 
     public double get() {
-        return ((unsafe.getDouble(ix(nextGetIndex()))));
+        return (Address.fromLong(ix(nextGetIndex())).loadDouble());
     }
 
     public double get(int i) {
-        return ((unsafe.getDouble(ix(checkIndex(i)))));
+        return (Address.fromLong(ix(checkIndex(i))).loadDouble());
     }
 
 
@@ -294,7 +294,7 @@ class DirectDoubleBufferU
 
     public DoubleBuffer put(double x) {
 
-        unsafe.putDouble(ix(nextPutIndex()), ((x)));
+    	Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
 
 
@@ -303,7 +303,7 @@ class DirectDoubleBufferU
 
     public DoubleBuffer put(int i, double x) {
 
-        unsafe.putDouble(ix(checkIndex(i)), ((x)));
+    	Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
 
 
@@ -329,7 +329,7 @@ class DirectDoubleBufferU
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 3);
+            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 3);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +387,7 @@ class DirectDoubleBufferU
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), rem << 3);
+        Bits.copyMemory(ix(pos), ix(0), rem << 3);
         position(rem);
         limit(capacity());
         discardMark();
@@ -461,30 +461,4 @@ class DirectDoubleBufferU
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

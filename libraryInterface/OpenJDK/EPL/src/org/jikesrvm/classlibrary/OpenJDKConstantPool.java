@@ -28,7 +28,7 @@ import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.classloader.RVMType;
 import org.jikesrvm.classloader.TypeReference;
 
-public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
+public class OpenJDKConstantPool { // extends sun.reflect.ConstantPool {
 
   private RVMClass type;
 
@@ -36,16 +36,14 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     this.type = type;
   }
 
-  static {
-    sun.reflect.Reflection.registerFieldsToFilter(OpenJDKConstantPool.class, new String[] { "type" });
-  }
-
-  @Override
+//  static {
+//    sun.reflect.Reflection.registerFieldsToFilter(OpenJDKConstantPool.class, new String[] { "type" });
+//  }
+//
   public int getSize() {
     return type.getConstantPoolSize();
   }
 
-  @Override
   public Class getClassAt(int index) {
     TypeReference typeRef = type.getTypeRef(index);
     if (typeRef.isResolved()) {
@@ -56,7 +54,6 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     }
   }
 
-  @Override
   public Class getClassAtIfLoaded(int index) {
     TypeReference typeRef = type.getTypeRef(index);
     if (typeRef.isResolved()) {
@@ -66,7 +63,6 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     }
   }
 
-  @Override
   public Member getMethodAt(int index) {
     MethodReference methodRef = type.getMethodRef(index);
     if (methodRef.isResolved()) {
@@ -77,7 +73,6 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     }
   }
 
-  @Override
   public Member getMethodAtIfLoaded(int index) {
     MethodReference methodRef = type.getMethodRef(index);
     if (methodRef.isResolved()) {
@@ -87,7 +82,6 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     }
   }
 
-  @Override
   public Field getFieldAt(int index) {
     FieldReference fieldRef = type.getFieldRef(index);
     if (fieldRef.isResolved()) {
@@ -98,7 +92,6 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     }
   }
 
-  @Override
   public Field getFieldAtIfLoaded(int index) {
     FieldReference fieldRef = type.getFieldRef(index);
     if (fieldRef.isResolved()) {
@@ -108,7 +101,6 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     }
   }
 
-  @Override
   public String[] getMemberRefInfoAt(int index) {
     MemberReference memberRef = type.getMemberRef(index);
     String[] info = new String[3];
@@ -137,32 +129,26 @@ public class OpenJDKConstantPool extends sun.reflect.ConstantPool {
     return info;
   }
 
-  @Override
   public int getIntAt(int index) {
     return type.getIntLiteral(index);
   }
 
-  @Override
   public long getLongAt(int index) {
     return type.getLongLiteral(index);
   }
 
-  @Override
   public float getFloatAt(int index) {
     return type.getFloatLiteral(index);
   }
 
-  @Override
   public double getDoubleAt(int index) {
     return type.getDoubleLiteral(index);
   }
 
-  @Override
   public String getStringAt(int index) {
     return type.getStringLiteral(index);
   }
 
-  @Override
   public String getUTF8At(int index) {
     Atom utf = type.getUtf(index);
     String utfString = null;

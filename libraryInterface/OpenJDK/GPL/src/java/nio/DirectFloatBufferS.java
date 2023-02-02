@@ -28,6 +28,9 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+
+import org.vmmagic.unboxed.Address;
+
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 import sun.misc.VM;
@@ -45,11 +48,8 @@ class DirectFloatBufferS
 
 
 
-    // Cached unsafe-access object
-    protected static final Unsafe unsafe = Bits.unsafe();
-
     // Cached array base offset
-    private static final long arrayBaseOffset = (long)unsafe.arrayBaseOffset(float[].class);
+    private static final long arrayBaseOffset = 0;
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -246,11 +246,11 @@ class DirectFloatBufferS
     }
 
     public float get() {
-        return Float.intBitsToFloat(Bits.swap(unsafe.getInt(ix(nextGetIndex()))));
+        return Float.intBitsToFloat(Bits.swap(Bits.swap(Address.fromLong(ix(nextGetIndex())).loadInt())));
     }
 
     public float get(int i) {
-        return Float.intBitsToFloat(Bits.swap(unsafe.getInt(ix(checkIndex(i)))));
+        return Float.intBitsToFloat(Bits.swap(Address.fromLong(ix(checkIndex(i))).loadInt()));
     }
 
 
@@ -294,7 +294,7 @@ class DirectFloatBufferS
 
     public FloatBuffer put(float x) {
 
-        unsafe.putInt(ix(nextPutIndex()), Bits.swap(Float.floatToRawIntBits(x)));
+        Address.fromLong(ix(nextPutIndex())).store(Bits.swap(Float.floatToRawIntBits(x)));
         return this;
 
 
@@ -303,7 +303,7 @@ class DirectFloatBufferS
 
     public FloatBuffer put(int i, float x) {
 
-        unsafe.putInt(ix(checkIndex(i)), Bits.swap(Float.floatToRawIntBits(x)));
+        Address.fromLong(ix(checkIndex(i))).store(Bits.swap(Float.floatToRawIntBits(x)));
         return this;
 
 
@@ -329,7 +329,7 @@ class DirectFloatBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 2);
+            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +387,7 @@ class DirectFloatBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), rem << 2);
+        Bits.copyMemory(ix(pos), ix(0), rem << 2);
         position(rem);
         limit(capacity());
         discardMark();
@@ -461,30 +461,4 @@ class DirectFloatBufferS
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

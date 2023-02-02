@@ -12,7 +12,7 @@
  -->
 <project name="Jikes RVM Checkstyle plugins">
 
-  <property name="plugins.java.version" value="1.6"/>
+  <property name="plugins.java.version" value="1.7"/>
   <property name="plugins.basedir" value="${jikesrvm.dir}/tools/checkstyle-plugins"/>
   <property name="plugins.build.dir" location="${build.dir}/checkstyle-plugins"/>
   <property name="plugins.classes" location="${plugins.build.dir}/classes"/>

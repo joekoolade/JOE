@@ -665,7 +665,6 @@ class Bits {                            // package-private
         // setup access to this package in SharedSecrets
         sun.misc.SharedSecrets.setJavaNioAccess(
             new sun.misc.JavaNioAccess() {
-                @Override
                 public ByteBuffer newDirectByteBuffer(long addr, int cap, Object ob) {
                     return new DirectByteBuffer(addr, cap, ob);
                 }
@@ -673,6 +672,10 @@ class Bits {                            // package-private
                 public void truncate(Buffer buf) {
                     buf.truncate();
                 }
+				@Override
+				public BufferPool getDirectBufferPool() {
+					return null;
+				}
         });
     }
 

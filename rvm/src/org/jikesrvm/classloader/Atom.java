@@ -389,6 +389,11 @@ public final class Atom {
   public String classNameFromDescriptor() {
     if (VM.VerifyAssertions) {
       VM._assert(val.length > 0);
+      if((val[0] != 'L' || val[val.length - 1] != ';'))
+      {
+    	  VM.sysWriteln("problem!");
+    	  VM.sysWriteln(StringUtilities.asciiBytesToString(val, 0, val.length));
+      }
       VM._assert(val[0] == 'L' && val[val.length - 1] == ';');
     }
     if (unicodeStringOrJTOCoffset == null) {

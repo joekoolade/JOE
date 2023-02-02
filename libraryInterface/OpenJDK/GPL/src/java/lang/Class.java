@@ -2954,12 +2954,12 @@ java.lang.reflect.Type, java.lang.reflect.AnnotatedElement
     return myType.getRawAnnotations();
   }
 
-  ConstantPool getConstantPool()
-  {
-    RVMClass myType = java.lang.JikesRVMSupport.getTypeForClass((Class<?>) (Object) this).asClass();
-    OpenJDKConstantPool constantPool = new OpenJDKConstantPool(myType);
-    return constantPool;
-  }
+//  ConstantPool getConstantPool()
+//  {
+//    RVMClass myType = java.lang.JikesRVMSupport.getTypeForClass((Class<?>) (Object) this).asClass();
+//    OpenJDKConstantPool constantPool = new OpenJDKConstantPool(myType);
+//    return constantPool;
+//  }
 
 
 

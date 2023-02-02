@@ -155,7 +155,7 @@ class DirectByteBuffer
 
     // Invoked only by JNI: NewDirectByteBuffer(void*, long)
     //
-    private DirectByteBuffer(long addr, int cap) {
+    DirectByteBuffer(long addr, int cap) {
         super(-1, 0, cap, cap);
         address = addr;
         cleaner = null;
@@ -1030,12 +1030,5 @@ class DirectByteBuffer
 
 
 
-
-    @Override
-    public Object viewedBuffer()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
 }

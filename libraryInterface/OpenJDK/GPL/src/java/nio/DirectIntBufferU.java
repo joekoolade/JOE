@@ -28,6 +28,9 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+
+import org.vmmagic.unboxed.Address;
+
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 import sun.misc.VM;
@@ -45,11 +48,8 @@ class DirectIntBufferU
 
 
 
-    // Cached unsafe-access object
-    protected static final Unsafe unsafe = Bits.unsafe();
-
     // Cached array base offset
-    private static final long arrayBaseOffset = (long)unsafe.arrayBaseOffset(int[].class);
+    private static final long arrayBaseOffset = 0;
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -246,11 +246,11 @@ class DirectIntBufferU
     }
 
     public int get() {
-        return ((unsafe.getInt(ix(nextGetIndex()))));
+        return (Address.fromLong(ix(nextGetIndex())).loadInt());
     }
 
     public int get(int i) {
-        return ((unsafe.getInt(ix(checkIndex(i)))));
+        return (Address.fromLong(ix(checkIndex(i))).loadInt());
     }
 
 
@@ -294,7 +294,7 @@ class DirectIntBufferU
 
     public IntBuffer put(int x) {
 
-        unsafe.putInt(ix(nextPutIndex()), ((x)));
+        Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
 
 
@@ -303,7 +303,7 @@ class DirectIntBufferU
 
     public IntBuffer put(int i, int x) {
 
-        unsafe.putInt(ix(checkIndex(i)), ((x)));
+        Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
 
 
@@ -329,7 +329,7 @@ class DirectIntBufferU
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 2);
+            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +387,7 @@ class DirectIntBufferU
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), rem << 2);
+        Bits.copyMemory(ix(pos), ix(0), rem << 2);
         position(rem);
         limit(capacity());
         discardMark();
@@ -461,30 +461,4 @@ class DirectIntBufferU
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

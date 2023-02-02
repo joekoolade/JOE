@@ -598,8 +598,8 @@ public abstract class RVMType extends AnnotatedElement {
       return java.lang.JikesRVMSupport.createClass(type);
     } else {
       Exception x;
+      Atom className = typeRef.getName();
       try {
-        Atom className = typeRef.getName();
         if (className.isAnnotationClass()) {
           return Class.forName(className.annotationClassToAnnotationInterface(), false, RVMType.class.getClassLoader());
         } else if (className.isClassDescriptor()) {
@@ -629,7 +629,23 @@ public abstract class RVMType extends AnnotatedElement {
           }
         }
       } catch (ClassNotFoundException e) {
-        x = e;
+    	if(RVMType.class.getClassLoader()==null)
+    	{
+    		System.out.println("Classload is null");
+    	}
+    	else
+    	{
+    		System.out.println("Classloader "+RVMType.class.getClassLoader().getClass().getName());
+    	}
+    	try
+    	{
+    		return Class.forName(className.classNameFromDescriptor());
+    	}
+    	catch(ClassNotFoundException e0)
+    	{
+    		x=e0;
+    	}
+//        x = e;
       } catch (SecurityException e) {
         x = e;
       }

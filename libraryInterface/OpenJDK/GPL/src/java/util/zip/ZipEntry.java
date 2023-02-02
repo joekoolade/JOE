@@ -255,8 +255,8 @@ class ZipEntry implements ZipConstants, Cloneable {
      * @see #getComment()
      */
     public void setComment(String comment) {
-        if (comment != null && comment.length() > 0xffff/3
-                    && ZipOutputStream.getUTF8Length(comment) > 0xffff) {
+        if (comment != null && comment.length() > 0xffff/3) {
+//                    && ZipOutputStream.getUTF8Length(comment) > 0xffff) {
             throw new IllegalArgumentException("invalid entry comment length");
         }
         this.comment = comment;
