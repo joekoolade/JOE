@@ -12,7 +12,7 @@
  */
 package org.jikesrvm.classloader;
 
-import java.util.WeakHashMap;
+import org.jikesrvm.util.HashMapRVM;
 
 /**
  *  Lightweight implementation of a vector of Fields.
@@ -107,8 +107,8 @@ final class TypeReferenceVector {
   private int cnt;
 
   private static final TypeReference[] empty = new TypeReference[0];
-  private static final WeakHashMap<TypeReferenceVector,TypeReference[]>
-    popularTRVs = new WeakHashMap<TypeReferenceVector,TypeReference[]>();
+  private static final HashMapRVM<TypeReferenceVector,TypeReference[]>
+    popularTRVs = new HashMapRVM<TypeReferenceVector,TypeReference[]>();
 
   private void adjustLength(int newLength) {
     if (newLength == 0) {

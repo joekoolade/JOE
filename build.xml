@@ -1482,8 +1482,8 @@ Check to make sure all required properties are specified. This includes properti
                debugLevel="${debugLevel}"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
-               srcdir="${main.java}:${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-               sourcepath=""
+               srcdir="${main.java}:${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
+               sourcepath="${main.java}:${mmtk.java}:${mmtk-vm-rvm.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${jam.java}"
                includeantruntime="false">
           <bootclasspath>
             <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
@@ -1493,7 +1493,7 @@ Check to make sure all required properties are specified. This includes properti
           </classpath>
           <include name="Dummy.java"/>
           <include name="OptDummy.java"/>
-        	<include name="org/jikesrvm/**/*.java"/>
+          <include name="org/jikesrvm/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/openjdk/replacements/**"/>
           <include name="org/apache/**/*.java"/>
           <include name="sun/**/*.java"/>

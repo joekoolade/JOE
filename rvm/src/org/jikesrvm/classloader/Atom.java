@@ -25,11 +25,10 @@ import static org.jikesrvm.classloader.ClassLoaderConstants.ShortTypeCode;
 import static org.jikesrvm.classloader.ClassLoaderConstants.VoidTypeCode;
 
 import java.io.UTFDataFormatException;
-import java.lang.ref.WeakReference;
-import java.util.WeakHashMap;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Statics;
+import org.jikesrvm.util.HashMapRVM;
 import org.jikesrvm.util.ImmutableEntryHashMapRVM;
 import org.jikesrvm.util.StringUtilities;
 import org.vmmagic.pragma.Entrypoint;
@@ -1049,8 +1048,8 @@ public final class Atom {
     /**
      * Look up for interned strings.
      */
-    private static final WeakHashMap<String,WeakReference<String>> internedStrings =
-      new WeakHashMap<String,WeakReference<String>>();
+    private static final HashMapRVM<String,String> internedStrings =
+      new HashMapRVM<String,String>();
 
     /**
      * Find an interned string but don't create it if not found
@@ -1058,15 +1057,9 @@ public final class Atom {
      * @return the interned string or null if it isn't interned
      */
     static synchronized String findInternedString(String str) {
-      WeakReference<String> ref;
+      String ref;
       ref = internedStrings.get(str);
-      if (ref != null) {
-        String s = ref.get();
-        if (s != null) {
-          return s;
-        }
-      }
-      return null;
+      return ref;
     }
 
     /**
@@ -1097,8 +1090,7 @@ public final class Atom {
       if (s != null) return s;
       // If we get to here, then there is no interned version of the String.
       // So we make one.
-      WeakReference<String> ref = new WeakReference<String>(str);
-      internedStrings.put(str, ref);
+      internedStrings.put(str, str);
       return str;
     }
   }
