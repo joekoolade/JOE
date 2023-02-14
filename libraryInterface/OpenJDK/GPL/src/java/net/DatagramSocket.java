@@ -197,8 +197,6 @@ class DatagramSocket {
             bind(new InetSocketAddress(0));
         } catch (SocketException se) {
             throw se;
-        } catch(IOException e) {
-            throw new SocketException(e.getMessage());
         }
     }
 

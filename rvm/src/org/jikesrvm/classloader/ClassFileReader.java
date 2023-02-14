@@ -14,7 +14,15 @@
 package org.jikesrvm.classloader;
 
 import static org.jikesrvm.VM.NOT_REACHED;
-import static org.jikesrvm.classloader.ClassLoaderConstants.*;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_ABSTRACT;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_FINAL;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_INTERFACE;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_NATIVE;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_PRIVATE;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_PROTECTED;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_PUBLIC;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_STATIC;
+import static org.jikesrvm.classloader.ClassLoaderConstants.ACC_SYNTHETIC;
 import static org.jikesrvm.classloader.ConstantPool.CP_CLASS;
 import static org.jikesrvm.classloader.ConstantPool.CP_DOUBLE;
 import static org.jikesrvm.classloader.ConstantPool.CP_FLOAT;
@@ -85,9 +93,11 @@ public class ClassFileReader {
       case 47:
       case 48:
       case 49: // we support all variants of these major versions so the minor number doesn't matter.
+      case 50:
+      case 51:
         break;
-      case 50: // we only support up to 50.0 (ie Java 1.6.0)
-        if (minor == 0) break;
+//      case 50: // we only support up to 50.0 (ie Java 1.6.0)
+//        if (minor == 0) break;
       default:
         throw new UnsupportedClassVersionError("unsupported class file version " + major + "." + minor + " for type " + typeRef);
     }

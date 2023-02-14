@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2005, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,8 +27,12 @@
 
 package java.nio;
 
+import java.io.FileDescriptor;
+
+import org.jikesrvm.runtime.Magic;
+import org.vmmagic.unboxed.Address;
+
 import sun.misc.Cleaner;
-import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 
 
@@ -41,12 +45,10 @@ class DirectByteBuffer
     implements DirectBuffer
 {
 
-    // Cached unsafe-access object
-    protected static final Unsafe unsafe = Bits.unsafe();
 
 
     // Cached array base offset
-    private static final long arrayBaseOffset = unsafe.arrayBaseOffset(byte[].class);
+    private static final long arrayBaseOffset = Magic.objectAsAddress(byte[].class).toLong();
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -55,13 +57,13 @@ class DirectByteBuffer
     // NOTE: moved up to Buffer.java for speed in JNI GetDirectBufferAddress
     //    protected long address;
 
-    // If this buffer is a view of another buffer then we keep a reference to
-    // that buffer so that its memory isn't freed before we're done with it
-    protected Object viewedBuffer = null;
+    // An object attached to this buffer. If this buffer is a view of another
+    // buffer then we use this field to keep a reference to that buffer to
+    // ensure that its memory isn't freed before we are done with it.
+    private final Object att;
 
-    @Override
-    public Object viewedBuffer() {
-        return viewedBuffer;
+    public Object attachment() {
+        return att;
     }
 
 
@@ -70,33 +72,31 @@ class DirectByteBuffer
         implements Runnable
     {
 
-        private static Unsafe unsafe = Unsafe.getUnsafe();
-
         private long address;
+        private long size;
         private int capacity;
 
-        private Deallocator(long address, int capacity) {
+        private Deallocator(long address, long size, int capacity) {
             assert (address != 0);
             this.address = address;
+            this.size = size;
             this.capacity = capacity;
         }
 
-        @Override
         public void run() {
             if (address == 0) {
                 // Paranoia
                 return;
             }
-            unsafe.freeMemory(address);
+//            unsafe.freeMemory(address);
             address = 0;
-            Bits.unreserveMemory(capacity);
+//            Bits.unreserveMemory(size, capacity);
         }
 
     }
 
     private final Cleaner cleaner;
 
-    @Override
     public Cleaner cleaner() { return cleaner; }
 
 
@@ -113,56 +113,68 @@ class DirectByteBuffer
     //
     DirectByteBuffer(int cap) {                   // package-private
 
-        super(-1, 0, cap, cap, false);
-        Bits.reserveMemory(cap);
+        super(-1, 0, cap, cap);
+        boolean pa = false; //VM.isDirectMemoryPageAligned();
         int ps = Bits.pageSize();
+        long size = Math.max(1L, (long)cap + (pa ? ps : 0));
+        Bits.reserveMemory(size, cap);
+
         long base = 0;
         try {
-            base = unsafe.allocateMemory(cap + ps);
+            base = 0; // unsafe.allocateMemory(size);
         } catch (OutOfMemoryError x) {
-            Bits.unreserveMemory(cap);
+            Bits.unreserveMemory(size, cap);
             throw x;
         }
-        unsafe.setMemory(base, cap + ps, (byte) 0);
-        if (base % ps != 0) {
+//        unsafe.setMemory(base, size, (byte) 0);
+        if (pa && (base % ps != 0)) {
             // Round up to page boundary
             address = base + ps - (base & (ps - 1));
         } else {
             address = base;
         }
-        cleaner = Cleaner.create(this, new Deallocator(base, cap));
+        cleaner = Cleaner.create(this, new Deallocator(base, size, cap));
+        att = null;
 
 
 
     }
 
+
+
+    // Invoked to construct a direct ByteBuffer referring to the block of
+    // memory. A given arbitrary object may also be attached to the buffer.
+    //
+    DirectByteBuffer(long addr, int cap, Object ob) {
+        super(-1, 0, cap, cap);
+        address = addr;
+        cleaner = null;
+        att = ob;
+    }
 
 
     // Invoked only by JNI: NewDirectByteBuffer(void*, long)
     //
     DirectByteBuffer(long addr, int cap) {
-      super(-1, 0, cap, cap);
+        super(-1, 0, cap, cap);
         address = addr;
         cleaner = null;
+        att = null;
     }
 
 
-    DirectByteBuffer(long addr, int cap, Object buffer)
-    {
-      super(-1, 0, cap, cap, false);
-      address = addr;
-      cleaner = null;
-      this.viewedBuffer = buffer;
-    }
 
     // For memory-mapped buffers -- invoked by FileChannelImpl via reflection
     //
-    protected DirectByteBuffer(int cap, long addr, Runnable unmapper) {
+    protected DirectByteBuffer(int cap, long addr,
+                                     FileDescriptor fd,
+                                     Runnable unmapper)
+    {
 
-        super(-1, 0, cap, cap, true);
+        super(-1, 0, cap, cap, fd);
         address = addr;
-        viewedBuffer = null;
         cleaner = Cleaner.create(this, unmapper);
+        att = null;
 
 
 
@@ -179,16 +191,15 @@ class DirectByteBuffer
 
         super(mark, pos, lim, cap);
         address = db.address() + off;
-        viewedBuffer = db;
 
         cleaner = null;
 
+        att = db;
 
 
 
     }
 
-    @Override
     public ByteBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
@@ -199,7 +210,6 @@ class DirectByteBuffer
         return new DirectByteBuffer(this, -1, 0, rem, rem, off);
     }
 
-    @Override
     public ByteBuffer duplicate() {
         return new DirectByteBuffer(this,
                                               this.markValue(),
@@ -209,7 +219,6 @@ class DirectByteBuffer
                                               0);
     }
 
-    @Override
     public ByteBuffer asReadOnlyBuffer() {
 
         return new DirectByteBufferR(this,
@@ -225,7 +234,6 @@ class DirectByteBuffer
 
 
 
-    @Override
     public long address() {
         return address;
     }
@@ -234,27 +242,30 @@ class DirectByteBuffer
         return address + (i << 0);
     }
 
-    @Override
     public byte get() {
-        return ((unsafe.getByte(ix(nextGetIndex()))));
+        return Address.fromLong(ix(nextGetIndex())).loadByte();
     }
 
-    @Override
     public byte get(int i) {
-        return ((unsafe.getByte(ix(checkIndex(i)))));
+        return Address.fromLong(ix(checkIndex(i))).loadByte();
     }
 
-    @Override
+
+
+
+
+
+
     public ByteBuffer get(byte[] dst, int offset, int length) {
 
-      if (((long)length << 0) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
-          checkBounds(offset, length, dst.length);
-          int pos = position();
-          int lim = limit();
-          assert (pos <= lim);
-          int rem = (pos <= lim ? lim - pos : 0);
-          if (length > rem)
-              throw new BufferUnderflowException();
+        if ((length << 0) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
+            checkBounds(offset, length, dst.length);
+            int pos = position();
+            int lim = limit();
+            assert (pos <= lim);
+            int rem = (pos <= lim ? lim - pos : 0);
+            if (length > rem)
+                throw new BufferUnderflowException();
 
 
 
@@ -263,42 +274,39 @@ class DirectByteBuffer
 
 
 
-              Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                               (long)offset << 0,
-                               (long)length << 0);
-          position(pos + length);
-      } else {
-          super.get(dst, offset, length);
-      }
-      return this;
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
+                                 offset << 0,
+                                 length << 0);
+            position(pos + length);
+        } else {
+            super.get(dst, offset, length);
+        }
+        return this;
 
 
 
-  }
+    }
 
 
 
-    @Override
     public ByteBuffer put(byte x) {
 
-        unsafe.putByte(ix(nextPutIndex()), ((x)));
+        Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
 
 
 
     }
 
-    @Override
     public ByteBuffer put(int i, byte x) {
 
-        unsafe.putByte(ix(checkIndex(i)), ((x)));
+        Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
 
 
 
     }
 
-    @Override
     public ByteBuffer put(ByteBuffer src) {
 
         if (src instanceof DirectByteBuffer) {
@@ -318,7 +326,7 @@ class DirectByteBuffer
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 0);
+            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 0);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -340,17 +348,16 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer put(byte[] src, int offset, int length) {
 
-      if (((long)length << 0) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
-          checkBounds(offset, length, src.length);
-          int pos = position();
-          int lim = limit();
-          assert (pos <= lim);
-          int rem = (pos <= lim ? lim - pos : 0);
-          if (length > rem)
-              throw new BufferOverflowException();
+        if ((length << 0) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
+            checkBounds(offset, length, src.length);
+            int pos = position();
+            int lim = limit();
+            assert (pos <= lim);
+            int rem = (pos <= lim ? lim - pos : 0);
+            if (length > rem)
+                throw new BufferOverflowException();
 
 
 
@@ -358,23 +365,18 @@ class DirectByteBuffer
 
 
 
-
-
-              Bits.copyFromArray(src, arrayBaseOffset,
-                                 (long)offset << 0,
-                                 ix(pos),
-                                 (long)length << 0);
-          position(pos + length);
-      } else {
-          super.put(src, offset, length);
-      }
-      return this;
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 0,
+                                   ix(pos), length << 0);
+            position(pos + length);
+        } else {
+            super.put(src, offset, length);
+        }
+        return this;
 
 
 
-  }
+    }
 
-    @Override
     public ByteBuffer compact() {
 
         int pos = position();
@@ -382,22 +384,20 @@ class DirectByteBuffer
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), rem << 0);
+        Bits.copyMemory(ix(pos), ix(0), rem << 0);
         position(rem);
         limit(capacity());
-//        discardMark();
+        discardMark();
         return this;
 
 
 
     }
 
-    @Override
     public boolean isDirect() {
         return true;
     }
 
-    @Override
     public boolean isReadOnly() {
         return false;
     }
@@ -463,16 +463,15 @@ class DirectByteBuffer
 
 
 
-    @Override
+
+
     byte _get(int i) {                          // package-private
-        return unsafe.getByte(address + i);
+        return Address.fromIntZeroExtend(i).loadByte();
     }
 
-    @Override
     void _put(int i, byte b) {                  // package-private
 
-        unsafe.putByte(address + i, b);
-
+        Address.fromLong(address+i).store(b);
 
 
     }
@@ -482,18 +481,16 @@ class DirectByteBuffer
 
     private char getChar(long a) {
         if (unaligned) {
-            char x = unsafe.getChar(a);
+            char x = Address.fromLong(a).loadChar();
             return (nativeByteOrder ? x : Bits.swap(x));
         }
         return Bits.getChar(a, bigEndian);
     }
 
-    @Override
     public char getChar() {
         return getChar(ix(nextGetIndex((1 << 1))));
     }
 
-    @Override
     public char getChar(int i) {
         return getChar(ix(checkIndex(i, (1 << 1))));
     }
@@ -504,7 +501,7 @@ class DirectByteBuffer
 
         if (unaligned) {
             char y = (x);
-            unsafe.putChar(a, (nativeByteOrder ? y : Bits.swap(y)));
+            Address.fromLong(a).store((nativeByteOrder ? y : Bits.swap(y)));
         } else {
             Bits.putChar(a, x, bigEndian);
         }
@@ -514,7 +511,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putChar(char x) {
 
         putChar(ix(nextPutIndex((1 << 1))), x);
@@ -524,7 +520,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putChar(int i, char x) {
 
         putChar(ix(checkIndex(i, (1 << 1))), x);
@@ -534,7 +529,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public CharBuffer asCharBuffer() {
         int off = this.position();
         int lim = this.limit();
@@ -578,18 +572,16 @@ class DirectByteBuffer
 
     private short getShort(long a) {
         if (unaligned) {
-            short x = unsafe.getShort(a);
+            short x = Address.fromLong(a).loadShort();
             return (nativeByteOrder ? x : Bits.swap(x));
         }
         return Bits.getShort(a, bigEndian);
     }
 
-    @Override
     public short getShort() {
         return getShort(ix(nextGetIndex((1 << 1))));
     }
 
-    @Override
     public short getShort(int i) {
         return getShort(ix(checkIndex(i, (1 << 1))));
     }
@@ -600,7 +592,7 @@ class DirectByteBuffer
 
         if (unaligned) {
             short y = (x);
-            unsafe.putShort(a, (nativeByteOrder ? y : Bits.swap(y)));
+            Address.fromLong(a).store((nativeByteOrder ? y : Bits.swap(y)));
         } else {
             Bits.putShort(a, x, bigEndian);
         }
@@ -610,7 +602,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putShort(short x) {
 
         putShort(ix(nextPutIndex((1 << 1))), x);
@@ -620,7 +611,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putShort(int i, short x) {
 
         putShort(ix(checkIndex(i, (1 << 1))), x);
@@ -630,7 +620,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ShortBuffer asShortBuffer() {
         int off = this.position();
         int lim = this.limit();
@@ -674,18 +663,16 @@ class DirectByteBuffer
 
     private int getInt(long a) {
         if (unaligned) {
-            int x = unsafe.getInt(a);
+            int x = Address.fromLong(a).loadInt();
             return (nativeByteOrder ? x : Bits.swap(x));
         }
         return Bits.getInt(a, bigEndian);
     }
 
-    @Override
     public int getInt() {
         return getInt(ix(nextGetIndex((1 << 2))));
     }
 
-    @Override
     public int getInt(int i) {
         return getInt(ix(checkIndex(i, (1 << 2))));
     }
@@ -696,7 +683,7 @@ class DirectByteBuffer
 
         if (unaligned) {
             int y = (x);
-            unsafe.putInt(a, (nativeByteOrder ? y : Bits.swap(y)));
+            Address.fromLong(a).store((nativeByteOrder ? y : Bits.swap(y)));
         } else {
             Bits.putInt(a, x, bigEndian);
         }
@@ -706,7 +693,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putInt(int x) {
 
         putInt(ix(nextPutIndex((1 << 2))), x);
@@ -716,7 +702,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putInt(int i, int x) {
 
         putInt(ix(checkIndex(i, (1 << 2))), x);
@@ -726,7 +711,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public IntBuffer asIntBuffer() {
         int off = this.position();
         int lim = this.limit();
@@ -770,18 +754,16 @@ class DirectByteBuffer
 
     private long getLong(long a) {
         if (unaligned) {
-            long x = unsafe.getLong(a);
+            long x = Address.fromLong(a).loadLong();
             return (nativeByteOrder ? x : Bits.swap(x));
         }
         return Bits.getLong(a, bigEndian);
     }
 
-    @Override
     public long getLong() {
         return getLong(ix(nextGetIndex((1 << 3))));
     }
 
-    @Override
     public long getLong(int i) {
         return getLong(ix(checkIndex(i, (1 << 3))));
     }
@@ -792,7 +774,7 @@ class DirectByteBuffer
 
         if (unaligned) {
             long y = (x);
-            unsafe.putLong(a, (nativeByteOrder ? y : Bits.swap(y)));
+            Address.fromLong(a).store((nativeByteOrder ? y : Bits.swap(y)));
         } else {
             Bits.putLong(a, x, bigEndian);
         }
@@ -802,7 +784,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putLong(long x) {
 
         putLong(ix(nextPutIndex((1 << 3))), x);
@@ -812,7 +793,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putLong(int i, long x) {
 
         putLong(ix(checkIndex(i, (1 << 3))), x);
@@ -822,7 +802,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public LongBuffer asLongBuffer() {
         int off = this.position();
         int lim = this.limit();
@@ -866,18 +845,15 @@ class DirectByteBuffer
 
     private float getFloat(long a) {
         if (unaligned) {
-            int x = unsafe.getInt(a);
-            return Float.intBitsToFloat(nativeByteOrder ? x : Bits.swap(x));
+            return Address.fromLong(a).loadFloat();
         }
         return Bits.getFloat(a, bigEndian);
     }
 
-    @Override
     public float getFloat() {
         return getFloat(ix(nextGetIndex((1 << 2))));
     }
 
-    @Override
     public float getFloat(int i) {
         return getFloat(ix(checkIndex(i, (1 << 2))));
     }
@@ -887,18 +863,17 @@ class DirectByteBuffer
     private ByteBuffer putFloat(long a, float x) {
 
         if (unaligned) {
-            int y = Float.floatToRawIntBits(x);
-            unsafe.putInt(a, (nativeByteOrder ? y : Bits.swap(y)));
+            Address.fromLong(a).store((nativeByteOrder ? (int)x : Bits.swap((int)x)));
         } else {
             Bits.putFloat(a, x, bigEndian);
         }
+        Address.fromLong(a).store(x);
         return this;
 
 
 
     }
 
-    @Override
     public ByteBuffer putFloat(float x) {
 
         putFloat(ix(nextPutIndex((1 << 2))), x);
@@ -908,7 +883,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putFloat(int i, float x) {
 
         putFloat(ix(checkIndex(i, (1 << 2))), x);
@@ -918,7 +892,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public FloatBuffer asFloatBuffer() {
         int off = this.position();
         int lim = this.limit();
@@ -962,18 +935,16 @@ class DirectByteBuffer
 
     private double getDouble(long a) {
         if (unaligned) {
-            long x = unsafe.getLong(a);
+            long x = Magic.doubleAsLongBits(Address.fromLong(a).loadDouble());
             return Double.longBitsToDouble(nativeByteOrder ? x : Bits.swap(x));
         }
         return Bits.getDouble(a, bigEndian);
     }
 
-    @Override
     public double getDouble() {
         return getDouble(ix(nextGetIndex((1 << 3))));
     }
 
-    @Override
     public double getDouble(int i) {
         return getDouble(ix(checkIndex(i, (1 << 3))));
     }
@@ -983,8 +954,8 @@ class DirectByteBuffer
     private ByteBuffer putDouble(long a, double x) {
 
         if (unaligned) {
-            long y = Double.doubleToRawLongBits(x);
-            unsafe.putLong(a, (nativeByteOrder ? y : Bits.swap(y)));
+            long y = Magic.doubleAsLongBits(x);
+            Address.fromLong(a).store(nativeByteOrder ? y : Bits.swap(y));
         } else {
             Bits.putDouble(a, x, bigEndian);
         }
@@ -994,7 +965,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putDouble(double x) {
 
         putDouble(ix(nextPutIndex((1 << 3))), x);
@@ -1004,7 +974,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public ByteBuffer putDouble(int i, double x) {
 
         putDouble(ix(checkIndex(i, (1 << 3))), x);
@@ -1014,7 +983,6 @@ class DirectByteBuffer
 
     }
 
-    @Override
     public DoubleBuffer asDoubleBuffer() {
         int off = this.position();
         int lim = this.limit();
@@ -1052,5 +1020,15 @@ class DirectByteBuffer
                                                                  off)));
         }
     }
+
+
+
+
+
+
+
+
+
+
 
 }

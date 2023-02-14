@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,6 +31,11 @@ package java.nio;
 
 
 
+
+
+
+
+
 /**
  * A byte buffer.
  *
@@ -39,23 +44,23 @@ package java.nio;
  *
  * <ul>
  *
- *   <li><p> Absolute and relative {@link #get() </code><i>get</i><code>} and
- *   {@link #put(byte) </code><i>put</i><code>} methods that read and write
+ *   <li><p> Absolute and relative {@link #get() <i>get</i>} and
+ *   {@link #put(byte) <i>put</i>} methods that read and write
  *   single bytes; </p></li>
  *
- *   <li><p> Relative {@link #get(byte[]) </code><i>bulk get</i><code>}
+ *   <li><p> Relative {@link #get(byte[]) <i>bulk get</i>}
  *   methods that transfer contiguous sequences of bytes from this buffer
  *   into an array; </p></li>
  *
- *   <li><p> Relative {@link #put(byte[]) </code><i>bulk put</i><code>}
+ *   <li><p> Relative {@link #put(byte[]) <i>bulk put</i>}
  *   methods that transfer contiguous sequences of bytes from a
  *   byte array or some other byte
  *   buffer into this buffer; </p></li>
  *
 
  *
- *   <li><p> Absolute and relative {@link #getChar() </code><i>get</i><code>}
- *   and {@link #putChar(char) </code><i>put</i><code>} methods that read and
+ *   <li><p> Absolute and relative {@link #getChar() <i>get</i>}
+ *   and {@link #putChar(char) <i>put</i>} methods that read and
  *   write values of other primitive types, translating them to and from
  *   sequences of bytes in a particular byte order; </p></li>
  *
@@ -65,18 +70,18 @@ package java.nio;
  *
 
  *
- *   <li><p> Methods for {@link #compact </code>compacting<code>}, {@link
- *   #duplicate </code>duplicating<code>}, and {@link #slice
- *   </code>slicing<code>} a byte buffer.  </p></li>
+ *   <li><p> Methods for {@link #compact compacting}, {@link
+ *   #duplicate duplicating}, and {@link #slice slicing}
+ *   a byte buffer.  </p></li>
  *
  * </ul>
  *
  * <p> Byte buffers can be created either by {@link #allocate
- * </code><i>allocation</i><code>}, which allocates space for the buffer's
+ * <i>allocation</i>}, which allocates space for the buffer's
  *
 
  *
- * content, or by {@link #wrap(byte[]) </code><i>wrapping</i><code>} an
+ * content, or by {@link #wrap(byte[]) <i>wrapping</i>} an
  * existing byte array  into a buffer.
  *
 
@@ -89,8 +94,8 @@ package java.nio;
  *
 
  *
- * <a name="direct">
- * <h4> Direct <i>vs.</i> non-direct buffers </h4>
+ * <a name="direct"></a>
+ * <h2> Direct <i>vs.</i> non-direct buffers </h2>
  *
  * <p> A byte buffer is either <i>direct</i> or <i>non-direct</i>.  Given a
  * direct byte buffer, the Java virtual machine will make a best effort to
@@ -111,7 +116,7 @@ package java.nio;
  * buffers only when they yield a measureable gain in program performance.
  *
  * <p> A direct byte buffer may also be created by {@link
- * java.nio.channels.FileChannel#map </code>mapping<code>} a region of a file
+ * java.nio.channels.FileChannel#map mapping} a region of a file
  * directly into memory.  An implementation of the Java platform may optionally
  * support the creation of direct byte buffers from native code via JNI.  If an
  * instance of one of these kinds of buffers refers to an inaccessible region
@@ -124,8 +129,8 @@ package java.nio;
  * that explicit buffer management can be done in performance-critical code.
  *
  *
- * <a name="bin">
- * <h4> Access to binary data </h4>
+ * <a name="bin"></a>
+ * <h2> Access to binary data </h2>
  *
  * <p> This class defines methods for reading and writing values of all other
  * primitive types, except <tt>boolean</tt>.  Primitive values are translated
@@ -151,7 +156,7 @@ package java.nio;
  * parameters of the absolute <i>get</i> and <i>put</i> methods are in terms of
  * bytes rather than of the type being read or written.
  *
- * <a name="views">
+ * <a name="views"></a>
  *
  * <p> For access to homogeneous binary data, that is, sequences of values of
  * the same type, this class defines methods that can create <i>views</i> of a
@@ -209,7 +214,7 @@ package java.nio;
 
  *
 
- * <h4> Invocation chaining </h4>
+ * <h2> Invocation chaining </h2>
 
  *
  * <p> Methods in this class that do not otherwise have a value to return are
@@ -290,8 +295,9 @@ public abstract class ByteBuffer
      * Allocates a new direct byte buffer.
      *
      * <p> The new buffer's position will be zero, its limit will be its
-     * capacity, and its mark will be undefined.  Whether or not it has a
-     * {@link #hasArray </code>backing array<code>} is unspecified.
+     * capacity, its mark will be undefined, and each of its elements will be
+     * initialized to zero.  Whether or not it has a
+     * {@link #hasArray backing array} is unspecified.
      *
      * @param  capacity
      *         The new buffer's capacity, in bytes
@@ -302,7 +308,7 @@ public abstract class ByteBuffer
      *          If the <tt>capacity</tt> is a negative integer
      */
     public static ByteBuffer allocateDirect(int capacity) {
-      return allocate(capacity);
+        return new DirectByteBuffer(capacity);
     }
 
 
@@ -311,9 +317,9 @@ public abstract class ByteBuffer
      * Allocates a new byte buffer.
      *
      * <p> The new buffer's position will be zero, its limit will be its
-     * capacity, and its mark will be undefined.  It will have a {@link #array
-     * </code>backing array<code>}, and its {@link #arrayOffset </code>array
-     * offset<code>} will be zero.
+     * capacity, its mark will be undefined, and each of its elements will be
+     * initialized to zero.  It will have a {@link #array backing array},
+     * and its {@link #arrayOffset array offset} will be zero.
      *
      * @param  capacity
      *         The new buffer's capacity, in bytes
@@ -337,8 +343,8 @@ public abstract class ByteBuffer
      * and vice versa.  The new buffer's capacity will be
      * <tt>array.length</tt>, its position will be <tt>offset</tt>, its limit
      * will be <tt>offset + length</tt>, and its mark will be undefined.  Its
-     * {@link #array </code>backing array<code>} will be the given array, and
-     * its {@link #arrayOffset </code>array offset<code>} will be zero.  </p>
+     * {@link #array backing array} will be the given array, and
+     * its {@link #arrayOffset array offset} will be zero.  </p>
      *
      * @param  array
      *         The array that will back the new buffer
@@ -377,8 +383,8 @@ public abstract class ByteBuffer
      * that is, modifications to the buffer will cause the array to be modified
      * and vice versa.  The new buffer's capacity and limit will be
      * <tt>array.length</tt>, its position will be zero, and its mark will be
-     * undefined.  Its {@link #array </code>backing array<code>} will be the
-     * given array, and its {@link #arrayOffset </code>array offset<code>} will
+     * undefined.  Its {@link #array backing array} will be the
+     * given array, and its {@link #arrayOffset array offset>} will
      * be zero.  </p>
      *
      * @param  array
@@ -544,7 +550,7 @@ public abstract class ByteBuffer
 
     /**
      * Relative <i>get</i> method.  Reads the byte at this buffer's
-     * current position, and then increments the position. </p>
+     * current position, and then increments the position.
      *
      * @return  The byte at the buffer's current position
      *
@@ -574,7 +580,7 @@ public abstract class ByteBuffer
 
     /**
      * Absolute <i>get</i> method.  Reads the byte at the given
-     * index. </p>
+     * index.
      *
      * @param  index
      *         The index from which the byte will be read
@@ -586,6 +592,19 @@ public abstract class ByteBuffer
      *          or not smaller than the buffer's limit
      */
     public abstract byte get(int index);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Absolute <i>put</i> method&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -632,12 +651,13 @@ public abstract class ByteBuffer
      * <tt>src.get(dst,&nbsp;off,&nbsp;len)</tt> has exactly the same effect as
      * the loop
      *
-     * <pre>
+     * <pre>{@code
      *     for (int i = off; i < off + len; i++)
-     *         dst[i] = src.get(); </pre>
+     *         dst[i] = src.get():
+     * }</pre>
      *
      * except that it first checks that there are sufficient bytes in
-     * this buffer and it is potentially much more efficient. </p>
+     * this buffer and it is potentially much more efficient.
      *
      * @param  dst
      *         The array into which bytes are to be written
@@ -682,6 +702,9 @@ public abstract class ByteBuffer
      * <pre>
      *     src.get(a, 0, a.length) </pre>
      *
+     * @param   dst
+     *          The destination array
+     *
      * @return  This buffer
      *
      * @throws  BufferUnderflowException
@@ -718,7 +741,7 @@ public abstract class ByteBuffer
      *         dst.put(src.get()); </pre>
      *
      * except that it first checks that there is sufficient space in this
-     * buffer and it is potentially much more efficient. </p>
+     * buffer and it is potentially much more efficient.
      *
      * @param  src
      *         The source buffer from which bytes are to be read;
@@ -739,6 +762,8 @@ public abstract class ByteBuffer
     public ByteBuffer put(ByteBuffer src) {
         if (src == this)
             throw new IllegalArgumentException();
+        if (isReadOnly())
+            throw new ReadOnlyBufferException();
         int n = src.remaining();
         if (n > remaining())
             throw new BufferOverflowException();
@@ -766,12 +791,13 @@ public abstract class ByteBuffer
      * <tt>dst.put(src,&nbsp;off,&nbsp;len)</tt> has exactly the same effect as
      * the loop
      *
-     * <pre>
+     * <pre>{@code
      *     for (int i = off; i < off + len; i++)
-     *         dst.put(a[i]); </pre>
+     *         dst.put(a[i]);
+     * }</pre>
      *
      * except that it first checks that there is sufficient space in this
-     * buffer and it is potentially much more efficient. </p>
+     * buffer and it is potentially much more efficient.
      *
      * @param  src
      *         The array from which bytes are to be read
@@ -818,6 +844,9 @@ public abstract class ByteBuffer
      * <pre>
      *     dst.put(a, 0, a.length) </pre>
      *
+     * @param   src
+     *          The source array
+     *
      * @return  This buffer
      *
      * @throws  BufferOverflowException
@@ -829,6 +858,14 @@ public abstract class ByteBuffer
     public final ByteBuffer put(byte[] src) {
         return put(src, 0, src.length);
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -1012,12 +1049,13 @@ public abstract class ByteBuffer
      * write was incomplete.  The following loop, for example, copies bytes
      * from one channel to another via the buffer <tt>buf</tt>:
      *
-     * <blockquote><pre>
-     * buf.clear();          // Prepare buffer for use
-     * while (in.read(buf) >= 0 || buf.position != 0) {
-     *     buf.flip();
-     *     out.write(buf);
-     *     buf.compact();    // In case of partial write
+     * <blockquote><pre>{@code
+     *   buf.clear();          // Prepare buffer for use
+     *   while (in.read(buf) >= 0 || buf.position != 0) {
+     *       buf.flip();
+     *       out.write(buf);
+     *       buf.compact();    // In case of partial write
+     *   }
      * }</pre></blockquote>
      *
 
@@ -1030,7 +1068,7 @@ public abstract class ByteBuffer
     public abstract ByteBuffer compact();
 
     /**
-     * Tells whether or not this byte buffer is direct. </p>
+     * Tells whether or not this byte buffer is direct.
      *
      * @return  <tt>true</tt> if, and only if, this buffer is direct
      */
@@ -1039,7 +1077,7 @@ public abstract class ByteBuffer
 
 
     /**
-     * Returns a string summarizing the state of this buffer.  </p>
+     * Returns a string summarizing the state of this buffer.
      *
      * @return  A summary string
      */
@@ -1078,7 +1116,11 @@ public abstract class ByteBuffer
         int h = 1;
         int p = position();
         for (int i = limit() - 1; i >= p; i--)
+
+
+
             h = 31 * h + (int)get(i);
+
         return h;
     }
 
@@ -1087,7 +1129,7 @@ public abstract class ByteBuffer
      *
      * <p> Two byte buffers are equal if, and only if,
      *
-     * <p><ol>
+     * <ol>
      *
      *   <li><p> They have the same element type,  </p></li>
      *
@@ -1096,6 +1138,13 @@ public abstract class ByteBuffer
      *
      *   <li><p> The two sequences of remaining elements, considered
      *   independently of their starting positions, are pointwise equal.
+
+
+
+
+
+
+
      *   </p></li>
      *
      * </ol>
@@ -1116,16 +1165,18 @@ public abstract class ByteBuffer
         if (this.remaining() != that.remaining())
             return false;
         int p = this.position();
-        for (int i = this.limit() - 1, j = that.limit() - 1; i >= p; i--, j--) {
-            byte v1 = this.get(i);
-            byte v2 = that.get(j);
-            if (v1 != v2) {
-                if ((v1 != v1) && (v2 != v2))   // For float and double
-                    continue;
+        for (int i = this.limit() - 1, j = that.limit() - 1; i >= p; i--, j--)
+            if (!equals(this.get(i), that.get(j)))
                 return false;
-            }
-        }
         return true;
+    }
+
+    private static boolean equals(byte x, byte y) {
+
+
+
+        return x == y;
+
     }
 
     /**
@@ -1134,6 +1185,17 @@ public abstract class ByteBuffer
      * <p> Two byte buffers are compared by comparing their sequences of
      * remaining elements lexicographically, without regard to the starting
      * position of each sequence within its corresponding buffer.
+
+
+
+
+
+
+
+
+     * Pairs of {@code byte} elements are compared as if by invoking
+     * {@link Byte#compare(byte,byte)}.
+
      *
      * <p> A byte buffer is not comparable to any other type of object.
      *
@@ -1143,20 +1205,23 @@ public abstract class ByteBuffer
     public int compareTo(ByteBuffer that) {
         int n = this.position() + Math.min(this.remaining(), that.remaining());
         for (int i = this.position(), j = that.position(); i < n; i++, j++) {
-            byte v1 = this.get(i);
-            byte v2 = that.get(j);
-            if (v1 == v2)
-                continue;
-            if ((v1 != v1) && (v2 != v2))       // For float and double
-                continue;
-            if (v1 < v2)
-                return -1;
-            return +1;
+            int cmp = compare(this.get(i), that.get(j));
+            if (cmp != 0)
+                return cmp;
         }
         return this.remaining() - that.remaining();
     }
 
+    private static int compare(byte x, byte y) {
 
+
+
+
+
+
+        return Byte.valueOf(x).compareTo(Byte.valueOf(y));
+
+    }
 
     // -- Other char stuff --
 
@@ -1395,7 +1460,7 @@ public abstract class ByteBuffer
     }
 
     /**
-     * Modifies this buffer's byte order.  </p>
+     * Modifies this buffer's byte order.
      *
      * @param  bo
      *         The new byte order,

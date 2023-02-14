@@ -170,19 +170,19 @@ public abstract class Reference<T> {
         }
     }
 
-    static {
-        ThreadGroup tg = Thread.currentThread().getThreadGroup();
-        for (ThreadGroup tgn = tg;
-             tgn != null;
-             tg = tgn, tgn = tg.getParent());
-        Thread handler = new ReferenceHandler(tg, "Reference Handler");
-        /* If there were a special system-only priority greater than
-         * MAX_PRIORITY, it would be used here
-         */
-        handler.setPriority(Thread.MAX_PRIORITY);
-        handler.setDaemon(true);
-        handler.start();
-    }
+//    static {
+//        ThreadGroup tg = Thread.currentThread().getThreadGroup();
+//        for (ThreadGroup tgn = tg;
+//             tgn != null;
+//             tg = tgn, tgn = tg.getParent());
+//        Thread handler = new ReferenceHandler(tg, "Reference Handler");
+//        /* If there were a special system-only priority greater than
+//         * MAX_PRIORITY, it would be used here
+//         */
+//        handler.setPriority(Thread.MAX_PRIORITY);
+//        handler.setDaemon(true);
+//        handler.start();
+//    }
 
 
     /* -- Referent accessor and setters -- */

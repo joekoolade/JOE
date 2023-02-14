@@ -12,7 +12,7 @@
  */
 package org.jikesrvm.classloader;
 
-import java.util.WeakHashMap;
+import org.jikesrvm.util.HashMapRVM;
 
 /**
  *  Lightweight implementation of a vector of Fields. This class is intended
@@ -118,8 +118,8 @@ final class MethodVector {
   private int cnt;
 
   private static final RVMMethod[] empty = new RVMMethod[0];
-  private static final WeakHashMap<MethodVector, RVMMethod[]>
-    popularMVs = new WeakHashMap<MethodVector, RVMMethod[]>();
+  private static final HashMapRVM<MethodVector, RVMMethod[]>
+    popularMVs = new HashMapRVM<MethodVector, RVMMethod[]>();
 
   private void adjustLength(int newLength) {
     if (newLength == 0) {

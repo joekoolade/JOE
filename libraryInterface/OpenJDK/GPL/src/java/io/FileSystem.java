@@ -159,7 +159,7 @@ abstract class FileSystem
    * The resulting file may have more restrictive access permission on some
    * platforms, if restrictive is true.
    */
-  public abstract boolean createFileExclusively(String pathname, boolean restrictive) throws IOException;
+  public abstract boolean createFileExclusively(String pathname) throws IOException;
 
   /**
    * Delete the file or directory denoted by the given abstract pathname,

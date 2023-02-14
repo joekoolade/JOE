@@ -238,7 +238,7 @@ public class JikesRVMSupport {
   public static void threadDied(Thread thread) {
     ThreadGroup threadGroup = thread.getThreadGroup();
     if (threadGroup != null) {
-      threadGroup.remove(thread);
+      threadGroup.threadTerminated(thread);
     } else {
       if (VM.VerifyAssertions) {
         VM._assert(threadGroup != null, "Every thread must have a threadGroup in OpenJDK");

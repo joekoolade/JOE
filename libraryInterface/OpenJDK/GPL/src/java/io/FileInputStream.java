@@ -29,8 +29,6 @@ import java.nio.channels.FileChannel;
 
 import org.jam.fs.JavaFile;
 
-import sun.nio.ch.FileChannelImpl;
-
 /**
  * A <code>FileInputStream</code> obtains input bytes from a file in a file
  * system. What files are available depends on the host environment.
@@ -401,13 +399,8 @@ public class FileInputStream extends InputStream
     {
       if (channel == null)
       {
-        channel = FileChannelImpl.open(fd, true, false, this);
-
-        /*
-         * Increment fd's use count. Invoking the channel's close() method will result
-         * in decrementing the use count set for the channel.
-         */
-        fd.incrementAndGetUseCount();
+    	  
+    	  throw new RuntimeException("No FileChannel implementation");
       }
       return channel;
     }

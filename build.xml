@@ -22,7 +22,7 @@
 
   <property name="helpers.dir" location="${build.dir}/build-helpers"/>
   <property name="helpers.classes" location="${helpers.dir}/classes"/>
-  <property name="helpers.java.version" value="1.6"/>
+  <property name="helpers.java.version" value="1.7"/>
 
   <property name="config.file" location="${jikesrvm.dir}/build/configs/${config.name}.properties"/>
 
@@ -54,14 +54,21 @@
 <!--
   <property name="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib"/>
   <property name="openjdk.classes.jar" value="rt.jar"/>
--->
   <condition property="openjdk.lib.dir" value="/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes">
   	<os family="mac"/>
   </condition>
   <condition property="openjdk.classes.jar" value="classes.jar">
   	<os family="mac"/>
   </condition>
+-->
 	
+  <condition property="openjdk.lib.dir" value="/Library/Java/JavaVirtualMachines/zulu-7.jdk/Contents/Home/jre/lib">
+  	<os family="mac"/>
+  </condition>
+  <condition property="openjdk.classes.jar" value="rt.jar">
+  	<os family="mac"/>
+  </condition>
+		
   <condition property="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib">
   	<os family="unix"/>
   </condition>
@@ -138,9 +145,9 @@
   <property name="bootimage.threads" value="1"/>
 
   <!-- Source versions -->
-  <property name="mmtk.java.version" value="1.6"/>
-  <property name="harness.java.version" value="1.6"/>
-  <property name="rvm.java.version" value="1.6"/>
+  <property name="mmtk.java.version" value="1.7"/>
+  <property name="harness.java.version" value="1.7"/>
+  <property name="rvm.java.version" value="1.7"/>
 
   <!-- Default heap layout -->
   <property name="target.heap-layout" value="32BIT"/>
@@ -625,7 +632,7 @@ Check to make sure all required properties are specified. This includes properti
   <macrodef name="GenerateFromTemplate">
     <element name="args"/>
     <sequential>
-      <java classname="org.jikesrvm.tools.template.GenerateFromTemplate" failonerror="true">
+      <java classname="org.jikesrvm.tools.template.GenerateFromTemplate" fork="yes" failonerror="true">
         <classpath>
           <pathelement location="${helpers.classes}"/>
         </classpath>
@@ -967,6 +974,7 @@ Check to make sure all required properties are specified. This includes properti
     </path>
     <GenerateFromTemplate>
       <args>
+      <!-- 	<arg value="-debug"/> -->
         <arg path="${options.dir}/Options.template"/>
         <arg path="${generated.java}/org/jikesrvm/Options.java"/>
         <arg value="BOOLEAN_DAT_FILES=${toString:template.vm.booleanopts.dat}"/>
@@ -1428,7 +1436,7 @@ Check to make sure all required properties are specified. This includes properti
                debugLevel="${debugLevel}"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
-               srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
+               srcdir="${main.java}:${generated.java}:${mmtk.java}:${options.java}:${generated.config.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
                sourcepath="${main.java}:${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
                includeantruntime="false">
           <bootclasspath>
@@ -1442,7 +1450,6 @@ Check to make sure all required properties are specified. This includes properti
           <include name="gnu/**/*.java"/>
           <include name="sun/**/*.java"/>
           <include name="java/**/*.java"/>
-          <include name="org/jikesrvm/classlibrary/**/*.java"/>
           <include name="${arch-helper-class}"/>
           <include name="com/ibm/tuningfork/**/*.java"/>
           <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
@@ -1458,6 +1465,16 @@ Check to make sure all required properties are specified. This includes properti
         <equals arg1="${classlib.provider}" arg2="OpenJDK"/>
       </conditions>
       <sequential>
+<!--        <javac destdir="${build.classes}"-->
+<!--               debug="true"-->
+<!--               fork="true"-->
+<!--               memoryMaximumSize="500M"-->
+<!--               debugLevel="${debugLevel}"-->
+<!--               source="${rvm.java.version}"-->
+<!--               target="${rvm.java.version}"-->
+<!--               srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"-->
+<!--               sourcepath="${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"-->
+<!--               includeantruntime="false">-->
         <javac destdir="${build.classes}"
                debug="true"
                fork="true"
@@ -1465,8 +1482,8 @@ Check to make sure all required properties are specified. This includes properti
                debugLevel="${debugLevel}"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
-               srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-               sourcepath="${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
+               srcdir="${main.java}:${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
+               sourcepath="${main.java}:${mmtk.java}:${mmtk-vm-rvm.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${jam.java}"
                includeantruntime="false">
           <bootclasspath>
             <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
@@ -1476,7 +1493,7 @@ Check to make sure all required properties are specified. This includes properti
           </classpath>
           <include name="Dummy.java"/>
           <include name="OptDummy.java"/>
-        	<include name="org/jikesrvm/**/*.java"/>
+          <include name="org/jikesrvm/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/openjdk/replacements/**"/>
           <include name="org/apache/**/*.java"/>
           <include name="sun/**/*.java"/>
@@ -1490,7 +1507,7 @@ Check to make sure all required properties are specified. This includes properti
           <include name="org/jikesrvm/tools/header_gen/GenArch_${target.arch}.java"/>
           <exclude name="org/jikesrvm/tools/header_gen.GenerateInterfaceDeclarations.java"/>
         </javac>
-        <!-- Compile libraryInterface again to detect problems relating to @ReplaceClass -->
+        <!-- Compile libraryInterface again to detect problems relating to @ReplaceClass
         <mkdir dir="${build.base}/replacements/java"/>
         <echo>Generating list of replacement classes</echo>
         <javac srcDir="${main.java}:${jam.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
@@ -1508,7 +1525,7 @@ Check to make sure all required properties are specified. This includes properti
             <pathelement location="${build.classes}"/>
           </classpath>
           <compilerarg value="-proc:only"/>
-          <!-- Processor needs to be specified explicitly, otherwise lookup will fail -->
+          <! Processor needs to be specified explicitly, otherwise lookup will fail 
           <compilerarg value="-processor"/>
           <compilerarg value="org.jikesrvm.tools.annotation_processing.ReplaceClassProcessor"/>
           <compilerarg value="-processorpath"/>
@@ -1516,6 +1533,7 @@ Check to make sure all required properties are specified. This includes properti
           <compilerarg value="-s"/>
           <compilerarg value="${build.base}/replacements/java"/>
         </javac>
+      	-->
       </sequential>
     </if>
 
@@ -1545,7 +1563,6 @@ Check to make sure all required properties are specified. This includes properti
       <compilerarg value="-s"/>
       <compilerarg value="${build.base}/syscall/java"/>
     </javac>
--->
     <echo message="second compile (from ${generated.java})"/>
     <if>
       <conditions>
@@ -1568,6 +1585,7 @@ Check to make sure all required properties are specified. This includes properti
         </javac>
       </sequential>
     </if>
+-->
 <!--
     <if>
       <conditions>
@@ -1748,7 +1766,7 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="gen-asm" depends="package,prepare-asm">
     <mkdir dir="${generated.asm}"/>
-    <java classname="org.jikesrvm.tools.asm.AnnotationAdder" failonerror="true">
+    <java classname="org.jikesrvm.tools.asm.AnnotationAdder" failonerror="true" fork="true">
       <classpath>
         <pathelement location="${asm.jar}"/>
         <pathelement location="${build.asm.classes}"/>
@@ -1853,7 +1871,7 @@ Check to make sure all required properties are specified. This includes properti
     <replaceregexp file="${build.base}/Primordials.txt" match=".*#.*" replace="" byline="true"/>
   </target>
 
-  <target name="build-bootimage-writer" depends="gen-asm">
+  <target name="build-bootimage-writer" depends="gen-asm,package">
     <property name="build.bootimage-writer.dir" value="${build.base}/bootimage-writer"/>
     <mkdir dir="${build.bootimage-writer.dir}"/>
     <javac srcdir="${basedir}/tools/bootImageWriter/src" destdir="${build.bootimage-writer.dir}" debug="true"
@@ -1867,8 +1885,8 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list">
     <path id="rvm.class.path">
+        <pathelement location="${build.rt.jar}"/>
       <pathelement location="${build.vm.jar}"/>
-      <pathelement location="${build.rt.jar}"/>
       <pathelement path="${build.extra.rt.jars}"/>
     </path>
     <property name="rvm.class.path" refid="rvm.class.path"/>
@@ -1924,6 +1942,10 @@ Check to make sure all required properties are specified. This includes properti
       <sysproperty key="mmtk.properties" value="${mmtk.properties}"/>
       <sysproperty key="rvm.properties" value="${build.base}/rvm.properties"/>
       <jvmarg value="-Xbootclasspath/a:${rvm.class.path}:ext/bin"/>
+    	<!-- 
+      <jvmarg value="-verbose:class"/>
+      <jvmarg value="-verbose:module"/>
+      -->
       <arg value="-log"/>
       <arg path="${build.base}/BootImageWriterOutput.txt"/>
       <arg value="-classpath"/>
@@ -1941,7 +1963,8 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.map"/>
       <arg line="${config.bootimage.writer.args}"/>
       <!-- <arg value="-trace"/> -->
-      <!-- <arg value="-detailed"/> -->
+      <arg value="-detailed"/>
+      <arg value="-detailed"/>
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>

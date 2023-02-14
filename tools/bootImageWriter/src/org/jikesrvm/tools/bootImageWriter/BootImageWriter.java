@@ -1450,21 +1450,21 @@ private static ArrayList<File> getMoreExtFiles(File dir)
         type.resolve();
       }
       // Resolve replacement classes
-      for (RVMType type : replacementClasses) {
-        if (verbosity.isAtLeast(DETAILED)) say("resolving previously skipped replacement class " + type);
-        boolean resolved = type.isResolved();
-        if (!resolved) {
-          String message = "Type for replacement class " + type + " wasn't resolved yet: is the class that's" +
-              " supposed to be replaced in the boot image? Note: Inner classes of the to be replaced" +
-              " class may also need to be in the boot image";
-          if (VM.VerifyAssertions) {
-            VM._assert(resolved, message);
-          } else {
-            VM.sysFail(message);
-          }
-        }
-        type.resolve();
-      }
+//      for (RVMType type : replacementClasses) {
+//        if (verbosity.isAtLeast(DETAILED)) say("resolving previously skipped replacement class " + type);
+//        boolean resolved = type.isResolved();
+//        if (!resolved) {
+//          String message = "Type for replacement class " + type + " wasn't resolved yet: is the class that's" +
+//              " supposed to be replaced in the boot image? Note: Inner classes of the to be replaced" +
+//              " class may also need to be in the boot image";
+//          if (VM.VerifyAssertions) {
+//            VM._assert(resolved, message);
+//          } else {
+//            VM.sysFail(message);
+//          }
+//        }
+//        type.resolve();
+//      }
 
       //
       // Now that all types are resolved, do some additional fixup before we do any compilation

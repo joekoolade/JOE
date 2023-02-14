@@ -75,7 +75,7 @@ public class Properties extends Options {
    * When true, it generates messages to the sysWrite stream summarizing
    * progress during the execution of VM.boot
    */
-  public static int verboseBoot = 1;
+  public static int verboseBoot = 10;
 
   /**
    * The following is set on by -X:verboseSignalHandling command line argument.

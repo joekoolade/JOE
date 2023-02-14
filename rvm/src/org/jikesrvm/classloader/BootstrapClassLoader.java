@@ -107,7 +107,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
   /** Prevent other classes from constructing one. */
   private BootstrapClassLoader() {
     super(null);
-    replacement = new ClassReplacement(this);
+//    replacement = new ClassReplacement(this);
   }
 
   /* Interface */
@@ -140,7 +140,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
         VM.sysWriteln("loadVMClass: trying to resolve className " + className);
         type = RVMClassLoader.defineClassInternal(className, dataInputStream, this);
         loaded.put(className, type);
-        if (VM.writingBootImage) replacement.attemptToLoadReplacementClassIfNeededForVmClass(className);
+//        if (VM.writingBootImage) replacement.attemptToLoadReplacementClassIfNeededForVmClass(className);
       } finally {
         try {
           // Make sure the input stream is closed.

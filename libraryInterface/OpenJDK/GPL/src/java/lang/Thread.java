@@ -721,7 +721,7 @@ class Thread implements Runnable {
      */
     private void exit() {
         if (group != null) {
-            group.remove(this);
+            group.threadTerminated(this);
             group = null;
         }
         /* Aggressively null out all reference fields: see bug 4006245 */
