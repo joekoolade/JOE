@@ -194,6 +194,13 @@ findEndSig:
         {
             VM.writeHex(buf[endLoc+i] & 0xFF); VM.sysWrite(' ');
         }
+        VM.sysWriteln();
+        for(int i=0; i < ENDHDR; i++)
+        {
+            VM.writeHex(endBuf.get(i) & 0xFF); VM.sysWrite(' ');
+        }
+        VM.sysWriteln();
+        VM.sysWriteln("array offset ", endBuf.arrayOffset());
         endBuf.order(ByteOrder.LITTLE_ENDIAN);
         zipEntries = endBuf.getShort(ENDTOT) & 0xFFFF;
         centSize = endBuf.getInt(ENDSIZ);

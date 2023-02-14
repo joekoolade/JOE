@@ -393,38 +393,33 @@ public class VM extends Properties {
 
     if (verboseBoot >= 1) VM.sysWriteln("Enabling GC");
     MemoryManager.enableCollection();
-    if (VM.BuildForOpenJDK) {
-      VM.safeToCreateStackTrace = true;
-    }
+    VM.safeToCreateStackTrace = true;
 
     // properties are needed for java.io.File which calls the constructor of UnixFileSystem
-    if (VM.BuildForOpenJDK) {
-      runClassInitializer("sun.misc.Version");
-      runClassInitializer("sun.misc.VM");
-      runClassInitializer("sun.misc.SharedSecrets");
-      runClassInitializer("java.io.Console");
-      runClassInitializer("java.util.concurrent.atomic.AtomicInteger");
-      runClassInitializer("java.io.FileDescriptor");
-      runClassInitializer("java.io.FileInputStream");
-      runClassInitializer("java.io.FileOutputStream");
-      //    runClassInitializer("java/lang/reflect/Modifier");
-      runClassInitializer("java.util.Collections");
-      runClassInitializer("sun.reflect.Reflection");
-//      runClassInitializer("java.lang.reflect.Proxy");
-//      runClassInitializer("java.util.concurrent.atomic.AtomicReferenceFieldUpdater$AtomicReferenceFieldUpdaterImpl");
-      runClassInitializer("java.io.BufferedInputStream");
-      runClassInitializer("java.nio.DirectByteBuffer");
-      runClassInitializer("java.nio.Bits$1");
-      runClassInitializer("java.nio.Bits");
-      runClassInitializer("sun.nio.cs.StreamEncoder");
-      runClassInitializer("java.nio.charset.Charset");
-      runClassInitializer("java.lang.Shutdown");
-      if (verboseBoot >= 1) VM.sysWriteln("initializing standard streams");
-      // Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
-      FileSystem.initializeStandardStreamsForOpenJDK();
-      runClassInitializer("java.io.FileSystem");
-    }
-
+	runClassInitializer("sun.misc.Version");
+	runClassInitializer("sun.misc.VM");
+	runClassInitializer("sun.misc.SharedSecrets");
+	runClassInitializer("java.io.Console");
+	runClassInitializer("java.util.concurrent.atomic.AtomicInteger");
+	runClassInitializer("java.io.FileDescriptor");
+	runClassInitializer("java.io.FileInputStream");
+	runClassInitializer("java.io.FileOutputStream");
+	// runClassInitializer("java/lang/reflect/Modifier");
+	runClassInitializer("java.util.Collections");
+	runClassInitializer("sun.reflect.Reflection");
+	// runClassInitializer("java.lang.reflect.Proxy");
+	// runClassInitializer("java.util.concurrent.atomic.AtomicReferenceFieldUpdater$AtomicReferenceFieldUpdaterImpl");
+	runClassInitializer("java.io.BufferedInputStream");
+	runClassInitializer("java.nio.DirectByteBuffer");
+	runClassInitializer("java.nio.Bits$1");
+	runClassInitializer("java.nio.Bits");
+	runClassInitializer("sun.nio.cs.StreamEncoder");
+	runClassInitializer("java.nio.charset.Charset");
+	runClassInitializer("java.lang.Shutdown");
+	if (verboseBoot >= 1) VM.sysWriteln("initializing standard streams");
+	// Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
+	FileSystem.initializeStandardStreamsForOpenJDK();
+	runClassInitializer("java.io.FileSystem");
 
     runClassInitializer("java.lang.Integer");
     runClassInitializer("java.lang.Integer$IntegerCache");
@@ -432,69 +427,18 @@ public class VM extends Properties {
 //    runClassInitializer("java.net.URL"); // needed for URLClassLoader
 
 
-    if (VM.BuildForOpenJDK) {
-       runClassInitializer("java.util.zip.ZipEntry");
-        runClassInitializer("java.util.zip.CRC32");
-    }
+    runClassInitializer("java.util.zip.ZipEntry");
+    runClassInitializer("java.util.zip.CRC32");
     runClassInitializer("java.util.zip.Inflater");
     runClassInitializer("java.util.zip.Deflate");
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.util.zip.DeflaterHuffman");
-      runClassInitializer("java.util.zip.InflaterDynHeader");
-      runClassInitializer("java.util.zip.InflaterHuffmanTree");
-    }
     // Run class initializers that require JNI
-    if (verboseBoot >= 1) VM.sysWriteln("Running late class initializers");
-    if (VM.BuildForGnuClasspath) {
-      System.loadLibrary("javaio");
-    }
-    runClassInitializer("java.lang.Math");
-    runClassInitializer("java.util.TreeMap");
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("gnu.java.nio.VMChannel");
-      runClassInitializer("gnu.java.nio.FileChannelImpl");
-    }
-    if (VM.BuildForGnuClasspath) {
-    runClassInitializer("java.io.FileDescriptor");
-      runClassInitializer("java.io.FilePermission");
-    }
-     runClassInitializer("java.util.jar.JarFile");
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.util.zip.ZipFile$PartialInputStream");
-    }
-     runClassInitializer("java.util.zip.ZipFile");
-    if (VM.BuildForOpenJDK) {
-      // runClassInitializer("java.io.ObjectStreamClass"); // needed because JNI needs
-      // to be executed to initialize the class
-    }
-    if (VM.BuildForOpenJDK) {
-      runClassInitializer("java.util.BitSet"); // needed when using IBM SDK as host JVM
-    }
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.lang.VMDouble");
-    }
-    if (!VM.BuildForOpenJDK) {
-    runClassInitializer("java.util.PropertyPermission");
-    }
-    runClassInitializer("org.jikesrvm.classloader.RVMAnnotation");
-    if (!VM.BuildForOpenJDK)
-    {
-      runClassInitializer("java.lang.annotation.RetentionPolicy");
-      runClassInitializer("java.lang.annotation.ElementType");
-    }
-    if (!VM.BuildForOpenJDK) {
-      runClassInitializer("java.lang.Thread$State");
-    }
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("gnu.java.nio.charset.EncodingHelper");
-      runClassInitializer("java.lang.VMClassLoader");
-    }
-
-    // Class initializers needed for dynamic classloading at runtime
-    if (VM.BuildForOpenJDK && !joeMode)
-    {
-      runClassInitializer("java.lang.Package");
-    }
+	if (verboseBoot >= 1) VM.sysWriteln("Running late class initializers");
+	runClassInitializer("java.lang.Math");
+	runClassInitializer("java.util.TreeMap");
+	runClassInitializer("java.util.jar.JarFile");
+	runClassInitializer("java.util.zip.ZipFile");
+	runClassInitializer("java.util.BitSet"); // needed when using IBM SDK as host JVM
+	runClassInitializer("org.jikesrvm.classloader.RVMAnnotation");
     runClassInitializer("java.nio.charset.Charset");
     runClassInitializer("sun.nio.cs.StandardCharsets");
     runClassInitializer("sun.nio.cs.Surrogate$Parser");
@@ -505,14 +449,6 @@ public class VM extends Properties {
     
     runClassInitializer("tests.java.net.DatagramClientServer");
     
-    if (!VM.BuildForOpenJDK) {
-      if (verboseBoot >= 1)
-        VM.sysWriteln("initializing standard streams");
-    // Initialize java.lang.System.out, java.lang.System.err, java.lang.System.in
-      FileSystem.initializeStandardStreamsForGnuClasspath();
-    }
-
-
     ///////////////////////////////////////////////////////////////
     // The VM is now fully booted.                               //
     // By this we mean that we can execute arbitrary Java code.  //
@@ -526,21 +462,10 @@ public class VM extends Properties {
     BaselineCompiler.fullyBootedVM();
     TraceEngine.engine.fullyBootedVM();
 
-    if (VM.BuildForOpenJDK && !VM.joeMode)
-    {
-      // Re-initialize boot classpath
-      runClassInitializer("sun.misc.Launcher");
-      runClassInitializer("sun.misc.Launcher$BootClassPathHolder");
-    }
-
     if (!joeMode)
     {
       runClassInitializer("java.util.logging.Level");
       runClassInitializer("java.util.logging.Logger");
-    }
-    if (VM.BuildForGnuClasspath) {
-      runClassInitializer("java.lang.reflect.Proxy");
-      runClassInitializer("java.lang.reflect.Proxy$ProxySignature");
     }
     
     // Initialize compiler that compiles dynamically loaded classes.
