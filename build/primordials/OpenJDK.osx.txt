@@ -334,3 +334,4 @@ Ljava/lang/ref/ReferenceQueue$Null;
 Ljava/util/Collections$UnmodifiableRandomAccessList;
 Ljava/util/HashMap$Holder;
 Ljava/util/Objects;
+Ljava/util/zip/FileHeaderEntry;

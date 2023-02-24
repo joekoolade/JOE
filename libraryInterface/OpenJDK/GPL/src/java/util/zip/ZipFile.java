@@ -63,6 +63,7 @@ class ZipFile implements ZipConstants {
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
     private static final int END_HDR_SIZE = 22;
+    private FileHeaderEntry fhEntries[];
     
     /**
      * Mode flag to open a zip file for reading.
@@ -149,6 +150,13 @@ class ZipFile implements ZipConstants {
         locsig = true;
     }
     
+    /*
+     * Is this a central directory file header
+     */
+    private boolean isFileHeader(int pos)
+    {
+    	return true;
+    }
     private void findEndSig(byte buf[]) throws GZIPException
     {
         int offset;
@@ -188,28 +196,84 @@ findEndSig:
         /*
          * Found the End signature. Now lets fill in some information
          */
-        VM.sysWriteln("endloc ", endLoc);
+//        VM.sysWriteln("endloc ", endLoc);
         ByteBuffer endBuf = ByteBuffer.wrap(buf, endLoc, ENDHDR);
-        for(int i=0; i < ENDHDR; i++)
-        {
-            VM.writeHex(buf[endLoc+i] & 0xFF); VM.sysWrite(' ');
-        }
-        VM.sysWriteln();
-        for(int i=0; i < ENDHDR; i++)
-        {
-            VM.writeHex(endBuf.get(i) & 0xFF); VM.sysWrite(' ');
-        }
-        VM.sysWriteln();
-        VM.sysWriteln("array offset ", endBuf.arrayOffset());
+//        for(int i=0; i < ENDHDR; i++)
+//        {
+//            VM.writeHex(buf[endLoc+i] & 0xFF); VM.sysWrite(' ');
+//        }
+//        VM.sysWriteln();
+//        for(int i=0; i < ENDHDR; i++)
+//        {
+//            VM.writeHex(endBuf.get(i) & 0xFF); VM.sysWrite(' ');
+//        }
+//        VM.sysWriteln();
+//        VM.sysWriteln("array offset ", endBuf.arrayOffset());
         endBuf.order(ByteOrder.LITTLE_ENDIAN);
         zipEntries = endBuf.getShort(ENDTOT) & 0xFFFF;
         centSize = endBuf.getInt(ENDSIZ);
         centHeader = endBuf.getInt(ENDOFF);
-        zipCommentSize = endBuf.getInt(ENDCOM);
+        zipCommentSize = endBuf.getShort(ENDCOM);
         VM.sysWrite("Entries ", zipEntries);
         VM.sysWrite(" CDsize "); VM.writeHex(centSize);
         VM.sysWrite(" CDoffset "); VM.writeHex(centHeader);
         VM.sysWriteln(" comment size ", zipCommentSize);
+        ByteBuffer centralDir = ByteBuffer.wrap(buf, centHeader, centSize);
+        centralDir.order(ByteOrder.LITTLE_ENDIAN);
+        fhEntries = new FileHeaderEntry[zipEntries];
+        
+        /*
+         * Read in central directory
+         */
+        ByteBuffer cdBuf = ByteBuffer.wrap(buf, centHeader, centSize);
+        cdBuf.order(ByteOrder.LITTLE_ENDIAN);
+        int entryPos = 0;
+        for(; entryPos < centSize; )
+        {
+        	if(isFileHeader(entryPos)==false)
+        	{
+        		VM.sysWriteln("Bad file header:", entryPos);
+        		VM.sysWriteln(" ", entryPos+centHeader);
+        		continue;
+        	}
+        	
+        	FileHeaderEntry entry = new FileHeaderEntry();
+        	entry.madeVersion = cdBuf.getShort(entryPos+CENVEM);
+        	entry.zipVersion = cdBuf.getShort(entryPos+CENVER);
+        	entry.flags = cdBuf.getShort(entryPos+CENFLG);
+        	entry.compressionMethod = cdBuf.getShort(entryPos+CENHOW);
+        	entry.time = cdBuf.getShort(entryPos+CENTIM);
+        	entry.date = cdBuf.getShort(entryPos+CENDAT);
+        	entry.crc = cdBuf.getShort(entryPos+CENCRC);
+        	entry.compressedSize = cdBuf.getInt(entryPos+CENSIZ);
+        	entry.uncompressedSize = cdBuf.getInt(entryPos+CENLEN);
+        	entry.nameLength = cdBuf.getShort(entryPos+CENNAM);
+        	entry.extraFieldLength = cdBuf.getShort(entryPos+CENEXT);
+        	entry.commentLength = cdBuf.getShort(entryPos+CENCOM);
+        	entry.disk = cdBuf.getShort(entryPos+CENDSK);
+        	entry.intAttr = cdBuf.getShort(entryPos+CENATT);
+        	entry.extAttr = cdBuf.getInt(entryPos+CENATX);
+        	entry.offset = cdBuf.getInt(entryPos+CENOFF);
+        	VM.sysWrite("version ", entry.madeVersion);
+        	VM.sysWriteln(" ", entry.zipVersion);
+        	VM.sysWrite("flags "); VM.sysWriteHex(entry.flags);
+        	VM.sysWriteln(" ", entry.compressionMethod);
+        	VM.sysWrite("time "); VM.sysWriteHex(entry.time);
+        	VM.sysWrite(" "); VM.sysWriteHex(entry.date);
+        	VM.sysWriteln();
+        	VM.sysWriteln("crc ", entry.crc);
+        	VM.sysWrite("sizes ", entry.compressedSize);
+        	VM.sysWriteln(" ", entry.uncompressedSize);
+        	VM.sysWrite("fields ", entry.nameLength);
+        	VM.sysWrite(" ", entry.extraFieldLength);
+        	VM.sysWriteln(" ", entry.commentLength);
+        	VM.sysWrite("disk/attr ", entry.disk);
+        	VM.sysWrite(" "); VM.sysWriteHex(entry.intAttr);
+        	VM.sysWrite(" "); VM.sysWriteHex(entry.extAttr); VM.sysWriteln();
+        	entryPos += entry.entrySize();
+        	VM.sysWrite("Next entry "); VM.sysWriteHex(entryPos+centHeader);
+        	VM.sysWriteln();
+        }
     }
     static {
 //        sun.misc.SharedSecrets.setJavaUtilZipFileAccess(

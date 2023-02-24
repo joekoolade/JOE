@@ -76,6 +76,7 @@ interface ZipConstants {
     static final int CENFLG = 8;        // encrypt, decrypt flags
     static final int CENHOW = 10;       // compression method
     static final int CENTIM = 12;       // modification time
+    static final int CENDAT = 14;		// modification date
     static final int CENCRC = 16;       // uncompressed file crc-32 value
     static final int CENSIZ = 20;       // compressed size
     static final int CENLEN = 24;       // uncompressed size

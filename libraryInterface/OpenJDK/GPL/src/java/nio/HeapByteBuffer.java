@@ -27,6 +27,8 @@
 
 package java.nio;
 
+import org.jikesrvm.VM;
+import org.jikesrvm.runtime.Magic;
 
 /**
 
@@ -67,7 +69,7 @@ class HeapByteBuffer
 
     HeapByteBuffer(byte[] buf, int off, int len) { // package-private
 
-        super(-1, off, off + len, buf.length, buf, 0);
+        super(-1, off, off + len, buf.length, buf, off);
         /*
         hb = buf;
         offset = 0;
