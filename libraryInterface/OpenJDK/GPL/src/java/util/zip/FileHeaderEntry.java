@@ -17,12 +17,22 @@ class FileHeaderEntry implements ZipConstants {
 	short intAttr;
 	int extAttr;
 	int offset;
-	int fileName;
-	int extraField;
-	int comment;
-
+	String fileName;
+	String extraField;
+	String comment;
+	
 	int entrySize()
 	{
 		return CENHDR + nameLength + extraFieldLength + commentLength;
+	}
+	
+	int extraOffset()
+	{
+		return CENHDR+nameLength;
+	}
+	
+	int commentOffset()
+	{
+		return extraOffset() + extraFieldLength;
 	}
 }

@@ -153,9 +153,9 @@ class ZipFile implements ZipConstants {
     /*
      * Is this a central directory file header
      */
-    private boolean isFileHeader(int pos)
+    private boolean isFileHeader(int signature)
     {
-    	return true;
+    	return signature == CENSIG;
     }
     private void findEndSig(byte buf[]) throws GZIPException
     {
@@ -228,9 +228,11 @@ findEndSig:
         ByteBuffer cdBuf = ByteBuffer.wrap(buf, centHeader, centSize);
         cdBuf.order(ByteOrder.LITTLE_ENDIAN);
         int entryPos = 0;
-        for(; entryPos < centSize; )
+        int zipEntry = 0;
+        for(; entryPos < centSize; zipEntry++)
         {
-        	if(isFileHeader(entryPos)==false)
+        	int signature = cdBuf.getInt(entryPos);
+        	if(isFileHeader(signature)==false)
         	{
         		VM.sysWriteln("Bad file header:", entryPos);
         		VM.sysWriteln(" ", entryPos+centHeader);
@@ -254,25 +256,10 @@ findEndSig:
         	entry.intAttr = cdBuf.getShort(entryPos+CENATT);
         	entry.extAttr = cdBuf.getInt(entryPos+CENATX);
         	entry.offset = cdBuf.getInt(entryPos+CENOFF);
-        	VM.sysWrite("version ", entry.madeVersion);
-        	VM.sysWriteln(" ", entry.zipVersion);
-        	VM.sysWrite("flags "); VM.sysWriteHex(entry.flags);
-        	VM.sysWriteln(" ", entry.compressionMethod);
-        	VM.sysWrite("time "); VM.sysWriteHex(entry.time);
-        	VM.sysWrite(" "); VM.sysWriteHex(entry.date);
-        	VM.sysWriteln();
-        	VM.sysWriteln("crc ", entry.crc);
-        	VM.sysWrite("sizes ", entry.compressedSize);
-        	VM.sysWriteln(" ", entry.uncompressedSize);
-        	VM.sysWrite("fields ", entry.nameLength);
-        	VM.sysWrite(" ", entry.extraFieldLength);
-        	VM.sysWriteln(" ", entry.commentLength);
-        	VM.sysWrite("disk/attr ", entry.disk);
-        	VM.sysWrite(" "); VM.sysWriteHex(entry.intAttr);
-        	VM.sysWrite(" "); VM.sysWriteHex(entry.extAttr); VM.sysWriteln();
+        	if(entry.nameLength > 0) entry.fileName = new String(buf, centHeader+entryPos+CENHDR, entry.nameLength);
         	entryPos += entry.entrySize();
-        	VM.sysWrite("Next entry "); VM.sysWriteHex(entryPos+centHeader);
-        	VM.sysWriteln();
+        	VM.sysWriteln(entry.fileName);
+        	fhEntries[zipEntry] = entry;
         }
     }
     static {
