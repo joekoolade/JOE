@@ -1,5 +1,6 @@
 package org.jam.net;
 
+import org.jam.board.pc.Platform;
 import org.jam.driver.net.NetworkQueue;
 import org.jam.driver.net.Packet;
 import org.jam.net.ethernet.Ethernet;

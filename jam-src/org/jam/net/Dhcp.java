@@ -39,8 +39,8 @@ implements Runnable
         r = new Random();
         try
         {
-            socket = new DatagramSocket();
-            socket.bind(new InetSocketAddress(DHCPConstants.BOOTP_REPLY_PORT));
+            socket = new DatagramSocket(new InetSocketAddress(DHCPConstants.BOOTP_REPLY_PORT));
+            System.out.println("dhcp socket");
         }
         catch (SocketException e)
         {

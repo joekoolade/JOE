@@ -335,3 +335,6 @@ Ljava/util/Collections$UnmodifiableRandomAccessList;
 Ljava/util/HashMap$Holder;
 Ljava/util/Objects;
 Ljava/util/zip/FileHeaderEntry;
+Ljava/io/DataOutputStream;
+Ljava/io/FilterOutputStream;
+Ljava/io/OutputStream;

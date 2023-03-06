@@ -157,6 +157,8 @@
   <property name="hamcrest.jar" value="components/hamcrest-all-1.3.0RC2.jar"/>
   <property name="mockito.jar" value="components/mockito-all-1.9.5-rc1.jar"/>
 
+  <property name="build.joert.jar" location="${build.base}/joert.jar"/>
+
   <!-- **************************************************************************** -->
   <!-- *                                                                          * -->
   <!-- *             Property initialization section of the build                 * -->
@@ -1436,8 +1438,8 @@ Check to make sure all required properties are specified. This includes properti
                debugLevel="${debugLevel}"
                source="${rvm.java.version}"
                target="${rvm.java.version}"
-               srcdir="${main.java}:${generated.java}:${mmtk.java}:${options.java}:${generated.config.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
-               sourcepath="${main.java}:${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${main.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
+               srcdir="${main.java}:${generated.java}:${mmtk.java}:${options.java}:${generated.config.java}:${jam.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
+               sourcepath="${main.java}:${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${jam.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
                includeantruntime="false">
           <bootclasspath>
             <pathelement location="${classpath.lib.dir}/classpath.jar"/>
@@ -1500,6 +1502,7 @@ Check to make sure all required properties are specified. This includes properti
           <include name="java/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/**/*.java"/>
           <include name="org/jam/**/*.java"/>
+          <include name="org/dhcp4java/**/*.java"/>
           <include name="${arch-helper-class}"/>
           <include name="com/ibm/tuningfork/**/*.java"/>
           <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
@@ -1883,7 +1886,32 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
-  <target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list">
+  <target name="gen-joert" depends="prepare-ant-tasks">
+  	<if>
+  		<conditions>
+  			<not>
+  				<resourceexists>
+  					<file file="${build.joert.jar}"/>
+  				</resourceexists>
+  			</not>
+  		</conditions>
+  		<sequential>
+  			<jar destfile="${build.joert.jar}" compress="false">
+  				<zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}">
+  					<exclude name="java/awt/**"/>
+  					<exclude name="javax/swing/**"/>
+  					<exclude name="sun/awt/**"/>
+  					<exclude name="com/sun/awt/**"/>
+					<exclude name="com/sun/swing/**"/>
+					<exclude name="com/sun/java/swing/**"/>
+					<exclude name="sun/swing/**"/>
+  				</zipfileset>
+  			</jar>
+  		</sequential>
+  	</if>
+  </target>
+
+  <target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list,gen-joert">
     <path id="rvm.class.path">
         <pathelement location="${build.rt.jar}"/>
       <pathelement location="${build.vm.jar}"/>
@@ -1923,6 +1951,7 @@ Check to make sure all required properties are specified. This includes properti
   		<file file="${build.base}/testMode"/>
   	 </resourceexists>
   	</condition>
+  	
     <echo message="Building bootimage. Output redirected to : ${build.base}/BootImageWriterOutput.txt"/>
     <echo message="MMTk properties = ${mmtk.properties}"/>
     <echo message="Number of threads for compilation = ${readableThreadCount}"/>
@@ -1982,7 +2011,7 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="${build.base}/jam.out"/>
       <arg value="${testModeFlag}"/>
       <arg value="-javaSystemJar"/>
-      <arg path="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
+      <arg path="${build.joert.jar}"/>
     </java>
 
     <delete file="${build.base}/testMode" quiet="true"/>

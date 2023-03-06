@@ -25,6 +25,7 @@ import org.jam.board.pc.Platform;
 import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
+import org.jam.net.Dhcp;
 import org.jam.runtime.RunMain;
 import org.jam.runtime.StartUp;
 import org.jam.runtime.SystemJars;
@@ -609,54 +610,54 @@ public class VM extends Properties {
     {
         VM.sysWriteln(e.toString());
     }
-    VM.shutdown(1);
+//    VM.shutdown(1);
 
     /*
      * Load external classes
      */
-    ExternalFile extFile[] = BootRecord.the_boot_record.files;
-    if(extFile == null) VM.sysWriteln("No external files");
-    else VM.sysWriteln("External files = ", extFile.length);
-    for(int i=0; i < extFile.length; i++)
-    {
-        VM.sysWriteln("Loading external class " + extFile[i].name);
-        loadExternalClass(extFile[i]);
-    }
-    RunMain runMain = new RunMain("tests.java.net.DatagramClientServer");
-    runMain.run();
-    
-    // End of boot thread.
-    //
-    if (VM.TraceThreads) RVMThread.trace("VM.boot", "completed - terminating");
-    if (verboseBoot >= 2) {
-      VM.sysWriteln("Boot sequence completed; finishing boot thread");
-    }
-
-    if(BootRecord.the_boot_record.testMode)
-    {
-        int i;
-        String[] classes = BootRecord.the_boot_record.testClasses;
-        int prevVerbose = verboseBoot;
-        verboseBoot = 2;
-        for(i=0; i < classes.length; i++)
-        {
-            VM.sysWriteln("Initializing class: " + classes[i]);
-            runClassInitializer(classes[i]);;
-        }
-        verboseBoot = prevVerbose;
-        classes = BootRecord.the_boot_record.runMainClasses;
-        for(i=0; i < classes.length; i++)
-        {
-          VM.sysWriteln("Starting Main class: " + classes[i]);
-        }
-        StartUp.testModeRun(classes);
-    }
+//    ExternalFile extFile[] = BootRecord.the_boot_record.files;
+//    if(extFile == null) VM.sysWriteln("No external files");
+//    else VM.sysWriteln("External files = ", extFile.length);
+//    for(int i=0; i < extFile.length; i++)
+//    {
+//        VM.sysWriteln("Loading external class " + extFile[i].name);
+//        loadExternalClass(extFile[i]);
+//    }
+//    RunMain runMain = new RunMain("tests.java.net.DatagramClientServer");
+//    runMain.run();
+//    
+//    // End of boot thread.
+//    //
+//    if (VM.TraceThreads) RVMThread.trace("VM.boot", "completed - terminating");
+//    if (verboseBoot >= 2) {
+//      VM.sysWriteln("Boot sequence completed; finishing boot thread");
+//    }
+//
+//    if(BootRecord.the_boot_record.testMode)
+//    {
+//        int i;
+//        String[] classes = BootRecord.the_boot_record.testClasses;
+//        int prevVerbose = verboseBoot;
+//        verboseBoot = 2;
+//        for(i=0; i < classes.length; i++)
+//        {
+//            VM.sysWriteln("Initializing class: " + classes[i]);
+//            runClassInitializer(classes[i]);;
+//        }
+//        verboseBoot = prevVerbose;
+//        classes = BootRecord.the_boot_record.runMainClasses;
+//        for(i=0; i < classes.length; i++)
+//        {
+//          VM.sysWriteln("Starting Main class: " + classes[i]);
+//        }
+//        StartUp.testModeRun(classes);
+//    }
     Thread napiThread = new Thread(new NapiManager());
     napiThread.setName("NAPI Manager");
     VM.sysWriteln("Starting NAPI");
     napiThread.start();
     VM.sysWriteln("NAPI done");
-//    Platform.net.inetBoot();
+	Dhcp.discover(Platform.net);
     VM.sysWriteln("INET boot done");
     
     

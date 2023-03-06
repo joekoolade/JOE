@@ -145,9 +145,19 @@ class ZipFile implements ZipConstants {
     {
         name = "";
         
+        /*
+         * Check for LOC header
+         */
+        if(buffer[0]=='P' && buffer[1]=='K' && buffer[2]==3 && buffer[3]==4)
+        {
+        	locsig = true;
+        }
+        else
+        {
+        	locsig = false;
+        }
         findEndSig(buffer);
         total = buffer.length;
-        locsig = true;
     }
     
     /*
@@ -256,9 +266,20 @@ findEndSig:
         	entry.intAttr = cdBuf.getShort(entryPos+CENATT);
         	entry.extAttr = cdBuf.getInt(entryPos+CENATX);
         	entry.offset = cdBuf.getInt(entryPos+CENOFF);
-        	if(entry.nameLength > 0) entry.fileName = new String(buf, centHeader+entryPos+CENHDR, entry.nameLength);
+        	if(entry.nameLength > 0) 
+        	{
+        		entry.fileName = new String(buf, centHeader+entryPos+CENHDR, entry.nameLength);
+        	}
+        	if(entry.extraFieldLength > 0)
+        	{
+        		entry.extraField = new String(buf, centHeader+entryPos+CENHDR, entry.extraFieldLength);
+        	}
+        	if(entry.commentLength > 0)
+        	{
+        		entry.comment = new String(buf, centHeader+entryPos+CENHDR, entry.commentLength);
+        	}
         	entryPos += entry.entrySize();
-        	VM.sysWriteln(entry.fileName);
+//        	VM.sysWriteln(entry.fileName);
         	fhEntries[zipEntry] = entry;
         }
     }

@@ -38,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jam.net.ByteOrder;
+import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
@@ -729,10 +730,11 @@ public class DHCPPacket implements Cloneable, Serializable {
         // prepare output buffer, pre-sized to maximum buffer length
         // default buffer is half the maximum size of possible packet
         // (this seams reasonable for most uses, worst case only doubles the buffer size once
-        System.out.println("dhcppakcet.serialize");
+        System.out.println("dhcppacket.serialize1");
         ByteArrayOutputStream outBStream = new ByteArrayOutputStream(_DHCP_MAX_MTU / 2);
+        VM.sysWriteln("outBstream");
         DataOutputStream      outStream  = new DataOutputStream(outBStream);
-        System.out.println("dhcppakcet.serialize#");
+        VM.sysWriteln("dhcppacket.serialize#");
         try {
             outStream.writeByte (this.op);
             outStream.writeByte (this.htype);
@@ -754,22 +756,22 @@ public class DHCPPacket implements Cloneable, Serializable {
                 outStream.writeInt(_MAGIC_COOKIE);
 
                 // parse output options in creation order (LinkedHashMap)
-                System.out.println("dhcppakcet.serialize##");
-                for (DHCPOption opt : this.getOptionsCollection()) {
-                    assert (opt != null);
-                    assert (opt.getCode() != DHO_PAD);
-                    assert (opt.getCode() != DHO_END);
-                    assert (opt.getValueFast() != null);
-                    int size = opt.getValueFast().length;
-                    assert (size >= 0);
-                    if (size > 255) {
-                    	throw new DHCPBadPacketException("Options larger than 255 bytes are not yet supported");
-                    }
-                    outStream.writeByte(opt.getCode());        // output option code
-                    outStream.writeByte(size);    // output option length
-                    outStream.write(opt.getValueFast());    // output option data
-                }
-                System.out.println("dhcppakcet.serialize###");
+                System.out.println("dhcppacket.serialize##");
+//                for (DHCPOption opt : this.getOptionsCollection()) {
+////                    assert (opt != null);
+////                    assert (opt.getCode() != DHO_PAD);
+////                    assert (opt.getCode() != DHO_END);
+////                    assert (opt.getValueFast() != null);
+//                    int size = opt.getValueFast().length;
+////                    assert (size >= 0);
+//                    if (size > 255) {
+//                    	throw new DHCPBadPacketException("Options larger than 255 bytes are not yet supported");
+//                    }
+//                    outStream.writeByte(opt.getCode());        // output option code
+//                    outStream.writeByte(size);    // output option length
+//                    outStream.write(opt.getValueFast());    // output option data
+//                }
+                VM.sysWriteln("dhcppacket.serialize###");
                 // mark end of options
                 outStream.writeByte(DHO_END);
             }
@@ -786,7 +788,7 @@ public class DHCPPacket implements Cloneable, Serializable {
 
             // final packet is here
             byte[] data = outBStream.toByteArray();
-            System.out.println("dhcppakcet.serialize4");
+            VM.sysWriteln("dhcppacket.serialize4");
 
             // do some post sanity checks
             if (data.length > _DHCP_MAX_MTU) {
