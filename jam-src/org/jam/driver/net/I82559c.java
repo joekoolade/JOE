@@ -20,7 +20,7 @@ import org.jam.net.NetworkInterface;
 import org.jam.net.Route;
 import org.jam.net.ethernet.Ethernet;
 import org.jam.net.ethernet.EthernetAddr;
-import org.jam.net.inet4.ArpTable;
+import org.jam.net.inet4.ArpThread;
 import org.jam.net.inet4.InetAddress;
 import org.jam.net.inet4.SendPacket;
 import org.jam.system.NoDeviceFoundException;
@@ -117,7 +117,7 @@ implements NetworkInterface, BufferFree
   private NetworkQueue txQueue;
   
   private static final RuntimeException freePacketException = new RuntimeException("i82559c:free()");
-private static final boolean DEBUG_TX = true;
+  private static final boolean DEBUG_TX = true;
   
 /*
  * I82559C parameters
@@ -223,8 +223,9 @@ private static final boolean DEBUG_TX = true;
   
   private long txPackets=0;
   private long txBytes=0;
-private InetAddress ipAddress;
-private int netmask;
+  private InetAddress ipAddress;
+  private int netmask;
+  private ArpThread arp;
   
   public I82559c() throws NoDeviceFoundException
   {
@@ -246,7 +247,6 @@ private int netmask;
     rfdFreeList = new LinkedList<ReceiveFrameDescriptor>();
     transmitting = false;
     txQueue = new NetworkQueue();
-//    arpTable = new ArpTable();
     setNetworkInterface(this);
     Route.addRoute(InetAddress.HOST, InetAddress.HOST, 0xffffffff, this);
   }
@@ -254,9 +254,9 @@ private int netmask;
   private void setNetworkInterface(I82559c i82559c) {
 	// TODO Auto-generated method stub
 	
-}
+  }
 
-public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
+  public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
   {
       this();
       ipAddress = inet;
@@ -1182,9 +1182,8 @@ public I82559c(InetAddress inet, int netmask) throws NoDeviceFoundException
 		
 	}
 
-	@Override
-	public EthernetAddr arp(InetAddress inet) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public EthernetAddr arp(InetAddress inet) {
+//		return arp.arp(inet);
+//	}
 }

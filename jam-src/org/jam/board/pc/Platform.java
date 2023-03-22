@@ -91,12 +91,12 @@ public class Platform {
         catch (NoDeviceFoundException e)
         {
             // TODO Auto-generated catch block
-            VM.sysWriteln("No VirtioNet device found!");
+            VM.sysWriteln("I8225c device found!");
         }
         net.boot();
         timer = new PcSystemTimer();
         localHost = new LoopBack();
         InetNexus.boot();
-
+        InetNexus.setArpInterface(net);
     }
 }

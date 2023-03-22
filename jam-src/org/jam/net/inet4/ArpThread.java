@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.jam.net.NetworkInterface;
+import org.jam.net.Route;
 import org.jam.net.ethernet.EthernetAddr;
 
 /**
@@ -19,6 +20,8 @@ implements Runnable
 {
     private ArpTable arpTable;
     private HashMap<Integer, Arp> arpRequests;
+    private NetworkInterface nif;
+    static private HashMap<NetworkInterface, ArpThread> netifArpTable;
     
     public ArpThread()
     {
@@ -56,6 +59,13 @@ implements Runnable
         {
             request.notify();
         }
+    }
+    
+    public void setInterface(NetworkInterface netIf)
+    {
+    	nif = netIf;
+    	if(netifArpTable==null) netifArpTable = new HashMap<>();
+    	netifArpTable.put(netIf, this);
     }
     
     public void request(InetAddress senderIp, InetAddress targetIp, NetworkInterface netIf)
@@ -115,6 +125,44 @@ implements Runnable
             e.printStackTrace();
         }
         
+    }
+
+    public static EthernetAddr arp(NetworkInterface netif, InetAddress inet)
+    {
+    	ArpThread arp = netifArpTable.get(netif);
+    	return arp.arp(inet);
+    }
+    
+    public EthernetAddr arp( InetAddress inet)
+    {
+        /*
+         * The easiest case. The address is broadcast or host
+         */
+        if(inet.isBroadcast() || inet.isHost())
+        {
+            return EthernetAddr.BROADCAST_ADDRESS;
+        }
+        /*
+         * The easy case. arp table has the mac address
+         * then just return
+         */
+        if(!arpTable.hasInet(inet.inet4()))
+        {
+            Route route = Route.find(inet);
+            // ARP for the address or the gateway
+            if((inet.inet4() & nif.getNetMask()) != (inet.inet4() & nif.getNetMask()))
+            {
+                inet = route.getGateway();
+            }
+            System.out.println("Create arp request: "+inet);
+            request(nif.getInetAddress(), inet, nif);
+        }
+        /*
+         * If this point is reached then the 
+         * arp entry should be present
+         */
+        System.out.println("arp.findDevice");
+        return arpTable.findDevice(inet.inet4());        
     }
 
     public EthernetAddr findDevice(int inet)

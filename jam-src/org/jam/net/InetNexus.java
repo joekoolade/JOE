@@ -39,6 +39,11 @@ implements Runnable
 		inetThread.start();
 	}
 
+	public static void setArpInterface(NetworkInterface netIf)
+	{
+		arp.setInterface(netIf);
+	}
+	
     private void processPackets()
     {
         System.out.println("INET nexus started");
