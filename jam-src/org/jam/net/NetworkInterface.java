@@ -14,7 +14,6 @@ public interface NetworkInterface {
     void setMtu(int mtu);
     void setNetMask(int mask);
     void setInetAddress(InetAddress inetAddress);
-//    EthernetAddr arp(InetAddress inet);
     EthernetAddr getEthernetAddress();
     void setEthernetAddress(EthernetAddr macAddress);
     void poll();

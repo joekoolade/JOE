@@ -130,7 +130,6 @@ public class InetPacket implements Packet {
 		 * to get the mac  address of the destination
 		 */
 	    System.out.println("Inet send "+netInterface);
-//		EthernetAddr destinationMac = ArpThread.arp(netInterface, connection.getRemote());
 		EthernetAddr destinationMac = ArpThread.arp(netInterface, connection.getRemote());
 		System.out.println("Arp done");
 		netInterface.send(destinationMac, this, EtherType.IPV4.type());

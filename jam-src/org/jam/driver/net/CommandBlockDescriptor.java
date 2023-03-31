@@ -21,6 +21,8 @@ public class CommandBlockDescriptor {
   private final static int SIZE = 64;
   private static final boolean DEBUG_CONFIG = true;
   private static final boolean DEBUG_IASETUP = true;
+  private static final boolean DEBUG_TX = true;
+
   private byte[] buffer;
   private Address bufferAddr;
   private CommandBlockDescriptor next,previous;
@@ -120,6 +122,7 @@ public class CommandBlockDescriptor {
     }
   }
 
+  
   /**
    * @return
    */
@@ -192,14 +195,19 @@ public class CommandBlockDescriptor {
     buffer[1] = 0;
     buffer[2] = TRANSMIT | SF;
     buffer[15] = 1;  // tbd count
-    buffer[14] = (byte) 0xe0;  // transmit threshold
+    buffer[14] = (byte) 0x8;  // transmit threshold
     // setup the transmit buffer descriptor address
     bufferAddr.store(bufferAddr.plus(16), Offset.zero().plus(8));
     // transmit buffer 0 address
 //    VM.sysWrite("packet: ", packet.getAddress()); VM.sysWriteln(" ",packet.getSize());
     bufferAddr.store(packet.getPacketAddress(), Offset.zero().plus(16));
     bufferAddr.store(packet.getSize(), Offset.zero().plus(20));
-    VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWriteln(" ", packet.getAddress());
+    if(DEBUG_TX)
+    {
+	    VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWrite(" ", packet.getAddress());
+	    VM.sysWriteln(" ", packet.getSize());
+	    VM.hexDump(packet.getArray(), 0, packet.getSize());
+    }
   }
 
     public boolean isComplete()

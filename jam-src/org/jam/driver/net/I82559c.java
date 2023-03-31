@@ -201,7 +201,7 @@ implements NetworkInterface, BufferFree
 /* 12 */   (byte)0x61, // 96bit IFS
 /* 13 */   (byte)0,
 /* 14 */   (byte)0,
-/* 15 */   (byte)0xC8, // CRS and CDT
+/* 15 */   (byte)0xC9, // CRS and CDT
 /* 16 */   (byte)0,
 /* 17 */   (byte)0,
 /* 18 */   (byte)0xF3, // padding/stripping enabled, priority FC disabled
@@ -214,6 +214,7 @@ implements NetworkInterface, BufferFree
   private boolean transmitting;
   private int napiWork=NAPI_WORK;
   private int napiSchedule=NAPI_SCHEDULE;
+  private int statistics[];
   
   // Statistics
   private int statsBuffersCleaned=0;
@@ -243,6 +244,7 @@ implements NetworkInterface, BufferFree
     eepromAddrLength = 8;
     eepromSize = 0;
     phyAddress = 1;
+    statistics = new int[20];
     rfds = new ReceiveFrameDescriptor[RFD_COUNT];
     rfdFreeList = new LinkedList<ReceiveFrameDescriptor>();
     transmitting = false;
@@ -355,6 +357,7 @@ implements NetworkInterface, BufferFree
           {
               txPackets++;
               txBytes += toClean.transmitBytes();
+              if(DEBUG_TX) VM.sysWriteln("TX bytes ", toClean.transmitBytes());
               toClean.cleanCbd();
               txCleaned = true;
           }
@@ -420,8 +423,9 @@ implements NetworkInterface, BufferFree
    */
   private void cucDumpAddress()
   {
-    // TODO Auto-generated method stub
-    
+	    scbWait();
+	    scbPointer(Magic.objectAsAddress(statistics));
+	    scbCommand(CucCommand.LOAD_DUMP_ADDRESS);
   }
 
   /**
@@ -551,7 +555,21 @@ implements NetworkInterface, BufferFree
     scbCommand(CucCommand.LOAD_BASE);
   }
 
+  public void dumpStatCounters()
+  {
+	  scbWait();
+	  scbCommand(CucCommand.DUMP_STATS_COUNTERS);
+  }
   
+  public void printStatistics()
+  {
+	  int i=0;
+	  for(; i < statistics.length; i++)
+	  {
+		  VM.sysWrite(i);
+		  VM.sysWriteln(": ", statistics[i]);
+	  }
+  }
   /**
    * Acknowledge all interrupts
    */

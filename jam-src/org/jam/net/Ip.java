@@ -1,5 +1,6 @@
 package org.jam.net;
 
+import org.jam.board.pc.Platform;
 import org.jam.driver.net.Packet;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
@@ -19,7 +20,7 @@ public class Ip {
 	private final static Offset CHECKSUM_FIELD = Offset.fromIntSignExtend(10);
 	private final static Offset SRCADDR_FIELD = Offset.fromIntSignExtend(12);
 	private final static Offset DSTADDR_FIELD = Offset.fromIntSignExtend(16);
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final boolean DEBUG_RX = true;
 	
     private IpStats stats;

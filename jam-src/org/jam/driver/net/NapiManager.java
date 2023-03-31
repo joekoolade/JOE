@@ -6,6 +6,7 @@
  */
 package org.jam.driver.net;
 
+import org.jam.board.pc.Platform;
 import org.jam.net.NetworkInterface;
 import org.jam.util.Iterator;
 
@@ -30,7 +31,7 @@ public class NapiManager implements Runnable {
     }
   }
 
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
 
   private static LinkedList<NapiEntry> networkInterfaces = new LinkedList<NapiEntry>();
 
@@ -137,7 +138,11 @@ public class NapiManager implements Runnable {
           networkInterface = networkInterfaces.get(interfaceSlot);
           Thread.sleep(networkInterface.timer);
           networkInterface.netIf.poll();
-          if(DEBUG && ((++debugTimer%100)==0)) VM.sysWrite('*');
+          if(DEBUG && ((++debugTimer%100)==0))
+          {
+      		Platform.net.dumpStatCounters();
+    		Platform.net.printStatistics();
+          }
           int size = networkInterfaces.size();
           interfaceSlot++;
           interfaceSlot = interfaceSlot % size;
