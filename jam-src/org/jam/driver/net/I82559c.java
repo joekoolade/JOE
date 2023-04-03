@@ -14,6 +14,7 @@ import org.jam.util.LinkedList;
 
 import org.jam.board.pc.Pci;
 import org.jam.board.pc.PciDevice;
+import org.jam.board.pc.Platform;
 import org.jam.cpu.intel.Tsc;
 import org.jam.net.InetNexus;
 import org.jam.net.NetworkInterface;
@@ -71,7 +72,13 @@ implements NetworkInterface, BufferFree
   private final static Offset    PORT                         = Offset.fromIntZeroExtend(8);
   private final static Offset    EEPROM                       = Offset.fromIntZeroExtend(14);
   private final static Offset    MDI                          = Offset.fromIntZeroExtend(16);
-  private final static Offset    RX_DMA_BYTE_COUNT            = Offset.fromIntZeroExtend(20);
+  private final static Offset    RXBCR			              = Offset.fromIntZeroExtend(20);
+  private final static Offset    ERI			              = Offset.fromIntZeroExtend(24);
+  private final static Offset    FC_THRESH		              = Offset.fromIntZeroExtend(25);
+  private final static Offset    FC_CTL 		              = Offset.fromIntZeroExtend(26);
+  private final static Offset    PMDR			              = Offset.fromIntZeroExtend(27);
+  private final static Offset	 GEN_CTL					  = Offset.fromIntZeroExtend(28);
+  private final static Offset	 GEN_STATUS					  = Offset.fromIntZeroExtend(29);
 
   // eeprom control signals
   private static final int EESK = 1;
@@ -200,8 +207,8 @@ implements NetworkInterface, BufferFree
 /* 11 */   (byte)0,
 /* 12 */   (byte)0x61, // 96bit IFS
 /* 13 */   (byte)0,
-/* 14 */   (byte)0,
-/* 15 */   (byte)0xC9, // CRS and CDT
+/* 14 */   (byte)0xF2,
+/* 15 */   (byte)0xC8, // CRS and CDT
 /* 16 */   (byte)0,
 /* 17 */   (byte)0,
 /* 18 */   (byte)0xF3, // padding/stripping enabled, priority FC disabled
@@ -293,6 +300,9 @@ implements NetworkInterface, BufferFree
     VM.sysWrite(":", VM.intAsHexString(eeprom[1]&0xFFFF));
     VM.sysWriteln(":", VM.intAsHexString(eeprom[2]&0xFFFF));
     up();
+    VM.sysWriteln("phy status: ", VM.intAsHexString(bmsr()&0xFFFF));
+    VM.sysWriteln("phy ctl ", VM.intAsHexString(bmcr()&0xFFFF));
+    VM.sysWriteln("82555 status: ", VM.intAsHexString(status_ctl_82555()&0xFFFF));
   }
 
   /**
@@ -353,11 +363,15 @@ implements NetworkInterface, BufferFree
       for(toClean=cbdToClean; toClean.isComplete();)
       {
           if(DEBUG_TX) VM.sysWriteln("Cleaning "+VM.addressAsHexString(Magic.objectAsAddress(toClean)));
-          if(toClean.hasBuffer())
+    	  toClean.printCbd();
+          if(toClean.isTransmit())
           {
               txPackets++;
               txBytes += toClean.transmitBytes();
-              if(DEBUG_TX) VM.sysWriteln("TX bytes ", toClean.transmitBytes());
+              if(DEBUG_TX) 
+              {
+            	  VM.sysWriteln("TX bytes ", toClean.transmitBytes());
+              }
               toClean.cleanCbd();
               txCleaned = true;
           }
@@ -368,21 +382,6 @@ implements NetworkInterface, BufferFree
       {
           
       }
-  }
-
-  /**
-   * Start the chip and the timer
-   */
-  private void startReceiver()
-  {
-    if(running != RuState.SUSPENDED) return;
-    
-    scbWait();
-    scbPointer(rfds[rfdToUse].getAddress());
-    scbCommand(RucCommand.START);
-    
-    // Start the timer
-    NapiManager.addInterface(this);
   }
 
   private void xmitFrame(Packet packet)
@@ -450,6 +449,10 @@ implements NetworkInterface, BufferFree
     {
       scbPointer(cmd);
     }
+    if(cuSuspended())
+    {
+    	cucCommand = RESUME;
+    }
     scbCommand(cucCommand);
     while(cmd.notComplete())
     {
@@ -457,8 +460,11 @@ implements NetworkInterface, BufferFree
     }
     if(cmd.notOk())
     {
-      VM.sysWriteln("Configure status: ", cmd.getSatus());
+      VM.sysWriteln("Configure status: ", cmd.getStatus());
     }
+    VM.sysWrite("executed: ", cmd.getCmd()&0xFF);
+    VM.sysWrite(" ctl:", VM.intAsHexString(cmd.getControl() & 0xFF));
+    VM.sysWriteln(" sts:", VM.intAsHexString(cmd.getStatus()&0xFF));
     return true;
   }
 
@@ -477,6 +483,7 @@ implements NetworkInterface, BufferFree
       {
         cucCommand = RESUME;
         cbdToSend = cbdToSend.next();
+        cbdAvailable++;
       }
       else
       {
@@ -600,6 +607,18 @@ implements NetworkInterface, BufferFree
     return csr.loadByte(SCB_STATUS);
   }
 
+  private byte cruStatus()
+  {
+	  return csr.loadByte();
+  }
+  
+  /*
+   * Return true if CU is in suspended state
+   */
+  private boolean cuSuspended()
+  {
+	  return (cruStatus() & 0xc0) == 0x40;
+  }
   /**
    * Waits for previous command to be accepted
    * @return false if timeout occurred waiting for command, true if command accepted
@@ -666,6 +685,56 @@ implements NetworkInterface, BufferFree
     csr.store(cmd.getScbPointer(), SCB_GENERAL_PTR);
   }
 
+  private final int getRxbcr()
+  {
+	  return csr.loadInt(RXBCR);
+  }
+  
+  private final byte getEri()
+  {
+	  return csr.loadByte(ERI);
+  }
+  
+  private final byte getFcThresh()
+  {
+	  return csr.loadByte(FC_THRESH);
+  }
+  
+  private final byte getFcCtl()
+  {
+	  return csr.loadByte(FC_CTL);
+  }
+  
+  private final byte getPmdr()
+  {
+	  return csr.loadByte(PMDR);
+  }
+  
+  private final byte getGenCtl()
+  {
+	  return csr.loadByte(GEN_CTL);
+  }
+  
+  private final byte getGenStatus()
+  {
+	  return csr.loadByte(GEN_STATUS);
+  }
+
+  public void printCruStatus()
+  {
+	  VM.sysWriteln("ru/cu stats: ", VM.intAsHexString(cruStatus()&0xFF));
+  }
+  
+  public void printStatus()
+  {
+//	  VM.sysWrite("rxbcr: ", VM.intAsHexString(getRxbcr()));
+//	  VM.sysWrite(" eri: ", VM.intAsHexString(getEri()));
+//	  VM.sysWrite(" fc_ctrl: ", VM.intAsHexString(getFcCtl()));
+//	  VM.sysWriteln(" fc_thresh: ", VM.intAsHexString(getFcThresh()));
+	  VM.sysWrite("pmdir: ", VM.intAsHexString(getPmdr()));
+	  VM.sysWrite(" ctrl: ", VM.intAsHexString(getGenCtl()));
+	  VM.sysWriteln(" status: ", VM.intAsHexString(getGenStatus()));
+  }
   /**
    * 
    */
@@ -731,6 +800,22 @@ implements NetworkInterface, BufferFree
   }
 
   /**
+   * Start the chip and the timer
+   */
+  private void startReceiver()
+  {
+    if(running != RuState.SUSPENDED) return;
+    
+    scbWait();
+    scbPointer(rfds[rfdToUse].getAddress());
+    scbCommand(RucCommand.START);
+    
+    // Start the timer
+    NapiManager.addInterface(this);
+    VM.sysWriteln("rx started: ", VM.intAsHexString(cruStatus() & 0xFF));
+  }
+
+/**
    * Allocate receive descriptors
    */
   private void allocateReceiveFrames()
@@ -843,7 +928,7 @@ implements NetworkInterface, BufferFree
   private void rxClean()
   {
     boolean restartRequired = false;
-    boolean printstats =false;
+    boolean printstats =true;
     /*
      * Keep processing buffers until one that is not complete
      */
@@ -893,7 +978,7 @@ implements NetworkInterface, BufferFree
     {
       restartRequired = true;
     }
-    if(printstats && DEBUG_RX)
+    if(printstats && DEBUG_RX && (rfdToClean>0))
     {
       VM.sysWrite(" rxClean: ", rfdToClean);
       VM.sysWrite(" ", rfdToUse);
@@ -912,6 +997,8 @@ implements NetworkInterface, BufferFree
     {
       xmitFrame(packet);
     }
+	Platform.net.dumpStatCounters();
+	Platform.net.printStatistics();
   }
   /**
    * public interface for transmitting a packet
@@ -940,7 +1027,7 @@ implements NetworkInterface, BufferFree
       // Should throw an exception
       return;
     }
-    VM.sysWrite("status: ", VM.intAsHexString(stat)); VM.sysWriteln(" ", VM.intAsHexString(bmcr));
+    VM.sysWrite("phy status: ", VM.intAsHexString(stat)); VM.sysWriteln(" ", VM.intAsHexString(bmcr));
     short idLo = physId1();
     short idHi = physId2();
     phyId = (int)idHi<<16 | (int)idLo & 0xFFFF;
@@ -979,6 +1066,11 @@ implements NetworkInterface, BufferFree
     return mdioRead(MdiRegister.CONTROL);
   }
 
+  private short status_ctl_82555()
+  {
+	  return mdioRead(MdiRegister.STATUS_CTL_EXT);
+  }
+  
   /**
    * @param control
    * @return

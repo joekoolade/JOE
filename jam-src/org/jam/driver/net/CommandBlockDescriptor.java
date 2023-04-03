@@ -73,6 +73,16 @@ public class CommandBlockDescriptor {
   {
     buffer[3] &= ~SUSPEND;
   }
+  
+  public void setEL()
+  {
+	  buffer[3] |= EL;
+  }
+  
+  public void removeEL()
+  {
+	  buffer[3] &= ~EL;
+  }
   /**
    * @param configureParameters  
    */
@@ -88,7 +98,7 @@ public class CommandBlockDescriptor {
     {
       for(int i=0; i<configureParameters.length; i++)
       {
-        VM.sysWrite("config ", i); VM.sysWriteln(" = ", VM.intAsHexString(buffer[i+8]));
+        VM.sysWrite("config ", i); VM.sysWriteln(" = ", VM.intAsHexString(buffer[i+8]&0xFF));
       }
     }
   }
@@ -172,11 +182,15 @@ public class CommandBlockDescriptor {
   /**
    * @return
    */
-  public short getSatus()
+  public byte getStatus()
   {
-    return bufferAddr.loadShort();
+    return buffer[1];
   }
 
+  public byte getControl()
+  {
+	  return buffer[3];
+  }
   /**
    * @return integer value of command buffer address
    */
@@ -210,11 +224,20 @@ public class CommandBlockDescriptor {
     }
   }
 
+  public byte getCmd()
+  {
+	  return buffer[2];
+  }
+  
     public boolean isComplete()
     {
         return (buffer[1] & COMPLETE) != 0;
     }
     
+    public boolean isTransmit()
+    {
+    	return (buffer[2] & 0x7) == TRANSMIT;
+    }
     public void cleanCbd()
     {
         bufferAddr.store(0, Offset.zero().plus(16));
@@ -230,4 +253,11 @@ public class CommandBlockDescriptor {
         return bufferAddr.loadInt(Offset.zero().plus(20)) & 0x7FFF;
     }
   
+    public void printCbd()
+    {
+    	VM.sysWriteln("cbd 0: ", VM.intAsHexString(bufferAddr.loadInt()));
+    	VM.sysWriteln("cbd 1: ", bufferAddr.loadInt(Offset.zero().plus(4)));
+    	VM.sysWriteln("cbd 2: ", bufferAddr.loadInt(Offset.zero().plus(8)));
+    	VM.sysWriteln("cbd 3: ", bufferAddr.loadInt(Offset.zero().plus(12)));
+    }
 }

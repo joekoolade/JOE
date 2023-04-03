@@ -140,8 +140,10 @@ public class NapiManager implements Runnable {
           networkInterface.netIf.poll();
           if(DEBUG && ((++debugTimer%100)==0))
           {
-      		Platform.net.dumpStatCounters();
-    		Platform.net.printStatistics();
+//      		Platform.net.dumpStatCounters();
+//    		Platform.net.printStatistics();
+//        	  Platform.net.printStatus();
+//        	  Platform.net.printCruStatus();
           }
           int size = networkInterfaces.size();
           interfaceSlot++;
