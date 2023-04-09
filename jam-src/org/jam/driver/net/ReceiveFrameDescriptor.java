@@ -63,7 +63,7 @@ public class ReceiveFrameDescriptor implements Packet
     public void link(ReceiveFrameDescriptor receiveFrameDescriptor)
     {
         // set the link address field
-        rfdAddr.store(receiveFrameDescriptor.rfdAddr, LINK_ADDR);
+        rfdAddr.store(receiveFrameDescriptor.rfdAddr.toInt(), LINK_ADDR);
     }
 
     /**

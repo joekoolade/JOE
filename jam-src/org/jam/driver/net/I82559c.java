@@ -388,6 +388,7 @@ implements NetworkInterface, BufferFree
   {
     CommandBlockDescriptor cbd = getCommandBlock();
     cbd.configureTransmitPacket(packet);
+    cbd.printCbd();
     execute(cbd);
     VM.sysWriteln("xmit packet done!");
   }
@@ -476,7 +477,7 @@ implements NetworkInterface, BufferFree
     // set SUSPEND on the new command
     cbd.suspend();
     // unset SUSPEND on the previous command
-    cbd.previous().unsetSuspend();
+    cbd.previous().unsuspend();
     while(moreToSend())
     {
       if(execCommand(cbdToSend))

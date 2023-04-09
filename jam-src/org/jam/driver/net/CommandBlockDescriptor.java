@@ -69,7 +69,7 @@ public class CommandBlockDescriptor {
     buffer[3] |= SUSPEND;
   }
   
-  public void unsetSuspend()
+  public void unsuspend()
   {
     buffer[3] &= ~SUSPEND;
   }
@@ -205,22 +205,24 @@ public class CommandBlockDescriptor {
   public void configureTransmitPacket(Packet packet)
   {
     bufferAddr.store(0, Offset.zero().plus(12));
+	suspend();
     buffer[0] = 0;
     buffer[1] = 0;
     buffer[2] = TRANSMIT | SF;
     buffer[15] = 1;  // tbd count
     buffer[14] = (byte) 0x8;  // transmit threshold
     // setup the transmit buffer descriptor address
-    bufferAddr.store(bufferAddr.plus(16), Offset.zero().plus(8));
+    bufferAddr.store(bufferAddr.plus(16).toInt(), Offset.zero().plus(8));
     // transmit buffer 0 address
-//    VM.sysWrite("packet: ", packet.getAddress()); VM.sysWriteln(" ",packet.getSize());
-    bufferAddr.store(packet.getPacketAddress(), Offset.zero().plus(16));
+    bufferAddr.store(packet.getPacketAddress().toInt(), Offset.zero().plus(16));
     bufferAddr.store(packet.getSize(), Offset.zero().plus(20));
     if(DEBUG_TX)
     {
-	    VM.sysWrite("xmit packet: ", bufferAddr); VM.sysWrite(" ", packet.getAddress());
+	    VM.sysWrite("xmit packet: ", bufferAddr); 
+	    VM.sysWrite(" ", packet.getAddress());
 	    VM.sysWriteln(" ", packet.getSize());
-	    VM.hexDump(packet.getArray(), 0, packet.getSize());
+	    printCbd();
+//	    VM.hexDump(packet.getArray(), 0, packet.getSize());
     }
   }
 
@@ -255,9 +257,15 @@ public class CommandBlockDescriptor {
   
     public void printCbd()
     {
+    	VM.sysWriteln("cbd addr: ", bufferAddr);
     	VM.sysWriteln("cbd 0: ", VM.intAsHexString(bufferAddr.loadInt()));
     	VM.sysWriteln("cbd 1: ", bufferAddr.loadInt(Offset.zero().plus(4)));
     	VM.sysWriteln("cbd 2: ", bufferAddr.loadInt(Offset.zero().plus(8)));
-    	VM.sysWriteln("cbd 3: ", bufferAddr.loadInt(Offset.zero().plus(12)));
+    	if(isTransmit())
+    	{
+        	VM.sysWriteln("cbd 3: ", bufferAddr.loadInt(Offset.zero().plus(12)));
+        	VM.sysWriteln("cbd 4: ", bufferAddr.loadInt(Offset.zero().plus(16)));
+        	VM.sysWriteln("cbd 5: ", bufferAddr.loadInt(Offset.zero().plus(20)));
+    	}
     }
 }
