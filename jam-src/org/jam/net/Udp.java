@@ -151,6 +151,7 @@ public class Udp {
         if(DEBUG_TRACE) VM.sysWriteln("get new inet packet");
         this.packet = new InetPacket(packet, connection);
         this.packet.setHeadroom(UDP_HEADER_SIZE);
+        remotePort = packet.getPort();
         if(DEBUG_TRACE) VM.sysWriteln("New inet packet");
         send();
     }

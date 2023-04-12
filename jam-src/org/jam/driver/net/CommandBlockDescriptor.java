@@ -61,7 +61,7 @@ public class CommandBlockDescriptor {
    */
   public void link(CommandBlockDescriptor commandBlockDescriptor)
   {
-    bufferAddr.store(commandBlockDescriptor.bufferAddr, LINK_OFFSET);
+    bufferAddr.store(commandBlockDescriptor.bufferAddr.toInt(), LINK_OFFSET);
   }
 
   public void suspend()
