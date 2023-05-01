@@ -1911,7 +1911,7 @@ Check to make sure all required properties are specified. This includes properti
   	</if>
   </target>
 
-  <target name="build-bootimage" depends="build-bootimage-writer,gen-primordial-list,gen-joert">
+  <target name="build-bootimage" depends="choose-classlib,build-bootimage-writer,gen-primordial-list,gen-joert">
     <path id="rvm.class.path">
         <pathelement location="${build.rt.jar}"/>
       <pathelement location="${build.vm.jar}"/>
@@ -1971,7 +1971,7 @@ Check to make sure all required properties are specified. This includes properti
       <sysproperty key="mmtk.properties" value="${mmtk.properties}"/>
       <sysproperty key="rvm.properties" value="${build.base}/rvm.properties"/>
       <jvmarg value="-Xbootclasspath/a:${rvm.class.path}:ext/bin"/>
-    	<!-- 
+<!--
       <jvmarg value="-verbose:class"/>
       <jvmarg value="-verbose:module"/>
       -->

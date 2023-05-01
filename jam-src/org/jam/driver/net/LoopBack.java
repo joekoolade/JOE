@@ -73,7 +73,6 @@ public class LoopBack implements NetworkInterface {
 		this.inetAddress = inetAddress;
 	}
 
-	@Override
 	public EthernetAddr arp(InetAddress inet) {
 		return null;
 	}
