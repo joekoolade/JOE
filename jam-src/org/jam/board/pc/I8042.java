@@ -1,5 +1,6 @@
 package org.jam.board.pc;
 
+import org.jam.cpu.intel.Tsc;
 import org.jam.system.DeviceTimeout;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
@@ -36,13 +37,24 @@ public class I8042 {
 	private final int CMD_CTL_WCTR = 0x60;
 	private final int CMD_CTL_TEST = 0xaa;
 	
+	private final int CTL_TEST_PASS = 0x55;
+	private final int CTL_TEST_FAIL = 0xfc;
+	
 	private final int CMD_KBD_TEST    = 0xab;
 	private final int CMD_KBD_DISABLE = 0xad;
 	private final int CMD_KBD_ENABLE  = 0xae;
 	
-	private final int TIMEOUT = 10000;
+	private final int TIMEOUT = 5;
+	private final int BUFFER_SIZE = 16;
+	
+	private final DeviceTimeout deviceTimeout;
+	
 	private int initialConfig;
 	
+	public I8042()
+	{
+	    deviceTimeout = new DeviceTimeout();
+	}
 	/**
 	 * Read status from CSR register
 	 * @return i8042 status
@@ -115,7 +127,9 @@ public class I8042 {
 		return (i < TIMEOUT);
 	}
 	
-	private final void udelay(int i) {
+	private final void udelay(int usecs) 
+	{
+	    Tsc.udelay(usecs);
 	}
 
 	/**
@@ -136,7 +150,8 @@ public class I8042 {
 	{
 		int config;
 		
-		
+		disableKeyboard();
+		flush();
 		try {
 			initialConfig = readControlConfiguration();
 		} catch (DeviceTimeout e) {
@@ -155,33 +170,89 @@ public class I8042 {
 			return;
 		}
 		
+		if(selftest() == false) VM.sysWriteln("kbd selftest failed");
 		flush();
 	}
 	
-	private final  void flush() {
-		// TODO Auto-generated method stub
-		
+	private final  void flush() 
+	{
+	    int val;
+	    int count = 0;
+	    int data;
+	    
+	    while(((val = status()) & STR_OBF) > 0)
+	    {
+	        if(count++ < BUFFER_SIZE)
+	        {
+	            udelay(50);
+	            data = readData();
+	            VM.sysWriteln("flushing, " + data);
+	        }
+	        else
+	        {
+	            break;
+	        }
+	    }
 	}
 
-	public final  void disableKeyboard() {
-		// TODO Auto-generated method stub
-		
+	public final  void disableKeyboard() 
+	{
+		if(canWrite())
+		{
+		    control((byte)CMD_KBD_DISABLE);
+		}
+		else
+		{
+		    VM.sysWriteln("keyboard disable failed");
+		}
 	}
 
 	public final void enableKeyboard()
 	{
-		
+		if(canWrite())
+		{
+		    control((byte)CMD_KBD_ENABLE);
+		}
+		else
+		{
+		    VM.sysWriteln("keyboard enable failed");
+		}
 	}
+	
 	public final  void setupKeyboard()
 	{
 		
 	}
 	
-	public final boolean selftest()
+	final boolean selftest()
 	{
+	    int i=0;
+	    int result=0;
 	    
-		return true;
+	    while(i < 5)
+	    {
+    	    if(canWrite())
+    	    {
+    	        control((byte)CMD_CTL_TEST);
+    	        if(canRead())
+    	        {
+    	            result = readData();
+    	            if(result == CTL_TEST_PASS)
+    	            {
+    	                return true;
+    	            }
+    	        }
+    	    }
+    	    udelay(50000);
+    	    i++;
+	    }
+	    if(result != CTL_TEST_FAIL)
+	    {
+	        VM.sysWriteln("unknown test result " + result);
+	    }
+		return false;
 	}
+	
 	public final boolean keyboardTest()
 	{
 		return true;
@@ -190,13 +261,35 @@ public class I8042 {
 	public final int readControlConfiguration()
 	throws DeviceTimeout
 	{
-		return 0;
+	    int config;
+	    
+	    if(canWrite())
+	    {
+	        control((byte)CMD_CTL_RCTR);
+	        if(canRead())
+	        {
+	            config = readData();
+	        }
+	        else throw deviceTimeout;
+	    }
+	    else throw deviceTimeout;
+	    
+		return config;
 	}
 	
 	public final void writeControlConfiguration(byte config)
 	throws DeviceTimeout
 	{
-		
+        if(canWrite())
+        {
+            control((byte)CMD_CTL_WCTR);
+            if(canWrite())
+            {
+                writeData(config);
+            }
+            else throw deviceTimeout;
+        }
+        else throw deviceTimeout;
 	}
 	
 	

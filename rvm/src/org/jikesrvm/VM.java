@@ -21,6 +21,7 @@ import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 import java.io.IOException;
 import java.util.zip.ZipFile;
 
+import org.jam.board.pc.I8042;
 import org.jam.board.pc.Platform;
 import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
@@ -571,6 +572,8 @@ public class VM extends Properties {
      */
     Platform.boot();
 
+    I8042 kbd = new I8042();
+    kbd.init();
     // Put the IdleThread on the queue
     if (verboseBoot >= 1)
     {

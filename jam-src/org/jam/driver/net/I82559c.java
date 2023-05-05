@@ -100,7 +100,7 @@ implements NetworkInterface, BufferFree
   private static final int       WAIT_SCB_FAST     = 20;           // Try 20 iterations first before delay
   
   private static final boolean DEBUG_CONFIG = false;
-  private static final boolean DEBUG_RX = true;
+  private static final boolean DEBUG_RX = false;
   private static final int CBD_COUNT = 256;
   private static final boolean DEBUG_ACKS = false;
   private static final int NAPI_WORK = 16;
