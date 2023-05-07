@@ -582,7 +582,6 @@ public class DHCPPacket implements Cloneable, Serializable {
      */
     protected DHCPPacket marshall(byte[] buffer, int offset, int length,
                                   InetAddress address, int port, boolean strict) {
-        System.out.println("dhcppacket.marshall");
         // do some basic sanity checks
         // ibuff, offset & length are valid?
         if (buffer == null) {
@@ -609,7 +608,6 @@ public class DHCPPacket implements Cloneable, Serializable {
                     ") max MTU is " + _DHCP_MAX_MTU);
         }
         
-        System.out.println("dhcppacket.marshall#");
         // copy address and port
         this.address = address; // no need to clone, InetAddress is immutable
         this.port    = port;
@@ -631,7 +629,6 @@ public class DHCPPacket implements Cloneable, Serializable {
         copy(buffer, CHADDR_OFFSET, this.chaddr);
         copy(buffer, SNAME_OFFSET, this.sname);
         copy(buffer, FILE_OFFSET, this.file);
-        System.out.println("dhcppacket.marshall## "+Integer.toHexString(bufferAddr.toInt()));
 
         // check for DHCP MAGIC_COOKIE
         this.isDhcp = true;
@@ -640,18 +637,17 @@ public class DHCPPacket implements Cloneable, Serializable {
             this.isDhcp = false;
         }
 
-        System.out.println("dhcppacket.marshall3");
         Offset index = Offset.fromIntZeroExtend(OPTIONS_OFFSET.toInt()+4);
         if (this.isDhcp) {    // is it a full DHCP packet or a simple BOOTP?
             // DHCP Packet: parsing options
             int type = 0;
             while (true) {
-                System.out.println("dhcppacket.marshall index "+index.toInt());
+//                System.out.println("dhcppacket.marshall index "+index.toInt());
                 int r = bufferAddr.loadByte(index); // inBStream.read();
                 index = index.plus(1);
                 
                 type = (byte) r;
-                System.out.println("dhcppacket.marshall type "+type);
+//                System.out.println("dhcppacket.marshall type "+type);
                 if (type == DHO_PAD) { continue; } // skip Padding
                 if (type == DHO_END) { break;    } // break if end of options
 
@@ -670,14 +666,12 @@ public class DHCPPacket implements Cloneable, Serializable {
 
                 this.setOption(new DHCPOption((byte) type, unit_opt));  // store option
             }
-            System.out.println("dhcppacket.marshall7");
             this.truncated = (type != DHO_END); // truncated options?
             if (strict && this.truncated) {
                 System.out.println("Packet seems to be truncated");
             	// throw new DHCPBadPacketException("Packet seems to be truncated");
             }
         }
-        System.out.println("dhcppacket.marshall6");
 
         // put the remaining in padding
         this.padding = new byte[DHCPConstants.MAX_LEN-index.toInt()];
@@ -730,11 +724,8 @@ public class DHCPPacket implements Cloneable, Serializable {
         // prepare output buffer, pre-sized to maximum buffer length
         // default buffer is half the maximum size of possible packet
         // (this seams reasonable for most uses, worst case only doubles the buffer size once
-        System.out.println("dhcppacket.serialize1");
         ByteArrayOutputStream outBStream = new ByteArrayOutputStream(_DHCP_MAX_MTU / 2);
-        VM.sysWriteln("outBstream");
         DataOutputStream      outStream  = new DataOutputStream(outBStream);
-        VM.sysWriteln("dhcppacket.serialize#");
         try {
             outStream.writeByte (this.op);
             outStream.writeByte (this.htype);
@@ -756,7 +747,6 @@ public class DHCPPacket implements Cloneable, Serializable {
                 outStream.writeInt(_MAGIC_COOKIE);
 
                 // parse output options in creation order (LinkedHashMap)
-                System.out.println("dhcppacket.serialize##");
 //                for (DHCPOption opt : this.getOptionsCollection()) {
 ////                    assert (opt != null);
 ////                    assert (opt.getCode() != DHO_PAD);
@@ -771,7 +761,6 @@ public class DHCPPacket implements Cloneable, Serializable {
 //                    outStream.writeByte(size);    // output option length
 //                    outStream.write(opt.getValueFast());    // output option data
 //                }
-                VM.sysWriteln("dhcppacket.serialize###");
                 // mark end of options
                 outStream.writeByte(DHO_END);
             }
@@ -788,7 +777,6 @@ public class DHCPPacket implements Cloneable, Serializable {
 
             // final packet is here
             byte[] data = outBStream.toByteArray();
-            VM.sysWriteln("dhcppacket.serialize4");
 
             // do some post sanity checks
             if (data.length > _DHCP_MAX_MTU) {

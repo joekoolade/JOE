@@ -51,9 +51,16 @@ public class I8042 {
 	
 	private int initialConfig;
 	
+	private final boolean INTR_DEBUG = true;
+	
+	private int queue[];
+	private int head, tail;
+	
 	public I8042()
 	{
 	    deviceTimeout = new DeviceTimeout();
+	    queue = new int[128];
+	    head = tail = 0;
 	}
 	/**
 	 * Read status from CSR register
@@ -140,12 +147,27 @@ public class I8042 {
 		return (status() & STR_IBF) > 0;
 	}
 
-	public  void interrupt()
+	public final void interrupt()
 	{
 		int status = status();
-		
+		if((status & STR_OBF) == 0)
+		{
+		    if(INTR_DEBUG) VM.sysWriteln("kbd intr, no data");
+		    return;
+		}
+		int data = readData();
+		VM.sysWrite("kbd ", VM.intAsHexString(data));
+		VM.sysWrite(" // ");
+		queue[head++] = data;
+		head &= 0x7f;
 	}
 	
+	public final int readKey()
+	{
+	    int key = queue[tail++];
+	    tail &= 0x7f;
+	    return key;
+	}
 	public  void init()
 	{
 		int config;

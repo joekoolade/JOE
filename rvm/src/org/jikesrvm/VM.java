@@ -572,8 +572,6 @@ public class VM extends Properties {
      */
     Platform.boot();
 
-    I8042 kbd = new I8042();
-    kbd.init();
     // Put the IdleThread on the queue
     if (verboseBoot >= 1)
     {

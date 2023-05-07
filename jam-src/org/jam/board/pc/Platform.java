@@ -40,6 +40,7 @@ public class Platform {
     public static Apic apic;
     public static Timer timer;
     public static LoopBack localHost;
+    public static I8042 kbd;
     
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
@@ -98,5 +99,9 @@ public class Platform {
         localHost = new LoopBack();
         InetNexus.boot();
         InetNexus.setArpInterface(net);
+        
+        kbd = new I8042();
+        kbd.init();
+
     }
 }
