@@ -16,7 +16,7 @@ package org.jam.board.pc;
  * +-----+---------------+-----------------------+
  * | 0   | 2             | 0x5f                  |
  * +-----+---------------+-----------------------+
- * | 1   | 1             | disabled              |
+ * | 1   | 1             | 0x21                  |
  * +-----+---------------+-----------------------+
  * | 2   | -             | disabled              |
  * +-----+---------------+-----------------------+
@@ -62,18 +62,20 @@ public class QemuIoApic extends IOApic {
     // PIT interrupt
     setLogicalDestination(2, 0xFF);
     setInterruptVector(2, 0x5F);
-//    unmaskInterrupt(2);
     // COM2
 //    setLogicalDestination(3, 0xFF);
 //    setInterruptVector(3, 0x58);
     // COM1
     setLogicalDestination(4, 0xFF);
     setInterruptVector(4, 0x57);
-//    unmaskInterrupt(4);
+    // keyboard
+    setLogicalDestination(1, 0xFF);
+    setInterruptVector(1, 0x56);
   }
   
   public void enableInterrupts()
   {
+      unmaskInterrupt(1);
       unmaskInterrupt(2);
       unmaskInterrupt(4);
   }

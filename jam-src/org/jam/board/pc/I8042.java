@@ -182,8 +182,8 @@ public class I8042 {
 		}
 		VM.sysWriteln("8042 config ", VM.intAsHexString(initialConfig));
 		config = initialConfig;
-		config |= CTR_KBDDIS;
-		config &= ~CTR_KBDINT;
+		config &= ~CTR_KBDDIS;
+		config |= CTR_KBDINT;
 		
 		try {
 			writeControlConfiguration((byte)config);
@@ -194,6 +194,7 @@ public class I8042 {
 		
 		if(selftest() == false) VM.sysWriteln("kbd selftest failed");
 		flush();
+		enableKeyboard();
 	}
 	
 	private final  void flush() 

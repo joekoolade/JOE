@@ -347,11 +347,14 @@ public final class Idt implements SegmentDescriptorTypes {
            // The interrupt handler annotation will emit the IRET
            // good bye
        }
+       /**
+        * IRQ1, keyboard interrupt
+        */
        @InterruptHandler
        public static void int33()
        {
-           VM.sysFail("IRQ1");
-       }
+           VM.sysFailTrap("int33");       }
+       
        @InterruptHandler
        public static void int34()
        {
@@ -653,7 +656,17 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int86()
        {
-         VM.sysFailTrap("int86");
+           Magic.saveContext();
+           RVMThread.interruptLevel++;
+           Trace.irqStart(33);
+           Platform.kbd.interrupt();
+           Platform.apic.eoi();
+           Trace.irqEnd(33);
+          // Restore back to the interrupt stack and context
+           RVMThread.interruptLevel--;
+           Magic.restoreThreadContextNoErrCode();
+           // The interrupt handler annotation will emit the IRET
+           // good bye
        }
        @InterruptHandler
        public static void int87()
