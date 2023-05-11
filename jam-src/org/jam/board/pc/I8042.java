@@ -156,8 +156,7 @@ public class I8042 {
 		    return;
 		}
 		int data = readData();
-		VM.sysWrite("kbd ", VM.intAsHexString(data));
-		VM.sysWrite(" // ");
+		VM.sysWriteln("kbd ", VM.intAsHexString(data));
 		queue[head++] = data;
 		head &= 0x7f;
 	}
@@ -180,11 +179,12 @@ public class I8042 {
 			VM.sysWriteln("read config error");
 			return;
 		}
-		VM.sysWriteln("8042 config ", VM.intAsHexString(initialConfig));
 		config = initialConfig;
 		config &= ~CTR_KBDDIS;
 		config |= CTR_KBDINT;
-		
+		VM.sysWrite("8042 config ", VM.intAsHexString(initialConfig));
+		VM.sysWriteln(" ", VM.intAsHexString(config));
+
 		try {
 			writeControlConfiguration((byte)config);
 		} catch (DeviceTimeout e) {
