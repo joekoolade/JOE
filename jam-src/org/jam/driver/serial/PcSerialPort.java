@@ -105,25 +105,6 @@ public class PcSerialPort {
 		transmitIndex = 0;
 		receiveIndex = 0;
 		
-        /*
-         * Allocate irq handler stack
-         */
-        // stack = MemoryManager.newContiguousIntArray(STACK_SIZE); // new
-        // int[STACK_SIZE];
-        /*
-         * Put in the sentinel
-         */
-        // stack[STACK_SIZE-1] = 0; // IP = 0
-        // stack[STACK_SIZE-2] = 0; // FP = 0
-        // stack[STACK_SIZE-3] = 0; // cmid = 0
-        
-        /*
-         * On a stack switch, the new stack is popped so need to count for this
-         * in the stackTop field. This space will contain the interrupted thread's
-         * stack pointer.
-         */
-        // stackTop = Magic.objectAsAddress(stack).plus((STACK_SIZE-4)<<2);
-        
         outputStream = new SerialOutputStream(this);
         VM.sysWriteln("output stream: ", Magic.objectAsAddress(outputStream));
         printStream = new PrintStream(outputStream);
@@ -211,6 +192,9 @@ public class PcSerialPort {
 	    {
 	        // reset interrupt by reading the RBR register
 	        comPort.ioLoadByte(RBR);
+	        char val = read();
+	        receiveBuffer.add(val);
+	        VM.sysWriteln("serial rx: ", val);
 	    }
 	    if(interruptId == IIR_MSI)
 	    {
@@ -237,7 +221,7 @@ public class PcSerialPort {
         return stackTop;
     }
 	
-	public char read() 
+    final char read() 
 	{
 		return comPort.ioLoadChar(RBR);
 	}
