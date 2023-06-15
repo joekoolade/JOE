@@ -2,6 +2,7 @@ package org.jam.board.pc;
 
 import org.jam.cpu.intel.Tsc;
 import org.jam.system.DeviceTimeout;
+import org.jam.util.LinkedList;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
 
@@ -56,11 +57,14 @@ public class I8042 {
 	private int queue[];
 	private int head, tail;
 	
+	private LinkedList subscribers;
+	
 	public I8042()
 	{
 	    deviceTimeout = new DeviceTimeout();
 	    queue = new int[128];
 	    head = tail = 0;
+	    subscribers = new LinkedList();
 	}
 	/**
 	 * Read status from CSR register
@@ -315,5 +319,40 @@ public class I8042 {
         else throw deviceTimeout;
 	}
 	
-	
+	public static class Subscriber
+	{
+	    public final static int SCAN_CODE_QUEUE_SIZE = 32;
+	    char codes[] = new char[SCAN_CODE_QUEUE_SIZE];
+	    int head, tail, size;
+	    
+	    Subscriber()
+	    {
+	        head = 0;
+	        tail = 0;
+	        size = 0;
+	    }
+	    public void update(char scanCode)
+	    {
+	        codes[head] = scanCode;
+	        head = (head+1)%SCAN_CODE_QUEUE_SIZE;
+	        size++;
+	    }
+	    
+	    public char get()
+	    {
+	        char scanCode = codes[tail];
+	        tail = (tail+1) & SCAN_CODE_QUEUE_SIZE;
+	        size--;
+	        return scanCode;
+	    }
+	    
+	    public int queueSize()
+	    {
+	        return size;
+	    }
+	}
+	public final void subscribe(Subscriber s)
+	{
+	    subscribers.add(s);
+	}
 }
