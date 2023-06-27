@@ -1,12 +1,17 @@
 package org.jam.board.pc;
 
+import org.jam.board.pc.I8042.Subscriber;
 import org.jam.cpu.intel.Tsc;
 import org.jam.system.DeviceTimeout;
+import org.jam.util.InputObserver;
+import org.jam.util.Iterator;
 import org.jam.util.LinkedList;
+import org.jam.util.InputObserver;
+import org.jam.util.InputSubject;
 import org.jikesrvm.VM;
 import org.vmmagic.unboxed.Address;
 
-public class I8042 {
+public class I8042 implements InputSubject {
 	
 	private final byte DATA_PORT = 0x60;
 	private final byte CSR_PORT = 0x64;
@@ -57,14 +62,33 @@ public class I8042 {
 	private int queue[];
 	private int head, tail;
 	
-	private LinkedList subscribers;
+	private LinkedList<InputObserver> observers;
 	
 	public I8042()
 	{
 	    deviceTimeout = new DeviceTimeout();
 	    queue = new int[128];
 	    head = tail = 0;
-	    subscribers = new LinkedList();
+	    observers = new LinkedList<InputObserver>();
+	}
+	
+	public void attach(InputObserver o)
+	{
+	    observers.add(o);
+	}
+	
+	public void detach(InputObserver o)
+	{
+	    observers.remove(o);
+	}
+	
+	private final void notify(int key)
+	{
+	    int index = 0;
+	    for(; index < observers.size(); index++)
+	    {
+	        observers.get(index).update(key);
+	    }
 	}
 	/**
 	 * Read status from CSR register
@@ -160,7 +184,8 @@ public class I8042 {
 		    return;
 		}
 		int data = readData();
-		VM.sysWriteln("kbd ", VM.intAsHexString(data));
+//		VM.sysWriteln("kbd ", VM.intAsHexString(data));
+		notify(data);
 		queue[head++] = data;
 		head &= 0x7f;
 	}
@@ -350,9 +375,5 @@ public class I8042 {
 	    {
 	        return size;
 	    }
-	}
-	public final void subscribe(Subscriber s)
-	{
-	    subscribers.add(s);
 	}
 }

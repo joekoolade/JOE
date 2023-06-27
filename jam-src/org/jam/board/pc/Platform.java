@@ -13,6 +13,7 @@ import org.jam.cpu.intel.Tsc;
 import org.jam.driver.net.I82559c;
 import org.jam.driver.net.LoopBack;
 import org.jam.driver.serial.PcSerialPort;
+import org.jam.input.HotKey;
 import org.jam.interfaces.Timer;
 import org.jam.net.InetNexus;
 import org.jam.net.inet4.InetAddress;
@@ -41,6 +42,7 @@ public class Platform {
     public static Timer timer;
     public static LoopBack localHost;
     public static I8042 kbd;
+    public static HotKey hotKeys;
     
     // Interrupt ports
     final private static int MASTERPICPORT = 0x20;
@@ -102,6 +104,7 @@ public class Platform {
         
         kbd = new I8042();
         kbd.init();
-
+        
+        hotKeys = new HotKey(kbd);
     }
 }
