@@ -85,29 +85,35 @@ public enum ScanCodeSet1 {
     KEY_KP0(0x52, '0'),
     KEY_KPDOT(0x53, '.'),
     KEY_F11(0x57),
-    KEY_F12(0x58);
+    KEY_F12(0x58),
+    KEY_CMD(0x5b),
+    KEY_EXTENDED(0xe0);
 
-
-    short makeCode;
+    int makeCode;
     char base;
     char shifted;
     
     ScanCodeSet1(int code, char ch)
     {
-        makeCode = (short)code;
+        makeCode = code;
         this.base = ch;
     }
     
     ScanCodeSet1(int code, char ch, char shifted)
     {
-        makeCode = (short)code;
+        makeCode = code;
         this.base = ch;
         this.shifted = shifted;
     }
     
     ScanCodeSet1(int code)
     {
-        makeCode = (short)code;
+        makeCode = code;
         base = (char)0;
+    }
+    
+    public boolean hasCode(int code)
+    {
+        return code == makeCode;
     }
 }
