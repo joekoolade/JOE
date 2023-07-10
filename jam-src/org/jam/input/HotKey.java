@@ -13,7 +13,6 @@ public class HotKey implements InputObserver, Runnable {
     boolean updated;
     Thread hotKeyThread;
     int next;
-    private boolean cmdKey;
     
     public HotKey(I8042 dev)
     {
@@ -66,7 +65,7 @@ public class HotKey implements InputObserver, Runnable {
     public void run() {
         while(true)
         {
-            if(updated || hasData())
+            if(updated)
             {
 //                VM.sysWriteln("HotKey ", key /*VM.intAsHexString(key)*/);
                 checkForHtk();
@@ -94,17 +93,56 @@ public class HotKey implements InputObserver, Runnable {
     }
     
     private void checkForHtk() {
+        boolean cmdKey = false;
+        boolean cmdJ = false;
+        boolean displayThreads = false;
+        boolean displayLocks = false;
+        
         if(length() < 6) return;
         int start=head;
         int i;
         for(i=0; i < length(); i++)
         {
             int key = getData(start);
+            start = next(start);
+            VM.sysWriteln("key ", key);
+            /*
+             * Look for the comman key
+             */
             if(ScanCodeSet1.KEY_EXTENDED.hasCode(key))
             {
-                cmdKey = true;
-                return; 
+                key = getData(start);
+                start = next(start);
+                if(ScanCodeSet1.KEY_CMD.hasCode(key))
+                {
+                    cmdKey = true;
+                }
+                else if(ScanCodeSet1.KEY_CMD.released(key))
+                {
+                    cmdKey = false;
+                }
+                continue;
             }
+            /*
+             * Look for the 'j'
+             */
+            if(ScanCodeSet1.KEY_J.hasCode(key))
+            {
+                cmdJ = cmdKey;
+            }
+            /*
+             * Look for the 't'
+             */
+            if(ScanCodeSet1.KEY_T.hasCode(key))
+            {
+                if(cmdJ && cmdKey)
+                {
+                    VM.sysWriteln("Displaying threads");
+                    cmdJ = false;
+                    break;
+                }
+            }
+            
         }
         
     }

@@ -92,6 +92,7 @@ public enum ScanCodeSet1 {
     int makeCode;
     char base;
     char shifted;
+    private static int RELEASED = 0x80;
     
     ScanCodeSet1(int code, char ch)
     {
@@ -109,11 +110,16 @@ public enum ScanCodeSet1 {
     ScanCodeSet1(int code)
     {
         makeCode = code;
-        base = (char)0;
+        base = 0;
     }
     
     public boolean hasCode(int code)
     {
         return code == makeCode;
+    }
+    
+    public boolean released(int code)
+    {
+        return code == (makeCode | RELEASED);
     }
 }
