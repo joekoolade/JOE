@@ -113,7 +113,11 @@ public enum ScanCodeSet1 {
         base = 0;
     }
     
-    public boolean hasCode(int code)
+    final public boolean code(int code)
+    {
+        return hasCode(code);
+    }
+    final public boolean hasCode(int code)
     {
         return code == makeCode;
     }

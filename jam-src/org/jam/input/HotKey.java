@@ -76,15 +76,14 @@ public class HotKey implements InputObserver, Runnable {
         
     }
 
-    void next()
+    void advance()
     {
         head = (head+1) % SIZE;
     }
     
-    int next(int i)
+    void advance(int i)
     {
-        i = (i+1) % SIZE;
-        return i;
+        head = (head + i) % SIZE;
     }
     
     int getData(int i)
@@ -92,59 +91,63 @@ public class HotKey implements InputObserver, Runnable {
         return data[i];
     }
     
+    void empty()
+    {
+        head = tail;
+    }
     private void checkForHtk() {
-        boolean cmdKey = false;
-        boolean cmdJ = false;
-        boolean displayThreads = false;
-        boolean displayLocks = false;
-        
-        if(length() < 6) return;
-        int start=head;
+        if(length() < 5) return;
         int i;
         for(i=0; i < length(); i++)
         {
-            int key = getData(start);
-            start = next(start);
-            VM.sysWriteln("key ", key);
             /*
-             * Look for the comman key
+             * Look for the 
+             *  1. extended cmd press, J press, J release, T press
              */
-            if(ScanCodeSet1.KEY_EXTENDED.hasCode(key))
+            
+            /*
+             * Extend
+             */
+            if(ScanCodeSet1.KEY_EXTENDED.hasCode(getData(head)) == false)
             {
-                key = getData(start);
-                start = next(start);
-                if(ScanCodeSet1.KEY_CMD.hasCode(key))
-                {
-                    cmdKey = true;
-                }
-                else if(ScanCodeSet1.KEY_CMD.released(key))
-                {
-                    cmdKey = false;
-                }
+                advance();
                 continue;
             }
             /*
-             * Look for the 'j'
+             * CMD key
              */
-            if(ScanCodeSet1.KEY_J.hasCode(key))
+            if(ScanCodeSet1.KEY_CMD.hasCode(getData(head+1)) == false)
             {
-                cmdJ = cmdKey;
+                advance(2);
+                continue;
+            }
+            /*
+             * Look for the 'j' press
+             */
+            if(ScanCodeSet1.KEY_J.hasCode(getData(head+2)) == false)
+            {
+                advance(3);
+                VM.sysWriteln("cmdJ ", i);
+            }
+            /*
+             * Look for the 'j' release
+             */
+            if(ScanCodeSet1.KEY_J.released(getData(head+3)) == false)
+            {
+                advance(4);
+                VM.sysWriteln("cmdJ ", i);
             }
             /*
              * Look for the 't'
              */
-            if(ScanCodeSet1.KEY_T.hasCode(key))
+            if(ScanCodeSet1.KEY_T.code(getData(head+4)))
             {
-                if(cmdJ && cmdKey)
-                {
-                    VM.sysWriteln("Displaying threads");
-                    cmdJ = false;
-                    break;
-                }
+                VM.sysWriteln("Displaying threads ", i);
+                advance(5);
             }
-            
         }
-        
+        VM.sysWrite("htk done: i:", i);
+        VM.sysWriteln("head:",head);
     }
 
 }
