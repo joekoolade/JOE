@@ -8,7 +8,7 @@ import org.jam.board.pc.ScanCodeSet1;
 public class HotKey implements InputObserver, Runnable {
     int data[];
     int keys[];
-    int head, tail;
+    int head, tail, size;
     final static int SIZE = 64;
     boolean updated;
     Thread hotKeyThread;
@@ -20,6 +20,7 @@ public class HotKey implements InputObserver, Runnable {
         data = new int[SIZE];
         head = 0;
         tail = 0;
+        size = 0;
         hotKeyThread = new Thread(this);
         hotKeyThread.start();
     }
@@ -29,11 +30,12 @@ public class HotKey implements InputObserver, Runnable {
         this.data[tail] = data;
         tail = (tail+1) % SIZE;
         updated = true;
+        size++;
     }
 
     public boolean hasData()
     {
-        return head != tail;
+        return size > 0;
     }
 
     int getKey()
@@ -42,6 +44,7 @@ public class HotKey implements InputObserver, Runnable {
         
         int key = data[head];
         head = (head+1) % SIZE;
+        size--;
         return key;
     }
     
@@ -51,14 +54,7 @@ public class HotKey implements InputObserver, Runnable {
      */
     int length()
     {
-        if(head <= tail)
-        {
-            return tail - head;
-        }
-        else
-        {
-            return (SIZE-head) + tail;
-        }
+        return size;
     }
 
     @Override
@@ -76,14 +72,18 @@ public class HotKey implements InputObserver, Runnable {
         
     }
 
-    void advance()
+    final private void advance()
     {
-        head = (head+1) % SIZE;
+        advance(1);
     }
     
-    void advance(int i)
+    final private void advance(int i)
     {
+        if(i > size) i = size;
         head = (head + i) % SIZE;
+        size -= i;
+        VM.sysWrite("head ", head);
+        VM.sysWriteln(" tail ", tail);
     }
     
     int getData(int i)
@@ -96,8 +96,11 @@ public class HotKey implements InputObserver, Runnable {
         head = tail;
     }
     private void checkForHtk() {
-        if(length() < 5) return;
         int i;
+        VM.sysWrite("START size ", length());
+        VM.sysWrite(" tail: ", tail);
+        VM.sysWriteln(" head:",head);
+        if(length() < 5) return;
         for(i=0; i < length(); i++)
         {
             /*
@@ -128,6 +131,7 @@ public class HotKey implements InputObserver, Runnable {
             {
                 advance(3);
                 VM.sysWriteln("cmdJ ", i);
+                continue;
             }
             /*
              * Look for the 'j' release
@@ -136,6 +140,7 @@ public class HotKey implements InputObserver, Runnable {
             {
                 advance(4);
                 VM.sysWriteln("cmdJ ", i);
+                continue;
             }
             /*
              * Look for the 't'
@@ -146,8 +151,10 @@ public class HotKey implements InputObserver, Runnable {
                 advance(5);
             }
         }
-        VM.sysWrite("htk done: i:", i);
-        VM.sysWriteln("head:",head);
+        VM.sysWrite("HTK DONE i:", i);
+        VM.sysWrite(" size: ", size);
+        VM.sysWrite(" tail: ", tail);
+        VM.sysWriteln(" head:",head);
     }
 
 }
