@@ -708,18 +708,6 @@ public class VM extends Properties {
     TypeReference tRef =
         TypeReference.findOrCreate(BootstrapClassLoader.getBootstrapClassLoader(), classDescriptor);
     RVMClass cls = (RVMClass) tRef.peekType();
-    if(cls==null) {
-        sysWriteln("cls is NULL");
-        return;
-    }
-    if (cls.isEnum() && VM.BuildForOpenJDK) {
-      sysWrite("Not attempting to run class initializer for ");
-      sysWrite(className);
-      sysWriteln(" because it's not advisable to run because it's an enum for OpenJDK." +
-          " Running the class initializer would break" +
-          " the enumConstantsDirectory in the associated class object.");
-      VM.sysFail("Attempted to run class initializer for enum " + className);
-    }
     if (null == cls) {
       sysWrite("Failed to run class initializer for ");
       sysWrite(className);
@@ -728,6 +716,13 @@ public class VM extends Properties {
       sysWrite("Failed to run class initializer for ");
       sysWrite(className);
       sysWriteln(" as the class is not in the boot image.");
+    } else if (cls.isEnum() && VM.BuildForOpenJDK) {
+        sysWrite("Not attempting to run class initializer for ");
+        sysWrite(className);
+        sysWriteln(" because it's not advisable to run because it's an enum for OpenJDK." +
+            " Running the class initializer would break" +
+            " the enumConstantsDirectory in the associated class object.");
+        VM.sysFail("Attempted to run class initializer for enum " + className);
     } else {
       RVMMethod clinit = cls.getClassInitializerMethod();
       if (clinit != null) {

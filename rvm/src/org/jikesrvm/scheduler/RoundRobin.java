@@ -54,7 +54,7 @@ public class RoundRobin implements Scheduler {
   
   /*
    * Current thread must be scheduled before calling calling
-   * †
+   *
    */
   @Uninterruptible
   public RVMThread nextThread() {

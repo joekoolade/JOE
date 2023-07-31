@@ -69,15 +69,18 @@
   	<os family="mac"/>
   </condition>
 		
-  <condition property="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib">
+  <condition property="openjdk.lib.dir" value="/usr/local/java/jre/lib">
   	<os family="unix"/>
   </condition>
   <condition property="openjdk.classes.jar" value="rt.jar">
   	<os family="unix"/>
   </condition>
-	
-  <property name="ant.jar" value="/usr/local/Cellar/ant/1.10.9/libexec/lib/ant.jar"/>
 
+<!--
+  <property name="ant.jar" value="/usr/local/Cellar/ant/1.10.9/libexec/lib/ant.jar"/>
+-->
+	<property name="ant.jar" value="/usr/java/apache-ant-1.9.16/lib/ant.jar"/>
+	
   <!-- Location of .dat files for options -->
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
 
@@ -2010,8 +2013,10 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="-out"/>
       <arg value="${build.base}/jam.out"/>
       <arg value="${testModeFlag}"/>
+<!--
       <arg value="-javaSystemJar"/>
       <arg path="${build.joert.jar}"/>
+-->
     </java>
 
     <delete file="${build.base}/testMode" quiet="true"/>
