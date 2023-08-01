@@ -214,6 +214,7 @@ Ljava/util/regex/Pattern$BmpCharProperty;
 Ljava/util/regex/Pattern$CharProperty;
 Ljava/util/RandomAccess;
 Ljava/util/HashMap$Entry;
+Ljava/util/HashMap$Holder;
 Ljava/util/zip/ZipFile;
 Ljava/util/zip/ZipFile$1;
 Ljava/util/zip/ZipFile$ZipFileInputStream;
