@@ -1995,8 +1995,8 @@ Check to make sure all required properties are specified. This includes properti
       <arg path="${build.base}/RVM.map"/>
       <arg line="${config.bootimage.writer.args}"/>
       <!-- <arg value="-trace"/> -->
-      <arg value="-detailed"/>
-      <arg value="-detailed"/>
+      <!-- <arg value="-detailed"/> -->
+      <!-- <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
