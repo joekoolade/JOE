@@ -230,6 +230,7 @@ Ljava/lang/ClassLoader$NativeLibrary;
 Ljava/lang/ref/ReferenceQueue;
 Ljava/lang/ref/ReferenceQueue$Lock;
 Ljava/lang/ref/ReferenceQueue$Null;
+Ljava/lang/ref/Reference$Lock;
 Ljava/lang/ref/Reference;
 Ljava/lang/ref/SoftReference;
 Ljava/lang/ref/WeakReference;
