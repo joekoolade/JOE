@@ -190,6 +190,7 @@ Ljava/util/Collections$EmptyMap;
 Ljava/util/Collections$EmptySet;
 Ljava/util/Collections$EmptyList;
 Ljava/util/Collections$SynchronizedMap;
+Ljava/util/Collections$UnmodifiableRandomAccessList;
 Ljava/util/AbstractCollection;
 Ljava/util/List;
 Ljava/util/AbstractSet;
