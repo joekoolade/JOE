@@ -107,13 +107,13 @@ public class Platform {
         InetNexus.boot();
         InetNexus.setArpInterface(net);
         
-        if(DEBUG) VM.sysWriteln("Starting I8042");
-        kbd = new I8042();
-        if(DEBUG) VM.sysWriteln("Starting kbd.init()");
-        kbd.init();
-        
-        if(DEBUG) VM.sysWriteln("Starting hot keys");
-        hotKeys = new HotKey(kbd);
-        if(DEBUG) VM.sysWriteln("Platform boot DONE");
+//        if(DEBUG) VM.sysWriteln("Starting I8042");
+//        kbd = new I8042();
+//        if(DEBUG) VM.sysWriteln("Starting kbd.init()");
+//        kbd.init();
+//        
+//        if(DEBUG) VM.sysWriteln("Starting hot keys");
+//        hotKeys = new HotKey(kbd);
+//        if(DEBUG) VM.sysWriteln("Platform boot DONE");
     }
 }
