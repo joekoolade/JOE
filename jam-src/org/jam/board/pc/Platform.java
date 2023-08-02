@@ -111,6 +111,8 @@ public class Platform {
         kbd = new I8042();
         kbd.init();
         
+        if(DEBUG) VM.sysWriteln("Starting hot keys");
         hotKeys = new HotKey(kbd);
+        if(DEBUG) VM.sysWriteln("Platform boot DONE");
     }
 }
