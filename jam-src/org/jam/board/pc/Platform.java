@@ -52,6 +52,7 @@ public class Platform {
     final private static int COM2 = 0x2F8;
     final private static int COM3 = 0x3E8;
     final private static int COM4 = 0x2E8;
+    private static final boolean DEBUG = true;
 
     public final static void initTimers()
     {
@@ -96,12 +97,17 @@ public class Platform {
             // TODO Auto-generated catch block
             VM.sysWriteln("I8225c device found!");
         }
+        if(DEBUG) VM.sysWriteln("Starting net.boot()");
         net.boot();
+        if(DEBUG) VM.sysWriteln("Starting timer");
         timer = new PcSystemTimer();
+        if(DEBUG) VM.sysWriteln("Starting loopback");
         localHost = new LoopBack();
+        if(DEBUG) VM.sysWriteln("Starting Inet");
         InetNexus.boot();
         InetNexus.setArpInterface(net);
         
+        if(DEBUG) VM.sysWriteln("Starting keyboard");
         kbd = new I8042();
         kbd.init();
         
