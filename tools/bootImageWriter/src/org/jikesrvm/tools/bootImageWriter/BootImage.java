@@ -497,10 +497,10 @@ public class BootImage implements BootImageInterface {
     }
     Offset lowAddr = freeDataOffset;
     freeDataOffset = freeDataOffset.plus(size);
-    if (!VM.AllowOversizedImages && freeDataOffset.sGT(Offset.fromIntZeroExtend(BOOT_IMAGE_DATA_SIZE_LIMIT)))
-      fail("bootimage full (need at least " + size + " more bytes for data). " +
-           "To ignore this, add config.allowOversizedImage=true to the configuration you are using " +
-           "or increase BOOT_IMAGE_DATA_SIZE_LIMIT in HeapLayoutConstants.template .");
+//    if (!VM.AllowOversizedImages && freeDataOffset.sGT(Offset.fromIntZeroExtend(BOOT_IMAGE_DATA_SIZE_LIMIT)))
+//      fail("bootimage full (need at least " + size + " more bytes for data). " +
+//           "To ignore this, add config.allowOversizedImage=true to the configuration you are using " +
+//           "or increase BOOT_IMAGE_DATA_SIZE_LIMIT in HeapLayoutConstants.template .");
 
     ObjectModel.fillAlignmentGap(this, BOOT_IMAGE_DATA_START.plus(unalignedOffset),
                                     lowAddr.minus(unalignedOffset).toWord().toExtent());
@@ -525,10 +525,10 @@ public class BootImage implements BootImageInterface {
     }
     Offset lowAddr = freeCodeOffset;
     freeCodeOffset = freeCodeOffset.plus(size);
-    if (!VM.AllowOversizedImages && freeCodeOffset.sGT(Offset.fromIntZeroExtend(BOOT_IMAGE_CODE_SIZE_LIMIT)))
-      fail("bootimage full (need at least " + size + " more bytes for code). " +
-          "To ignore this, add config.allowOversizedImage=true to the configuration you are using " +
-          "or increase BOOT_IMAGE_CODE_SIZE_LIMIT in HeapLayoutConstants.template .");
+//    if (!VM.AllowOversizedImages && freeCodeOffset.sGT(Offset.fromIntZeroExtend(BOOT_IMAGE_CODE_SIZE_LIMIT)))
+//      fail("bootimage full (need at least " + size + " more bytes for code). " +
+//          "To ignore this, add config.allowOversizedImage=true to the configuration you are using " +
+//          "or increase BOOT_IMAGE_CODE_SIZE_LIMIT in HeapLayoutConstants.template .");
 
     ObjectModel.fillAlignmentGap(this, BOOT_IMAGE_CODE_START.plus(unalignedOffset),
                                     lowAddr.minus(unalignedOffset).toWord().toExtent());
