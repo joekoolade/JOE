@@ -2013,10 +2013,8 @@ Check to make sure all required properties are specified. This includes properti
       <arg value="-out"/>
       <arg value="${build.base}/jam.out"/>
       <arg value="${testModeFlag}"/>
-<!--
       <arg value="-javaSystemJar"/>
       <arg path="${build.joert.jar}"/>
--->
     </java>
 
     <delete file="${build.base}/testMode" quiet="true"/>
