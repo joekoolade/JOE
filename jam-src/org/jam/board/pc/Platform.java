@@ -107,8 +107,9 @@ public class Platform {
         InetNexus.boot();
         InetNexus.setArpInterface(net);
         
-        if(DEBUG) VM.sysWriteln("Starting keyboard");
+        if(DEBUG) VM.sysWriteln("Starting I8042");
         kbd = new I8042();
+        if(DEBUG) VM.sysWriteln("Starting kbd.init()");
         kbd.init();
         
         if(DEBUG) VM.sysWriteln("Starting hot keys");
