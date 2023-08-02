@@ -67,9 +67,13 @@ public class I8042 implements InputSubject {
 	public I8042()
 	{
 	    deviceTimeout = new DeviceTimeout();
+	    VM.sysWriteln("deviceTimeout");
 	    queue = new int[128];
+        VM.sysWriteln("queue");
 	    head = tail = 0;
+        VM.sysWriteln("head/tail");
 	    observers = new LinkedList<InputObserver>();
+        VM.sysWriteln("observers");
 	}
 	
 	public void attach(InputObserver o)

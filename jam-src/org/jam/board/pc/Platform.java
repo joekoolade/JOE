@@ -52,7 +52,7 @@ public class Platform {
     final private static int COM2 = 0x2F8;
     final private static int COM3 = 0x3E8;
     final private static int COM4 = 0x2E8;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public final static void initTimers()
     {
