@@ -127,6 +127,7 @@ Lsun/reflect/misc/ReflectUtil;
 Ljava/lang/Runtime;
 Ljava/lang/RuntimePermission;
 Ljava/lang/String;
+Ljava/lang/Exception;
 Ljava/lang/Math;
 Ljava/util/Map;
 Ljava/util/Map$Entry;
