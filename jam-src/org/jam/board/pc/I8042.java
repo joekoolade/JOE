@@ -66,6 +66,7 @@ public class I8042 implements InputSubject {
 	
 	public I8042()
 	{
+	    VM.sysWriteln("I8042");
 	    deviceTimeout = new DeviceTimeout();
 	    VM.sysWriteln("deviceTimeout");
 	    queue = new int[128];

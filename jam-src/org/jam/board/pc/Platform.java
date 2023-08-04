@@ -52,7 +52,7 @@ public class Platform {
     final private static int COM2 = 0x2F8;
     final private static int COM3 = 0x3E8;
     final private static int COM4 = 0x2E8;
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public final static void initTimers()
     {
@@ -107,13 +107,13 @@ public class Platform {
         InetNexus.boot();
         InetNexus.setArpInterface(net);
         
-//        if(DEBUG) VM.sysWriteln("Starting I8042");
-//        kbd = new I8042();
-//        if(DEBUG) VM.sysWriteln("Starting kbd.init()");
-//        kbd.init();
-//        
-//        if(DEBUG) VM.sysWriteln("Starting hot keys");
-//        hotKeys = new HotKey(kbd);
-//        if(DEBUG) VM.sysWriteln("Platform boot DONE");
+        if(DEBUG) VM.sysWriteln("Starting I8042");
+        kbd = new I8042();
+        if(DEBUG) VM.sysWriteln("Starting kbd.init()");
+        kbd.init();
+        
+        if(DEBUG) VM.sysWriteln("Starting hot keys");
+        hotKeys = new HotKey(kbd);
+        if(DEBUG) VM.sysWriteln("Platform boot DONE");
     }
 }
