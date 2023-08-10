@@ -317,7 +317,6 @@ public class VM extends Properties {
       runClassInitializer("java.lang.CharacterData0E");
       runClassInitializer("java.lang.CharacterDataPrivateUse");
       runClassInitializer("java.lang.CharacterDataUndefined");
-      runClassInitializer("java.lang.Throwable");
     }
 
     // Turn off security checks; about to hit EncodingManager.
@@ -448,6 +447,7 @@ public class VM extends Properties {
     runClassInitializer("sun.nio.cs.Surrogate");
     runClassInitializer("java.util.Random");
     runClassInitializer("java.net.InetAddress");
+    runClassInitializer("java.lang.Throwable");
     
     runClassInitializer("tests.java.net.DatagramClientServer");
     
