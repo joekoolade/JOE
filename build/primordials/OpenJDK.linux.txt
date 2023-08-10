@@ -381,3 +381,4 @@ Ljava/net/NetPermission;
 Ljava/lang/SecurityManager;
 Ljava/awt/AWTPermission;
 Ljava/util/Random;
+Ljava/inet/InetAddress;
