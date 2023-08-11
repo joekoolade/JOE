@@ -53,7 +53,7 @@ public class I8042 implements InputSubject {
 	private final int TIMEOUT = 5;
 	private final int BUFFER_SIZE = 16;
 	
-	private final DeviceTimeout deviceTimeout;
+	private DeviceTimeout deviceTimeout;
 	
 	private int initialConfig;
 	
@@ -67,7 +67,7 @@ public class I8042 implements InputSubject {
 	public I8042()
 	{
 	    VM.sysWriteln("I8042");
-	    deviceTimeout = new DeviceTimeout();
+	   // deviceTimeout = new DeviceTimeout();
 	    VM.sysWriteln("deviceTimeout");
 	    queue = new int[128];
         VM.sysWriteln("queue");
