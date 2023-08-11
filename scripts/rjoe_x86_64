@@ -2,7 +2,7 @@
 
 #qemu-system-x86_64 -m 256m -no-reboot -kernel jam.out -nographic -device i82559c,netdev=net1 -netdev user,id=net1 -object filter-dump,id=f1,netdev=net1,file=net1.pcap -no-shutdown
 qemu-system-x86_64 -m 256m -no-reboot -kernel jam.out \
--chardev stdio,id=char0 -serial chardev:char0 \
+-chardev stdio,mux=on,id=char0 -serial chardev:char0 -mon chardev=char0,mode=readline \
 -device i82559c,netdev=net1 -netdev user,id=net1 \
 -object filter-dump,id=f1,netdev=net1,file=net1.pcap \
 -no-shutdown
