@@ -381,7 +381,7 @@ Ljava/net/NetPermission;
 Ljava/lang/SecurityManager;
 Ljava/awt/AWTPermission;
 Ljava/util/Random;
-Ljava/net/Inet4/Address;
+Ljava/net/Inet4Address;
 Ljava/net/Inet4AddressImpl;
 Ljava/net/InetAddress$Cache;
 Ljava/net/InetAddress$InetAddressHolder;
