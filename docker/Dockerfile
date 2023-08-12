@@ -7,6 +7,7 @@ RUN yum install -y flex bison
 ADD openjdk-7u75-b13-linux-x64-18_dec_2014.tar.gz /usr/local
 RUN ln -s /usr/local/java-se-7u75-ri /usr/local/java
 RUN mkdir /usr/java /JOE
+RUN cd /JOE; git clone https://github.com/joekoolade/JOE.git .
 ADD apache-ant-1.9.16-bin.tar.gz /usr/java
 COPY jdk-6u45-linux-x64.bin /usr/java
 RUN chmod +x /usr/java/jdk-6u45-linux-x64.bin
