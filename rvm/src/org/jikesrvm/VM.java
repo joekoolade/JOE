@@ -458,7 +458,7 @@ public class VM extends Properties {
     ///////////////////////////////////////////////////////////////
     if (verboseBoot >= 1) VM.sysWriteln("VM is now fully booted");
 
-    Exception e = new Exception();
+    Exception e0 = new Exception();
     VM.sysWriteln("Exception done!");
     // Inform interested subsystems that VM is fully booted.
     VM.fullyBooted = true;
