@@ -605,15 +605,15 @@ public class VM extends Properties {
 //    if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
 //    mainThread.start();
 
-    VM.sysWriteln("Java System size ", SystemJars.systemJar.length);
-    try
-    {
-        ZipFile javaZip = new ZipFile(SystemJars.systemJar);
-    }
-    catch(IOException e)
-    {
-        VM.sysWriteln(e.toString());
-    }
+//    VM.sysWriteln("Java System size ", SystemJars.systemJar.length);
+//    try
+//    {
+//        ZipFile javaZip = new ZipFile(SystemJars.systemJar);
+//    }
+//    catch(IOException e)
+//    {
+//        VM.sysWriteln(e.toString());
+//    }
 //    VM.shutdown(1);
 
     /*
