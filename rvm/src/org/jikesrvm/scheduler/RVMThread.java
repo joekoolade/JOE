@@ -5279,6 +5279,7 @@ private static final boolean threadTrace = false;
     } else {
       // This is output like that of the Sun JDK.
       VM.sysWrite("Exception in thread \"", getName(), "\": ");
+      VM.sysWrite(exceptionObject.getMessage(), ": ");
     }
     if (exceptionObject instanceof OutOfMemoryError) {
       VM.sysWriteln("   <<No stacktrace available>>");
