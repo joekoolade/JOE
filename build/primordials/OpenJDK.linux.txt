@@ -381,6 +381,8 @@ Ljava/net/NetPermission;
 Ljava/lang/SecurityManager;
 Ljava/awt/AWTPermission;
 Ljava/util/Random;
+Ljava/net/DatagramSocket;
+Ljava/lang/Throwable$WrappedPrintStream;
 Ljava/util/Objects;
 Ljava/net/Inet4Address;
 Ljava/net/Inet4AddressImpl;
