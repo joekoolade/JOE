@@ -97,8 +97,10 @@ implements Runnable
         discoverPacket.setChaddr(netInterface.getEthernetAddress().asArray());
         discoverPacket.setBroadcastFlag();
         byte[] packetBuffer = discoverPacket.serialize();
+        VM.sysWriteln("dhcp serialized");
         DatagramPacket udpPacket = new DatagramPacket(packetBuffer, packetBuffer.length, 
                         discoverPacket.getAddress(), discoverPacket.getPort());
+        VM.sysWriteln("new packet");
         try
         {
             if(DEBUG_TRACE) System.out.println("Dhcp.init##");
