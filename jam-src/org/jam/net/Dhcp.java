@@ -12,6 +12,7 @@ import org.dhcp4java.DHCPConstants;
 import org.dhcp4java.DHCPOption;
 import org.dhcp4java.DHCPPacket;
 import org.jam.net.inet4.InetAddress;
+import org.jikesrvm.VM;
 
 public class Dhcp
 implements Runnable
@@ -66,10 +67,17 @@ implements Runnable
 
     public void run()
     {
-        System.out.println("Dhcp.run");
-        if(mode == DISCOVER_MODE)
+        try
         {
-            runDiscover();
+          System.out.println("Dhcp.run");
+          if(mode == DISCOVER_MODE)
+          {
+              runDiscover();
+          }
+        }
+        catch(Exception e)
+        {
+          VM.sysWriteln("DHCP exception: ", e.getMessage());
         }
         
     }
