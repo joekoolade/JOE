@@ -96,6 +96,7 @@ implements Runnable
         discoverPacket.setAddress(DHCPConstants.INADDR_BROADCAST);
         discoverPacket.setChaddr(netInterface.getEthernetAddress().asArray());
         discoverPacket.setBroadcastFlag();
+        VM.sysWriteln("discovery packet");
         byte[] packetBuffer = discoverPacket.serialize();
         VM.sysWriteln("dhcp serialized");
         DatagramPacket udpPacket = new DatagramPacket(packetBuffer, packetBuffer.length, 
