@@ -1,0 +1,6 @@
+config.name=BaseBaseRefCount
+host.name=x86_64-osx
+skip.unit.tests=1
+openjdk.lib.dir=/Library/Java/JavaVirtualMachines/zulu-7.jdk/Contents/Home/jre/lib/
+ant.jar=/usr/local/Cellar/ant/1.10.9/libexec/lib/ant.jar
+openjdk.classes.jar=rt.jar

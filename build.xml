@@ -51,35 +51,22 @@
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
   <property name="jam.java" location="jam-src" />
   <property name="ext.classes" location="ext/bin"/>
-<!--
-  <property name="openjdk.lib.dir" value="/usr/java/jdk1.6.0_45/jre/lib"/>
-  <property name="openjdk.classes.jar" value="rt.jar"/>
-  <condition property="openjdk.lib.dir" value="/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes">
-  	<os family="mac"/>
-  </condition>
-  <condition property="openjdk.classes.jar" value="classes.jar">
-  	<os family="mac"/>
-  </condition>
--->
-	
-  <condition property="openjdk.lib.dir" value="/Library/Java/JavaVirtualMachines/zulu-7.jdk/Contents/Home/jre/lib">
-  	<os family="mac"/>
-  </condition>
-  <condition property="openjdk.classes.jar" value="rt.jar">
-  	<os family="mac"/>
-  </condition>
-		
-  <condition property="openjdk.lib.dir" value="/usr/local/java/jre/lib">
-  	<os family="unix"/>
-  </condition>
-  <condition property="openjdk.classes.jar" value="rt.jar">
-  	<os family="unix"/>
-  </condition>
 
-<!--
-  <property name="ant.jar" value="/usr/local/Cellar/ant/1.10.9/libexec/lib/ant.jar"/>
--->
-	<property name="ant.jar" value="/usr/java/apache-ant-1.9.16/lib/ant.jar"/>
+	<fail unless="config.name">
+  	config.name property not specified. Please specify property on commandline or in ${jikesrvm.dir}/.ant.properties.
+  </fail>
+	
+	<fail unless="openjdk.lib.dir">
+	  openjdk.lib.dir property not specified. Please specify property on commandline or in ${jikesrvm.dir}/.ant.properties.
+	</fail>
+	
+	<fail unless="ant.jar">
+    ant.jar property not specified. Please specify property on commandline or in ${jikesrvm.dir}/.ant.properties.
+	</fail>
+	
+	<fail unless="openjdk.classes.jar">
+    openjdk.classes.jar property not specified. Please specify property on commandline or in ${jikesrvm.dir}/.ant.properties.
+	</fail>
 	
   <!-- Location of .dat files for options -->
   <property name="options.dir" location="${basedir}/rvm/src-generated/options"/>
