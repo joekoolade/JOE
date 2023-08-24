@@ -393,6 +393,7 @@ public class DHCPPacket implements Cloneable, Serializable {
         }
         DHCPPacket packet = new DHCPPacket();
         // all parameters are checked in marshall()
+        VM.sysWriteln("marshalling");
         packet.marshall(datagram.getData(), datagram.getOffset(), datagram.getLength(),
                         datagram.getAddress(), datagram.getPort(),
                         true);		// strict mode by default

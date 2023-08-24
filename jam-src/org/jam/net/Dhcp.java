@@ -152,6 +152,7 @@ implements Runnable
     private void collector(DatagramPacket response)
     {
         DHCPPacket packet = DHCPPacket.getPacket(response);
+        VM.sysWriteln("got dhcp packet");
         if(packet.getDHCPMessageType() == DHCPConstants.DHCPOFFER || packet.getOp() == DHCPConstants.BOOTREPLY)
         {
             /*
