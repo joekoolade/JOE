@@ -152,7 +152,7 @@ implements Runnable
     private void collector(DatagramPacket response)
     {
         DHCPPacket packet = DHCPPacket.getPacket(response);
-        if(packet.getDHCPMessageType() == DHCPConstants.DHCPOFFER)
+        if(packet.getDHCPMessageType() == DHCPConstants.DHCPOFFER || packet.getOp() == DHCPConstants.BOOTREPLY)
         {
             /*
              * Discard non-matching xid messages
