@@ -153,7 +153,7 @@ implements Runnable
     {
         DHCPPacket packet = DHCPPacket.getPacket(response);
         VM.sysWriteln("got dhcp packet");
-        if(packet.getDHCPMessageType() == DHCPConstants.DHCPOFFER || packet.getOp() == DHCPConstants.BOOTREPLY)
+        if(packet.getDHCPMessageType() == DHCPConstants.DHCPOFFER)
         {
             /*
              * Discard non-matching xid messages
@@ -177,6 +177,14 @@ implements Runnable
              * Requested IP address
              */
             ipRequest = packet.getYiaddr();
+        }
+        else if(packet.getOp() ==  DHCPConstants.BOOTREPLY)
+        {
+            ipRequest = packet.getYiaddr();
+            VM.sysWriteln("My IP ", ipRequest.toString());
+            VM.sysWriteln("Server IP ", packet.getSiaddr().toString());
+            VM.sysWriteln("Gateway IP ", packet.getGiaddr().toString());
+            collecting = false;
         }
         
     }
