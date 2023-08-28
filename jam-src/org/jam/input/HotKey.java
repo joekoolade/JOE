@@ -3,6 +3,8 @@ package org.jam.input;
 import org.jam.board.pc.I8042;
 import org.jam.util.InputObserver;
 import org.jikesrvm.VM;
+import org.jikesrvm.scheduler.Lock;
+import org.jikesrvm.scheduler.RVMThread;
 import org.jam.board.pc.ScanCodeSet1;
 
 public class HotKey implements InputObserver, Runnable {
@@ -82,8 +84,8 @@ public class HotKey implements InputObserver, Runnable {
         if(i > size) i = size;
         head = (head + i) % SIZE;
         size -= i;
-        VM.sysWrite("head ", head);
-        VM.sysWriteln(" tail ", tail);
+//        VM.sysWrite("head ", head);
+//        VM.sysWriteln(" tail ", tail);
     }
     
     int getData(int i)
@@ -97,9 +99,9 @@ public class HotKey implements InputObserver, Runnable {
     }
     private void checkForHtk() {
         int i;
-        VM.sysWrite("START size ", length());
-        VM.sysWrite(" tail: ", tail);
-        VM.sysWriteln(" head:",head);
+//        VM.sysWrite("START size ", length());
+//        VM.sysWrite(" tail: ", tail);
+//        VM.sysWriteln(" head:",head);
         if(length() < 5) return;
         for(i=0; i < length(); i++)
         {
@@ -130,7 +132,7 @@ public class HotKey implements InputObserver, Runnable {
             if(ScanCodeSet1.KEY_J.hasCode(getData(head+2)) == false)
             {
                 advance(3);
-                VM.sysWriteln("cmdJ ", i);
+//                VM.sysWriteln("cmdJ ", i);
                 continue;
             }
             /*
@@ -139,7 +141,7 @@ public class HotKey implements InputObserver, Runnable {
             if(ScanCodeSet1.KEY_J.released(getData(head+3)) == false)
             {
                 advance(4);
-                VM.sysWriteln("cmdJ ", i);
+//                VM.sysWriteln("cmdJ ", i);
                 continue;
             }
             /*
@@ -147,14 +149,20 @@ public class HotKey implements InputObserver, Runnable {
              */
             if(ScanCodeSet1.KEY_T.code(getData(head+4)))
             {
-                VM.sysWriteln("Displaying threads ", i);
+//                VM.sysWriteln("Displaying threads ", i);
                 advance(5);
+                RVMThread.dumpAcct();
+            }
+            else if(ScanCodeSet1.KEY_L.code(getData(head+4)))
+            {
+                advance(5);
+                Lock.dumpLocks();
             }
         }
-        VM.sysWrite("HTK DONE i:", i);
-        VM.sysWrite(" size: ", size);
-        VM.sysWrite(" tail: ", tail);
-        VM.sysWriteln(" head:",head);
+//        VM.sysWrite("HTK DONE i:", i);
+//        VM.sysWrite(" size: ", size);
+//        VM.sysWrite(" tail: ", tail);
+//        VM.sysWriteln(" head:",head);
     }
 
 }

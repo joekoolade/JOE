@@ -3133,7 +3133,7 @@ private static final boolean threadTrace = false;
       VM.sysWriteln("returning cached lock...");
 
     if (cachedFreeLock != null) {
-      if (Lock.trace) {
+      if (Lock.TRACE) {
         VM.sysWriteln("Thread #", threadSlot, ": about to free lock ",
             Magic.objectAsAddress(cachedFreeLock));
       }

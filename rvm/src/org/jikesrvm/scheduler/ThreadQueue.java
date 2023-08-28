@@ -239,15 +239,15 @@ public class ThreadQueue {
       pastFirst = true;
     }
     VM.sysWriteln();
-    if (head != null) {
-      VM.sysWriteln("head: ", head.getThreadSlot());
-    } else {
-      VM.sysWriteln("head: null");
-    }
-    if (tail != null) {
-      VM.sysWriteln("tail: ", tail.getThreadSlot());
-    } else {
-      VM.sysWriteln("tail: null");
-    }
+//    if (head != null) {
+//      VM.sysWriteln("head: ", head.getThreadSlot());
+//    } else {
+//      VM.sysWriteln("head: null");
+//    }
+//    if (tail != null) {
+//      VM.sysWriteln("tail: ", tail.getThreadSlot());
+//    } else {
+//      VM.sysWriteln("tail: null");
+//    }
   }
 }

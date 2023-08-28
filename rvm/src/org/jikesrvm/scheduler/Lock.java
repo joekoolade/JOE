@@ -122,7 +122,7 @@ public final class Lock {
    */
 
   /** do debug tracing? */
-  protected static final boolean trace = false;
+  protected static final boolean TRACE = false;
   /** Control the gathering of statistics */
   public static final boolean STATS = false;
 
@@ -386,14 +386,14 @@ public final class Lock {
    * Dump threads blocked trying to get this lock
    */
   protected void dumpBlockedThreads() {
-    VM.sysWrite(" entering: ");
+    if(TRACE) VM.sysWrite(" entering: ");
     entering.dump();
   }
   /**
    * Dump threads waiting to be notified on this lock
    */
   protected void dumpWaitingThreads() {
-    VM.sysWrite(" waiting: ");
+      if(TRACE) VM.sysWrite(" waiting: ");
     waiting.dump();
   }
 
@@ -493,7 +493,7 @@ public final class Lock {
     if (me.cachedFreeLock != null) {
       Lock l = me.cachedFreeLock;
       me.cachedFreeLock = null;
-      if (trace) {
+      if (TRACE) {
         VM.sysWriteln("Lock.allocate: returning ",Magic.objectAsAddress(l),
                       ", a cached free lock from Thread #",me.getThreadSlot());
       }
@@ -513,7 +513,7 @@ public final class Lock {
           globalFreeLocks--;
         }
         lockAllocationMutex.unlock();
-        if (trace && l != null) {
+        if (TRACE && l != null) {
           VM.sysWriteln("Lock.allocate: returning ",Magic.objectAsAddress(l),
                         " from the global freelist for Thread #",me.getThreadSlot());
         }
@@ -543,7 +543,7 @@ public final class Lock {
            * Note: Derek and I BELIEVE that an isync is not required in the other processor because the lock is newly allocated - Bowen */
           Magic.fence();
         }
-        if (trace && l != null) {
+        if (TRACE && l != null) {
           VM.sysWriteln("Lock.allocate: returning ",Magic.objectAsAddress(l),
                         ", a freshly allocated lock for Thread #",
                         me.getThreadSlot());
@@ -564,14 +564,14 @@ public final class Lock {
     l.active = false;
     RVMThread me = RVMThread.getCurrentThread();
     if (me.cachedFreeLock == null) {
-      if (trace) {
+      if (TRACE) {
         VM.sysWriteln("Lock.free: setting ",Magic.objectAsAddress(l),
                       " as the cached free lock for Thread #",
                       me.getThreadSlot());
       }
       me.cachedFreeLock = l;
     } else {
-      if (trace) {
+      if (TRACE) {
         VM.sysWriteln("Lock.free: returning ",Magic.objectAsAddress(l),
                       " to the global freelist for Thread #",
                       me.getThreadSlot());
@@ -580,7 +580,7 @@ public final class Lock {
     }
   }
   static void returnLock(Lock l) {
-    if (trace) {
+    if (TRACE) {
       VM.sysWriteln("Lock.returnLock: returning ",Magic.objectAsAddress(l),
                     " to the global freelist for Thread #",
                     RVMThread.getCurrentThreadSlot());
