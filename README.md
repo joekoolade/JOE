@@ -66,6 +66,39 @@ skip.unit.tests=1
 % yum install gcc bison flex ant-1.9
 % export JAVA_HOME=/usr/java/jdk1.6.0_45/
 ```
+
+### Docker One Time Setup
+```
+% docker pull joekoolade/joe:latest
+% docker run --name joedev -d -i -t joekoolade/joe:latest /bin/bash
+% docker exec -it joedev /bin/bash
+... In docker
+[root@9aab0cc0fe84]# cd JOE
+[root@9aab0cc0fe84]# git clone https://github.com/joekoolade/JOE.git .
+Cloning into '.'...
+remote: Enumerating objects: 208151, done.
+remote: Counting objects: 100% (1995/1995), done.
+remote: Compressing objects: 100% (681/681), done.
+remote: Total 208151 (delta 1052), reused 1963 (delta 1021), pack-reused 206156
+Receiving objects: 100% (208151/208151), 474.38 MiB | 1.79 MiB/s, done.
+Resolving deltas: 100% (144499/144499), done.
+[root@9aab0cc0fe84]# cp build/configs/ant.properties-linux .ant.properties
+```
+
+### Docker JOE build
+```
+[root@9aab0cc0fe84]# cd /JOE
+[root@9aab0cc0fe84]# ant build-bootimage
+```
+
+### Docker JOE run image
+Need to have qemu-system-x86_64 installed and the scripts in /JOE/scripts
+This is run outside of docker
+```
+% docker cp joedev:JOE/target/BaseBaseRefCount_x86_64-osx/jam.out .
+% scripts/rjoe_x86_64
+```
+
 ### Building JOE
 ```
 % cd <top of JOE repo>
