@@ -19,6 +19,9 @@ import static org.jikesrvm.runtime.SysCall.sysCall;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.jam.board.pc.I8042;
@@ -617,16 +620,51 @@ public class VM extends Properties {
 //    VM.shutdown(1);
 
     /*
-     * Load external classes
+     * Load external classes and jars
      */
-//    ExternalFile extFile[] = BootRecord.the_boot_record.files;
-//    if(extFile == null) VM.sysWriteln("No external files");
-//    else VM.sysWriteln("External files = ", extFile.length);
-//    for(int i=0; i < extFile.length; i++)
-//    {
-//        VM.sysWriteln("Loading external class " + extFile[i].name);
-//        loadExternalClass(extFile[i]);
-//    }
+    ExternalFile extFile[] = BootRecord.the_boot_record.files;
+    if(extFile == null) VM.sysWriteln("No external files");
+    else VM.sysWriteln("External files = ", extFile.length);
+    ZipFile extJarFile = null;
+    for(int i=0; i < extFile.length; i++)
+    {
+        VM.sysWriteln("Loading  " + extFile[i].name);
+        if(extFile[i].name.endsWith(".jar"))
+        {
+            try {
+                extJarFile = new ZipFile(extFile[i].data);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        else if(extFile[i].name.endsWith(".class"))
+        {
+            loadExternalClass(extFile[i]);
+        }
+    }
+    if(extJarFile != null)
+    {
+        VM.sysWriteln("Inflating jar file");
+        Enumeration<? extends ZipEntry> jarEnum = extJarFile.entries();
+        while(jarEnum.hasMoreElements())
+        {
+            ZipEntry zipFileEntry = jarEnum.nextElement();
+            VM.sysWriteln("method: ", zipFileEntry.getMethod());
+            VM.sysWriteln("Inflating: ", zipFileEntry.getName());
+            int fileSize = (int) zipFileEntry.getSize();
+            VM.sysWriteln("size: ", fileSize);
+            InputStream in;
+            try {
+                in = extJarFile.getInputStream(zipFileEntry);
+                byte fileData[] = new byte[fileSize];
+                in.read(fileData, fileSize, 0);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 //    RunMain runMain = new RunMain("tests.java.net.DatagramClientServer");
 //    runMain.run();
 //    

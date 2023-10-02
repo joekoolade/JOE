@@ -91,20 +91,17 @@ class ZipEntry implements ZipConstants, Cloneable {
      * Creates a new zip entry for the given name with fields initialized
      * from the specified jzentry data.
      */
-    ZipEntry(String name, long jzentry) {
-        this.name = name;
-        initFields(jzentry);
+    ZipEntry(FileHeaderEntry fhentry) {
+        name = fhentry.fileName;
+        time = fhentry.time;
+        crc = fhentry.crc;
+        size = fhentry.uncompressedSize;
+        csize = fhentry.compressedSize;
+        method = fhentry.compressionMethod;
+        comment = fhentry.comment;
+        extra = fhentry.getExtra();
     }
 
-    private native void initFields(long jzentry);
-
-    /*
-     * Creates a new zip entry with fields initialized from the specified
-     * jzentry data.
-     */
-    ZipEntry(long jzentry) {
-        initFields(jzentry);
-    }
 
     /**
      * Returns the name of the entry.

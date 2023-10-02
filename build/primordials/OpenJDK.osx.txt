@@ -121,6 +121,8 @@ Ljava/util/logging/Level;
 Ljava/util/logging/Logger;
 Ljava/util/zip/CRC32;
 Ljava/util/zip/Inflater;
+Ljava/util/zip/ZipFile$1;
+Ljava/util/zip/ZipFile$2;
 Ljava/util/TreeMap;
 Ljava/util/Stack;
 Ljava/util/Vector;
