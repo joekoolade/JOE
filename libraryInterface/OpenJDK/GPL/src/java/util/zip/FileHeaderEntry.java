@@ -31,6 +31,11 @@ class FileHeaderEntry implements ZipConstants {
 		return CENHDR+nameLength;
 	}
 	
+	byte[] getExtra()
+	{
+	    return extraField.getBytes();
+	}
+	
 	int commentOffset()
 	{
 		return extraOffset() + extraFieldLength;
