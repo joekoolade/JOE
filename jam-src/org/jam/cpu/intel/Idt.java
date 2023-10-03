@@ -178,12 +178,12 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int8()
         {
-          Magic.halt();
-          while(true) ;
+//          Magic.halt();
+//          while(true) ;
 //            Magic.saveContext();
 //            Magic.halt();
-//            VM.write("Double Fault");
-//            VM.sysFail("Double Fault");
+            VM.write("Double Fault");
+            VM.sysFail("Double Fault");
         }
         @InterruptHandler
         public static void int9()
@@ -216,20 +216,20 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int13()
        {
-           Magic.saveContext();
+//           Magic.saveContext();
 //           Trace.printLog();
-           Magic.halt();
-           while(true) ;
-//           VM.sysFailTrap("General Protection");
+//           Magic.halt();
+//           while(true) ;
+           VM.sysFailTrap("General Protection");
        }
        @InterruptHandler
        public static void int14()
        {
-           Magic.saveContext();
+//           Magic.saveContext();
 //           Trace.printLog();
-         Magic.halt();
-         while(true) ;
-//           VM.sysFail("Page Fault");
+//         Magic.halt();
+//         while(true) ;
+           VM.sysFail("Page Fault");
        }
        @InterruptHandler
        public static void int15()
