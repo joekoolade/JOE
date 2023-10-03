@@ -452,8 +452,10 @@ public class VM extends Properties {
     runClassInitializer("java.net.InetAddress");
     runClassInitializer("java.util.ArrayList");
     runClassInitializer("java.lang.Throwable");
-    
-    runClassInitializer("tests.java.net.DatagramClientServer");
+    runClassInitializer("java.util.zip.InfBlocks");
+    runClassInitializer("java.util.zip.InfCodes");
+    runClassInitializer("java.util.zip.InfTrees");
+//    runClassInitializer("tests.java.net.DatagramClientServer");
     
     ///////////////////////////////////////////////////////////////
     // The VM is now fully booted.                               //
