@@ -12,13 +12,18 @@ import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.TypeReference;
+import org.jikesrvm.runtime.EntrypointHelper;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.runtime.RuntimeEntrypoints;
 import org.jikesrvm.scheduler.RVMThread;
+import org.vmmagic.pragma.Entrypoint;
 import org.vmmagic.pragma.InterruptHandler;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Offset;
+import static org.jikesrvm.runtime.Entrypoints.athrowAddressField;
+import static org.jikesrvm.runtime.Entrypoints.athrowMethod;
 
 /**
  * @author Joe Kulig
@@ -29,13 +34,16 @@ import org.vmmagic.unboxed.Offset;
  */
 @NonMoving
 public final class Idt implements SegmentDescriptorTypes {
-    private static Idt       idt                            = new Idt(96);
+    private static Idt       idt                             = new Idt(96);
     int                      codeSegment;
     int                      limit;
-    final private static int MAX_VECTORS                    = 256;
-    final private static int DEFAULT_IDT_VECTOR_TABLE       = 0x1000;
-    final private static IrqVector dispatchTable[]          = new IrqVector[MAX_VECTORS];
-    private static RVMClass interruptVectorClass            = null;
+    final private static int MAX_VECTORS                     = 256;
+    final private static int DEFAULT_IDT_VECTOR_TABLE        = 0x1000;
+    private static RVMClass interruptVectorClass             = null;
+    private static NullPointerException nullPointerException = new NullPointerException();
+    @Entrypoint
+    private static Address athrowMethodAddress               = null;
+
     /**
      * Memory location of the IDT vector table
      */
@@ -71,11 +79,16 @@ public final class Idt implements SegmentDescriptorTypes {
 		this.codeSegment = codeSegment;
 		this.limit = limit * 16 - 1;
 
+//		VM.sysWriteln("athrow method offset ", athrowAddressField.getOffset());
+		VM.sysWriteln("athrow nullexception ", Magic.objectAsAddress(nullPointerException));
+		athrowMethodAddress = Magic.objectAsAddress(athrowMethod.getCurrentEntryCodeArray());
+        VM.sysWrite("athrow method addr ", athrowMethodAddress);
+        VM.sysWriteln(" ", athrowMethod.getId());
 		idtTableRegister = base;
 		idtTableRegister.store((short) this.limit);
 		idtTableRegister.store(base, Offset.zero().plus(2));
 
-		Magic.setIdt(idtTableRegister);
+		Magic.setIdt(idtTableRegister);   
 		interruptVectorClass = TypeReference.findOrCreate(InterruptVectors.class).peekType().asClass();
 		loadVectors();
 		/*
@@ -220,7 +233,9 @@ public final class Idt implements SegmentDescriptorTypes {
 //           Trace.printLog();
 //           Magic.halt();
 //           while(true) ;
-           VM.sysFailTrap("General Protection");
+           Magic.throwException(nullPointerException);
+           Magic.halt();
+//           VM.sysFailTrap("General Protection");
        }
        @InterruptHandler
        public static void int14()
@@ -229,7 +244,7 @@ public final class Idt implements SegmentDescriptorTypes {
 //           Trace.printLog();
 //         Magic.halt();
 //         while(true) ;
-           VM.sysFail("Page Fault");
+           Magic.throwException(nullPointerException);
        }
        @InterruptHandler
        public static void int15()
@@ -738,15 +753,6 @@ public final class Idt implements SegmentDescriptorTypes {
        }
        
 	}
-	/**
-	 * Installs irq route at interrupt vector
-	 */
-	public void registerHandler(int vector, IrqHandler irq, int stackSize)
-	{
-	    IrqVector tableVector = new IrqVector(irq, stackSize);
-	    dispatchTable[vector] = tableVector; 
-	}
-	
     final private Address getIrqAddress(Atom method)
 	{
 	    Address irqAddress=Magic.objectAsAddress(interruptVectorClass.findDeclaredMethod(method).getCurrentEntryCodeArray());
@@ -1128,39 +1134,5 @@ public final class Idt implements SegmentDescriptorTypes {
 	 */
 	public void setLimit(int limit) {
 		this.limit = limit;
-	}
-	
-	@NonMoving
-	class IrqVector {
-	    IrqHandler vector;
-	    byte[]  stack;
-	    final Address stackTop;
-	    
-	    public IrqVector()
-	    {
-	        vector = null;
-	        stack = null;
-	        stackTop = null;
-	    }
-	    
-	    public IrqVector(IrqHandler handler, int stackSize)
-	    {
-	        this.vector = handler;
-	        stack = new byte[stackSize];
-	        /*
-	         * Put in the sentinel
-	         */
-	        stack[stackSize-1] = 0;    // IP = 0
-	        stack[stackSize-2] = 0;    // FP = 0
-	        stack[stackSize-3] = 0;    // cmid = 0
-	        stackTop = Magic.objectAsAddress(stack[0]).plus((stackSize-3)<<2);
-	        VM.sysWrite("IrqVector: ", Magic.objectAsAddress(stack[0]));
-	        VM.sysWriteln("-->", stackTop);
-	    }
-	    
-	    public Address getStack()
-	    {
-	        return stackTop;
-	    }
 	}
 }

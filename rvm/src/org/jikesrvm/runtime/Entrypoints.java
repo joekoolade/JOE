@@ -520,18 +520,15 @@ public class Entrypoints {
   public static final RVMField sysDoubleRemainderIPField =
       getField(org.jikesrvm.runtime.BootRecord.class, "sysDoubleRemainderIP", org.vmmagic.unboxed.Address.class);
 
-  public static final RVMField edgeCountersField =
-      getField(org.jikesrvm.compilers.baseline.EdgeCounts.class, "data", int[][].class);
+  public static final RVMField edgeCountersField = getField(org.jikesrvm.compilers.baseline.EdgeCounts.class, "data", int[][].class);
 
-  public static final RVMField classLoadedCountField =
-      getField(org.jikesrvm.classloader.JMXSupport.class, "classLoadedCount", int.class);
-  public static final NormalMethod div64Method =
-                  getMethod(org.jam.math.Math.class, "div64", "(JJ)J");
+  public static final RVMField classLoadedCountField = getField(org.jikesrvm.classloader.JMXSupport.class, "classLoadedCount", int.class);
+  public static final NormalMethod div64Method = getMethod(org.jam.math.Math.class, "div64", "(JJ)J");
+  public static final NormalMethod mod64Method = getMethod(org.jam.math.Math.class, "mod64", "(JJ)J");
 
-  public static final NormalMethod mod64Method =
-                  getMethod(org.jam.math.Math.class, "mod64", "(JJ)J");
-
-  //////////////////
+  public static final RVMField athrowAddressField = getField(org.jam.cpu.intel.Idt.class, "athrowMethodAddress", org.vmmagic.unboxed.Address.class);
+  
+  ////////////////// 
   // Entrypoints that are valid only when the opt compiler is included in the build
   //////////////////
   public static final RVMField specializedMethodsField;

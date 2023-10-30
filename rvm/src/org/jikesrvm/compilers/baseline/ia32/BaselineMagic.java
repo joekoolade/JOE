@@ -69,6 +69,7 @@ import static org.jikesrvm.ia32.StackframeLayoutConstants.INTERRUPT_METHOD_ID;
 import static org.jikesrvm.objectmodel.TIBLayoutConstants.TIB_TYPE_INDEX;
 import static org.jikesrvm.runtime.EntrypointHelper.getMethodReference;
 
+import org.jam.cpu.intel.Idt;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.AbstractRegisters;
 import org.jikesrvm.classloader.Atom;
@@ -107,6 +108,7 @@ import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.OffsetArray;
 import org.vmmagic.unboxed.Word;
 import org.vmmagic.unboxed.WordArray;
+import static org.jikesrvm.runtime.Entrypoints.athrowAddressField;
 
 /**
  * Create magic code
@@ -3184,6 +3186,54 @@ final class BaselineMagic {
       generators.put(getMethodReference(Magic.class, MagicNames.restoreThreadContextNoErrCode, void.class), g);
   }
   
+  private static final class ThrowException extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+        /*
+         * Create stack for call to athrow() by 
+         * 1. popping the interrupt info into registers R8 - R11.
+         * 2. pushing the nullpointer execption obj onto the stack
+         * 3. push registers R8 - R11 on the stack
+         * 
+         *    nullpointer exception object
+         *    FLAGS
+         *    CS
+         *    EIP
+         *    ERROR CODE   <-- ESP
+         */
+        /*
+         * Pop the interrupt info into register R8 - R11
+         */
+        asm.emitPOP_Reg(GPR.R8);    // pop the null pointer exception
+        asm.emitPOP_Reg(GPR.R8);    // error code
+        asm.emitPOP_Reg(GPR.R9);    // EIP
+        asm.emitPOP_Reg(GPR.R10);   // CS
+        asm.emitPOP_Reg(GPR.R11);   // flags
+        /*
+         * Push null pointer exception object onto stack
+         */
+//        asm.emitPUSH_Reg(T0);
+        /*
+         * Push the registers back
+         */
+//        asm.emitPUSH_Reg(GPR.R11);  // flags
+//        asm.emitPUSH_Reg(GPR.R10);  // CS
+        /*
+         * Push the athrow() address for the EIP
+         */
+        asm.generateJTOCloadInt(GPR.R8, athrowAddressField.getOffset());
+        asm.emitPUSH_Reg(GPR.R8);
+        asm.emitRET();
+//        asm.emitHLT();
+//        asm.emitPUSH_Reg(GPR.R8);
+    }
+  }
+  static
+  {
+      MagicGenerator g = new ThrowException();
+      generators.put(getMethodReference(Magic.class, MagicNames.throwException, Throwable.class, void.class), g);
+  }
   /**
    * Set ESP to a new stack pointer and
    * save into thread's framePointer field

@@ -2890,6 +2890,24 @@ public class VM extends Properties {
     return BuildFor64Addr;
   }
   
+  public static void stackDump(Address addr, int elements)
+  {
+      for(int element=0; element < elements; element++)
+      {
+          if(element!=0 && (element%4) == 0)
+          {
+              VM.sysWriteln();
+              VM.sysWrite(addr.toInt(), ": ");
+              VM.sysWrite(Long.toHexString(addr.loadLong()), " ");
+          }
+          else
+          {
+              VM.sysWrite(Long.toHexString(addr.loadLong()), " ");
+          }
+          addr = addr.plus(8);
+      }
+      VM.sysWriteln();
+  }
   public static void hexDump(byte data[])
   {
     hexDump(data, 0, data.length);
