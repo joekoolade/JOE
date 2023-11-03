@@ -3222,6 +3222,7 @@ final class BaselineMagic {
         /*
          * Push the athrow() address for the EIP
          */
+        asm.emitPUSH_Imm(Idt.athrowMethodAddress.getId());
         asm.generateJTOCloadInt(GPR.R8, athrowAddressField.getOffset());
         asm.emitPUSH_Reg(GPR.R8);
         asm.emitRET();

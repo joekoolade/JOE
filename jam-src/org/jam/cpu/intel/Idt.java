@@ -42,7 +42,7 @@ public final class Idt implements SegmentDescriptorTypes {
     private static RVMClass interruptVectorClass             = null;
     private static NullPointerException nullPointerException = new NullPointerException();
     @Entrypoint
-    private static Address athrowMethodAddress               = null;
+    public static Address athrowMethodAddress               = null;
 
     /**
      * Memory location of the IDT vector table
