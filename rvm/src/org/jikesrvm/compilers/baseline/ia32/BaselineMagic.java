@@ -69,7 +69,6 @@ import static org.jikesrvm.ia32.StackframeLayoutConstants.INTERRUPT_METHOD_ID;
 import static org.jikesrvm.objectmodel.TIBLayoutConstants.TIB_TYPE_INDEX;
 import static org.jikesrvm.runtime.EntrypointHelper.getMethodReference;
 
-import org.jam.cpu.intel.Idt;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.AbstractRegisters;
 import org.jikesrvm.classloader.Atom;
@@ -3215,19 +3214,14 @@ final class BaselineMagic {
          */
 //        asm.emitPUSH_Reg(T0);
         /*
-         * Push the registers back
-         */
-//        asm.emitPUSH_Reg(GPR.R11);  // flags
-//        asm.emitPUSH_Reg(GPR.R10);  // CS
         /*
-         * Push the athrow() address for the EIP
+         * Setup up the return to the function that exception happened and
+         * to the athrow()
          */
-        asm.emitPUSH_Imm(Idt.athrowMethodAddress.getId());
-        asm.generateJTOCloadInt(GPR.R8, athrowAddressField.getOffset());
+        asm.emitPUSH_Reg(GPR.R9);    // return to the function where the exception happened
+        asm.generateJTOCloadInt(GPR.R8, athrowAddressField.getOffset()); // return to the athrow()
         asm.emitPUSH_Reg(GPR.R8);
         asm.emitRET();
-//        asm.emitHLT();
-//        asm.emitPUSH_Reg(GPR.R8);
     }
   }
   static

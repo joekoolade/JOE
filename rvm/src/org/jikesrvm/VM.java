@@ -2892,6 +2892,7 @@ public class VM extends Properties {
   
   public static void stackDump(Address addr, int elements)
   {
+      VM.sysWrite(Long.toHexString(addr.loadLong()), ": ");
       for(int element=0; element < elements; element++)
       {
           if(element!=0 && (element%4) == 0)

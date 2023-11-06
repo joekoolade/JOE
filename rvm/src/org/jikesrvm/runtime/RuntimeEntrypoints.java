@@ -85,7 +85,7 @@ import org.vmmagic.unboxed.Word;
  */
 public class RuntimeEntrypoints {
 
-  private static final boolean traceAthrow = true;
+  private static final boolean traceAthrow = false;
   // Trap codes for communication with C trap handler.
   //
   public static final int TRAP_UNKNOWN = -1;
@@ -658,7 +658,7 @@ public class RuntimeEntrypoints {
   @Unpreemptible("Deliver exception possibly from unpreemptible code")
   public static void athrow(Throwable exceptionObject) {
     if (traceAthrow) {
-      VM.sysWriteln("in athrow", Magic.objectAsAddress(exceptionObject));
+      VM.sysWriteln("in athrow ", Magic.objectAsAddress(exceptionObject));
       RVMThread.dumpStack();
     }
     RVMThread myThread = RVMThread.getCurrentThread();
@@ -1029,7 +1029,7 @@ public class RuntimeEntrypoints {
       VM.sysWriteln("RuntimeEntrypoints.deliverException() entered; just got an exception object.");
     }
     //VM.sysWriteln("throwing exception!");
-    VM.stackDump(Magic.getFramePointer().minus(32), 16);
+//    VM.stackDump(Magic.getFramePointer().minus(48), 48);
 
     // walk stack and look for a catch block
     //
