@@ -33,6 +33,7 @@ class FileHeaderEntry implements ZipConstants {
 	
 	byte[] getExtra()
 	{
+	    if(extraField == null) return null;
 	    return extraField.getBytes();
 	}
 	

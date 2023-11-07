@@ -40,7 +40,9 @@ public final class Idt implements SegmentDescriptorTypes {
     final private static int MAX_VECTORS                     = 256;
     final private static int DEFAULT_IDT_VECTOR_TABLE        = 0x1000;
     private static RVMClass interruptVectorClass             = null;
-    private static NullPointerException nullPointerException = new NullPointerException();
+    private static NullPointerException nullPointerExc = new NullPointerException();
+    private static ArithmeticException arithmeticExc = new ArithmeticException();
+    private static ArrayIndexOutOfBoundsException arrayIndexExc = new ArrayIndexOutOfBoundsException();
     @Entrypoint
     public static Address athrowMethodAddress               = null;
 
@@ -80,7 +82,7 @@ public final class Idt implements SegmentDescriptorTypes {
 		this.limit = limit * 16 - 1;
 
 //		VM.sysWriteln("athrow method offset ", athrowAddressField.getOffset());
-		VM.sysWriteln("athrow nullexception ", Magic.objectAsAddress(nullPointerException));
+		VM.sysWriteln("athrow nullexception ", Magic.objectAsAddress(nullPointerExc));
 		athrowMethodAddress = Magic.objectAsAddress(athrowMethod.getCurrentEntryCodeArray());
         VM.sysWrite("athrow method addr ", athrowMethodAddress);
         VM.sysWriteln(" ", athrowMethod.getId());
@@ -133,9 +135,7 @@ public final class Idt implements SegmentDescriptorTypes {
 	    @InterruptHandler
 	    public static void int0()
 	    {
-            Magic.halt();
-            while(true) ;
-//	        VM.sysFail("FAULT: Divide by 0");
+	        Magic.throwException(arithmeticExc);
 	    }
 	    @InterruptHandler
 	    public static void int1()
@@ -161,16 +161,12 @@ public final class Idt implements SegmentDescriptorTypes {
 	    @InterruptHandler
 	    public static void int4()
 	    {
-	        Magic.halt();
-	         while(true) ;
-//	        VM.sysFail("Overflow");
+            Magic.throwException(arithmeticExc);
 	    }
         @InterruptHandler
         public static void int5()
         {
-          Magic.halt();
-          while(true) ;
-//          VM.sysFail("BOUND range exceeded");
+            Magic.throwException(arrayIndexExc);
         }
         @InterruptHandler
         public static void int6()
@@ -229,22 +225,12 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int13()
        {
-//           Magic.saveContext();
-//           Trace.printLog();
-//           Magic.halt();
-//           while(true) ;
-           Magic.throwException(nullPointerException);
-           Magic.halt();
-//           VM.sysFailTrap("General Protection");
+           Magic.throwException(nullPointerExc);
        }
        @InterruptHandler
        public static void int14()
        {
-//           Magic.saveContext();
-//           Trace.printLog();
-//         Magic.halt();
-//         while(true) ;
-           Magic.throwException(nullPointerException);
+           Magic.throwException(nullPointerExc);
        }
        @InterruptHandler
        public static void int15()
@@ -256,9 +242,7 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int16()
        {
-           Magic.halt();
-           while(true) ;
-//           VM.sysFail("x87 FPU Floating-Point Error");
+           Magic.throwException(arithmeticExc);
        }
        @InterruptHandler
        public static void int17()
