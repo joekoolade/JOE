@@ -652,7 +652,6 @@ public class VM extends Properties {
         while(jarEnum.hasMoreElements())
         {
             ZipEntry zipFileEntry = jarEnum.nextElement();
-            VM.sysWriteln("method: ", zipFileEntry.getMethod());
             VM.sysWriteln("Inflating: ", zipFileEntry.getName());
             int fileSize = (int) zipFileEntry.getSize();
             VM.sysWriteln("size: ", fileSize);
@@ -660,7 +659,9 @@ public class VM extends Properties {
             try {
                 in = extJarFile.getInputStream(zipFileEntry);
                 byte fileData[] = new byte[fileSize];
-                in.read(fileData, fileSize, 0);
+                in.read(fileData, 0, fileSize);
+                if(fileSize >= 32)
+                    VM.hexDump(fileData, 0, 32);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
