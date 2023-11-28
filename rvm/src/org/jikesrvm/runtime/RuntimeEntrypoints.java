@@ -1028,8 +1028,6 @@ public class RuntimeEntrypoints {
     if (VM.TraceExceptionDelivery) {
       VM.sysWriteln("RuntimeEntrypoints.deliverException() entered; just got an exception object.");
     }
-    //VM.sysWriteln("throwing exception!");
-//    VM.stackDump(Magic.getFramePointer().minus(48), 48);
 
     // walk stack and look for a catch block
     //
