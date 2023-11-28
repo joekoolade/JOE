@@ -177,7 +177,7 @@ final class Inflate{
 
     // set window size
     wbits=w;
-
+    // System.out.println("wbits "+w);
     this.blocks=new InfBlocks(z, 1<<w);
 
     // reset state
@@ -205,7 +205,7 @@ final class Inflate{
       switch (this.mode){
       case HEAD:
         if(wrap==0){
-	  this.mode = BLOCKS;
+          this.mode = BLOCKS;
           break;
         } 
 

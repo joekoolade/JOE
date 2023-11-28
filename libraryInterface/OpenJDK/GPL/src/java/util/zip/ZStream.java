@@ -244,7 +244,7 @@ public class ZStream {
   // (See also flush_pending()).
   int read_buf(byte[] buf, int start, int size) {
     int len=avail_in;
-
+    System.out.println("read_buf start:"+start+" size:"+ size+" len:"+len);
     if(len>size) len=size;
     if(len==0) return 0;
 
@@ -288,6 +288,7 @@ public class ZStream {
   }
 
   public void setInput(byte[] buf, int off, int len, boolean append){
+    System.out.println("setInput off:"+off+" len:"+len + " append:"+append);
     if(len<=0 && append && next_in!=null) return;
 
     if(avail_in>0 && append){  
