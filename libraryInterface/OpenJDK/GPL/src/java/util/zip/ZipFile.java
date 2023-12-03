@@ -424,7 +424,7 @@ findEndSig:
                 // at the end of the input stream. This is required when
                 // using the "nowrap" Inflater option.
                 protected void fill() throws IOException {
-                    System.out.println("zipfile fill()");
+                    System.out.println("zipfile fill() buflen:"+buf.length);
                     if (eof) {
                         throw new EOFException(
                             "Unexpected end of ZLIB input stream");
@@ -435,6 +435,8 @@ findEndSig:
                         len = 1;
                         eof = true;
                     }
+                    VM.hexDump(buf, 0, 16);
+                    System.out.println("zipfile fill() len:"+len);
                     inflater.setInput(buf, 0, len, false);
                 }
                 private boolean eof;
@@ -673,9 +675,13 @@ findEndSig:
 
     private int read(FileHeaderEntry jzentry, long pos, byte[] b, int off, int len)
     {
-        System.out.println("ZipFile read blen:"+ b.length+" len:"+len+" pos:"+pos+" off:"+off);
-        if(pos+len > buffer.length) return 0;
-        System.arraycopy(buffer, (int)pos, b, off, len);
+        System.out.println("ZipFile read blen:"+ b.length+" len:"+len+" pos:"+pos+" off:"+off+" zipfile off:"+jzentry.dataOffset());
+        if (pos + len > buffer.length) 
+        {
+            System.out.println("out of range len:"+pos+len+" buffer len:"+buffer.length);
+            return 0;
+        }
+        System.arraycopy(buffer, jzentry.dataOffset() + (int)pos, b, off, len);
         return len;
     }
 }
