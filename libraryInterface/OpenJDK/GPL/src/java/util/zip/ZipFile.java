@@ -205,19 +205,7 @@ findEndSig:
         /*
          * Found the End signature. Now lets fill in some information
          */
-//        VM.sysWriteln("endloc ", endLoc);
         ByteBuffer endBuf = ByteBuffer.wrap(buf, endLoc, ENDHDR);
-//        for(int i=0; i < ENDHDR; i++)
-//        {
-//            VM.writeHex(buf[endLoc+i] & 0xFF); VM.sysWrite(' ');
-//        }
-//        VM.sysWriteln();
-//        for(int i=0; i < ENDHDR; i++)
-//        {
-//            VM.writeHex(endBuf.get(i) & 0xFF); VM.sysWrite(' ');
-//        }
-//        VM.sysWriteln();
-//        VM.sysWriteln("array offset ", endBuf.arrayOffset());
         endBuf.order(ByteOrder.LITTLE_ENDIAN);
         zipEntries = endBuf.getShort(ENDTOT) & 0xFFFF;
         centSize = endBuf.getInt(ENDSIZ);
@@ -424,7 +412,6 @@ findEndSig:
                 // at the end of the input stream. This is required when
                 // using the "nowrap" Inflater option.
                 protected void fill() throws IOException {
-                    System.out.println("zipfile fill() buflen:"+buf.length);
                     if (eof) {
                         throw new EOFException(
                             "Unexpected end of ZLIB input stream");
@@ -436,7 +423,6 @@ findEndSig:
                         eof = true;
                     }
                     VM.hexDump(buf, 0, 16);
-                    System.out.println("zipfile fill() len:"+len);
                     inflater.setInput(buf, 0, len, false);
                 }
                 private boolean eof;
@@ -675,7 +661,6 @@ findEndSig:
 
     private int read(FileHeaderEntry jzentry, long pos, byte[] b, int off, int len)
     {
-        System.out.println("ZipFile read blen:"+ b.length+" len:"+len+" pos:"+pos+" off:"+off+" zipfile off:"+jzentry.dataOffset());
         if (pos + len > buffer.length) 
         {
             System.out.println("out of range len:"+pos+len+" buffer len:"+buffer.length);

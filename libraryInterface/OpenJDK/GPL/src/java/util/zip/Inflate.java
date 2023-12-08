@@ -177,7 +177,6 @@ final class Inflate{
 
     // set window size
     wbits=w;
-    // System.out.println("wbits "+w);
     this.blocks=new InfBlocks(z, 1<<w);
 
     // reset state
