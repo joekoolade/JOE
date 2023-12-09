@@ -614,6 +614,7 @@ public class VM extends Properties {
     try
     {
         ZipFile javaZip = new ZipFile(SystemJars.systemJar);
+        BootstrapClassLoader.addZipFile("bootstrap", javaZip);
     }
     catch(IOException e)
     {
@@ -635,6 +636,7 @@ public class VM extends Properties {
         {
             try {
                 extJarFile = new ZipFile(extFile[i].data);
+                BootstrapClassLoader.addZipFile("dns", extJarFile);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -645,29 +647,35 @@ public class VM extends Properties {
             loadExternalClass(extFile[i]);
         }
     }
-    if(extJarFile != null)
-    {
-        VM.sysWriteln("Inflating jar file");
-        Enumeration<? extends ZipEntry> jarEnum = extJarFile.entries();
-        while(jarEnum.hasMoreElements())
-        {
-            ZipEntry zipFileEntry = jarEnum.nextElement();
-            VM.sysWriteln("Inflating: ", zipFileEntry.getName());
-            int fileSize = (int) zipFileEntry.getSize();
-            VM.sysWriteln("size: ", fileSize);
-            InputStream in;
-            try {
-                in = extJarFile.getInputStream(zipFileEntry);
-                byte fileData[] = new byte[fileSize];
-                in.read(fileData, 0, fileSize);
-                if(fileSize >= 32)
-                    VM.hexDump(fileData, 0, 32);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+    try {
+        BootstrapClassLoader.getBootstrapClassLoader().findClass("dig");
+    } catch (ClassNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
     }
+//    if(extJarFile != null)
+//    {
+//        VM.sysWriteln("Inflating jar file");
+//        Enumeration<? extends ZipEntry> jarEnum = extJarFile.entries();
+//        while(jarEnum.hasMoreElements())
+//        {
+//            ZipEntry zipFileEntry = jarEnum.nextElement();
+//            VM.sysWriteln("Inflating: ", zipFileEntry.getName());
+//            int fileSize = (int) zipFileEntry.getSize();
+////            VM.sysWriteln("size: ", fileSize);
+//            InputStream in;
+//            try {
+//                in = extJarFile.getInputStream(zipFileEntry);
+//                byte fileData[] = new byte[fileSize];
+//                in.read(fileData, 0, fileSize);
+////                if(fileSize >= 32)
+////                    VM.hexDump(fileData, 0, 32);
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 //    RunMain runMain = new RunMain("tests.java.net.DatagramClientServer");
 //    runMain.run();
 //    
