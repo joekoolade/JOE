@@ -422,7 +422,6 @@ findEndSig:
                         len = 1;
                         eof = true;
                     }
-                    VM.hexDump(buf, 0, 16);
                     inflater.setInput(buf, 0, len, false);
                 }
                 private boolean eof;

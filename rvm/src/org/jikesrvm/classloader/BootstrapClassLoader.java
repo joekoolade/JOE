@@ -69,6 +69,19 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
     return bootstrapClasspath;
   }
 
+  public static void addZipFile(String name, ZipFile zf)
+  {
+      zipFileCache.put(name, zf);
+      if(bootstrapClasspath.length()==0)
+      {
+          bootstrapClasspath = bootstrapClasspath.concat(name);
+      }
+      else
+      {
+          bootstrapClasspath = bootstrapClasspath.concat(":"+name);
+      }
+      System.out.println("new bootstrap path "+bootstrapClasspath);
+  }
   /**
    * Initialize for execution.
    * @param bootstrapClasspath names of directories containing the bootstrap
@@ -189,7 +202,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
    */
   @Override
   public Class<?> findClass(String className) throws ClassNotFoundException {
-    final boolean DBG = false;
+    final boolean DBG = true;
     if (!VM.runningVM) {
       return super.findClass(className);
     }
@@ -419,11 +432,12 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
     }
 
     StringTokenizer tok = new StringTokenizer(getBootstrapRepositories(), File.pathSeparator);
-
     while (tok.hasMoreElements()) {
       try {
         String path = tok.nextToken();
-        if (path.endsWith(".jar") || path.endsWith(".zip")) {
+        System.out.println("Searching in "+path);
+        if (path.endsWith(".jar") || path.endsWith(".zip") || zipFileCache.containsKey(path)) {
+          System.out.println("Found path "+path);
           ZipFile zf = zipFileCache.get(path);
           if (zf == null) {
             zf = new ZipFile(path);

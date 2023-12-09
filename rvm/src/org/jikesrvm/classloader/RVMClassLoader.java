@@ -27,7 +27,7 @@ import org.jikesrvm.classlibrary.JavaLangInstrument;
  */
 public class RVMClassLoader {
 
-  private static final boolean DBG_APP_CL = false;
+  private static final boolean DBG_APP_CL = true;
 
   private static ClassLoader appCL;
 
