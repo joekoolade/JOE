@@ -647,12 +647,7 @@ public class VM extends Properties {
             loadExternalClass(extFile[i]);
         }
     }
-    try {
-        BootstrapClassLoader.getBootstrapClassLoader().findClass("dig");
-    } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
+//    dig.main("");
 //    if(extJarFile != null)
 //    {
 //        VM.sysWriteln("Inflating jar file");
@@ -710,8 +705,18 @@ public class VM extends Properties {
     VM.sysWriteln("Starting NAPI");
     napiThread.start();
     VM.sysWriteln("NAPI done");
-	Dhcp.discover(Platform.net);
+//	Dhcp.discover(Platform.net);
     VM.sysWriteln("INET boot done");
+//  Class dig;
+  try {
+      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+      String args[] = { "dig", "@10.0.2.2.", "viasat.com", "ANY" };
+      RunMain dig = new RunMain("dig", args);
+      dig.run();
+  } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+  }
     
     
     RVMThread.getCurrentThread().terminate();  
