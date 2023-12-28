@@ -42,7 +42,12 @@ class FileHeaderEntry implements ZipConstants {
 		return extraOffset() + extraFieldLength;
 	}
 	
-	int dataOffset()
+    int dataOffset()
+    {
+        return LOCHDR + extraFieldLength + nameLength;
+    }
+
+    int data()
 	{
 	    return offset + LOCHDR + extraFieldLength + nameLength;
 	}

@@ -85,6 +85,7 @@ public class InflaterInputStream extends FilterInputStream {
   }
 
   public int read(byte[] b, int off, int len) throws IOException {
+    System.out.println("IIS off:"+off+" len:"+len+" avail_in:"+inflater.avail_in);
     if (closed) { throw new IOException("Stream closed"); }
     if (b == null) {
       throw new NullPointerException();
@@ -101,9 +102,14 @@ public class InflaterInputStream extends FilterInputStream {
 
     int n = 0;
     inflater.setOutput(b, off, len);
+    System.out.println("IIS avail_in:"+inflater.avail_in+" eof:"+eof);
     while(!eof) {
       if(inflater.avail_in==0)
-        fill();
+      {
+          System.out.println("IIS read fill2 avail_in:"+inflater.avail_in);
+          fill();
+      }
+      System.out.println("IIS read after fill2 avail_in:"+inflater.avail_in);
       int err = inflater.inflate(JZlib.Z_NO_FLUSH);
       n += inflater.next_out_index - off;
       off = inflater.next_out_index;
@@ -171,6 +177,7 @@ public class InflaterInputStream extends FilterInputStream {
   }
 
   protected void fill() throws IOException {
+    System.out.println("IIS fill2 length:"+buf.length);
     if (closed) { throw new IOException("Stream closed"); }
     int len = in.read(buf, 0, buf.length);
     if (len == -1) {
@@ -186,6 +193,7 @@ public class InflaterInputStream extends FilterInputStream {
         throw new EOFException("Unexpected end of ZLIB input stream");
       }
     }
+    System.out.println("fill2 len:"+len);
     inflater.setInput(buf, 0, len, true);
   }
 

@@ -156,9 +156,10 @@ final class InfBlocks{
 
       // process input based on current state
       while (true) {
+          System.out.println("infblocks mode:"+mode+" p:"+p+" n:"+n+" b:"+b+" k:"+k);
           switch (mode) {
           case TYPE:
-
+              System.out.println("type k:"+k);
               while (k < (3)) {
                   if (n != 0) {
                       r = Z_OK;
@@ -181,16 +182,16 @@ final class InfBlocks{
 
               switch (t >>> 1) {
               case 0: // stored
-              {
-                  b >>>= (3);
-                  k -= (3);
-              }
+                  {
+                      b >>>= (3);
+                      k -= (3);
+                  }
                   t = k & 7; // go to byte boundary
-
-              {
-                  b >>>= (t);
-                  k -= (t);
-              }
+    
+                  {
+                      b >>>= (t);
+                      k -= (t);
+                  }
                   mode = LENS; // get length of stored block
                   break;
               case 1: // fixed
@@ -206,19 +207,19 @@ final class InfBlocks{
                   break;
               case 2: // dynamic
 
-              {
-                  b >>>= (3);
-                  k -= (3);
-              }
+                  {
+                      b >>>= (3);
+                      k -= (3);
+                  }
 
                   mode = TABLE;
                   break;
               case 3: // illegal
 
-              {
-                  b >>>= (3);
-                  k -= (3);
-              }
+                  {
+                      b >>>= (3);
+                      k -= (3);
+                  }
                   mode = BAD;
                   z.msg = "invalid block type";
                   r = Z_DATA_ERROR;

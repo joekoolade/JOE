@@ -202,7 +202,7 @@ final class Inflate {
     f = f == Z_FINISH ? Z_BUF_ERROR : Z_OK;
     r = Z_BUF_ERROR;
     while (true) {
-
+        System.out.println("mode: "+this.mode+" wrap:"+wrap);
         switch (this.mode) {
         case HEAD:
             if (wrap == 0) {
