@@ -34,6 +34,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package java.util.zip;
 
+import org.jikesrvm.VM;
+
 final class InfBlocks{
   static final private int MANY=1440;
 
@@ -106,8 +108,10 @@ final class InfBlocks{
   private final InfTree inftree=new InfTree();
 
   private final ZStream z; 
-
+  private final static boolean DEBUG = false;
+  
   InfBlocks(ZStream z, int w){
+    if(DEBUG) System.out.println("infblocks w:"+w+" wrap:"+z.istate.wrap);
     this.z=z;
     this.codes=new InfCodes(this.z, this);
     hufts=new int[MANY*3];
@@ -156,10 +160,10 @@ final class InfBlocks{
 
       // process input based on current state
       while (true) {
-          System.out.println("infblocks mode:"+mode+" p:"+p+" n:"+n+" b:"+b+" k:"+k);
+//          System.out.println("infblocks mode:"+mode+" p:"+p+" n:"+n+" b:"+b+" k:"+k);
           switch (mode) {
           case TYPE:
-              System.out.println("type k:"+k);
+              if(DEBUG) System.out.println("type k:"+k+" n:"+n);
               while (k < (3)) {
                   if (n != 0) {
                       r = Z_OK;
@@ -178,8 +182,9 @@ final class InfBlocks{
                   k += 8;
               }
               t = (int) (b & 7);
+              if(DEBUG) System.out.println("type k:"+k+" n:"+n+" p:"+p+" b:"+b+" t:"+t);
+              VM.hexDump(z.next_in, 0, 16);
               last = t & 1;
-
               switch (t >>> 1) {
               case 0: // stored
                   {
@@ -192,6 +197,7 @@ final class InfBlocks{
                       b >>>= (t);
                       k -= (t);
                   }
+                  if(DEBUG) System.out.println("TYPE LENS b:"+b+" k:"+k+" t:"+t);
                   mode = LENS; // get length of stored block
                   break;
               case 1: // fixed
@@ -234,7 +240,11 @@ final class InfBlocks{
               }
               break;
           case LENS:
-
+              if(DEBUG) 
+              {
+                  System.out.println("LENS k:"+k+" n:"+n+" p:"+p+" nin_index:"+z.next_in_index);
+                  VM.hexDump(z.next_in, 0, 16);
+              }
               while (k < (32)) {
                   if (n != 0) {
                       r = Z_OK;
@@ -271,6 +281,7 @@ final class InfBlocks{
               mode = left != 0 ? STORED : (last != 0 ? DRY : TYPE);
               break;
           case STORED:
+              if(DEBUG) System.out.println("STORED p:"+p);
               if (n == 0) {
                   bitb = b;
                   bitk = k;
@@ -323,7 +334,7 @@ final class InfBlocks{
               mode = last != 0 ? DRY : TYPE;
               break;
           case TABLE:
-
+              if(DEBUG) System.out.println("TABLE p:"+p);
               while (k < (14)) {
                   if (n != 0) {
                       r = Z_OK;
@@ -373,6 +384,7 @@ final class InfBlocks{
               index = 0;
               mode = BTREE;
           case BTREE:
+              if(DEBUG) System.out.println("BTREE p:"+p);
               while (index < 4 + (table >>> 10)) {
                   while (k < (3)) {
                       if (n != 0) {
@@ -425,6 +437,7 @@ final class InfBlocks{
               index = 0;
               mode = DTREE;
           case DTREE:
+              if(DEBUG) System.out.println("DTREE p:"+p);
               while (true) {
                   t = table;
                   if (!(index < 258 + (t & 0x1f) + ((t >> 5) & 0x1f))) {
@@ -546,6 +559,7 @@ final class InfBlocks{
           }
               mode = CODES;
           case CODES:
+//              System.out.println("CODES p:"+p);
               bitb = b;
               bitk = k;
               z.avail_in = n;
@@ -572,6 +586,7 @@ final class InfBlocks{
               }
               mode = DRY;
           case DRY:
+              if(DEBUG) System.out.println("DRY p:"+p);
               write = q;
               r = inflate_flush(r);
               q = write;
@@ -587,6 +602,7 @@ final class InfBlocks{
               }
               mode = DONE;
           case DONE:
+              if(DEBUG) System.out.println("DONE p:"+p);
               r = Z_STREAM_END;
 
               bitb = b;
@@ -686,7 +702,7 @@ final class InfBlocks{
 
       // update check information
       if(check && n>0){
-	z.adler.update(window, q, n);
+          z.adler.update(window, q, n);
       }
 
       // copy

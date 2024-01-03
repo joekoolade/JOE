@@ -85,7 +85,6 @@ public class InflaterInputStream extends FilterInputStream {
   }
 
   public int read(byte[] b, int off, int len) throws IOException {
-    System.out.println("IIS off:"+off+" len:"+len+" avail_in:"+inflater.avail_in);
     if (closed) { throw new IOException("Stream closed"); }
     if (b == null) {
       throw new NullPointerException();
@@ -102,14 +101,12 @@ public class InflaterInputStream extends FilterInputStream {
 
     int n = 0;
     inflater.setOutput(b, off, len);
-    System.out.println("IIS avail_in:"+inflater.avail_in+" eof:"+eof);
     while(!eof) {
       if(inflater.avail_in==0)
       {
-          System.out.println("IIS read fill2 avail_in:"+inflater.avail_in);
+          System.out.println("IIS read fill avail_in:"+inflater.avail_in);
           fill();
       }
-      System.out.println("IIS read after fill2 avail_in:"+inflater.avail_in);
       int err = inflater.inflate(JZlib.Z_NO_FLUSH);
       n += inflater.next_out_index - off;
       off = inflater.next_out_index;
@@ -127,6 +124,7 @@ public class InflaterInputStream extends FilterInputStream {
       if(inflater.avail_out==0)
         break;
     }
+//    System.out.println("IIS read n:"+n+" eof:"+eof);
     return n;
   }
 

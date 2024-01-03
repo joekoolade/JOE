@@ -455,7 +455,7 @@ findEndSig:
             int size = inflaters.size();
             if (size > 0) {
                 Inflater inf = (Inflater)inflaters.remove(size - 1);
-                inf.init();
+                inf.init(true);
                 return inf;
             } else {
                 try 
@@ -624,6 +624,7 @@ findEndSig:
             if (rem == 0) {
                 close();
             }
+//            System.out.println("zipfile read pos:"+pos+" rem:"+rem+" len:"+len);
             return len;
         }
 

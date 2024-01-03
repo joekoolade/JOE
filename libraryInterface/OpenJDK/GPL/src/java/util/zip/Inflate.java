@@ -89,6 +89,8 @@ final class Inflate {
 
   static final int INFLATE_ANY=0x40000000;
 
+private static final boolean DEBUG = false;
+
   int mode;                            // current inflate mode
 
   // mode dependent information
@@ -126,6 +128,7 @@ final class Inflate {
     
     z.total_in = z.total_out = 0;
     z.msg = null;
+    z.avail_in = 0;
     this.mode = HEAD;
     this.need_bytes = -1;
     this.blocks.reset();
@@ -147,6 +150,7 @@ final class Inflate {
     z.msg = null;
     blocks = null;
 
+    if(DEBUG) System.out.println("inflate0 init w:"+w+ " wrap:"+wrap);
     // handle undocumented wrap option (no zlib header or check)
     wrap = 0;
     if(w < 0){
@@ -167,15 +171,19 @@ final class Inflate {
       if(w < 48)
         w &= 15;
     }
+    if(DEBUG) System.out.println("inflate1 init w:"+w+ " wrap:"+wrap);
 
     if(w<8 ||w>15){
       inflateEnd();
       return Z_STREAM_ERROR;
     }
+    if(DEBUG) System.out.println("inflate2 init w:"+w+ " wrap:"+wrap);
+
     if(blocks != null && wbits != w){
       blocks.free();
       blocks=null;
     }
+    if(DEBUG) System.out.println("inflate3 init w:"+w+ " wrap:"+wrap);
 
     // set window size
     wbits=w;
@@ -184,6 +192,7 @@ final class Inflate {
     // reset state
     inflateReset();
 
+    if(DEBUG) System.out.println("inflate init w:"+w+" wrap:"+wrap);
     return Z_OK;
   }
 
@@ -201,10 +210,11 @@ final class Inflate {
 
     f = f == Z_FINISH ? Z_BUF_ERROR : Z_OK;
     r = Z_BUF_ERROR;
+    if(this.mode!=BLOCKS && DEBUG) System.out.println("mode: "+this.mode+" wrap:"+wrap);
     while (true) {
-        System.out.println("mode: "+this.mode+" wrap:"+wrap);
         switch (this.mode) {
         case HEAD:
+            if(DEBUG) System.out.println("HEAD wrap:"+wrap);
             if (wrap == 0) {
                 this.mode = BLOCKS;
                 break;
@@ -251,8 +261,11 @@ final class Inflate {
                     this.mode = BLOCKS;
                     break;
                 }
-                VM.hexDump(z.next_in, 0, 16);
-                System.out.println("HEADER need:"+this.need+" wrap:"+wrap+" method:"+this.method+" avail:"+z.avail_in+" "+z.avail_out+" next:"+z.next_in_index+" "+z.next_out_index);;
+                if(DEBUG)
+                {
+                    VM.hexDump(z.next_in, 0, 16);
+                    System.out.println("HEADER need:"+Long.toHexString(this.need)+" wrap:"+wrap+" method:"+this.method+" avail:"+z.avail_in+" "+z.avail_out+" next:"+z.next_in_index+" "+z.next_out_index);;
+                }
                 this.mode = BAD;
                 z.msg = "incorrect header check 2";
                 // since zlib 1.2, it is allowted to inflateSync for this case.

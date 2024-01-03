@@ -102,6 +102,7 @@ public class ZStream {
   }
   public int inflateInit(int w, JZlib.WrapperType wrapperType) {
     boolean nowrap = false;
+    avail_in = 0;
     if(wrapperType == JZlib.W_NONE){
       nowrap = true;
     }
@@ -286,8 +287,7 @@ public class ZStream {
   }
 
   public void setInput(byte[] buf, int off, int len, boolean append){
-    //System.out.printf("setInput avail_in %d len %d  ni_index %d\n", avail_in, len, next_in_index);
-    System.out.println("setInput avail_in:"+avail_in+" len:"+len+"  ni_index:"+ next_in_index);
+//    System.out.println("setInput off:"+off+" avail_in:"+avail_in+" len:"+len+"  ni_index:"+ next_in_index);
     if(len<=0 && append && next_in!=null) return;
 
     if(avail_in>0 && append){  
