@@ -20,7 +20,10 @@ import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.util.Currency;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -34,6 +37,7 @@ import org.jam.runtime.RunMain;
 import org.jam.runtime.StartUp;
 import org.jam.runtime.SystemJars;
 import org.jam.system.Trace;
+import org.jam.tests.LocaleTest;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
 import org.jikesrvm.architecture.StackFrameLayout;
@@ -406,6 +410,7 @@ public class VM extends Properties {
 	runClassInitializer("java.io.Console");
 	runClassInitializer("java.util.concurrent.atomic.AtomicInteger");
 	runClassInitializer("java.io.FileDescriptor");
+	runClassInitializer("java.io.File");
 	runClassInitializer("java.io.FileInputStream");
 	runClassInitializer("java.io.FileOutputStream");
 	// runClassInitializer("java/lang/reflect/Modifier");
@@ -700,23 +705,29 @@ public class VM extends Properties {
 //        }
 //        StartUp.testModeRun(classes);
 //    }
-    Thread napiThread = new Thread(new NapiManager());
-    napiThread.setName("NAPI Manager");
-    VM.sysWriteln("Starting NAPI");
-    napiThread.start();
-    VM.sysWriteln("NAPI done");
+//    new Thread(new LocaleTest()).run();
+    VM.sysWriteln("Currency");
+    Locale locale = Locale.getDefault();
+    VM.sysWriteln("locale "+locale);
+    Currency cur = Currency.getInstance(locale);
+    new LocaleTest().localeTest();
+    
 //	Dhcp.discover(Platform.net);
-    VM.sysWriteln("INET boot done");
+//    VM.sysWriteln("INET boot done");
+//    System.out.println("pattern: "+dformat.toPattern());
+
 //  Class dig;
-  try {
-      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
-      String args[] = { "dig", "@10.0.2.2.", "viasat.com", "ANY" };
-      RunMain dig = new RunMain("dig", args);
-      dig.run();
-  } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-  }
+//  try {
+//      System.setProperty("dns.server", "10.0.2.3");
+//      System.setProperty("dns.search", "localhost.com");
+//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+//      String args[] = { "dig", "@10.0.2.2.", "viasat.com", "ANY" };
+//      RunMain dig = new RunMain("dig", args);
+//      dig.run();
+//  } catch (ClassNotFoundException e) {
+//      // TODO Auto-generated catch block
+//      e.printStackTrace();
+//  }
     
     
     RVMThread.getCurrentThread().terminate();  
@@ -730,6 +741,10 @@ public class VM extends Properties {
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
+  static void loopForever()
+  {
+      while(true) ;
+  }
   @Interruptible
   private static void pleaseSpecifyAClass() {
     VM.sysWriteln("vm: Please specify a class to execute.");
