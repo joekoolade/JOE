@@ -1,95 +1,118 @@
 package org.jam.fs;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.jikesrvm.VM;
+import org.jikesrvm.util.HashMapRVM;
 
-public class JavaFile
-{
+public class JavaFile {
+    static HashMapRVM<String, byte[]> fileMap = new HashMapRVM<String, byte[]>();
+    String fileName;
+    int pos;
+    byte fileData[];
+    
+    public JavaFile() throws FileNotFoundException {
+        
+    }
 
-  public JavaFile()
-  {
+    public JavaFile(String name, boolean append) throws FileNotFoundException {
+        VM.sysWrite("JFS open ", name);
+        if (append)
+            VM.sysWriteln(" append");
+        else
+            VM.sysWriteln();
+        fileData = fileMap.get(name);
+        if(fileData == null) throw new FileNotFoundException();
+        fileName = name;
+    }
 
-  }
+    public JavaFile(String name) throws FileNotFoundException {
+        this(name, false);
+    }
 
-  public JavaFile(String name, boolean append)
-  {
-    VM.sysWrite("JFS open ", name);
-    if (append)
-      VM.sysWriteln(" append");
-    else
-      VM.sysWriteln();
-  }
-  public JavaFile(String name)
-  {
-    this(name, false);
-  }
+    public JavaFile(String name, int mode) {
+        VM.sysWrite("JFS open ", name);
+        VM.sysWriteln(" mode ", mode);
+    }
 
-  public JavaFile(String name, int mode)
-  {
-    VM.sysWrite("JFS open ", name);
-    VM.sysWriteln(" mode ", mode);
-  }
+    public int read() throws IOException {
+        int data;
+        VM.sysWriteln("JFS read");
+        if(pos >= fileData.length) data = -1;
+        else data = fileData[pos++];
+        return data;
+    }
 
-  public int read()
-  {
-    VM.sysWriteln("JFS read");
-    return 0;
-  }
+    public int readBytes(byte[] b, int off, int len) throws IOException {
+        int readLength;
+        VM.sysWrite("JFS readbytes ", b.length);
+        VM.sysWrite(" ", off);
+        VM.sysWriteln(" ", len);
+        if(b == null) throw new IOException();
+        if(off + len >= b.length) throw new IOException();
+        if(pos >= fileData.length) return -1;
+        if(pos + len >= fileData.length)
+        {
+            readLength = fileData.length - pos;
+        }
+        else
+        {
+            readLength = len;
+        }
+        System.arraycopy(fileData, pos, b, off, readLength);
+        VM.sysWrite("JFS readbytes ", b.length);
+        VM.sysWrite(" ", off);
+        VM.sysWrite(" ", len);
+        VM.sysWriteln(" ", readLength);
+        pos += readLength;
+        return readLength;
+    }
 
-  public int readBytes(byte[] b, int off, int len)
-  {
-    VM.sysWrite("JFS readbytes ", b.length);
-    VM.sysWrite(" ", off);
-    VM.sysWriteln(" ", len);
-    return 0;
-  }
+    public long skip(long n) {
+        VM.sysWriteln("JFS skip ", n);
+        pos += n;
+        return 0;
+    }
 
-  public long skip(long n)
-  {
-    VM.sysWriteln("JFS skip ", n);
-    return 0;
-  }
+    public int available() {
+        VM.sysWriteln("JFS availabe");
+        return 0;
+    }
 
-  public int available()
-  {
-    VM.sysWriteln("JFS availabe");
-    return 0;
-  }
+    public void close() {
+        VM.sysWriteln("JFS close");
 
-  public void close()
-  {
-    VM.sysWriteln("JFS close");
+    }
 
-  }
+    public void write(int b) {
+        VM.sysWriteln("JFS write ", b);
 
-  public void write(int b)
-  {
-    VM.sysWriteln("JFS write ", b);
+    }
 
-  }
+    public void writeBytes(byte[] b, int off, int len) {
+        // TODO Auto-generated method stub
+        VM.sysWrite("JFS writebytes ", b.length);
+        VM.sysWrite(" ", off);
+        VM.sysWriteln(" ", len);
+    }
 
-  public void writeBytes(byte[] b, int off, int len)
-  {
-    // TODO Auto-generated method stub
-    VM.sysWrite("JFS writebytes ", b.length);
-    VM.sysWrite(" ", off);
-    VM.sysWriteln(" ", len);
-  }
+    public long getFilePointer() {
+        VM.sysWriteln("JFS getfilepointer");
+        return 0;
+    }
 
-  public long getFilePointer()
-  {
-    VM.sysWriteln("JFS getfilepointer");
-    return 0;
-  }
+    public void seek(long pos) {
+        VM.sysWriteln("JFS seek ", pos);
 
-  public void seek(long pos)
-  {
-    VM.sysWriteln("JFS seek ", pos);
+    }
 
-  }
+    public long length() {
+        VM.sysWriteln("JFS length");
+        return 0;
+    }
 
-  public long length()
-  {
-    VM.sysWriteln("JFS length");
-    return 0;
-  }
+    public static void create(String name, byte[] data) {
+        fileMap.put(name, data);
+    }
 }
