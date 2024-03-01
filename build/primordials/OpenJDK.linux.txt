@@ -399,3 +399,4 @@ Ljava/net/InetAddress$InetAddressHolder;
 Ljava/net/InetAddress$Cache$Type;
 Ljava/net/InetAddress;
 Ljava/util/zip/FileHeaderEntry;
+Ljava/io/JavaFileSystem;
