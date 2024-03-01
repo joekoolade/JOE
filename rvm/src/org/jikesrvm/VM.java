@@ -409,6 +409,7 @@ public class VM extends Properties {
 	runClassInitializer("sun.misc.SharedSecrets");
 	runClassInitializer("java.io.Console");
 	runClassInitializer("java.util.concurrent.atomic.AtomicInteger");
+	runClassInitializer("java.io.JavaFileSystem");
 	runClassInitializer("java.io.FileDescriptor");
 	runClassInitializer("java.io.File");
 	runClassInitializer("java.io.FileInputStream");
