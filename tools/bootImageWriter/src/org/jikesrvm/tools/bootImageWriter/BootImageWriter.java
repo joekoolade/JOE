@@ -68,6 +68,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.jam.fs.JavaFile;
 import org.jam.runtime.SystemJars;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.ArchitectureFactory;
@@ -109,6 +110,7 @@ import org.jikesrvm.tools.bootImageWriter.entrycomparators.ObjectSizeComparator;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.ReferenceDensityComparator;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.TypeReferenceComparator;
 import org.jikesrvm.tools.bootImageWriter.types.BootImageTypes;
+import org.jikesrvm.util.HashMapRVM;
 import org.jikesrvm.util.Services;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
@@ -625,6 +627,28 @@ private static String javaSystemJar;
         extFiles = getExtFiles("../../ext/bin");
         System.out.println("External Files: " + extFiles.length);
     }
+    
+    /*
+     * Add files to Java File system
+     */
+    JavaFile.fileMap = new HashMapRVM<String, byte[]>();
+    File currencyFile = new File("../../build/files/currency.data");
+    int currencyFileSize = (int)currencyFile.length();
+    byte[] data = new byte[currencyFileSize];
+    try {
+        System.out.println("path "+currencyFile.getAbsolutePath());
+        FileInputStream fis = new FileInputStream(currencyFile);
+        fis.read(data);
+        System.out.println("currency file size "+data.length);
+        fis.close();
+    } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    JavaFile.fileMap.put("/lib/currency.data", data);
     
     appendJarFile(javaSystemJar);
     //
