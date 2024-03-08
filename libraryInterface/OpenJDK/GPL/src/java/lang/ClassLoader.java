@@ -164,13 +164,54 @@ import sun.security.util.SecurityConstants;
  */
 public abstract class ClassLoader {
 
-    private static native void registerNatives();
-    static {
-        registerNatives();
-    }
-
     // The parent class loader for delegation
     private ClassLoader parent;
+
+    /**
+     * Encapsulates the set of parallel capable loader types.
+     */
+    private static class ParallelLoaders {
+        private ParallelLoaders() {}
+
+        // the set of parallel capable loader types
+        private static final Set<Class<? extends ClassLoader>> loaderTypes =
+            Collections.newSetFromMap(
+                new WeakHashMap<Class<? extends ClassLoader>, Boolean>());
+        static {
+            synchronized (loaderTypes) { loaderTypes.add(ClassLoader.class); }
+        }
+
+        /**
+         * Registers the given class loader type as parallel capabale.
+         * Returns {@code true} is successfully registered; {@code false} if
+         * loader's super class is not registered.
+         */
+        static boolean register(Class<? extends ClassLoader> c) {
+            synchronized (loaderTypes) {
+                if (loaderTypes.contains(c.getSuperclass())) {
+                    // register the class loader as parallel capable
+                    // if and only if all of its super classes are.
+                    // Note: given current classloading sequence, if
+                    // the immediate super class is parallel capable,
+                    // all the super classes higher up must be too.
+                    loaderTypes.add(c);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        /**
+         * Returns {@code true} if the given class loader type is
+         * registered as parallel capable.
+         */
+        static boolean isRegistered(Class<? extends ClassLoader> c) {
+            synchronized (loaderTypes) {
+                return loaderTypes.contains(c);
+            }
+        }
+    }
 
     // Hashtable that maps packages to certs
     private Hashtable<String, Certificate[]> package2certs
@@ -1092,6 +1133,27 @@ public abstract class ClassLoader {
      */
     protected Enumeration<URL> findResources(String name) throws IOException {
         return new CompoundEnumeration(new Enumeration[0]);
+    }
+
+    /**
+     * Registers the caller as parallel capable.</p>
+     * The registration succeeds if and only if all of the following
+     * conditions are met: <br>
+     * 1. no instance of the caller has been created</p>
+     * 2. all of the super classes (except class Object) of the caller are
+     * registered as parallel capable</p>
+     * Note that once a class loader is registered as parallel capable, there
+     * is no way to change it back. </p>
+     *
+     * @return  true if the caller is successfully registered as
+     *          parallel capable and false if otherwise.
+     *
+     * @since   1.7
+     */
+    protected static boolean registerAsParallelCapable() {
+        Class<? extends ClassLoader> callerClass =
+            Reflection.getCallerClass().asSubclass(ClassLoader.class);
+        return ParallelLoaders.register(callerClass);
     }
 
     /**

@@ -707,28 +707,28 @@ public class VM extends Properties {
 //        StartUp.testModeRun(classes);
 //    }
 //    new Thread(new LocaleTest()).run();
-    VM.sysWriteln("Currency");
-    Locale locale = Locale.getDefault();
-    VM.sysWriteln("locale "+locale);
-    Currency cur = Currency.getInstance(locale);
-    new LocaleTest().localeTest();
+//    VM.sysWriteln("Currency");
+//    Locale locale = Locale.getDefault();
+//    VM.sysWriteln("locale "+locale);
+//    Currency cur = Currency.getInstance(locale);
+//    new LocaleTest().localeTest();
     
 //	Dhcp.discover(Platform.net);
 //    VM.sysWriteln("INET boot done");
 //    System.out.println("pattern: "+dformat.toPattern());
 
 //  Class dig;
-//  try {
-//      System.setProperty("dns.server", "10.0.2.3");
-//      System.setProperty("dns.search", "localhost.com");
-//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
-//      String args[] = { "dig", "@10.0.2.2.", "viasat.com", "ANY" };
-//      RunMain dig = new RunMain("dig", args);
-//      dig.run();
-//  } catch (ClassNotFoundException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//  }
+  try {
+      System.setProperty("dns.server", "10.0.2.3");
+      System.setProperty("dns.search", "localhost.com");
+      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+      String args[] = { "dig", "@10.0.2.2.", "viasat.com", "ANY" };
+      RunMain dig = new RunMain("dig", args);
+      dig.run();
+  } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+  }
     
     
     RVMThread.getCurrentThread().terminate();  
