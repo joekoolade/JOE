@@ -435,9 +435,8 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
     while (tok.hasMoreElements()) {
       try {
         String path = tok.nextToken();
-        System.out.println("Searching in "+path);
         if (path.endsWith(".jar") || path.endsWith(".zip") || zipFileCache.containsKey(path)) {
-          System.out.println("Found path "+path);
+          System.out.println("Found path "+path + " " + name);
           ZipFile zf = zipFileCache.get(path);
           if (zf == null) {
             zf = new ZipFile(path);

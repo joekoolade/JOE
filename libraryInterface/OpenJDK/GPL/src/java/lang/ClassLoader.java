@@ -40,6 +40,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Map;
 import java.util.Vector;
+import java.util.WeakHashMap;
 
 import org.jikesrvm.classlibrary.ClassLoaderSupport;
 import org.jikesrvm.classloader.BootstrapClassLoader;
@@ -1211,9 +1213,9 @@ public abstract class ClassLoader {
      * Find resources from the VM's built-in classloader.
      */
     private static URL getBootstrapResource(String name) {
-        URLClassPath ucp = getBootstrapClassPath();
-        Resource res = ucp.getResource(name);
-        return res != null ? res.getURL() : null;
+//        URLClassPath ucp = getBootstrapClassPath();
+//        Resource res = ucp.getResource(name);
+        return null; // res != null ? res.getURL() : null;
     }
 
     /**
@@ -1222,26 +1224,27 @@ public abstract class ClassLoader {
     private static Enumeration<URL> getBootstrapResources(String name)
         throws IOException
     {
-        final Enumeration<Resource> e = getBootstrapClassPath().getResources(name);
-        return new Enumeration<URL> () {
-            public URL nextElement() {
-                return e.nextElement().getURL();
-            }
-            public boolean hasMoreElements() {
-                return e.hasMoreElements();
-            }
-        };
+//        final Enumeration<Resource> e = getBootstrapClassPath().getResources(name);
+//        return new Enumeration<URL> () {
+//            public URL nextElement() {
+//                return e.nextElement().getURL();
+//            }
+//            public boolean hasMoreElements() {
+//                return e.hasMoreElements();
+//            }
+//        };
+        return Collections.emptyEnumeration();
     }
 
     // Returns the URLClassPath that is used for finding system resources.
-    static URLClassPath getBootstrapClassPath() {
-        if (bootstrapClassPath == null) {
-            bootstrapClassPath = sun.misc.Launcher.getBootstrapClassPath();
-        }
-        return bootstrapClassPath;
-    }
-
-    private static URLClassPath bootstrapClassPath;
+//    static URLClassPath getBootstrapClassPath() {
+//        if (bootstrapClassPath == null) {
+//            bootstrapClassPath = sun.misc.Launcher.getBootstrapClassPath();
+//        }
+//        return bootstrapClassPath;
+//    }
+//
+//    private static URLClassPath bootstrapClassPath;
 
     /**
      * Returns an input stream for reading the specified resource.

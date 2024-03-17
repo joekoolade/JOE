@@ -716,19 +716,25 @@ public class VM extends Properties {
 //	Dhcp.discover(Platform.net);
 //    VM.sysWriteln("INET boot done");
 //    System.out.println("pattern: "+dformat.toPattern());
-
+//  VM.sysWriteln("decima format ...");
+//  DecimalFormat df = new DecimalFormat();
+//  VM.sysWriteln("df done");
 //  Class dig;
+  // For now need have DecimalFormat in the primordials
+  runClassInitializer("java.text.DecimalFormat");
   try {
       System.setProperty("dns.server", "10.0.2.3");
       System.setProperty("dns.search", "localhost.com");
       BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
-      String args[] = { "dig", "@10.0.2.2.", "viasat.com", "ANY" };
+      String args[] = { "dig", "viasat.com", "ANY" };
       RunMain dig = new RunMain("dig", args);
       dig.run();
+      VM.sysWriteln("dig running");
   } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
   }
+//  VM.verboseClassLoading = true;
     
     
     RVMThread.getCurrentThread().terminate();  

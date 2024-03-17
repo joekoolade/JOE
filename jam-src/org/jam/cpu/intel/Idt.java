@@ -43,7 +43,9 @@ public final class Idt implements SegmentDescriptorTypes {
     private static NullPointerException nullPointerExc = new NullPointerException();
     private static ArithmeticException arithmeticExc = new ArithmeticException();
     private static ArrayIndexOutOfBoundsException arrayIndexExc = new ArrayIndexOutOfBoundsException();
-    @Entrypoint
+    private static InternalError internalError = new InternalError();
+
+            @Entrypoint
     public static Address athrowMethodAddress               = null;
 
     /**
@@ -140,22 +142,26 @@ public final class Idt implements SegmentDescriptorTypes {
 	    @InterruptHandler
 	    public static void int1()
 	    {
-            Magic.halt();
-            while(true) ;
+          VM.sysWriteln("INT1, Reserved");
+	      Magic.throwException(internalError);
+//            Magic.halt();
+//            while(true) ;
 //	        VM.sysFail("INT1, Reserved");
 	    }
 	    @InterruptHandler
 	    public static void int2()
 	    {
-            Magic.halt();
-            while(true) ;
+            Magic.throwException(internalError);
+//            Magic.halt();
+//            while(true) ;
 //	        VM.sysFail("NMI Interrupt");
 	    }
 	    @InterruptHandler
 	    public static void int3()
 	    {
-            Magic.halt();
-            while(true) ;
+            Magic.throwException(internalError);
+//            Magic.halt();
+//            while(true) ;
 //	        VM.sysFail("Breakpoint");
 	    }
 	    @InterruptHandler
@@ -171,17 +177,20 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int6()
         {
-            Magic.saveContext();
+            Magic.throwException(internalError);
+//            Magic.saveContext();
 //            Trace.printLog();
-           Magic.halt();
-           while(true) ;
+//           Magic.halt();
+//           while(true) ;
 //          VM.sysFailTrap("Invalid Opcode");
         }
         @InterruptHandler
         public static void int7()
         {
-          Magic.halt();
-          while(true) ;
+            Magic.throwException(internalError);
+
+//          Magic.halt();
+//          while(true) ;
 //            VM.sysFail("Device Not Available");
         }
         @InterruptHandler
@@ -197,29 +206,33 @@ public final class Idt implements SegmentDescriptorTypes {
         @InterruptHandler
         public static void int9()
         {
-          Magic.halt();
-          while(true) ;
+            Magic.throwException(internalError);
+//          Magic.halt();
+//          while(true) ;
 //            VM.sysFail("Coprocessor Segment Overrun");
         }
         @InterruptHandler
         public static void int10()
         {
-          Magic.halt();
-          while(true) ;
+            Magic.throwException(internalError);
+//          Magic.halt();
+//          while(true) ;
 //            VM.sysFail("Invalid TSS");
         }
        @InterruptHandler
         public static void int11()
         {
-         Magic.halt();
-         while(true) ;
+           Magic.throwException(internalError);
+//         Magic.halt();
+//         while(true) ;
 //            VM.sysFail("Segment Not Present");
         }
        @InterruptHandler
        public static void int12()
        {
-         Magic.halt();
-         while(true) ;
+           Magic.throwException(internalError);
+//         Magic.halt();
+//         while(true) ;
 //           VM.sysFail("Stack Segment Fault");
        }
        @InterruptHandler
@@ -235,8 +248,9 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int15()
        {
-           Magic.halt();
-           while(true) ;
+           Magic.throwException(internalError);
+//           Magic.halt();
+//           while(true) ;
 //           VM.sysWriteln("Spurious Interrupt");
        }
        @InterruptHandler
@@ -247,29 +261,33 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int17()
        {
-           Magic.halt();
-           while(true) ;
+           Magic.throwException(internalError);
+//           Magic.halt();
+//           while(true) ;
 //           VM.sysFail("Alignment Check");
        }
        @InterruptHandler
        public static void int18()
        {
-           Magic.halt();
-           while(true) ;
+           Magic.throwException(internalError);
+//           Magic.halt();
+//           while(true) ;
 //           VM.sysFail("Machine Check");
        }
        @InterruptHandler
        public static void int19()
        {
-           Magic.halt();
-           while(true) ;
+           Magic.throwException(internalError);
+//           Magic.halt();
+//           while(true) ;
 //           VM.sysFail("SIMD Floating Point Exception");
        }
        @InterruptHandler
        public static void int20()
        {
-           Magic.halt();
-           while(true) ;
+           Magic.throwException(internalError);
+//           Magic.halt();
+//           while(true) ;
 //           VM.sysFail("Virtualization Exception");
        }
        @InterruptHandler
