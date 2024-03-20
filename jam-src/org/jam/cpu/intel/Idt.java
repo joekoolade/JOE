@@ -39,11 +39,13 @@ public final class Idt implements SegmentDescriptorTypes {
     int                      limit;
     final private static int MAX_VECTORS                     = 256;
     final private static int DEFAULT_IDT_VECTOR_TABLE        = 0x1000;
+    public static final int STACK_SEGMENT_INT                = 12;
     private static RVMClass interruptVectorClass             = null;
     private static NullPointerException nullPointerExc = new NullPointerException();
     private static ArithmeticException arithmeticExc = new ArithmeticException();
     private static ArrayIndexOutOfBoundsException arrayIndexExc = new ArrayIndexOutOfBoundsException();
     private static InternalError internalError = new InternalError();
+    private static StackOverflowError stackError = new StackOverflowError();
 
             @Entrypoint
     public static Address athrowMethodAddress               = null;
@@ -230,9 +232,10 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int12()
        {
-           Magic.throwException(internalError);
-//         Magic.halt();
-//         while(true) ;
+           VM.sysWriteln("Stack Overflow");
+           Magic.halt();
+           while(true) ;
+//           Magic.throwException(stackError);
 //           VM.sysFail("Stack Segment Fault");
        }
        @InterruptHandler

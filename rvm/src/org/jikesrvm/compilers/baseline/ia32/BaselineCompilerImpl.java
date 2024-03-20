@@ -73,6 +73,7 @@ import static org.jikesrvm.runtime.JavaSizeConstants.LOG_BYTES_IN_INT;
 import static org.jikesrvm.runtime.JavaSizeConstants.LOG_BYTES_IN_SHORT;
 import static org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_UNREACHABLE_BYTECODE;
 
+import org.jam.cpu.intel.Idt;
 import org.jikesrvm.VM;
 import org.jikesrvm.adaptive.AosEntrypoints;
 import org.jikesrvm.adaptive.recompilation.InvocationCounts;
@@ -3473,7 +3474,7 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
     else if (klass.hasBridgeFromNativeAnnotation()) {
     } else {
 
-      //genStackOverflowCheck();
+      genStackOverflowCheck();
 
       /* paramaters are on the stack and/or in registers;  There is space
        * on the stack for all the paramaters;  Parameter slots in the
@@ -3674,7 +3675,7 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
       }
       asm.emitBranchLikelyNextInstruction();
       ForwardReference fr = asm.forwardJcc(LGT);        // Jmp around trap if OK
-      asm.emitINT_Imm(RuntimeEntrypoints.TRAP_STACK_OVERFLOW + RVM_TRAP_BASE);     // trap
+      asm.emitINT_Imm(Idt.STACK_SEGMENT_INT);     // trap
       fr.resolve(asm);
     } else {
       // TODO!! make sure stackframe of uninterruptible method doesn't overflow guard page
