@@ -36,29 +36,34 @@ This is inter-operable with current Java compilers, class files, and libraries. 
 
 ## How To Build
 
-You can build from Mac OS or Linux. You will need Java OpenJDK6. You will also need jenv, brew, bison, and the gcc compiler, gcc-10.
+You can build from Mac OS or Linux. You will need Java OpenJDK7. You will also need jenv, brew, bison, and the gcc compiler, gcc-10.
 
-### Mac OS One Time Setup
+Download [jdk-7u75](https://drive.google.com/file/d/1miSg_oKt_23BbHnqfmmnP4tMaOYxF4hj/view?usp=drive_link) and install the dmg file.
+
+### Intel Mac OS One Time Setup
 ```
 % brew tap homebrew/cask-versions
-% brew install java6
 % brew install ant@1.9
 % ln -s /usr/local/Cellar/ant@1.9/1.9.16/bin/ant /usr/local/bin/ant1.9
 
-% /Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java -version
-java version "1.6.0_65"
-Java(TM) SE Runtime Environment (build 1.6.0_65-b14-468)
-Java HotSpot(TM) 64-Bit Server VM (build 20.65-b04-468, mixed mode)
+% /Library/Java/JavaVirtualMachines/jdk1.7.0_75.jdk/Contents/Home/bin/java -version
+java version "1.7.0_75"
+Java(TM) SE Runtime Environment (build 1.7.0_75-b13)
+Java HotSpot(TM) 64-Bit Server VM (build 24.75-b04, mixed mode)
 
 % cd <top of JOE repo>
 % cat > .ant.properties
 config.name=BaseBaseRefCount
 host.name=x86_64-osx
 skip.unit.tests=1
+classlib.provider=OpenJDK
+openjdk.lib.dir=/Library/Java/JavaVirtualMachines/jdk1.7.0_75.jdk/Contents/Home/jre/lib
+ant.jar=/usr/local/Cellar/ant@1.9/1.9.16/libexec/lib/ant.jar
+openjdk.classes.jar=rt.jar
 <ctrl-D>
 
-% jenv local 1.6
-% export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home
+% jenv local 1.7
+% export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.7.0_75.jdk/Contents/Home
 ```
 ### Linux One Time Setup
 ```
