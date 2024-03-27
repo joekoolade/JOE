@@ -26,7 +26,7 @@ public class IdleThread extends SystemThread
      */
   public IdleThread()
   {
-    super(MemoryManager.newStack(4096), "IdleThread");
+    super("IdleThread");
     RVMThread.idleThread = this.rvmThread;
     VM.sysWriteln("idle thread: ", ObjectReference.fromObject(RVMThread.idleThread));
   }
