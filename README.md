@@ -38,7 +38,9 @@ This is inter-operable with current Java compilers, class files, and libraries. 
 
 You can build from Mac OS or Linux. You will need Java OpenJDK7. You will also need jenv, brew, bison, and the gcc compiler, gcc-10.
 
-Download [jdk-7u75](https://drive.google.com/file/d/1miSg_oKt_23BbHnqfmmnP4tMaOYxF4hj/view?usp=drive_link) and install the dmg file.
+For Intel MAC OS download [jdk-7u75](https://drive.google.com/file/d/1miSg_oKt_23BbHnqfmmnP4tMaOYxF4hj/view?usp=drive_link) and install the dmg file.
+
+For Linux download [jdk-7u75](https://drive.google.com/file/d/1fkU8A1r7sITn2fQfR5-AWpoSvyWJ_B1C/view?usp=drive_link) and install the tar file.
 
 ### Intel Mac OS One Time Setup
 ```
@@ -67,9 +69,9 @@ openjdk.classes.jar=rt.jar
 ```
 ### Linux One Time Setup
 ```
-% sh -c ./jdk-6u45-linux-x64-rpm.bin
+% tar xf -C /usr/java openjdk-7u75-b13-linux-x64-18_dec_2014.tar
 % yum install gcc bison flex ant-1.9
-% export JAVA_HOME=/usr/java/jdk1.6.0_45/
+% export JAVA_HOME=/usr/java/java-se-7u75-ri/
 ```
 
 ### Docker One Time Setup
@@ -121,7 +123,7 @@ The below will build and run VM tests
 ```
 ## How To Add External Classes
 
-Precompiled classes can be added to the image and loaded by the runtime. This allows users to run  programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load the program and run it. To have classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example. The classes must be compiled for Java version 1.5.
+Precompiled classes can be added to the image and loaded by the runtime. This allows users to run  programs that have been compiled outside of the JOE image. The class StartUp has two methods runMain(String class) for running the main() method and runThread(String class)  for running a Thread class. Those two methods will class load the program and run it. To have classes loaded into the image they must be copied into the `ext/bin` directory. Below is an example. The classes must be compiled for Java version 1.7 or older.
 
 ```
 joe$ ls -R ext/bin
