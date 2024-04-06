@@ -350,3 +350,5 @@ Ljava/lang/Throwable$PrintStreamOrWriter;
 Ljava/util/IdentityHashMap;
 Ljava/util/IdentityHashMap$KeySet;
 Ljava/text/DecimalFormat;
+Ljava/text/NumberFormat;
+Ljava/text/Format;

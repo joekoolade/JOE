@@ -46,8 +46,9 @@ public final class Idt implements SegmentDescriptorTypes {
     private static ArrayIndexOutOfBoundsException arrayIndexExc = new ArrayIndexOutOfBoundsException();
     private static InternalError internalError = new InternalError();
     private static StackOverflowError stackError = new StackOverflowError();
-
-            @Entrypoint
+    private static ClassCastException castError = new ClassCastException();
+    
+    @Entrypoint
     public static Address athrowMethodAddress               = null;
 
     /**
@@ -233,6 +234,7 @@ public final class Idt implements SegmentDescriptorTypes {
        public static void int12()
        {
            VM.sysWriteln("Stack Overflow");
+           VM.sysFail("Stack Overflow");
            Magic.halt();
            while(true) ;
 //           Magic.throwException(stackError);
@@ -600,7 +602,8 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int71()
        {
-         VM.sysFailTrap("int71");
+         Magic.throwExceptionNoErrCode(castError);
+//         VM.sysFailTrap("int71");
        }
        @InterruptHandler
        public static void int72()

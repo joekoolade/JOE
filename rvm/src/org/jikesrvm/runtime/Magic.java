@@ -1723,4 +1723,11 @@ public final class Magic {
           VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
       }
     }
+    public static void throwExceptionNoErrCode(Throwable exc)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+    }
 }

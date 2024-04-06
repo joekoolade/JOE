@@ -236,6 +236,7 @@ public class MagicNames {
   public static final Atom enableInterrupts = Atom.findOrCreateAsciiAtom("enableInterrupts");
   public static final Atom disableInterrupts = Atom.findOrCreateAsciiAtom("disableInterrupts");
   public static final Atom throwException = Atom.findOrCreateAsciiAtom("throwException");
+  public static final Atom throwExceptionNoErrCode = Atom.findOrCreateAsciiAtom("throwExceptionNoErrCode");
 
   public static final Atom setIdt = Atom.findOrCreateAsciiAtom("setIdt");
 

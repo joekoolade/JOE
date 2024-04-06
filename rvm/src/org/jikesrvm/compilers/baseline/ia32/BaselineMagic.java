@@ -3229,6 +3229,49 @@ final class BaselineMagic {
       MagicGenerator g = new ThrowException();
       generators.put(getMethodReference(Magic.class, MagicNames.throwException, Throwable.class, void.class), g);
   }
+
+  private static final class ThrowExceptionNoErrCode extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd) {
+        /*
+         * Create stack for call to athrow() by 
+         * 1. popping the interrupt info into registers R8 - R11.
+         * 2. pushing the nullpointer execption obj onto the stack
+         * 3. push registers R8 - R11 on the stack
+         * 
+         *    exception object
+         *    FLAGS
+         *    CS
+         *    EIP   <-- ESP
+         */
+        /*
+         * Pop the interrupt info into register R8 - R11
+         */
+        asm.emitPOP_Reg(GPR.R8);    // pop the null pointer exception
+        asm.emitPOP_Reg(GPR.R9);    // EIP
+        asm.emitPOP_Reg(GPR.R10);   // CS
+        asm.emitPOP_Reg(GPR.R11);   // flags
+        /*
+         * Push null pointer exception object onto stack
+         */
+//        asm.emitPUSH_Reg(T0);
+        /*
+        /*
+         * Setup up the return to the function that exception happened and
+         * to the athrow()
+         */
+        asm.emitPUSH_Reg(GPR.R9);    // return to the function where the exception happened
+        asm.generateJTOCloadInt(GPR.R8, athrowAddressField.getOffset()); // return to the athrow()
+        asm.emitPUSH_Reg(GPR.R8);
+        asm.emitRET();
+    }
+  }
+  static
+  {
+      MagicGenerator g = new ThrowExceptionNoErrCode();
+      generators.put(getMethodReference(Magic.class, MagicNames.throwExceptionNoErrCode, Throwable.class, void.class), g);
+  }
   /**
    * Set ESP to a new stack pointer and
    * save into thread's framePointer field
