@@ -34,6 +34,7 @@ import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.net.Dhcp;
 import org.jam.runtime.RunMain;
+import org.jam.runtime.RunThread;
 import org.jam.runtime.StartUp;
 import org.jam.runtime.SystemJars;
 import org.jam.system.Trace;
@@ -92,6 +93,7 @@ import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
+
 /**
  * A virtual machine.
  */
@@ -650,6 +652,7 @@ public class VM extends Properties {
         }
         else if(extFile[i].name.endsWith(".class"))
         {
+            System.out.println("ext class:"+extFile[i].name);
             loadExternalClass(extFile[i]);
         }
     }
@@ -722,19 +725,35 @@ public class VM extends Properties {
 //  Class dig;
   // For now need have DecimalFormat in the primordials
   runClassInitializer("java.text.DecimalFormat");
+  VM.verboseClassLoading = true;
+  Class dnsTest;
   try {
-      System.setProperty("dns.server", "10.0.2.3");
-      System.setProperty("dns.search", "localhost.com");
-      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
-      String args[] = { "dig", "viasat.com", "ANY" };
-      RunMain dig = new RunMain("dig", args);
-      dig.run();
-      VM.sysWriteln("dig running");
+      dnsTest = Class.forName("ext.test.DnsTest");
+      new Thread((Runnable) dnsTest.newInstance()).run();
   } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+  } catch (InstantiationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+  } catch (IllegalAccessException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
   }
-//  VM.verboseClassLoading = true;
+  
+//  try {
+//      System.setProperty("dns.server", "10.0.2.3");
+//      System.setProperty("dns.search", "localhost.com");
+//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+//      String args[] = { "dig", "viasat.com", "ANY" };
+//      RunMain dig = new RunMain("dig", args);
+//      dig.run();
+//      VM.sysWriteln("dig running");
+//  } catch (ClassNotFoundException e) {
+//      // TODO Auto-generated catch block
+//      e.printStackTrace();
+//  }
+  
     
     
     RVMThread.getCurrentThread().terminate();  

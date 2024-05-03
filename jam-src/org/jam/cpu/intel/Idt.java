@@ -86,7 +86,6 @@ public final class Idt implements SegmentDescriptorTypes {
 		this.codeSegment = codeSegment;
 		this.limit = limit * 16 - 1;
 
-//		VM.sysWriteln("athrow method offset ", athrowAddressField.getOffset());
 		VM.sysWriteln("athrow nullexception ", Magic.objectAsAddress(nullPointerExc));
 		athrowMethodAddress = Magic.objectAsAddress(athrowMethod.getCurrentEntryCodeArray());
         VM.sysWrite("athrow method addr ", athrowMethodAddress);
