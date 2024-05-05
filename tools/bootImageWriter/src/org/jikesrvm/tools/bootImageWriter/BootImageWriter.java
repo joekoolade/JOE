@@ -996,7 +996,14 @@ private static ArrayList<File> getMoreExtFiles(File dir)
       ArrayList<File> files = new ArrayList<File>();
       
       File dirFiles[] = dir.listFiles();
-      
+      try
+      {
+          System.out.println("dir " + dir.getCanonicalPath());
+      } catch (IOException e)
+      {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+      }
       for(int index=0; index < dirFiles.length; index++)
       {
           /*
@@ -1030,6 +1037,7 @@ private static ArrayList<File> getMoreExtFiles(File dir)
         return extFilesOut;
     }
     File files[] = extDir.listFiles();
+    System.out.println("extdir entries:"+files.length);
     if(files == null) return extFilesOut;
     int index;
     for(index = 0; index < files.length; index++)
@@ -1037,6 +1045,14 @@ private static ArrayList<File> getMoreExtFiles(File dir)
         /*
          * Process a directory by getting all the files in that directory
          */
+        try
+        {
+            System.out.println("extdir: "+files[index].getCanonicalPath());
+        } catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         if(files[index].isDirectory())
         {
             extFiles.addAll(getMoreExtFiles(files[index]));
@@ -1051,19 +1067,23 @@ private static ArrayList<File> getMoreExtFiles(File dir)
          */
         extFilesOut = new ExternalFile[extFiles.size()];
         Iterator<File> iter = extFiles.iterator();
-        index = 0;
+        int extIndex = 0;
         while(iter.hasNext())
         {
             byte[] data = null;
             File file = iter.next();
+            if(file.getName().equals(".DS_Store"))
+            {
+                continue;
+            }
             try
             {
                 FileInputStream fis = new FileInputStream(file);
                 data = new byte[(int) file.length()];
                 fis.read(data);
-                extFilesOut[index] = new ExternalFile(file.getCanonicalPath(), data);
-                System.out.println(extFilesOut[index]);
-                index++;
+                extFilesOut[extIndex] = new ExternalFile(file.getCanonicalPath(), data);
+                System.out.println(extFilesOut[extIndex]);
+                extIndex++;
             } catch (FileNotFoundException e)
             {
                 System.out.println("No file: " + file.getName());

@@ -35,6 +35,7 @@ import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.net.Dhcp;
 import org.jam.runtime.RunMain;
 import org.jam.runtime.RunThread;
+import org.jam.runtime.RunThread2;
 import org.jam.runtime.StartUp;
 import org.jam.runtime.SystemJars;
 import org.jam.system.Trace;
@@ -650,12 +651,8 @@ public class VM extends Properties {
                 e.printStackTrace();
             }
         }
-        else if(extFile[i].name.endsWith(".class"))
-        {
-            System.out.println("ext class:"+extFile[i].name);
-            loadExternalClass(extFile[i]);
-        }
     }
+    VM.sysWriteln("Done loading");
 //    dig.main("");
 //    if(extJarFile != null)
 //    {
@@ -724,23 +721,13 @@ public class VM extends Properties {
 //  VM.sysWriteln("df done");
 //  Class dig;
   // For now need have DecimalFormat in the primordials
-  runClassInitializer("java.text.DecimalFormat");
+//  runClassInitializer("java.text.DecimalFormat");
   VM.verboseClassLoading = true;
-  Class dnsTest;
-  try {
-      dnsTest = Class.forName("ext.test.DnsTest");
-      new Thread((Runnable) dnsTest.newInstance()).run();
-  } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-  } catch (InstantiationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-  } catch (IllegalAccessException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-  }
-  
+  VM.TraceClassLoading = true;
+  RunThread2 test = new RunThread2("ext.tests.DnsTest");
+  VM.sysWriteln("created runthread2");
+  new Thread(test).run();
+  VM.sysWriteln("running runthread2");
 //  try {
 //      System.setProperty("dns.server", "10.0.2.3");
 //      System.setProperty("dns.search", "localhost.com");
