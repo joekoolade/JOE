@@ -649,7 +649,23 @@ private static String javaSystemJar;
         e.printStackTrace();
     }
     JavaFile.fileMap.put("/lib/currency.data", data);
-    
+    /*
+     * Add external classes
+     */
+    String PREFIX_DIR = "ext/bin/";
+    StringBuilder javaFileName = new StringBuilder("/classpath/");
+    int fileIndex=0;
+    for(; fileIndex < extFiles.length; fileIndex++)
+    {
+        if(extFiles[fileIndex] == null) continue;
+        if(extFiles[fileIndex].name.endsWith(".jar")) continue;
+        int prefixIndex = extFiles[fileIndex].name.indexOf(PREFIX_DIR);
+        javaFileName.append(extFiles[fileIndex].name.substring(prefixIndex+PREFIX_DIR.length()));
+        System.out.println("javaFileName="+javaFileName);
+        JavaFile.fileMap.put(javaFileName.toString(), extFiles[fileIndex].data);
+        javaFileName.delete(0, javaFileName.length());
+        javaFileName.append("/classpath/");
+    }
     appendJarFile(javaSystemJar);
     //
     // Initialize the bootimage.

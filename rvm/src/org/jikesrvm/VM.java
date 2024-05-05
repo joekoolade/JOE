@@ -640,6 +640,7 @@ public class VM extends Properties {
     ZipFile extJarFile = null;
     for(int i=0; i < extFile.length; i++)
     {
+        if(extFile[i] == null) break;
         VM.sysWriteln("Loading  " + extFile[i].name);
         if(extFile[i].name.endsWith(".jar"))
         {
@@ -721,7 +722,7 @@ public class VM extends Properties {
 //  VM.sysWriteln("df done");
 //  Class dig;
   // For now need have DecimalFormat in the primordials
-//  runClassInitializer("java.text.DecimalFormat");
+  runClassInitializer("java.text.DecimalFormat");
   VM.verboseClassLoading = true;
   VM.TraceClassLoading = true;
   RunThread2 test = new RunThread2("ext.tests.DnsTest");
