@@ -72,16 +72,23 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
   public static void addZipFile(String name, ZipFile zf)
   {
       zipFileCache.put(name, zf);
+      addClasspath(name);
+  }
+  
+  public static void addClasspath(String path)
+  {
       if(bootstrapClasspath.length()==0)
       {
-          bootstrapClasspath = bootstrapClasspath.concat(name);
+          bootstrapClasspath = bootstrapClasspath.concat(path);
       }
       else
       {
-          bootstrapClasspath = bootstrapClasspath.concat(":"+name);
+          bootstrapClasspath = bootstrapClasspath.concat(":"+path);
       }
       System.out.println("new bootstrap path "+bootstrapClasspath);
+      
   }
+  
   /**
    * Initialize for execution.
    * @param bootstrapClasspath names of directories containing the bootstrap
@@ -225,6 +232,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
         if (className.startsWith("L") && className.endsWith(";")) {
           className = className.substring(1, className.length() - 2);
         }
+        if (VM.TraceClassLoading) VM.sysWriteln("findClass: ", className);
         InputStream is = getResourceAsStream(className.replace('.', File.separatorChar) + ".class");
         if (is == null) {
           if (VM.TraceClassLoading) VM.sysWriteln("Throwing ClassNotFoundException because inputstream was null for " + className);
@@ -452,8 +460,11 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
           h.process(zf, ze);
           if (!multiple) return h.getResult();
         } else if (path.endsWith(File.separator)) {
+          System.out.println("Found "+path + name);
           File file = new File(path + name);
           if (file.exists()) {
+            System.out.println("Processing "+path + name);
+            
             h.process(file);
             if (!multiple) return h.getResult();
           }

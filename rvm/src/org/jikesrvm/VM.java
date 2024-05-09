@@ -654,6 +654,7 @@ public class VM extends Properties {
         }
     }
     VM.sysWriteln("Done loading");
+    BootstrapClassLoader.addClasspath("/classpath/");
 //    dig.main("");
 //    if(extJarFile != null)
 //    {
