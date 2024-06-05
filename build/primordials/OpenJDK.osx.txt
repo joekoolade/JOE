@@ -263,6 +263,7 @@ Ljava/io/PrintStream;
 Ljava/util/Properties;
 Ljava/io/BufferedWriter;
 Ljava/io/File;
+Ljava/io/File$PathStatus;
 #Ljava/io/File$1;
 Ljava/io/JavaFileSystem;
 Ljava/io/FileSystem;
