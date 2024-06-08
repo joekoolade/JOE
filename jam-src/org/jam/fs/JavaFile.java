@@ -107,15 +107,20 @@ public class JavaFile {
 
     public void seek(long pos) {
         VM.sysWriteln("JFS seek ", pos);
-
+        this.pos = (int) pos;
     }
 
     public long length() {
         VM.sysWriteln("JFS length");
-        return 0;
+        return fileData.length;
     }
 
     public static void create(String name, byte[] data) {
         fileMap.put(name, data);
+    }
+    
+    public static boolean exists(String fileName)
+    {
+        return fileMap.get(fileName) != null;
     }
 }

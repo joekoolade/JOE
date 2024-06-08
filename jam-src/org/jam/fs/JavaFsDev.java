@@ -1,14 +1,28 @@
 package org.jam.fs;
 
 import java.io.File;
+import java.io.IOException;
 
 public class JavaFsDev
 {
 
-  public static int getBooleanAttributes(File f)
-  {
-    return 0;
-  }
+    private static final int BA_EXISTS = 1;
+
+    public static int getBooleanAttributes(File f)
+    {
+        int attribute = 0;
+        String file = null;
+        try
+        {
+            file = f.getCanonicalPath();
+            if(JavaFile.exists(file)) attribute |= BA_EXISTS;
+        } catch (IOException e)
+        {
+            System.out.println("No file: " + file);
+            e.printStackTrace();
+        }
+        return attribute;
+    }
   
   public static boolean checkAccess(File f, int access)
   {
