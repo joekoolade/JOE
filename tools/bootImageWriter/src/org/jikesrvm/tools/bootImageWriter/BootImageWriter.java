@@ -68,6 +68,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.jam.fs.JavaFile;
 import org.jam.runtime.SystemJars;
 import org.jikesrvm.VM;
 import org.jikesrvm.architecture.ArchitectureFactory;
@@ -109,6 +110,7 @@ import org.jikesrvm.tools.bootImageWriter.entrycomparators.ObjectSizeComparator;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.ReferenceDensityComparator;
 import org.jikesrvm.tools.bootImageWriter.entrycomparators.TypeReferenceComparator;
 import org.jikesrvm.tools.bootImageWriter.types.BootImageTypes;
+import org.jikesrvm.util.HashMapRVM;
 import org.jikesrvm.util.Services;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
@@ -626,6 +628,44 @@ private static String javaSystemJar;
         System.out.println("External Files: " + extFiles.length);
     }
     
+    /*
+     * Add files to Java File system
+     */
+    JavaFile.fileMap = new HashMapRVM<String, byte[]>();
+    File currencyFile = new File("../../build/files/currency.data");
+    int currencyFileSize = (int)currencyFile.length();
+    byte[] data = new byte[currencyFileSize];
+    try {
+        System.out.println("path "+currencyFile.getAbsolutePath());
+        FileInputStream fis = new FileInputStream(currencyFile);
+        fis.read(data);
+        System.out.println("currency file size "+data.length);
+        fis.close();
+    } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    JavaFile.fileMap.put("/lib/currency.data", data);
+    /*
+     * Add external classes
+     */
+    String PREFIX_DIR = "ext/bin/";
+    StringBuilder javaFileName = new StringBuilder("/classpath/");
+    int fileIndex=0;
+    for(; fileIndex < extFiles.length; fileIndex++)
+    {
+        if(extFiles[fileIndex] == null) continue;
+        if(extFiles[fileIndex].name.endsWith(".jar")) continue;
+        int prefixIndex = extFiles[fileIndex].name.indexOf(PREFIX_DIR);
+        javaFileName.append(extFiles[fileIndex].name.substring(prefixIndex+PREFIX_DIR.length()));
+        System.out.println("javaFileName="+javaFileName);
+        JavaFile.fileMap.put(javaFileName.toString(), extFiles[fileIndex].data);
+        javaFileName.delete(0, javaFileName.length());
+        javaFileName.append("/classpath/");
+    }
     appendJarFile(javaSystemJar);
     //
     // Initialize the bootimage.
@@ -972,7 +1012,14 @@ private static ArrayList<File> getMoreExtFiles(File dir)
       ArrayList<File> files = new ArrayList<File>();
       
       File dirFiles[] = dir.listFiles();
-      
+      try
+      {
+          System.out.println("dir " + dir.getCanonicalPath());
+      } catch (IOException e)
+      {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+      }
       for(int index=0; index < dirFiles.length; index++)
       {
           /*
@@ -1006,6 +1053,7 @@ private static ArrayList<File> getMoreExtFiles(File dir)
         return extFilesOut;
     }
     File files[] = extDir.listFiles();
+    System.out.println("extdir entries:"+files.length);
     if(files == null) return extFilesOut;
     int index;
     for(index = 0; index < files.length; index++)
@@ -1013,6 +1061,14 @@ private static ArrayList<File> getMoreExtFiles(File dir)
         /*
          * Process a directory by getting all the files in that directory
          */
+        try
+        {
+            System.out.println("extdir: "+files[index].getCanonicalPath());
+        } catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         if(files[index].isDirectory())
         {
             extFiles.addAll(getMoreExtFiles(files[index]));
@@ -1027,19 +1083,23 @@ private static ArrayList<File> getMoreExtFiles(File dir)
          */
         extFilesOut = new ExternalFile[extFiles.size()];
         Iterator<File> iter = extFiles.iterator();
-        index = 0;
+        int extIndex = 0;
         while(iter.hasNext())
         {
             byte[] data = null;
             File file = iter.next();
+            if(file.getName().equals(".DS_Store"))
+            {
+                continue;
+            }
             try
             {
                 FileInputStream fis = new FileInputStream(file);
                 data = new byte[(int) file.length()];
                 fis.read(data);
-                extFilesOut[index] = new ExternalFile(file.getCanonicalPath(), data);
-                System.out.println(extFilesOut[index]);
-                index++;
+                extFilesOut[extIndex] = new ExternalFile(file.getCanonicalPath(), data);
+                System.out.println(extFilesOut[extIndex]);
+                extIndex++;
             } catch (FileNotFoundException e)
             {
                 System.out.println("No file: " + file.getName());

@@ -225,7 +225,7 @@ public final class StackframeLayoutConstants {
   public static final int STACK_SIZE_BOOT =
       STACK_SIZE_GUARD +
       STACK_SIZE_GCDISABLED +
-      30 * 1024;
+      60 * 1024;
   /** total stack space to allocate for collector thread (includes guard region) */
   public static final int STACK_SIZE_COLLECTOR =
       STACK_SIZE_GUARD +

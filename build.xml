@@ -1708,11 +1708,33 @@ Check to make sure all required properties are specified. This includes properti
       <zipfileset dir="${build.classes}"/>
     </zip>
 -->
-    <zip destfile="${build.rt.jar}" update="true" duplicate="preserve" basedir="${build.classes}" compress="false">
+    <zip destfile="${build.rt.jar}" update="yes" duplicate="preserve" basedir="${build.classes}" compress="false">
       <include name="java/**"/>
       <include name="sun/**"/>
       <zipfileset dir="${build.classes}"/>
-      <zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
+      <zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}">
+        <exclude name="apple/**"/>
+        <exclude name="com/apple/**"/>
+        <exclude name="java/awt/**"/>
+        <exclude name="javax/swing/**"/>
+        <exclude name="sun/awt/**"/>
+        <exclude name="com/sun/awt/**"/>
+        <exclude name="com/sun/swing/**"/>
+        <exclude name="com/sun/java/swing/**"/>
+        <exclude name="com/sun/java/browser/**"/>
+        <exclude name="com/sun/java_cup/**"/>
+        <exclude name="com/sun/jndi/**"/>
+        <exclude name="com/sun/beans/**"/>
+        <exclude name="com/sun/corba/**"/>
+        <exclude name="com/sun/jmx/**"/>
+        <exclude name="com/sun/management/**"/>
+        <exclude name="com/sun/media/**"/>
+        <exclude name="com/sun/imageio/**"/>
+        <exclude name="com/sun/istack/**"/>
+        <exclude name="com/sun/org/apache/**"/>
+        <exclude name="com/sun/org/glassfish/**"/>
+        <exclude name="sun/swing/**"/>
+      </zipfileset>
       <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
     </zip>
     <jar destfile="${build.vm.jar}" update="true" compress="false">
@@ -1888,13 +1910,27 @@ Check to make sure all required properties are specified. This includes properti
   		<sequential>
   			<jar destfile="${build.joert.jar}" compress="false">
   				<zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}">
-  					<exclude name="java/awt/**"/>
-  					<exclude name="javax/swing/**"/>
-  					<exclude name="sun/awt/**"/>
-  					<exclude name="com/sun/awt/**"/>
-					<exclude name="com/sun/swing/**"/>
-					<exclude name="com/sun/java/swing/**"/>
-					<exclude name="sun/swing/**"/>
+  	        <exclude name="apple/**"/>
+  	        <exclude name="com/apple/**"/>
+  	        <exclude name="java/awt/**"/>
+  	        <exclude name="javax/swing/**"/>
+  	        <exclude name="sun/awt/**"/>
+  	        <exclude name="com/sun/awt/**"/>
+  	        <exclude name="com/sun/swing/**"/>
+  	        <exclude name="com/sun/java/swing/**"/>
+  	        <exclude name="com/sun/java/browser/**"/>
+  	        <exclude name="com/sun/java_cup/**"/>
+  	        <exclude name="com/sun/jndi/**"/>
+  	        <exclude name="com/sun/beans/**"/>
+  	        <exclude name="com/sun/corba/**"/>
+  	        <exclude name="com/sun/jmx/**"/>
+  	        <exclude name="com/sun/management/**"/>
+  	        <exclude name="com/sun/media/**"/>
+  	        <exclude name="com/sun/imageio/**"/>
+  	        <exclude name="com/sun/istack/**"/>
+  	        <exclude name="com/sun/org/apache/**"/>
+  	        <exclude name="com/sun/org/glassfish/**"/>
+  	        <exclude name="sun/swing/**"/>
   				</zipfileset>
   			</jar>
   		</sequential>

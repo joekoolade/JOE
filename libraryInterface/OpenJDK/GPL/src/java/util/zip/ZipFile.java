@@ -417,6 +417,8 @@ findEndSig:
                             "Unexpected end of ZLIB input stream");
                     }
                     int len = in.read(buf, 0, buf.length);
+                    System.out.println("zipffile fill len: "+len+" blen:"+buf.length+" doffset:"+Integer.toHexString(zfin.jzentry.data())+" offset:"+Integer.toHexString(zfin.jzentry.offset));
+                    VM.hexDump(buf, 0, 16);
                     if (len == -1) {
                         buf[0] = 0;
                         len = 1;
@@ -453,7 +455,7 @@ findEndSig:
             int size = inflaters.size();
             if (size > 0) {
                 Inflater inf = (Inflater)inflaters.remove(size - 1);
-                inf.init();
+                inf.init(true);
                 return inf;
             } else {
                 try 
@@ -597,7 +599,7 @@ findEndSig:
         protected ZipFile zfile;
         
         ZipFileInputStream(ZipFile file, FileHeaderEntry jzentry) {
-            pos = 0;
+            pos = jzentry.data();
             rem = jzentry.compressedSize;
             size = jzentry.uncompressedSize;
             this.jzentry = jzentry;
@@ -622,6 +624,7 @@ findEndSig:
             if (rem == 0) {
                 close();
             }
+//            System.out.println("zipfile read pos:"+pos+" rem:"+rem+" len:"+len);
             return len;
         }
 
@@ -660,12 +663,12 @@ findEndSig:
 
     private int read(FileHeaderEntry jzentry, long pos, byte[] b, int off, int len)
     {
-        if (pos + len > buffer.length) 
+        if (len > buffer.length) 
         {
             System.out.println("out of range len:"+pos+len+" buffer len:"+buffer.length);
             return 0;
         }
-        System.arraycopy(buffer, jzentry.dataOffset() + (int)pos, b, off, len);
+        System.arraycopy(buffer, (int)pos, b, off, len);
         return len;
     }
 }

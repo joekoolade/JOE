@@ -324,7 +324,10 @@ public final class JavaLangSupport {
     } else {
       p.put("java.class.path", RVMClassLoader.getApplicationRepositories());
     }
-
+    p.put("java.home", "");
+    p.put("user.language", "en");
+    p.put("user.region", "US");
+    
     /* Now the rest of the special ones that we set on the command line.   Do
      * this just in case later revisions of the class libraries start to require
      * some of them in the boot process; otherwise, we could wait for them to

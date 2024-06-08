@@ -184,6 +184,7 @@ public class FileInputStream extends InputStream
    */
   private void open(String name) throws FileNotFoundException
   {
+    System.out.println("FIS Opening "+name);
     jfd = new JavaFile(name);
   }
 

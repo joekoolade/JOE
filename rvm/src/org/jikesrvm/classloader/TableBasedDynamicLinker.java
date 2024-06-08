@@ -40,7 +40,8 @@ import org.vmmagic.pragma.Entrypoint;
  */
 public class TableBasedDynamicLinker {
 
-  /**
+  private static final boolean DEBUG = false;
+/**
    * Linking table keyed by member reference IDs. Value indicates offset of
    * member or whether the member needs linking.
    */
@@ -73,6 +74,7 @@ public class TableBasedDynamicLinker {
    */
   public static int resolveMember(MemberReference ref) throws NoClassDefFoundError {
     RVMMember resolvedMember = ref.resolveMember();
+    if(DEBUG) VM.sysWriteln("resolveMember: ", resolvedMember.toString());
     RVMClass declaringClass = resolvedMember.getDeclaringClass();
     RuntimeEntrypoints.initializeClassForDynamicLink(declaringClass);
     int offset = resolvedMember.getOffset().toInt();

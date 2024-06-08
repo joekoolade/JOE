@@ -20,7 +20,10 @@ import static org.jikesrvm.runtime.UnboxedSizeConstants.BITS_IN_ADDRESS;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.util.Currency;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -31,9 +34,12 @@ import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
 import org.jam.net.Dhcp;
 import org.jam.runtime.RunMain;
+import org.jam.runtime.RunThread;
+import org.jam.runtime.RunThread2;
 import org.jam.runtime.StartUp;
 import org.jam.runtime.SystemJars;
 import org.jam.system.Trace;
+import org.jam.tests.LocaleTest;
 import org.jikesrvm.adaptive.controller.Controller;
 import org.jikesrvm.adaptive.util.CompilerAdvice;
 import org.jikesrvm.architecture.StackFrameLayout;
@@ -88,6 +94,7 @@ import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.Offset;
 import org.vmmagic.unboxed.Word;
+
 /**
  * A virtual machine.
  */
@@ -405,7 +412,9 @@ public class VM extends Properties {
 	runClassInitializer("sun.misc.SharedSecrets");
 	runClassInitializer("java.io.Console");
 	runClassInitializer("java.util.concurrent.atomic.AtomicInteger");
+	runClassInitializer("java.io.JavaFileSystem");
 	runClassInitializer("java.io.FileDescriptor");
+	runClassInitializer("java.io.File");
 	runClassInitializer("java.io.FileInputStream");
 	runClassInitializer("java.io.FileOutputStream");
 	// runClassInitializer("java/lang/reflect/Modifier");
@@ -631,6 +640,7 @@ public class VM extends Properties {
     ZipFile extJarFile = null;
     for(int i=0; i < extFile.length; i++)
     {
+        if(extFile[i] == null) break;
         VM.sysWriteln("Loading  " + extFile[i].name);
         if(extFile[i].name.endsWith(".jar"))
         {
@@ -642,17 +652,10 @@ public class VM extends Properties {
                 e.printStackTrace();
             }
         }
-        else if(extFile[i].name.endsWith(".class"))
-        {
-            loadExternalClass(extFile[i]);
-        }
     }
-    try {
-        BootstrapClassLoader.getBootstrapClassLoader().findClass("dig");
-    } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
+    VM.sysWriteln("Done loading");
+    BootstrapClassLoader.addClasspath("/classpath/");
+//    dig.main("");
 //    if(extJarFile != null)
 //    {
 //        VM.sysWriteln("Inflating jar file");
@@ -705,13 +708,41 @@ public class VM extends Properties {
 //        }
 //        StartUp.testModeRun(classes);
 //    }
-    Thread napiThread = new Thread(new NapiManager());
-    napiThread.setName("NAPI Manager");
-    VM.sysWriteln("Starting NAPI");
-    napiThread.start();
-    VM.sysWriteln("NAPI done");
-	Dhcp.discover(Platform.net);
-    VM.sysWriteln("INET boot done");
+//    new Thread(new LocaleTest()).run();
+//    VM.sysWriteln("Currency");
+//    Locale locale = Locale.getDefault();
+//    VM.sysWriteln("locale "+locale);
+//    Currency cur = Currency.getInstance(locale);
+//    new LocaleTest().localeTest();
+    
+//	Dhcp.discover(Platform.net);
+//    VM.sysWriteln("INET boot done");
+//    System.out.println("pattern: "+dformat.toPattern());
+//  VM.sysWriteln("decima format ...");
+//  DecimalFormat df = new DecimalFormat();
+//  VM.sysWriteln("df done");
+//  Class dig;
+  // For now need have DecimalFormat in the primordials
+  runClassInitializer("java.text.DecimalFormat");
+  VM.verboseClassLoading = true;
+  VM.TraceClassLoading = true;
+  RunThread2 test = new RunThread2("ext.tests.DnsTest");
+  VM.sysWriteln("created runthread2");
+  new Thread(test).run();
+  VM.sysWriteln("running runthread2");
+//  try {
+//      System.setProperty("dns.server", "10.0.2.3");
+//      System.setProperty("dns.search", "localhost.com");
+//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+//      String args[] = { "dig", "viasat.com", "ANY" };
+//      RunMain dig = new RunMain("dig", args);
+//      dig.run();
+//      VM.sysWriteln("dig running");
+//  } catch (ClassNotFoundException e) {
+//      // TODO Auto-generated catch block
+//      e.printStackTrace();
+//  }
+  
     
     
     RVMThread.getCurrentThread().terminate();  
@@ -725,6 +756,10 @@ public class VM extends Properties {
     if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
   }
 
+  static void loopForever()
+  {
+      while(true) ;
+  }
   @Interruptible
   private static void pleaseSpecifyAClass() {
     VM.sysWriteln("vm: Please specify a class to execute.");
