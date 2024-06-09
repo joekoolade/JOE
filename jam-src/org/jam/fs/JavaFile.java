@@ -39,10 +39,10 @@ public class JavaFile {
 
     public int read() throws IOException {
         int data;
-        VM.sysWriteln("JFS read");
+//        VM.sysWriteln("JFS read pos ", pos);
         if(pos >= fileData.length) data = -1;
         else data = fileData[pos++];
-        return data;
+        return data & 0xFF;
     }
 
     public int readBytes(byte[] b, int off, int len) throws IOException {
@@ -72,10 +72,20 @@ public class JavaFile {
         return readLength;
     }
 
-    public long skip(long n) {
-        VM.sysWriteln("JFS skip ", n);
-        pos += n;
-        return 0;
+    public long skip(long n)
+    {
+        if (pos + n > fileData.length)
+        {
+            n = fileData.length - pos;
+            pos = fileData.length;
+        }
+        else
+        {
+            pos += (int) n;
+        }
+        VM.sysWrite("JFS skip ", (int)n);
+        VM.sysWriteln(" pos ", pos);
+        return n;
     }
 
     public int available() {
@@ -85,7 +95,6 @@ public class JavaFile {
 
     public void close() {
         VM.sysWriteln("JFS close");
-
     }
 
     public void write(int b) {
@@ -107,7 +116,7 @@ public class JavaFile {
 
     public void seek(long pos) {
         VM.sysWriteln("JFS seek ", pos);
-        this.pos = (int) pos;
+        this.pos = (int)pos;
     }
 
     public long length() {
