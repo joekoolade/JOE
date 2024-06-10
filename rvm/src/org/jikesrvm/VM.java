@@ -723,6 +723,8 @@ public class VM extends Properties {
 //  VM.sysWriteln("df done");
 //  Class dig;
   // For now need have DecimalFormat in the primordials
+  System.setProperty("dns.server", "10.0.2.3");
+  System.setProperty("dns.search", "localhost.com");
   runClassInitializer("java.text.DecimalFormat");
   VM.verboseClassLoading = true;
   VM.TraceClassLoading = true;
