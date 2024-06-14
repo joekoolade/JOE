@@ -722,12 +722,12 @@ public class VM extends Properties {
 //  DecimalFormat df = new DecimalFormat();
 //  VM.sysWriteln("df done");
 //  Class dig;
-  // For now need have DecimalFormat in the primordials
   System.setProperty("dns.server", "10.0.2.3");
   System.setProperty("dns.search", "localhost.com");
+  // For now need have DecimalFormat in the primordials
   runClassInitializer("java.text.DecimalFormat");
-  VM.verboseClassLoading = true;
-  VM.TraceClassLoading = true;
+//  VM.verboseClassLoading = true;
+//  VM.TraceClassLoading = true;
   RunThread2 test = new RunThread2("ext.tests.DnsTest");
   VM.sysWriteln("created runthread2");
   new Thread(test).run();

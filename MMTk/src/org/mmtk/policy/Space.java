@@ -432,22 +432,26 @@ public abstract class Space {
   @LogicallyUninterruptible
   public final Address acquire(int pages) {
     boolean allowPoll = VM.activePlan.isMutator() && Plan.isInitialized();
-
+//    Log.writeln("acquire=", pages);
     /* Check page budget */
     int pagesReserved = pr.reservePages(pages);
 
     /* Poll, either fixing budget or requiring GC */
-    if (allowPoll && VM.activePlan.global().poll(false, this)) {
-      pr.clearRequest(pagesReserved);
-      VM.collection.blockForGC();
-      return Address.zero(); // GC required, return failure
-    }
+//    Log.writeln("reserved=", pagesReserved);
+//    if (allowPoll && VM.activePlan.global().poll(false, this)) {
+//      Log.writeln("blockForGC 1");
+//      pr.clearRequest(pagesReserved);
+//      VM.collection.blockForGC();
+//      return Address.zero(); // GC required, return failure
+//    }
 
     /* Page budget is ok, try to acquire virtual memory */
     Address rtn = pr.getNewPages(pagesReserved, pages, zeroed);
+//    Log.writeln("new=", rtn);
     if (rtn.isZero()) {
       /* Failed, so force a GC */
       if (!allowPoll) VM.assertions.fail("Physical allocation failed when polling not allowed!");
+      Log.writeln("blockForGC 2");
       boolean gcPerformed = VM.activePlan.global().poll(true, this);
       if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(gcPerformed, "GC not performed when forced.");
       pr.clearRequest(pagesReserved);
