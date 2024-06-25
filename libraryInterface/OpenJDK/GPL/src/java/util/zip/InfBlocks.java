@@ -182,8 +182,11 @@ final class InfBlocks{
                   k += 8;
               }
               t = (int) (b & 7);
-              if(DEBUG) System.out.println("type k:"+k+" n:"+n+" p:"+p+" b:"+b+" t:"+t);
-              VM.hexDump(z.next_in, 0, 16);
+              if (DEBUG)
+              {
+                  System.out.println("type k:" + k + " n:" + n + " p:" + p + " b:" + b + " t:" + t);
+                  VM.hexDump(z.next_in, 0, 16);
+              }
               last = t & 1;
               switch (t >>> 1) {
               case 0: // stored

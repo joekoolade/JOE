@@ -77,6 +77,7 @@ class ZipFile implements ZipConstants {
      * virtual machine exits.
      */
     public static final int OPEN_DELETE = 0x4;
+    protected static final boolean DEBUG = false;
 
     /**
      * Opens a zip file for reading.
@@ -417,8 +418,11 @@ findEndSig:
                             "Unexpected end of ZLIB input stream");
                     }
                     int len = in.read(buf, 0, buf.length);
-                    System.out.println("zipffile fill len: "+len+" blen:"+buf.length+" doffset:"+Integer.toHexString(zfin.jzentry.data())+" offset:"+Integer.toHexString(zfin.jzentry.offset));
-                    VM.hexDump(buf, 0, 16);
+                    if(DEBUG)
+                    {
+                        System.out.println("zipffile fill len: "+len+" blen:"+buf.length+" doffset:"+Integer.toHexString(zfin.jzentry.data())+" offset:"+Integer.toHexString(zfin.jzentry.offset));
+                        VM.hexDump(buf, 0, 16);
+                    }
                     if (len == -1) {
                         buf[0] = 0;
                         len = 1;

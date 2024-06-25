@@ -104,7 +104,6 @@ public class InflaterInputStream extends FilterInputStream {
     while(!eof) {
       if(inflater.avail_in==0)
       {
-          System.out.println("IIS read fill avail_in:"+inflater.avail_in);
           fill();
       }
       int err = inflater.inflate(JZlib.Z_NO_FLUSH);
