@@ -728,22 +728,25 @@ public class VM extends Properties {
   runClassInitializer("java.text.DecimalFormat");
 //  VM.verboseClassLoading = true;
 //  VM.TraceClassLoading = true;
-  RunThread2 test = new RunThread2("ext.tests.DnsTest");
-  VM.sysWriteln("created runthread2");
-  new Thread(test).run();
-  VM.sysWriteln("running runthread2");
-//  try {
-//      System.setProperty("dns.server", "10.0.2.3");
-//      System.setProperty("dns.search", "localhost.com");
-//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
-//      String args[] = { "dig", "viasat.com", "ANY" };
-//      RunMain dig = new RunMain("dig", args);
-//      dig.run();
-//      VM.sysWriteln("dig running");
-//  } catch (ClassNotFoundException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//  }
+  
+//  RunThread2 test = new RunThread2("ext.tests.DnsTest");
+//  VM.sysWriteln("created runthread2");
+//  new Thread(test).run();
+//  VM.sysWriteln("running runthread2");
+  
+  System.setProperty("java.security.debug", "all");
+  try {
+      System.setProperty("dns.server", "10.0.2.3");
+      System.setProperty("dns.search", "localhost.com");
+      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+      String args[] = { "dig", "viasat.com", "ANY" };
+      RunMain dig = new RunMain("dig", args);
+      dig.run();
+      VM.sysWriteln("dig running");
+  } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+  }
   
     
     

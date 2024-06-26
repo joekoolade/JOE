@@ -632,23 +632,9 @@ private static String javaSystemJar;
      * Add files to Java File system
      */
     JavaFile.fileMap = new HashMapRVM<String, byte[]>();
-    File currencyFile = new File("../../build/files/currency.data");
-    int currencyFileSize = (int)currencyFile.length();
-    byte[] data = new byte[currencyFileSize];
-    try {
-        System.out.println("path "+currencyFile.getAbsolutePath());
-        FileInputStream fis = new FileInputStream(currencyFile);
-        fis.read(data);
-        System.out.println("currency file size "+data.length);
-        fis.close();
-    } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
-    JavaFile.fileMap.put("/lib/currency.data", data);
+    addFile("../../build/files/currency.data", "/lib/currency.data");
+//    addFile("jsse.jar", "/classpath/jsse.jar");
+    
     /*
      * Add external classes
      */
@@ -667,6 +653,13 @@ private static String javaSystemJar;
         javaFileName.append("/classpath/");
     }
     appendJarFile(javaSystemJar);
+    /*
+     * Add the jsse.jar. Its in the same directory as the system jar.
+     */
+    String jreLibDir = javaSystemJar.substring(0, javaSystemJar.lastIndexOf('/')-1);
+    System.out.println("JRE lib dir: "+jreLibDir);
+    System.out.println("JRE jar: "+javaSystemJar);
+    
     //
     // Initialize the bootimage.
     // Do this earlier than we logically need to because we need to
@@ -983,7 +976,28 @@ private static String javaSystemJar;
     if (verbosity.isAtLeast(SUMMARY)) say("done");
   }
 
-  private static void appendJarFile(String fileName)
+private static void addFile(String fileName, String mapName)
+{
+    File currencyFile = new File(fileName);
+    int currencyFileSize = (int)currencyFile.length();
+    byte[] data = new byte[currencyFileSize];
+    try {
+        System.out.println("path "+currencyFile.getAbsolutePath());
+        FileInputStream fis = new FileInputStream(currencyFile);
+        fis.read(data);
+        System.out.println("currency file size "+data.length);
+        fis.close();
+    } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    JavaFile.fileMap.put(mapName, data);
+}
+
+ private static void appendJarFile(String fileName)
 {
       if(fileName==null) return;
       

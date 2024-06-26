@@ -1932,6 +1932,7 @@ Check to make sure all required properties are specified. This includes properti
   	        <exclude name="com/sun/org/glassfish/**"/>
   	        <exclude name="sun/swing/**"/>
   				</zipfileset>
+  	      <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
   			</jar>
   		</sequential>
   	</if>
