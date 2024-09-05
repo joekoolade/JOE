@@ -736,6 +736,7 @@ public class VM extends Properties {
   
   System.setProperty("java.security.debug", "all");
   try {
+      BootstrapClassLoader.getBootstrapClassLoader().loadClass("com.sun.crypto.provider.SunJCE", true);
       System.setProperty("dns.server", "10.0.2.3");
       System.setProperty("dns.search", "localhost.com");
       BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);

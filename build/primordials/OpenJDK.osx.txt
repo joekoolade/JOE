@@ -353,3 +353,5 @@ Ljava/util/IdentityHashMap$KeySet;
 Ljava/text/DecimalFormat;
 Ljava/text/NumberFormat;
 Ljava/text/Format;
+Lsun/reflect/ReflectionFactory;
+Ljava/lang/reflect/AccessibleObject;
