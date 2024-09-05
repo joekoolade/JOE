@@ -1736,6 +1736,7 @@ Check to make sure all required properties are specified. This includes properti
         <exclude name="sun/swing/**"/>
       </zipfileset>
       <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
+      <zipfileset src="${openjdk.lib.dir}/ext/sunjce_provider.jar"/>
     </zip>
     <jar destfile="${build.vm.jar}" update="true" compress="false">
       <fileset dir="${build.classes}">
@@ -1933,6 +1934,7 @@ Check to make sure all required properties are specified. This includes properti
   	        <exclude name="sun/swing/**"/>
   				</zipfileset>
   	      <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
+  				<zipfileset src="${openjdk.lib.dir}/ext/sunjce_provider.jar"/>
   			</jar>
   		</sequential>
   	</if>
