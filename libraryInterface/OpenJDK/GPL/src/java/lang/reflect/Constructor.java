@@ -34,6 +34,8 @@ import sun.reflect.generics.scope.ConstructorScope;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
+import org.jikesrvm.classloader.RVMClass;
+import org.jikesrvm.classloader.RVMField;
 import org.jikesrvm.classloader.RVMMethod;
 
 import sun.reflect.annotation.AnnotationParser;
@@ -139,12 +141,23 @@ public final
         // which implicitly requires that new java.lang.reflect
         // objects be fabricated for each reflective call on Class
         // objects.)
-        RVMMethod rvmMethod = java.lang.reflect.JikesRVMSupport.getMethodOf(this);
-        Constructor<T> res = java.lang.reflect.JikesRVMSupport.createConstructor(rvmMethod);
-        res.root = this;
-        // Might as well eagerly propagate this if already present
-        res.constructorAccessor = constructorAccessor;
-        return res;
+        // "copy" constructor
+        Constructor source = (Constructor) (Object) this;
+        RVMMethod rvmMethod = java.lang.reflect.JikesRVMSupport.getMethodOf(source);
+        Constructor newConstructor = java.lang.reflect.JikesRVMSupport.createConstructor(rvmMethod);
+        // set rest of fields from old field
+        RVMClass typeForClass = java.lang.JikesRVMSupport.getTypeForClass(Constructor.class).asClass();
+
+        // set root field
+        RVMField rootField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "root");
+        rootField.setObjectValueUnchecked(newConstructor, source);
+
+        // copy constructorAccessor from this
+        RVMField constructorAccessorField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "constructorAccessor");
+        Object sourceConstructorAccessor = constructorAccessorField.getObjectUnchecked(source);
+        constructorAccessorField.setObjectValueUnchecked(newConstructor, sourceConstructorAccessor);
+
+        return newConstructor;
     }
 
     /**

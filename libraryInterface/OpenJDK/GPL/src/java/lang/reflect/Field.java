@@ -34,6 +34,7 @@ import sun.reflect.generics.scope.ClassScope;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
+import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
 
 import sun.reflect.annotation.AnnotationParser;
@@ -140,13 +141,27 @@ class Field extends AccessibleObject implements Member {
         // which implicitly requires that new java.lang.reflect
         // objects be fabricated for each reflective call on Class
         // objects.)
-        RVMField rvmField = java.lang.reflect.JikesRVMSupport.getFieldOf(this);
-        Field res = java.lang.reflect.JikesRVMSupport.createField(rvmField);
-        res.root = this;
-        // Might as well eagerly propagate this if already present
-        res.fieldAccessor = fieldAccessor;
-        res.overrideFieldAccessor = overrideFieldAccessor;
-        return res;
+        // "copy" field
+        Field source = (Field) (Object) this;
+        RVMField rvmField = java.lang.reflect.JikesRVMSupport.getFieldOf(source);
+        Field newField = java.lang.reflect.JikesRVMSupport.createField(rvmField);
+        // set rest of fields from old field
+        RVMClass typeForClass = java.lang.JikesRVMSupport.getTypeForClass(Field.class).asClass();
+
+        // set root field
+        RVMField rootField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "root");
+        rootField.setObjectValueUnchecked(newField, source);
+
+        // copy fieldAccessor and overrideFieldAccessor from this
+        RVMField fieldAccessorField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "fieldAccessor");
+        Object sourceFieldAccessor = fieldAccessorField.getObjectUnchecked(source);
+        fieldAccessorField.setObjectValueUnchecked(newField, sourceFieldAccessor);
+
+        RVMField overrideFieldAccessorField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "overrideFieldAccessor");
+        Object sourceOverrideFieldAccessor = overrideFieldAccessorField.getObjectUnchecked(source);
+        overrideFieldAccessorField.setObjectValueUnchecked(newField, sourceOverrideFieldAccessor);
+
+        return newField;
     }
 
     /**

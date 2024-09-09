@@ -342,7 +342,7 @@ public final class System
    */
   public static SecurityManager getSecurityManager()
   {
-    return security;
+    return null; // security;
   }
 
   /**

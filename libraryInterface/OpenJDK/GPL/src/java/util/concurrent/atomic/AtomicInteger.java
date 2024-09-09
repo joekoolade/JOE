@@ -34,66 +34,54 @@
  */
 
 package java.util.concurrent.atomic;
-import java.lang.reflect.Field;
-
-import org.jikesrvm.VM;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
 
 import sun.misc.Unsafe;
 
 /**
- * A {@code long} value that may be updated atomically.  See the
+ * An {@code int} value that may be updated atomically.  See the
  * {@link java.util.concurrent.atomic} package specification for
  * description of the properties of atomic variables. An
- * {@code AtomicLong} is used in applications such as atomically
- * incremented sequence numbers, and cannot be used as a replacement
- * for a {@link java.lang.Long}. However, this class does extend
+ * {@code AtomicInteger} is used in applications such as atomically
+ * incremented counters, and cannot be used as a replacement for an
+ * {@link java.lang.Integer}. However, this class does extend
  * {@code Number} to allow uniform access by tools and utilities that
  * deal with numerically-based classes.
  *
  * @since 1.5
  * @author Doug Lea
- */
-public class AtomicLong extends Number implements java.io.Serializable {
-    private static final long serialVersionUID = 1927816293512124184L;
+*/
+public class AtomicInteger extends Number implements java.io.Serializable {
+    private static final long serialVersionUID = 6214790243416807050L;
 
-    // setup to use Unsafe.compareAndSwapLong for updates
+    // setup to use Unsafe.compareAndSwapInt for updates
     private static final Unsafe unsafe = Unsafe.getUnsafe();
     private static final long valueOffset;
 
-    /**
-     * Records whether the underlying JVM supports lockless
-     * compareAndSwap for longs. While the Unsafe.compareAndSwapLong
-     * method works in either case, some constructions should be
-     * handled at Java level to avoid locking user-visible locks.
-     */
-    static final boolean VM_SUPPORTS_LONG_CAS = true;
-
     static {
       try {
-        RVMClass cls = java.lang.JikesRVMSupport.getTypeForClass(AtomicLong.class).asClass();
-        RVMField valueField = java.lang.reflect.JikesRVMHelpers.findFieldByName(cls, "value");
-        valueOffset = valueField.getOffset().toLong();
-        
+          RVMClass cls = java.lang.JikesRVMSupport.getTypeForClass(AtomicInteger.class).asClass();
+          RVMField valueField = java.lang.reflect.JikesRVMHelpers.findFieldByName(cls, "value");
+          valueOffset = valueField.getOffset().toLong();
       } catch (Exception ex) { throw new Error(ex); }
     }
 
-    private volatile long value;
+    private volatile int value;
 
     /**
-     * Creates a new AtomicLong with the given initial value.
+     * Creates a new AtomicInteger with the given initial value.
      *
      * @param initialValue the initial value
      */
-    public AtomicLong(long initialValue) {
+    public AtomicInteger(int initialValue) {
         value = initialValue;
     }
 
     /**
-     * Creates a new AtomicLong with initial value {@code 0}.
+     * Creates a new AtomicInteger with initial value {@code 0}.
      */
-    public AtomicLong() {
+    public AtomicInteger() {
     }
 
     /**
@@ -101,7 +89,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @return the current value
      */
-    public final long get() {
+    public final int get() {
         return value;
     }
 
@@ -110,7 +98,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @param newValue the new value
      */
-    public final void set(long newValue) {
+    public final void set(int newValue) {
         value = newValue;
     }
 
@@ -120,8 +108,8 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param newValue the new value
      * @since 1.6
      */
-    public final void lazySet(long newValue) {
-        unsafe.putOrderedLong(this, valueOffset, newValue);
+    public final void lazySet(int newValue) {
+        unsafe.putOrderedInt(this, valueOffset, newValue);
     }
 
     /**
@@ -130,9 +118,9 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param newValue the new value
      * @return the previous value
      */
-    public final long getAndSet(long newValue) {
-        while (true) {
-            long current = get();
+    public final int getAndSet(int newValue) {
+        for (;;) {
+            int current = get();
             if (compareAndSet(current, newValue))
                 return current;
         }
@@ -147,8 +135,8 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return true if successful. False return indicates that
      * the actual value was not equal to the expected value.
      */
-    public final boolean compareAndSet(long expect, long update) {
-        return unsafe.compareAndSwapLong(this, valueOffset, expect, update);
+    public final boolean compareAndSet(int expect, int update) {
+        return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
     }
 
     /**
@@ -163,8 +151,8 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param update the new value
      * @return true if successful.
      */
-    public final boolean weakCompareAndSet(long expect, long update) {
-        return unsafe.compareAndSwapLong(this, valueOffset, expect, update);
+    public final boolean weakCompareAndSet(int expect, int update) {
+        return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
     }
 
     /**
@@ -172,10 +160,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @return the previous value
      */
-    public final long getAndIncrement() {
-        while (true) {
-            long current = get();
-            long next = current + 1;
+    public final int getAndIncrement() {
+        for (;;) {
+            int current = get();
+            int next = current + 1;
             if (compareAndSet(current, next))
                 return current;
         }
@@ -186,10 +174,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @return the previous value
      */
-    public final long getAndDecrement() {
-        while (true) {
-            long current = get();
-            long next = current - 1;
+    public final int getAndDecrement() {
+        for (;;) {
+            int current = get();
+            int next = current - 1;
             if (compareAndSet(current, next))
                 return current;
         }
@@ -201,10 +189,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param delta the value to add
      * @return the previous value
      */
-    public final long getAndAdd(long delta) {
-        while (true) {
-            long current = get();
-            long next = current + delta;
+    public final int getAndAdd(int delta) {
+        for (;;) {
+            int current = get();
+            int next = current + delta;
             if (compareAndSet(current, next))
                 return current;
         }
@@ -215,10 +203,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @return the updated value
      */
-    public final long incrementAndGet() {
+    public final int incrementAndGet() {
         for (;;) {
-            long current = get();
-            long next = current + 1;
+            int current = get();
+            int next = current + 1;
             if (compareAndSet(current, next))
                 return next;
         }
@@ -229,10 +217,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @return the updated value
      */
-    public final long decrementAndGet() {
+    public final int decrementAndGet() {
         for (;;) {
-            long current = get();
-            long next = current - 1;
+            int current = get();
+            int next = current - 1;
             if (compareAndSet(current, next))
                 return next;
         }
@@ -244,10 +232,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param delta the value to add
      * @return the updated value
      */
-    public final long addAndGet(long delta) {
+    public final int addAndGet(int delta) {
         for (;;) {
-            long current = get();
-            long next = current + delta;
+            int current = get();
+            int next = current + delta;
             if (compareAndSet(current, next))
                 return next;
         }
@@ -258,16 +246,16 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the String representation of the current value.
      */
     public String toString() {
-        return Long.toString(get());
+        return Integer.toString(get());
     }
 
 
     public int intValue() {
-        return (int)get();
+        return get();
     }
 
     public long longValue() {
-        return get();
+        return (long)get();
     }
 
     public float floatValue() {

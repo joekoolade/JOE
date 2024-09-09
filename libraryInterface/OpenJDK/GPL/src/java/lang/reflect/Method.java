@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.jikesrvm.classloader.RVMClass;
+import org.jikesrvm.classloader.RVMField;
 import org.jikesrvm.classloader.RVMMethod;
 
 /**
@@ -150,13 +151,23 @@ public final
         // which implicitly requires that new java.lang.reflect
         // objects be fabricated for each reflective call on Class
         // objects.)
-        RVMMethod rvmMethod = java.lang.reflect.JikesRVMSupport.getMethodOf(this);
-        Method res = java.lang.reflect.JikesRVMSupport.createMethod(rvmMethod);
-    	
-        res.root = this;
-        // Might as well eagerly propagate this if already present
-        res.methodAccessor = methodAccessor;
-        return res;
+        // "copy" method
+        Method source = (Method) (Object) this;
+        RVMMethod rvmMethod = java.lang.reflect.JikesRVMSupport.getMethodOf(source);
+        Method newMethod = java.lang.reflect.JikesRVMSupport.createMethod(rvmMethod);
+        // set rest of fields from old field
+        RVMClass typeForClass = java.lang.JikesRVMSupport.getTypeForClass(Method.class).asClass();
+
+        // set root field
+        RVMField rootField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "root");
+        rootField.setObjectValueUnchecked(newMethod, source);
+
+        // copy constructorAccessor from this
+        RVMField methodAccessorField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "methodAccessor");
+        Object sourceMethodAccessor = methodAccessorField.getObjectUnchecked(source);
+        methodAccessorField.setObjectValueUnchecked(newMethod, sourceMethodAccessor);
+
+        return newMethod;
     }
 
     /**
