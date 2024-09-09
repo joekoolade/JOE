@@ -355,3 +355,6 @@ Ljava/text/NumberFormat;
 Ljava/text/Format;
 Lsun/reflect/ReflectionFactory;
 Ljava/lang/reflect/AccessibleObject;
+Lsun/reflect/NativeConstructorAccessorImpl;
+Lsun/reflect/NativeMethodAccessorImpl;
+Lsun/nio/ch/IOUtil;
