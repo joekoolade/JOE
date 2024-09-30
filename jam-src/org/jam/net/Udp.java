@@ -7,6 +7,7 @@ package org.jam.net;
 
 import java.net.NoRouteToHostException;
 import java.net.SocketException;
+import java.net.SocketOption;
 import java.net.SocketTimeoutException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -101,6 +102,10 @@ public class Udp {
         // Create a new connection
     }
 
+    public InetAddress localAddress()
+    {
+        return localAddress;
+    }
     /**
      * @param ttl
      */
@@ -597,5 +602,17 @@ public class Udp {
     public void send(byte[] addr, int port, byte[] data, int length)
     {
         
+    }
+
+    public <T> void setOption(SocketOption<T> name, T value)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public <T> T getOption(SocketOption<T> name)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

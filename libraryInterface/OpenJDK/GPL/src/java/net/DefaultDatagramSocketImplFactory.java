@@ -37,21 +37,6 @@ import java.security.AccessController;
 class DefaultDatagramSocketImplFactory {
     static Class<?> prefixImplClass = null;
 
-//    static {
-//        String prefix = null;
-//        try {
-//            prefix = AccessController.doPrivileged(
-//                new sun.security.action.GetPropertyAction("impl.prefix", null));
-//            if (prefix != null)
-//                prefixImplClass = Class.forName("java.net."+prefix+"DatagramSocketImpl");
-//        } catch (Exception e) {
-//            System.err.println("Can't find class: java.net." +
-//                                prefix +
-//                                "DatagramSocketImpl: check impl.prefix property");
-//            //prefixImplClass = null;
-//        }
-//    }
-
     /**
      * Creates a new <code>DatagramSocketImpl</code> instance.
      *

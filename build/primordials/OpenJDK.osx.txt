@@ -334,6 +334,8 @@ Ljava/net/MulticastSocket;
 Ljava/net/DefaultDatagramSocketImplFactory;
 Ljava/net/PlainDatagramSocketImpl;
 Ljava/lang/ref/WeakReference;
+Lsun/nio/ch/DatagramChannelImpl;
+
 Ljava/lang/ref/ReferenceQueue;
 Ljava/lang/ref/ReferenceQueue$Null;
 Ljava/util/Collections$UnmodifiableRandomAccessList;
