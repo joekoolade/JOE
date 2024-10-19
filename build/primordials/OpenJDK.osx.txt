@@ -360,3 +360,7 @@ Ljava/lang/reflect/AccessibleObject;
 Lsun/reflect/NativeConstructorAccessorImpl;
 Lsun/reflect/NativeMethodAccessorImpl;
 Lsun/nio/ch/IOUtil;
+Lsun/nio/ch/SelectorImpl;
+Lsun/nio/ch/SelectorProviderImpl;
+Lsun/nio/ch/DefaultSelectorProvider;
+Ljava/nio/channels/spi/SelectorProvider;
