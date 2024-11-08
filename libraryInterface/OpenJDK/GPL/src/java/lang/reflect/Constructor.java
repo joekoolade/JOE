@@ -521,7 +521,7 @@ public final
         throws InstantiationException, IllegalAccessException,
                IllegalArgumentException, InvocationTargetException
     {
-        System.out.println("newInstance 1");
+//        System.out.println("newInstance 1");
         if (!override) {
             if (!Reflection.quickCheckMemberAccess(clazz, modifiers)) {
                 Class<?> caller = Reflection.getCallerClass(2);
@@ -533,10 +533,10 @@ public final
             throw new IllegalArgumentException("Cannot reflectively create enum objects");
         ConstructorAccessor ca = constructorAccessor;   // read volatile
         if (ca == null) {
-            System.out.println("newInstance 2");
+//            System.out.println("newInstance 2");
             ca = acquireConstructorAccessor();
         }
-        System.out.println("cons accessor "+ca);
+//        System.out.println("cons accessor "+ca);
         return (T) ca.newInstance(initargs);
     }
 
@@ -577,14 +577,14 @@ public final
         ConstructorAccessor tmp = null;
         if (root != null) tmp = root.getConstructorAccessor();
         if (tmp != null) {
-            System.out.println("acquireConstructorAccessor 1");
+//            System.out.println("acquireConstructorAccessor 1");
             constructorAccessor = tmp;
         } else {
             // Otherwise fabricate one and propagate it up to the root
             tmp = reflectionFactory.newConstructorAccessor(this);
             setConstructorAccessor(tmp);
         }
-        System.out.println("acquireConstructorAccessor 4");
+//        System.out.println("acquireConstructorAccessor 4");
 
         return tmp;
     }

@@ -366,3 +366,4 @@ Lsun/nio/ch/DefaultSelectorProvider;
 Ljava/nio/channels/spi/SelectorProvider;
 Ljava/net/NetworkInterface;
 Lsun/nio/fs/DefaultFileSystemProvider;
+Lsun/nio/ch/Net;

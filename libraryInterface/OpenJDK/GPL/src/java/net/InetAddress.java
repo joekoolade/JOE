@@ -1178,6 +1178,22 @@ class InetAddress implements java.io.Serializable {
     }
 
     /**
+     * Returns the loopback address.
+     * <p>
+     * The InetAddress returned will represent the IPv4
+     * loopback address, 127.0.0.1, or the IPv6 loopback
+     * address, ::1. The IPv4 loopback address returned
+     * is only one of many in the form 127.*.*.*
+     *
+     * @return  the InetAddress loopback instance.
+     * @since 1.7
+     */
+    public static InetAddress getLoopbackAddress() {
+        return impl.loopbackAddress();
+    }
+
+
+    /**
      * check if the literal address string has %nn appended
      * returns -1 if not, or the numeric value otherwise.
      *

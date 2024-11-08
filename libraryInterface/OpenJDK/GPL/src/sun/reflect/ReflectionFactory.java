@@ -72,7 +72,7 @@ public class ReflectionFactory {
     private static int     inflationThreshold = 15;
 
     private ReflectionFactory() {
-        System.out.println("New reflection factory 2");
+//        System.out.println("New reflection factory 2");
     }
 
     /**
@@ -87,7 +87,7 @@ public class ReflectionFactory {
     public static final class GetReflectionFactoryAction
         implements PrivilegedAction<ReflectionFactory> {
         public ReflectionFactory run() {
-            System.out.println("New reflection factory");
+//            System.out.println("New reflection factory");
             return getReflectionFactory();
         }
     }
@@ -165,12 +165,12 @@ public class ReflectionFactory {
 
     public ConstructorAccessor newConstructorAccessor(Constructor c) {
         checkInitted();
-        System.out.println("newConstructorAccessor 1");
+//        System.out.println("newConstructorAccessor 1");
         Class<?> declaringClass = c.getDeclaringClass();
         if (Modifier.isAbstract(declaringClass.getModifiers())) {
             return new InstantiationExceptionConstructorAccessorImpl(null);
         }
-        System.out.println("newConstructorAccessor 2");
+//        System.out.println("newConstructorAccessor 2");
         if (declaringClass == Class.class) {
             return new InstantiationExceptionConstructorAccessorImpl
                 ("Can not instantiate java.lang.Class");
@@ -180,13 +180,13 @@ public class ReflectionFactory {
         // break the cycle here.
         if (Reflection.isSubclassOf(declaringClass,
                                     ConstructorAccessorImpl.class)) {
-            System.out.println("newConstructorAccessor 3");
+//            System.out.println("newConstructorAccessor 3");
             return new BootstrapConstructorAccessorImpl(c);
         }
 
-        System.out.println("newConstructorAccessor 4");
+//        System.out.println("newConstructorAccessor 4");
         if (noInflation) {
-            System.out.println("newConstructorAccessor 5");
+//            System.out.println("newConstructorAccessor 5");
             return new MethodAccessorGenerator().
                 generateConstructor(c.getDeclaringClass(),
                                     c.getParameterTypes(),

@@ -162,21 +162,21 @@ public abstract class SelectorProvider {
      * @return  The system-wide default selector provider
      */
     public static SelectorProvider provider() {
-        System.out.println("SelectorProvider provider");
+//        System.out.println("SelectorProvider provider");
         synchronized (lock) {
-            System.out.println("SelectorProvider: open");
+//            System.out.println("SelectorProvider: open");
             if (provider != null)
                 return provider;
             return AccessController.doPrivileged(
                 new PrivilegedAction<SelectorProvider>() {
                     public SelectorProvider run() {
-                            System.out.println("SelectorProvider: properties");
+//                            System.out.println("SelectorProvider: properties");
                             if (loadProviderFromProperty())
                                 return provider;
-                            System.out.println("SelectorProvider: service");
+//                            System.out.println("SelectorProvider: service");
                             if (loadProviderAsService())
                                 return provider;
-                            System.out.println("SelectorProvider: default");
+//                            System.out.println("SelectorProvider: default");
                             provider = sun.nio.ch.DefaultSelectorProvider.create();
                             return provider;
                         }
