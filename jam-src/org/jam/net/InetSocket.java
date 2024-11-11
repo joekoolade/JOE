@@ -71,8 +71,8 @@ public class InetSocket
 
     public int connect(InetAddress address, int port)
     {
-        // TODO Auto-generated method stub
-        return 0;
+        System.out.println("addr "+address+" port "+port);
+        return 1;
     }
 
     public void disconnect()
