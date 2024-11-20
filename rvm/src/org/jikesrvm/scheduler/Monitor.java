@@ -136,6 +136,7 @@ public class Monitor {
 //        VM.sysWrite("/R", recCount);
 //        VM.sysWriteln("/A", acquireCount);
         thread.threadStatus = RVMThread.MONITOR_WAIT;
+        thread.wait += 1;
         locking.enqueue(thread);
         RVMThread.yieldNoHandshake();
       }
@@ -170,6 +171,7 @@ public class Monitor {
            * Wait on the locking queue
            */
           thread.threadStatus = RVMThread.MONITOR_WAIT;
+          thread.wait += 1;
           locking.enqueue(thread);
           RVMThread.yieldNoHandshake();
       }
@@ -225,6 +227,7 @@ public class Monitor {
          * Wait on the locking queue
          */
         thread.threadStatus = RVMThread.MONITOR_WAIT;
+        thread.wait += 1;
         locking.enqueue(thread);
         RVMThread.yieldWithHandshake();
       }
@@ -325,6 +328,7 @@ public class Monitor {
          * schedule thread trying to acquire the monitor
          */
         waitingThread.threadStatus = RVMThread.RUNNABLE;
+        waitingThread.notified += 1;
         RVMThread.getCurrentThread().disableYieldpoints();
         Platform.scheduler.addThread(waitingThread);
         RVMThread.getCurrentThread().enableYieldpoints();
@@ -364,6 +368,7 @@ public class Monitor {
       /*
        * schedule thread trying to acquire the monitor
        */
+      waitingThread.notified += 1;
       waitingThread.threadStatus = RVMThread.RUNNABLE;
       Platform.scheduler.addThread(waitingThread);
     }
@@ -421,6 +426,7 @@ public class Monitor {
       /*
        * Time to give up the processor
        */
+      thread.wait += 1;
       thread.threadStatus = RVMThread.MONITOR_WAIT;
       RVMThread.yieldNoHandshake();
       /*
@@ -479,6 +485,7 @@ public class Monitor {
      * Puts thread on a timer. No need to put on a wait queue.
      * May have implications when sending a stop or an exception to the sleep thread
      */
+    thread.timedWait += 1;
     thread.threadStatus = RVMThread.MONITOR_TIMER;
     Platform.timer.startTimer(whenWakeupNanos);
 //    Platform.timer.removeTimer(whenWakeupNanos);
@@ -637,6 +644,7 @@ public class Monitor {
           VM.sysWriteln("Wakeup T#", waitingThread.threadSlot);
         }
         waitingThread.threadStatus = RVMThread.RUNNABLE;
+        waitingThread.notified += 1;
         RVMThread.getCurrentThread().disableYieldpoints();
         Platform.scheduler.addThread(waitingThread);
         RVMThread.getCurrentThread().enableYieldpoints();
@@ -668,6 +676,7 @@ public class Monitor {
           {
               VM.sysWriteln("Broadcast T#", waitingThread.threadSlot);
           }
+          waitingThread.notified += 1;
           waitingThread.threadStatus = RVMThread.RUNNABLE;
           Platform.scheduler.addThread(waitingThread);
           waitingThread = locking.dequeue();

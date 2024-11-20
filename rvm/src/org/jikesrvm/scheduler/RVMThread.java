@@ -620,6 +620,19 @@ public final class RVMThread extends ThreadContext {
    */
   public int firstCBSMethodSample;
 
+  /*
+   * Keep track of wait taken
+   */
+  public int wait;
+  /*
+   * Keep track of notifies
+   */
+  public int notified;
+  /*
+   * Kee track of timed waits
+   */
+  public int timedWait;
+  
   /* --------- BEGIN PPC-specific fields. NOTE: NEED TO REFACTOR --------- */
   /**
    * flag indicating this processor needs to execute a memory synchronization
@@ -5313,30 +5326,35 @@ private static final boolean threadTrace = false;
 
   private static void dumpThread(RVMThread t) {
     if (t == null) {
-      VM.sysWrite("none");
+      VM.sysWriteln("none");
     } else {
-      VM.sysWrite(t.threadSlot, "(", READABLE_EXEC_STATUS[t.getExecStatus()]);
+      VM.sysWrite("SLOT ");
+      VM.sysWrite(t.threadSlot, " ", t.name);
       if (t.isAboutToTerminate) {
-        VM.sysWrite("T");
+        VM.sysWrite("/T");
       }
       if (t.isBlocking) {
-        VM.sysWrite("B");
+        VM.sysWrite("/B");
       }
       if (t.isJoinable) {
-        VM.sysWrite("J");
+        VM.sysWrite("/J");
       }
       if (t.atYieldpoint) {
-        VM.sysWrite("Y");
+        VM.sysWrite("/Y");
       }
-      VM.sysWrite(")");
+      VM.sysWrite(" status: ", t.threadStatus);
+      VM.sysWrite(" w: ", t.wait);
+      VM.sysWrite(" tw: ", t.timedWait);
+      VM.sysWrite(" n: ", t.notified);
+      VM.sysWriteln(" yp: ", t.yieldpointsTaken);
     }
   }
 
   private static void dumpThreadArray(RVMThread[] array, int bound) {
     for (int i = 0; i < bound; ++i) {
-      if (i != 0) {
-        VM.sysWrite(", ");
-      }
+//      if (i != 0) {
+//        VM.sysWrite(", ");
+//      }
       VM.sysWrite(i, ":");
       dumpThread(array[i]);
     }
@@ -5344,26 +5362,27 @@ private static final boolean threadTrace = false;
 
   private static void dumpThreadSlotArray(int[] array, int bound) {
     for (int i = 0; i < bound; ++i) {
-      if (i != 0) {
-        VM.sysWrite(", ");
-      }
+//      if (i != 0) {
+//        VM.sysWrite(", ");
+//    }
       VM.sysWrite(i, ":");
       int threadSlot = array[i];
+      VM.sysWrite("SLOT ");
       VM.sysWrite(threadSlot, ",");
       dumpThread(threadBySlot[array[i]]);
     }
   }
 
   private static void dumpThreadArray(String name, RVMThread[] array, int bound) {
-    VM.sysWrite(name);
-    VM.sysWrite(": ");
+    VM.sysWriteln(name);
+    VM.sysWriteln(": ");
     dumpThreadArray(array, bound);
     VM.sysWriteln();
   }
 
   private static void dumpThreadSlotArray(String name, int[] array, int bound) {
-    VM.sysWrite(name);
-    VM.sysWrite(": ");
+    VM.sysWriteln(name);
+    VM.sysWriteln(": ");
     dumpThreadSlotArray(array, bound);
     VM.sysWriteln();
   }
