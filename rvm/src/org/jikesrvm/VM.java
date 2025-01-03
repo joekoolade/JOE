@@ -645,8 +645,12 @@ public class VM extends Properties {
         if(extFile[i].name.endsWith(".jar"))
         {
             try {
+                int prefixIndex = extFile[i].name.indexOf(".jar");
+                int dirIndex = extFile[i].name.lastIndexOf("/");
                 extJarFile = new ZipFile(extFile[i].data);
-                BootstrapClassLoader.addZipFile("dns", extJarFile);
+                String prefixName = extFile[i].name.substring(dirIndex+1, prefixIndex);
+                VM.sysWriteln("Jar tag  " + prefixName);
+                BootstrapClassLoader.addZipFile(prefixName, extJarFile);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -722,10 +726,10 @@ public class VM extends Properties {
 //  DecimalFormat df = new DecimalFormat();
 //  VM.sysWriteln("df done");
 //  Class dig;
-  System.setProperty("dns.server", "10.0.2.3");
-  System.setProperty("dns.search", "localhost.com");
+//  System.setProperty("dns.server", "10.0.2.3");
+//  System.setProperty("dns.search", "localhost.com");
   // For now need have DecimalFormat in the primordials
-  runClassInitializer("java.text.DecimalFormat");
+    runClassInitializer("java.text.DecimalFormat");
 //  VM.verboseClassLoading = true;
 //  VM.TraceClassLoading = true;
   
@@ -734,22 +738,26 @@ public class VM extends Properties {
 //  new Thread(test).run();
 //  VM.sysWriteln("running runthread2");
   
-  System.setProperty("java.security.debug", "all");
-  try {
-      BootstrapClassLoader.getBootstrapClassLoader().loadClass("com.sun.crypto.provider.SunJCE", true);
-      System.setProperty("dns.server", "10.0.2.3");
-      System.setProperty("dns.search", "localhost.com");
-      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
-      String args[] = { "dig", "viasat.com", "ANY" };
-      RunMain dig = new RunMain("dig", args);
-      dig.run();
-      VM.sysWriteln("dig running");
-  } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-  }
+    System.setProperty("java.security.debug", "all");
+//  try {
+//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("com.sun.crypto.provider.SunJCE", true);
+//      System.setProperty("dns.server", "10.0.2.3");
+//      System.setProperty("dns.search", "localhost.com");
+//      System.setProperty("dnsjava.options", "verbose=true");
+//      BootstrapClassLoader.getBootstrapClassLoader().loadClass("dig", true);
+//      String args[] = { "dig", "viasat.com", "ANY", "-q" };
+//      RunMain dig = new RunMain("dig", args);
+//      dig.run();
+//      VM.sysWriteln("dig running");
+//  } catch (Exception e) {
+//      VM.sysWriteln("dig execption!");
+//      e.printStackTrace();
+//  }
   
-    
+    VM.sysWriteln("test setup");
+    RunMain test = new RunMain("Basic", null);
+    VM.sysWriteln("test run");
+    test.run();
     
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread

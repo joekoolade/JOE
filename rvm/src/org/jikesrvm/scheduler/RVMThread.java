@@ -2886,6 +2886,8 @@ private static final boolean threadTrace = false;
       if (traceAcct) {
         VM.sysWriteln("Thread ",getThreadSlot()," exiting with exception.");
       }
+      VM.sysWriteln("RVMThread catch: ");
+      t.printStackTrace();
       // Any throwable that reaches this point wasn't caught by the
       // thread and is therefore an uncaught exception by definition.
       // In order to make sure that terminate() sets the correct exit

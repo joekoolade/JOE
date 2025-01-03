@@ -51,7 +51,7 @@ public class Memory {
   /**
    * Allow the use of C based memcpy
    */
-  private static final boolean USE_NATIVE = true;
+  private static final boolean USE_NATIVE = false;
 
   /**
    * Number of bytes used when copying larger chunks of memory. Normally 8 bytes
