@@ -85,8 +85,8 @@ class ReflectAccess implements sun.reflect.LangReflectAccess {
                             byte[] parameterAnnotations,
                             byte[] annotationDefault)
     {
-        VM.sysFail("newMethod NYI");    
-        return null;
+//        VM.sysFail("newMethod NYI");    
+        return new Method(declaringClass, name, parameterTypes, returnType, checkedExceptions, modifiers, slot, signature, annotations, parameterAnnotations, annotationDefault);
     }
 
     public <T> Constructor<T> newConstructor(Class<T> declaringClass,
