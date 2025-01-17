@@ -29,6 +29,7 @@ package java.nio;
 
 import java.io.FileDescriptor;
 
+import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
 
 import sun.misc.Cleaner;
@@ -68,121 +69,7 @@ class DirectCharBufferS
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Cleaner cleaner() { return null; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // For duplicates and slices
@@ -194,9 +81,6 @@ class DirectCharBufferS
 
         super(mark, pos, lim, cap);
         address = db.address() + off;
-
-
-
         att = db;
 
 
@@ -329,7 +213,8 @@ class DirectCharBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 1);
+//            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 1);
+            Memory.aligned16Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<1);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +272,8 @@ class DirectCharBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        Bits.copyMemory(ix(pos), ix(0), rem << 1);
+//        Bits.copyMemory(ix(pos), ix(0), rem << 1);
+        Memory.aligned16Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<1);
         position(rem);
         limit(capacity());
         discardMark();

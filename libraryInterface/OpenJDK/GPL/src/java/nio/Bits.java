@@ -29,6 +29,7 @@ import org.jikesrvm.HeapLayoutConstants;
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
 import sun.misc.JavaNioAccess;
 
@@ -696,14 +697,6 @@ class Bits {                            // package-private
     // result in memory corruption should be done prior to invocation.
     // All positions and lengths are specified in bytes.
 
-    static void copyMemory(long sourceAddr, long destAddress, int bytes)
-    {
-        copyMemory(null, sourceAddr, null, destAddress, bytes);
-    }
-    static void copyMemory(Object srcBase, long srcOffset, Object dstBase, long dstOffset, long bytes)
-    {
-        
-    }
     /**
      * Copy from given source array to destination address.
      *
@@ -724,7 +717,8 @@ class Bits {                            // package-private
         long offset = srcBaseOffset + srcPos;
         while (length > 0) {
             long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;
-            copyMemory(src, offset, null, dstAddr, size);
+            //copyMemory(src, offset, null, dstAddr, size);
+            Memory.aligned8Copy(Address.fromLong(dstAddr),Magic.objectAsAddress(src).plus((int)offset), (int)size);
             length -= size;
             offset += size;
             dstAddr += size;
@@ -751,7 +745,7 @@ class Bits {                            // package-private
         long offset = dstBaseOffset + dstPos;
         while (length > 0) {
             long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;
-            copyMemory(null, srcAddr, dst, offset, size);
+            Memory.aligned8Copy(Magic.objectAsAddress(dst).plus((int)offset), Address.fromLong(srcAddr), (int)size);
             length -= size;
             srcAddr += size;
             offset += size;

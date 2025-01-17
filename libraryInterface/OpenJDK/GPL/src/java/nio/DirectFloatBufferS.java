@@ -29,6 +29,7 @@ package java.nio;
 
 import java.io.FileDescriptor;
 
+import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
 
 import sun.misc.Cleaner;
@@ -329,7 +330,9 @@ class DirectFloatBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
+//            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
+            Memory.aligned32Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<2);
+            
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -387,7 +390,8 @@ class DirectFloatBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        Bits.copyMemory(ix(pos), ix(0), rem << 2);
+//        Bits.copyMemory(ix(pos), ix(0), rem << 2);
+        Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
         position(rem);
         limit(capacity());
         discardMark();

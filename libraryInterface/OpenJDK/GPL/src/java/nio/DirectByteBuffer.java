@@ -30,6 +30,7 @@ package java.nio;
 import java.io.FileDescriptor;
 
 import org.jikesrvm.runtime.Magic;
+import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
 
 import sun.misc.Cleaner;
@@ -117,27 +118,25 @@ class DirectByteBuffer
         boolean pa = false; //VM.isDirectMemoryPageAligned();
         int ps = Bits.pageSize();
         long size = Math.max(1L, (long)cap + (pa ? ps : 0));
-        Bits.reserveMemory(size, cap);
-
-        long base = 0;
-        try {
-            base = 0; // unsafe.allocateMemory(size);
-        } catch (OutOfMemoryError x) {
-            Bits.unreserveMemory(size, cap);
-            throw x;
-        }
+//        Bits.reserveMemory(size, cap);
+//
+//        long base = 0;
+//        try {
+//            base = 0; // unsafe.allocateMemory(size);
+//        } catch (OutOfMemoryError x) {
+//            Bits.unreserveMemory(size, cap);
+//            throw x;
+//        }
 //        unsafe.setMemory(base, size, (byte) 0);
-        if (pa && (base % ps != 0)) {
-            // Round up to page boundary
-            address = base + ps - (base & (ps - 1));
-        } else {
-            address = base;
-        }
-        cleaner = Cleaner.create(this, new Deallocator(base, size, cap));
+//        if (pa && (base % ps != 0)) {
+//            // Round up to page boundary
+//            address = base + ps - (base & (ps - 1));
+//        } else {
+//            address = base;
+//        }
+        address = Magic.objectAsAddress(new Byte[(int)size]).toLong();
+        cleaner = null;
         att = null;
-
-
-
     }
 
 
@@ -173,7 +172,7 @@ class DirectByteBuffer
 
         super(-1, 0, cap, cap, fd);
         address = addr;
-        cleaner = Cleaner.create(this, unmapper);
+        cleaner = null; // Cleaner.create(this, unmapper);
         att = null;
 
 
@@ -326,7 +325,9 @@ class DirectByteBuffer
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 0);
+            //Bits.copyMemory(sb.ix(spos), ix(pos), srem << 0);
+            Memory.aligned8Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem << 0);
+            
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -384,7 +385,8 @@ class DirectByteBuffer
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        Bits.copyMemory(ix(pos), ix(0), rem << 0);
+        //Bits.copyMemory(ix(pos), ix(0), rem << 0);
+        Memory.aligned8Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<0);
         position(rem);
         limit(capacity());
         discardMark();
