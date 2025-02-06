@@ -26,7 +26,6 @@
 package java.nio;
 
 import java.io.FileDescriptor;
-import sun.misc.Unsafe;
 
 
 /**
@@ -163,13 +162,12 @@ public abstract class MappedByteBuffer
         // Read a byte from each page to bring it into memory. A checksum
         // is computed as we go along to prevent the compiler from otherwise
         // considering the loop as dead code.
-        Unsafe unsafe = Unsafe.getUnsafe();
         int ps = Bits.pageSize();
         int count = Bits.pageCount(length);
         long a = mappingAddress(offset);
         byte x = 0;
         for (int i=0; i<count; i++) {
-            x ^= unsafe.getByte(a);
+//            x ^= unsafe.getByte(a);
             a += ps;
         }
         if (unused != 0)

@@ -1910,6 +1910,9 @@ Check to make sure all required properties are specified. This includes properti
   		</conditions>
   		<sequential>
   			<jar destfile="${build.joert.jar}" compress="false">
+          <zipfileset src="${build.rt.jar}">
+            <include name="java/nio/**"/>
+          </zipfileset>
   				<zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}">
   	        <exclude name="apple/**"/>
   	        <exclude name="com/apple/**"/>
@@ -1932,6 +1935,7 @@ Check to make sure all required properties are specified. This includes properti
   	        <exclude name="com/sun/org/apache/**"/>
   	        <exclude name="com/sun/org/glassfish/**"/>
   	        <exclude name="sun/swing/**"/>
+  					<exclude name="java/nio/**"/>
   				</zipfileset>
   	      <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
   				<zipfileset src="${openjdk.lib.dir}/ext/sunjce_provider.jar"/>

@@ -27,14 +27,10 @@
 
 package java.nio;
 
-import java.io.FileDescriptor;
-
 import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
 
 import sun.misc.Cleaner;
-import sun.misc.Unsafe;
-import sun.misc.VM;
 import sun.nio.ch.DirectBuffer;
 
 

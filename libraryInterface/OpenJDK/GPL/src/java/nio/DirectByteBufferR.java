@@ -31,9 +31,6 @@ import java.io.FileDescriptor;
 
 import org.vmmagic.unboxed.Address;
 
-import sun.misc.Cleaner;
-import sun.misc.Unsafe;
-import sun.misc.VM;
 import sun.nio.ch.DirectBuffer;
 
 

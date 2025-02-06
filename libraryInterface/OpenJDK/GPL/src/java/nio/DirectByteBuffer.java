@@ -29,6 +29,7 @@ package java.nio;
 
 import java.io.FileDescriptor;
 
+import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
@@ -49,7 +50,7 @@ class DirectByteBuffer
 
 
     // Cached array base offset
-    private static final long arrayBaseOffset = Magic.objectAsAddress(byte[].class).toLong();
+    private static final long arrayBaseOffset = 0; //Magic.objectAsAddress(byte[].class).toLong();
 
     // Cached unaligned-access capability
     protected static final boolean unaligned = Bits.unaligned();
@@ -265,17 +266,9 @@ class DirectByteBuffer
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferUnderflowException();
-
-
-
-
-
-
-
-
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 0,
-                                 length << 0);
+            Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
+                             offset << 0,
+                             length << 0);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
@@ -644,19 +637,41 @@ class DirectByteBuffer
                                                                        size,
                                                                        off)));
         } else {
-            return (nativeByteOrder
-                    ? (ShortBuffer)(new DirectShortBufferU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (ShortBuffer)(new DirectShortBufferS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+            if(nativeByteOrder)
+            {
+                System.out.println("asShortBuffer: DirectShortBufferU");
+                return (ShortBuffer)(new DirectShortBufferU(this,
+                        -1,
+                        0,
+                        size,
+                        size,
+                        off));
+            }
+            else
+            {
+                System.out.println("asShortBuffer: DirectShortBufferS");
+//                VM.TraceClassLoading = true;
+//                VM.verboseClassLoading = true;
+                return (ShortBuffer)(new DirectShortBufferS(this,
+                        -1,
+                        0,
+                        size,
+                        size,
+                        off));
+            }
+//            return (nativeByteOrder
+//                    ? (ShortBuffer)(new DirectShortBufferU(this,
+//                                                                 -1,
+//                                                                 0,
+//                                                                 size,
+//                                                                 size,
+//                                                                 off))
+//                    : (ShortBuffer)(new DirectShortBufferS(this,
+//                                                                 -1,
+//                                                                 0,
+//                                                                 size,
+//                                                                 size,
+//                                                                 off)));
         }
     }
 

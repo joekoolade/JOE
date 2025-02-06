@@ -260,12 +260,14 @@ findEndSig:
         	}
         	if(entry.extraFieldLength > 0)
         	{
-        		entry.extraField = new String(buf, centHeader+entryPos+CENHDR, entry.extraFieldLength);
+        		entry.extraField = new byte[entry.extraFieldLength]; // String(buf, centHeader+entryPos+CENHDR, entry.extraFieldLength);
+        		System.arraycopy(buf, centHeader+entryPos+CENHDR, entry.extraField, 0, entry.extraFieldLength);
         	}
         	if(entry.commentLength > 0)
         	{
         		entry.comment = new String(buf, centHeader+entryPos+CENHDR, entry.commentLength);
         	}
+        	entry.setLocalExtraFieldSize(buf);
         	entryPos += entry.entrySize();
 //        	VM.sysWriteln(entry.fileName);
         	fhEntries[zipEntry] = entry;

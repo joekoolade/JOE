@@ -31,7 +31,6 @@ import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
-import sun.misc.JavaNioAccess;
 
 /**
  * Access to bits, native and otherwise.
@@ -664,20 +663,20 @@ class Bits {                            // package-private
 
     static {
         // setup access to this package in SharedSecrets
-        sun.misc.SharedSecrets.setJavaNioAccess(
-            new sun.misc.JavaNioAccess() {
-                public ByteBuffer newDirectByteBuffer(long addr, int cap, Object ob) {
-                    return new DirectByteBuffer(addr, cap, ob);
-                }
-                @Override
-                public void truncate(Buffer buf) {
-                    buf.truncate();
-                }
-				@Override
-				public BufferPool getDirectBufferPool() {
-					return null;
-				}
-        });
+//        sun.misc.SharedSecrets.setJavaNioAccess(
+//            new sun.misc.JavaNioAccess() {
+//                public ByteBuffer newDirectByteBuffer(long addr, int cap, Object ob) {
+//                    return new DirectByteBuffer(addr, cap, ob);
+//                }
+//                @Override
+//                public void truncate(Buffer buf) {
+//                    buf.truncate();
+//                }
+//				@Override
+//				public BufferPool getDirectBufferPool() {
+//					return null;
+//				}
+//        });
     }
 
     // -- Bulk get/put acceleration --

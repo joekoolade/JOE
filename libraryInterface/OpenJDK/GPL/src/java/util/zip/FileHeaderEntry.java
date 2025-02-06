@@ -11,14 +11,16 @@ class FileHeaderEntry implements ZipConstants {
 	int compressedSize;
 	int uncompressedSize;
 	short nameLength;
+	short localNameLength;
 	short extraFieldLength;
+	short localExtraFieldLength;
 	short commentLength;
 	short disk;
 	short intAttr;
 	int extAttr;
 	int offset;
 	String fileName;
-	String extraField;
+	byte[] extraField;
 	String comment;
 	
 	int entrySize()
@@ -34,7 +36,7 @@ class FileHeaderEntry implements ZipConstants {
 	byte[] getExtra()
 	{
 	    if(extraField == null) return null;
-	    return extraField.getBytes();
+	    return extraField;
 	}
 	
 	int commentOffset()
@@ -44,11 +46,16 @@ class FileHeaderEntry implements ZipConstants {
 	
     int dataOffset()
     {
-        return LOCHDR + extraFieldLength + nameLength;
+        return LOCHDR + localExtraFieldLength + nameLength;
     }
 
     int data()
 	{
-	    return offset + LOCHDR + extraFieldLength + nameLength;
+	    return offset + LOCHDR + localExtraFieldLength + nameLength;
 	}
+
+    public void setLocalExtraFieldSize(byte[] buf)
+    {
+        localExtraFieldLength = (short)(buf[offset + LOCEXT] | buf[offset + LOCEXT + 1] << 8);
+    }
 }

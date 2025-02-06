@@ -27,9 +27,6 @@
 
 package java.nio;
 
-import org.jikesrvm.VM;
-import org.jikesrvm.runtime.Magic;
-
 /**
 
  * A read/write HeapByteBuffer.
