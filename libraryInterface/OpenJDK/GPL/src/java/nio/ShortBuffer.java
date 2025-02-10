@@ -858,101 +858,6 @@ public abstract class ShortBuffer
     public final ShortBuffer put(short[] src) {
         return put(src, 0, src.length);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // -- Other stuff --
 
     /**
@@ -1043,22 +948,6 @@ public abstract class ShortBuffer
      * followed immediately by an invocation of another relative <i>put</i>
      * method. </p>
      *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
      *
      * @return  This buffer
      *
@@ -1073,8 +962,6 @@ public abstract class ShortBuffer
      * @return  <tt>true</tt> if, and only if, this buffer is direct
      */
     public abstract boolean isDirect();
-
-
 
     /**
      * Returns a string summarizing the state of this buffer.
@@ -1094,11 +981,6 @@ public abstract class ShortBuffer
         return sb.toString();
     }
 
-
-
-
-
-
     /**
      * Returns the current hash code of this buffer.
      *
@@ -1116,9 +998,6 @@ public abstract class ShortBuffer
         int h = 1;
         int p = position();
         for (int i = limit() - 1; i >= p; i--)
-
-
-
             h = 31 * h + (int)get(i);
 
         return h;
@@ -1138,13 +1017,6 @@ public abstract class ShortBuffer
      *
      *   <li><p> The two sequences of remaining elements, considered
      *   independently of their starting positions, are pointwise equal.
-
-
-
-
-
-
-
      *   </p></li>
      *
      * </ol>
@@ -1172,11 +1044,7 @@ public abstract class ShortBuffer
     }
 
     private static boolean equals(short x, short y) {
-
-
-
         return x == y;
-
     }
 
     /**
@@ -1185,14 +1053,6 @@ public abstract class ShortBuffer
      * <p> Two short buffers are compared by comparing their sequences of
      * remaining elements lexicographically, without regard to the starting
      * position of each sequence within its corresponding buffer.
-
-
-
-
-
-
-
-
      * Pairs of {@code short} elements are compared as if by invoking
      * {@link Short#compare(short,short)}.
 
@@ -1213,210 +1073,10 @@ public abstract class ShortBuffer
     }
 
     private static int compare(short x, short y) {
-
-
-
-
-
-
         return Short.valueOf(x).compareTo(Short.valueOf(y));
-
     }
 
     // -- Other char stuff --
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // -- Other byte stuff: Access to binary data --
 
@@ -1435,69 +1095,4 @@ public abstract class ShortBuffer
      * @return  This buffer's byte order
      */
     public abstract ByteOrder order();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

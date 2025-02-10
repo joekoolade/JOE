@@ -763,10 +763,34 @@ class Bits {                            // package-private
         copyToShortArray(srcAddr, dst, dstPos, length);
     }
 
-    static native void copyFromShortArray(Object src, long srcPos, long dstAddr,
-                                          long length);
-    static native void copyToShortArray(long srcAddr, Object dst, long dstPos,
-                                        long length);
+    static void copyFromShortArray(Object src, long srcPos, long dstAddr, long length)
+    {
+        Address dstAddress = Address.fromLong(dstAddr);
+        Address srcAddress  = Magic.objectAsAddress(src).plus((int)srcPos);
+        System.out.println("s: "+Integer.toHexString(srcAddress.toInt())+
+                           " d: "+Integer.toHexString(dstAddress.toInt())+
+                           " size: "+length);
+        while(length > 0)
+        {
+            dstAddress.store(Magic.byteSwap(srcAddress.loadShort()));
+            srcAddress = srcAddress.plus(2);
+            dstAddress = dstAddress.plus(2);
+            length--;
+        }
+    }
+    
+    static void copyToShortArray(long srcAddr, Object dst, long dstPos, long length)
+    {
+        Address dstAddress = Magic.objectAsAddress(dst).plus((int)dstPos);
+        Address srcAddress = Address.fromLong(srcAddr);
+        while(length > 0)
+        {
+            dstAddress.store(Magic.byteSwap(srcAddress.loadShort()));
+            srcAddress = srcAddress.plus(2);
+            dstAddress = dstAddress.plus(2);
+            length--;
+        }
+    }
 
     static native void copyFromIntArray(Object src, long srcPos, long dstAddr,
                                         long length);
