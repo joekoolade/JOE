@@ -29,20 +29,12 @@ package java.nio;
 
 
 /**
-
  * A read/write HeapCharBuffer.
-
-
-
-
-
-
  */
 
 class HeapCharBuffer
     extends CharBuffer
 {
-
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
     /*
@@ -53,16 +45,11 @@ class HeapCharBuffer
     */
 
     HeapCharBuffer(int cap, int lim) {            // package-private
-
         super(-1, 0, lim, cap, new char[cap], 0);
         /*
         hb = new char[cap];
         offset = 0;
         */
-
-
-
-
     }
 
     HeapCharBuffer(char[] buf, int off, int len) { // package-private
@@ -72,79 +59,70 @@ class HeapCharBuffer
         hb = buf;
         offset = 0;
         */
-
-
-
-
     }
 
     protected HeapCharBuffer(char[] buf,
                                    int mark, int pos, int lim, int cap,
                                    int off)
     {
-
         super(mark, pos, lim, cap, buf, off);
         /*
         hb = buf;
         offset = off;
         */
-
-
-
-
     }
 
+    @Override
     public CharBuffer slice() {
         return new HeapCharBuffer(hb,
-                                        -1,
-                                        0,
-                                        this.remaining(),
-                                        this.remaining(),
-                                        this.position() + offset);
+                                    -1,
+                                    0,
+                                    this.remaining(),
+                                    this.remaining(),
+                                    this.position() + offset);
     }
 
+    @Override
     public CharBuffer duplicate() {
         return new HeapCharBuffer(hb,
-                                        this.markValue(),
-                                        this.position(),
-                                        this.limit(),
-                                        this.capacity(),
-                                        offset);
+                                    this.markValue(),
+                                    this.position(),
+                                    this.limit(),
+                                    this.capacity(),
+                                    offset);
     }
 
+    @Override
     public CharBuffer asReadOnlyBuffer() {
-
         return new HeapCharBufferR(hb,
                                      this.markValue(),
                                      this.position(),
                                      this.limit(),
                                      this.capacity(),
                                      offset);
-
-
-
     }
-
-
 
     protected int ix(int i) {
         return i + offset;
     }
 
+    @Override
     public char get() {
         return hb[ix(nextGetIndex())];
     }
 
+    @Override
     public char get(int i) {
         return hb[ix(checkIndex(i))];
     }
 
-
+    @Override
     char getUnchecked(int i) {
-	return hb[ix(i)];
+        return hb[ix(i)];
     }
 
 
+    @Override
     public CharBuffer get(char[] dst, int offset, int length) {
         checkBounds(offset, length, dst.length);
         if (length > remaining())
@@ -158,45 +136,35 @@ class HeapCharBuffer
         return false;
     }
 
-
-
     public boolean isReadOnly() {
         return false;
     }
 
+    @Override
     public CharBuffer put(char x) {
-
         hb[ix(nextPutIndex())] = x;
         return this;
-
-
-
     }
 
+    @Override
     public CharBuffer put(int i, char x) {
-
         hb[ix(checkIndex(i))] = x;
         return this;
-
-
-
     }
 
+    @Override
     public CharBuffer put(char[] src, int offset, int length) {
-
         checkBounds(offset, length, src.length);
         if (length > remaining())
             throw new BufferOverflowException();
         System.arraycopy(src, offset, hb, ix(position()), length);
         position(position() + length);
         return this;
-
-
-
     }
 
+    @Override
     public CharBuffer put(CharBuffer src) {
-
+//        System.out.println("heap charbuffer put");
         if (src instanceof HeapCharBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -209,359 +177,32 @@ class HeapCharBuffer
             sb.position(sb.position() + n);
             position(position() + n);
         } else if (src.isDirect()) {
+//            System.out.println("heap src direct");
             int n = src.remaining();
+            System.out.println("heap char 1");
             if (n > remaining())
                 throw new BufferOverflowException();
+//            System.out.println("heap char 2");
             src.get(hb, ix(position()), n);
+//            System.out.println("heap char 3");
             position(position() + n);
+//            System.out.println("heap char 4");
         } else {
             super.put(src);
         }
         return this;
-
-
-
     }
 
+    @Override
     public CharBuffer compact() {
-
         System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
         position(remaining());
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Override
     String toString(int start, int end) {               // package-private
         try {
             return new String(hb, start + offset, end - start);
@@ -570,9 +211,9 @@ class HeapCharBuffer
         }
     }
 
-
     // --- Methods to support CharSequence ---
 
+    @Override
     public CharBuffer subSequence(int start, int end) {
         if ((start < 0)
             || (end > length())
@@ -580,22 +221,15 @@ class HeapCharBuffer
             throw new IndexOutOfBoundsException();
         int pos = position();
         return new HeapCharBuffer(hb,
-                                      -1,
-                                      pos + start,
-                                      pos + end,
-                                      capacity(),
-                                      offset);
+                                  -1,
+                                  pos + start,
+                                  pos + end,
+                                  capacity(),
+                                  offset);
     }
 
-
-
-
-
-
+    @Override
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
-
-
-
 }

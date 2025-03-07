@@ -27,15 +27,6 @@
 
 package java.nio;
 
-
-
-
-
-
-
-
-
-
 /**
  * A byte buffer.
  *
@@ -289,8 +280,6 @@ public abstract class ByteBuffer
         this(mark, pos, lim, cap, null, 0);
     }
 
-
-
     /**
      * Allocates a new direct byte buffer.
      *
@@ -310,8 +299,6 @@ public abstract class ByteBuffer
     public static ByteBuffer allocateDirect(int capacity) {
         return new DirectByteBuffer(capacity);
     }
-
-
 
     /**
      * Allocates a new byte buffer.

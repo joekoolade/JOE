@@ -200,7 +200,7 @@ class DirectShortBufferS
                 throw new BufferOverflowException();
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromShortArray(src, offset << 1, ix(pos), length << 1);
+                Bits.copyFromShortArray(src, offset << 1, ix(pos), length);
             else
                 Bits.copyFromArray(src, arrayBaseOffset, offset << 1, ix(pos), length << 1);
             position(pos + length);

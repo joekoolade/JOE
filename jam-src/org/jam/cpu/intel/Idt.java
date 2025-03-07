@@ -232,8 +232,9 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int12()
        {
-           VM.sysWriteln("Stack Overflow");
-           VM.sysFail("Stack Overflow");
+           VM.sysWriteln("Stack Overflow ", Magic.getFramePointer());
+           Magic.throwException(stackError);
+//           VM.sysFail("Stack Overflow");
            Magic.halt();
            while(true) ;
 //           Magic.throwException(stackError);
@@ -242,7 +243,9 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int13()
        {
+           VM.sysWriteln("int13 nullpointer");
            Magic.throwException(nullPointerExc);
+           Magic.halt();
        }
        @InterruptHandler
        public static void int14()
@@ -260,6 +263,7 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int16()
        {
+           VM.sysWriteln("Floating Point Error");
            Magic.throwException(arithmeticExc);
        }
        @InterruptHandler

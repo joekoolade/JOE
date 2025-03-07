@@ -156,7 +156,7 @@ public class GenerateIA32EStartup implements ProcessorStartup {
          * Set long and real mode
          */
         asm.emitMOVCR(CR.CR0, GPR.EAX);
-        asm.emitOR_Reg_Imm(GPR.EAX, 0x1);
+        asm.emitOR_Reg_Imm(GPR.EAX, 0x21);
         asm.emitMOVCR(GPR.EAX, CR.CR0);
         /*
          * Activate with a jump

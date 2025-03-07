@@ -52,19 +52,6 @@ import java.io.IOException;
  *   char array,&#32;a&#32;string, or some other char
  *   buffer into this buffer;&#32;and </p></li>
  *
-
-
-
-
-
-
-
-
-
-
-
-
- *
  *   <li><p> Methods for {@link #compact compacting}, {@link
  *   #duplicate duplicating}, and {@link #slice slicing}
  *   a char buffer.  </p></li>
@@ -74,120 +61,9 @@ import java.io.IOException;
  * <p> Char buffers can be created either by {@link #allocate
  * <i>allocation</i>}, which allocates space for the buffer's
  *
-
-
-
-
-
-
- *
  * content, by {@link #wrap(char[]) <i>wrapping</i>} an existing
  * char array or&#32;string into a buffer, or by creating a
  * <a href="ByteBuffer.html#views"><i>view</i></a> of an existing byte buffer.
- *
-
- *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*
-
  *
  * <p> Like a byte buffer, a char buffer is either <a
  * href="ByteBuffer.html#direct"><i>direct</i> or <i>non-direct</i></a>.  A
@@ -197,41 +73,14 @@ import java.io.IOException;
  * a char buffer is direct may be determined by invoking the {@link
  * #isDirect isDirect} method.  </p>
  *
-
-*
-
- *
  * <p> This class implements the {@link CharSequence} interface so that
  * character buffers may be used wherever character sequences are accepted, for
  * example in the regular-expression package <tt>{@link java.util.regex}</tt>.
  * </p>
  *
-
- *
-
-
-
- *
  * <p> Methods in this class that do not otherwise have a value to return are
  * specified to return the buffer upon which they are invoked.  This allows
  * method invocations to be chained.
- *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  *
  * The sequence of statements
  *
@@ -245,8 +94,6 @@ import java.io.IOException;
  *
  * <blockquote><pre>
  * cb.put("text/").put(subtype).put("; charset=").put(enc);</pre></blockquote>
- *
-
  *
  *
  * @author Mark Reinhold
@@ -283,30 +130,6 @@ public abstract class CharBuffer
     CharBuffer(int mark, int pos, int lim, int cap) { // package-private
         this(mark, pos, lim, cap, null, 0);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Allocates a new char buffer.
@@ -390,8 +213,6 @@ public abstract class CharBuffer
     public static CharBuffer wrap(char[] array) {
         return wrap(array, 0, array.length);
     }
-
-
 
     /**
      * Attempts to read characters into the specified character buffer.
@@ -481,8 +302,6 @@ public abstract class CharBuffer
     public static CharBuffer wrap(CharSequence csq) {
         return wrap(csq, 0, csq.length());
     }
-
-
 
     /**
      * Creates a new char buffer whose content is a shared subsequence of
@@ -854,8 +673,6 @@ public abstract class CharBuffer
         return put(src, 0, src.length);
     }
 
-
-
     /**
      * Relative bulk <i>put</i> method&nbsp;&nbsp;<i>(optional operation)</i>.
      *
@@ -944,9 +761,6 @@ public abstract class CharBuffer
     public final CharBuffer put(String src) {
         return put(src, 0, src.length());
     }
-
-
-
 
     // -- Other stuff --
 
@@ -1038,23 +852,6 @@ public abstract class CharBuffer
      * followed immediately by an invocation of another relative <i>put</i>
      * method. </p>
      *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     *
      * @return  This buffer
      *
      * @throws  ReadOnlyBufferException
@@ -1068,31 +865,6 @@ public abstract class CharBuffer
      * @return  <tt>true</tt> if, and only if, this buffer is direct
      */
     public abstract boolean isDirect();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Returns the current hash code of this buffer.
@@ -1111,9 +883,6 @@ public abstract class CharBuffer
         int h = 1;
         int p = position();
         for (int i = limit() - 1; i >= p; i--)
-
-
-
             h = 31 * h + (int)get(i);
 
         return h;
@@ -1133,13 +902,6 @@ public abstract class CharBuffer
      *
      *   <li><p> The two sequences of remaining elements, considered
      *   independently of their starting positions, are pointwise equal.
-
-
-
-
-
-
-
      *   </p></li>
      *
      * </ol>
@@ -1167,11 +929,7 @@ public abstract class CharBuffer
     }
 
     private static boolean equals(char x, char y) {
-
-
-
         return x == y;
-
     }
 
     /**
@@ -1180,14 +938,6 @@ public abstract class CharBuffer
      * <p> Two char buffers are compared by comparing their sequences of
      * remaining elements lexicographically, without regard to the starting
      * position of each sequence within its corresponding buffer.
-
-
-
-
-
-
-
-
      * Pairs of {@code char} elements are compared as if by invoking
      * {@link Character#compare(char,char)}.
 
@@ -1208,19 +958,10 @@ public abstract class CharBuffer
     }
 
     private static int compare(char x, char y) {
-
-
-
-
-
-
         return Character.valueOf(x).compareTo(Character.valueOf(y));
-
     }
 
     // -- Other char stuff --
-
-
 
     /**
      * Returns a string containing the characters in this buffer.
@@ -1410,12 +1151,7 @@ public abstract class CharBuffer
         return put(c);
     }
 
-
-
-
     // -- Other byte stuff: Access to binary data --
-
-
 
     /**
      * Retrieves this buffer's byte order.
@@ -1430,63 +1166,5 @@ public abstract class CharBuffer
      * @return  This buffer's byte order
      */
     public abstract ByteOrder order();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

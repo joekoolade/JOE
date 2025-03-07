@@ -738,8 +738,7 @@ class Bits {                            // package-private
      * @param   length
      *          number of bytes to copy
      */
-    static void copyToArray(long srcAddr, Object dst, long dstBaseOffset, long dstPos,
-                            long length)
+    static void copyToArray(long srcAddr, Object dst, long dstBaseOffset, long dstPos, long length)
     {
         long offset = dstBaseOffset + dstPos;
         while (length > 0) {
@@ -751,14 +750,12 @@ class Bits {                            // package-private
         }
     }
 
-    static void copyFromCharArray(Object src, long srcPos, long dstAddr,
-                                  long length)
+    static void copyFromCharArray(Object src, long srcPos, long dstAddr, long length)
     {
         copyFromShortArray(src, srcPos, dstAddr, length);
     }
 
-    static void copyToCharArray(long srcAddr, Object dst, long dstPos,
-                                long length)
+    static void copyToCharArray(long srcAddr, Object dst, long dstPos, long length)
     {
         copyToShortArray(srcAddr, dst, dstPos, length);
     }
@@ -767,7 +764,7 @@ class Bits {                            // package-private
     {
         Address dstAddress = Address.fromLong(dstAddr);
         Address srcAddress  = Magic.objectAsAddress(src).plus((int)srcPos);
-        System.out.println("s: "+Integer.toHexString(srcAddress.toInt())+
+        System.out.print("s: "+Integer.toHexString(srcAddress.toInt())+
                            " d: "+Integer.toHexString(dstAddress.toInt())+
                            " size: "+length);
         while(length > 0)
@@ -777,6 +774,7 @@ class Bits {                            // package-private
             dstAddress = dstAddress.plus(2);
             length--;
         }
+        System.out.println(" DONE!");
     }
     
     static void copyToShortArray(long srcAddr, Object dst, long dstPos, long length)
@@ -792,14 +790,10 @@ class Bits {                            // package-private
         }
     }
 
-    static native void copyFromIntArray(Object src, long srcPos, long dstAddr,
-                                        long length);
-    static native void copyToIntArray(long srcAddr, Object dst, long dstPos,
-                                      long length);
+    static native void copyFromIntArray(Object src, long srcPos, long dstAddr, long length);
+    static native void copyToIntArray(long srcAddr, Object dst, long dstPos, long length);
 
-    static native void copyFromLongArray(Object src, long srcPos, long dstAddr,
-                                         long length);
-    static native void copyToLongArray(long srcAddr, Object dst, long dstPos,
-                                       long length);
+    static native void copyFromLongArray(Object src, long srcPos, long dstAddr, long length);
+    static native void copyToLongArray(long srcAddr, Object dst, long dstPos, long length);
 
 }

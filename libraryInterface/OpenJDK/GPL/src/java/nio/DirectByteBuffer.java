@@ -39,16 +39,9 @@ import sun.nio.ch.DirectBuffer;
 
 
 class DirectByteBuffer
-
     extends MappedByteBuffer
-
-
-
     implements DirectBuffer
 {
-
-
-
     // Cached array base offset
     private static final long arrayBaseOffset = 0; //Magic.objectAsAddress(byte[].class).toLong();
 
@@ -68,12 +61,9 @@ class DirectByteBuffer
         return att;
     }
 
-
-
     private static class Deallocator
         implements Runnable
     {
-
         private long address;
         private long size;
         private int capacity;
@@ -91,7 +81,7 @@ class DirectByteBuffer
                 return;
             }
 //            unsafe.freeMemory(address);
-            address = 0;
+              address = 0;
 //            Bits.unreserveMemory(size, capacity);
         }
 
@@ -101,20 +91,9 @@ class DirectByteBuffer
 
     public Cleaner cleaner() { return cleaner; }
 
-
-
-
-
-
-
-
-
-
-
     // Primary constructor
     //
     DirectByteBuffer(int cap) {                   // package-private
-
         super(-1, 0, cap, cap);
         boolean pa = false; //VM.isDirectMemoryPageAligned();
         int ps = Bits.pageSize();
@@ -140,8 +119,6 @@ class DirectByteBuffer
         att = null;
     }
 
-
-
     // Invoked to construct a direct ByteBuffer referring to the block of
     // memory. A given arbitrary object may also be attached to the buffer.
     //
@@ -152,7 +129,6 @@ class DirectByteBuffer
         att = ob;
     }
 
-
     // Invoked only by JNI: NewDirectByteBuffer(void*, long)
     //
     DirectByteBuffer(long addr, int cap) {
@@ -162,25 +138,17 @@ class DirectByteBuffer
         att = null;
     }
 
-
-
     // For memory-mapped buffers -- invoked by FileChannelImpl via reflection
     //
     protected DirectByteBuffer(int cap, long addr,
                                      FileDescriptor fd,
                                      Runnable unmapper)
     {
-
         super(-1, 0, cap, cap, fd);
         address = addr;
         cleaner = null; // Cleaner.create(this, unmapper);
         att = null;
-
-
-
     }
-
-
 
     // For duplicates and slices
     //
@@ -188,16 +156,10 @@ class DirectByteBuffer
                                int mark, int pos, int lim, int cap,
                                int off)
     {
-
         super(mark, pos, lim, cap);
         address = db.address() + off;
-
         cleaner = null;
-
         att = db;
-
-
-
     }
 
     public ByteBuffer slice() {
@@ -212,27 +174,22 @@ class DirectByteBuffer
 
     public ByteBuffer duplicate() {
         return new DirectByteBuffer(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+                                    this.markValue(),
+                                    this.position(),
+                                    this.limit(),
+                                    this.capacity(),
+                                    0);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
 
         return new DirectByteBufferR(this,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           0);
-
-
-
+                                     this.markValue(),
+                                     this.position(),
+                                     this.limit(),
+                                     this.capacity(),
+                                     0);
     }
-
-
 
     public long address() {
         return address;
@@ -250,14 +207,7 @@ class DirectByteBuffer
         return Address.fromLong(ix(checkIndex(i))).loadByte();
     }
 
-
-
-
-
-
-
     public ByteBuffer get(byte[] dst, int offset, int length) {
-
         if ((length << 0) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
             checkBounds(offset, length, dst.length);
             int pos = position();
@@ -274,33 +224,21 @@ class DirectByteBuffer
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
-
-
 
     public ByteBuffer put(byte x) {
 
         Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
-
-
-
     }
 
     public ByteBuffer put(int i, byte x) {
 
         Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
-
-
-
     }
 
     public ByteBuffer put(ByteBuffer src) {
-
         if (src instanceof DirectByteBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -337,9 +275,6 @@ class DirectByteBuffer
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer put(byte[] src, int offset, int length) {
@@ -352,13 +287,6 @@ class DirectByteBuffer
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferOverflowException();
-
-
-
-
-
-
-
                 Bits.copyFromArray(src, arrayBaseOffset, offset << 0,
                                    ix(pos), length << 0);
             position(pos + length);
@@ -366,13 +294,9 @@ class DirectByteBuffer
             super.put(src, offset, length);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer compact() {
-
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
@@ -384,9 +308,6 @@ class DirectByteBuffer
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -396,69 +317,6 @@ class DirectByteBuffer
     public boolean isReadOnly() {
         return false;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     byte _get(int i) {                          // package-private
         return Address.fromIntZeroExtend(i).loadByte();
@@ -470,9 +328,6 @@ class DirectByteBuffer
 
 
     }
-
-
-
 
     private char getChar(long a) {
         if (unaligned) {
@@ -490,8 +345,6 @@ class DirectByteBuffer
         return getChar(ix(checkIndex(i, (1 << 1))));
     }
 
-
-
     private ByteBuffer putChar(long a, char x) {
 
         if (unaligned) {
@@ -501,27 +354,17 @@ class DirectByteBuffer
             Bits.putChar(a, x, bigEndian);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer putChar(char x) {
 
         putChar(ix(nextPutIndex((1 << 1))), x);
         return this;
-
-
-
     }
 
     public ByteBuffer putChar(int i, char x) {
-
         putChar(ix(checkIndex(i, (1 << 1))), x);
         return this;
-
-
-
     }
 
     public CharBuffer asCharBuffer() {
@@ -533,37 +376,14 @@ class DirectByteBuffer
         int size = rem >> 1;
         if (!unaligned && ((address + off) % (1 << 1) != 0)) {
             return (bigEndian
-                    ? (CharBuffer)(new ByteBufferAsCharBufferB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (CharBuffer)(new ByteBufferAsCharBufferL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (CharBuffer)(new ByteBufferAsCharBufferB(this, -1, 0, size, size, off))
+                    : (CharBuffer)(new ByteBufferAsCharBufferL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (CharBuffer)(new DirectCharBufferU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (CharBuffer)(new DirectCharBufferS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (CharBuffer)(new DirectCharBufferU(this, -1, 0, size, size, off))
+                    : (CharBuffer)(new DirectCharBufferS(this, -1, 0, size, size, off)));
         }
     }
-
-
-
 
     private short getShort(long a) {
         if (unaligned) {
@@ -581,8 +401,6 @@ class DirectByteBuffer
         return getShort(ix(checkIndex(i, (1 << 1))));
     }
 
-
-
     private ByteBuffer putShort(long a, short x) {
 
         if (unaligned) {
@@ -592,27 +410,17 @@ class DirectByteBuffer
             Bits.putShort(a, x, bigEndian);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer putShort(short x) {
-
         putShort(ix(nextPutIndex((1 << 1))), x);
         return this;
-
-
-
     }
 
     public ByteBuffer putShort(int i, short x) {
 
         putShort(ix(checkIndex(i, (1 << 1))), x);
         return this;
-
-
-
     }
 
     public ShortBuffer asShortBuffer() {
@@ -640,43 +448,20 @@ class DirectByteBuffer
             if(nativeByteOrder)
             {
                 System.out.println("asShortBuffer: DirectShortBufferU");
-                return (ShortBuffer)(new DirectShortBufferU(this,
-                        -1,
-                        0,
-                        size,
-                        size,
-                        off));
+                return (ShortBuffer)(new DirectShortBufferU(this, -1, 0, size, size, off));
             }
             else
             {
                 System.out.println("asShortBuffer: DirectShortBufferS");
 //                VM.TraceClassLoading = true;
 //                VM.verboseClassLoading = true;
-                return (ShortBuffer)(new DirectShortBufferS(this,
-                        -1,
-                        0,
-                        size,
-                        size,
-                        off));
+                return (ShortBuffer)(new DirectShortBufferS(this, -1, 0, size, size, off));
             }
 //            return (nativeByteOrder
-//                    ? (ShortBuffer)(new DirectShortBufferU(this,
-//                                                                 -1,
-//                                                                 0,
-//                                                                 size,
-//                                                                 size,
-//                                                                 off))
-//                    : (ShortBuffer)(new DirectShortBufferS(this,
-//                                                                 -1,
-//                                                                 0,
-//                                                                 size,
-//                                                                 size,
-//                                                                 off)));
+//                    ? (ShortBuffer)(new DirectShortBufferU(this, -1, 0, size, size, off))
+//                    : (ShortBuffer)(new DirectShortBufferS(this, -1, 0, size, size, off)));
         }
     }
-
-
-
 
     private int getInt(long a) {
         if (unaligned) {
@@ -694,8 +479,6 @@ class DirectByteBuffer
         return getInt(ix(checkIndex(i, (1 << 2))));
     }
 
-
-
     private ByteBuffer putInt(long a, int x) {
 
         if (unaligned) {
@@ -705,27 +488,18 @@ class DirectByteBuffer
             Bits.putInt(a, x, bigEndian);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer putInt(int x) {
 
         putInt(ix(nextPutIndex((1 << 2))), x);
         return this;
-
-
-
     }
 
     public ByteBuffer putInt(int i, int x) {
 
         putInt(ix(checkIndex(i, (1 << 2))), x);
         return this;
-
-
-
     }
 
     public IntBuffer asIntBuffer() {
@@ -737,37 +511,14 @@ class DirectByteBuffer
         int size = rem >> 2;
         if (!unaligned && ((address + off) % (1 << 2) != 0)) {
             return (bigEndian
-                    ? (IntBuffer)(new ByteBufferAsIntBufferB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (IntBuffer)(new ByteBufferAsIntBufferL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (IntBuffer)(new ByteBufferAsIntBufferB(this, -1, 0, size, size, off))
+                    : (IntBuffer)(new ByteBufferAsIntBufferL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (IntBuffer)(new DirectIntBufferU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (IntBuffer)(new DirectIntBufferS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (IntBuffer)(new DirectIntBufferU(this, -1, 0, size, size, off))
+                    : (IntBuffer)(new DirectIntBufferS(this, -1, 0, size, size, off)));
         }
     }
-
-
-
 
     private long getLong(long a) {
         if (unaligned) {
@@ -785,8 +536,6 @@ class DirectByteBuffer
         return getLong(ix(checkIndex(i, (1 << 3))));
     }
 
-
-
     private ByteBuffer putLong(long a, long x) {
 
         if (unaligned) {
@@ -796,27 +545,16 @@ class DirectByteBuffer
             Bits.putLong(a, x, bigEndian);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer putLong(long x) {
-
         putLong(ix(nextPutIndex((1 << 3))), x);
         return this;
-
-
-
     }
 
     public ByteBuffer putLong(int i, long x) {
-
         putLong(ix(checkIndex(i, (1 << 3))), x);
         return this;
-
-
-
     }
 
     public LongBuffer asLongBuffer() {

@@ -758,6 +758,8 @@ public class VM extends Properties {
     RunMain test = new RunMain("Basic", null);
     VM.sysWriteln("test run");
     test.run();
+//    VM.verboseClassLoading = true;
+//    VM.TraceClassLoading = true;
     
     RVMThread.getCurrentThread().terminate();  
     // Say good bye to the boot thread
