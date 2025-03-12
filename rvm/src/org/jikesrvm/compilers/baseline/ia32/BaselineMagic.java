@@ -3516,6 +3516,25 @@ final class BaselineMagic {
   /*
    * Generate an integer byte swap
    */
+  final static private class ByteSwap64 extends MagicGenerator
+  {
+    @Override
+    void generateMagic(Assembler asm, MethodReference m, RVMMethod cm, Offset sd)
+    {
+      asm.emitPOP_Reg(S0);
+      asm.emitBSWAP_Reg_Quad(S0);
+      asm.emitPUSH_Reg(S0);
+    }
+  }
+  static
+  {
+    MagicGenerator g = new ByteSwap64();
+    generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, long.class, long.class), g);
+  }
+  
+  /*
+   * Generate an integer byte swap
+   */
   final static private class ByteSwap32 extends MagicGenerator
   {
     @Override

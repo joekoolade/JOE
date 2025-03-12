@@ -250,12 +250,6 @@ class DirectLongBufferS
         return (Bits.swap(Address.fromLong(ix(checkIndex(i))).loadLong()));
     }
 
-
-
-
-
-
-
     public LongBuffer get(long[] dst, int offset, int length) {
 
         if ((length << 3) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
@@ -267,44 +261,28 @@ class DirectLongBufferS
             if (length > rem)
                 throw new BufferUnderflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToLongArray(ix(pos), dst,
-                                          offset << 3,
-                                          length << 3);
+                Bits.copyToLongArray(ix(pos), dst, offset << 3, length << 3);
             else
 
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 3,
-                                 length << 3);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 3, length << 3);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
-
-
 
     public LongBuffer put(long x) {
 
         Address.fromLong(ix(nextPutIndex())).store(Bits.swap(x));
         return this;
-
-
-
     }
 
     public LongBuffer put(int i, long x) {
 
         Address.fromLong(ix(checkIndex(i))).store(Bits.swap(x));
         return this;
-
-
-
     }
 
     public LongBuffer put(LongBuffer src) {

@@ -330,6 +330,7 @@ public class Memory {
    * @param copyBytes The number of bytes to be copied
    */
   public static void aligned64Copy(Address dstPtr, Address srcPtr, int copyBytes) {
+    if(srcPtr.EQ(dstPtr)) return;
     if (USE_NATIVE && copyBytes > NATIVE_THRESHOLD) {
       memcopy(dstPtr, srcPtr, copyBytes);
     } else {
@@ -355,6 +356,7 @@ public class Memory {
    * @param copyBytes the number of bytes top copy
    */
   public static void aligned32Copy(Address dst, Address src, int copyBytes) {
+    if(src.EQ(dst)) return;
     if (VM.VerifyAssertions) {
       VM._assert(copyBytes >= 0);
       VM._assert((copyBytes & (BYTES_IN_INT - 1)) == 0);

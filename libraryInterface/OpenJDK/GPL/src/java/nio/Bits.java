@@ -764,9 +764,6 @@ class Bits {                            // package-private
     {
         Address dstAddress = Address.fromLong(dstAddr);
         Address srcAddress  = Magic.objectAsAddress(src).plus((int)srcPos);
-        System.out.print("s: "+Integer.toHexString(srcAddress.toInt())+
-                           " d: "+Integer.toHexString(dstAddress.toInt())+
-                           " size: "+length);
         while(length > 0)
         {
             dstAddress.store(Magic.byteSwap(srcAddress.loadShort()));
@@ -774,7 +771,6 @@ class Bits {                            // package-private
             dstAddress = dstAddress.plus(2);
             length--;
         }
-        System.out.println(" DONE!");
     }
     
     static void copyToShortArray(long srcAddr, Object dst, long dstPos, long length)
@@ -790,10 +786,56 @@ class Bits {                            // package-private
         }
     }
 
-    static native void copyFromIntArray(Object src, long srcPos, long dstAddr, long length);
-    static native void copyToIntArray(long srcAddr, Object dst, long dstPos, long length);
+    static void copyFromIntArray(Object src, long srcPos, long dstAddr, long length)
+    {
+        Address dstAddress = Address.fromLong(dstAddr);
+        Address srcAddress  = Magic.objectAsAddress(src).plus((int)srcPos);
+        while(length > 0)
+        {
+            dstAddress.store(Magic.byteSwap(srcAddress.loadInt()));
+            srcAddress = srcAddress.plus(4);
+            dstAddress = dstAddress.plus(4);
+            length--;
+        }
+    }
+    
+    static void copyToIntArray(long srcAddr, Object dst, long dstPos, long length)
+    {
+        Address dstAddress = Magic.objectAsAddress(dst).plus((int)dstPos);
+        Address srcAddress = Address.fromLong(srcAddr);
+        while(length > 0)
+        {
+            dstAddress.store(Magic.byteSwap(srcAddress.loadInt()));
+            srcAddress = srcAddress.plus(4);
+            dstAddress = dstAddress.plus(4);
+            length--;
+        }
+    }
 
-    static native void copyFromLongArray(Object src, long srcPos, long dstAddr, long length);
-    static native void copyToLongArray(long srcAddr, Object dst, long dstPos, long length);
+    static void copyFromLongArray(Object src, long srcPos, long dstAddr, long length)
+    {
+        Address dstAddress = Address.fromLong(dstAddr);
+        Address srcAddress  = Magic.objectAsAddress(src).plus((int)srcPos);
+        while(length > 0)
+        {
+            dstAddress.store(Magic.byteSwap(srcAddress.loadLong()));
+            srcAddress = srcAddress.plus(8);
+            dstAddress = dstAddress.plus(8);
+            length--;
+        }
+    }
+    
+    static void copyToLongArray(long srcAddr, Object dst, long dstPos, long length)
+    {
+        Address dstAddress = Magic.objectAsAddress(dst).plus((int)dstPos);
+        Address srcAddress = Address.fromLong(srcAddr);
+        while(length > 0)
+        {
+            dstAddress.store(Magic.byteSwap(srcAddress.loadLong()));
+            srcAddress = srcAddress.plus(8);
+            dstAddress = dstAddress.plus(8);
+            length--;
+        }
+    }
 
 }

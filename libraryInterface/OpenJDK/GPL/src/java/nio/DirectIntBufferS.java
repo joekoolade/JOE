@@ -33,18 +33,10 @@ import org.vmmagic.unboxed.Address;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectIntBufferS
-
     extends IntBuffer
-
-
-
     implements DirectBuffer
 {
-
-
-
     // Cached array base offset
     private static final long arrayBaseOffset = 0;
 
@@ -64,123 +56,7 @@ class DirectIntBufferS
         return att;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Cleaner cleaner() { return null; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // For duplicates and slices
     //
@@ -191,13 +67,7 @@ class DirectIntBufferS
 
         super(mark, pos, lim, cap);
         address = db.address() + off;
-
-
-
         att = db;
-
-
-
     }
 
     public IntBuffer slice() {
@@ -211,28 +81,13 @@ class DirectIntBufferS
     }
 
     public IntBuffer duplicate() {
-        return new DirectIntBufferS(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+        return new DirectIntBufferS(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
 
     public IntBuffer asReadOnlyBuffer() {
 
-        return new DirectIntBufferRS(this,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           0);
-
-
-
+        return new DirectIntBufferRS(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
-
-
 
     public long address() {
         return address;
@@ -250,14 +105,7 @@ class DirectIntBufferS
         return (Bits.swap(Address.fromLong(ix(checkIndex(i))).loadInt()));
     }
 
-
-
-
-
-
-
     public IntBuffer get(int[] dst, int offset, int length) {
-
         if ((length << 2) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
             checkBounds(offset, length, dst.length);
             int pos = position();
@@ -266,7 +114,6 @@ class DirectIntBufferS
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferUnderflowException();
-
 
             if (order() != ByteOrder.nativeOrder())
                 Bits.copyToIntArray(ix(pos), dst,
@@ -282,20 +129,11 @@ class DirectIntBufferS
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
 
-
-
     public IntBuffer put(int x) {
-
         Address.fromLong(ix(nextPutIndex())).store(Bits.swap(x));
         return this;
-
-
-
     }
 
     public IntBuffer put(int i, int x) {
@@ -327,6 +165,7 @@ class DirectIntBufferS
             if (srem > rem)
                 throw new BufferOverflowException();
 //            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
+            System.out.println("src: "+Long.toHexString(ix(pos))+" dst: "+Long.toHexString(sb.ix(spos))+" size: "+ (rem<<2));
             Memory.aligned32Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<2);
             sb.position(spos + srem);
             position(pos + srem);
@@ -362,12 +201,10 @@ class DirectIntBufferS
 
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromIntArray(src, offset << 2,
-                                            ix(pos), length << 2);
+                Bits.copyFromIntArray(src, offset << 2, ix(pos), length);
             else
 
-                Bits.copyFromArray(src, arrayBaseOffset, offset << 2,
-                                   ix(pos), length << 2);
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 2, ix(pos), length << 2);
             position(pos + length);
         } else {
             super.put(src, offset, length);
@@ -386,7 +223,11 @@ class DirectIntBufferS
         int rem = (pos <= lim ? lim - pos : 0);
 
 //        Bits.copyMemory(ix(pos), ix(0), rem << 2);
-        Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
+//        System.out.println("src: "+Long.toHexString(ix(pos))+" dst: "+Long.toHexString(ix(0))+" size: "+ (rem<<2));
+        if(pos != 0)
+        {
+            Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
+        }
         position(rem);
         limit(capacity());
         discardMark();
