@@ -35,16 +35,9 @@ import sun.nio.ch.DirectBuffer;
 
 
 class DirectFloatBufferS
-
     extends FloatBuffer
-
-
-
     implements DirectBuffer
 {
-
-
-
     // Cached array base offset
     private static final long arrayBaseOffset = 0;
 
@@ -54,7 +47,6 @@ class DirectFloatBufferS
     // Base address, used in all indexing calculations
     // NOTE: moved up to Buffer.java for speed in JNI GetDirectBufferAddress
     //    protected long address;
-
     // An object attached to this buffer. If this buffer is a view of another
     // buffer then we use this field to keep a reference to that buffer to
     // ensure that its memory isn't freed before we are done with it.
@@ -64,140 +56,17 @@ class DirectFloatBufferS
         return att;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Cleaner cleaner() { return null; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // For duplicates and slices
     //
     DirectFloatBufferS(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                               int mark, int pos, int lim, int cap, int off)
     {
 
         super(mark, pos, lim, cap);
         address = db.address() + off;
-
-
-
         att = db;
-
-
-
     }
 
     public FloatBuffer slice() {
@@ -211,28 +80,12 @@ class DirectFloatBufferS
     }
 
     public FloatBuffer duplicate() {
-        return new DirectFloatBufferS(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+        return new DirectFloatBufferS(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
 
     public FloatBuffer asReadOnlyBuffer() {
-
-        return new DirectFloatBufferRS(this,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           0);
-
-
-
+        return new DirectFloatBufferRS(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
-
-
 
     public long address() {
         return address;
@@ -243,18 +96,12 @@ class DirectFloatBufferS
     }
 
     public float get() {
-        return Float.intBitsToFloat(Bits.swap(Bits.swap(Address.fromLong(ix(nextGetIndex())).loadInt())));
+        return Float.intBitsToFloat(Bits.swap(Address.fromLong(ix(nextGetIndex())).loadInt()));
     }
 
     public float get(int i) {
         return Float.intBitsToFloat(Bits.swap(Address.fromLong(ix(checkIndex(i))).loadInt()));
     }
-
-
-
-
-
-
 
     public FloatBuffer get(float[] dst, int offset, int length) {
 
@@ -267,48 +114,28 @@ class DirectFloatBufferS
             if (length > rem)
                 throw new BufferUnderflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToIntArray(ix(pos), dst,
-                                          offset << 2,
-                                          length << 2);
+                Bits.copyToIntArray(ix(pos), dst, offset<<2, length);
             else
-
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 2,
-                                 length << 2);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 2, length << 2);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
 
-
-
     public FloatBuffer put(float x) {
-
         Address.fromLong(ix(nextPutIndex())).store(Bits.swap(Float.floatToRawIntBits(x)));
         return this;
-
-
-
     }
 
     public FloatBuffer put(int i, float x) {
-
         Address.fromLong(ix(checkIndex(i))).store(Bits.swap(Float.floatToRawIntBits(x)));
         return this;
-
-
-
     }
 
     public FloatBuffer put(FloatBuffer src) {
-
         if (src instanceof DirectFloatBufferS) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -326,13 +153,11 @@ class DirectFloatBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-//            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
             Memory.aligned32Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<2);
             
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
-
             int spos = src.position();
             int slim = src.limit();
             assert (spos <= slim);
@@ -345,13 +170,9 @@ class DirectFloatBufferS
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public FloatBuffer put(float[] src, int offset, int length) {
-
         if ((length << 2) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
@@ -361,40 +182,28 @@ class DirectFloatBufferS
             if (length > rem)
                 throw new BufferOverflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromIntArray(src, offset << 2,
-                                            ix(pos), length << 2);
+                Bits.copyFromIntArray(src, offset<<2, ix(pos), length);
             else
-
-                Bits.copyFromArray(src, arrayBaseOffset, offset << 2,
-                                   ix(pos), length << 2);
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 2, ix(pos), length << 2);
             position(pos + length);
         } else {
             super.put(src, offset, length);
         }
         return this;
-
-
-
     }
 
     public FloatBuffer compact() {
-
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-//        Bits.copyMemory(ix(pos), ix(0), rem << 2);
         Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
         position(rem);
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -405,60 +214,8 @@ class DirectFloatBufferS
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteOrder order() {
-
         return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
-
-
-
-
     }
 }
