@@ -194,6 +194,15 @@ public class Memory {
     }
   }
 
+  public static void mem16Copy(Address dstPtr, Address srcPtr, int copyBytes)
+  {
+      Address endPtr = srcPtr.plus(copyBytes);
+      while (srcPtr.LT(endPtr)) {
+        copy2Bytes(dstPtr, srcPtr);
+        srcPtr = srcPtr.plus(2);
+        dstPtr = dstPtr.plus(2);
+      }
+  }
   /**
    * Low level copy of len elements from src[srcPos] to dst[dstPos].
    * <p>

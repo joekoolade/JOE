@@ -33,18 +33,10 @@ import org.vmmagic.unboxed.Address;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectCharBufferU
-
     extends CharBuffer
-
-
-
     implements DirectBuffer
 {
-
-
-
     // Cached array base offset
     private static final long arrayBaseOffset = 0;
 
@@ -72,16 +64,9 @@ class DirectCharBufferU
                                int mark, int pos, int lim, int cap,
                                int off)
     {
-
         super(mark, pos, lim, cap);
-        address = db.address() + off;
-
-
-
+        address = db.address() + (off<<1);
         att = db;
-
-
-
     }
 
     public CharBuffer slice() {
@@ -95,28 +80,12 @@ class DirectCharBufferU
     }
 
     public CharBuffer duplicate() {
-        return new DirectCharBufferU(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+        return new DirectCharBufferU(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
 
     public CharBuffer asReadOnlyBuffer() {
-
-        return new DirectCharBufferRU(this,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           0);
-
-
-
+        return new DirectCharBufferRU(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
-
-
 
     public long address() {
         return address;
@@ -134,14 +103,11 @@ class DirectCharBufferU
         return (Address.fromLong(ix(checkIndex(i))).loadChar());
     }
 
-
     char getUnchecked(int i) {
         return (Address.fromLong(ix(i)).loadChar());
     }
 
-
     public CharBuffer get(char[] dst, int offset, int length) {
-
         if ((length << 1) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
             checkBounds(offset, length, dst.length);
             int pos = position();
@@ -150,49 +116,28 @@ class DirectCharBufferU
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferUnderflowException();
-
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToCharArray(ix(pos), dst,
-                                          offset << 1,
-                                          length << 1);
+                Bits.copyToCharArray(ix(pos), dst, offset << 1, length << 1);
             else
-
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 1,
-                                 length << 1);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 1, length << 1);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
 
-
-
     public CharBuffer put(char x) {
-
         Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
-
-
-
     }
 
     public CharBuffer put(int i, char x) {
-
         Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
-
-
-
     }
 
     public CharBuffer put(CharBuffer src) {
-
         if (src instanceof DirectCharBufferU) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -215,7 +160,6 @@ class DirectCharBufferU
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
-
             int spos = src.position();
             int slim = src.limit();
             assert (spos <= slim);
@@ -223,18 +167,13 @@ class DirectCharBufferU
 
             put(src.hb, src.offset + spos, srem);
             src.position(spos + srem);
-
         } else {
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public CharBuffer put(char[] src, int offset, int length) {
-
         if ((length << 1) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
@@ -244,26 +183,18 @@ class DirectCharBufferU
             if (length > rem)
                 throw new BufferOverflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromCharArray(src, offset << 1,
-                                            ix(pos), length << 1);
+                Bits.copyFromCharArray(src, offset << 1, ix(pos), length << 1);
             else
-
-                Bits.copyFromArray(src, arrayBaseOffset, offset << 1,
-                                   ix(pos), length << 1);
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 1, ix(pos), length << 1);
             position(pos + length);
         } else {
             super.put(src, offset, length);
         }
         return this;
-
-
-
     }
 
     public CharBuffer compact() {
-
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
@@ -275,9 +206,6 @@ class DirectCharBufferU
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -287,9 +215,6 @@ class DirectCharBufferU
     public boolean isReadOnly() {
         return false;
     }
-
-
-
 
     public String toString(int start, int end) {
         if ((end > limit()) || (start > end))
@@ -320,29 +245,12 @@ class DirectCharBufferU
 
         if ((start < 0) || (end > len) || (start > end))
             throw new IndexOutOfBoundsException();
-        return new DirectCharBufferU(this,
-                                            -1,
-                                            pos + start,
-                                            pos + end,
-                                            capacity(),
-                                            offset);
+        return new DirectCharBufferU(this, -1, pos + start, pos + end, capacity(), offset);
     }
 
-
-
-
-
-
-
     public ByteOrder order() {
-
-
-
-
-
         return ((ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
     }
 
 }

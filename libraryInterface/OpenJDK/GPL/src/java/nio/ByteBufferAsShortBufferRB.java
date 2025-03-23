@@ -31,42 +31,15 @@ package java.nio;
 class ByteBufferAsShortBufferRB                  // package-private
     extends ByteBufferAsShortBufferB
 {
-
-
-
-
-
-
-
-
     ByteBufferAsShortBufferRB(ByteBuffer bb) {   // package-private
-
-
-
-
-
-
-
-
-
-
-
-
         super(bb);
-
     }
 
     ByteBufferAsShortBufferRB(ByteBuffer bb,
-                                     int mark, int pos, int lim, int cap,
-                                     int off)
+                              int mark, int pos, int lim, int cap,
+                              int off)
     {
-
-
-
-
-
         super(bb, mark, pos, lim, cap, off);
-
     }
 
     public ShortBuffer slice() {
@@ -81,86 +54,27 @@ class ByteBufferAsShortBufferRB                  // package-private
 
     public ShortBuffer duplicate() {
         return new ByteBufferAsShortBufferRB(bb,
-                                                    this.markValue(),
-                                                    this.position(),
-                                                    this.limit(),
-                                                    this.capacity(),
-                                                    offset);
+                                             this.markValue(),
+                                             this.position(),
+                                             this.limit(),
+                                             this.capacity(),
+                                             offset);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
-
-
-
-
-
-
-
-
         return duplicate();
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ShortBuffer put(short x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer put(int i, short x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer compact() {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public boolean isDirect() {
@@ -171,55 +85,8 @@ class ByteBufferAsShortBufferRB                  // package-private
         return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteOrder order() {
-
         return ByteOrder.BIG_ENDIAN;
-
-
-
-
     }
 
 }

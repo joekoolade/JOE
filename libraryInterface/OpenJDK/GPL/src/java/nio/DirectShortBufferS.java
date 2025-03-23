@@ -61,12 +61,13 @@ class DirectShortBufferS
     // For duplicates and slices
     //
     DirectShortBufferS(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                       int mark, int pos, int lim, int cap,
+                       int off)
     {
         super(mark, pos, lim, cap);
         address = db.address() + off;
         att = db;
+        System.out.println("dsbs "+Long.toHexString(address));
     }
 
     public ShortBuffer slice() {
@@ -89,7 +90,6 @@ class DirectShortBufferS
     }
 
     public ShortBuffer asReadOnlyBuffer() {
-
         return new DirectShortBufferRS(this,
                                        this.markValue(),
                                        this.position(),
@@ -125,7 +125,7 @@ class DirectShortBufferS
                 throw new BufferUnderflowException();
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToShortArray(ix(pos), dst, offset << 1, length << 1);
+                Bits.copyToShortArray(ix(pos), dst, offset << 1, length);
             else
                 Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 1, length << 1);
             position(pos + length);
@@ -165,7 +165,8 @@ class DirectShortBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-//            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 1);
+//            Bits.copyToShortArray(Address.fromLong(sb.ix(spos)), src, pos, rem);
+//            System.out.println("sbp: src"+Long.toHexString(sb.ix(spos))+" dst:"+Long.toHexString(ix(pos)));
             Memory.aligned16Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<1);
             sb.position(spos + srem);
             position(pos + srem);
@@ -183,13 +184,9 @@ class DirectShortBufferS
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public ShortBuffer put(short[] src, int offset, int length) {
-
         if ((length << 1) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();

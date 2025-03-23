@@ -3578,6 +3578,7 @@ final class BaselineMagic {
   {
     MagicGenerator g = new ByteSwap16();
     generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, short.class, short.class), g);
+    generators.put(getMethodReference(Magic.class, MagicNames.byteSwap, char.class, char.class), g);
   }
 
 }

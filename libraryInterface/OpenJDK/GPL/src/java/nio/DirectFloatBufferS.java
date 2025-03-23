@@ -61,11 +61,11 @@ class DirectFloatBufferS
     // For duplicates and slices
     //
     DirectFloatBufferS(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap, int off)
+                       int mark, int pos, int lim, int cap, int off)
     {
 
         super(mark, pos, lim, cap);
-        address = db.address() + off;
+        address = db.address() + (off<<2);
         att = db;
     }
 
@@ -76,7 +76,7 @@ class DirectFloatBufferS
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 2);
         assert (off >= 0);
-        return new DirectFloatBufferS(this, -1, 0, rem, rem, off);
+        return new DirectFloatBufferS(this, -1, 0, rem, rem, pos);
     }
 
     public FloatBuffer duplicate() {

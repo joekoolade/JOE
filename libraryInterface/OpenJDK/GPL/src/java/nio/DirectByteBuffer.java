@@ -167,9 +167,7 @@ class DirectByteBuffer
         int lim = this.limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 0);
-        assert (off >= 0);
-        return new DirectByteBuffer(this, -1, 0, rem, rem, off);
+        return new DirectByteBuffer(this, -1, 0, rem, rem, pos);
     }
 
     public ByteBuffer duplicate() {
@@ -323,10 +321,7 @@ class DirectByteBuffer
     }
 
     void _put(int i, byte b) {                  // package-private
-
         Address.fromLong(address+i).store(b);
-
-
     }
 
     private char getChar(long a) {
@@ -346,7 +341,6 @@ class DirectByteBuffer
     }
 
     private ByteBuffer putChar(long a, char x) {
-
         if (unaligned) {
             char y = (x);
             Address.fromLong(a).store((nativeByteOrder ? y : Bits.swap(y)));
@@ -357,7 +351,6 @@ class DirectByteBuffer
     }
 
     public ByteBuffer putChar(char x) {
-
         putChar(ix(nextPutIndex((1 << 1))), x);
         return this;
     }
@@ -432,18 +425,8 @@ class DirectByteBuffer
         int size = rem >> 1;
         if (!unaligned && ((address + off) % (1 << 1) != 0)) {
             return (bigEndian
-                    ? (ShortBuffer)(new ByteBufferAsShortBufferB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (ShortBuffer)(new ByteBufferAsShortBufferL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (ShortBuffer)(new ByteBufferAsShortBufferB(this, -1, 0, size, size, off))
+                    : (ShortBuffer)(new ByteBufferAsShortBufferL(this, -1, 0, size, size, off)));
         } else {
             if(nativeByteOrder)
             {
@@ -452,9 +435,7 @@ class DirectByteBuffer
             }
             else
             {
-                System.out.println("asShortBuffer: DirectShortBufferS");
-//                VM.TraceClassLoading = true;
-//                VM.verboseClassLoading = true;
+                System.out.println("asShortBuffer: DirectShortBufferS: "+Long.toHexString(address));
                 return (ShortBuffer)(new DirectShortBufferS(this, -1, 0, size, size, off));
             }
 //            return (nativeByteOrder
@@ -537,7 +518,6 @@ class DirectByteBuffer
     }
 
     private ByteBuffer putLong(long a, long x) {
-
         if (unaligned) {
             long y = (x);
             Address.fromLong(a).store((nativeByteOrder ? y : Bits.swap(y)));
@@ -566,37 +546,14 @@ class DirectByteBuffer
         int size = rem >> 3;
         if (!unaligned && ((address + off) % (1 << 3) != 0)) {
             return (bigEndian
-                    ? (LongBuffer)(new ByteBufferAsLongBufferB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (LongBuffer)(new ByteBufferAsLongBufferL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (LongBuffer)(new ByteBufferAsLongBufferB(this, -1, 0, size, size, off))
+                    : (LongBuffer)(new ByteBufferAsLongBufferL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (LongBuffer)(new DirectLongBufferU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (LongBuffer)(new DirectLongBufferS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (LongBuffer)(new DirectLongBufferU(this, -1, 0, size, size, off))
+                    : (LongBuffer)(new DirectLongBufferS(this, -1, 0, size, size, off)));
         }
     }
-
-
-
 
     private float getFloat(long a) {
         if (unaligned) {
@@ -613,10 +570,7 @@ class DirectByteBuffer
         return getFloat(ix(checkIndex(i, (1 << 2))));
     }
 
-
-
     private ByteBuffer putFloat(long a, float x) {
-
         if (unaligned) {
             Address.fromLong(a).store((nativeByteOrder ? (int)x : Bits.swap((int)x)));
         } else {
@@ -624,27 +578,16 @@ class DirectByteBuffer
         }
         Address.fromLong(a).store(x);
         return this;
-
-
-
     }
 
     public ByteBuffer putFloat(float x) {
-
         putFloat(ix(nextPutIndex((1 << 2))), x);
         return this;
-
-
-
     }
 
     public ByteBuffer putFloat(int i, float x) {
-
         putFloat(ix(checkIndex(i, (1 << 2))), x);
         return this;
-
-
-
     }
 
     public FloatBuffer asFloatBuffer() {
@@ -656,37 +599,14 @@ class DirectByteBuffer
         int size = rem >> 2;
         if (!unaligned && ((address + off) % (1 << 2) != 0)) {
             return (bigEndian
-                    ? (FloatBuffer)(new ByteBufferAsFloatBufferB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (FloatBuffer)(new ByteBufferAsFloatBufferL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (FloatBuffer)(new ByteBufferAsFloatBufferB(this, -1, 0, size, size, off))
+                    : (FloatBuffer)(new ByteBufferAsFloatBufferL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (FloatBuffer)(new DirectFloatBufferU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (FloatBuffer)(new DirectFloatBufferS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (FloatBuffer)(new DirectFloatBufferU(this, -1, 0, size, size, off))
+                    : (FloatBuffer)(new DirectFloatBufferS(this, -1, 0, size, size, off)));
         }
     }
-
-
-
 
     private double getDouble(long a) {
         if (unaligned) {
@@ -704,10 +624,7 @@ class DirectByteBuffer
         return getDouble(ix(checkIndex(i, (1 << 3))));
     }
 
-
-
     private ByteBuffer putDouble(long a, double x) {
-
         if (unaligned) {
             long y = Magic.doubleAsLongBits(x);
             Address.fromLong(a).store(nativeByteOrder ? y : Bits.swap(y));
@@ -715,27 +632,16 @@ class DirectByteBuffer
             Bits.putDouble(a, x, bigEndian);
         }
         return this;
-
-
-
     }
 
     public ByteBuffer putDouble(double x) {
-
         putDouble(ix(nextPutIndex((1 << 3))), x);
         return this;
-
-
-
     }
 
     public ByteBuffer putDouble(int i, double x) {
-
         putDouble(ix(checkIndex(i, (1 << 3))), x);
         return this;
-
-
-
     }
 
     public DoubleBuffer asDoubleBuffer() {
@@ -747,43 +653,12 @@ class DirectByteBuffer
         int size = rem >> 3;
         if (!unaligned && ((address + off) % (1 << 3) != 0)) {
             return (bigEndian
-                    ? (DoubleBuffer)(new ByteBufferAsDoubleBufferB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (DoubleBuffer)(new ByteBufferAsDoubleBufferL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (DoubleBuffer)(new ByteBufferAsDoubleBufferB(this, -1, 0, size, size, off))
+                    : (DoubleBuffer)(new ByteBufferAsDoubleBufferL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (DoubleBuffer)(new DirectDoubleBufferU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (DoubleBuffer)(new DirectDoubleBufferS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (DoubleBuffer)(new DirectDoubleBufferU(this, -1, 0, size, size, off))
+                    : (DoubleBuffer)(new DirectDoubleBufferS(this, -1, 0, size, size, off)));
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 }

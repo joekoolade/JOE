@@ -33,174 +33,28 @@ import org.vmmagic.unboxed.Address;
 
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectByteBufferR
-
-
-
     extends DirectByteBuffer
-
     implements DirectBuffer
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Primary constructor
     //
     DirectByteBufferR(int cap) {                   // package-private
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         super(cap);
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // For memory-mapped buffers -- invoked by FileChannelImpl via reflection
     //
-    protected DirectByteBufferR(int cap, long addr,
-                                     FileDescriptor fd,
-                                     Runnable unmapper)
+    protected DirectByteBufferR(int cap, long addr, FileDescriptor fd, Runnable unmapper)
     {
-
-
-
-
-
-
         super(cap, addr, fd, unmapper);
-
     }
-
-
-
     // For duplicates and slices
     //
     DirectByteBufferR(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                      int mark, int pos, int lim, int cap,
+                      int off)
     {
-
-
-
-
-
-
-
-
         super(db, mark, pos, lim, cap, off);
-
     }
 
     public ByteBuffer slice() {
@@ -208,193 +62,40 @@ class DirectByteBufferR
         int lim = this.limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 0);
-        assert (off >= 0);
-        return new DirectByteBufferR(this, -1, 0, rem, rem, off);
+        return new DirectByteBufferR(this, -1, 0, rem, rem, pos);
     }
 
     public ByteBuffer duplicate() {
         return new DirectByteBufferR(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+                                     this.markValue(),
+                                     this.position(),
+                                     this.limit(),
+                                     this.capacity(),
+                                     0);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
-
-
-
-
-
-
-
-
         return duplicate();
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteBuffer put(byte x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer put(int i, byte x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer put(ByteBuffer src) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer put(byte[] src, int offset, int length) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer compact() {
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public boolean isDirect() {
@@ -405,132 +106,24 @@ class DirectByteBufferR
         return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     byte _get(int i) {                          // package-private
         return Address.fromLong(address+i).loadByte();
     }
 
     void _put(int i, byte b) {                  // package-private
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private ByteBuffer putChar(long a, char x) {
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putChar(char x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putChar(int i, char x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public CharBuffer asCharBuffer() {
@@ -542,86 +135,25 @@ class DirectByteBufferR
         int size = rem >> 1;
         if (!unaligned && ((address + off) % (1 << 1) != 0)) {
             return (bigEndian
-                    ? (CharBuffer)(new ByteBufferAsCharBufferRB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (CharBuffer)(new ByteBufferAsCharBufferRL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (CharBuffer)(new ByteBufferAsCharBufferRB(this, -1, 0, size, size, off))
+                    : (CharBuffer)(new ByteBufferAsCharBufferRL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (CharBuffer)(new DirectCharBufferRU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (CharBuffer)(new DirectCharBufferRS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (CharBuffer)(new DirectCharBufferRU(this, -1, 0, size, size, off))
+                    : (CharBuffer)(new DirectCharBufferRS(this, -1, 0, size, size, off)));
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private ByteBuffer putShort(long a, short x) {
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putShort(short x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putShort(int i, short x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer asShortBuffer() {
@@ -633,84 +165,24 @@ class DirectByteBufferR
         int size = rem >> 1;
         if (!unaligned && ((address + off) % (1 << 1) != 0)) {
             return (bigEndian
-                    ? (ShortBuffer)(new ByteBufferAsShortBufferRB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (ShortBuffer)(new ByteBufferAsShortBufferRL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (ShortBuffer)(new ByteBufferAsShortBufferRB(this, -1, 0, size, size, off))
+                    : (ShortBuffer)(new ByteBufferAsShortBufferRL(this, -1, 0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (ShortBuffer)(new DirectShortBufferRU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (ShortBuffer)(new DirectShortBufferRS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (ShortBuffer)(new DirectShortBufferRU(this, -1, 0, size, size, off))
+                    : (ShortBuffer)(new DirectShortBufferRS(this, -1, 0, size, size, off)));
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private ByteBuffer putInt(long a, int x) {
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putInt(int x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putInt(int i, int x) {
-
-
-
-
         throw new ReadOnlyBufferException();
 
     }
@@ -724,86 +196,25 @@ class DirectByteBufferR
         int size = rem >> 2;
         if (!unaligned && ((address + off) % (1 << 2) != 0)) {
             return (bigEndian
-                    ? (IntBuffer)(new ByteBufferAsIntBufferRB(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off))
-                    : (IntBuffer)(new ByteBufferAsIntBufferRL(this,
-                                                                       -1,
-                                                                       0,
-                                                                       size,
-                                                                       size,
-                                                                       off)));
+                    ? (IntBuffer)(new ByteBufferAsIntBufferRB(this, -1, 0, size, size, off))
+                    : (IntBuffer)(new ByteBufferAsIntBufferRL(this, -1,  0, size, size, off)));
         } else {
             return (nativeByteOrder
-                    ? (IntBuffer)(new DirectIntBufferRU(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (IntBuffer)(new DirectIntBufferRS(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
+                    ? (IntBuffer)(new DirectIntBufferRU(this, -1, 0, size, size, off))
+                    : (IntBuffer)(new DirectIntBufferRS(this, -1, 0, size, size, off)));
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private ByteBuffer putLong(long a, long x) {
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putLong(long x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ByteBuffer putLong(int i, long x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public LongBuffer asLongBuffer() {

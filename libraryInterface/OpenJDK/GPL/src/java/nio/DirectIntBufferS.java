@@ -61,10 +61,9 @@ class DirectIntBufferS
     // For duplicates and slices
     //
     DirectIntBufferS(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                     int mark, int pos, int lim, int cap,
+                     int off)
     {
-
         super(mark, pos, lim, cap);
         address = db.address() + off;
         att = db;
@@ -85,7 +84,6 @@ class DirectIntBufferS
     }
 
     public IntBuffer asReadOnlyBuffer() {
-
         return new DirectIntBufferRS(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
 
@@ -116,14 +114,9 @@ class DirectIntBufferS
                 throw new BufferUnderflowException();
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToIntArray(ix(pos), dst,
-                                          offset << 2,
-                                          length << 2);
+                Bits.copyToIntArray(ix(pos), dst, offset << 2, length);
             else
-
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 2,
-                                 length << 2);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 2, length << 2);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
@@ -137,12 +130,8 @@ class DirectIntBufferS
     }
 
     public IntBuffer put(int i, int x) {
-
         Address.fromLong(ix(checkIndex(i))).store(Bits.swap(x));
         return this;
-
-
-
     }
 
     public IntBuffer put(IntBuffer src) {
@@ -164,8 +153,6 @@ class DirectIntBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-//            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 2);
-            System.out.println("src: "+Long.toHexString(ix(pos))+" dst: "+Long.toHexString(sb.ix(spos))+" size: "+ (rem<<2));
             Memory.aligned32Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<2);
             sb.position(spos + srem);
             position(pos + srem);
@@ -189,7 +176,6 @@ class DirectIntBufferS
     }
 
     public IntBuffer put(int[] src, int offset, int length) {
-
         if ((length << 2) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
@@ -198,43 +184,28 @@ class DirectIntBufferS
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferOverflowException();
-
-
             if (order() != ByteOrder.nativeOrder())
                 Bits.copyFromIntArray(src, offset << 2, ix(pos), length);
             else
-
                 Bits.copyFromArray(src, arrayBaseOffset, offset << 2, ix(pos), length << 2);
             position(pos + length);
         } else {
             super.put(src, offset, length);
         }
         return this;
-
-
-
     }
 
     public IntBuffer compact() {
-
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-//        Bits.copyMemory(ix(pos), ix(0), rem << 2);
-//        System.out.println("src: "+Long.toHexString(ix(pos))+" dst: "+Long.toHexString(ix(0))+" size: "+ (rem<<2));
-        if(pos != 0)
-        {
-            Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
-        }
+        Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
         position(rem);
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -245,60 +216,8 @@ class DirectIntBufferS
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteOrder order() {
-
         return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
-
-
-
-
     }
 }

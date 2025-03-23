@@ -33,18 +33,10 @@ import org.vmmagic.unboxed.Address;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectFloatBufferU
-
     extends FloatBuffer
-
-
-
     implements DirectBuffer
 {
-
-
-
     // Cached array base offset
     private static final long arrayBaseOffset = 0;
 
@@ -64,140 +56,16 @@ class DirectFloatBufferU
         return att;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Cleaner cleaner() { return null; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // For duplicates and slices
     //
     DirectFloatBufferU(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                       int mark, int pos, int lim, int cap,
+                       int off)
     {
-
         super(mark, pos, lim, cap);
         address = db.address() + off;
-
-
-
         att = db;
-
-
-
     }
 
     public FloatBuffer slice() {
@@ -212,27 +80,21 @@ class DirectFloatBufferU
 
     public FloatBuffer duplicate() {
         return new DirectFloatBufferU(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+                                      this.markValue(),
+                                      this.position(),
+                                      this.limit(),
+                                      this.capacity(),
+                                      0);
     }
 
     public FloatBuffer asReadOnlyBuffer() {
-
         return new DirectFloatBufferRU(this,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           0);
-
-
-
+                                       this.markValue(),
+                                       this.position(),
+                                       this.limit(),
+                                       this.capacity(),
+                                       0);
     }
-
-
 
     public long address() {
         return address;
@@ -250,12 +112,6 @@ class DirectFloatBufferU
         return (Address.fromLong(ix(checkIndex(i))).loadFloat());
     }
 
-
-
-
-
-
-
     public FloatBuffer get(float[] dst, int offset, int length) {
 
         if ((length << 2) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
@@ -267,48 +123,28 @@ class DirectFloatBufferU
             if (length > rem)
                 throw new BufferUnderflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToIntArray(ix(pos), dst,
-                                          offset << 2,
-                                          length << 2);
+                Bits.copyToIntArray(ix(pos), dst, offset << 2, length);
             else
-
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 2,
-                                 length << 2);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 2, length << 2);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
 
-
-
     public FloatBuffer put(float x) {
-
     	Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
-
-
-
     }
 
     public FloatBuffer put(int i, float x) {
-
     	Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
-
-
-
     }
 
     public FloatBuffer put(FloatBuffer src) {
-
         if (src instanceof DirectFloatBufferU) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -331,7 +167,6 @@ class DirectFloatBufferU
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
-
             int spos = src.position();
             int slim = src.limit();
             assert (spos <= slim);
@@ -339,18 +174,13 @@ class DirectFloatBufferU
 
             put(src.hb, src.offset + spos, srem);
             src.position(spos + srem);
-
         } else {
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public FloatBuffer put(float[] src, int offset, int length) {
-
         if ((length << 2) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
@@ -360,26 +190,18 @@ class DirectFloatBufferU
             if (length > rem)
                 throw new BufferOverflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromIntArray(src, offset << 2,
-                                            ix(pos), length << 2);
+                Bits.copyFromIntArray(src, offset << 2, ix(pos), length << 2);
             else
-
-                Bits.copyFromArray(src, arrayBaseOffset, offset << 2,
-                                   ix(pos), length << 2);
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 2, ix(pos), length << 2);
             position(pos + length);
         } else {
             super.put(src, offset, length);
         }
         return this;
-
-
-
     }
 
     public FloatBuffer compact() {
-
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
@@ -391,9 +213,6 @@ class DirectFloatBufferU
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -404,60 +223,8 @@ class DirectFloatBufferU
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteOrder order() {
-
-
-
-
-
         return ((ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
     }
 }

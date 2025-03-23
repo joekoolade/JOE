@@ -29,174 +29,18 @@ package java.nio;
 
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectCharBufferRU
-
-
-
     extends DirectCharBufferU
-
     implements DirectBuffer
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // For duplicates and slices
     //
     DirectCharBufferRU(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                       int mark, int pos, int lim, int cap,
+                       int off)
     {
-
-
-
-
-
-
-
-
         super(db, mark, pos, lim, cap, off);
-
     }
 
     public CharBuffer slice() {
@@ -210,187 +54,32 @@ class DirectCharBufferRU
     }
 
     public CharBuffer duplicate() {
-        return new DirectCharBufferRU(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+        return new DirectCharBufferRU(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
     }
 
     public CharBuffer asReadOnlyBuffer() {
-
-
-
-
-
-
-
-
         return duplicate();
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public CharBuffer put(char x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public CharBuffer put(int i, char x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public CharBuffer put(CharBuffer src) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public CharBuffer put(char[] src, int offset, int length) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
 
     }
 
     public CharBuffer compact() {
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public boolean isDirect() {
@@ -400,9 +89,6 @@ class DirectCharBufferRU
     public boolean isReadOnly() {
         return true;
     }
-
-
-
 
     public String toString(int start, int end) {
         if ((end > limit()) || (start > end))
@@ -421,7 +107,6 @@ class DirectCharBufferRU
         }
     }
 
-
     // --- Methods to support CharSequence ---
 
     public CharBuffer subSequence(int start, int end) {
@@ -433,54 +118,11 @@ class DirectCharBufferRU
 
         if ((start < 0) || (end > len) || (start > end))
             throw new IndexOutOfBoundsException();
-        return new DirectCharBufferRU(this,
-                                            -1,
-                                            pos + start,
-                                            pos + end,
-                                            capacity(),
-                                            offset);
+        return new DirectCharBufferRU(this, -1, pos + start, pos + end, capacity(), offset);
     }
-
-
-
-
-
-
 
     public ByteOrder order() {
-
-
-
-
-
         return ((ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

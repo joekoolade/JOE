@@ -62,8 +62,8 @@ class DirectCharBufferS
     // For duplicates and slices
     //
     DirectCharBufferS(DirectBuffer db,         // package-private
-                       int mark, int pos, int lim, int cap,
-                       int off)
+                      int mark, int pos, int lim, int cap,
+                      int off)
     {
         super(mark, pos, lim, cap);
         address = db.address() + off;
@@ -82,21 +82,21 @@ class DirectCharBufferS
 
     public CharBuffer duplicate() {
         return new DirectCharBufferS(this,
-                                      this.markValue(),
-                                      this.position(),
-                                      this.limit(),
-                                      this.capacity(),
-                                      0);
+                                     this.markValue(),
+                                     this.position(),
+                                     this.limit(),
+                                     this.capacity(),
+                                     0);
     }
 
     public CharBuffer asReadOnlyBuffer() {
 
         return new DirectCharBufferRS(this,
-                                       this.markValue(),
-                                       this.position(),
-                                       this.limit(),
-                                       this.capacity(),
-                                       0);
+                                      this.markValue(),
+                                      this.position(),
+                                      this.limit(),
+                                      this.capacity(),
+                                      0);
     }
 
     @Override
@@ -137,13 +137,9 @@ class DirectCharBufferS
                 throw new BufferUnderflowException();
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToCharArray(ix(pos), dst,
-                                      offset << 1,
-                                      length << 1);
+                Bits.copyToCharArray(ix(pos), dst, offset << 1, length);
             else
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 1,
-                                 length << 1);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 1, length << 1);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
@@ -183,9 +179,8 @@ class DirectCharBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-//            Bits.copyMemory(sb.ix(spos), ix(pos), srem << 1);
-            Bits.copyFromCharArray(Address.fromLong(sb.ix(spos)), 0, ix(pos), srem);
-            // Memory.aligned16Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<1);
+//            Bits.copyFromCharArray(Address.fromLong(sb.ix(spos)), 0, ix(pos), srem<<1);
+            Memory.aligned16Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<1);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -205,7 +200,6 @@ class DirectCharBufferS
 
     @Override
     public CharBuffer put(char[] src, int offset, int length) {
-
         if ((length << 1) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
@@ -214,7 +208,6 @@ class DirectCharBufferS
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferOverflowException();
-
 
             if (order() != ByteOrder.nativeOrder())
                 Bits.copyFromCharArray(src, offset << 1, ix(pos), length);
@@ -235,7 +228,6 @@ class DirectCharBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-//        Bits.copyMemory(ix(pos), ix(0), rem << 1);
         Memory.aligned16Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<1);
         position(rem);
         limit(capacity());
@@ -292,5 +284,4 @@ class DirectCharBufferS
         return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
     }
-
 }

@@ -33,18 +33,10 @@ import org.vmmagic.unboxed.Address;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectLongBufferU
-
     extends LongBuffer
-
-
-
     implements DirectBuffer
 {
-
-
-
     // Cached array base offset
     private static final long arrayBaseOffset = 0;
 
@@ -64,140 +56,16 @@ class DirectLongBufferU
         return att;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Cleaner cleaner() { return null; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // For duplicates and slices
     //
     DirectLongBufferU(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                      int mark, int pos, int lim, int cap,
+                      int off)
     {
-
         super(mark, pos, lim, cap);
         address = db.address() + off;
-
-
-
         att = db;
-
-
-
     }
 
     public LongBuffer slice() {
@@ -212,27 +80,21 @@ class DirectLongBufferU
 
     public LongBuffer duplicate() {
         return new DirectLongBufferU(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+                                     this.markValue(),
+                                     this.position(),
+                                     this.limit(),
+                                     this.capacity(),
+                                     0);
     }
 
     public LongBuffer asReadOnlyBuffer() {
-
         return new DirectLongBufferRU(this,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           0);
-
-
-
+                                      this.markValue(),
+                                      this.position(),
+                                      this.limit(),
+                                      this.capacity(),
+                                      0);
     }
-
-
 
     public long address() {
         return address;
@@ -250,14 +112,7 @@ class DirectLongBufferU
         return (Address.fromLong(ix(checkIndex(i))).loadLong());
     }
 
-
-
-
-
-
-
     public LongBuffer get(long[] dst, int offset, int length) {
-
         if ((length << 3) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
             checkBounds(offset, length, dst.length);
             int pos = position();
@@ -267,48 +122,28 @@ class DirectLongBufferU
             if (length > rem)
                 throw new BufferUnderflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToLongArray(ix(pos), dst,
-                                          offset << 3,
-                                          length << 3);
+                Bits.copyToLongArray(ix(pos), dst, offset << 3, length);
             else
-
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 offset << 3,
-                                 length << 3);
+                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 3,length << 3);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
         }
         return this;
-
-
-
     }
 
-
-
     public LongBuffer put(long x) {
-
         Address.fromLong(ix(nextPutIndex())).store(x);
         return this;
-
-
-
     }
 
     public LongBuffer put(int i, long x) {
-
         Address.fromLong(ix(checkIndex(i))).store(x);
         return this;
-
-
-
     }
 
     public LongBuffer put(LongBuffer src) {
-
         if (src instanceof DirectLongBufferU) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -339,18 +174,13 @@ class DirectLongBufferU
 
             put(src.hb, src.offset + spos, srem);
             src.position(spos + srem);
-
         } else {
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public LongBuffer put(long[] src, int offset, int length) {
-
         if ((length << 3) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
@@ -360,26 +190,18 @@ class DirectLongBufferU
             if (length > rem)
                 throw new BufferOverflowException();
 
-
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromLongArray(src, offset << 3,
-                                            ix(pos), length << 3);
+                Bits.copyFromLongArray(src, offset << 3, ix(pos), length);
             else
-
-                Bits.copyFromArray(src, arrayBaseOffset, offset << 3,
-                                   ix(pos), length << 3);
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 3, ix(pos), length << 3);
             position(pos + length);
         } else {
             super.put(src, offset, length);
         }
         return this;
-
-
-
     }
 
     public LongBuffer compact() {
-
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
@@ -391,9 +213,6 @@ class DirectLongBufferU
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -404,60 +223,8 @@ class DirectLongBufferU
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteOrder order() {
-
-
-
-
-
         return ((ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
     }
 }

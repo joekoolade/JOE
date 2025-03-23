@@ -1700,6 +1700,15 @@ public final class Magic {
       }
     }
     
+    public static char byteSwap(char value)
+    {
+      if (VM.runningVM && VM.VerifyAssertions)
+      {
+          VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler
+      }
+      return 0;
+    }
+    
     public static short byteSwap(short value)
     {
       if (VM.runningVM && VM.VerifyAssertions)

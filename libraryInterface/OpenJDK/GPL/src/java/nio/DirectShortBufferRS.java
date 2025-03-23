@@ -29,174 +29,18 @@ package java.nio;
 
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectShortBufferRS
-
-
-
     extends DirectShortBufferS
-
     implements DirectBuffer
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // For duplicates and slices
     //
     DirectShortBufferRS(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                        int mark, int pos, int lim, int cap,
+                        int off)
     {
-
-
-
-
-
-
-
-
         super(db, mark, pos, lim, cap, off);
-
     }
 
     public ShortBuffer slice() {
@@ -211,186 +55,35 @@ class DirectShortBufferRS
 
     public ShortBuffer duplicate() {
         return new DirectShortBufferRS(this,
-                                              this.markValue(),
-                                              this.position(),
-                                              this.limit(),
-                                              this.capacity(),
-                                              0);
+                                       this.markValue(),
+                                       this.position(),
+                                       this.limit(),
+                                       this.capacity(),
+                                       0);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
-
-
-
-
-
-
-
-
         return duplicate();
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ShortBuffer put(short x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer put(int i, short x) {
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer put(ShortBuffer src) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer put(short[] src, int offset, int length) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public ShortBuffer compact() {
-
-
-
-
-
-
-
-
-
-
-
-
         throw new ReadOnlyBufferException();
-
     }
 
     public boolean isDirect() {
@@ -401,86 +94,8 @@ class DirectShortBufferRS
         return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public ByteOrder order() {
-
         return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

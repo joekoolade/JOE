@@ -29,7 +29,6 @@ package java.nio;
 
 import sun.nio.ch.DirectBuffer;
 
-
 class DirectCharBufferRS
 extends DirectCharBufferS
 implements DirectBuffer
@@ -37,8 +36,8 @@ implements DirectBuffer
     // For duplicates and slices
     //
     DirectCharBufferRS(DirectBuffer db,         // package-private
-                               int mark, int pos, int lim, int cap,
-                               int off)
+                       int mark, int pos, int lim, int cap,
+                       int off)
     {
         super(db, mark, pos, lim, cap, off);
     }
@@ -111,7 +110,6 @@ implements DirectBuffer
         }
     }
 
-
     // --- Methods to support CharSequence ---
 
     public CharBuffer subSequence(int start, int end) {
@@ -123,12 +121,7 @@ implements DirectBuffer
 
         if ((start < 0) || (end > len) || (start > end))
             throw new IndexOutOfBoundsException();
-        return new DirectCharBufferRS(this,
-                                        -1,
-                                        pos + start,
-                                        pos + end,
-                                        capacity(),
-                                        offset);
+        return new DirectCharBufferRS(this, -1, pos + start, pos + end, capacity(), offset);
     }
 
     public ByteOrder order() {
