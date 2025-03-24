@@ -67,7 +67,6 @@ class DirectShortBufferS
         super(mark, pos, lim, cap);
         address = db.address() + off;
         att = db;
-        System.out.println("dsbs "+Long.toHexString(address));
     }
 
     public ShortBuffer slice() {
@@ -166,7 +165,6 @@ class DirectShortBufferS
             if (srem > rem)
                 throw new BufferOverflowException();
 //            Bits.copyToShortArray(Address.fromLong(sb.ix(spos)), src, pos, rem);
-//            System.out.println("sbp: src"+Long.toHexString(sb.ix(spos))+" dst:"+Long.toHexString(ix(pos)));
             Memory.aligned16Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<1);
             sb.position(spos + srem);
             position(pos + srem);

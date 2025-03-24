@@ -164,7 +164,6 @@ class HeapCharBuffer
 
     @Override
     public CharBuffer put(CharBuffer src) {
-//        System.out.println("heap charbuffer put");
         if (src instanceof HeapCharBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -177,16 +176,11 @@ class HeapCharBuffer
             sb.position(sb.position() + n);
             position(position() + n);
         } else if (src.isDirect()) {
-//            System.out.println("heap src direct");
             int n = src.remaining();
-            System.out.println("heap char 1");
             if (n > remaining())
                 throw new BufferOverflowException();
-//            System.out.println("heap char 2");
             src.get(hb, ix(position()), n);
-//            System.out.println("heap char 3");
             position(position() + n);
-//            System.out.println("heap char 4");
         } else {
             super.put(src);
         }

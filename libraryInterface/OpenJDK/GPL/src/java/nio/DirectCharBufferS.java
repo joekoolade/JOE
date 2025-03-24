@@ -161,7 +161,6 @@ class DirectCharBufferS
 
     @Override
     public CharBuffer put(CharBuffer src) {
-        System.out.println("dcb put");
         if (src instanceof DirectCharBufferS) {
             if (src == this)
                 throw new IllegalArgumentException();

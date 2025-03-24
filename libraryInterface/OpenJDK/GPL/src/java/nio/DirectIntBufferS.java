@@ -201,7 +201,7 @@ class DirectIntBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
+        Memory.alignedWordCopy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
         position(rem);
         limit(capacity());
         discardMark();

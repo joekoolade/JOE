@@ -65,7 +65,7 @@ class DirectCharBufferU
                                int off)
     {
         super(mark, pos, lim, cap);
-        address = db.address() + (off<<1);
+        address = db.address() + off;
         att = db;
     }
 
@@ -117,7 +117,7 @@ class DirectCharBufferU
             if (length > rem)
                 throw new BufferUnderflowException();
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyToCharArray(ix(pos), dst, offset << 1, length << 1);
+                Bits.copyToCharArray(ix(pos), dst, offset << 1, length);
             else
                 Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 1, length << 1);
             position(pos + length);
@@ -184,7 +184,7 @@ class DirectCharBufferU
                 throw new BufferOverflowException();
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromCharArray(src, offset << 1, ix(pos), length << 1);
+                Bits.copyFromCharArray(src, offset << 1, ix(pos), length);
             else
                 Bits.copyFromArray(src, arrayBaseOffset, offset << 1, ix(pos), length << 1);
             position(pos + length);

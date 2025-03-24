@@ -65,7 +65,7 @@ class DirectFloatBufferS
     {
 
         super(mark, pos, lim, cap);
-        address = db.address() + (off<<2);
+        address = db.address() + off;
         att = db;
     }
 
@@ -76,7 +76,7 @@ class DirectFloatBufferS
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 2);
         assert (off >= 0);
-        return new DirectFloatBufferS(this, -1, 0, rem, rem, pos);
+        return new DirectFloatBufferS(this, -1, 0, rem, rem, off);
     }
 
     public FloatBuffer duplicate() {
@@ -199,7 +199,7 @@ class DirectFloatBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        Memory.aligned32Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
+        Memory.alignedWordCopy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<2);
         position(rem);
         limit(capacity());
         discardMark();

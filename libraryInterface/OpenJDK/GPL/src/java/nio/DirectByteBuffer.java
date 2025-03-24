@@ -428,19 +428,9 @@ class DirectByteBuffer
                     ? (ShortBuffer)(new ByteBufferAsShortBufferB(this, -1, 0, size, size, off))
                     : (ShortBuffer)(new ByteBufferAsShortBufferL(this, -1, 0, size, size, off)));
         } else {
-            if(nativeByteOrder)
-            {
-                System.out.println("asShortBuffer: DirectShortBufferU");
-                return (ShortBuffer)(new DirectShortBufferU(this, -1, 0, size, size, off));
-            }
-            else
-            {
-                System.out.println("asShortBuffer: DirectShortBufferS: "+Long.toHexString(address));
-                return (ShortBuffer)(new DirectShortBufferS(this, -1, 0, size, size, off));
-            }
-//            return (nativeByteOrder
-//                    ? (ShortBuffer)(new DirectShortBufferU(this, -1, 0, size, size, off))
-//                    : (ShortBuffer)(new DirectShortBufferS(this, -1, 0, size, size, off)));
+            return (nativeByteOrder
+                    ? (ShortBuffer)(new DirectShortBufferU(this, -1, 0, size, size, off))
+                    : (ShortBuffer)(new DirectShortBufferS(this, -1, 0, size, size, off)));
         }
     }
 

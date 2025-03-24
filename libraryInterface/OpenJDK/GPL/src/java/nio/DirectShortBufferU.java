@@ -64,7 +64,7 @@ class DirectShortBufferU
                        int off)
     {
         super(mark, pos, lim, cap);
-        address = db.address() + (off<<1);
+        address = db.address() + off;
         att = db;
     }
 
