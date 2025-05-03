@@ -95,7 +95,7 @@ public final class IRGenOptions {
   /**
    * Debug flag: print instructions as they are generated
    */
-  static final boolean DBG_INSTR = DBG_ALL || false;
+  static final boolean DBG_INSTR = DBG_ALL || true;
 
   /**
    * Debug flag: elim copy to locals

@@ -17,7 +17,6 @@ public interface Timer {
   long getTime();
   void handler();
   void startTimer(long timeNs);
-  Address getHandlerStack();
   RVMThread removeTimer(long timeKey);
   boolean removeTimer(RVMThread thread);
 }

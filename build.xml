@@ -30,12 +30,22 @@
   <property file="${config.file}"/>
   <property file="${target.file}"/>
 
+	<echo>config.runtime.compiler: ${config.runtime.compiler}</echo>
+  <echo>config.bootimage.compiler: ${config.bootimage.compiler}</echo>
+  <echo>config.include.aos: ${config.include.aos}</echo>
   <!-- default configuration values. May have already been set by above tasks -->
   <property file="${jikesrvm.dir}/build/configs/config.properties.defaults"/>
   <property name="debugLevel" value="lines,source,vars"/>
 
   <setBuildName property="build.name" config="${config.name}"/>
 
+	<!-- Options
+	<property name="config.include.aos" value="true"/>
+  <property name="config.assertions" value="true"/>
+  <property name="config.runtime.compiler" value="opt"/>
+  <property name="config.bootimage.compiler" value="opt"/>
+-->
+	
   <!-- location of resources -->
   <property name="primordials.dir" location="build/primordials"/>
   <property name="main.java" location="rvm/src"/>
@@ -132,7 +142,7 @@
 
   <!-- Number of threads to create for the paralllel part of bootimage building -->
   <!-- A thread count of 0 maps to a thread count of (Runtime.getAvailableProcessors() + 1) -->
-  <property name="bootimage.threads" value="4"/>
+  <property name="bootimage.threads" value="1"/>
 
   <!-- Source versions -->
   <property name="mmtk.java.version" value="1.7"/>
@@ -1102,6 +1112,9 @@ Check to make sure all required properties are specified. This includes properti
 
   <target name="gen-config-source" depends="check-properties,get-git-version">
 
+    <echo>config.runtime.compiler: ${config.runtime.compiler}</echo>
+    <echo>config.bootimage.compiler: ${config.bootimage.compiler}</echo>
+    <echo>config.include.aos: ${config.include.aos}</echo>
     <mkdir dir="${generated.config.java}/org/jikesrvm/mm/mminterface"/>
 
     <condition property="pp_RVM_ARCH_HELPER"
@@ -1173,7 +1186,8 @@ Check to make sure all required properties are specified. This includes properti
     </condition>
 
     <copy file="${basedir}/rvm/src-generated/vm-configuration/Configuration.template"
-          tofile="${generated.config.java}/org/jikesrvm/Configuration.java">
+          tofile="${generated.config.java}/org/jikesrvm/Configuration.java"
+          overwrite="true">
       <filterset>
         <filter token="_RVM_VERSION_" value="Jikes RVM ${rvm.version} (r${git.revision})"/>
         <filter token="_RVM_CONFIGURATION_" value="${config.name}"/>
@@ -1206,7 +1220,8 @@ Check to make sure all required properties are specified. This includes properti
     </copy>
 
     <copy file="${basedir}/rvm/src-generated/vm-configuration/Selected.template"
-          tofile="${generated.config.java}/org/jikesrvm/mm/mminterface/Selected.java">
+          tofile="${generated.config.java}/org/jikesrvm/mm/mminterface/Selected.java"
+    	    overwrite="true">
       <filterset>
         <filter token="_PLAN_" value="${config.mmtk.plan}"/>
       </filterset>
@@ -1216,7 +1231,8 @@ Check to make sure all required properties are specified. This includes properti
       <equals arg1="${target.address.size}" arg2="32"/>
     </condition>
     <copy file="${basedir}/rvm/src-generated/vm-configuration/HeapLayoutConstants.template"
-          tofile="${generated.config.java}/org/jikesrvm/HeapLayoutConstants.java">
+          tofile="${generated.config.java}/org/jikesrvm/HeapLayoutConstants.java"
+    	    overwrite="true">
       <filterset>
         <filter token="_BOOTIMAGE_DATA_ADDRESS_" value="${target.bootimage.data.address}"/>
         <filter token="_BOOTIMAGE_CODE_ADDRESS_" value="${target.bootimage.code.address}"/>
@@ -1985,6 +2001,9 @@ Check to make sure all required properties are specified. This includes properti
   	 </resourceexists>
   	</condition>
   	
+    <echo>config.runtime.compiler: ${config.runtime.compiler}</echo>
+    <echo>config.bootimage.compiler: ${config.bootimage.compiler}</echo>
+    <echo>config.include.aos: ${config.include.aos}</echo>
     <echo message="Building bootimage. Output redirected to : ${build.base}/BootImageWriterOutput.txt"/>
     <echo message="MMTk properties = ${mmtk.properties}"/>
     <echo message="Number of threads for compilation = ${readableThreadCount}"/>

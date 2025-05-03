@@ -1074,7 +1074,7 @@ public class GenerateAssembler {
     excludedOpcodes.add("EMMS");
     excludedOpcodes.add("CLI");
     excludedOpcodes.add("STI");
-    excludedOpcodes.add("RDTSC");
+//    excludedOpcodes.add("RDTSC");
     excludedOpcodes.add("PREFETCHNTA");
     excludedOpcodes.add("PAUSE");
     excludedOpcodes.add("OUT32");

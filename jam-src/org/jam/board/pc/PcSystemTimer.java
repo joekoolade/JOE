@@ -34,15 +34,10 @@ implements Timer
     public int  counterDivisor = sourceFreq / ticksPerSecond;
     public int  overflow;                                    // in nanoseconds
     public int BOLT = 10;   // schedule new process
-//    private int stack[];
-    Address stackTop;
-    private final static int STACK_SIZE = 512;
     private static final int TIMERTICKSPERNSECS = 1000000;
     private static final boolean trace = false;
-	private static final boolean trace1 = false;
 	private static final boolean timerTrace = false;
     private PriorityQueue timerQueue;
-    private ThreadQueue threadQueue;
     
     /*
      * how many ticks to wait to reschedule
@@ -63,11 +58,6 @@ implements Timer
         return tick;
     }
 
-    public Address getHandlerStack()
-    {
-        
-        return stackTop;
-    }
     /*
      * timer interrupt handler.
      * 

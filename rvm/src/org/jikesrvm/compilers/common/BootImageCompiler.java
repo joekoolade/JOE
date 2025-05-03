@@ -32,8 +32,10 @@ public abstract class BootImageCompiler {
 
   static {
     baseCompiler = new BaselineBootImageCompiler();
-    optCompiler = VM.BuildForAdaptiveSystem ? new org.jikesrvm.compilers.opt.driver.OptimizingBootImageCompiler() : null;
+//    optCompiler = VM.BuildForAdaptiveSystem ? new org.jikesrvm.compilers.opt.driver.OptimizingBootImageCompiler() : null;
+    optCompiler = new org.jikesrvm.compilers.opt.driver.OptimizingBootImageCompiler();
     compiler = VM.BuildWithBaseBootImageCompiler ? baseCompiler : optCompiler;
+    System.out.println("BuildForAdaptiveSystem:"+ VM.BuildForAdaptiveSystem+" BuildWithBaseBootImageCompiler: "+VM.BuildWithBaseBootImageCompiler+" opt:"+optCompiler+" base:"+baseCompiler+" compiler:"+compiler);
   }
 
   /**
@@ -65,6 +67,7 @@ public abstract class BootImageCompiler {
         optCompiler.initCompiler(args);
       }
     } catch (Throwable e) {
+        System.out.println("Exception opt:"+optCompiler+" base:"+baseCompiler+" compiler:"+compiler);
       while (e != null) {
         e.printStackTrace();
         e = e.getCause();

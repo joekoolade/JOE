@@ -16,7 +16,7 @@ import org.vmmagic.unboxed.Address;
  */
 @NonMoving
 public class I82c54 {
-  static Address counter0;
+  static Address counter0Addr;
   static Address counter1;
   static Address counter2;
   static Address control;
@@ -63,7 +63,7 @@ public class I82c54 {
       /*
        * Set up hardware IO addresses
        */
-    counter0 = Address.fromIntZeroExtend(0x40);
+    counter0Addr = Address.fromIntZeroExtend(0x40);
     counter1 = Address.fromIntZeroExtend(0x41);
     counter2 = Address.fromIntZeroExtend(0x42);
     control = Address.fromIntZeroExtend(0x43);
@@ -88,8 +88,8 @@ public class I82c54 {
      * Write control, lsb, msb
      */
     control.ioStore(SC0|RWLM|mode);
-    counter0.ioStore(count&0xff);
-    counter0.ioStore((count&0xff00)>>8);
+    counter0Addr.ioStore(count&0xff);
+    counter0Addr.ioStore((count&0xff00)>>8);
   }
   
   public static void counter1(int mode, int count)
@@ -117,9 +117,9 @@ public class I82c54 {
   public static int counter0()
   {
     control.ioStore(CLC|SC0);;
-    int count = counter0.ioLoadByte();
+    int count = counter0Addr.ioLoadByte();
     count &= 0xff;
-    count |= (counter0.ioLoadByte() & 0xff) << 8;
+    count |= (counter0Addr.ioLoadByte() & 0xff) << 8;
     return count;
   }
 
