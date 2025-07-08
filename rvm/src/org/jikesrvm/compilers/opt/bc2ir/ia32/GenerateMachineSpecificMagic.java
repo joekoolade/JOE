@@ -158,8 +158,7 @@ public abstract class GenerateMachineSpecificMagic {
       if (methodName == MagicNames.returnToNewStack) {
         throw MagicNotImplementedException.EXPECTED(msg);
       } else {
-        return false;
-        // throw MagicNotImplementedException.UNEXPECTED(msg);
+         throw MagicNotImplementedException.UNEXPECTED(msg);
       }
     }
     return true;
