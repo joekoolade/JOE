@@ -547,10 +547,10 @@ public abstract class ClassLoader {
         if (!checkName(name))
             throw new NoClassDefFoundError("IllegalName: " + name);
 
-        if ((name != null) && name.startsWith("java.")) {
-            throw new SecurityException("Prohibited package name: " +
-                                        name.substring(0, name.lastIndexOf('.')));
-        }
+//        if ((name != null) && name.startsWith("java.")) {
+//            throw new SecurityException("Prohibited package name: " +
+//                                        name.substring(0, name.lastIndexOf('.')));
+//        }
         if (protectionDomain == null) {
             protectionDomain = getDefaultDomain();
         }

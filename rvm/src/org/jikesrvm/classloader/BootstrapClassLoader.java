@@ -144,7 +144,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
    * @return type for the loaded class
    * @throws NoClassDefFoundError when no definition of the class was found
    */
-  synchronized RVMType loadVMClass(String className) throws NoClassDefFoundError {
+  public synchronized RVMType loadVMClass(String className) throws NoClassDefFoundError {
     RVMType loadedType = loaded.get(className);
     if (loadedType != null) {
       return loadedType;
@@ -180,7 +180,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
 
   @Override
   public synchronized Class<?> loadClass(String className, boolean resolveClass) throws ClassNotFoundException {
-    if (!VM.runningVM) {
+    if (!VM.runningVM && !VM.runningTool) {
       return super.loadClass(className, resolveClass);
     }
     if (className.startsWith("L") && className.endsWith(";")) {
@@ -210,7 +210,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
   @Override
   public Class<?> findClass(String className) throws ClassNotFoundException {
     final boolean DBG = true;
-    if (!VM.runningVM) {
+    if (!VM.runningVM && !VM.runningTool) {
       return super.findClass(className);
     }
     if (className.startsWith("[")) {

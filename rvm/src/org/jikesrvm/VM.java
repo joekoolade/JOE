@@ -2774,7 +2774,12 @@ public class VM extends Properties {
   @Interruptible
   private static void init(String bootstrapClasspath, String[] bootCompilerArgs) {
     if (VM.VerifyAssertions) VM._assert(!VM.runningVM);
-
+    if(VM.runningTool)
+    {
+        // initialize type subsystem and classloader
+        RVMClassLoader.init(bootstrapClasspath);
+        return;
+    }
     // create dummy boot record
     //
     BootRecord.the_boot_record = new BootRecord();

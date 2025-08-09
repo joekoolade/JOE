@@ -108,6 +108,10 @@ public class BootRecord {
     // Indicate end of array with sentinel value
     heapRanges.set(len - 1, Address.fromIntSignExtend(-1));
     heapRanges.set(len - 2, Address.fromIntSignExtend(-1));
+    if(VM.runningTool)
+    {
+        tocRegister = Address.zero().plus(4*Statics.middleOfTable);
+    }
   }
 
   public void showHeapRanges() {

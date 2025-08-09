@@ -18,6 +18,7 @@ import java.util.Vector;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
+import org.jikesrvm.classloader.BootstrapClassLoader;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMethod;
@@ -30,6 +31,7 @@ import org.jikesrvm.compilers.opt.OptOptions;
 import org.jikesrvm.compilers.opt.driver.CompilationPlan;
 import org.jikesrvm.compilers.opt.driver.OptimizationPlanner;
 import org.jikesrvm.compilers.opt.driver.OptimizingCompiler;
+import org.jikesrvm.runtime.BootRecord;
 import org.jikesrvm.runtime.Callbacks;
 import org.jikesrvm.runtime.Magic;
 import org.jikesrvm.runtime.Reflection;
@@ -180,10 +182,14 @@ class OptTestHarness {
     return null;
   }
 
-  RVMClass loadClass(String s) throws ClassNotFoundException {
-    String className = convertToClassName(s);
-    Class<?> clazz = Class.forName(className, true, cl);
-    return (RVMClass) java.lang.JikesRVMSupport.getTypeForClass(clazz);
+  RVMClass loadClass(String s) throws ClassNotFoundException, NoClassDefFoundError {
+    output.sysErrPrintln("className "+ s);
+    String classPath = System.getProperty("java.class.path");
+    System.out.println("Class Path: " + classPath);
+//    Class<?> clazz = RVMClass.forName(className, false, Thread.currentThread().getContextClassLoader());
+//    Class<?> clazz = Class.forName(className, true, cl);
+//    Class<?> clazz = Class.forName(className);
+    return (RVMClass) BootstrapClassLoader.getBootstrapClassLoader().loadVMClass(s);
   }
 
   static String convertToClassName(String s) {
@@ -491,6 +497,9 @@ class OptTestHarness {
     reflectoidVector = new Vector<Method>(10);
     reflectMethodVector = new Vector<RVMMethod>(10);
     reflectMethodArgsVector = new Vector<Object[]>(10);
+    output.sysErrPrintln("starting");
+    VM.initForTool();
+    BootRecord.the_boot_record = new BootRecord();
     if (VM.BuildForOptCompiler && !OptimizingCompiler.isInitialized()) {
       OptimizingCompiler.init(options);
     } else if (!VM.BuildForOptCompiler) {

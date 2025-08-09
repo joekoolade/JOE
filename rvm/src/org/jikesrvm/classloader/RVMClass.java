@@ -33,6 +33,7 @@ import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_INT;
 import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_LONG;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 
@@ -1101,6 +1102,27 @@ public final class RVMClass extends RVMType {
     if (VM.verboseClassLoading) VM.sysWriteln("[Loaded " + toString() + "]");
   }
 
+  public static RVMType forName(String name)
+  {
+      String classPath = System.getProperty("java.class.path");
+      String[] entries = classPath.split(":");
+      String cfileName = "/" + name.replace('.', '/').concat(".class");
+      int size = 0;
+      // Find file and get size
+      for(String entry: entries)
+      {
+          String path = entry+cfileName;
+          VM.sysWriteln("Looking for: "+path);
+          File file = new File(path);
+          if(file.exists())
+          {
+              VM.sysWriteln("Found! size: "+file.length());
+              size = (int)file.length();
+              break;
+          }
+      }
+      return RVMClassLoader.defineClassInternal(name, new byte[size], 0, size, null, null);
+  }
   /**
    * {@inheritDoc} Space in the JTOC is allocated for static fields,
    * static methods and constructors. Moreover, this method  generates size
