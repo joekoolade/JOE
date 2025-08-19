@@ -47,6 +47,13 @@ none
 
 
 
+# setIdt
+SETIDT
+CacheOp
+none
+
+
+
 # pause (spin-loop delay)
 PAUSE
 Empty
@@ -987,6 +994,13 @@ none
 
 ####################
 IA32_PREFETCHNTA
+MIR_CacheOp
+none
+
+
+
+####################
+IA32_SETIDT
 MIR_CacheOp
 none
 

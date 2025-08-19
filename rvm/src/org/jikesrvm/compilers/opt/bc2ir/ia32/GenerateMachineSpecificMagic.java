@@ -110,6 +110,8 @@ public abstract class GenerateMachineSpecificMagic {
       bc2ir.appendInstruction(CacheOp.create(PREFETCH, bc2ir.popAddress()));
     } else if (methodName == MagicNames.pause) {
       bc2ir.appendInstruction(Empty.create(PAUSE));
+    } else if (methodName == MagicNames.setIdt) {
+      bc2ir.appendInstruction(CacheOp.create(SETIDT, bc2ir.popAddress()));
     } else if (methodName == MagicNames.illegalInstruction) {
       bc2ir.appendInstruction(Empty.create(ILLEGAL_INSTRUCTION));
     } else if (methodName == MagicNames.getCallerFramePointer) {
