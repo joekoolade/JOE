@@ -81,7 +81,7 @@ public class GenerateAssembler
 {
 
     /** Global flag controlling printing of debugging information */
-    static final boolean DEBUG = false;
+    static final boolean DEBUG = true;
 
     /** Global reference to the assembler being generated */
     static FileWriter out;
@@ -1154,7 +1154,7 @@ public class GenerateAssembler
         excludedOpcodes.add("IN32");
         excludedOpcodes.add("IN16");
         excludedOpcodes.add("IN8");
-        excludedOpcodes.add("LIDT");
+//        excludedOpcodes.add("LIDT");
         excludedOpcodes.add("HLT");
         excludedOpcodes.add("PUSHAD");
         excludedOpcodes.add("POPAD");

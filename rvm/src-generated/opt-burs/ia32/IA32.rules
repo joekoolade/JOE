@@ -535,7 +535,7 @@ EMIT(MIR_CacheOp.mutate(P(p), IA32_PREFETCHNTA, R(CacheOp.getRef(P(p)))));
 stm:  SETIDT(r)
 11
 EMIT_INSTRUCTION
-EMIT(MIR_CacheOp.mutate(P(p), IA32_SETIDT, R(CacheOp.getRef(P(p)))));
+EMIT(MIR_CacheOp.mutate(P(p), IA32_LIDT, R(CacheOp.getRef(P(p)))));
 
 #####
 # WRITE_FLOOR

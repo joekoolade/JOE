@@ -1247,7 +1247,7 @@ Check to make sure all required properties are specified. This includes properti
 
   <!-- Control targets for the source generation -->
   <target name="do-gen-source"
-          depends="gen-vmmagic-word,gen-options,gen-opt-ir,gen-ia32-assembler,gen-config-source">
+          depends="gen-vmmagic-word,gen-options,gen-opt-ir,gen-config-source">
     <touch file="${generated.dir}/SourceGenerated"/>
   </target>
 

@@ -1000,7 +1000,7 @@ none
 
 
 ####################
-IA32_SETIDT
+IA32_LIDT
 MIR_CacheOp
 none
 

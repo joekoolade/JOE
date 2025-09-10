@@ -23,6 +23,7 @@ import static org.jikesrvm.compilers.opt.ir.Operators.REF_MOVE;
 import static org.jikesrvm.compilers.opt.ir.Operators.REF_STORE;
 import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.PAUSE;
 import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.PREFETCH;
+import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.SETIDT;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_FRAME_POINTER_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_METHOD_ID_OFFSET;
 import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET;
