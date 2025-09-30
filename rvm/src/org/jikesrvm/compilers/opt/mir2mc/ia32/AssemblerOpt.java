@@ -17610,7 +17610,18 @@ public class AssemblerOpt extends AssemblerBase {
    * @param inst the instruction to assemble
    */
   private void doLIDT(Instruction inst) {
-    emitLIDT(getGPR_Reg(MIR_CacheOp.getAddress(inst)));
+    if(isAbs(MIR_CacheOp.getAddress(inst)))
+    {
+        VM.sysWriteln("LIDT Abs "+MIR_CacheOp.getAddress(inst).asIntConstant().value);
+        emitLIDT(getBase(MIR_CacheOp.getAddress(inst)));
+    }
+    else if(isReg(MIR_CacheOp.getAddress(inst)))
+    {
+        VM.sysWriteln("LIDT as REG");
+        emitLIDT(getGPR_Reg(MIR_CacheOp.getAddress(inst)));
+    }
+    else VM.sysWriteln("LIDT operand issue");
+        
   }
 
   /**
