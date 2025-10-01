@@ -571,13 +571,15 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int64()
        {
-         VM.sysFailTrap("int64");
+         Magic.throwExceptionNoErrCode(nullPointerExc);
+//         VM.sysFailTrap("int64");
        }
        
        @InterruptHandler
        public static void int65()
        {
-         VM.sysFailTrap("int65");
+         Magic.throwExceptionNoErrCode(arrayIndexExc);
+//         VM.sysFailTrap("int65");
        }
        @InterruptHandler
        public static void int66()
@@ -592,7 +594,8 @@ public final class Idt implements SegmentDescriptorTypes {
        @InterruptHandler
        public static void int68()
        {
-         VM.sysFailTrap("int68");
+         Magic.throwExceptionNoErrCode(castError);
+//         VM.sysFailTrap("int68");
        }
        @InterruptHandler
        public static void int69()
