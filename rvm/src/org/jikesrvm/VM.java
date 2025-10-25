@@ -625,9 +625,10 @@ public class VM extends Properties {
         ZipFile javaZip = new ZipFile(SystemJars.systemJar);
         BootstrapClassLoader.addZipFile("bootstrap", javaZip);
     }
-    catch(IOException e)
+    catch(Exception e)
     {
         VM.sysWriteln(e.toString());
+        e.printStackTrace();
     }
 //    VM.shutdown(1);
 

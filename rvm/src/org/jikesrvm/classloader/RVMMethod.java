@@ -386,6 +386,17 @@ public abstract class RVMMethod extends RVMMember {
   }
 
   /**
+   * Is the method an Interrupt handler? It should be have no prologue or epilogue 
+   * generated.
+   * 
+   * @return whether the method has an interrupt handler annotation
+   */
+  public final boolean isInterruptHandler()
+  {
+      return hasInterruptHandlerAnnotation();
+  }
+  
+  /**
    * Is the method Pure? That is would it, without any side effects, return the
    * same value given the same arguments?
    *
