@@ -12,8 +12,6 @@
  */
 package org.jikesrvm.mm.mminterface;
 
-import java.lang.management.MemoryUsage;
-
 import org.mmtk.policy.Space;
 import org.mmtk.utility.Conversions;
 import org.vmmagic.unboxed.Extent;
@@ -80,9 +78,9 @@ public class JMXMemoryUsage {
     }
   }
 
-  public MemoryUsage toMemoryUsage() {
-    return new MemoryUsage(-1L, usedBytes, reservedBytes, maxBytes);
-  }
+//  public MemoryUsage toMemoryUsage() {
+//    return new MemoryUsage(-1L, usedBytes, reservedBytes, maxBytes);
+//  }
 
   public static JMXMemoryUsage empty() {
     return new JMXMemoryUsage();

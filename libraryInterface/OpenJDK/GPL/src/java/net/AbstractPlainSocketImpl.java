@@ -78,8 +78,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      * Load net library into runtime.
      */
     static {
-        java.security.AccessController.doPrivileged(
-                  new sun.security.action.LoadLibraryAction("net"));
     }
 
     /**

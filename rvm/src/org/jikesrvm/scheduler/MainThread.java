@@ -14,14 +14,12 @@ package org.jikesrvm.scheduler;
 
 import static org.jikesrvm.runtime.ExitStatus.EXIT_STATUS_BOGUS_COMMAND_LINE_ARG;
 
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.jikesrvm.VM;
-import org.jikesrvm.classlibrary.JavaLangInstrument;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
@@ -60,73 +58,9 @@ public final class MainThread extends Thread {
   }
 
   private void runAgents(ClassLoader cl) {
-    Instrumentation instrumenter = null;
-    if (agents.length > 0) {
-      if (VM.verboseBoot >= 1) VM.sysWriteln("Booting instrumentation for agents");
-      try {
-        JavaLangInstrument.boot();
-        instrumenter = JavaLangInstrument.getInstrumenter();
-      } catch (Exception e) {
-        if (VM.verboseBoot >= 1) VM.sysWriteln("Booting instrumentation for agents FAILED");
-      }
-      if (VM.verboseBoot >= 1) VM.sysWriteln("Booted instrumentation for agents");
-
-      for (String agent : agents) {
-        /*
-         * Parse agent string according to the form
-         * given in the java.lang.instrumentation package
-         * documentation:
-         * jarpath[=options]
-         *
-         * (The -javaagent: part of the agent options has
-         *  already been stripped)
-         */
-        int equalsIndex = agent.indexOf('=');
-        String agentJar;
-        String agentOptions;
-        if (equalsIndex != -1) {
-          agentJar = agent.substring(0, equalsIndex);
-          agentOptions = agent.substring(equalsIndex + 1);
-        } else {
-          agentJar = agent;
-          agentOptions = "";
-        }
-        if (VM.verboseBoot >= 1) VM.sysWriteln("Handling agent " + agentJar + " with options " + agentOptions);
-        runAgent(instrumenter, cl, agentJar, agentOptions);
-      }
-    }
   }
 
-  private static void runAgent(Instrumentation instrumenter, ClassLoader cl, String agentJar, String agentOptions) {
-    Manifest mf = null;
-    try {
-      JarFile jf = new JarFile(agentJar);
-      mf = jf.getManifest();
-    } catch (Exception e) {
-      VM.sysWriteln("vm: IO Exception opening JAR file ", agentJar, ": ", e.getMessage());
-      VM.sysExit(EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-    }
-    if (mf == null) {
-      VM.sysWriteln("The jar file is missing the manifest: ", agentJar);
-      VM.sysExit(EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-    }
-    String agentClassName = mf.getMainAttributes().getValue("Premain-Class");
-    if (agentClassName == null) {
-      VM.sysWriteln("The jar file is missing the Premain-Class manifest entry for the agent class: ", agentJar);
-      VM.sysExit(EXIT_STATUS_BOGUS_COMMAND_LINE_ARG);
-    }
-    //TODO: By this stage all agent jars and classes they reference via their manifest
-    try {
-      Class<?> agentClass = cl.loadClass(agentClassName);
-      Method agentPremainMethod = agentClass.getMethod("premain", new Class<?>[]{String.class, Instrumentation.class});
-      agentPremainMethod.invoke(null, new Object[]{agentOptions, instrumenter});
-    } catch (InvocationTargetException e) {
-      // According to the spec, exceptions from premain() can be ignored
-    } catch (Throwable e) {
-      VM.sysWriteln("Failed to run the agent's premain: " + e.getMessage());
-      e.printStackTrace();
-      System.exit(0);
-    }
+  private static void runAgent(Object instrumenter, ClassLoader cl, String agentJar, String agentOptions) {
   }
 
   RVMMethod getMainMethod() {

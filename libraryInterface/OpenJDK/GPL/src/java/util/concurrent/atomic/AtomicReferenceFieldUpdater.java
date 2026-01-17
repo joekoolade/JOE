@@ -41,9 +41,10 @@ import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
 
+import jdk.internal.reflect.Reflection;
 import sun.misc.Unsafe;
-import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+import jdk.internal.reflect.CallerSensitive;
+
 import java.lang.JikesRVMSupport;
 
 /**

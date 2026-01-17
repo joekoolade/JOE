@@ -33,6 +33,9 @@ import java.util.IllegalFormatException;
 import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
 
+import jdk.internal.misc.SharedSecrets;
+import jdk.internal.misc.JavaIOAccess;
+
 /**
  * Methods to access the character-based console device, if any, associated with
  * the current Java virtual machine.
@@ -571,7 +574,7 @@ public final class Console implements Flushable
   // Set up JavaIOAccess in SharedSecrets
   static
   {
-    sun.misc.SharedSecrets.setJavaIOAccess(new sun.misc.JavaIOAccess() {
+    SharedSecrets.setJavaIOAccess(new JavaIOAccess() {
       public Console console()
       {
         if (istty())

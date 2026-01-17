@@ -22,7 +22,7 @@
 
   <property name="helpers.dir" location="${build.dir}/build-helpers"/>
   <property name="helpers.classes" location="${helpers.dir}/classes"/>
-  <property name="helpers.java.version" value="1.7"/>
+  <property name="helpers.java.version" value="11"/>
 
   <property name="config.file" location="${jikesrvm.dir}/build/configs/${config.name}.properties"/>
 
@@ -132,12 +132,12 @@
 
   <!-- Number of threads to create for the paralllel part of bootimage building -->
   <!-- A thread count of 0 maps to a thread count of (Runtime.getAvailableProcessors() + 1) -->
-  <property name="bootimage.threads" value="4"/>
+  <property name="bootimage.threads" value="1"/>
 
   <!-- Source versions -->
-  <property name="mmtk.java.version" value="1.7"/>
-  <property name="harness.java.version" value="1.7"/>
-  <property name="rvm.java.version" value="1.7"/>
+  <property name="mmtk.java.version" value="11"/>
+  <property name="harness.java.version" value="11"/>
+  <property name="rvm.java.version" value="11"/>
 
   <!-- Default heap layout -->
   <property name="target.heap-layout" value="32BIT"/>
@@ -1085,6 +1085,8 @@ Check to make sure all required properties are specified. This includes properti
 
     <javac srcdir="${build.ia32-assembler-opt.dir}" destdir="${build.ia32-assembler-opt.dir}" debug="true"
            debugLevel="${debugLevel}" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
+      <compilerarg value="--patch-module" />
+      <compilerarg value="java.base=${build.ia32-assembler-opt.dir}:${build.vmmagic-stub.classes}" />
       <src path="${ia32-assembler-opt.dir}"/>
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1418,55 +1420,9 @@ Check to make sure all required properties are specified. This includes properti
     <mkdir dir="${build.classes}"/>
     <if>
       <conditions>
-        <equals arg1="${classlib.provider}" arg2="GNU Classpath"/>
-      </conditions>
-      <sequential>
-        <javac destdir="${build.classes}"
-               debug="true"
-               fork="true"
-               memoryMaximumSize="500M"
-               debugLevel="${debugLevel}"
-               source="${rvm.java.version}"
-               target="${rvm.java.version}"
-               srcdir="${main.java}:${generated.java}:${mmtk.java}:${options.java}:${generated.config.java}:${jam.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${classlib.library-interface.non-cpl2.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
-               sourcepath="${main.java}:${mmtk.java}:${options.java}:${generated.java}:${generated.config.java}:${jam.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}"
-               includeantruntime="false">
-          <bootclasspath>
-            <pathelement location="${classpath.lib.dir}/classpath.jar"/>
-          </bootclasspath>
-          <classpath>
-            <pathelement location="${build.vmmagic-stub.classes}"/>
-          </classpath>
-          <include name="Dummy.java"/>
-          <include name="OptDummy.java"/>
-          <include name="gnu/**/*.java"/>
-          <include name="sun/**/*.java"/>
-          <include name="java/**/*.java"/>
-          <include name="${arch-helper-class}"/>
-          <include name="com/ibm/tuningfork/**/*.java"/>
-          <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
-          <include name="org/jikesrvm/tools/oth/OptTestHarness.java"/>
-          <include name="org/jikesrvm/tools/header_gen/GenArch_${target.arch}.java"/>
-          <exclude name="org/jikesrvm/tools/header_gen.GenerateInterfaceDeclarations.java"/>
-        </javac>
-      </sequential>
-    </if>
-
-    <if>
-      <conditions>
         <equals arg1="${classlib.provider}" arg2="OpenJDK"/>
       </conditions>
       <sequential>
-<!--        <javac destdir="${build.classes}"-->
-<!--               debug="true"-->
-<!--               fork="true"-->
-<!--               memoryMaximumSize="500M"-->
-<!--               debugLevel="${debugLevel}"-->
-<!--               source="${rvm.java.version}"-->
-<!--               target="${rvm.java.version}"-->
-<!--               srcdir="${main.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"-->
-<!--               sourcepath="${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"-->
-<!--               includeantruntime="false">-->
         <javac destdir="${build.classes}"
                debug="true"
                fork="true"
@@ -1475,30 +1431,36 @@ Check to make sure all required properties are specified. This includes properti
                source="${rvm.java.version}"
                target="${rvm.java.version}"
                srcdir="${main.java}:${mmtk.java}:${classlib.library-interface.common.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${generated.java}:${generated.config.java}:${mmtk-vm-rvm.java}:${tuningforklib.java}:${jam.java}"
-               sourcepath="${main.java}:${mmtk.java}:${mmtk-vm-rvm.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${jam.java}"
-               includeantruntime="false">
-          <bootclasspath>
-            <pathelement location="${openjdk.lib.dir}/${openjdk.classes.jar}"/>
-          </bootclasspath>
-          <classpath>
-            <pathelement location="${build.vmmagic-stub.classes}"/>
-          </classpath>
+               sourcepath="${main.java}:${mmtk.java}:${options.java}:${mmtk-vm-rvm.java}:${classlib.library-interface.non-cpl.java}:${options.java}:${jam.java}"
+               includeantruntime="false"               
+        	>
+<!-- <compilerarg value="-verbose"/>  -->
+        	<compilerarg value="-Xdiags:verbose"/>
+          <compilerarg value="--patch-module" />
+          <compilerarg value="java.base=${classlib.library-interface.common.java}:${build.vmmagic-stub.classes}:${build.options.classes}:${mmtk.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:" />
+          <compilerarg value="--add-exports" />
+          <compilerarg value="java.base/jdk.internal.module=ALL-UNNAMED" />
+        	<compilerarg value="--add-exports" />
+        	<compilerarg value="java.base/jdk.internal=ALL-UNNAMED" />
           <include name="Dummy.java"/>
           <include name="OptDummy.java"/>
           <include name="org/jikesrvm/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/openjdk/replacements/**"/>
           <include name="org/apache/**/*.java"/>
-          <include name="sun/**/*.java"/>
+        	<include name="sun/security/util/*.java"/>
+          <exclude name="sun/**/*.java"/>
           <include name="java/**/*.java"/>
+        	<include name="jdk/internal/**/*.java"/>
           <include name="org/jikesrvm/classlibrary/**/*.java"/>
           <include name="org/jam/**/*.java"/>
-          <include name="org/dhcp4java/**/*.java"/>
+          <exclude name="org/dhcp4java/**/*.java"/>
           <include name="${arch-helper-class}"/>
           <include name="com/ibm/tuningfork/**/*.java"/>
           <include name="org/jikesrvm/mm/mmtk/**/*.java"/>
           <include name="org/jikesrvm/tools/oth/OptTestHarness.java"/>
           <include name="org/jikesrvm/tools/header_gen/GenArch_${target.arch}.java"/>
           <exclude name="org/jikesrvm/tools/header_gen.GenerateInterfaceDeclarations.java"/>
+        	<exclude name="org/jam/net/Dhcp.java"/>
         </javac>
         <!-- Compile libraryInterface again to detect problems relating to @ReplaceClass
         <mkdir dir="${build.base}/replacements/java"/>

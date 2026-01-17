@@ -37,7 +37,7 @@ import org.vmmagic.pragma.ReferenceFieldsVary;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Address;
 
-import sun.misc.Cleaner;
+import jdk.internal.ref.Cleaner;
 
 
 /**

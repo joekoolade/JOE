@@ -25,7 +25,7 @@
 
 package java.lang.reflect;
 
-import sun.reflect.MethodAccessor;
+import jdk.internal.reflect.MethodAccessor;
 
 import org.jikesrvm.VM;
 import org.jikesrvm.classloader.Atom;
@@ -33,14 +33,14 @@ import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
 import org.jikesrvm.classloader.TypeReference;
 
-import sun.reflect.ConstructorAccessor;
+import jdk.internal.reflect.ConstructorAccessor;
 import java.lang.JikesRVMSupport;
 
 /** Package-private class implementing the
     sun.reflect.LangReflectAccess interface, allowing the java.lang
     package to instantiate objects in this package. */
 
-class ReflectAccess implements sun.reflect.LangReflectAccess {
+class ReflectAccess implements jdk.internal.reflect.LangReflectAccess {
     public Field newField(Class<?> declaringClass,
                           String name,
                           Class<?> type,
@@ -149,5 +149,33 @@ class ReflectAccess implements sun.reflect.LangReflectAccess {
 
     public <T> Constructor<T> copyConstructor(Constructor<T> arg) {
         return arg.copy();
+    }
+
+    @Override
+    public byte[] getExecutableTypeAnnotationBytes(Executable ex)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Class<?>[] getExecutableSharedParameterTypes(Executable ex)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Method leafCopyMethod(Method arg)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T extends AccessibleObject> T getRoot(T obj)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

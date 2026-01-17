@@ -95,6 +95,7 @@ public class ClassFileReader {
       case 49: // we support all variants of these major versions so the minor number doesn't matter.
       case 50:
       case 51:
+      case 52:
         break;
 //      case 50: // we only support up to 50.0 (ie Java 1.6.0)
 //        if (minor == 0) break;

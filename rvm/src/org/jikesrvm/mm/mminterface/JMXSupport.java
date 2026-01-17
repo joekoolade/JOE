@@ -12,8 +12,6 @@
  */
 package org.jikesrvm.mm.mminterface;
 
-import java.lang.management.MemoryType;
-import java.lang.management.MemoryUsage;
 import java.util.HashMap;
 
 import org.jikesrvm.mm.mminterface.Selected.Plan;
@@ -103,15 +101,15 @@ public class JMXSupport {
    * @param poolName the pool's name
    * @return the type of the memory pool
    */
-  public static MemoryType getType(String poolName) {
-    Space space = getSpace(poolName);
-    boolean immortal = space.isImmortal();
-    if (immortal) {
-      return MemoryType.NON_HEAP;
-    } else {
-      return MemoryType.HEAP;
-    }
-  }
+//  public static MemoryType getType(String poolName) {
+//    Space space = getSpace(poolName);
+//    boolean immortal = space.isImmortal();
+//    if (immortal) {
+//      return MemoryType.NON_HEAP;
+//    } else {
+//      return MemoryType.HEAP;
+//    }
+//  }
 
   private static Space getSpace(String poolName) {
     Space[] spaces = Space.getSpaces();
@@ -127,23 +125,23 @@ public class JMXSupport {
     return pools.get(poolName) != null;
   }
 
-  public static MemoryUsage getUsage(boolean immortal) {
-    int spaceCount = Space.getSpaceCount();
-    Space[] spaces = Space.getSpaces();
-    JMXMemoryUsage usage = JMXMemoryUsage.empty();
-    for (int index = 0; index < spaceCount; index++) {
-      Space space = spaces[index];
-      if (space.isImmortal() == immortal) {
-        usage.add(space);
-      }
-    }
-    return usage.toMemoryUsage();
-  }
-
-  public static MemoryUsage getUsage(String poolName) {
-    Space space = getSpace(poolName);
-    return new JMXMemoryUsage(space).toMemoryUsage();
-  }
+//  public static MemoryUsage getUsage(boolean immortal) {
+//    int spaceCount = Space.getSpaceCount();
+//    Space[] spaces = Space.getSpaces();
+//    JMXMemoryUsage usage = JMXMemoryUsage.empty();
+//    for (int index = 0; index < spaceCount; index++) {
+//      Space space = spaces[index];
+//      if (space.isImmortal() == immortal) {
+//        usage.add(space);
+//      }
+//    }
+//    return usage.toMemoryUsage();
+//  }
+//
+//  public static MemoryUsage getUsage(String poolName) {
+//    Space space = getSpace(poolName);
+//    return new JMXMemoryUsage(space).toMemoryUsage();
+//  }
 
   public static int getObjectPendingFinalizationCount() {
     return FinalizableProcessor.countReadyForFinalize();

@@ -42,7 +42,7 @@ import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import sun.reflect.Reflection;
+import jdk.internal.reflect.Reflection;
 
 /**
  * This class intends to describe the field of a class for the serialization

@@ -89,7 +89,7 @@ public class Properties extends Options {
    * When true, it generates messages to the sysWrite stream summarizing
    * class loading activities
    */
-  public static boolean verboseClassLoading = false;
+  public static boolean verboseClassLoading = true;
 
   /**
    * The following is set on by -verbose:jni command line argument.

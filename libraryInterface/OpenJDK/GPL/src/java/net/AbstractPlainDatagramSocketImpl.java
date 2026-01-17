@@ -58,8 +58,6 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
      * Load net library into runtime.
      */
     static {
-        java.security.AccessController.doPrivileged(
-                  new sun.security.action.LoadLibraryAction("net"));
         init();
     }
 
@@ -342,7 +340,10 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
     }
 
     native int dataAvailable();
-    private static native void init();
+    private static void init()
+    {
+        
+    }
 
     protected abstract void datagramSocketCreate() throws SocketException;
     protected abstract void datagramSocketClose();

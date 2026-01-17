@@ -30,7 +30,7 @@ package java.nio;
 import org.jikesrvm.runtime.Memory;
 import org.vmmagic.unboxed.Address;
 
-import sun.misc.Cleaner;
+import jdk.internal.ref.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
 class DirectFloatBufferU

@@ -20,7 +20,7 @@
 
   <property name="tasks.dir" location="${build.dir}/tasks"/>
   <property name="tasks.classes" location="${tasks.dir}/classes"/>
-  <property name="tasks.java.version" value="1.7"/>
+  <property name="tasks.java.version" value="1.8"/>
 
   <target name="prepare-ant-tasks">
     <mkdir dir="${tasks.classes}"/>

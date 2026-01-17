@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2017, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,22 +25,20 @@
 
 package java.lang.reflect;
 
-import sun.reflect.ConstructorAccessor;
-import sun.reflect.Reflection;
+import jdk.internal.misc.SharedSecrets;
+import jdk.internal.reflect.CallerSensitive;
+import jdk.internal.reflect.ConstructorAccessor;
+import jdk.internal.reflect.Reflection;
+import jdk.internal.vm.annotation.ForceInline;
+import sun.reflect.annotation.TypeAnnotation;
+import sun.reflect.annotation.TypeAnnotationParser;
 import sun.reflect.generics.repository.ConstructorRepository;
 import sun.reflect.generics.factory.CoreReflectionFactory;
 import sun.reflect.generics.factory.GenericsFactory;
 import sun.reflect.generics.scope.ConstructorScope;
 import java.lang.annotation.Annotation;
-import java.util.Map;
-
-import org.jikesrvm.classloader.RVMClass;
-import org.jikesrvm.classloader.RVMField;
-import org.jikesrvm.classloader.RVMMethod;
-
-import sun.reflect.annotation.AnnotationParser;
 import java.lang.annotation.AnnotationFormatError;
-import java.lang.reflect.Modifier;
+import java.util.StringJoiner;
 
 /**
  * {@code Constructor} provides information about, and access to, a single
@@ -61,12 +59,9 @@ import java.lang.reflect.Modifier;
  *
  * @author      Kenneth Russell
  * @author      Nakul Saraiya
+ * @since 1.1
  */
-public final
-    class Constructor<T> extends AccessibleObject implements
-                                                    GenericDeclaration,
-                                                    Member {
-
+public final class Constructor<T> extends Executable {
     private Class<T>            clazz;
     private int                 slot;
     private Class<?>[]          parameterTypes;
@@ -87,7 +82,8 @@ public final
     }
 
     // Accessor for generic info repository
-    private ConstructorRepository getGenericInfo() {
+    @Override
+    ConstructorRepository getGenericInfo() {
         // lazily initialize repository if necessary
         if (genericInfo == null) {
             // create and cache generic info repository
@@ -102,7 +98,15 @@ public final
     // For sharing of ConstructorAccessors. This branching structure
     // is currently only two levels deep (i.e., one root Constructor
     // and potentially many Constructor objects pointing to it.)
+    //
+    // If this branching structure would ever contain cycles, deadlocks can
+    // occur in annotation code.
     private Constructor<T>      root;
+
+    @Override
+    Constructor<T> getRoot() {
+        return root;
+    }
 
     /**
      * Package-private constructor used by ReflectAccess to enable
@@ -116,8 +120,7 @@ public final
                 int slot,
                 String signature,
                 byte[] annotations,
-                byte[] parameterAnnotations)
-    {
+                byte[] parameterAnnotations) {
         this.clazz = declaringClass;
         this.parameterTypes = parameterTypes;
         this.exceptionTypes = checkedExceptions;
@@ -141,29 +144,71 @@ public final
         // which implicitly requires that new java.lang.reflect
         // objects be fabricated for each reflective call on Class
         // objects.)
-        // "copy" constructor
-        Constructor source = (Constructor) (Object) this;
-        RVMMethod rvmMethod = java.lang.reflect.JikesRVMSupport.getMethodOf(source);
-        Constructor newConstructor = java.lang.reflect.JikesRVMSupport.createConstructor(rvmMethod);
-        // set rest of fields from old field
-        RVMClass typeForClass = java.lang.JikesRVMSupport.getTypeForClass(Constructor.class).asClass();
+        if (this.root != null)
+            throw new IllegalArgumentException("Can not copy a non-root Constructor");
 
-        // set root field
-        RVMField rootField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "root");
-        rootField.setObjectValueUnchecked(newConstructor, source);
-
-        // copy constructorAccessor from this
-        RVMField constructorAccessorField = java.lang.reflect.JikesRVMHelpers.findFieldByName(typeForClass, "constructorAccessor");
-        Object sourceConstructorAccessor = constructorAccessorField.getObjectUnchecked(source);
-        constructorAccessorField.setObjectValueUnchecked(newConstructor, sourceConstructorAccessor);
-
-        return newConstructor;
+        Constructor<T> res = new Constructor<>(clazz,
+                                               parameterTypes,
+                                               exceptionTypes, modifiers, slot,
+                                               signature,
+                                               annotations,
+                                               parameterAnnotations);
+        res.root = this;
+        // Might as well eagerly propagate this if already present
+        res.constructorAccessor = constructorAccessor;
+        return res;
     }
 
     /**
-     * Returns the {@code Class} object representing the class that declares
-     * the constructor represented by this {@code Constructor} object.
+     * {@inheritDoc}
+     *
+     * <p> A {@code SecurityException} is also thrown if this object is a
+     * {@code Constructor} object for the class {@code Class} and {@code flag}
+     * is true. </p>
+     *
+     * @param flag {@inheritDoc}
+     *
+     * @throws InaccessibleObjectException {@inheritDoc}
+     * @throws SecurityException if the request is denied by the security manager
+     *         or this is a constructor for {@code java.lang.Class}
+     *
+     * @spec JPMS
      */
+    @Override
+    @CallerSensitive
+    public void setAccessible(boolean flag) {
+        AccessibleObject.checkPermission();
+        if (flag) {
+            checkCanSetAccessible(Reflection.getCallerClass());
+        }
+        setAccessible0(flag);
+    }
+
+    @Override
+    void checkCanSetAccessible(Class<?> caller) {
+        checkCanSetAccessible(caller, clazz);
+        if (clazz == Class.class) {
+            // can we change this to InaccessibleObjectException?
+            throw new SecurityException("Cannot make a java.lang.Class"
+                                        + " constructor accessible");
+        }
+    }
+
+    @Override
+    boolean hasGenericInformation() {
+        return (getSignature() != null);
+    }
+
+    @Override
+    byte[] getAnnotationBytes() {
+        return annotations;
+    }
+
+    /**
+     * Returns the {@code Class} object representing the class that
+     * declares the constructor represented by this object.
+     */
+    @Override
     public Class<T> getDeclaringClass() {
         return clazz;
     }
@@ -172,36 +217,26 @@ public final
      * Returns the name of this constructor, as a string.  This is
      * the binary name of the constructor's declaring class.
      */
+    @Override
     public String getName() {
         return getDeclaringClass().getName();
     }
 
     /**
-     * Returns the Java language modifiers for the constructor
-     * represented by this {@code Constructor} object, as an integer. The
-     * {@code Modifier} class should be used to decode the modifiers.
-     *
-     * @see Modifier
+     * {@inheritDoc}
      */
+    @Override
     public int getModifiers() {
         return modifiers;
     }
 
     /**
-     * Returns an array of {@code TypeVariable} objects that represent the
-     * type variables declared by the generic declaration represented by this
-     * {@code GenericDeclaration} object, in declaration order.  Returns an
-     * array of length 0 if the underlying generic declaration declares no type
-     * variables.
-     *
-     * @return an array of {@code TypeVariable} objects that represent
-     *     the type variables declared by this generic declaration
-     * @throws GenericSignatureFormatError if the generic
-     *     signature of this generic declaration does not conform to
-     *     the format specified in
-     *     <cite>The Java&trade; Virtual Machine Specification</cite>
+     * {@inheritDoc}
+     * @throws GenericSignatureFormatError {@inheritDoc}
      * @since 1.5
      */
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public TypeVariable<Constructor<T>>[] getTypeParameters() {
       if (getSignature() != null) {
         return (TypeVariable<Constructor<T>>[])getGenericInfo().getTypeParameters();
@@ -210,99 +245,62 @@ public final
     }
 
 
+    @Override
+    Class<?>[] getSharedParameterTypes() {
+        return parameterTypes;
+    }
+
+    @Override
+    Class<?>[] getSharedExceptionTypes() {
+        return exceptionTypes;
+    }
+
     /**
-     * Returns an array of {@code Class} objects that represent the formal
-     * parameter types, in declaration order, of the constructor
-     * represented by this {@code Constructor} object.  Returns an array of
-     * length 0 if the underlying constructor takes no parameters.
-     *
-     * @return the parameter types for the constructor this object
-     * represents
+     * {@inheritDoc}
      */
+    @Override
     public Class<?>[] getParameterTypes() {
-        return (Class<?>[]) parameterTypes.clone();
+        return parameterTypes.clone();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.8
+     */
+    public int getParameterCount() { return parameterTypes.length; }
 
     /**
-     * Returns an array of {@code Type} objects that represent the formal
-     * parameter types, in declaration order, of the method represented by
-     * this {@code Constructor} object. Returns an array of length 0 if the
-     * underlying method takes no parameters.
-     *
-     * <p>If a formal parameter type is a parameterized type,
-     * the {@code Type} object returned for it must accurately reflect
-     * the actual type parameters used in the source code.
-     *
-     * <p>If a formal parameter type is a type variable or a parameterized
-     * type, it is created. Otherwise, it is resolved.
-     *
-     * @return an array of {@code Type}s that represent the formal
-     *     parameter types of the underlying method, in declaration order
-     * @throws GenericSignatureFormatError
-     *     if the generic method signature does not conform to the format
-     *     specified in
-     *     <cite>The Java&trade; Virtual Machine Specification</cite>
-     * @throws TypeNotPresentException if any of the parameter
-     *     types of the underlying method refers to a non-existent type
-     *     declaration
-     * @throws MalformedParameterizedTypeException if any of
-     *     the underlying method's parameter types refer to a parameterized
-     *     type that cannot be instantiated for any reason
+     * {@inheritDoc}
+     * @throws GenericSignatureFormatError {@inheritDoc}
+     * @throws TypeNotPresentException {@inheritDoc}
+     * @throws MalformedParameterizedTypeException {@inheritDoc}
      * @since 1.5
      */
+    @Override
     public Type[] getGenericParameterTypes() {
-        if (getSignature() != null)
-            return getGenericInfo().getParameterTypes();
-        else
-            return getParameterTypes();
+        return super.getGenericParameterTypes();
     }
 
-
     /**
-     * Returns an array of {@code Class} objects that represent the types
-     * of exceptions declared to be thrown by the underlying constructor
-     * represented by this {@code Constructor} object.  Returns an array of
-     * length 0 if the constructor declares no exceptions in its {@code throws} clause.
-     *
-     * @return the exception types declared as being thrown by the
-     * constructor this object represents
+     * {@inheritDoc}
      */
+    @Override
     public Class<?>[] getExceptionTypes() {
-        return (Class<?>[])exceptionTypes.clone();
+        return exceptionTypes.clone();
     }
 
 
     /**
-     * Returns an array of {@code Type} objects that represent the
-     * exceptions declared to be thrown by this {@code Constructor} object.
-     * Returns an array of length 0 if the underlying method declares
-     * no exceptions in its {@code throws} clause.
-     *
-     * <p>If an exception type is a type variable or a parameterized
-     * type, it is created. Otherwise, it is resolved.
-     *
-     * @return an array of Types that represent the exception types
-     *     thrown by the underlying method
-     * @throws GenericSignatureFormatError
-     *     if the generic method signature does not conform to the format
-     *     specified in
-     *     <cite>The Java&trade; Virtual Machine Specification</cite>
-     * @throws TypeNotPresentException if the underlying method's
-     *     {@code throws} clause refers to a non-existent type declaration
-     * @throws MalformedParameterizedTypeException if
-     *     the underlying method's {@code throws} clause refers to a
-     *     parameterized type that cannot be instantiated for any reason
+     * {@inheritDoc}
+     * @throws GenericSignatureFormatError {@inheritDoc}
+     * @throws TypeNotPresentException {@inheritDoc}
+     * @throws MalformedParameterizedTypeException {@inheritDoc}
      * @since 1.5
      */
-      public Type[] getGenericExceptionTypes() {
-          Type[] result;
-          if (getSignature() != null &&
-              ( (result = getGenericInfo().getExceptionTypes()).length > 0  ))
-              return result;
-          else
-              return getExceptionTypes();
-      }
+    @Override
+    public Type[] getGenericExceptionTypes() {
+        return super.getGenericExceptionTypes();
+    }
 
     /**
      * Compares this {@code Constructor} against the specified object.
@@ -314,16 +312,7 @@ public final
         if (obj != null && obj instanceof Constructor) {
             Constructor<?> other = (Constructor<?>)obj;
             if (getDeclaringClass() == other.getDeclaringClass()) {
-                /* Avoid unnecessary cloning */
-                Class<?>[] params1 = parameterTypes;
-                Class<?>[] params2 = other.parameterTypes;
-                if (params1.length == params2.length) {
-                    for (int i = 0; i < params1.length; i++) {
-                        if (params1[i] != params2[i])
-                            return false;
-                    }
-                    return true;
-                }
+                return equalParamTypes(parameterTypes, other.parameterTypes);
             }
         }
         return false;
@@ -344,44 +333,48 @@ public final
      * followed by the fully-qualified name of the declaring class,
      * followed by a parenthesized, comma-separated list of the
      * constructor's formal parameter types.  For example:
-     * <pre>
+     * <pre>{@code
      *    public java.util.Hashtable(int,float)
-     * </pre>
+     * }</pre>
+     *
+     * <p>If the constructor is declared to throw exceptions, the
+     * parameter list is followed by a space, followed by the word
+     * "{@code throws}" followed by a comma-separated list of the
+     * thrown exception types.
      *
      * <p>The only possible modifiers for constructors are the access
      * modifiers {@code public}, {@code protected} or
      * {@code private}.  Only one of these may appear, or none if the
      * constructor has default (package) access.
+     *
+     * @return a string describing this {@code Constructor}
+     * @jls 8.8.3 Constructor Modifiers
+     * @jls 8.9.2 Enum Body Declarations
      */
     public String toString() {
-        try {
-            StringBuffer sb = new StringBuffer();
-            int mod = getModifiers() & Modifier.constructorModifiers();
-            if (mod != 0) {
-                sb.append(Modifier.toString(mod) + " ");
-            }
-            sb.append(Field.getTypeName(getDeclaringClass()));
-            sb.append("(");
-            Class<?>[] params = parameterTypes; // avoid clone
-            for (int j = 0; j < params.length; j++) {
-                sb.append(Field.getTypeName(params[j]));
-                if (j < (params.length - 1))
-                    sb.append(",");
-            }
-            sb.append(")");
-            Class<?>[] exceptions = exceptionTypes; // avoid clone
-            if (exceptions.length > 0) {
-                sb.append(" throws ");
-                for (int k = 0; k < exceptions.length; k++) {
-                    sb.append(exceptions[k].getName());
-                    if (k < (exceptions.length - 1))
-                        sb.append(",");
-                }
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            return "<" + e + ">";
+        return sharedToString(Modifier.constructorModifiers(),
+                              false,
+                              parameterTypes,
+                              exceptionTypes);
+    }
+
+    @Override
+    void specificToStringHeader(StringBuilder sb) {
+        sb.append(getDeclaringClass().getTypeName());
+    }
+
+    @Override
+    String toShortString() {
+        StringBuilder sb = new StringBuilder("constructor ");
+        sb.append(getDeclaringClass().getTypeName());
+        sb.append('(');
+        StringJoiner sj = new StringJoiner(",");
+        for (Class<?> parameterType : getParameterTypes()) {
+            sj.add(parameterType.getTypeName());
         }
+        sb.append(sj);
+        sb.append(')');
+        return sb.toString();
     }
 
     /**
@@ -395,17 +388,17 @@ public final
      *
      * If this constructor was declared to take a variable number of
      * arguments, instead of denoting the last parameter as
-     * "<tt><i>Type</i>[]</tt>", it is denoted as
-     * "<tt><i>Type</i>...</tt>".
+     * "<code><i>Type</i>[]</code>", it is denoted as
+     * "<code><i>Type</i>...</code>".
      *
      * A space is used to separate access modifiers from one another
-     * and from the type parameters or return type.  If there are no
+     * and from the type parameters or class name.  If there are no
      * type parameters, the type parameter list is elided; if the type
      * parameter list is present, a space separates the list from the
      * class name.  If the constructor is declared to throw
      * exceptions, the parameter list is followed by a space, followed
      * by the word "{@code throws}" followed by a
-     * comma-separated list of the thrown exception types.
+     * comma-separated list of the generic thrown exception types.
      *
      * <p>The only possible modifiers for constructors are the access
      * modifiers {@code public}, {@code protected} or
@@ -416,57 +409,17 @@ public final
      * include type parameters
      *
      * @since 1.5
+     * @jls 8.8.3 Constructor Modifiers
+     * @jls 8.9.2 Enum Body Declarations
      */
+    @Override
     public String toGenericString() {
-        try {
-            StringBuilder sb = new StringBuilder();
-            int mod = getModifiers() & Modifier.constructorModifiers();
-            if (mod != 0) {
-                sb.append(Modifier.toString(mod) + " ");
-            }
-            TypeVariable<?>[] typeparms = getTypeParameters();
-            if (typeparms.length > 0) {
-                boolean first = true;
-                sb.append("<");
-                for(TypeVariable<?> typeparm: typeparms) {
-                    if (!first)
-                        sb.append(",");
-                    // Class objects can't occur here; no need to test
-                    // and call Class.getName().
-                    sb.append(typeparm.toString());
-                    first = false;
-                }
-                sb.append("> ");
-            }
-            sb.append(Field.getTypeName(getDeclaringClass()));
-            sb.append("(");
-            Type[] params = getGenericParameterTypes();
-            for (int j = 0; j < params.length; j++) {
-                String param = (params[j] instanceof Class<?>)?
-                    Field.getTypeName((Class<?>)params[j]):
-                    (params[j].toString());
-                if (isVarArgs() && (j == params.length - 1)) // replace T[] with T...
-                    param = param.replaceFirst("\\[\\]$", "...");
-                sb.append(param);
-                if (j < (params.length - 1))
-                    sb.append(",");
-            }
-            sb.append(")");
-            Type[] exceptions = getGenericExceptionTypes();
-            if (exceptions.length > 0) {
-                sb.append(" throws ");
-                for (int k = 0; k < exceptions.length; k++) {
-                    sb.append((exceptions[k] instanceof Class)?
-                              ((Class<?>)exceptions[k]).getName():
-                              exceptions[k].toString());
-                    if (k < (exceptions.length - 1))
-                        sb.append(",");
-                }
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            return "<" + e + ">";
-        }
+        return sharedToGenericString(Modifier.constructorModifiers(), false);
+    }
+
+    @Override
+    void specificToGenericStringHeader(StringBuilder sb) {
+        specificToStringHeader(sb);
     }
 
     /**
@@ -517,53 +470,44 @@ public final
      * @exception ExceptionInInitializerError if the initialization provoked
      *              by this method fails.
      */
+    @CallerSensitive
+    @ForceInline // to ensure Reflection.getCallerClass optimization
     public T newInstance(Object ... initargs)
         throws InstantiationException, IllegalAccessException,
                IllegalArgumentException, InvocationTargetException
     {
-//        System.out.println("newInstance 1");
         if (!override) {
-            if (!Reflection.quickCheckMemberAccess(clazz, modifiers)) {
-                Class<?> caller = Reflection.getCallerClass(2);
-
-                checkAccess(caller, clazz, null, modifiers);
-            }
+            Class<?> caller = Reflection.getCallerClass();
+            checkAccess(caller, clazz, clazz, modifiers);
         }
         if ((clazz.getModifiers() & Modifier.ENUM) != 0)
             throw new IllegalArgumentException("Cannot reflectively create enum objects");
         ConstructorAccessor ca = constructorAccessor;   // read volatile
         if (ca == null) {
-//            System.out.println("newInstance 2");
             ca = acquireConstructorAccessor();
         }
-//        System.out.println("cons accessor "+ca);
-        return (T) ca.newInstance(initargs);
+        @SuppressWarnings("unchecked")
+        T inst = (T) ca.newInstance(initargs);
+        return inst;
     }
 
     /**
-     * Returns {@code true} if this constructor was declared to take
-     * a variable number of arguments; returns {@code false}
-     * otherwise.
-     *
-     * @return {@code true} if an only if this constructor was declared to
-     * take a variable number of arguments.
+     * {@inheritDoc}
      * @since 1.5
      */
+    @Override
     public boolean isVarArgs() {
-        return (getModifiers() & Modifier.VARARGS) != 0;
+        return super.isVarArgs();
     }
 
     /**
-     * Returns {@code true} if this constructor is a synthetic
-     * constructor; returns {@code false} otherwise.
-     *
-     * @return true if and only if this constructor is a synthetic
-     * constructor as defined by
-     * <cite>The Java&trade; Language Specification</cite>.
+     * {@inheritDoc}
+     * @jls 13.1 The Form of a Binary
      * @since 1.5
      */
+    @Override
     public boolean isSynthetic() {
-        return Modifier.isSynthetic(getModifiers());
+        return super.isSynthetic();
     }
 
     // NOTE that there is no synchronization used here. It is correct
@@ -577,14 +521,12 @@ public final
         ConstructorAccessor tmp = null;
         if (root != null) tmp = root.getConstructorAccessor();
         if (tmp != null) {
-//            System.out.println("acquireConstructorAccessor 1");
             constructorAccessor = tmp;
         } else {
             // Otherwise fabricate one and propagate it up to the root
             tmp = reflectionFactory.newConstructorAccessor(this);
             setConstructorAccessor(tmp);
         }
-//        System.out.println("acquireConstructorAccessor 4");
 
         return tmp;
     }
@@ -609,9 +551,9 @@ public final
         return slot;
     }
 
-   String getSignature() {
-            return signature;
-   }
+    String getSignature() {
+        return signature;
+    }
 
     byte[] getRawAnnotations() {
         return annotations;
@@ -621,80 +563,94 @@ public final
         return parameterAnnotations;
     }
 
+
     /**
-     * @throws NullPointerException {@inheritDoc}
+     * {@inheritDoc}
+     * @throws NullPointerException  {@inheritDoc}
      * @since 1.5
      */
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        if (annotationClass == null)
-            throw new NullPointerException();
-
-        return (T) declaredAnnotations().get(annotationClass);
+        return super.getAnnotation(annotationClass);
     }
 
     /**
+     * {@inheritDoc}
      * @since 1.5
      */
     public Annotation[] getDeclaredAnnotations()  {
-        return AnnotationParser.toArray(declaredAnnotations());
-    }
-
-    private transient Map<Class<? extends Annotation>, Annotation> declaredAnnotations;
-
-    private synchronized  Map<Class<? extends Annotation>, Annotation> declaredAnnotations() {
-        if (declaredAnnotations == null) {
-            declaredAnnotations = AnnotationParser.parseAnnotations(
-                annotations, sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-                getDeclaringClass());
-        }
-        return declaredAnnotations;
+        return super.getDeclaredAnnotations();
     }
 
     /**
-     * Returns an array of arrays that represent the annotations on the formal
-     * parameters, in declaration order, of the method represented by
-     * this {@code Constructor} object. (Returns an array of length zero if the
-     * underlying method is parameterless.  If the method has one or more
-     * parameters, a nested array of length zero is returned for each parameter
-     * with no annotations.) The annotation objects contained in the returned
-     * arrays are serializable.  The caller of this method is free to modify
-     * the returned arrays; it will have no effect on the arrays returned to
-     * other callers.
-     *
-     * @return an array of arrays that represent the annotations on the formal
-     *    parameters, in declaration order, of the method represented by this
-     *    Constructor object
+     * {@inheritDoc}
      * @since 1.5
      */
+    @Override
     public Annotation[][] getParameterAnnotations() {
-        int numParameters = parameterTypes.length;
-        if (parameterAnnotations == null)
-            return new Annotation[numParameters][0];
+        return sharedGetParameterAnnotations(parameterTypes, parameterAnnotations);
+    }
 
-        Annotation[][] result = AnnotationParser.parseParameterAnnotations(
-            parameterAnnotations,
-            sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-            getDeclaringClass());
-        if (result.length != numParameters) {
-            Class<?> declaringClass = getDeclaringClass();
-            if (declaringClass.isEnum() ||
-                declaringClass.isAnonymousClass() ||
-                declaringClass.isLocalClass() )
-                ; // Can't do reliable parameter counting
-            else {
-                if (!declaringClass.isMemberClass() || // top-level
-                    // Check for the enclosing instance parameter for
-                    // non-static member classes
-                    (declaringClass.isMemberClass() &&
-                     ((declaringClass.getModifiers() & Modifier.STATIC) == 0)  &&
-                     result.length + 1 != numParameters) ) {
-                    throw new AnnotationFormatError(
-                              "Parameter annotations don't match number of parameters");
-                }
+    @Override
+    boolean handleParameterNumberMismatch(int resultLength, int numParameters) {
+        Class<?> declaringClass = getDeclaringClass();
+        if (declaringClass.isEnum() ||
+            declaringClass.isAnonymousClass() ||
+            declaringClass.isLocalClass() )
+            return false; // Can't do reliable parameter counting
+        else {
+            if (declaringClass.isMemberClass() &&
+                ((declaringClass.getModifiers() & Modifier.STATIC) == 0)  &&
+                resultLength + 1 == numParameters) {
+                return true;
+            } else {
+                throw new AnnotationFormatError(
+                          "Parameter annotations don't match number of parameters");
             }
         }
-        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 1.8
+     */
+    @Override
+    public AnnotatedType getAnnotatedReturnType() {
+        return getAnnotatedReturnType0(getDeclaringClass());
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 1.8
+     */
+    @Override
+    public AnnotatedType getAnnotatedReceiverType() {
+        Class<?> thisDeclClass = getDeclaringClass();
+        Class<?> enclosingClass = thisDeclClass.getEnclosingClass();
+
+        if (enclosingClass == null) {
+            // A Constructor for a top-level class
+            return null;
+        }
+
+        Class<?> outerDeclaringClass = thisDeclClass.getDeclaringClass();
+        if (outerDeclaringClass == null) {
+            // A constructor for a local or anonymous class
+            return null;
+        }
+
+        // Either static nested or inner class
+        if (Modifier.isStatic(thisDeclClass.getModifiers())) {
+            // static nested
+            return null;
+        }
+
+        // A Constructor for an inner class
+        return TypeAnnotationParser.buildAnnotatedType(getTypeAnnotationBytes0(),
+                SharedSecrets.getJavaLangAccess().
+                    getConstantPool(thisDeclClass),
+                this,
+                thisDeclClass,
+                enclosingClass,
+                TypeAnnotation.TypeAnnotationTarget.METHOD_RECEIVER);
     }
 }

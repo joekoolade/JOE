@@ -32,7 +32,7 @@ import org.jam.board.pc.Platform;
 import org.jam.driver.net.NapiManager;
 import org.jam.driver.serial.PcBootSerialPort;
 import org.jam.driver.serial.SerialPortBaudRate;
-import org.jam.net.Dhcp;
+// import org.jam.net.Dhcp;
 import org.jam.runtime.RunMain;
 import org.jam.runtime.RunThread;
 import org.jam.runtime.RunThread2;
@@ -408,8 +408,8 @@ public class VM extends Properties {
 
     // properties are needed for java.io.File which calls the constructor of UnixFileSystem
 	runClassInitializer("sun.misc.Version");
-	runClassInitializer("sun.misc.VM");
-	runClassInitializer("sun.misc.SharedSecrets");
+	runClassInitializer("jdk.internal.misc.VM");
+	runClassInitializer("jdk.internal.misc.SharedSecrets");
 	runClassInitializer("java.io.Console");
 	runClassInitializer("java.util.concurrent.atomic.AtomicInteger");
 	runClassInitializer("java.io.JavaFileSystem");

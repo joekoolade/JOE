@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2005, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,12 +25,8 @@
 
 package java.lang.ref;
 
-import org.jikesrvm.classloader.Atom;
-import org.jikesrvm.classloader.RVMType;
-import org.jikesrvm.runtime.Magic;
-import org.jikesrvm.scheduler.LightMonitor;
-import org.vmmagic.pragma.Uninterruptible;
-import org.vmmagic.pragma.Unpreemptible;
+import java.util.function.Consumer;
+import jdk.internal.misc.VM;
 
 /**
  * Reference queues, to which registered reference objects are appended by the
@@ -42,75 +38,67 @@ import org.vmmagic.pragma.Unpreemptible;
 
 public class ReferenceQueue<T> {
 
-    private static final Atom finalReferenceDescriptor = Atom.findOrCreateAsciiAtom("Ljava/lang/ref/FinalReference;");
-
     /**
      * Constructs a new reference-object queue.
      */
     public ReferenceQueue() { }
 
-    private static class Null extends ReferenceQueue {
-        @Unpreemptible
-        @Override
-        boolean enqueue(Reference r) {
+    private static class Null extends ReferenceQueue<Object> {
+        boolean enqueue(Reference<?> r) {
             return false;
         }
-
-        @Override
-        @Uninterruptible
-        boolean enqueueInternal(Reference r) {
-          return false;
-        }
-
     }
 
-    static ReferenceQueue NULL = new Null();
-    static ReferenceQueue ENQUEUED = new Null();
+    static final ReferenceQueue<Object> NULL = new Null();
+    static final ReferenceQueue<Object> ENQUEUED = new Null();
 
-    static private class Lock { };
-    // was a Lock in original OpenJDK code
-    private LightMonitor lock = new LightMonitor();
-    private Reference<? extends T> head = null;
+    private static class Lock { };
+    private final Lock lock = new Lock();
+    private volatile Reference<? extends T> head;
     private long queueLength = 0;
 
-    // rewritten to use Jikes RVM locks
-    @Unpreemptible
     boolean enqueue(Reference<? extends T> r) { /* Called only by Reference class */
-      r.instanceLock.lockWithHandshake();
-      lock.lockWithHandshake();
-      boolean result = enqueueInternal(r);
-      lock.unlock();
-      r.instanceLock.unlock();
-      return result;
-    }
-
-    // added for Jikes RVM
-    @Uninterruptible
-    boolean enqueueInternal(Reference<? extends T> r) {
-      if (r.queue == ENQUEUED) {
-        return false;
-      }
-      r.queue = ENQUEUED;
-      r.next = (head == null) ? r : head;
-      head = r;
-      queueLength++;
-      RVMType objectType = Magic.getObjectType(r);
-      if (objectType.isClassType() && objectType.asClass().getDescriptor() == finalReferenceDescriptor) {
-          sun.misc.VM.addFinalRefCount(1);
-      }
-      lock.broadcast();
-      return true;
+        synchronized (lock) {
+            // Check that since getting the lock this reference hasn't already been
+            // enqueued (and even then removed)
+            ReferenceQueue<?> queue = r.queue;
+            if ((queue == NULL) || (queue == ENQUEUED)) {
+                return false;
+            }
+            assert queue == this;
+            // Self-loop end, so if a FinalReference it remains inactive.
+            r.next = (head == null) ? r : head;
+            head = r;
+            queueLength++;
+            // Update r.queue *after* adding to list, to avoid race
+            // with concurrent enqueued checks and fast-path poll().
+            // Volatiles ensure ordering.
+            r.queue = ENQUEUED;
+            if (r instanceof FinalReference) {
+                VM.addFinalRefCount(1);
+            }
+            lock.notifyAll();
+            return true;
+        }
     }
 
     private Reference<? extends T> reallyPoll() {       /* Must hold lock */
-        if (head != null) {
-            Reference<? extends T> r = head;
-            head = (r.next == r) ? null : r.next;
+        Reference<? extends T> r = head;
+        if (r != null) {
             r.queue = NULL;
+            // Update r.queue *before* removing from list, to avoid
+            // race with concurrent enqueued checks and fast-path
+            // poll().  Volatiles ensure ordering.
+            @SuppressWarnings("unchecked")
+            Reference<? extends T> rn = r.next;
+            // Handle self-looped next as end of list designator.
+            head = (rn == r) ? null : rn;
+            // Self-loop next rather than setting to null, so if a
+            // FinalReference it remains inactive.
             r.next = r;
             queueLength--;
             if (r instanceof FinalReference) {
-                sun.misc.VM.addFinalRefCount(-1);
+                VM.addFinalRefCount(-1);
             }
             return r;
         }
@@ -120,17 +108,17 @@ public class ReferenceQueue<T> {
     /**
      * Polls this queue to see if a reference object is available.  If one is
      * available without further delay then it is removed from the queue and
-     * returned.  Otherwise this method immediately returns <tt>null</tt>.
+     * returned.  Otherwise this method immediately returns {@code null}.
      *
      * @return  A reference object, if one was immediately available,
-     *          otherwise <code>null</code>
+     *          otherwise {@code null}
      */
-    // rewritten to use Jikes RVM locks
     public Reference<? extends T> poll() {
-        lock.lockWithHandshake();
-        Reference<? extends T> reallyPoll = reallyPoll();
-        lock.unlock();
-        return reallyPoll;
+        if (head == null)
+            return null;
+        synchronized (lock) {
+            return reallyPoll();
+        }
     }
 
     /**
@@ -140,12 +128,12 @@ public class ReferenceQueue<T> {
      * <p> This method does not offer real-time guarantees: It schedules the
      * timeout as if by invoking the {@link Object#wait(long)} method.
      *
-     * @param  timeout  If positive, block for up to <code>timeout</code>
+     * @param  timeout  If positive, block for up to {@code timeout}
      *                  milliseconds while waiting for a reference to be
      *                  added to this queue.  If zero, block indefinitely.
      *
      * @return  A reference object, if one was available within the specified
-     *          timeout period, otherwise <code>null</code>
+     *          timeout period, otherwise {@code null}
      *
      * @throws  IllegalArgumentException
      *          If the value of the timeout argument is negative
@@ -153,29 +141,26 @@ public class ReferenceQueue<T> {
      * @throws  InterruptedException
      *          If the timeout wait is interrupted
      */
-    // rewritten to use Jikes RVM locks
     public Reference<? extends T> remove(long timeout)
         throws IllegalArgumentException, InterruptedException
     {
         if (timeout < 0) {
             throw new IllegalArgumentException("Negative timeout value");
         }
-        lock.lockWithHandshake();
-        Reference<? extends T> r = reallyPoll();
-        if (r != null) {
-          lock.unlock();
-          return r;
-        }
-        for (;;) {
-            lock.wait(timeout);
-            r = reallyPoll();
-            if (r != null) {
-              lock.unlock();
-              return r;
-            }
-            if (timeout != 0) {
-              lock.unlock();
-              return null;
+        synchronized (lock) {
+            Reference<? extends T> r = reallyPoll();
+            if (r != null) return r;
+            long start = (timeout == 0) ? 0 : System.nanoTime();
+            for (;;) {
+                lock.wait(timeout);
+                r = reallyPoll();
+                if (r != null) return r;
+                if (timeout != 0) {
+                    long end = System.nanoTime();
+                    timeout -= (end - start) / 1000_000;
+                    if (timeout <= 0) return null;
+                    start = end;
+                }
             }
         }
     }
@@ -191,4 +176,32 @@ public class ReferenceQueue<T> {
         return remove(0);
     }
 
+    /**
+     * Iterate queue and invoke given action with each Reference.
+     * Suitable for diagnostic purposes.
+     * WARNING: any use of this method should make sure to not
+     * retain the referents of iterated references (in case of
+     * FinalReference(s)) so that their life is not prolonged more
+     * than necessary.
+     */
+    void forEach(Consumer<? super Reference<? extends T>> action) {
+        for (Reference<? extends T> r = head; r != null;) {
+            action.accept(r);
+            @SuppressWarnings("unchecked")
+            Reference<? extends T> rn = r.next;
+            if (rn == r) {
+                if (r.queue == ENQUEUED) {
+                    // still enqueued -> we reached end of chain
+                    r = null;
+                } else {
+                    // already dequeued: r.queue == NULL; ->
+                    // restart from head when overtaken by queue poller(s)
+                    r = head;
+                }
+            } else {
+                // next in chain
+                r = rn;
+            }
+        }
+    }
 }

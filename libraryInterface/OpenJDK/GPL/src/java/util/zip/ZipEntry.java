@@ -102,7 +102,6 @@ class ZipEntry implements ZipConstants, Cloneable {
         extra = fhentry.getExtra();
     }
 
-
     /**
      * Returns the name of the entry.
      * @return the name of the entry

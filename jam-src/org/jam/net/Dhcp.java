@@ -8,9 +8,9 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Random;
 
-import org.dhcp4java.DHCPConstants;
-import org.dhcp4java.DHCPOption;
-import org.dhcp4java.DHCPPacket;
+//import org.dhcp4java.DHCPConstants;
+//import org.dhcp4java.DHCPOption;
+//import org.dhcp4java.DHCPPacket;
 import org.jam.net.inet4.InetAddress;
 import org.jikesrvm.VM;
 

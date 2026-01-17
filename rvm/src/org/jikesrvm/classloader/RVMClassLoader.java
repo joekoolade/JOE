@@ -20,7 +20,6 @@ import java.security.ProtectionDomain;
 
 import org.jikesrvm.Properties;
 import org.jikesrvm.VM;
-import org.jikesrvm.classlibrary.JavaLangInstrument;
 
 /**
  * Manufacture type descriptions as needed by the running virtual machine.
@@ -368,23 +367,6 @@ public class RVMClassLoader {
 
   public static RVMType defineClassInternal(String className, byte[] classRep, int offset, int length,
       ClassLoader classloader, ProtectionDomain pd) throws ClassFormatError {
-    if (VM.BuildForOpenJDK && VM.runningVM && JavaLangInstrument.instrumentationReady()) {
-      try {
-        String classNameInternal = ClassNameHelpers.convertClassnameToInternalName(className);
-        byte[] res = (byte[]) JavaLangInstrument.getTransformMethod().invoke(JavaLangInstrument.getInstrumenter(), classloader, classNameInternal, null, pd, classRep, false);
-        if (res != null) {
-          classRep = res;
-        }
-      } catch (SecurityException e) {
-        ignoreExceptionOnNormalBuildsAndFailOnAssserionEnabledBuilds(e);
-      } catch (IllegalArgumentException e) {
-        ignoreExceptionOnNormalBuildsAndFailOnAssserionEnabledBuilds(e);
-      } catch (IllegalAccessException e) {
-        ignoreExceptionOnNormalBuildsAndFailOnAssserionEnabledBuilds(e);
-      } catch (InvocationTargetException e) {
-        ignoreExceptionOnNormalBuildsAndFailOnAssserionEnabledBuilds(e);
-      }
-    }
     return defineClassInternal(className, classRep, offset, length, classloader);
   }
 

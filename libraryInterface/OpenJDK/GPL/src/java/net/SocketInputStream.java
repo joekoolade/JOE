@@ -91,10 +91,32 @@ class SocketInputStream extends FileInputStream
      *          returned when the end of the stream is reached.
      * @exception IOException If an I/O error has occurred.
      */
-    private native int socketRead0(FileDescriptor fd,
+    private int socketRead0(FileDescriptor fd,
                                    byte b[], int off, int len,
                                    int timeout)
-        throws IOException;
+        throws IOException
+    {
+        return 0;
+    }
+
+    /**
+     * Reads into an array of bytes at the specified offset using
+     * the received socket primitive.
+     * @param fd the FileDescriptor
+     * @param b the buffer into which the data is read
+     * @param off the start offset of the data
+     * @param len the maximum number of bytes read
+     * @param timeout the read timeout in ms
+     * @return the actual number of bytes read, -1 is
+     *          returned when the end of the stream is reached.
+     * @exception IOException If an I/O error has occurred.
+     */
+    private int socketRead(FileDescriptor fd,
+                           byte b[], int off, int len,
+                           int timeout)
+        throws IOException {
+        return socketRead0(fd, b, off, len, timeout);
+    }
 
     /**
      * Reads into a byte array data from the socket.
@@ -112,12 +134,16 @@ class SocketInputStream extends FileInputStream
      * <i>length</i> bytes of data.
      * @param b the buffer into which the data is read
      * @param off the start offset of the data
-     * @param len the maximum number of bytes read
+     * @param length the maximum number of bytes read
      * @return the actual number of bytes read, -1 is
      *          returned when the end of the stream is reached.
      * @exception IOException If an I/O error has occurred.
      */
     public int read(byte b[], int off, int length) throws IOException {
+        return read(b, off, length, impl.getTimeout());
+    }
+
+    int read(byte b[], int off, int length, int timeout) throws IOException {
         int n;
 
         // EOF already encountered
@@ -139,37 +165,17 @@ class SocketInputStream extends FileInputStream
                     + " off == " + off + " buffer length == " + b.length);
         }
 
-        boolean gotReset = false;
-
         // acquire file descriptor and do the read
         FileDescriptor fd = impl.acquireFD();
         try {
-            n = socketRead0(fd, b, off, length, impl.getTimeout());
+            n = socketRead(fd, b, off, length, timeout);
             if (n > 0) {
                 return n;
             }
         } catch (ConnectionResetException rstExc) {
-            gotReset = true;
+            impl.setConnectionReset();
         } finally {
             impl.releaseFD();
-        }
-
-        /*
-         * We receive a "connection reset" but there may be bytes still
-         * buffered on the socket
-         */
-        if (gotReset) {
-            impl.setConnectionResetPending();
-            impl.acquireFD();
-            try {
-                n = socketRead0(fd, b, off, length, impl.getTimeout());
-                if (n > 0) {
-                    return n;
-                }
-            } catch (ConnectionResetException rstExc) {
-            } finally {
-                impl.releaseFD();
-            }
         }
 
         /*
@@ -178,9 +184,6 @@ class SocketInputStream extends FileInputStream
          */
         if (impl.isClosedOrPending()) {
             throw new SocketException("Socket closed");
-        }
-        if (impl.isConnectionResetPending()) {
-            impl.setConnectionReset();
         }
         if (impl.isConnectionReset()) {
             throw new SocketException("Connection reset");

@@ -1,6 +1,7 @@
 package java.io;
 
 import org.jam.fs.JavaFsDev;
+import java.io.ExpiringCache;
 
 public class JavaFileSystem extends FileSystem
 {

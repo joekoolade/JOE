@@ -12,7 +12,6 @@
  */
 package java.lang;
 
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
@@ -20,7 +19,6 @@ import java.security.ProtectionDomain;
 import org.jikesrvm.VM;
 import org.jikesrvm.classlibrary.ClassLibraryHelpers;
 import org.jikesrvm.classlibrary.ClassLoaderSupport;
-import org.jikesrvm.classlibrary.JavaLangInstrument;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMField;
 import org.jikesrvm.classloader.RVMType;
@@ -48,32 +46,6 @@ public class JikesRVMSupport {
    */
   public static void invokeFinalize(Object o)  throws Throwable {
     o.finalize();
-  }
-
-  public static Instrumentation createInstrumentation() throws Exception {
-    // FIXME OPENJDK/ICEDTEA initializeInstrumentation isn't implemented yet.
-    // OpenJDK 6 doesn't seem to provide any suitable hooks for implementation of instrumentation.
-    // The instrumentation in OpenJDK is done via native code which doesn't seem to be called automatically.
-    // That means we have to (re-)implement instrumentation ourselves and do it during classloading.
-    // Some relevant code in OpenJDK 6:
-    // JPLISAgent.c (openjdk/jdk/src/share/instrument)
-    // JPLISAgent.h (openjdk/jdk/src/share/instrument)
-    // sun.instrument.InstrumentationImpl (openjdk/jdk/src/share/classes/sun/instrument)
-    Class<?> instrumentationClass = Class.forName("sun.instrument.InstrumentationImpl");
-    Class[] constructorParameters = {long.class, boolean.class, boolean.class};
-    Constructor<?> constructor = instrumentationClass.getDeclaredConstructor(constructorParameters);
-    constructor.setAccessible(true);
-    Object[] parameter = {Long.valueOf(0L), Boolean.FALSE, Boolean.FALSE};
-    Instrumentation instrumenter = (Instrumentation)constructor.newInstance(parameter);
-    constructor.setAccessible(false);
-    Method m = instrumentationClass.getDeclaredMethod("transform", ClassLoader.class, String.class, Class.class, ProtectionDomain.class, byte[].class, boolean.class);
-    m.setAccessible(true);
-    JavaLangInstrument.setTransformMethod(m);
-    return instrumenter;
-  }
-
-  public static void initializeInstrumentation(Instrumentation instrumenter) {
-    JavaLangInstrument.setInstrumenter(instrumenter);
   }
 
   public static Class<?>[] getAllLoadedClasses() {
