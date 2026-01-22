@@ -1660,7 +1660,7 @@ Check to make sure all required properties are specified. This includes properti
     </javac>
   </target>
 
-  <target name="package" depends="bootstrap-unit-tests,compile-vmmagic,package-classpath,package-openjdk"/>
+  <target name="package" depends="compile-vmmagic,package-classpath,package-openjdk"/>
 
   <target name="package-openjdk" if="openjdk.classlib">
  <!--
@@ -1674,7 +1674,7 @@ Check to make sure all required properties are specified. This includes properti
       <include name="java/**"/>
       <include name="sun/**"/>
       <zipfileset dir="${build.classes}"/>
-      <zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}">
+      <zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}.jmod">
         <exclude name="apple/**"/>
         <exclude name="com/apple/**"/>
         <exclude name="java/awt/**"/>
@@ -1697,8 +1697,6 @@ Check to make sure all required properties are specified. This includes properti
         <exclude name="com/sun/org/glassfish/**"/>
         <exclude name="sun/swing/**"/>
       </zipfileset>
-      <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
-      <zipfileset src="${openjdk.lib.dir}/ext/sunjce_provider.jar"/>
     </zip>
     <jar destfile="${build.vm.jar}" update="true" compress="false">
       <fileset dir="${build.classes}">
@@ -1849,7 +1847,7 @@ Check to make sure all required properties are specified. This includes properti
     <replaceregexp file="${build.base}/Primordials.txt" match=".*#.*" replace="" byline="true"/>
   </target>
 
-  <target name="build-bootimage-writer" depends="gen-asm,package">
+  <target name="build-bootimage-writer" depends="package">
     <property name="build.bootimage-writer.dir" value="${build.base}/bootimage-writer"/>
     <mkdir dir="${build.bootimage-writer.dir}"/>
     <javac srcdir="${basedir}/tools/bootImageWriter/src" destdir="${build.bootimage-writer.dir}" debug="true"
@@ -1875,7 +1873,7 @@ Check to make sure all required properties are specified. This includes properti
           <zipfileset src="${build.rt.jar}">
             <include name="java/nio/**"/>
           </zipfileset>
-  				<zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}">
+  				<zipfileset src="${openjdk.lib.dir}/${openjdk.classes.jar}.jmod">
   	        <exclude name="apple/**"/>
   	        <exclude name="com/apple/**"/>
   	        <exclude name="java/awt/**"/>
@@ -1899,8 +1897,6 @@ Check to make sure all required properties are specified. This includes properti
   	        <exclude name="sun/swing/**"/>
   					<exclude name="java/nio/**"/>
   				</zipfileset>
-  	      <zipfileset src="${openjdk.lib.dir}/jsse.jar"/>
-  				<zipfileset src="${openjdk.lib.dir}/ext/sunjce_provider.jar"/>
   			</jar>
   		</sequential>
   	</if>

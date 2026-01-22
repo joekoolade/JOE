@@ -378,5 +378,10 @@ class IOUtil {
     static void initIDs()
     {
     }
+    
+    static void load()
+    {
+        
+    }
 
 }

@@ -147,63 +147,65 @@ public class FieldValues {
         // Populate String's cachedHashCode value
         BootImageWriter.bootImage().setFullWord(rvmFieldAddress, jdkObject.hashCode());
         return true;
-      } else if (jdkObject instanceof java.lang.reflect.Constructor)   {
-        Constructor<?> cons = (Constructor<?>)jdkObject;
-        if (rvmFieldName.equals("cons")) {
-          // fill in this RVMMethod field
-          String typeName = "L" + cons.getDeclaringClass().getName().replace('.','/') + ";";
-          RVMType type = TypeReference.findOrCreate(typeName).peekType();
-          if (type == null) {
-            throw new Error("Failed to find type for Constructor.constructor: " + cons + " " + typeName);
-          }
-          final RVMClass klass = type.asClass();
-          Class<?>[] consParams = cons.getParameterTypes();
-          RVMMethod constructor = null;
-          loop_over_all_constructors:
-          for (RVMMethod vmCons : klass.getConstructorMethods()) {
-            TypeReference[] vmConsParams = vmCons.getParameterTypes();
-            if (vmConsParams.length == consParams.length) {
-              for (int j = 0; j < vmConsParams.length; j++) {
-                if (!consParams[j].equals(vmConsParams[j].resolve().getClassForType())) {
-                  continue loop_over_all_constructors;
-                }
-              }
-              constructor = vmCons;
-              break;
-            }
-          }
-          if (constructor == null) {
-            throw new Error("Failed to populate Constructor.cons for " + cons);
-          }
-          if (BootImageWriter.verbosity().isAtLeast(DETAILED)) BootImageWriter.traceContext().push("VMConstructor",
-                                              "java.lang.Constructor",
-                                              "cons");
-          Object vmcons = java.lang.reflect.JikesRVMSupport.createVMConstructor(constructor);
-          Address imageAddress = BootImageMap.findOrCreateEntry(vmcons).imageAddress;
-          if (imageAddress.EQ(OBJECT_NOT_PRESENT)) {
-            // object not part of bootimage: install null reference
-            if (BootImageWriter.verbosity().isAtLeast(DETAILED)) BootImageWriter.traceContext().traceObjectNotInBootImage();
-            BootImageWriter.bootImage().setNullAddressWord(rvmFieldAddress, true, false, false);
-          } else if (imageAddress.EQ(OBJECT_NOT_ALLOCATED)) {
-            imageAddress = BootImageWriter.copyToBootImage(vmcons, false, Address.max(), jdkObject, false, AlignmentEncoding.ALIGN_CODE_NONE);
-            if (BootImageWriter.verbosity().isAtLeast(ADDRESSES)) BootImageWriter.traceContext().traceObjectFoundThroughKnown();
-            BootImageWriter.bootImage().setAddressWord(rvmFieldAddress, imageAddress.toWord(), true, false);
-          } else {
-            if (BootImageWriter.verbosity().isAtLeast(ADDRESSES)) BootImageWriter.traceContext().traceObjectFoundThroughKnown();
-            BootImageWriter.bootImage().setAddressWord(rvmFieldAddress, imageAddress.toWord(), true, false);
-          }
-          if (BootImageWriter.verbosity().isAtLeast(DETAILED)) BootImageWriter.traceContext().pop();
-          return true;
-        } else if (rvmFieldName.equals("flag")) {
-          // This field is inherited accesible flag is actually part of
-          // AccessibleObject
-          BootImageWriter.bootImage().setByte(rvmFieldAddress, cons.isAccessible() ? 1 : 0);
-          return true;
-        } else {
-          // Unknown Constructor field
-          return false;
-        }
-      } else if (jdkObject instanceof java.lang.ref.ReferenceQueue) {
+      } 
+//      else if (jdkObject instanceof java.lang.reflect.Constructor)   {
+//        Constructor<?> cons = (Constructor<?>)jdkObject;
+//        if (rvmFieldName.equals("cons")) {
+//          // fill in this RVMMethod field
+//          String typeName = "L" + cons.getDeclaringClass().getName().replace('.','/') + ";";
+//          RVMType type = TypeReference.findOrCreate(typeName).peekType();
+//          if (type == null) {
+//            throw new Error("Failed to find type for Constructor.constructor: " + cons + " " + typeName);
+//          }
+//          final RVMClass klass = type.asClass();
+//          Class<?>[] consParams = cons.getParameterTypes();
+//          RVMMethod constructor = null;
+//          loop_over_all_constructors:
+//          for (RVMMethod vmCons : klass.getConstructorMethods()) {
+//            TypeReference[] vmConsParams = vmCons.getParameterTypes();
+//            if (vmConsParams.length == consParams.length) {
+//              for (int j = 0; j < vmConsParams.length; j++) {
+//                if (!consParams[j].equals(vmConsParams[j].resolve().getClassForType())) {
+//                  continue loop_over_all_constructors;
+//                }
+//              }
+//              constructor = vmCons;
+//              break;
+//            }
+//          }
+//          if (constructor == null) {
+//            throw new Error("Failed to populate Constructor.cons for " + cons);
+//          }
+//          if (BootImageWriter.verbosity().isAtLeast(DETAILED)) BootImageWriter.traceContext().push("VMConstructor",
+//                                              "java.lang.Constructor",
+//                                              "cons");
+//          Object vmcons = java.lang.reflect.JikesRVMSupport.createVMConstructor(constructor);
+//          Address imageAddress = BootImageMap.findOrCreateEntry(vmcons).imageAddress;
+//          if (imageAddress.EQ(OBJECT_NOT_PRESENT)) {
+//            // object not part of bootimage: install null reference
+//            if (BootImageWriter.verbosity().isAtLeast(DETAILED)) BootImageWriter.traceContext().traceObjectNotInBootImage();
+//            BootImageWriter.bootImage().setNullAddressWord(rvmFieldAddress, true, false, false);
+//          } else if (imageAddress.EQ(OBJECT_NOT_ALLOCATED)) {
+//            imageAddress = BootImageWriter.copyToBootImage(vmcons, false, Address.max(), jdkObject, false, AlignmentEncoding.ALIGN_CODE_NONE);
+//            if (BootImageWriter.verbosity().isAtLeast(ADDRESSES)) BootImageWriter.traceContext().traceObjectFoundThroughKnown();
+//            BootImageWriter.bootImage().setAddressWord(rvmFieldAddress, imageAddress.toWord(), true, false);
+//          } else {
+//            if (BootImageWriter.verbosity().isAtLeast(ADDRESSES)) BootImageWriter.traceContext().traceObjectFoundThroughKnown();
+//            BootImageWriter.bootImage().setAddressWord(rvmFieldAddress, imageAddress.toWord(), true, false);
+//          }
+//          if (BootImageWriter.verbosity().isAtLeast(DETAILED)) BootImageWriter.traceContext().pop();
+//          return true;
+//        } else if (rvmFieldName.equals("flag")) {
+//          // This field is inherited accesible flag is actually part of
+//          // AccessibleObject
+//          BootImageWriter.bootImage().setByte(rvmFieldAddress, cons.isAccessible() ? 1 : 0);
+//          return true;
+//        } else {
+//          // Unknown Constructor field
+//          return false;
+//        }
+//      } 
+      else if (jdkObject instanceof java.lang.ref.ReferenceQueue) {
         if (rvmFieldName.equals("lock")) {
           VM.sysWriteln("writing the lock field.");
           Object value = new org.jikesrvm.scheduler.LightMonitor();

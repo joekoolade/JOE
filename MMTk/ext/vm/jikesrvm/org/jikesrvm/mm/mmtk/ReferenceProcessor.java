@@ -411,7 +411,7 @@ public final class ReferenceProcessor extends org.mmtk.vm.ReferenceProcessor {
    */
   public boolean enqueueReference(ObjectReference addr) {
     Reference<?> reference = (Reference<?>)addr.toObject();
-    return reference.enqueueInternal();
+    return reference.enqueue();
   }
 
   /**

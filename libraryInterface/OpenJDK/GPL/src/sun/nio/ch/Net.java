@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,16 +25,35 @@
 
 package sun.nio.ch;
 
-import java.io.*;
-import java.net.*;
-import java.nio.channels.*;
-import java.util.*;
+import java.io.FileDescriptor;
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.ProtocolFamily;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.SocketOption;
+import java.net.StandardProtocolFamily;
+import java.net.StandardSocketOptions;
+import java.net.UnknownHostException;
+import java.nio.channels.AlreadyBoundException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetBoundException;
+import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.UnresolvedAddressException;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
+import java.util.Enumeration;
 
+import sun.net.ext.ExtendedSocketOptions;
+import sun.net.util.IPAddressUtil;
+import sun.security.action.GetPropertyAction;
 
-class Net {                                             // package-private
+public class Net {
 
     private Net() { }
 
@@ -45,45 +64,18 @@ class Net {                                             // package-private
         }
     };
 
-    // Value of jdk.net.revealLocalAddress
-    private static boolean revealLocalAddress;
-
-    // True if jdk.net.revealLocalAddress had been read
-    private static volatile boolean propRevealLocalAddress;
-
     // set to true if exclusive binding is on for Windows
     private static final boolean exclusiveBind;
 
-    static {
-        int availLevel = isExclusiveBindAvailable();
-        if (availLevel >= 0) {
-            String exclBindProp = null;
-//                java.security.AccessController.doPrivileged(
-//                      new PrivilegedAction<String>() {
-//                          @Override
-//                        public String run() {
-//                            return System.getProperty(
-//                                    "sun.net.useExclusiveBind");
-//                        }
-//                    });
-//            if (exclBindProp != null) {
-//                exclusiveBind = exclBindProp.length() == 0 ?
-//                        true : Boolean.parseBoolean(exclBindProp);
-//            } else 
-            if (availLevel == 1) {
-                exclusiveBind = true;
-            } else {
-                exclusiveBind = false;
-            }
-        } else {
-            exclusiveBind = false;
-        }
-    }
+    // set to true if the fast tcp loopback should be enabled on Windows
+    private static final boolean fastLoopback;
 
     // -- Miscellaneous utilities --
 
-    private static volatile boolean checkedIPv6 = false;
+    private static volatile boolean checkedIPv6;
     private static volatile boolean isIPv6Available;
+    private static volatile boolean checkedReusePort;
+    private static volatile boolean isReusePortAvailable;
 
     /**
      * Tells whether dual-IPv4/IPv6 sockets should be used.
@@ -94,6 +86,17 @@ class Net {                                             // package-private
             checkedIPv6 = true;
         }
         return isIPv6Available;
+    }
+
+    /**
+     * Tells whether SO_REUSEPORT is supported.
+     */
+    static boolean isReusePortAvailable() {
+        if (!checkedReusePort) {
+            isReusePortAvailable = isReusePortAvailable0();
+            checkedReusePort = true;
+        }
+        return isReusePortAvailable;
     }
 
     /**
@@ -118,7 +121,7 @@ class Net {                                             // package-private
         return canJoin6WithIPv4Group0();
     }
 
-    static InetSocketAddress checkAddress(SocketAddress sa) {
+    public static InetSocketAddress checkAddress(SocketAddress sa) {
         if (sa == null)
             throw new NullPointerException();
         if (!(sa instanceof InetSocketAddress))
@@ -129,6 +132,16 @@ class Net {                                             // package-private
         InetAddress addr = isa.getAddress();
         if (!(addr instanceof Inet4Address || addr instanceof Inet6Address))
             throw new IllegalArgumentException("Invalid address type");
+        return isa;
+    }
+
+    static InetSocketAddress checkAddress(SocketAddress sa, ProtocolFamily family) {
+        InetSocketAddress isa = checkAddress(sa);
+        if (family == StandardProtocolFamily.INET) {
+            InetAddress addr = isa.getAddress();
+            if (!(addr instanceof Inet4Address))
+                throw new UnsupportedAddressTypeException();
+        }
         return isa;
     }
 
@@ -198,43 +211,19 @@ class Net {                                             // package-private
         if (addr == null || sm == null)
             return addr;
 
-        if (!getRevealLocalAddress()) {
+        try{
+            sm.checkConnect(addr.getAddress().getHostAddress(), -1);
+            // Security check passed
+        } catch (SecurityException e) {
             // Return loopback address only if security check fails
-            try{
-                sm.checkConnect(addr.getAddress().getHostAddress(), -1);
-                //Security check passed
-            } catch (SecurityException e) {
-                //Return loopback address
-                addr = getLoopbackAddress(addr.getPort());
-            }
+            addr = getLoopbackAddress(addr.getPort());
         }
         return addr;
     }
 
     static String getRevealedLocalAddressAsString(InetSocketAddress addr) {
-        if (!getRevealLocalAddress() && System.getSecurityManager() != null)
-            addr = getLoopbackAddress(addr.getPort());
-        return addr.toString();
-    }
-
-    private static boolean getRevealLocalAddress() {
-        if (!propRevealLocalAddress) {
-            try {
-                revealLocalAddress = Boolean.parseBoolean(
-                      AccessController.doPrivileged(
-                          new PrivilegedExceptionAction<String>() {
-                              public String run() {
-                                  return System.getProperty(
-                                      "jdk.net.revealLocalAddress");
-                              }
-                          }));
-
-            } catch (Exception e) {
-                // revealLocalAddress is false
-            }
-            propRevealLocalAddress = true;
-        }
-        return revealLocalAddress;
+        return System.getSecurityManager() == null ? addr.toString() :
+                getLoopbackAddress(addr.getPort()).toString();
     }
 
     private static InetSocketAddress getLoopbackAddress(int port) {
@@ -319,6 +308,9 @@ class Net {                                             // package-private
 
     // -- Socket options
 
+    static final ExtendedSocketOptions extendedOptions =
+            ExtendedSocketOptions.getInstance();
+
     static void setSocketOption(FileDescriptor fd, ProtocolFamily family,
                                 SocketOption<?> name, Object value)
         throws IOException
@@ -328,6 +320,12 @@ class Net {                                             // package-private
 
         // only simple values supported by this method
         Class<?> type = name.type();
+
+        if (extendedOptions.isOptionSupported(name)) {
+            extendedOptions.setOption(fd, name, value);
+            return;
+        }
+
         if (type != Integer.class && type != Boolean.class)
             throw new AssertionError("Should not reach here");
 
@@ -371,7 +369,8 @@ class Net {                                             // package-private
         }
 
         boolean mayNeedConversion = (family == UNSPEC);
-        setIntOption0(fd, mayNeedConversion, key.level(), key.name(), arg);
+        boolean isIPv6 = (family == StandardProtocolFamily.INET6);
+        setIntOption0(fd, mayNeedConversion, key.level(), key.name(), arg, isIPv6);
     }
 
     static Object getSocketOption(FileDescriptor fd, ProtocolFamily family,
@@ -379,6 +378,10 @@ class Net {                                             // package-private
         throws IOException
     {
         Class<?> type = name.type();
+
+        if (extendedOptions.isOptionSupported(name)) {
+            return extendedOptions.getOption(fd, name);
+        }
 
         // only simple values supported by this method
         if (type != Integer.class && type != Boolean.class)
@@ -399,31 +402,26 @@ class Net {                                             // package-private
         }
     }
 
+    public static boolean isFastTcpLoopbackRequested() {
+        String loopbackProp = GetPropertyAction
+                .privilegedGetProperty("jdk.net.useFastTcpLoopback", "false");
+        return loopbackProp.isEmpty() ? true : Boolean.parseBoolean(loopbackProp);
+    }
+
     // -- Socket operations --
 
-    private static boolean isIPv6Available0()
-    {
-        return false;
-    }
+    private static native boolean isIPv6Available0();
+
+    private static native boolean isReusePortAvailable0();
 
     /*
-     * Returns 1 for Windows versions that support exclusive binding by default, 0
-     * for those that do not, and -1 for Solaris/Linux/Mac OS
+     * Returns 1 for Windows and -1 for Solaris/Linux/Mac OS
      */
-    private static int isExclusiveBindAvailable()
-    {
-        return -1;
-    }
+    private static native int isExclusiveBindAvailable();
 
-    private static boolean canIPv6SocketJoinIPv4Group0()
-    {
-        return false;
-    }
+    private static native boolean canIPv6SocketJoinIPv4Group0();
 
-    private static boolean canJoin6WithIPv4Group0()
-    {
-        return false;
-    }
+    private static native boolean canJoin6WithIPv4Group0();
 
     static FileDescriptor socket(boolean stream) throws IOException {
         return socket(UNSPEC, stream);
@@ -433,20 +431,18 @@ class Net {                                             // package-private
         throws IOException {
         boolean preferIPv6 = isIPv6Available() &&
             (family != StandardProtocolFamily.INET);
-        return IOUtil.newFD(socket0(preferIPv6, stream, false));
+        return IOUtil.newFD(socket0(preferIPv6, stream, false, fastLoopback));
     }
 
     static FileDescriptor serverSocket(boolean stream) {
-        return IOUtil.newFD(socket0(isIPv6Available(), stream, true));
+        return IOUtil.newFD(socket0(isIPv6Available(), stream, true, fastLoopback));
     }
 
     // Due to oddities SO_REUSEADDR on windows reuse is ignored
-    private static int socket0(boolean preferIPv6, boolean stream, boolean reuse)
-    {
-        return -1;
-    }
+    private static native int socket0(boolean preferIPv6, boolean stream, boolean reuse,
+                                      boolean fastLoopback);
 
-    static void bind(FileDescriptor fd, InetAddress addr, int port)
+    public static void bind(FileDescriptor fd, InetAddress addr, int port)
         throws IOException
     {
         bind(UNSPEC, fd, addr, port);
@@ -457,22 +453,21 @@ class Net {                                             // package-private
     {
         boolean preferIPv6 = isIPv6Available() &&
             (family != StandardProtocolFamily.INET);
+        if (addr.isLinkLocalAddress()) {
+            addr = IPAddressUtil.toScopedAddress(addr);
+        }
         bind0(fd, preferIPv6, exclusiveBind, addr, port);
     }
 
-    private static void bind0(FileDescriptor fd, boolean preferIPv6,
+    private static native void bind0(FileDescriptor fd, boolean preferIPv6,
                                      boolean useExclBind, InetAddress addr,
                                      int port)
-    throws IOException
-    {
-    }
+        throws IOException;
 
-    static void listen(FileDescriptor fd, int backlog) throws IOException
-    {
-    }
+    static native void listen(FileDescriptor fd, int backlog) throws IOException;
 
     static int connect(FileDescriptor fd, InetAddress remote, int remotePort)
-    throws IOException
+        throws IOException
     {
         return connect(UNSPEC, fd, remote, remotePort);
     }
@@ -480,57 +475,44 @@ class Net {                                             // package-private
     static int connect(ProtocolFamily family, FileDescriptor fd, InetAddress remote, int remotePort)
         throws IOException
     {
+        if (remote.isLinkLocalAddress()) {
+            remote = IPAddressUtil.toScopedAddress(remote);
+        }
         boolean preferIPv6 = isIPv6Available() &&
             (family != StandardProtocolFamily.INET);
         return connect0(preferIPv6, fd, remote, remotePort);
     }
 
-    private static int connect0(boolean preferIPv6,
+    private static native int connect0(boolean preferIPv6,
                                        FileDescriptor fd,
                                        InetAddress remote,
                                        int remotePort)
-    throws IOException
-    {
-        return -1;
-    }
+        throws IOException;
 
 
-    public final static int SHUT_RD = 0;
-    public final static int SHUT_WR = 1;
-    public final static int SHUT_RDWR = 2;
+    public static final int SHUT_RD = 0;
+    public static final int SHUT_WR = 1;
+    public static final int SHUT_RDWR = 2;
 
-    static void shutdown(FileDescriptor fd, int how) throws IOException
-    {
-        
-    }
+    static native void shutdown(FileDescriptor fd, int how) throws IOException;
 
-    private static int localPort(FileDescriptor fd)
-    throws IOException
-    {
-        return 2048;
-    }
+    private static native int localPort(FileDescriptor fd)
+        throws IOException;
 
-    private static InetAddress localInetAddress(FileDescriptor fd)
-    throws IOException
-    {
-        return null;
-    }
+    private static native InetAddress localInetAddress(FileDescriptor fd)
+        throws IOException;
 
-    static InetSocketAddress localAddress(FileDescriptor fd)
+    public static InetSocketAddress localAddress(FileDescriptor fd)
         throws IOException
     {
         return new InetSocketAddress(localInetAddress(fd), localPort(fd));
     }
 
-    private static int remotePort(FileDescriptor fd) throws IOException
-    {
-        return 0;
-    }
+    private static native int remotePort(FileDescriptor fd)
+        throws IOException;
 
-    private static InetAddress remoteInetAddress(FileDescriptor fd) throws IOException
-    {
-        return null;
-    }
+    private static native InetAddress remoteInetAddress(FileDescriptor fd)
+        throws IOException;
 
     static InetSocketAddress remoteAddress(FileDescriptor fd)
         throws IOException
@@ -538,19 +520,16 @@ class Net {                                             // package-private
         return new InetSocketAddress(remoteInetAddress(fd), remotePort(fd));
     }
 
-    private static int getIntOption0(FileDescriptor fd, boolean mayNeedConversion,
+    private static native int getIntOption0(FileDescriptor fd, boolean mayNeedConversion,
                                             int level, int opt)
-    throws IOException
-    {
-        return 0;
-    }
+        throws IOException;
 
-    private static void setIntOption0(FileDescriptor fd, boolean mayNeedConversion,
-                                             int level, int opt, int arg)
-    throws IOException
-    {
-        
-    }
+    private static native void setIntOption0(FileDescriptor fd, boolean mayNeedConversion,
+                                             int level, int opt, int arg, boolean isIPv6)
+        throws IOException;
+
+    static native int poll(FileDescriptor fd, int events, long timeout)
+        throws IOException;
 
     // -- Multicast support --
 
@@ -573,11 +552,8 @@ class Net {                                             // package-private
         joinOrDrop4(false, fd, group, interf, source);
     }
 
-    private static int joinOrDrop4(boolean join, FileDescriptor fd, int group, int interf, int source)
-    throws IOException
-    {
-        return 0;
-    }
+    private static native int joinOrDrop4(boolean join, FileDescriptor fd, int group, int interf, int source)
+        throws IOException;
 
     /**
      * Block IPv4 source
@@ -597,12 +573,9 @@ class Net {                                             // package-private
         blockOrUnblock4(false, fd, group, interf, source);
     }
 
-    private static int blockOrUnblock4(boolean block, FileDescriptor fd, int group,
+    private static native int blockOrUnblock4(boolean block, FileDescriptor fd, int group,
                                               int interf, int source)
-    throws IOException
-    {
-        return 0;
-    }
+        throws IOException;
 
     /**
      * Join IPv6 multicast group
@@ -622,11 +595,8 @@ class Net {                                             // package-private
         joinOrDrop6(false, fd, group, index, source);
     }
 
-    private static int joinOrDrop6(boolean join, FileDescriptor fd, byte[] group, int index, byte[] source)
-    throws IOException
-    {
-        return 0;
-    }
+    private static native int joinOrDrop6(boolean join, FileDescriptor fd, byte[] group, int index, byte[] source)
+        throws IOException;
 
     /**
      * Block IPv6 source
@@ -646,35 +616,66 @@ class Net {                                             // package-private
         blockOrUnblock6(false, fd, group, index, source);
     }
 
-    static int blockOrUnblock6(boolean block, FileDescriptor fd, byte[] group, int index, byte[] source)
-    throws IOException
-    {
-        return 0;
+    static native int blockOrUnblock6(boolean block, FileDescriptor fd, byte[] group, int index, byte[] source)
+        throws IOException;
+
+    static native void setInterface4(FileDescriptor fd, int interf) throws IOException;
+
+    static native int getInterface4(FileDescriptor fd) throws IOException;
+
+    static native void setInterface6(FileDescriptor fd, int index) throws IOException;
+
+    static native int getInterface6(FileDescriptor fd) throws IOException;
+
+    private static native void initIDs();
+
+    /**
+     * Event masks for the various poll system calls.
+     * They will be set platform dependent in the static initializer below.
+     */
+    public static final short POLLIN;
+    public static final short POLLOUT;
+    public static final short POLLERR;
+    public static final short POLLHUP;
+    public static final short POLLNVAL;
+    public static final short POLLCONN;
+
+    static native short pollinValue();
+    static native short polloutValue();
+    static native short pollerrValue();
+    static native short pollhupValue();
+    static native short pollnvalValue();
+    static native short pollconnValue();
+
+    static {
+        IOUtil.load();
+        initIDs();
+
+        POLLIN     = pollinValue();
+        POLLOUT    = polloutValue();
+        POLLERR    = pollerrValue();
+        POLLHUP    = pollhupValue();
+        POLLNVAL   = pollnvalValue();
+        POLLCONN   = pollconnValue();
     }
 
-    static void setInterface4(FileDescriptor fd, int interf) throws IOException
-    {
-        
+    static {
+        int availLevel = isExclusiveBindAvailable();
+        if (availLevel >= 0) {
+            String exclBindProp = GetPropertyAction
+                    .privilegedGetProperty("sun.net.useExclusiveBind");
+            if (exclBindProp != null) {
+                exclusiveBind = exclBindProp.isEmpty() ?
+                        true : Boolean.parseBoolean(exclBindProp);
+            } else if (availLevel == 1) {
+                exclusiveBind = true;
+            } else {
+                exclusiveBind = false;
+            }
+        } else {
+            exclusiveBind = false;
+        }
+
+        fastLoopback = isFastTcpLoopbackRequested();
     }
-
-    static int getInterface4(FileDescriptor fd) throws IOException
-    {
-        return 0;
-    }
-
-    static void setInterface6(FileDescriptor fd, int index) throws IOException
-    {
-        
-    }
-
-    static int getInterface6(FileDescriptor fd) throws IOException
-    {
-        return 0;
-    }
-
-//    static {
-//        Util.load();
-//        initIDs();
-//    }
-
 }

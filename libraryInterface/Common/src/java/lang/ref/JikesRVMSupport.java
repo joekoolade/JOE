@@ -18,6 +18,6 @@ public class JikesRVMSupport {
   @SuppressWarnings("unchecked") // This method requires an unchecked cast
   @Uninterruptible
   public static <T> T uninterruptibleReferenceGet(Reference<T> ref) {
-    return (T)ref.getInternal();
+    return (T)ref.get();
   }
 }
