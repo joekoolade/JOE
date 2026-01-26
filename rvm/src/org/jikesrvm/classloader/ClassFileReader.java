@@ -61,6 +61,13 @@ public class ClassFileReader {
   public static final byte TAG_METHODREF = 10;
   public static final byte TAG_INTERFACE_METHODREF = 11;
   public static final byte TAG_MEMBERNAME_AND_DESCRIPTOR = 12;
+  public static final byte TAG_METHOD_HANDLE = 15;
+  public static final byte TAG_METHOD_TYPE = 16;
+  public static final byte TAG_DYNAMIC = 17;
+  public static final byte TAG_INVOKE_DYNAMIC = 18;
+  public static final byte TAG_MODULE = 19;
+  public static final byte TAG_PACKAGE = 20;
+  
 
   private InputStream inputStream;
   private LoggingInputStream loggingStream;
@@ -96,6 +103,9 @@ public class ClassFileReader {
       case 50:
       case 51:
       case 52:
+      case 53:
+      case 54:
+      case 55:
         break;
 //      case 50: // we only support up to 50.0 (ie Java 1.6.0)
 //        if (minor == 0) break;
@@ -174,6 +184,35 @@ public class ClassFileReader {
           break;
         }
 
+        case TAG_METHOD_HANDLE:
+        {
+            int refKind = input.readUnsignedByte();
+            int descIndex = input.readUnsignedShort();
+            constantPool[i] = ConstantPool.packTempCPEntry(refKind, descIndex);
+            break;
+        }
+        
+        case TAG_METHOD_TYPE:
+        {
+            constantPool[i] = input.readUnsignedShort();
+            break;
+        }
+        
+        case TAG_INVOKE_DYNAMIC:
+        case TAG_DYNAMIC:
+        {
+            int bootstrapMethodIndex = input.readUnsignedShort();
+            int nameTypeIndex = input.readUnsignedShort();
+            constantPool[i] = ConstantPool.packTempCPEntry(bootstrapMethodIndex, nameTypeIndex);
+            break;
+        }
+        
+        case TAG_MODULE:
+        case TAG_PACKAGE:
+        {
+            constantPool[i] = input.readUnsignedShort();
+            break;
+        }
         default:
             
           throw new ClassFormatError("bad constant pool tag "+ tmpTags[i]);

@@ -25,17 +25,16 @@
 
 package sun.nio.ch;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.ProtocolFamily;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.Pipe;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.AbstractSelector;
-import java.nio.channels.spi.SelectorProvider;
+import java.nio.channels.*;
+import java.nio.channels.spi.*;
 
 
-public class SelectorProviderImpl
+public abstract class SelectorProviderImpl
     extends SelectorProvider
 {
 
@@ -51,9 +50,7 @@ public class SelectorProviderImpl
         return new PipeImpl(this);
     }
 
-    public AbstractSelector openSelector() throws IOException {
-        return new SelectorImpl(this);
-    }
+    public abstract AbstractSelector openSelector() throws IOException;
 
     public ServerSocketChannel openServerSocketChannel() throws IOException {
         return new ServerSocketChannelImpl(this);

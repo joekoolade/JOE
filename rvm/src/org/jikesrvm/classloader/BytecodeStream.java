@@ -155,6 +155,7 @@ public class BytecodeStream {
       bcIndex += len;
     } else {
       skipSpecialInstruction(opcode);
+      VM.sysWriteln("Unknown byte code ",opcode);
     }
   }
 

@@ -1437,7 +1437,7 @@ Check to make sure all required properties are specified. This includes properti
 <!-- <compilerarg value="-verbose"/>  -->
         	<compilerarg value="-Xdiags:verbose"/>
           <compilerarg value="--patch-module" />
-          <compilerarg value="java.base=${classlib.library-interface.common.java}:${build.vmmagic-stub.classes}:${build.options.classes}:${mmtk.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:" />
+          <compilerarg value="java.base=${classlib.library-interface.common.java}:${build.vmmagic-stub.classes}:${build.options.classes}:${mmtk.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${jam.java}:${main.java}" />
           <compilerarg value="--add-exports" />
           <compilerarg value="java.base/jdk.internal.module=ALL-UNNAMED" />
         	<compilerarg value="--add-exports" />
@@ -1965,7 +1965,9 @@ Check to make sure all required properties are specified. This includes properti
 <!--
       <jvmarg value="-verbose:class"/>
       <jvmarg value="-verbose:module"/>
-      -->
+-->
+      <jvmarg value="--patch-module" />
+      <jvmarg value="java.base=${build.base}/classes" />
       <arg value="-log"/>
       <arg path="${build.base}/BootImageWriterOutput.txt"/>
       <arg value="-classpath"/>
@@ -1987,6 +1989,7 @@ Check to make sure all required properties are specified. This includes properti
       <!-- <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
+    	<jvmarg value="-Xlog:class+load=info"/>
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
       <arg value="${target.bootimage.data.address}"/>
       <arg value="-ca"/>

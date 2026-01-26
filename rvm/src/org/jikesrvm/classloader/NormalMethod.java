@@ -546,7 +546,8 @@ public final class NormalMethod extends RVMMethod {
 
     BytecodeStream bcodes = getBytecodes();
     while (bcodes.hasMoreBytecodes()) {
-      switch (bcodes.nextInstruction()) {
+      int oc = bcodes.nextInstruction();
+      switch (oc) {
         // Array loads: null check, bounds check, index computation, load
         case JBC_iaload:
         case JBC_laload:
@@ -745,7 +746,8 @@ public final class NormalMethod extends RVMMethod {
           break;
 
         case JBC_invokedynamic:
-          if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
+          summaryFlags |= HAS_INVOKE;
+          calleeSize += CALL_COST;
           break;
 
         case JBC_new:
@@ -779,6 +781,9 @@ public final class NormalMethod extends RVMMethod {
           summaryFlags |= HAS_ALLOCATION;
           calleeSize += CALL_COST;
           break;
+        default:
+            VM.sysWriteln("Unknown byte code ",oc);
+
       }
       bcodes.skipInstruction();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,23 +25,18 @@
 
 package sun.nio.ch;
 
-import java.nio.channels.spi.SelectorProvider;
+import java.io.IOException;
+import java.nio.channels.*;
+import java.nio.channels.spi.*;
 
-/**
- * Creates this platform's default SelectorProvider
- */
+public class EPollSelectorProvider
+    extends SelectorProviderImpl
+{
+    public AbstractSelector openSelector() throws IOException {
+        return new EPollSelectorImpl(this);
+    }
 
-public class DefaultSelectorProvider {
-
-    /**
-     * Prevent instantiation.
-     */
-    private DefaultSelectorProvider() { }
-
-    /**
-     * Returns the default SelectorProvider.
-     */
-    public static SelectorProvider create() {
-        return new EPollSelectorProvider();
+    public Channel inheritedChannel() throws IOException {
+        return InheritedChannel.getChannel();
     }
 }

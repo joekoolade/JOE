@@ -438,7 +438,7 @@ public final class BytecodeConstants {
                        3, // invokespecial
                        3, // invokestatic
                        5, // invokeinterface
-                       -2, // invokedynamic
+                       5, // invokedynamic
                        3, // new
                        2, // newarray
                        3, // anewarray
