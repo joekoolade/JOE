@@ -553,7 +553,6 @@ public class VM extends Properties {
     if (VM.BuildForOpenJDK) {
       ClassLoader appCl = RVMClassLoader.getApplicationClassLoader();
       Magic.setObjectAtOffset(Magic.getJTOC().toObjectReference().toObject(), Entrypoints.scl_Field.getOffset(), appCl);
-      Magic.setBooleanAtOffset(Magic.getJTOC().toObjectReference().toObject(), Entrypoints.sclSet_Field.getOffset(), true);
       if (VM.VerifyAssertions) VM._assert(ClassLoader.getSystemClassLoader() == appCl);
     }
     
