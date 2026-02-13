@@ -26,6 +26,10 @@
 package java.lang.ref;
 
 import jdk.internal.vm.annotation.ForceInline;
+
+import org.jikesrvm.runtime.Magic;
+import org.vmmagic.unboxed.Address;
+
 import jdk.internal.HotSpotIntrinsicCandidate;
 import jdk.internal.misc.JavaLangRefAccess;
 import jdk.internal.misc.SharedSecrets;
@@ -149,7 +153,8 @@ public abstract class Reference<T> {
      */
 
     private T referent;         /* Treated specially by GC */
-
+    Address _referent;
+    
     /* The queue this reference gets enqueued to by GC notification or by
      * calling enqueue().
      *
@@ -342,6 +347,7 @@ public abstract class Reference<T> {
      */
     public void clear() {
         this.referent = null;
+        this._referent = Magic.objectAsAddress(referent);
     }
 
     /* -- Queue operations -- */
@@ -372,6 +378,7 @@ public abstract class Reference<T> {
      */
     public boolean enqueue() {
         this.referent = null;
+        _referent = Magic.objectAsAddress(referent);
         return this.queue.enqueue(this);
     }
 
@@ -397,6 +404,7 @@ public abstract class Reference<T> {
 
     Reference(T referent, ReferenceQueue<? super T> queue) {
         this.referent = referent;
+        _referent = Magic.objectAsAddress(referent);
         this.queue = (queue == null) ? ReferenceQueue.NULL : queue;
     }
 
