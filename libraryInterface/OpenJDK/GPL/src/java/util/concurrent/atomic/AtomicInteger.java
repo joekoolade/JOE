@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent.atomic;
+import org.jikesrvm.VM;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMField;
 
@@ -60,11 +61,11 @@ public class AtomicInteger extends Number implements java.io.Serializable {
     private static final long valueOffset;
 
     static {
-      try {
-          RVMClass cls = java.lang.JikesRVMSupport.getTypeForClass(AtomicInteger.class).asClass();
-          RVMField valueField = java.lang.reflect.JikesRVMHelpers.findFieldByName(cls, "value");
-          valueOffset = valueField.getOffset().toLong();
-      } catch (Exception ex) { throw new Error(ex); }
+//      try {
+//          RVMClass cls = java.lang.JikesRVMSupport.getTypeForClass(AtomicInteger.class).asClass();
+//          RVMField valueField = java.lang.reflect.JikesRVMHelpers.findFieldByName(cls, "value");
+          valueOffset = 0; //valueField.getOffset().toLong();
+//      } catch (Exception ex) { throw new Error(ex); }
     }
 
     private volatile int value;

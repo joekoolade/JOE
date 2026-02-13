@@ -31,6 +31,7 @@ import java.lang.ref.SoftReference;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamField;
+import java.io.UTFDataFormatException;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
@@ -61,7 +62,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import org.jikesrvm.classlibrary.JavaLangSupport;
+import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.RVMType;
+import org.jikesrvm.classloader.TypeReference;
+import org.jikesrvm.runtime.Callbacks;
 
 //import jdk.internal.HotSpotIntrinsicCandidate;
 import jdk.internal.loader.BootLoader;
@@ -412,12 +417,48 @@ public final class Class<T> implements java.io.Serializable,
         return forName0(name, initialize, loader, caller);
     }
 
-    /** Called after security check for system loader access checks have been made. */
-    private static native Class<?> forName0(String name, boolean initialize,
+    /** Called after security check for system loader access checks have been made. 
+     * @throws ClassNotFoundException */
+    private static Class<?> forName0(String name, boolean initialize,
                                             ClassLoader loader,
-                                            Class<?> caller)
-        throws ClassNotFoundException;
+                                            Class<?> caller) 
+    throws ClassNotFoundException
+    {
+      if (name == null)
+      {
+        throw new NullPointerException("Name parameter must not be null (but was)!");
+      }
 
+      try
+      {
+        if (name.startsWith("["))
+        {
+          if (!JavaLangSupport.validArrayDescriptor(name))
+          {
+            throw new ClassNotFoundException(name);
+          }
+        }
+        Atom descriptor = Atom.findOrCreateAsciiAtom(name.replace('.', '/')).descriptorFromClassName();
+        TypeReference tRef = TypeReference.findOrCreate(loader, descriptor);
+        RVMType ans = tRef.resolve();
+        Callbacks.notifyForName(ans);
+        if (initialize && !ans.isInitialized())
+        {
+          ans.prepareForFirstUse();
+        }
+        return ans.getClassForType();
+      } catch (NoClassDefFoundError ncdfe)
+      {
+        Throwable cause2 = ncdfe.getCause();
+        ClassNotFoundException cnf;
+        // If we get a NCDFE that was caused by a CNFE, throw the original CNFE.
+        if (cause2 instanceof ClassNotFoundException)
+          cnf = (ClassNotFoundException) cause2;
+        else
+          cnf = new ClassNotFoundException(name, ncdfe);
+        throw cnf;
+      }
+    }
 
     /**
      * Returns the {@code Class} with the given <a href="ClassLoader.html#name">
@@ -687,7 +728,10 @@ public final class Class<T> implements java.io.Serializable,
      * @since   1.1
      */
 //    @HotSpotIntrinsicCandidate
-    public native boolean isArray();
+    public boolean isArray()
+    {
+        return java.lang.JikesRVMSupport.getTypeForClass((Class<?>) (Object) this).isArrayType();        
+    }
 
 
     /**
@@ -810,7 +854,18 @@ public final class Class<T> implements java.io.Serializable,
     // Cache the name to reduce the number of calls into the VM.
     // This field would be set by VM itself during initClassName call.
     private transient String name;
-    private native String initClassName();
+    private String initClassName()
+    {
+        try
+        {
+            return type.getTypeRef().getName().toUnicodeString();
+        } catch (UTFDataFormatException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * Returns the class loader for the class.  Some implementations may use
@@ -3500,7 +3555,10 @@ public final class Class<T> implements java.io.Serializable,
     }
 
     // Retrieves the desired assertion status of this class from the VM
-    private static native boolean desiredAssertionStatus0(Class<?> clazz);
+    private static boolean desiredAssertionStatus0(Class<?> clazz)
+    {
+        return false;
+    }
 
     /**
      * Returns true if and only if this class was declared as an enum in the

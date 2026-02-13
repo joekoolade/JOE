@@ -51,7 +51,8 @@
   <property name="vmmagic.java" location="tools/bootImageWriter/vmmagic/src"/>
   <property name="jam.java" location="jam-src" />
   <property name="ext.classes" location="ext/bin"/>
-
+  <property name="openjdk.java.base" location="${openjdk.lib.dir}/${openjdk.classes.jar}.jmod"/>
+	
 	<fail unless="config.name">
   	config.name property not specified. Please specify property on commandline or in ${jikesrvm.dir}/.ant.properties.
   </fail>
@@ -1437,11 +1438,13 @@ Check to make sure all required properties are specified. This includes properti
 <!-- <compilerarg value="-verbose"/>  -->
         	<compilerarg value="-Xdiags:verbose"/>
           <compilerarg value="--patch-module" />
-          <compilerarg value="java.base=${classlib.library-interface.common.java}:${build.vmmagic-stub.classes}:${build.options.classes}:${mmtk.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${jam.java}:${main.java}" />
+          <compilerarg value="java.base=${main.java}:${classlib.library-interface.common.java}:${build.vmmagic-stub.classes}:${build.options.classes}:${mmtk.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${jam.java}" />
           <compilerarg value="--add-exports" />
           <compilerarg value="java.base/jdk.internal.module=ALL-UNNAMED" />
         	<compilerarg value="--add-exports" />
         	<compilerarg value="java.base/jdk.internal=ALL-UNNAMED" />
+          <compilerarg value="--add-exports" />
+          <compilerarg value="java.base/org.vmmagic.pragma=ALL-UNNAMED" />
           <include name="Dummy.java"/>
           <include name="OptDummy.java"/>
           <include name="org/jikesrvm/**/*.java"/>
@@ -1824,9 +1827,9 @@ Check to make sure all required properties are specified. This includes properti
       </conditions>
       <sequential>
         <concat destfile="${build.base}/Primordials.txt">
-          <filelist dir="${build.base}" files="ClassesForImage.txt"/>
           <filelist dir="${primordials.dir}"
                     files="ClassLibrary_Throwables.txt,Classpath-0.${classpath.version}.txt,RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
+          <filelist dir="${build.base}" files="ClassesForImage.txt"/>
         </concat>
       </sequential>
     </if>
@@ -1837,9 +1840,9 @@ Check to make sure all required properties are specified. This includes properti
       </conditions>
       <sequential>
 		<concat destfile="${build.base}/Primordials.txt">
+      <filelist dir="${primordials.dir}"
+                  files="ClassLibrary_Throwables.txt,${primordials.openjdk},RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
 	  	<filelist dir="${build.base}" files="ClassesForImage.txt"/>
-        <filelist dir="${primordials.dir}"
-                    files="ClassLibrary_Throwables.txt,${primordials.openjdk},RVM.txt${primordials.opt}${primordials.aos}${primordials.arch}"/>
         </concat>
       </sequential>
     </if>
@@ -1961,17 +1964,17 @@ Check to make sure all required properties are specified. This includes properti
       <sysproperty key="mmtk.hostjvm" value="org.jikesrvm.mm.mmtk.Factory"/>
       <sysproperty key="mmtk.properties" value="${mmtk.properties}"/>
       <sysproperty key="rvm.properties" value="${build.base}/rvm.properties"/>
-      <jvmarg value="-Xbootclasspath/a:${rvm.class.path}:ext/bin"/>
 <!--
+      <jvmarg value="-Xbootclasspath/a:${rvm.class.path}:ext/bin"/>
+-->
       <jvmarg value="-verbose:class"/>
+<!--
       <jvmarg value="-verbose:module"/>
 -->
-      <jvmarg value="--patch-module" />
-      <jvmarg value="java.base=${build.base}/classes" />
       <arg value="-log"/>
       <arg path="${build.base}/BootImageWriterOutput.txt"/>
       <arg value="-classpath"/>
-      <arg path="${rvm.class.path}:${build.base}/ext/bin"/>
+      <arg path="${rvm.class.path}:${openjdk.java.base}:${build.base}/ext/bin"/>
       <arg value="-n"/>
       <arg path="${build.base}/Primordials.txt"/>
       <arg value="-oc"/>
@@ -1989,14 +1992,17 @@ Check to make sure all required properties are specified. This includes properti
       <!-- <arg value="-detailed"/> -->
       <!-- <arg value="-X:bc:verbose=true"/> -->
       <!-- <arg value="-X:bc:mc=true"/> -->
-    	<jvmarg value="-Xlog:class+load=info"/>
+    	<jvmarg value="-Xlog:load=debug"/>
       <arg line="${config.bootimage.compiler.args} ${endian_opt} -da"/>
       <arg value="${target.bootimage.data.address}"/>
       <arg value="-ca"/>
       <arg value="${target.bootimage.code.address}"/>
       <arg value="-ra"/>
       <arg value="${target.bootimage.rmap.address}"/>
+<!--
       <arg value="-numThreads=${bootimage.threads}"/>
+-->
+      <arg value="-numThreads=1"/>
       <arg value="-classlib"/>
       <arg value="${bootimage.classlib}"/>
       <arg value="-jam"/>

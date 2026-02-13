@@ -60,6 +60,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jikesrvm.classlibrary.ClassLoaderSupport;
+import org.jikesrvm.classloader.BootstrapClassLoader;
+
 import jdk.internal.loader.BuiltinClassLoader;
 import jdk.internal.perf.PerfCounter;
 import jdk.internal.loader.BootLoader;
@@ -1012,7 +1015,7 @@ public abstract class ClassLoader {
     {
         protectionDomain = preDefineClass(name, protectionDomain);
         String source = defineClassSourceLocation(protectionDomain);
-        Class<?> c = defineClass1(this, name, b, off, len, protectionDomain, source);
+        Class<?> c = defineClass1(name, b, off, len, protectionDomain, source);
         postDefineClass(c, protectionDomain);
         return c;
     }
@@ -1109,18 +1112,42 @@ public abstract class ClassLoader {
         return c;
     }
 
-    static native Class<?> defineClass1(ClassLoader loader, String name, byte[] b, int off, int len,
-                                        ProtectionDomain pd, String source);
+    private Class defineClass0(String name, byte[] b, int off, int len,
+                                      ProtectionDomain pd)
+    {
+        return ClassLoaderSupport.defineClass(this, name, b, off, len, pd);
+    }
 
-    static native Class<?> defineClass2(ClassLoader loader, String name, java.nio.ByteBuffer b,
+    private Class defineClass1(String name, byte[] b, int off, int len, ProtectionDomain pd, String source)
+    {
+        // TODO OPENJDK/ICEDTEA do we need to do something with source? Seems to be the
+        // location property
+        // from CodeSource
+        return ClassLoaderSupport.defineClass(this, name, b, off, len, pd);
+    }
+
+    static Class<?> defineClass2(ClassLoader loader, String name, java.nio.ByteBuffer b,
                                         int off, int len, ProtectionDomain pd,
-                                        String source);
+                                        String source)
+    {
+        
+        return ClassLoaderSupport.defineClass(loader, name, b.array(), off, len, pd);
+    }
+
+    static Class<?> defineClass3(ClassLoader loader, String name, byte[] b, int off, int len, ProtectionDomain pd, String source)
+    {
+        // TODO OPENJDK/ICEDTEA do we need to do something with source? Seems to be the
+        // location property
+        // from CodeSource
+        return ClassLoaderSupport.defineClass(loader, name, b, off, len, pd);
+    }
 
     // true if the name is null or has the potential to be a valid binary name
     private boolean checkName(String name) {
         if ((name == null) || (name.isEmpty()))
             return true;
-        if ((name.indexOf('/') != -1) || (name.charAt(0) == '['))
+        if ((name.indexOf('/') != -1)
+            || (name.charAt(0) == '['))
             return false;
         return true;
     }
@@ -1250,14 +1277,24 @@ public abstract class ClassLoader {
      * Returns a class loaded by the bootstrap class loader;
      * or return null if not found.
      */
-    Class<?> findBootstrapClassOrNull(String name) {
+    Class<?> findBootstrapClassOrNull(String name)  throws ClassNotFoundException {
         if (!checkName(name)) return null;
 
         return findBootstrapClass(name);
     }
 
-    // return null if not found
-    private native Class<?> findBootstrapClass(String name);
+    private Class<?> findBootstrapClass(String name) throws ClassNotFoundException 
+    {
+        if (name.startsWith("L") && name.endsWith(";")) {
+          name = name.substring(1, name.length() - 2);
+        }
+        BootstrapClassLoader bootstrapCL = BootstrapClassLoader.getBootstrapClassLoader();
+        Class<?> loadedBootstrapClass = bootstrapCL.findLoadedBootstrapClass(name);
+        if (loadedBootstrapClass != null) {
+          return loadedBootstrapClass;
+        }
+        return bootstrapCL.findClass(name);
+    }
 
     /**
      * Returns the class with the given <a href="#binary-name">binary name</a> if this
@@ -1279,7 +1316,10 @@ public abstract class ClassLoader {
         return findLoadedClass0(name);
     }
 
-    private final native Class<?> findLoadedClass0(String name);
+    private  Class<?> findLoadedClass0(String name) 
+    {
+        return ClassLoaderSupport.findLoadedClass(this, name);
+    }
 
     /**
      * Sets the signers of a class.  This should be invoked after defining a
@@ -2000,8 +2040,6 @@ public abstract class ClassLoader {
      * @see java.lang.System#initPhase1
      */
     static void initLibraryPaths() {
-        usr_paths = initializePath("java.library.path");
-        sys_paths = initializePath("sun.boot.library.path");
     }
 
     // Returns true if the specified class loader can be found in this class
@@ -2393,110 +2431,10 @@ public abstract class ClassLoader {
     private static String usr_paths[];
     private static String sys_paths[];
 
-    private static String[] initializePath(String propName) {
-        String ldPath = System.getProperty(propName, "");
-        int ldLen = ldPath.length();
-        char ps = File.pathSeparatorChar;
-        int psCount = 0;
-
-        if (ClassLoaderHelper.allowsQuotedPathElements &&
-            ldPath.indexOf('\"') >= 0) {
-            // First, remove quotes put around quoted parts of paths.
-            // Second, use a quotation mark as a new path separator.
-            // This will preserve any quoted old path separators.
-            char[] buf = new char[ldLen];
-            int bufLen = 0;
-            for (int i = 0; i < ldLen; ++i) {
-                char ch = ldPath.charAt(i);
-                if (ch == '\"') {
-                    while (++i < ldLen &&
-                        (ch = ldPath.charAt(i)) != '\"') {
-                        buf[bufLen++] = ch;
-                    }
-                } else {
-                    if (ch == ps) {
-                        psCount++;
-                        ch = '\"';
-                    }
-                    buf[bufLen++] = ch;
-                }
-            }
-            ldPath = new String(buf, 0, bufLen);
-            ldLen = bufLen;
-            ps = '\"';
-        } else {
-            for (int i = ldPath.indexOf(ps); i >= 0;
-                 i = ldPath.indexOf(ps, i + 1)) {
-                psCount++;
-            }
-        }
-
-        String[] paths = new String[psCount + 1];
-        int pathStart = 0;
-        for (int j = 0; j < psCount; ++j) {
-            int pathEnd = ldPath.indexOf(ps, pathStart);
-            paths[j] = (pathStart < pathEnd) ?
-                ldPath.substring(pathStart, pathEnd) : ".";
-            pathStart = pathEnd + 1;
-        }
-        paths[psCount] = (pathStart < ldLen) ?
-            ldPath.substring(pathStart, ldLen) : ".";
-        return paths;
-    }
-
     // Invoked in the java.lang.Runtime class to implement load and loadLibrary.
     static void loadLibrary(Class<?> fromClass, String name,
                             boolean isAbsolute) {
-        ClassLoader loader =
-            (fromClass == null) ? null : fromClass.getClassLoader();
-        assert sys_paths != null : "should be initialized at this point";
-        assert usr_paths != null : "should be initialized at this point";
-
-        if (isAbsolute) {
-            if (loadLibrary0(fromClass, new File(name))) {
-                return;
-            }
-            throw new UnsatisfiedLinkError("Can't load library: " + name);
-        }
-        if (loader != null) {
-            String libfilename = loader.findLibrary(name);
-            if (libfilename != null) {
-                File libfile = new File(libfilename);
-                if (!libfile.isAbsolute()) {
-                    throw new UnsatisfiedLinkError(
-                        "ClassLoader.findLibrary failed to return an absolute path: " + libfilename);
-                }
-                if (loadLibrary0(fromClass, libfile)) {
-                    return;
-                }
-                throw new UnsatisfiedLinkError("Can't load " + libfilename);
-            }
-        }
-        for (String sys_path : sys_paths) {
-            File libfile = new File(sys_path, System.mapLibraryName(name));
-            if (loadLibrary0(fromClass, libfile)) {
-                return;
-            }
-            libfile = ClassLoaderHelper.mapAlternativeName(libfile);
-            if (libfile != null && loadLibrary0(fromClass, libfile)) {
-                return;
-            }
-        }
-        if (loader != null) {
-            for (String usr_path : usr_paths) {
-                File libfile = new File(usr_path, System.mapLibraryName(name));
-                if (loadLibrary0(fromClass, libfile)) {
-                    return;
-                }
-                libfile = ClassLoaderHelper.mapAlternativeName(libfile);
-                if (libfile != null && loadLibrary0(fromClass, libfile)) {
-                    return;
-                }
-            }
-        }
-        // Oops, it failed
-        throw new UnsatisfiedLinkError("no " + name +
-            " in java.library.path: " + Arrays.toString(usr_paths));
+        return;
     }
 
     private static String findBuiltinLib(String name)
@@ -2505,28 +2443,6 @@ public abstract class ClassLoader {
     }
 
     private static boolean loadLibrary0(Class<?> fromClass, final File file) {
-        // Check to see if we're attempting to access a static library
-//        String name = findBuiltinLib(file.getName());
-//        boolean isBuiltin = (name != null);
-//        if (!isBuiltin) {
-//            name = AccessController.doPrivileged(
-//                new PrivilegedAction<>() {
-//                    public String run() {
-//                        try {
-//                            if (NativeLibrary.loadLibraryOnlyIfPresent && !file.exists()) {
-//                                return null;
-//                            }
-//                            return file.getCanonicalPath();
-//                        } catch (IOException e) {
-//                            return null;
-//                        }
-//                    }
-//                });
-//            if (name == null) {
-//                return false;
-//            }
-//        }
-//        return NativeLibrary.loadLibrary(fromClass, name, isBuiltin);
         return false;
     }
 
@@ -2534,18 +2450,6 @@ public abstract class ClassLoader {
      * Invoked in the VM class linking code.
      */
     private static long findNative(ClassLoader loader, String entryName) {
-//        Map<String, NativeLibrary> libs =
-//            loader != null ? loader.nativeLibraries() : systemNativeLibraries();
-//        if (libs.isEmpty())
-//            return 0;
-//
-//        // the native libraries map may be updated in another thread
-//        // when a native library is being loaded.  No symbol will be
-//        // searched from it yet.
-//        for (NativeLibrary lib : libs.values()) {
-//            long entry = lib.findEntry(entryName);
-//            if (entry != 0) return entry;
-//        }
         return 0;
     }
 

@@ -137,7 +137,7 @@ import sun.security.util.SecurityConstants;
 public
 class Thread implements Runnable {
 
-    private char        name[];
+    private String      name;
     private int         priority;
     private Thread      threadQ;
     private long        eetop;
@@ -387,7 +387,7 @@ class Thread implements Runnable {
         this.group = g;
         this.daemon = parent.isDaemon();
         this.priority = parent.getPriority();
-        this.name = name.toCharArray();
+        this.name = name;
         if (security == null || isCCLOverridden(parent.getClass()))
             this.contextClassLoader = parent.getContextClassLoader();
         else
@@ -705,7 +705,7 @@ class Thread implements Runnable {
             throw new NullPointerException("name cannot be null");
         }
 
-        this.name = name.toCharArray();
+        this.name = name;
 
         Thread parent = currentThread();
         SecurityManager security = System.getSecurityManager();
@@ -1268,7 +1268,7 @@ class Thread implements Runnable {
      */
     public final void setName(String name) {
         checkAccess();
-        this.name = name.toCharArray();
+        this.name = name;
     }
 
     /**

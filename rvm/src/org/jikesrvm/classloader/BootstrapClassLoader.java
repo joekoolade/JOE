@@ -443,7 +443,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
     while (tok.hasMoreElements()) {
       try {
         String path = tok.nextToken();
-        if (path.endsWith(".jar") || path.endsWith(".zip") || zipFileCache.containsKey(path)) {
+        if (path.endsWith(".jar") || path.endsWith(".zip") || path.endsWith(".jmod") || zipFileCache.containsKey(path)) {
           if(VM.TraceClassLoading) System.out.println("Found path "+path + " " + name);
           ZipFile zf = zipFileCache.get(path);
           if (zf == null) {
@@ -453,6 +453,10 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
           // Zip spec. states that separator must be '/' in the path
           if (File.separatorChar != '/') {
             name = name.replace(File.separatorChar, '/');
+          }
+          if(path.endsWith(".jmod"))
+          {
+              name = "classes/".concat(name);
           }
           ZipEntry ze = zf.getEntry(name);
           if (ze == null) continue;
