@@ -2,7 +2,7 @@
 
 ## Status
 
-Currently JOE needs to be developed in JDK 7 SDK environment. I porting this code to be developed in a JDK 11 SDK. This work is happening on the jdk11 branch.
+Currently JOE needs to be developed in a JDK 7 SDK environment. I porting this code to be developed in a JDK 11 SDK. This work is happening on the jdk11 branch.
 
 ## Java On Everything
 
