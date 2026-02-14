@@ -1524,6 +1524,24 @@ final class BuildReferenceMaps {
                               currBBStkEmpty);
             break;
           }
+          case JBC_invokedynamic:
+          {
+              MethodReference target = bcodes.getMethodReference();
+              bcodes.alignInvokeInterface();
+              currBBStkTop =
+                  processInvoke(target,
+                                biStart,
+                                currBBStkTop,
+                                currBBMap,
+                                false,
+                                inJSRSub,
+                                referenceMaps,
+                                currPendingRET,
+                                blockSeen[currBBNum],
+                                currBBStkEmpty);
+              break;
+          }
+
           case JBC_invokestatic: {
             MethodReference target = bcodes.getMethodReference();
             currBBStkTop =
@@ -1945,8 +1963,10 @@ final class BuildReferenceMaps {
             break;
           }  // case JBC_wide:
 
+              
           default: {
-            VM.sysFail("Unknown opcode:" + opcode);
+//            VM.sysFail("Unknown opcode:" + opcode);
+              VM.sysWriteln("Unknown opcode:" + opcode);
           }
 
         }  // end switch (opcode)

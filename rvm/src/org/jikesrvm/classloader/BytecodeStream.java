@@ -477,35 +477,29 @@ public class BytecodeStream {
   }
   /**
    * Returns a reference to a method.<p>
-   * Used for invokevirtual, invokespecial, invokestatic, invokeinterface
+   * Used for invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic
    * @return method reference
    */
   public final MethodReference getMethodReference() {
-    if (VM.VerifyAssertions) {
-      VM._assert(JBC_isJava6Call(opcode));
-    }
     return getDeclaringClass().getMethodRef(readUnsignedShort());
   }
 
   /**
    * Returns a reference to a method, for use prior to the class being loaded.<p>
-   * Used for invokevirtual, invokespecial, invokestatic, invokeinterface
+   * Used for invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic
    * @param constantPool the constant pool for the class
    * @return method reference
    */
   public final MethodReference getMethodReference(int[] constantPool) {
-    if (VM.VerifyAssertions) {
-      VM._assert(JBC_isJava6Call(opcode));
-    }
     return ConstantPool.getMethodRef(constantPool, readUnsignedShort());
   }
 
   /**
    * Skips the extra stuff after an invokeinterface instruction.<p>
-   * Used for invokeinterface
+   * Used for invokeinterface and invokedynamic
    */
   public final void alignInvokeInterface() {
-    if (VM.VerifyAssertions) VM._assert(opcode == JBC_invokeinterface);
+    if (VM.VerifyAssertions) VM._assert((opcode == JBC_invokeinterface)||(opcode == JBC_invokedynamic));
     bcIndex += 2; // eat superfluous stuff
   }
 
