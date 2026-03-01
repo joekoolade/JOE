@@ -346,6 +346,8 @@ public class RVMClassLoader {
       Atom.findOrCreateAsciiAtom("RuntimeInvisibleParameterAnnotations");
   /** {@code AnnotationDefault} */
   static final Atom annotationDefaultAttributeName = Atom.findOrCreateAsciiAtom("AnnotationDefault");
+  /** {@code BootstrapMethods} */
+  static final Atom bootstrapMethodsAttributeName = Atom.findOrCreateAsciiAtom("BootstrapMethods");
 
   /** Initialize at boot time.
    */

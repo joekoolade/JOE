@@ -281,6 +281,15 @@ public class ClassFileReader {
           constantPool[i] = ConstantPool.packCPEntry(CP_MEMBER, mrId);
           break;
         } // out: MemberReference id
+        case TAG_INVOKE_DYNAMIC:
+        case TAG_DYNAMIC:
+        {
+            int bits = constantPool[i];
+            int bootstrapMethodIndex = ConstantPool.unpackTempCPIndex1(bits);
+            int nameTypeIndex = ConstantPool.unpackTempCPIndex2(bits);
+            
+            break;
+        }
       }
     }
     return constantPool;
@@ -660,6 +669,12 @@ public class ClassFileReader {
         loggingStream.stopLogging();
         rawAnnotations = loggingStream.getLoggedBytes();
         loggingStream.clearLoggedBytes();
+//      } else if (attName == RVMClassLoader.bootstrapMethodsAttributeName) {
+//        int numBootstrapMethods = input.readUnsignedShort();
+//        for(int j=0; i < numBootstrapMethods; j++)
+//        {
+//            
+//        }
       } else {
         int skippedAmount = input.skipBytes(attLength);
         if (skippedAmount != attLength) {

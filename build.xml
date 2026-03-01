@@ -563,6 +563,7 @@ Check to make sure all required properties are specified. This includes properti
     <mkdir dir="${build.options.classes}"/>
     <javac srcdir="${options.java}" destdir="${build.options.classes}" debug="true" debugLevel="${debugLevel}"
            source="${mmtk.java.version}" target="${mmtk.java.version}" includeantruntime="false">
+      <compilerarg value="-XDstringConcat=inline"/>
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
       </classpath>
@@ -575,6 +576,7 @@ Check to make sure all required properties are specified. This includes properti
     <mkdir dir="${build.mmtk.classes}"/>
     <javac srcdir="${mmtk.java}" destdir="${build.mmtk.classes}" debug="true" debugLevel="${debugLevel}"
            source="${mmtk.java.version}" target="${mmtk.java.version}" includeantruntime="false" deprecation="yes">
+      <compilerarg value="-XDstringConcat=inline"/>
       <classpath>
         <pathelement location="${build.vmmagic-stub.classes}"/>
         <pathelement location="${build.options.classes}"/>
@@ -1086,6 +1088,7 @@ Check to make sure all required properties are specified. This includes properti
 
     <javac srcdir="${build.ia32-assembler-opt.dir}" destdir="${build.ia32-assembler-opt.dir}" debug="true"
            debugLevel="${debugLevel}" source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
+      <compilerarg value="-XDstringConcat=inline"/>
       <compilerarg value="--patch-module" />
       <compilerarg value="java.base=${build.ia32-assembler-opt.dir}:${build.vmmagic-stub.classes}" />
       <src path="${ia32-assembler-opt.dir}"/>
@@ -1436,6 +1439,7 @@ Check to make sure all required properties are specified. This includes properti
                includeantruntime="false"               
         	>
 <!-- <compilerarg value="-verbose"/>  -->
+        	<compilerarg value="-XDstringConcat=inline"/>
         	<compilerarg value="-Xdiags:verbose"/>
           <compilerarg value="--patch-module" />
           <compilerarg value="java.base=${main.java}:${classlib.library-interface.common.java}:${build.vmmagic-stub.classes}:${build.options.classes}:${mmtk.java}:${classlib.library-interface.cpl.java}:${classlib.library-interface.non-cpl.java}:${jam.java}" />
@@ -1656,6 +1660,7 @@ Check to make sure all required properties are specified. This includes properti
     <javac srcdir="${vmmagic.java}" destdir="${build.vmmagic.classes}" debug="true" debugLevel="${debugLevel}"
            source="${rvm.java.version}" target="${rvm.java.version}" includeantruntime="false">
       <src path="${generated.vmmagic.arch.java}"/>
+      <compilerarg value="-XDstringConcat=inline"/>
       <classpath>
         <pathelement location="${build.classes}"/>
         <pathelement location="${build.vmmagic-stub.classes}"/>
@@ -1971,8 +1976,10 @@ Check to make sure all required properties are specified. This includes properti
 <!--
       <jvmarg value="-verbose:module"/>
 -->
+<!--
       <arg value="-log"/>
       <arg path="${build.base}/BootImageWriterOutput.txt"/>
+-->
       <arg value="-classpath"/>
       <arg path="${rvm.class.path}:${openjdk.java.base}:${build.base}/ext/bin"/>
       <arg value="-n"/>

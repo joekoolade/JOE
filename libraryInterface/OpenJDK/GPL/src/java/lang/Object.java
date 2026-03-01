@@ -66,10 +66,9 @@ public class Object {
      *         Language Specification, Third Edition (15.8.2 Class
      *         Literals)</a>
      */
-//    public final Class<?> getClass() {
-//      return ObjectModel.getObjectType(this).getClassForType();
-//    }
-    public native final Class<?> getClass();
+    public final Class<?> getClass() {
+      return ObjectModel.getObjectType(this).getClassForType();
+    }
     /**
      * Returns a hash code value for the object. This method is
      * supported for the benefit of hashtables such as those provided by
