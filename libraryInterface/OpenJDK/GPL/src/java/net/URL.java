@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+
+import jdk.internal.misc.VM;
 import sun.security.util.SecurityConstants;
 
 /**
@@ -135,6 +137,7 @@ import sun.security.util.SecurityConstants;
  */
 public final class URL implements java.io.Serializable {
 
+    static final String BUILTIN_HANDLERS_PREFIX = "sun.net.www.protocol";
     static final long serialVersionUID = -7627629688361524110L;
 
     /**
@@ -719,6 +722,29 @@ public final class URL implements java.io.Serializable {
     }
 
     /**
+     * Returns the address of the host represented by this URL.
+     * A {@link SecurityException} or an {@link UnknownHostException}
+     * while getting the host address will result in this method returning
+     * {@code null}
+     *
+     * @return an {@link InetAddress} representing the host
+     */
+    synchronized InetAddress getHostAddress() {
+        if (hostAddress != null) {
+            return hostAddress;
+        }
+
+        if (host == null || host.isEmpty()) {
+            return null;
+        }
+        try {
+            hostAddress = InetAddress.getByName(host);
+        } catch (UnknownHostException | SecurityException ex) {
+            return null;
+        }
+        return hostAddress;
+    }
+    /**
      * Gets the query part of this {@code URL}.
      *
      * @return  the query part of this {@code URL},
@@ -1070,6 +1096,16 @@ public final class URL implements java.io.Serializable {
     throws java.io.IOException {
         return openConnection().getContent(classes);
     }
+
+    boolean isBuiltinStreamHandler(URLStreamHandler handler) {
+        Class<?> handlerClass = handler.getClass();
+        return isBuiltinStreamHandler(handlerClass.getName());
+//                  || VM.isSystemDomainLoader(handlerClass.getClassLoader());
+     }
+
+     private boolean isBuiltinStreamHandler(String handlerClassName) {
+         return (handlerClassName.startsWith(BUILTIN_HANDLERS_PREFIX));
+     }
 
     /**
      * The URLStreamHandler factory.
