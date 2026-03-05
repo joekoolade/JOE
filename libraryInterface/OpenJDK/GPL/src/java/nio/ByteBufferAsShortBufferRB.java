@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,54 +27,160 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsShortBufferRB                  // package-private
     extends ByteBufferAsShortBufferB
 {
+
+
+
+
+
+
+
     ByteBufferAsShortBufferRB(ByteBuffer bb) {   // package-private
+
+
+
+
+
+
+
+
+
+
+
+
         super(bb);
+
     }
 
     ByteBufferAsShortBufferRB(ByteBuffer bb,
-                              int mark, int pos, int lim, int cap,
-                              int off)
+                                     int mark, int pos, int lim, int cap,
+                                     long addr)
     {
-        super(bb, mark, pos, lim, cap, off);
+
+
+
+
+
+
+        super(bb, mark, pos, lim, cap, addr);
+
+    }
+
+    @Override
+    Object base() {
+        return bb.hb;
     }
 
     public ShortBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 1) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsShortBufferRB(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsShortBufferRB(bb, -1, 0, rem, rem, addr);
     }
 
     public ShortBuffer duplicate() {
         return new ByteBufferAsShortBufferRB(bb,
-                                             this.markValue(),
-                                             this.position(),
-                                             this.limit(),
-                                             this.capacity(),
-                                             offset);
+                                                    this.markValue(),
+                                                    this.position(),
+                                                    this.limit(),
+                                                    this.capacity(),
+                                                    address);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
+
+
+
+
+
+
+
+
         return duplicate();
+
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public ShortBuffer put(short x) {
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
+
     }
 
     public ShortBuffer put(int i, short x) {
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
+
     }
 
     public ShortBuffer compact() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
+
     }
 
     public boolean isDirect() {
@@ -85,8 +191,60 @@ class ByteBufferAsShortBufferRB                  // package-private
         return true;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public ByteOrder order() {
+
         return ByteOrder.BIG_ENDIAN;
+
+
+
+
     }
+
+
+
+
+
 
 }

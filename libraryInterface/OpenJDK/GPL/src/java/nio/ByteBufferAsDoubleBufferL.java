@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsDoubleBufferL                  // package-private
     extends DoubleBuffer
@@ -35,7 +37,6 @@ class ByteBufferAsDoubleBufferL                  // package-private
 
 
     protected final ByteBuffer bb;
-    protected final int offset;
 
 
 
@@ -50,7 +51,7 @@ class ByteBufferAsDoubleBufferL                  // package-private
         this.limit(cap);
         int pos = this.position();
         assert (pos <= cap);
-        offset = pos;
+        address = bb.address;
 
 
 
@@ -58,25 +59,29 @@ class ByteBufferAsDoubleBufferL                  // package-private
 
     ByteBufferAsDoubleBufferL(ByteBuffer bb,
                                      int mark, int pos, int lim, int cap,
-                                     int off)
+                                     long addr)
     {
 
         super(mark, pos, lim, cap);
         this.bb = bb;
-        offset = off;
+        address = addr;
+        assert address >= bb.address;
 
 
 
     }
 
+    @Override
+    Object base() {
+        return bb.hb;
+    }
+
     public DoubleBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 3) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsDoubleBufferL(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsDoubleBufferL(bb, -1, 0, rem, rem, addr);
     }
 
     public DoubleBuffer duplicate() {
@@ -85,7 +90,7 @@ class ByteBufferAsDoubleBufferL                  // package-private
                                                     this.position(),
                                                     this.limit(),
                                                     this.capacity(),
-                                                    offset);
+                                                    address);
     }
 
     public DoubleBuffer asReadOnlyBuffer() {
@@ -95,7 +100,7 @@ class ByteBufferAsDoubleBufferL                  // package-private
                                                  this.position(),
                                                  this.limit(),
                                                  this.capacity(),
-                                                 offset);
+                                                 address);
 
 
 
@@ -103,17 +108,28 @@ class ByteBufferAsDoubleBufferL                  // package-private
 
 
 
-    protected int ix(int i) {
-        return (i << 3) + offset;
+    private int ix(int i) {
+        int off = (int) (address - bb.address);
+        return (i << 3) + off;
+    }
+
+    protected long byteOffset(long i) {
+        return (i << 3) + address;
     }
 
     public double get() {
-        return Bits.getDoubleL(bb, ix(nextGetIndex()));
+        long x = UNSAFE.getLongUnaligned(bb.hb, byteOffset(nextGetIndex()),
+            false);
+        return Double.longBitsToDouble(x);
     }
 
     public double get(int i) {
-        return Bits.getDoubleL(bb, ix(checkIndex(i)));
+        long x = UNSAFE.getLongUnaligned(bb.hb, byteOffset(checkIndex(i)),
+            false);
+        return Double.longBitsToDouble(x);
     }
+
+
 
 
 
@@ -125,7 +141,9 @@ class ByteBufferAsDoubleBufferL                  // package-private
 
     public DoubleBuffer put(double x) {
 
-        Bits.putDoubleL(bb, ix(nextPutIndex()), x);
+        long y = Double.doubleToRawLongBits(x);
+        UNSAFE.putLongUnaligned(bb.hb, byteOffset(nextPutIndex()), y,
+            false);
         return this;
 
 
@@ -134,7 +152,9 @@ class ByteBufferAsDoubleBufferL                  // package-private
 
     public DoubleBuffer put(int i, double x) {
 
-        Bits.putDoubleL(bb, ix(checkIndex(i)), x);
+        long y = Double.doubleToRawLongBits(x);
+        UNSAFE.putLongUnaligned(bb.hb, byteOffset(checkIndex(i)), y,
+            false);
         return this;
 
 
@@ -221,5 +241,10 @@ class ByteBufferAsDoubleBufferL                  // package-private
         return ByteOrder.LITTLE_ENDIAN;
 
     }
+
+
+
+
+
 
 }

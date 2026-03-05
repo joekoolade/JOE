@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,8 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+import java.lang.ref.Reference;
+import jdk.internal.misc.Unsafe;
 
 
 /**
@@ -44,7 +46,7 @@ import java.io.FileDescriptor;
  * this program or another.  Whether or not such changes occur, and when they
  * occur, is operating-system dependent and therefore unspecified.
  *
- * <a name="inaccess"></a><p> All or part of a mapped byte buffer may become
+ * <a id="inaccess"></a><p> All or part of a mapped byte buffer may become
  * inaccessible at any time, for example if the mapped file is truncated.  An
  * attempt to access an inaccessible region of a mapped byte buffer will not
  * change the buffer's content and will cause an unspecified exception to be
@@ -89,12 +91,6 @@ public abstract class MappedByteBuffer
         this.fd = null;
     }
 
-    private void checkMapped() {
-        if (fd == null)
-            // Can only happen if a luser explicitly casts a direct byte buffer
-            throw new UnsupportedOperationException();
-    }
-
     // Returns the distance (in bytes) of the buffer from the page aligned address
     // of the mapping. Computed each time to avoid storing in every direct buffer.
     private long mappingOffset() {
@@ -115,10 +111,10 @@ public abstract class MappedByteBuffer
      * Tells whether or not this buffer's content is resident in physical
      * memory.
      *
-     * <p> A return value of <tt>true</tt> implies that it is highly likely
+     * <p> A return value of {@code true} implies that it is highly likely
      * that all of the data in this buffer is resident in physical memory and
      * may therefore be accessed without incurring any virtual-memory page
-     * faults or I/O operations.  A return value of <tt>false</tt> does not
+     * faults or I/O operations.  A return value of {@code false} does not
      * necessarily imply that the buffer's content is not resident in physical
      * memory.
      *
@@ -126,11 +122,13 @@ public abstract class MappedByteBuffer
      * underlying operating system may have paged out some of the buffer's data
      * by the time that an invocation of this method returns.  </p>
      *
-     * @return  <tt>true</tt> if it is likely that this buffer's content
+     * @return  {@code true} if it is likely that this buffer's content
      *          is resident in physical memory
      */
     public final boolean isLoaded() {
-        checkMapped();
+        if (fd == null) {
+            return true;
+        }
         if ((address == 0) || (capacity() == 0))
             return true;
         long offset = mappingOffset();
@@ -152,7 +150,9 @@ public abstract class MappedByteBuffer
      * @return  This buffer
      */
     public final MappedByteBuffer load() {
-        checkMapped();
+        if (fd == null) {
+            return this;
+        }
         if ((address == 0) || (capacity() == 0))
             return this;
         long offset = mappingOffset();
@@ -162,13 +162,20 @@ public abstract class MappedByteBuffer
         // Read a byte from each page to bring it into memory. A checksum
         // is computed as we go along to prevent the compiler from otherwise
         // considering the loop as dead code.
+        Unsafe unsafe = Unsafe.getUnsafe();
         int ps = Bits.pageSize();
         int count = Bits.pageCount(length);
         long a = mappingAddress(offset);
         byte x = 0;
-        for (int i=0; i<count; i++) {
-//            x ^= unsafe.getByte(a);
-            a += ps;
+        try {
+            for (int i=0; i<count; i++) {
+                // TODO consider changing to getByteOpaque thus avoiding
+                // dead code elimination and the need to calculate a checksum
+                x ^= unsafe.getByte(a);
+                a += ps;
+            }
+        } finally {
+            Reference.reachabilityFence(this);
         }
         if (unused != 0)
             unused = x;
@@ -195,7 +202,9 @@ public abstract class MappedByteBuffer
      * @return  This buffer
      */
     public final MappedByteBuffer force() {
-        checkMapped();
+        if (fd == null) {
+            return this;
+        }
         if ((address != 0) && (capacity() != 0)) {
             long offset = mappingOffset();
             force0(fd, mappingAddress(offset), mappingLength(offset));
@@ -206,4 +215,69 @@ public abstract class MappedByteBuffer
     private native boolean isLoaded0(long address, long length, int pageCount);
     private native void load0(long address, long length);
     private native void force0(FileDescriptor fd, long address, long length);
+
+    // -- Covariant return type overrides
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer position(int newPosition) {
+        super.position(newPosition);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer limit(int newLimit) {
+        super.limit(newLimit);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer mark() {
+        super.mark();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer reset() {
+        super.reset();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer clear() {
+        super.clear();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer flip() {
+        super.flip();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final MappedByteBuffer rewind() {
+        super.rewind();
+        return this;
+    }
 }

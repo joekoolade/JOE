@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,12 +28,24 @@
 package java.nio;
 
 /**
+
  * A read/write HeapByteBuffer.
+
+
+
+
+
+
  */
 
 class HeapByteBuffer
     extends ByteBuffer
 {
+    // Cached array base offset
+    private static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+
+    // Cached array base offset
+    private static final long ARRAY_INDEX_SCALE = UNSAFE.arrayIndexScale(byte[].class);
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
@@ -45,62 +57,109 @@ class HeapByteBuffer
     */
 
     HeapByteBuffer(int cap, int lim) {            // package-private
+
         super(-1, 0, lim, cap, new byte[cap], 0);
         /*
         hb = new byte[cap];
         offset = 0;
         */
+        this.address = ARRAY_BASE_OFFSET;
+
+
+
+
     }
 
     HeapByteBuffer(byte[] buf, int off, int len) { // package-private
-        super(-1, off, off + len, buf.length, buf, off);
+
+        super(-1, off, off + len, buf.length, buf, 0);
         /*
         hb = buf;
         offset = 0;
         */
+        this.address = ARRAY_BASE_OFFSET;
+
+
+
+
     }
 
     protected HeapByteBuffer(byte[] buf,
-                             int mark, int pos, int lim, int cap,
-                             int off)
+                                   int mark, int pos, int lim, int cap,
+                                   int off)
     {
+
         super(mark, pos, lim, cap, buf, off);
         /*
         hb = buf;
         offset = off;
         */
+        this.address = ARRAY_BASE_OFFSET + off * ARRAY_INDEX_SCALE;
+
+
+
+
     }
 
     public ByteBuffer slice() {
+        int pos = this.position();
+        int lim = this.limit();
+        int rem = (pos <= lim ? lim - pos : 0);
         return new HeapByteBuffer(hb,
-                                  -1,
-                                  0,
-                                  this.remaining(),
-                                  this.remaining(),
-                                  this.position() + offset);
+                                        -1,
+                                        0,
+                                        rem,
+                                        rem,
+                                        pos + offset);
     }
+
+
+    ByteBuffer slice(int pos, int lim) {
+        assert (pos >= 0);
+        assert (pos <= lim);
+        int rem = lim - pos;
+        return new HeapByteBuffer(hb,
+                                        -1,
+                                        0,
+                                        rem,
+                                        rem,
+                                        pos + offset);
+    }
+
 
     public ByteBuffer duplicate() {
         return new HeapByteBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset);
+                                        this.markValue(),
+                                        this.position(),
+                                        this.limit(),
+                                        this.capacity(),
+                                        offset);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
+
         return new HeapByteBufferR(hb,
-                                   this.markValue(),
-                                   this.position(),
-                                   this.limit(),
-                                   this.capacity(),
-                                   offset);
+                                     this.markValue(),
+                                     this.position(),
+                                     this.limit(),
+                                     this.capacity(),
+                                     offset);
+
+
+
     }
+
+
 
     protected int ix(int i) {
         return i + offset;
     }
+
+
+    private long byteOffset(long i) {
+        return address + i;
+    }
+
 
     public byte get() {
         return hb[ix(nextGetIndex())];
@@ -110,12 +169,19 @@ class HeapByteBuffer
         return hb[ix(checkIndex(i))];
     }
 
+
+
+
+
+
+
     public ByteBuffer get(byte[] dst, int offset, int length) {
         checkBounds(offset, length, dst.length);
-        if (length > remaining())
+        int pos = position();
+        if (length > limit() - pos)
             throw new BufferUnderflowException();
-        System.arraycopy(hb, ix(position()), dst, offset, length);
-        position(position() + length);
+        System.arraycopy(hb, ix(pos), dst, offset, length);
+        position(pos + length);
         return this;
     }
 
@@ -123,229 +189,470 @@ class HeapByteBuffer
         return false;
     }
 
+
+
     public boolean isReadOnly() {
         return false;
     }
 
     public ByteBuffer put(byte x) {
+
         hb[ix(nextPutIndex())] = x;
         return this;
+
+
+
     }
 
     public ByteBuffer put(int i, byte x) {
+
         hb[ix(checkIndex(i))] = x;
         return this;
+
+
+
     }
 
     public ByteBuffer put(byte[] src, int offset, int length) {
+
         checkBounds(offset, length, src.length);
-        if (length > remaining())
+        int pos = position();
+        if (length > limit() - pos)
             throw new BufferOverflowException();
-        System.arraycopy(src, offset, hb, ix(position()), length);
-        position(position() + length);
+        System.arraycopy(src, offset, hb, ix(pos), length);
+        position(pos + length);
         return this;
+
+
+
     }
 
     public ByteBuffer put(ByteBuffer src) {
+
         if (src instanceof HeapByteBuffer) {
             if (src == this)
-                throw new IllegalArgumentException();
+                throw createSameBufferException();
             HeapByteBuffer sb = (HeapByteBuffer)src;
-            int n = sb.remaining();
-            if (n > remaining())
+            int pos = position();
+            int sbpos = sb.position();
+            int n = sb.limit() - sbpos;
+            if (n > limit() - pos)
                 throw new BufferOverflowException();
-            System.arraycopy(sb.hb, sb.ix(sb.position()),
-                             hb, ix(position()), n);
-            sb.position(sb.position() + n);
-            position(position() + n);
+            System.arraycopy(sb.hb, sb.ix(sbpos),
+                             hb, ix(pos), n);
+            sb.position(sbpos + n);
+            position(pos + n);
         } else if (src.isDirect()) {
             int n = src.remaining();
-            if (n > remaining())
+            int pos = position();
+            if (n > limit() - pos)
                 throw new BufferOverflowException();
-            src.get(hb, ix(position()), n);
-            position(position() + n);
+            src.get(hb, ix(pos), n);
+            position(pos + n);
         } else {
             super.put(src);
         }
         return this;
+
+
+
     }
 
     public ByteBuffer compact() {
-        System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
-        position(remaining());
+
+        int pos = position();
+        int lim = limit();
+        assert (pos <= lim);
+        int rem = (pos <= lim ? lim - pos : 0);
+        System.arraycopy(hb, ix(pos), hb, ix(0), rem);
+        position(rem);
         limit(capacity());
         discardMark();
         return this;
+
+
+
     }
+
+
+
+
 
     byte _get(int i) {                          // package-private
         return hb[i];
     }
 
     void _put(int i, byte b) {                  // package-private
+
         hb[i] = b;
+
+
+
     }
 
     // char
+
+
+
     public char getChar() {
-        return Bits.getChar(this, ix(nextGetIndex(2)), bigEndian);
+        return UNSAFE.getCharUnaligned(hb, byteOffset(nextGetIndex(2)), bigEndian);
     }
 
     public char getChar(int i) {
-        return Bits.getChar(this, ix(checkIndex(i, 2)), bigEndian);
+        return UNSAFE.getCharUnaligned(hb, byteOffset(checkIndex(i, 2)), bigEndian);
     }
 
+
+
     public ByteBuffer putChar(char x) {
-        Bits.putChar(this, ix(nextPutIndex(2)), x, bigEndian);
+
+        UNSAFE.putCharUnaligned(hb, byteOffset(nextPutIndex(2)), x, bigEndian);
         return this;
+
+
+
     }
 
     public ByteBuffer putChar(int i, char x) {
-        Bits.putChar(this, ix(checkIndex(i, 2)), x, bigEndian);
+
+        UNSAFE.putCharUnaligned(hb, byteOffset(checkIndex(i, 2)), x, bigEndian);
         return this;
+
+
+
     }
 
     public CharBuffer asCharBuffer() {
-        int size = this.remaining() >> 1;
-        int off = offset + position();
+        int pos = position();
+        int size = (limit() - pos) >> 1;
+        long addr = address + pos;
         return (bigEndian
-                ? (CharBuffer)(new ByteBufferAsCharBufferB(this, -1, 0, size, size, off))
-                : (CharBuffer)(new ByteBufferAsCharBufferL(this, -1, 0, size, size, off)));
+                ? (CharBuffer)(new ByteBufferAsCharBufferB(this,
+                                                               -1,
+                                                               0,
+                                                               size,
+                                                               size,
+                                                               addr))
+                : (CharBuffer)(new ByteBufferAsCharBufferL(this,
+                                                               -1,
+                                                               0,
+                                                               size,
+                                                               size,
+                                                               addr)));
     }
 
 
     // short
+
+
+
     public short getShort() {
-        return Bits.getShort(this, ix(nextGetIndex(2)), bigEndian);
+        return UNSAFE.getShortUnaligned(hb, byteOffset(nextGetIndex(2)), bigEndian);
     }
 
     public short getShort(int i) {
-        return Bits.getShort(this, ix(checkIndex(i, 2)), bigEndian);
+        return UNSAFE.getShortUnaligned(hb, byteOffset(checkIndex(i, 2)), bigEndian);
     }
 
+
+
     public ByteBuffer putShort(short x) {
-        Bits.putShort(this, ix(nextPutIndex(2)), x, bigEndian);
+
+        UNSAFE.putShortUnaligned(hb, byteOffset(nextPutIndex(2)), x, bigEndian);
         return this;
+
+
+
     }
 
     public ByteBuffer putShort(int i, short x) {
-        Bits.putShort(this, ix(checkIndex(i, 2)), x, bigEndian);
+
+        UNSAFE.putShortUnaligned(hb, byteOffset(checkIndex(i, 2)), x, bigEndian);
         return this;
+
+
+
     }
 
     public ShortBuffer asShortBuffer() {
-        int size = this.remaining() >> 1;
-        int off = offset + position();
+        int pos = position();
+        int size = (limit() - pos) >> 1;
+        long addr = address + pos;
         return (bigEndian
-                ? (ShortBuffer)(new ByteBufferAsShortBufferB(this, -1, 0, size, size, off))
-                : (ShortBuffer)(new ByteBufferAsShortBufferL(this, -1, 0, size, size, off)));
+                ? (ShortBuffer)(new ByteBufferAsShortBufferB(this,
+                                                                 -1,
+                                                                 0,
+                                                                 size,
+                                                                 size,
+                                                                 addr))
+                : (ShortBuffer)(new ByteBufferAsShortBufferL(this,
+                                                                 -1,
+                                                                 0,
+                                                                 size,
+                                                                 size,
+                                                                 addr)));
     }
 
+
     // int
+
+
+
     public int getInt() {
-        return Bits.getInt(this, ix(nextGetIndex(4)), bigEndian);
+        return UNSAFE.getIntUnaligned(hb, byteOffset(nextGetIndex(4)), bigEndian);
     }
 
     public int getInt(int i) {
-        return Bits.getInt(this, ix(checkIndex(i, 4)), bigEndian);
+        return UNSAFE.getIntUnaligned(hb, byteOffset(checkIndex(i, 4)), bigEndian);
     }
 
+
+
     public ByteBuffer putInt(int x) {
-        Bits.putInt(this, ix(nextPutIndex(4)), x, bigEndian);
+
+        UNSAFE.putIntUnaligned(hb, byteOffset(nextPutIndex(4)), x, bigEndian);
         return this;
+
+
+
     }
 
     public ByteBuffer putInt(int i, int x) {
-        Bits.putInt(this, ix(checkIndex(i, 4)), x, bigEndian);
+
+        UNSAFE.putIntUnaligned(hb, byteOffset(checkIndex(i, 4)), x, bigEndian);
         return this;
+
+
+
     }
 
     public IntBuffer asIntBuffer() {
-        int size = this.remaining() >> 2;
-        int off = offset + position();
+        int pos = position();
+        int size = (limit() - pos) >> 2;
+        long addr = address + pos;
         return (bigEndian
-                ? (IntBuffer)(new ByteBufferAsIntBufferB(this, -1, 0, size, size, off))
-                : (IntBuffer)(new ByteBufferAsIntBufferL(this, -1, 0, size, size, off)));
+                ? (IntBuffer)(new ByteBufferAsIntBufferB(this,
+                                                             -1,
+                                                             0,
+                                                             size,
+                                                             size,
+                                                             addr))
+                : (IntBuffer)(new ByteBufferAsIntBufferL(this,
+                                                             -1,
+                                                             0,
+                                                             size,
+                                                             size,
+                                                             addr)));
     }
 
+
     // long
+
+
+
     public long getLong() {
-        return Bits.getLong(this, ix(nextGetIndex(8)), bigEndian);
+        return UNSAFE.getLongUnaligned(hb, byteOffset(nextGetIndex(8)), bigEndian);
     }
 
     public long getLong(int i) {
-        return Bits.getLong(this, ix(checkIndex(i, 8)), bigEndian);
+        return UNSAFE.getLongUnaligned(hb, byteOffset(checkIndex(i, 8)), bigEndian);
     }
 
+
+
     public ByteBuffer putLong(long x) {
-        Bits.putLong(this, ix(nextPutIndex(8)), x, bigEndian);
+
+        UNSAFE.putLongUnaligned(hb, byteOffset(nextPutIndex(8)), x, bigEndian);
         return this;
+
+
+
     }
 
     public ByteBuffer putLong(int i, long x) {
-        Bits.putLong(this, ix(checkIndex(i, 8)), x, bigEndian);
+
+        UNSAFE.putLongUnaligned(hb, byteOffset(checkIndex(i, 8)), x, bigEndian);
         return this;
+
+
+
     }
 
     public LongBuffer asLongBuffer() {
-        int size = this.remaining() >> 3;
-        int off = offset + position();
+        int pos = position();
+        int size = (limit() - pos) >> 3;
+        long addr = address + pos;
         return (bigEndian
-                ? (LongBuffer)(new ByteBufferAsLongBufferB(this, -1, 0, size, size, off))
-                : (LongBuffer)(new ByteBufferAsLongBufferL(this, -1, 0, size, size, off)));
+                ? (LongBuffer)(new ByteBufferAsLongBufferB(this,
+                                                               -1,
+                                                               0,
+                                                               size,
+                                                               size,
+                                                               addr))
+                : (LongBuffer)(new ByteBufferAsLongBufferL(this,
+                                                               -1,
+                                                               0,
+                                                               size,
+                                                               size,
+                                                               addr)));
     }
 
+
     // float
+
+
+
     public float getFloat() {
-        return Bits.getFloat(this, ix(nextGetIndex(4)), bigEndian);
+        int x = UNSAFE.getIntUnaligned(hb, byteOffset(nextGetIndex(4)), bigEndian);
+        return Float.intBitsToFloat(x);
     }
 
     public float getFloat(int i) {
-        return Bits.getFloat(this, ix(checkIndex(i, 4)), bigEndian);
+        int x = UNSAFE.getIntUnaligned(hb, byteOffset(checkIndex(i, 4)), bigEndian);
+        return Float.intBitsToFloat(x);
     }
 
+
+
     public ByteBuffer putFloat(float x) {
-        Bits.putFloat(this, ix(nextPutIndex(4)), x, bigEndian);
+
+        int y = Float.floatToRawIntBits(x);
+        UNSAFE.putIntUnaligned(hb, byteOffset(nextPutIndex(4)), y, bigEndian);
         return this;
+
+
+
     }
 
     public ByteBuffer putFloat(int i, float x) {
-        Bits.putFloat(this, ix(checkIndex(i, 4)), x, bigEndian);
+
+        int y = Float.floatToRawIntBits(x);
+        UNSAFE.putIntUnaligned(hb, byteOffset(checkIndex(i, 4)), y, bigEndian);
         return this;
+
+
+
     }
 
     public FloatBuffer asFloatBuffer() {
-        int size = this.remaining() >> 2;
-        int off = offset + position();
+        int pos = position();
+        int size = (limit() - pos) >> 2;
+        long addr = address + pos;
         return (bigEndian
-                ? (FloatBuffer)(new ByteBufferAsFloatBufferB(this, -1, 0, size, size, off))
-                : (FloatBuffer)(new ByteBufferAsFloatBufferL(this, -1, 0, size, size, off)));
+                ? (FloatBuffer)(new ByteBufferAsFloatBufferB(this,
+                                                                 -1,
+                                                                 0,
+                                                                 size,
+                                                                 size,
+                                                                 addr))
+                : (FloatBuffer)(new ByteBufferAsFloatBufferL(this,
+                                                                 -1,
+                                                                 0,
+                                                                 size,
+                                                                 size,
+                                                                 addr)));
     }
 
+
     // double
+
+
+
     public double getDouble() {
-        return Bits.getDouble(this, ix(nextGetIndex(8)), bigEndian);
+        long x = UNSAFE.getLongUnaligned(hb, byteOffset(nextGetIndex(8)), bigEndian);
+        return Double.longBitsToDouble(x);
     }
 
     public double getDouble(int i) {
-        return Bits.getDouble(this, ix(checkIndex(i, 8)), bigEndian);
+        long x = UNSAFE.getLongUnaligned(hb, byteOffset(checkIndex(i, 8)), bigEndian);
+        return Double.longBitsToDouble(x);
     }
 
+
+
     public ByteBuffer putDouble(double x) {
-        Bits.putDouble(this, ix(nextPutIndex(8)), x, bigEndian);
+
+        long y = Double.doubleToRawLongBits(x);
+        UNSAFE.putLongUnaligned(hb, byteOffset(nextPutIndex(8)), y, bigEndian);
         return this;
+
+
+
     }
 
     public ByteBuffer putDouble(int i, double x) {
-        Bits.putDouble(this, ix(checkIndex(i, 8)), x, bigEndian);
+
+        long y = Double.doubleToRawLongBits(x);
+        UNSAFE.putLongUnaligned(hb, byteOffset(checkIndex(i, 8)), y, bigEndian);
         return this;
+
+
+
     }
 
     public DoubleBuffer asDoubleBuffer() {
-        int size = this.remaining() >> 3;
-        int off = offset + position();
+        int pos = position();
+        int size = (limit() - pos) >> 3;
+        long addr = address + pos;
         return (bigEndian
-                ? (DoubleBuffer)(new ByteBufferAsDoubleBufferB(this, -1, 0, size, size, off))
-                : (DoubleBuffer)(new ByteBufferAsDoubleBufferL(this, -1, 0, size, size, off)));
+                ? (DoubleBuffer)(new ByteBufferAsDoubleBufferB(this,
+                                                                   -1,
+                                                                   0,
+                                                                   size,
+                                                                   size,
+                                                                   addr))
+                : (DoubleBuffer)(new ByteBufferAsDoubleBufferL(this,
+                                                                   -1,
+                                                                   0,
+                                                                   size,
+                                                                   size,
+                                                                   addr)));
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

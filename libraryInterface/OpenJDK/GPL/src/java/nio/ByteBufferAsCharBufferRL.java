@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,11 +27,12 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsCharBufferRL                  // package-private
     extends ByteBufferAsCharBufferL
 {
-
 
 
 
@@ -58,25 +59,29 @@ class ByteBufferAsCharBufferRL                  // package-private
 
     ByteBufferAsCharBufferRL(ByteBuffer bb,
                                      int mark, int pos, int lim, int cap,
-                                     int off)
+                                     long addr)
     {
 
 
 
 
 
-        super(bb, mark, pos, lim, cap, off);
 
+        super(bb, mark, pos, lim, cap, addr);
+
+    }
+
+    @Override
+    Object base() {
+        return bb.hb;
     }
 
     public CharBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 1) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsCharBufferRL(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsCharBufferRL(bb, -1, 0, rem, rem, addr);
     }
 
     public CharBuffer duplicate() {
@@ -85,7 +90,7 @@ class ByteBufferAsCharBufferRL                  // package-private
                                                     this.position(),
                                                     this.limit(),
                                                     this.capacity(),
-                                                    offset);
+                                                    address);
     }
 
     public CharBuffer asReadOnlyBuffer() {
@@ -123,7 +128,20 @@ class ByteBufferAsCharBufferRL                  // package-private
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     public CharBuffer put(char x) {
+
+
 
 
 
@@ -133,6 +151,8 @@ class ByteBufferAsCharBufferRL                  // package-private
     }
 
     public CharBuffer put(int i, char x) {
+
+
 
 
 
@@ -207,7 +227,7 @@ class ByteBufferAsCharBufferRL                  // package-private
                                                   pos + start,
                                                   pos + end,
                                                   capacity(),
-                                                  offset);
+                                                  address);
     }
 
 
@@ -220,6 +240,11 @@ class ByteBufferAsCharBufferRL                  // package-private
 
         return ByteOrder.LITTLE_ENDIAN;
 
+    }
+
+
+    ByteOrder charRegionOrder() {
+        return order();
     }
 
 }

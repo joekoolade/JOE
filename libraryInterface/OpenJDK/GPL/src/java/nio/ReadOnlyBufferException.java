@@ -32,7 +32,7 @@ package java.nio;
 
 /**
  * Unchecked exception thrown when a content-mutation method such as
- * <tt>put</tt> or <tt>compact</tt> is invoked upon a read-only buffer.
+ * <code>put</code> or <code>compact</code> is invoked upon a read-only buffer.
  *
  * @since 1.4
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,6 @@
 
 package java.nio;
 
-
 /**
 
 
@@ -42,6 +41,11 @@ package java.nio;
 class HeapLongBufferR
     extends HeapLongBuffer
 {
+    // Cached array base offset
+    private static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(long[].class);
+
+    // Cached array base offset
+    private static final long ARRAY_INDEX_SCALE = UNSAFE.arrayIndexScale(long[].class);
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
@@ -60,12 +64,14 @@ class HeapLongBufferR
 
 
 
+
         super(cap, lim);
         this.isReadOnly = true;
 
     }
 
     HeapLongBufferR(long[] buf, int off, int len) { // package-private
+
 
 
 
@@ -89,19 +95,37 @@ class HeapLongBufferR
 
 
 
+
         super(buf, mark, pos, lim, cap, off);
         this.isReadOnly = true;
 
     }
 
     public LongBuffer slice() {
+        int pos = this.position();
+        int lim = this.limit();
+        int rem = (pos <= lim ? lim - pos : 0);
         return new HeapLongBufferR(hb,
                                         -1,
                                         0,
-                                        this.remaining(),
-                                        this.remaining(),
-                                        this.position() + offset);
+                                        rem,
+                                        rem,
+                                        pos + offset);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public LongBuffer duplicate() {
         return new HeapLongBufferR(hb,
@@ -124,6 +148,13 @@ class HeapLongBufferR
         return duplicate();
 
     }
+
+
+
+
+
+
+
 
 
 
@@ -191,11 +222,15 @@ class HeapLongBufferR
 
 
 
+
         throw new ReadOnlyBufferException();
 
     }
 
     public LongBuffer put(LongBuffer src) {
+
+
+
 
 
 
@@ -231,9 +266,27 @@ class HeapLongBufferR
 
 
 
+
+
+
+
         throw new ReadOnlyBufferException();
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -595,6 +648,10 @@ class HeapLongBufferR
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
+
+
+
+
 
 
 

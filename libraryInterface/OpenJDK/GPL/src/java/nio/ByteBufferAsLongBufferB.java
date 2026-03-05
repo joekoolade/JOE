@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsLongBufferB                  // package-private
     extends LongBuffer
@@ -35,7 +37,6 @@ class ByteBufferAsLongBufferB                  // package-private
 
 
     protected final ByteBuffer bb;
-    protected final int offset;
 
 
 
@@ -50,7 +51,7 @@ class ByteBufferAsLongBufferB                  // package-private
         this.limit(cap);
         int pos = this.position();
         assert (pos <= cap);
-        offset = pos;
+        address = bb.address;
 
 
 
@@ -58,25 +59,29 @@ class ByteBufferAsLongBufferB                  // package-private
 
     ByteBufferAsLongBufferB(ByteBuffer bb,
                                      int mark, int pos, int lim, int cap,
-                                     int off)
+                                     long addr)
     {
 
         super(mark, pos, lim, cap);
         this.bb = bb;
-        offset = off;
+        address = addr;
+        assert address >= bb.address;
 
 
 
     }
 
+    @Override
+    Object base() {
+        return bb.hb;
+    }
+
     public LongBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 3) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsLongBufferB(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsLongBufferB(bb, -1, 0, rem, rem, addr);
     }
 
     public LongBuffer duplicate() {
@@ -85,7 +90,7 @@ class ByteBufferAsLongBufferB                  // package-private
                                                     this.position(),
                                                     this.limit(),
                                                     this.capacity(),
-                                                    offset);
+                                                    address);
     }
 
     public LongBuffer asReadOnlyBuffer() {
@@ -95,7 +100,7 @@ class ByteBufferAsLongBufferB                  // package-private
                                                  this.position(),
                                                  this.limit(),
                                                  this.capacity(),
-                                                 offset);
+                                                 address);
 
 
 
@@ -103,17 +108,28 @@ class ByteBufferAsLongBufferB                  // package-private
 
 
 
-    protected int ix(int i) {
-        return (i << 3) + offset;
+    private int ix(int i) {
+        int off = (int) (address - bb.address);
+        return (i << 3) + off;
+    }
+
+    protected long byteOffset(long i) {
+        return (i << 3) + address;
     }
 
     public long get() {
-        return Bits.getLongB(bb, ix(nextGetIndex()));
+        long x = UNSAFE.getLongUnaligned(bb.hb, byteOffset(nextGetIndex()),
+            true);
+        return (x);
     }
 
     public long get(int i) {
-        return Bits.getLongB(bb, ix(checkIndex(i)));
+        long x = UNSAFE.getLongUnaligned(bb.hb, byteOffset(checkIndex(i)),
+            true);
+        return (x);
     }
+
+
 
 
 
@@ -125,7 +141,9 @@ class ByteBufferAsLongBufferB                  // package-private
 
     public LongBuffer put(long x) {
 
-        Bits.putLongB(bb, ix(nextPutIndex()), x);
+        long y = (x);
+        UNSAFE.putLongUnaligned(bb.hb, byteOffset(nextPutIndex()), y,
+            true);
         return this;
 
 
@@ -134,7 +152,9 @@ class ByteBufferAsLongBufferB                  // package-private
 
     public LongBuffer put(int i, long x) {
 
-        Bits.putLongB(bb, ix(checkIndex(i)), x);
+        long y = (x);
+        UNSAFE.putLongUnaligned(bb.hb, byteOffset(checkIndex(i)), y,
+            true);
         return this;
 
 
@@ -221,5 +241,10 @@ class ByteBufferAsLongBufferB                  // package-private
 
 
     }
+
+
+
+
+
 
 }

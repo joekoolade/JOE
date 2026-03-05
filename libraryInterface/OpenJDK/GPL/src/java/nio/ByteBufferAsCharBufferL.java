@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsCharBufferL                  // package-private
     extends CharBuffer
@@ -35,7 +37,6 @@ class ByteBufferAsCharBufferL                  // package-private
 
 
     protected final ByteBuffer bb;
-    protected final int offset;
 
 
 
@@ -50,7 +51,7 @@ class ByteBufferAsCharBufferL                  // package-private
         this.limit(cap);
         int pos = this.position();
         assert (pos <= cap);
-        offset = pos;
+        address = bb.address;
 
 
 
@@ -58,25 +59,29 @@ class ByteBufferAsCharBufferL                  // package-private
 
     ByteBufferAsCharBufferL(ByteBuffer bb,
                                      int mark, int pos, int lim, int cap,
-                                     int off)
+                                     long addr)
     {
 
         super(mark, pos, lim, cap);
         this.bb = bb;
-        offset = off;
+        address = addr;
+        assert address >= bb.address;
 
 
 
     }
 
+    @Override
+    Object base() {
+        return bb.hb;
+    }
+
     public CharBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 1) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsCharBufferL(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsCharBufferL(bb, -1, 0, rem, rem, addr);
     }
 
     public CharBuffer duplicate() {
@@ -85,7 +90,7 @@ class ByteBufferAsCharBufferL                  // package-private
                                                     this.position(),
                                                     this.limit(),
                                                     this.capacity(),
-                                                    offset);
+                                                    address);
     }
 
     public CharBuffer asReadOnlyBuffer() {
@@ -95,7 +100,7 @@ class ByteBufferAsCharBufferL                  // package-private
                                                  this.position(),
                                                  this.limit(),
                                                  this.capacity(),
-                                                 offset);
+                                                 address);
 
 
 
@@ -103,21 +108,32 @@ class ByteBufferAsCharBufferL                  // package-private
 
 
 
-    protected int ix(int i) {
-        return (i << 1) + offset;
+    private int ix(int i) {
+        int off = (int) (address - bb.address);
+        return (i << 1) + off;
+    }
+
+    protected long byteOffset(long i) {
+        return (i << 1) + address;
     }
 
     public char get() {
-        return Bits.getCharL(bb, ix(nextGetIndex()));
+        char x = UNSAFE.getCharUnaligned(bb.hb, byteOffset(nextGetIndex()),
+            false);
+        return (x);
     }
 
     public char get(int i) {
-        return Bits.getCharL(bb, ix(checkIndex(i)));
+        char x = UNSAFE.getCharUnaligned(bb.hb, byteOffset(checkIndex(i)),
+            false);
+        return (x);
     }
 
 
    char getUnchecked(int i) {
-        return Bits.getCharL(bb, ix(i));
+        char x = UNSAFE.getCharUnaligned(bb.hb, byteOffset(i),
+            false);
+        return (x);
     }
 
 
@@ -125,7 +141,9 @@ class ByteBufferAsCharBufferL                  // package-private
 
     public CharBuffer put(char x) {
 
-        Bits.putCharL(bb, ix(nextPutIndex()), x);
+        char y = (x);
+        UNSAFE.putCharUnaligned(bb.hb, byteOffset(nextPutIndex()), y,
+            false);
         return this;
 
 
@@ -134,7 +152,9 @@ class ByteBufferAsCharBufferL                  // package-private
 
     public CharBuffer put(int i, char x) {
 
-        Bits.putCharL(bb, ix(checkIndex(i)), x);
+        char y = (x);
+        UNSAFE.putCharUnaligned(bb.hb, byteOffset(checkIndex(i)), y,
+            false);
         return this;
 
 
@@ -207,7 +227,7 @@ class ByteBufferAsCharBufferL                  // package-private
                                                   pos + start,
                                                   pos + end,
                                                   capacity(),
-                                                  offset);
+                                                  address);
     }
 
 
@@ -220,6 +240,11 @@ class ByteBufferAsCharBufferL                  // package-private
 
         return ByteOrder.LITTLE_ENDIAN;
 
+    }
+
+
+    ByteOrder charRegionOrder() {
+        return order();
     }
 
 }

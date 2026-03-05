@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,11 +27,12 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsDoubleBufferRB                  // package-private
     extends ByteBufferAsDoubleBufferB
 {
-
 
 
 
@@ -58,25 +59,29 @@ class ByteBufferAsDoubleBufferRB                  // package-private
 
     ByteBufferAsDoubleBufferRB(ByteBuffer bb,
                                      int mark, int pos, int lim, int cap,
-                                     int off)
+                                     long addr)
     {
 
 
 
 
 
-        super(bb, mark, pos, lim, cap, off);
 
+        super(bb, mark, pos, lim, cap, addr);
+
+    }
+
+    @Override
+    Object base() {
+        return bb.hb;
     }
 
     public DoubleBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 3) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsDoubleBufferRB(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsDoubleBufferRB(bb, -1, 0, rem, rem, addr);
     }
 
     public DoubleBuffer duplicate() {
@@ -85,7 +90,7 @@ class ByteBufferAsDoubleBufferRB                  // package-private
                                                     this.position(),
                                                     this.limit(),
                                                     this.capacity(),
-                                                    offset);
+                                                    address);
     }
 
     public DoubleBuffer asReadOnlyBuffer() {
@@ -123,7 +128,20 @@ class ByteBufferAsDoubleBufferRB                  // package-private
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     public DoubleBuffer put(double x) {
+
+
 
 
 
@@ -133,6 +151,8 @@ class ByteBufferAsDoubleBufferRB                  // package-private
     }
 
     public DoubleBuffer put(int i, double x) {
+
+
 
 
 
@@ -221,5 +241,10 @@ class ByteBufferAsDoubleBufferRB                  // package-private
 
 
     }
+
+
+
+
+
 
 }

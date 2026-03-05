@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,6 @@
 
 package java.nio;
 
-
 /**
 
 
@@ -42,6 +41,11 @@ package java.nio;
 class HeapShortBufferR
     extends HeapShortBuffer
 {
+    // Cached array base offset
+    private static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(short[].class);
+
+    // Cached array base offset
+    private static final long ARRAY_INDEX_SCALE = UNSAFE.arrayIndexScale(short[].class);
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
@@ -60,12 +64,14 @@ class HeapShortBufferR
 
 
 
+
         super(cap, lim);
         this.isReadOnly = true;
 
     }
 
     HeapShortBufferR(short[] buf, int off, int len) { // package-private
+
 
 
 
@@ -89,19 +95,37 @@ class HeapShortBufferR
 
 
 
+
         super(buf, mark, pos, lim, cap, off);
         this.isReadOnly = true;
 
     }
 
     public ShortBuffer slice() {
+        int pos = this.position();
+        int lim = this.limit();
+        int rem = (pos <= lim ? lim - pos : 0);
         return new HeapShortBufferR(hb,
                                         -1,
                                         0,
-                                        this.remaining(),
-                                        this.remaining(),
-                                        this.position() + offset);
+                                        rem,
+                                        rem,
+                                        pos + offset);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public ShortBuffer duplicate() {
         return new HeapShortBufferR(hb,
@@ -124,6 +148,13 @@ class HeapShortBufferR
         return duplicate();
 
     }
+
+
+
+
+
+
+
 
 
 
@@ -191,11 +222,15 @@ class HeapShortBufferR
 
 
 
+
         throw new ReadOnlyBufferException();
 
     }
 
     public ShortBuffer put(ShortBuffer src) {
+
+
+
 
 
 
@@ -231,9 +266,27 @@ class HeapShortBufferR
 
 
 
+
+
+
+
         throw new ReadOnlyBufferException();
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -595,6 +648,10 @@ class HeapShortBufferR
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
+
+
+
+
 
 
 

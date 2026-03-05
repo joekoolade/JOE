@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,6 @@
 
 package java.nio;
 
-
 /**
 
 
@@ -42,6 +41,11 @@ package java.nio;
 class HeapFloatBufferR
     extends HeapFloatBuffer
 {
+    // Cached array base offset
+    private static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(float[].class);
+
+    // Cached array base offset
+    private static final long ARRAY_INDEX_SCALE = UNSAFE.arrayIndexScale(float[].class);
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
@@ -60,12 +64,14 @@ class HeapFloatBufferR
 
 
 
+
         super(cap, lim);
         this.isReadOnly = true;
 
     }
 
     HeapFloatBufferR(float[] buf, int off, int len) { // package-private
+
 
 
 
@@ -89,19 +95,37 @@ class HeapFloatBufferR
 
 
 
+
         super(buf, mark, pos, lim, cap, off);
         this.isReadOnly = true;
 
     }
 
     public FloatBuffer slice() {
+        int pos = this.position();
+        int lim = this.limit();
+        int rem = (pos <= lim ? lim - pos : 0);
         return new HeapFloatBufferR(hb,
                                         -1,
                                         0,
-                                        this.remaining(),
-                                        this.remaining(),
-                                        this.position() + offset);
+                                        rem,
+                                        rem,
+                                        pos + offset);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public FloatBuffer duplicate() {
         return new HeapFloatBufferR(hb,
@@ -124,6 +148,13 @@ class HeapFloatBufferR
         return duplicate();
 
     }
+
+
+
+
+
+
+
 
 
 
@@ -191,11 +222,15 @@ class HeapFloatBufferR
 
 
 
+
         throw new ReadOnlyBufferException();
 
     }
 
     public FloatBuffer put(FloatBuffer src) {
+
+
+
 
 
 
@@ -231,9 +266,27 @@ class HeapFloatBufferR
 
 
 
+
+
+
+
         throw new ReadOnlyBufferException();
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -595,6 +648,10 @@ class HeapFloatBufferR
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
+
+
+
+
 
 
 

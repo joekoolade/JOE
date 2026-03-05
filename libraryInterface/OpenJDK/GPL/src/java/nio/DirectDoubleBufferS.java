@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,22 +27,29 @@
 
 package java.nio;
 
-import org.jikesrvm.runtime.Memory;
-import org.vmmagic.unboxed.Address;
-
+import java.io.FileDescriptor;
+import java.lang.ref.Reference;
+import jdk.internal.misc.VM;
 import jdk.internal.ref.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
 
 class DirectDoubleBufferS
+
     extends DoubleBuffer
+
+
+
     implements DirectBuffer
 {
+
+
+
     // Cached array base offset
-    private static final long arrayBaseOffset = 0;
+    private static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(double[].class);
 
     // Cached unaligned-access capability
-    protected static final boolean unaligned = Bits.unaligned();
+    protected static final boolean UNALIGNED = Bits.unaligned();
 
     // Base address, used in all indexing calculations
     // NOTE: moved up to Buffer.java for speed in JNI GetDirectBufferAddress
@@ -57,7 +64,123 @@ class DirectDoubleBufferS
         return att;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public Cleaner cleaner() { return null; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // For duplicates and slices
     //
@@ -65,52 +188,103 @@ class DirectDoubleBufferS
                                int mark, int pos, int lim, int cap,
                                int off)
     {
+
         super(mark, pos, lim, cap);
         address = db.address() + off;
+
+
+
         att = db;
+
+
+
+
+    }
+
+    @Override
+    Object base() {
+        return null;
     }
 
     public DoubleBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 3);
         assert (off >= 0);
         return new DirectDoubleBufferS(this, -1, 0, rem, rem, off);
     }
 
+
+
+
+
+
+
+
+
+
     public DoubleBuffer duplicate() {
-        return new DirectDoubleBufferS(this, this.markValue(), this.position(), this.limit(), this.capacity(), 0);
+        return new DirectDoubleBufferS(this,
+                                              this.markValue(),
+                                              this.position(),
+                                              this.limit(),
+                                              this.capacity(),
+                                              0);
     }
 
     public DoubleBuffer asReadOnlyBuffer() {
+
         return new DirectDoubleBufferRS(this,
-                                        this.markValue(),
-                                        this.position(),
-                                        this.limit(),
-                                        this.capacity(),
-                                        0);
+                                           this.markValue(),
+                                           this.position(),
+                                           this.limit(),
+                                           this.capacity(),
+                                           0);
+
+
+
     }
+
+
 
     public long address() {
         return address;
     }
 
     private long ix(int i) {
-        return address + (i << 3);
+        return address + ((long)i << 3);
     }
 
     public double get() {
-        return Double.longBitsToDouble(Bits.swap(Address.fromLong(ix(nextGetIndex())).loadLong()));
+        try {
+            return Double.longBitsToDouble(Bits.swap(UNSAFE.getLong(ix(nextGetIndex()))));
+        } finally {
+            Reference.reachabilityFence(this);
+        }
     }
 
     public double get(int i) {
-        return Double.longBitsToDouble(Bits.swap(Address.fromLong(ix(checkIndex(i))).loadLong()));
+        try {
+            return Double.longBitsToDouble(Bits.swap(UNSAFE.getLong(ix(checkIndex(i)))));
+        } finally {
+            Reference.reachabilityFence(this);
+        }
     }
 
+
+
+
+
+
+
+
+
+
+
     public DoubleBuffer get(double[] dst, int offset, int length) {
-        if ((length << 3) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
+
+        if (((long)length << 3) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
             checkBounds(offset, length, dst.length);
             int pos = position();
             int lim = limit();
@@ -119,31 +293,69 @@ class DirectDoubleBufferS
             if (length > rem)
                 throw new BufferUnderflowException();
 
-            if (order() != ByteOrder.nativeOrder())
-                Bits.copyToLongArray(ix(pos), dst, offset << 3, length);
-            else
-                Bits.copyToArray(ix(pos), dst, arrayBaseOffset, offset << 3, length << 3);
+            long dstOffset = ARRAY_BASE_OFFSET + ((long)offset << 3);
+            try {
+
+                if (order() != ByteOrder.nativeOrder())
+                    UNSAFE.copySwapMemory(null,
+                                          ix(pos),
+                                          dst,
+                                          dstOffset,
+                                          (long)length << 3,
+                                          (long)1 << 3);
+                else
+
+                    UNSAFE.copyMemory(null,
+                                      ix(pos),
+                                      dst,
+                                      dstOffset,
+                                      (long)length << 3);
+            } finally {
+                Reference.reachabilityFence(this);
+            }
             position(pos + length);
         } else {
             super.get(dst, offset, length);
         }
         return this;
+
+
+
     }
 
+
+
     public DoubleBuffer put(double x) {
-        Address.fromLong(ix(nextPutIndex())).store(Bits.swap(Double.doubleToRawLongBits(x)));
+
+        try {
+            UNSAFE.putLong(ix(nextPutIndex()), Bits.swap(Double.doubleToRawLongBits(x)));
+        } finally {
+            Reference.reachabilityFence(this);
+        }
         return this;
+
+
+
     }
 
     public DoubleBuffer put(int i, double x) {
-        Address.fromLong(ix(checkIndex(i))).store(Bits.swap(Double.doubleToRawLongBits(x)));
+
+        try {
+            UNSAFE.putLong(ix(checkIndex(i)), Bits.swap(Double.doubleToRawLongBits(x)));
+        } finally {
+            Reference.reachabilityFence(this);
+        }
         return this;
+
+
+
     }
 
     public DoubleBuffer put(DoubleBuffer src) {
+
         if (src instanceof DirectDoubleBufferS) {
             if (src == this)
-                throw new IllegalArgumentException();
+                throw createSameBufferException();
             DirectDoubleBufferS sb = (DirectDoubleBufferS)src;
 
             int spos = sb.position();
@@ -158,10 +370,16 @@ class DirectDoubleBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            Memory.aligned64Copy(Address.fromLong(ix(pos)), Address.fromLong(sb.ix(spos)), srem<<3);
+            try {
+                UNSAFE.copyMemory(sb.ix(spos), ix(pos), (long)srem << 3);
+            } finally {
+                Reference.reachabilityFence(sb);
+                Reference.reachabilityFence(this);
+            }
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
+
             int spos = src.position();
             int slim = src.limit();
             assert (spos <= slim);
@@ -174,10 +392,14 @@ class DirectDoubleBufferS
             super.put(src);
         }
         return this;
+
+
+
     }
 
     public DoubleBuffer put(double[] src, int offset, int length) {
-        if ((length << 3) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
+
+        if (((long)length << 3) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
             int lim = limit();
@@ -185,28 +407,55 @@ class DirectDoubleBufferS
             int rem = (pos <= lim ? lim - pos : 0);
             if (length > rem)
                 throw new BufferOverflowException();
-            if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromLongArray(src, offset << 3, ix(pos), length);
-            else
-                Bits.copyFromArray(src, arrayBaseOffset, offset << 3, ix(pos), length << 3);
+
+            long srcOffset = ARRAY_BASE_OFFSET + ((long)offset << 3);
+            try {
+
+                if (order() != ByteOrder.nativeOrder())
+                    UNSAFE.copySwapMemory(src,
+                                          srcOffset,
+                                          null,
+                                          ix(pos),
+                                          (long)length << 3,
+                                          (long)1 << 3);
+                else
+
+                    UNSAFE.copyMemory(src,
+                                      srcOffset,
+                                      null,
+                                      ix(pos),
+                                      (long)length << 3);
+            } finally {
+                Reference.reachabilityFence(this);
+            }
             position(pos + length);
         } else {
             super.put(src, offset, length);
         }
         return this;
+
+
+
     }
 
     public DoubleBuffer compact() {
+
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-
-        Memory.aligned64Copy(Address.fromLong(ix(0)), Address.fromLong(ix(pos)), rem<<3);
+        try {
+            UNSAFE.copyMemory(ix(pos), ix(0), (long)rem << 3);
+        } finally {
+            Reference.reachabilityFence(this);
+        }
         position(rem);
         limit(capacity());
         discardMark();
         return this;
+
+
+
     }
 
     public boolean isDirect() {
@@ -217,8 +466,78 @@ class DirectDoubleBufferS
         return false;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public ByteOrder order() {
+
         return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+
+
+
+
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

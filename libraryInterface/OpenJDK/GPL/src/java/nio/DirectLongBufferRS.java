@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,64 +27,433 @@
 
 package java.nio;
 
+import java.io.FileDescriptor;
+import java.lang.ref.Reference;
+import jdk.internal.misc.VM;
+import jdk.internal.ref.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
+
 class DirectLongBufferRS
+
+
+
     extends DirectLongBufferS
+
     implements DirectBuffer
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // For duplicates and slices
     //
     DirectLongBufferRS(DirectBuffer db,         // package-private
-                       int mark, int pos, int lim, int cap,
-                       int off)
+                               int mark, int pos, int lim, int cap,
+                               int off)
     {
+
+
+
+
+
+
+
+
         super(db, mark, pos, lim, cap, off);
+        this.isReadOnly = true;
+
+    }
+
+    @Override
+    Object base() {
+        return null;
     }
 
     public LongBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 3);
         assert (off >= 0);
         return new DirectLongBufferRS(this, -1, 0, rem, rem, off);
     }
 
+
+
+
+
+
+
+
+
+
     public LongBuffer duplicate() {
         return new DirectLongBufferRS(this,
-                                      this.markValue(),
-                                      this.position(),
-                                      this.limit(),
-                                      this.capacity(),
-                                      0);
+                                              this.markValue(),
+                                              this.position(),
+                                              this.limit(),
+                                              this.capacity(),
+                                              0);
     }
 
     public LongBuffer asReadOnlyBuffer() {
+
+
+
+
+
+
+
+
         return duplicate();
+
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public LongBuffer put(long x) {
+
+
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
+
     }
 
     public LongBuffer put(int i, long x) {
+
+
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
+
     }
 
     public LongBuffer put(LongBuffer src) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
 
     }
 
     public LongBuffer put(long[] src, int offset, int length) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
 
     }
 
     public LongBuffer compact() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         throw new ReadOnlyBufferException();
 
     }
@@ -97,8 +466,78 @@ class DirectLongBufferRS
         return true;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public ByteOrder order() {
+
         return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+
+
+
+
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,14 +27,21 @@
 
 package java.nio;
 
+import jdk.internal.misc.Unsafe;
+
 
 class ByteBufferAsShortBufferB                  // package-private
     extends ShortBuffer
 {
+
+
+
     protected final ByteBuffer bb;
-    protected final int offset;
+
+
 
     ByteBufferAsShortBufferB(ByteBuffer bb) {   // package-private
+
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
@@ -44,69 +51,118 @@ class ByteBufferAsShortBufferB                  // package-private
         this.limit(cap);
         int pos = this.position();
         assert (pos <= cap);
-        offset = pos;
+        address = bb.address;
+
+
+
     }
 
     ByteBufferAsShortBufferB(ByteBuffer bb,
-                             int mark, int pos, int lim, int cap,
-                             int off)
+                                     int mark, int pos, int lim, int cap,
+                                     long addr)
     {
+
         super(mark, pos, lim, cap);
         this.bb = bb;
-        offset = off;
+        address = addr;
+        assert address >= bb.address;
+
+
+
+    }
+
+    @Override
+    Object base() {
+        return bb.hb;
     }
 
     public ShortBuffer slice() {
         int pos = this.position();
         int lim = this.limit();
-        assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 1) + offset;
-        assert (off >= 0);
-        return new ByteBufferAsShortBufferB(bb, -1, 0, rem, rem, off);
+        long addr = byteOffset(pos);
+        return new ByteBufferAsShortBufferB(bb, -1, 0, rem, rem, addr);
     }
 
     public ShortBuffer duplicate() {
         return new ByteBufferAsShortBufferB(bb,
-                                            this.markValue(),
-                                            this.position(),
-                                            this.limit(),
-                                            this.capacity(),
-                                            offset);
+                                                    this.markValue(),
+                                                    this.position(),
+                                                    this.limit(),
+                                                    this.capacity(),
+                                                    address);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
+
         return new ByteBufferAsShortBufferRB(bb,
-                                             this.markValue(),
-                                             this.position(),
-                                             this.limit(),
-                                             this.capacity(),
-                                             offset);
+                                                 this.markValue(),
+                                                 this.position(),
+                                                 this.limit(),
+                                                 this.capacity(),
+                                                 address);
+
+
+
     }
 
-    protected int ix(int i) {
-        return (i << 1) + offset;
+
+
+    private int ix(int i) {
+        int off = (int) (address - bb.address);
+        return (i << 1) + off;
+    }
+
+    protected long byteOffset(long i) {
+        return (i << 1) + address;
     }
 
     public short get() {
-        return Bits.getShortB(bb, ix(nextGetIndex()));
+        short x = UNSAFE.getShortUnaligned(bb.hb, byteOffset(nextGetIndex()),
+            true);
+        return (x);
     }
 
     public short get(int i) {
-        return Bits.getShortB(bb, ix(checkIndex(i)));
+        short x = UNSAFE.getShortUnaligned(bb.hb, byteOffset(checkIndex(i)),
+            true);
+        return (x);
     }
 
+
+
+
+
+
+
+
+
+
+
     public ShortBuffer put(short x) {
-        Bits.putShortB(bb, ix(nextPutIndex()), x);
+
+        short y = (x);
+        UNSAFE.putShortUnaligned(bb.hb, byteOffset(nextPutIndex()), y,
+            true);
         return this;
+
+
+
     }
 
     public ShortBuffer put(int i, short x) {
-        Bits.putShortB(bb, ix(checkIndex(i)), x);
+
+        short y = (x);
+        UNSAFE.putShortUnaligned(bb.hb, byteOffset(checkIndex(i)), y,
+            true);
         return this;
+
+
+
     }
 
     public ShortBuffer compact() {
+
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
@@ -122,6 +178,9 @@ class ByteBufferAsShortBufferB                  // package-private
         limit(capacity());
         discardMark();
         return this;
+
+
+
     }
 
     public boolean isDirect() {
@@ -132,8 +191,60 @@ class ByteBufferAsShortBufferB                  // package-private
         return false;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public ByteOrder order() {
+
         return ByteOrder.BIG_ENDIAN;
+
+
+
+
     }
+
+
+
+
+
 
 }

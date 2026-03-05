@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,6 +36,8 @@ package java.nio;
 
 
 
+import jdk.internal.util.ArraysSupport;
+
 /**
  * A double buffer.
  *
@@ -70,8 +72,7 @@ package java.nio;
 
 
  *
- *   <li><p> Methods for {@link #compact compacting}, {@link
- *   #duplicate duplicating}, and {@link #slice slicing}
+ *   <li><p> A method for {@link #compact compacting}
  *   a double buffer.  </p></li>
  *
  * </ul>
@@ -190,13 +191,12 @@ package java.nio;
 
 
 
-
 *
 
  *
  * <p> Like a byte buffer, a double buffer is either <a
  * href="ByteBuffer.html#direct"><i>direct</i> or <i>non-direct</i></a>.  A
- * double buffer created via the <tt>wrap</tt> methods of this class will
+ * double buffer created via the {@code wrap} methods of this class will
  * be non-direct.  A double buffer created as a view of a byte buffer will
  * be direct if, and only if, the byte buffer itself is direct.  Whether or not
  * a double buffer is direct may be determined by invoking the {@link
@@ -270,7 +270,7 @@ public abstract class DoubleBuffer
     //
     final double[] hb;                  // Non-null only for heap buffers
     final int offset;
-    boolean isReadOnly;                 // Valid only for heap buffers
+    boolean isReadOnly;
 
     // Creates a new buffer with the given mark, position, limit, capacity,
     // backing array, and array offset
@@ -288,6 +288,12 @@ public abstract class DoubleBuffer
     DoubleBuffer(int mark, int pos, int lim, int cap) { // package-private
         this(mark, pos, lim, cap, null, 0);
     }
+
+    @Override
+    Object base() {
+        return hb;
+    }
+
 
 
 
@@ -317,9 +323,16 @@ public abstract class DoubleBuffer
      * Allocates a new double buffer.
      *
      * <p> The new buffer's position will be zero, its limit will be its
-     * capacity, its mark will be undefined, and each of its elements will be
-     * initialized to zero.  It will have a {@link #array backing array},
-     * and its {@link #arrayOffset array offset} will be zero.
+     * capacity, its mark will be undefined, each of its elements will be
+     * initialized to zero, and its byte order will be
+
+
+
+     * the {@link ByteOrder#nativeOrder native order} of the underlying
+     * hardware.
+
+     * It will have a {@link #array backing array}, and its
+     * {@link #arrayOffset array offset} will be zero.
      *
      * @param  capacity
      *         The new buffer's capacity, in doubles
@@ -327,11 +340,11 @@ public abstract class DoubleBuffer
      * @return  The new double buffer
      *
      * @throws  IllegalArgumentException
-     *          If the <tt>capacity</tt> is a negative integer
+     *          If the {@code capacity} is a negative integer
      */
     public static DoubleBuffer allocate(int capacity) {
         if (capacity < 0)
-            throw new IllegalArgumentException();
+            throw createCapacityException(capacity);
         return new HeapDoubleBuffer(capacity, capacity);
     }
 
@@ -341,9 +354,16 @@ public abstract class DoubleBuffer
      * <p> The new buffer will be backed by the given double array;
      * that is, modifications to the buffer will cause the array to be modified
      * and vice versa.  The new buffer's capacity will be
-     * <tt>array.length</tt>, its position will be <tt>offset</tt>, its limit
-     * will be <tt>offset + length</tt>, and its mark will be undefined.  Its
-     * {@link #array backing array} will be the given array, and
+     * {@code array.length}, its position will be {@code offset}, its limit
+     * will be {@code offset + length}, its mark will be undefined, and its
+     * byte order will be
+
+
+
+     * the {@link ByteOrder#nativeOrder native order} of the underlying
+     * hardware.
+
+     * Its {@link #array backing array} will be the given array, and
      * its {@link #arrayOffset array offset} will be zero.  </p>
      *
      * @param  array
@@ -351,19 +371,19 @@ public abstract class DoubleBuffer
      *
      * @param  offset
      *         The offset of the subarray to be used; must be non-negative and
-     *         no larger than <tt>array.length</tt>.  The new buffer's position
+     *         no larger than {@code array.length}.  The new buffer's position
      *         will be set to this value.
      *
      * @param  length
      *         The length of the subarray to be used;
      *         must be non-negative and no larger than
-     *         <tt>array.length - offset</tt>.
-     *         The new buffer's limit will be set to <tt>offset + length</tt>.
+     *         {@code array.length - offset}.
+     *         The new buffer's limit will be set to {@code offset + length}.
      *
      * @return  The new double buffer
      *
      * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
+     *          If the preconditions on the {@code offset} and {@code length}
      *          parameters do not hold
      */
     public static DoubleBuffer wrap(double[] array,
@@ -382,10 +402,16 @@ public abstract class DoubleBuffer
      * <p> The new buffer will be backed by the given double array;
      * that is, modifications to the buffer will cause the array to be modified
      * and vice versa.  The new buffer's capacity and limit will be
-     * <tt>array.length</tt>, its position will be zero, and its mark will be
-     * undefined.  Its {@link #array backing array} will be the
-     * given array, and its {@link #arrayOffset array offset>} will
-     * be zero.  </p>
+     * {@code array.length}, its position will be zero, its mark will be
+     * undefined, and its byte order will be
+
+
+
+     * the {@link ByteOrder#nativeOrder native order} of the underlying
+     * hardware.
+
+     * Its {@link #array backing array} will be the given array, and its
+     * {@link #arrayOffset array offset} will be zero.  </p>
      *
      * @param  array
      *         The array that will back this buffer
@@ -395,6 +421,14 @@ public abstract class DoubleBuffer
     public static DoubleBuffer wrap(double[] array) {
         return wrap(array, 0, array.length);
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -499,13 +533,23 @@ public abstract class DoubleBuffer
      * values will be independent.
      *
      * <p> The new buffer's position will be zero, its capacity and its limit
-     * will be the number of doubles remaining in this buffer, and its mark
-     * will be undefined.  The new buffer will be direct if, and only if, this
-     * buffer is direct, and it will be read-only if, and only if, this buffer
-     * is read-only.  </p>
+     * will be the number of doubles remaining in this buffer, its mark will be
+     * undefined, and its byte order will be
+
+
+
+     * identical to that of this buffer.
+
+     * The new buffer will be direct if, and only if, this buffer is direct, and
+     * it will be read-only if, and only if, this buffer is read-only.  </p>
      *
      * @return  The new double buffer
+
+
+
+
      */
+    @Override
     public abstract DoubleBuffer slice();
 
     /**
@@ -516,13 +560,19 @@ public abstract class DoubleBuffer
      * versa; the two buffers' position, limit, and mark values will be
      * independent.
      *
-     * <p> The new buffer's capacity, limit, position, and mark values will be
-     * identical to those of this buffer.  The new buffer will be direct if,
-     * and only if, this buffer is direct, and it will be read-only if, and
-     * only if, this buffer is read-only.  </p>
+     * <p> The new buffer's capacity, limit, position,
+
+
+
+
+     * mark values, and byte order will be identical to those of this buffer.
+
+     * The new buffer will be direct if, and only if, this buffer is direct, and
+     * it will be read-only if, and only if, this buffer is read-only.  </p>
      *
      * @return  The new double buffer
      */
+    @Override
     public abstract DoubleBuffer duplicate();
 
     /**
@@ -535,8 +585,13 @@ public abstract class DoubleBuffer
      * content to be modified.  The two buffers' position, limit, and mark
      * values will be independent.
      *
-     * <p> The new buffer's capacity, limit, position, and mark values will be
-     * identical to those of this buffer.
+     * <p> The new buffer's capacity, limit, position,
+
+
+
+
+     * mark values, and byte order will be identical to those of this buffer.
+
      *
      * <p> If this buffer is itself read-only then this method behaves in
      * exactly the same way as the {@link #duplicate duplicate} method.  </p>
@@ -588,7 +643,7 @@ public abstract class DoubleBuffer
      * @return  The double at the given index
      *
      * @throws  IndexOutOfBoundsException
-     *          If <tt>index</tt> is negative
+     *          If {@code index} is negative
      *          or not smaller than the buffer's limit
      */
     public abstract double get(int index);
@@ -621,7 +676,7 @@ public abstract class DoubleBuffer
      * @return  This buffer
      *
      * @throws  IndexOutOfBoundsException
-     *          If <tt>index</tt> is negative
+     *          If {@code index} is negative
      *          or not smaller than the buffer's limit
      *
      * @throws  ReadOnlyBufferException
@@ -638,22 +693,22 @@ public abstract class DoubleBuffer
      * <p> This method transfers doubles from this buffer into the given
      * destination array.  If there are fewer doubles remaining in the
      * buffer than are required to satisfy the request, that is, if
-     * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
+     * {@code length}&nbsp;{@code >}&nbsp;{@code remaining()}, then no
      * doubles are transferred and a {@link BufferUnderflowException} is
      * thrown.
      *
-     * <p> Otherwise, this method copies <tt>length</tt> doubles from this
+     * <p> Otherwise, this method copies {@code length} doubles from this
      * buffer into the given array, starting at the current position of this
      * buffer and at the given offset in the array.  The position of this
-     * buffer is then incremented by <tt>length</tt>.
+     * buffer is then incremented by {@code length}.
      *
      * <p> In other words, an invocation of this method of the form
-     * <tt>src.get(dst,&nbsp;off,&nbsp;len)</tt> has exactly the same effect as
+     * <code>src.get(dst,&nbsp;off,&nbsp;len)</code> has exactly the same effect as
      * the loop
      *
      * <pre>{@code
      *     for (int i = off; i < off + len; i++)
-     *         dst[i] = src.get():
+     *         dst[i] = src.get();
      * }</pre>
      *
      * except that it first checks that there are sufficient doubles in
@@ -665,21 +720,21 @@ public abstract class DoubleBuffer
      * @param  offset
      *         The offset within the array of the first double to be
      *         written; must be non-negative and no larger than
-     *         <tt>dst.length</tt>
+     *         {@code dst.length}
      *
      * @param  length
      *         The maximum number of doubles to be written to the given
      *         array; must be non-negative and no larger than
-     *         <tt>dst.length - offset</tt>
+     *         {@code dst.length - offset}
      *
      * @return  This buffer
      *
      * @throws  BufferUnderflowException
-     *          If there are fewer than <tt>length</tt> doubles
+     *          If there are fewer than {@code length} doubles
      *          remaining in this buffer
      *
      * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
+     *          If the preconditions on the {@code offset} and {@code length}
      *          parameters do not hold
      */
     public DoubleBuffer get(double[] dst, int offset, int length) {
@@ -697,7 +752,7 @@ public abstract class DoubleBuffer
      *
      * <p> This method transfers doubles from this buffer into the given
      * destination array.  An invocation of this method of the form
-     * <tt>src.get(a)</tt> behaves in exactly the same way as the invocation
+     * {@code src.get(a)} behaves in exactly the same way as the invocation
      *
      * <pre>
      *     src.get(a, 0, a.length) </pre>
@@ -708,7 +763,7 @@ public abstract class DoubleBuffer
      * @return  This buffer
      *
      * @throws  BufferUnderflowException
-     *          If there are fewer than <tt>length</tt> doubles
+     *          If there are fewer than {@code length} doubles
      *          remaining in this buffer
      */
     public DoubleBuffer get(double[] dst) {
@@ -724,17 +779,17 @@ public abstract class DoubleBuffer
      * <p> This method transfers the doubles remaining in the given source
      * buffer into this buffer.  If there are more doubles remaining in the
      * source buffer than in this buffer, that is, if
-     * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
+     * {@code src.remaining()}&nbsp;{@code >}&nbsp;{@code remaining()},
      * then no doubles are transferred and a {@link
      * BufferOverflowException} is thrown.
      *
      * <p> Otherwise, this method copies
-     * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> doubles from the given
+     * <i>n</i>&nbsp;=&nbsp;{@code src.remaining()} doubles from the given
      * buffer into this buffer, starting at each buffer's current position.
      * The positions of both buffers are then incremented by <i>n</i>.
      *
      * <p> In other words, an invocation of this method of the form
-     * <tt>dst.put(src)</tt> has exactly the same effect as the loop
+     * {@code dst.put(src)} has exactly the same effect as the loop
      *
      * <pre>
      *     while (src.hasRemaining())
@@ -761,7 +816,7 @@ public abstract class DoubleBuffer
      */
     public DoubleBuffer put(DoubleBuffer src) {
         if (src == this)
-            throw new IllegalArgumentException();
+            throw createSameBufferException();
         if (isReadOnly())
             throw new ReadOnlyBufferException();
         int n = src.remaining();
@@ -778,17 +833,17 @@ public abstract class DoubleBuffer
      * <p> This method transfers doubles into this buffer from the given
      * source array.  If there are more doubles to be copied from the array
      * than remain in this buffer, that is, if
-     * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
+     * {@code length}&nbsp;{@code >}&nbsp;{@code remaining()}, then no
      * doubles are transferred and a {@link BufferOverflowException} is
      * thrown.
      *
-     * <p> Otherwise, this method copies <tt>length</tt> doubles from the
+     * <p> Otherwise, this method copies {@code length} doubles from the
      * given array into this buffer, starting at the given offset in the array
      * and at the current position of this buffer.  The position of this buffer
-     * is then incremented by <tt>length</tt>.
+     * is then incremented by {@code length}.
      *
      * <p> In other words, an invocation of this method of the form
-     * <tt>dst.put(src,&nbsp;off,&nbsp;len)</tt> has exactly the same effect as
+     * <code>dst.put(src,&nbsp;off,&nbsp;len)</code> has exactly the same effect as
      * the loop
      *
      * <pre>{@code
@@ -804,12 +859,12 @@ public abstract class DoubleBuffer
      *
      * @param  offset
      *         The offset within the array of the first double to be read;
-     *         must be non-negative and no larger than <tt>array.length</tt>
+     *         must be non-negative and no larger than {@code array.length}
      *
      * @param  length
      *         The number of doubles to be read from the given array;
      *         must be non-negative and no larger than
-     *         <tt>array.length - offset</tt>
+     *         {@code array.length - offset}
      *
      * @return  This buffer
      *
@@ -817,7 +872,7 @@ public abstract class DoubleBuffer
      *          If there is insufficient space in this buffer
      *
      * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
+     *          If the preconditions on the {@code offset} and {@code length}
      *          parameters do not hold
      *
      * @throws  ReadOnlyBufferException
@@ -838,7 +893,7 @@ public abstract class DoubleBuffer
      *
      * <p> This method transfers the entire content of the given source
      * double array into this buffer.  An invocation of this method of the
-     * form <tt>dst.put(a)</tt> behaves in exactly the same way as the
+     * form {@code dst.put(a)} behaves in exactly the same way as the
      * invocation
      *
      * <pre>
@@ -959,11 +1014,11 @@ public abstract class DoubleBuffer
      * Tells whether or not this buffer is backed by an accessible double
      * array.
      *
-     * <p> If this method returns <tt>true</tt> then the {@link #array() array}
+     * <p> If this method returns {@code true} then the {@link #array() array}
      * and {@link #arrayOffset() arrayOffset} methods may safely be invoked.
      * </p>
      *
-     * @return  <tt>true</tt> if, and only if, this buffer
+     * @return  {@code true} if, and only if, this buffer
      *          is backed by an array and is not read-only
      */
     public final boolean hasArray() {
@@ -1002,7 +1057,7 @@ public abstract class DoubleBuffer
      * element of the buffer&nbsp;&nbsp;<i>(optional operation)</i>.
      *
      * <p> If this buffer is backed by an array then buffer position <i>p</i>
-     * corresponds to array index <i>p</i>&nbsp;+&nbsp;<tt>arrayOffset()</tt>.
+     * corresponds to array index <i>p</i>&nbsp;+&nbsp;{@code arrayOffset()}.
      *
      * <p> Invoke the {@link #hasArray hasArray} method before invoking this
      * method in order to ensure that this buffer has an accessible backing
@@ -1025,16 +1080,109 @@ public abstract class DoubleBuffer
         return offset;
     }
 
+    // -- Covariant return type overrides
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public
+
+    final
+
+    DoubleBuffer position(int newPosition) {
+        super.position(newPosition);
+        return this;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public
+
+    final
+
+    DoubleBuffer limit(int newLimit) {
+        super.limit(newLimit);
+        return this;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public 
+
+    final
+
+    DoubleBuffer mark() {
+        super.mark();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public 
+
+    final
+
+    DoubleBuffer reset() {
+        super.reset();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public 
+
+    final
+
+    DoubleBuffer clear() {
+        super.clear();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public 
+
+    final
+
+    DoubleBuffer flip() {
+        super.flip();
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public 
+
+    final
+
+    DoubleBuffer rewind() {
+        super.rewind();
+        return this;
+    }
+
     /**
      * Compacts this buffer&nbsp;&nbsp;<i>(optional operation)</i>.
      *
      * <p> The doubles between the buffer's current position and its limit,
      * if any, are copied to the beginning of the buffer.  That is, the
-     * double at index <i>p</i>&nbsp;=&nbsp;<tt>position()</tt> is copied
+     * double at index <i>p</i>&nbsp;=&nbsp;{@code position()} is copied
      * to index zero, the double at index <i>p</i>&nbsp;+&nbsp;1 is copied
      * to index one, and so forth until the double at index
-     * <tt>limit()</tt>&nbsp;-&nbsp;1 is copied to index
-     * <i>n</i>&nbsp;=&nbsp;<tt>limit()</tt>&nbsp;-&nbsp;<tt>1</tt>&nbsp;-&nbsp;<i>p</i>.
+     * {@code limit()}&nbsp;-&nbsp;1 is copied to index
+     * <i>n</i>&nbsp;=&nbsp;{@code limit()}&nbsp;-&nbsp;{@code 1}&nbsp;-&nbsp;<i>p</i>.
      * The buffer's position is then set to <i>n+1</i> and its limit is set to
      * its capacity.  The mark, if defined, is discarded.
      *
@@ -1070,7 +1218,7 @@ public abstract class DoubleBuffer
     /**
      * Tells whether or not this double buffer is direct.
      *
-     * @return  <tt>true</tt> if, and only if, this buffer is direct
+     * @return  {@code true} if, and only if, this buffer is direct
      */
     public abstract boolean isDirect();
 
@@ -1103,8 +1251,8 @@ public abstract class DoubleBuffer
      * Returns the current hash code of this buffer.
      *
      * <p> The hash code of a double buffer depends only upon its remaining
-     * elements; that is, upon the elements from <tt>position()</tt> up to, and
-     * including, the element at <tt>limit()</tt>&nbsp;-&nbsp;<tt>1</tt>.
+     * elements; that is, upon the elements from {@code position()} up to, and
+     * including, the element at {@code limit()}&nbsp;-&nbsp;{@code 1}.
      *
      * <p> Because buffer hash codes are content-dependent, it is inadvisable
      * to use buffers as keys in hash maps or similar data structures unless it
@@ -1153,7 +1301,7 @@ public abstract class DoubleBuffer
      *
      * @param  ob  The object to which this buffer is to be compared
      *
-     * @return  <tt>true</tt> if, and only if, this buffer is equal to the
+     * @return  {@code true} if, and only if, this buffer is equal to the
      *           given object
      */
     public boolean equals(Object ob) {
@@ -1162,21 +1310,15 @@ public abstract class DoubleBuffer
         if (!(ob instanceof DoubleBuffer))
             return false;
         DoubleBuffer that = (DoubleBuffer)ob;
-        if (this.remaining() != that.remaining())
+        int thisPos = this.position();
+        int thisRem = this.limit() - thisPos;
+        int thatPos = that.position();
+        int thatRem = that.limit() - thatPos;
+        if (thisRem < 0 || thisRem != thatRem)
             return false;
-        int p = this.position();
-        for (int i = this.limit() - 1, j = that.limit() - 1; i >= p; i--, j--)
-            if (!equals(this.get(i), that.get(j)))
-                return false;
-        return true;
-    }
-
-    private static boolean equals(double x, double y) {
-
-        return (x == y) || (Double.isNaN(x) && Double.isNaN(y));
-
-
-
+        return BufferMismatch.mismatch(this, thisPos,
+                                       that, thatPos,
+                                       thisRem) < 0;
     }
 
     /**
@@ -1203,13 +1345,20 @@ public abstract class DoubleBuffer
      *          is less than, equal to, or greater than the given buffer
      */
     public int compareTo(DoubleBuffer that) {
-        int n = this.position() + Math.min(this.remaining(), that.remaining());
-        for (int i = this.position(), j = that.position(); i < n; i++, j++) {
-            int cmp = compare(this.get(i), that.get(j));
-            if (cmp != 0)
-                return cmp;
+        int thisPos = this.position();
+        int thisRem = this.limit() - thisPos;
+        int thatPos = that.position();
+        int thatRem = that.limit() - thatPos;
+        int length = Math.min(thisRem, thatRem);
+        if (length < 0)
+            return -1;
+        int i = BufferMismatch.mismatch(this, thisPos,
+                                        that, thatPos,
+                                        length);
+        if (i >= 0) {
+            return compare(this.get(thisPos + i), that.get(thatPos + i));
         }
-        return this.remaining() - that.remaining();
+        return thisRem - thatRem;
     }
 
     private static int compare(double x, double y) {
@@ -1221,6 +1370,44 @@ public abstract class DoubleBuffer
 
 
 
+    }
+
+    /**
+     * Finds and returns the relative index of the first mismatch between this
+     * buffer and a given buffer.  The index is relative to the
+     * {@link #position() position} of each buffer and will be in the range of
+     * 0 (inclusive) up to the smaller of the {@link #remaining() remaining}
+     * elements in each buffer (exclusive).
+     *
+     * <p> If the two buffers share a common prefix then the returned index is
+     * the length of the common prefix and it follows that there is a mismatch
+     * between the two buffers at that index within the respective buffers.
+     * If one buffer is a proper prefix of the other then the returned index is
+     * the smaller of the remaining elements in each buffer, and it follows that
+     * the index is only valid for the buffer with the larger number of
+     * remaining elements.
+     * Otherwise, there is no mismatch.
+     *
+     * @param  that
+     *         The byte buffer to be tested for a mismatch with this buffer
+     *
+     * @return  The relative index of the first mismatch between this and the
+     *          given buffer, otherwise -1 if no mismatch.
+     *
+     * @since 11
+     */
+    public int mismatch(DoubleBuffer that) {
+        int thisPos = this.position();
+        int thisRem = this.limit() - thisPos;
+        int thatPos = that.position();
+        int thatRem = that.limit() - thatPos;
+        int length = Math.min(thisRem, thatRem);
+        if (length < 0)
+            return -1;
+        int r = BufferMismatch.mismatch(this, thisPos,
+                                        that, thatPos,
+                                        length);
+        return (r == -1 && thisRem != thatRem) ? length : r;
     }
 
     // -- Other char stuff --
@@ -1426,7 +1613,7 @@ public abstract class DoubleBuffer
      * Retrieves this buffer's byte order.
      *
      * <p> The byte order of a double buffer created by allocation or by
-     * wrapping an existing <tt>double</tt> array is the {@link
+     * wrapping an existing {@code double} array is the {@link
      * ByteOrder#nativeOrder native order} of the underlying
      * hardware.  The byte order of a double buffer created as a <a
      * href="ByteBuffer.html#views">view</a> of a byte buffer is that of the
@@ -1435,6 +1622,144 @@ public abstract class DoubleBuffer
      * @return  This buffer's byte order
      */
     public abstract ByteOrder order();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
