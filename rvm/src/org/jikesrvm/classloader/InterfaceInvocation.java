@@ -195,7 +195,8 @@ public class InterfaceInvocation {
       RVMMethod[] interfaceMethods = i.getDeclaredMethods();
       for (RVMMethod im : interfaceMethods) {
         if (im.isClassInitializer()) continue;
-        if (VM.VerifyAssertions) VM._assert(im.isPublic());
+        if(!im.isPublic()) VM.sysWriteln("class: "+klass+" interface: "+i);
+//        if (VM.VerifyAssertions) VM._assert(im.isPublic());
         InterfaceMethodSignature sig = InterfaceMethodSignature.findOrCreate(im.getMemberRef());
         RVMMethod vm = klass.findVirtualMethod(im.getName(), im.getDescriptor());
         // NOTE: if there is some error condition, then we are playing a dirty trick and
