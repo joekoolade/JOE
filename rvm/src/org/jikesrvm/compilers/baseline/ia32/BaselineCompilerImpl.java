@@ -2934,6 +2934,42 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
   }
 
   @Override
+  protected void emit_invokedynamic(int callSiteIndex) {
+    // --- Phase 1: Bootstrap linkage ---
+    // Call the runtime helper to bootstrap (or retrieve cached) CallSite.
+    // Helper signature:  MethodHandle invokedynamicHelper(RVMClass cls, int index)
+    asm.generateJTOCpush(klass.getTibOffset());  // arg0: declaring class type object
+    asm.emitPUSH_Imm(callSiteIndex);             // arg1: call-site index
+    genParameterRegisterLoad(asm, 2);
+    //asm.generateJTOCcall(Entrypoints.invokedynamicMethod.getOffset());
+    // T0 = MethodHandle target returned from helper
+
+    // Save MethodHandle into S0
+    if (VM.BuildFor32Addr) {
+      asm.emitMOV_Reg_Reg(S0, T0);
+    } else {
+      asm.emitMOV_Reg_Reg_Quad(S0, T0);
+    }
+
+    // --- Phase 2: Dispatch via MethodHandle.invokeExact ---
+    // Retrieve the call-site's method descriptor for argument sizing.
+//    MethodReference callSiteRef = klass.getInvokeDynamicMethodRef(callSiteIndex);
+//    int argWords = callSiteRef.getParameterWords();
+//
+//    // Push the MethodHandle as the "this" receiver for invokeExact,
+//    // on top of the call arguments already on the stack.
+//    asm.emitPUSH_Reg(S0);
+//    genParameterRegisterLoad(asm, argWords + 1); // MethodHandle + args
+
+    // Dispatch: TIB-based virtual call to MethodHandle.invokeExact
+    asm.baselineEmitLoadTIB(T1, S0);
+    //asm.emitCALL_RegDisp(T1, Entrypoints.methodHandleInvokeExactMethod.getOffset());
+
+    // Handle return value
+//    genResultRegisterUnload(callSiteRef);
+  }
+  
+  @Override
   protected void emit_resolved_invokespecial(MethodReference methodRef, RVMMethod target) {
     if (target.isObjectInitializer()) {
       genParameterRegisterLoad(methodRef, true);

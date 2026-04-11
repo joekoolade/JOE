@@ -1559,11 +1559,24 @@ public abstract class TemplateCompilerFramework {
         }
 
         case JBC_invokedynamic: {
-          if (shouldPrint) lister.noteBytecode(biStart, "unused");
-          if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);
-          break;
-        }
+            // The invokedynamic bytecode has the form:
+            //   invokedynamic  <index16>  0  0
+            // where <index16> is a big-endian index into the constant pool's
+            // InvokeDynamic bootstrap specifier table.
+            int callSiteIndex = bcodes.getShortValue(); // read the 2-byte index
+            bcodes.getByteValue();                       // skip mandatory zero byte
+            bcodes.getByteValue();                       // skip mandatory zero byte
 
+            if (shouldPrint) lister.noteBytecode(biStart, "invokedynamic", callSiteIndex);
+            // Dynamic invocation is always interruptible (bootstrap may load classes).
+            if (VM.VerifyUnint && !isInterruptible)
+              forbiddenBytecode("invokedynamic", bcodes.index());
+
+            VM.sysWriteln("invokedynamic:", callSiteIndex);
+            emit_invokedynamic(callSiteIndex);
+            break;
+        }
+        
         case JBC_new: {
           TypeReference typeRef = bcodes.getTypeReference();
           if (shouldPrint) lister.noteBytecode(biStart, "new", typeRef);
@@ -2006,6 +2019,8 @@ public abstract class TemplateCompilerFramework {
     ending_method();
     return new MachineCode(getAssembler().getMachineCodes(),bytecodeMap);
   }
+
+  protected abstract void emit_invokedynamic(int callSiteIndex);
 
   /**
    * Handle if.. bytecodes

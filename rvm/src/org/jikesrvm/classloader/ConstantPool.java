@@ -154,6 +154,7 @@ public final class ConstantPool {
   @Uninterruptible
   static MethodReference getMethodRef(int[] constantPool, int constantPoolIndex) {
     int cpValue = constantPool[constantPoolIndex];
+    if(ConstantPool.unpackCPType(cpValue) != CP_MEMBER) VM.sysWriteln("getMethodRef cpv:"+cpValue+" cpi:"+constantPoolIndex);
     if (VM.VerifyAssertions) VM._assert(ConstantPool.unpackCPType(cpValue) == CP_MEMBER);
     return (MethodReference) MemberReference.getMemberRef(ConstantPool.unpackUnsignedCPValue(cpValue));
   }
@@ -220,6 +221,11 @@ public final class ConstantPool {
   @Uninterruptible
   static boolean packedCPTypeIsClassType(int cpValue) {
     return (cpValue & (7 << 29)) == (CP_CLASS << 29);
+  }
+
+  @Uninterruptible
+  static boolean packedCPTypeIsMemberType(int cpValue) {
+    return (cpValue & (7 << 29)) == (CP_MEMBER << 29);
   }
 
   @Uninterruptible

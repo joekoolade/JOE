@@ -81,6 +81,7 @@ public abstract class BootImageCompiler {
         return compiler.compileMethod(method, params);
       }
     } catch (Exception e) {
+        e.printStackTrace();
       throw new Error("Exception during compilation of " + method, e);
     }
   }

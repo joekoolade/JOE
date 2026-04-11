@@ -68,7 +68,16 @@ public class ClassFileReader {
   public static final byte TAG_MODULE = 19;
   public static final byte TAG_PACKAGE = 20;
   
-
+  public static final byte MH_REF_GETFIELD           = 1;
+  public static final byte MH_REF_GETSTATIC          = 2;
+  public static final byte MH_REF_PUTFIELD           = 3;
+  public static final byte MH_REF_PUTSTATIC          = 4;
+  public static final byte MH_REF_INVOKEVIRTUAL      = 5;
+  public static final byte MH_REF_INVOKESTATIC       = 6;
+  public static final byte MH_REF_INVOKESPECIAL      = 7;
+  public static final byte MH_REF_NEWINVOKESPECIAL   = 8;
+  public static final byte MH_REF_NEWINVOKEINTERFACE = 9;
+  
   private InputStream inputStream;
   private LoggingInputStream loggingStream;
 
@@ -284,12 +293,54 @@ public class ClassFileReader {
         case TAG_INVOKE_DYNAMIC:
         case TAG_DYNAMIC:
         {
+            // get a method reference
             int bits = constantPool[i];
             int bootstrapMethodIndex = ConstantPool.unpackTempCPIndex1(bits);
             int nameTypeIndex = ConstantPool.unpackTempCPIndex2(bits);
-            
             break;
         }
+        case TAG_METHOD_HANDLE:
+            int bits = constantPool[i];
+           // determine if method or field
+            int refKind = ConstantPool.unpackTempCPIndex1(bits);
+            int desc = ConstantPool.unpackTempCPIndex2(bits);
+            switch(refKind) {
+            case MH_REF_GETFIELD:
+            case MH_REF_GETSTATIC:
+            case MH_REF_PUTFIELD:
+            case MH_REF_PUTSTATIC:
+                break;
+            case MH_REF_INVOKEVIRTUAL:
+            case MH_REF_INVOKESTATIC:
+            case MH_REF_INVOKESPECIAL:
+            case MH_REF_NEWINVOKESPECIAL:
+            case MH_REF_NEWINVOKEINTERFACE:
+                if(ConstantPool.packedCPTypeIsMemberType(constantPool[desc]))
+                {
+                    constantPool[i] = constantPool[desc];
+                }
+                else
+                {
+                    int bits1 = constantPool[desc];
+                    int classNameIndex = ConstantPool.unpackTempCPIndex1(bits1);
+                    int memberNameAndDescriptorIndex = ConstantPool.unpackTempCPIndex2(bits1);
+                    int memberNameAndDescriptorBits = constantPool[memberNameAndDescriptorIndex];
+                    int memberNameIndex = ConstantPool.unpackTempCPIndex1(memberNameAndDescriptorBits);
+                    int memberDescriptorIndex = ConstantPool.unpackTempCPIndex2(memberNameAndDescriptorBits);
+
+                    TypeReference tref = ConstantPool.getTypeRef(constantPool, classNameIndex);
+                    Atom memberName = ConstantPool.getUtf(constantPool, memberNameIndex);
+                    Atom memberDescriptor = ConstantPool.getUtf(constantPool, memberDescriptorIndex);
+                    MemberReference mr = MemberReference.findOrCreate(tref, memberName, memberDescriptor);
+                    int mrId = mr.getId();
+                    constantPool[i] = ConstantPool.packCPEntry(CP_MEMBER, mrId);
+                }
+                break;
+            default:
+                throw new ClassFormatError("Unknown method reference: "+refKind);
+            }
+        case TAG_METHOD_TYPE:
+            break;
       }
     }
     return constantPool;
@@ -576,6 +627,7 @@ public class ClassFileReader {
    * @throws ClassFormatError when the class data is corrupt
    */
   private RVMClass readClass(TypeReference typeRef, DataInputStream input) throws ClassFormatError, IOException {
+    int[][] bootstrapMethods = null;
 
     if (RVMClass.isClassLoadingDisabled()) {
       throw new RuntimeException("ClassLoading Disabled : " + typeRef);
@@ -669,12 +721,20 @@ public class ClassFileReader {
         loggingStream.stopLogging();
         rawAnnotations = loggingStream.getLoggedBytes();
         loggingStream.clearLoggedBytes();
-//      } else if (attName == RVMClassLoader.bootstrapMethodsAttributeName) {
-//        int numBootstrapMethods = input.readUnsignedShort();
-//        for(int j=0; i < numBootstrapMethods; j++)
-//        {
-//            
-//        }
+      } else if (attName == RVMClassLoader.bootstrapMethodsAttributeName) {
+          System.out.println(typeRef.getName() + "Bootstrap methods:");
+          int numBootstrapMethods = input.readUnsignedShort();
+          bootstrapMethods = new int[numBootstrapMethods][];
+          for (int j = 0; j < numBootstrapMethods; j++) {
+              int bootstrapMethodRef = input.readUnsignedShort();
+              int numArgs = input.readUnsignedShort();
+              int[] entry = new int[numArgs + 1];
+              entry[0] = bootstrapMethodRef; // method handle
+              for (int k = 0; k < numArgs; k++) {
+                  entry[k + 1] = input.readUnsignedShort();
+              }
+              bootstrapMethods[j] = entry;
+          }
       } else {
         int skippedAmount = input.skipBytes(attLength);
         if (skippedAmount != attLength) {
