@@ -747,6 +747,7 @@ public class ClassFileReader {
     encapsulatedAnnotations.setRawAnnotations(rawAnnotations);
     return new RVMClass(typeRef,
                         constantPool,
+                        bootstrapMethods,
                         modifiers,
                         originalModifiers,
                         superClass,

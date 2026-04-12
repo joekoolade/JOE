@@ -154,7 +154,7 @@ public final class ConstantPool {
   @Uninterruptible
   static MethodReference getMethodRef(int[] constantPool, int constantPoolIndex) {
     int cpValue = constantPool[constantPoolIndex];
-    if(ConstantPool.unpackCPType(cpValue) != CP_MEMBER) VM.sysWriteln("getMethodRef cpv:"+cpValue+" cpi:"+constantPoolIndex);
+    if(ConstantPool.unpackCPType(cpValue) != CP_MEMBER) VM.sysWriteln("getMethodRef cpv:"+Integer.toHexString(cpValue)+" cpi:"+constantPoolIndex);
     if (VM.VerifyAssertions) VM._assert(ConstantPool.unpackCPType(cpValue) == CP_MEMBER);
     return (MethodReference) MemberReference.getMemberRef(ConstantPool.unpackUnsignedCPValue(cpValue));
   }

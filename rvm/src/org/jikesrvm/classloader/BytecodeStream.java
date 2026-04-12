@@ -485,6 +485,15 @@ public class BytecodeStream {
   }
 
   /**
+   * Returns a reference to a method.<p>
+   * Used for invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic
+   * @return method reference
+   */
+  public final MethodReference getBootstrapMethodReference() {
+    return getDeclaringClass().getBootstrapMethodRef(readUnsignedShort());
+  }
+
+  /**
    * Returns a reference to a method, for use prior to the class being loaded.<p>
    * Used for invokevirtual, invokespecial, invokestatic, invokeinterface, invokedynamic
    * @param constantPool the constant pool for the class

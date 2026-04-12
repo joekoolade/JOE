@@ -1526,14 +1526,14 @@ final class BuildReferenceMaps {
           }
           case JBC_invokedynamic:
           {
-              MethodReference target = bcodes.getMethodReference();
+              MethodReference target = bcodes.getBootstrapMethodReference();
               bcodes.alignInvokeInterface();
               currBBStkTop =
                   processInvoke(target,
                                 biStart,
                                 currBBStkTop,
                                 currBBMap,
-                                false,
+                                true,
                                 inJSRSub,
                                 referenceMaps,
                                 currPendingRET,

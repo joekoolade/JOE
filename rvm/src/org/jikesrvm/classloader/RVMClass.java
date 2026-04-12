@@ -93,6 +93,8 @@ public final class RVMClass extends RVMType {
    * </ul>
    */
   private final int[] constantPool;
+  
+  private final int[][] bootstrapMethods;
   /**
    * the transformed modifiers, i.e. the modifiers that the JVM uses (e.g.
    * for access control)
@@ -717,6 +719,12 @@ public final class RVMClass extends RVMType {
     return ConstantPool.getUtf(constantPool, constantPoolIndex);
   }
 
+  public MethodReference getBootstrapMethodRef(int dynamicInfoDesc)
+  {
+      int bootstrapMethodIndex = ConstantPool.unpackTempCPIndex1(constantPool[dynamicInfoDesc]);
+      return ConstantPool.getMethodRef(constantPool, bootstrapMethods[bootstrapMethodIndex][0]);
+  }
+  
   /**
    * Should the methods of this class be compiled with special
    * register save/restore logic?
@@ -1050,7 +1058,7 @@ public final class RVMClass extends RVMType {
    * @param signature the generic type name for this class
    * @param annotations runtime visible annotations
    */
-  RVMClass(TypeReference typeRef, int[] constantPool, short modifiers, short originalModifiers, RVMClass superClass,
+  RVMClass(TypeReference typeRef, int[] constantPool, int[][] bootstrapMethods, short modifiers, short originalModifiers, RVMClass superClass,
            RVMClass[] declaredInterfaces, RVMField[] declaredFields, RVMMethod[] declaredMethods,
            TypeReference[] declaredClasses, TypeReference declaringClass, TypeReference enclosingClass,
            MethodReference enclosingMethod, Atom sourceName, RVMMethod classInitializerMethod,
@@ -1062,6 +1070,7 @@ public final class RVMClass extends RVMType {
 
     // final fields
     this.constantPool = constantPool;
+    this.bootstrapMethods = bootstrapMethods;
     this.modifiers = modifiers;
     this.originalModifiers = originalModifiers;
     this.superClass = superClass;
@@ -2147,7 +2156,7 @@ public final class RVMClass extends RVMType {
           RVMMethod.createDefaultConstructor(reflectionClass, constructorMethodRef)};
       final short modifiers = (short) (ACC_SYNTHETIC | ACC_PUBLIC | ACC_FINAL);
       klass =
-        new RVMClass(reflectionClass, constantPool, modifiers, modifiers, // modifiers
+        new RVMClass(reflectionClass, constantPool, null, modifiers, modifiers, // modifiers
             TypeReference.baseReflectionClass.resolve().asClass(), // superClass
             emptyVMClass, // declaredInterfaces
             emptyVMField, reflectionMethods,
