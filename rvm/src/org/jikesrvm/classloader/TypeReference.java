@@ -198,6 +198,8 @@ public final class TypeReference {
       (VM.BuildForAdaptiveSystem) ? findOrCreate(org.jikesrvm.compilers.opt.driver.OptimizationPlanner.class) : null;
 
   public static final TypeReference InterruptHandler = findOrCreate(org.vmmagic.pragma.InterruptHandler.class);
+  public static final TypeReference MethodType = findOrCreate(java.lang.invoke.MethodType.class);
+  
   /**
    * Hash value based on name, used for canonical type dictionary
    */

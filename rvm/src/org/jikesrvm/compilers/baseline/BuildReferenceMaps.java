@@ -1501,6 +1501,7 @@ final class BuildReferenceMaps {
                               currBBStkTop,
                               currBBMap,
                               false,
+                              false,
                               inJSRSub,
                               referenceMaps,
                               currPendingRET,
@@ -1517,6 +1518,7 @@ final class BuildReferenceMaps {
                               currBBStkTop,
                               currBBMap,
                               false,
+                              false,
                               inJSRSub,
                               referenceMaps,
                               currPendingRET,
@@ -1527,12 +1529,14 @@ final class BuildReferenceMaps {
           case JBC_invokedynamic:
           {
               MethodReference target = bcodes.getBootstrapMethodReference();
+              VM.sysWriteln("invokedynamic: ", target.getName());
               bcodes.alignInvokeInterface();
               currBBStkTop =
                   processInvoke(target,
                                 biStart,
                                 currBBStkTop,
                                 currBBMap,
+                                true,
                                 true,
                                 inJSRSub,
                                 referenceMaps,
@@ -1550,6 +1554,7 @@ final class BuildReferenceMaps {
                               currBBStkTop,
                               currBBMap,
                               true,
+                              false,
                               inJSRSub,
                               referenceMaps,
                               currPendingRET,
@@ -2145,7 +2150,7 @@ final class BuildReferenceMaps {
   }
 
   private int processInvoke(MethodReference target, int byteindex, int currBBStkTop, byte[] currBBMap,
-                            boolean isStatic, boolean inJSRSub, ReferenceMaps referenceMaps,
+                            boolean isStatic, boolean isBootstrap, boolean inJSRSub, ReferenceMaps referenceMaps,
                             PendingRETInfo currPendingRET, boolean blockSeen, int currBBStkEmpty) {
     boolean skipRecordingReferenceMap = false;
     boolean popParams = true;
@@ -2168,7 +2173,6 @@ final class BuildReferenceMaps {
         skipRecordingReferenceMap = true;
       }
     }
-
     if (!skipRecordingReferenceMap) {
       // Register the reference map, including the arguments on the stack for this call
       // (unless it is a magic call whose params we have popped above).
@@ -2183,6 +2187,12 @@ final class BuildReferenceMaps {
       }
     }
 
+    if(isBootstrap)
+    {
+        VM.sysWrite("stack top: ", currBBStkTop);
+        VM.sysWriteln(" params: ", target.getParameterTypes().length);
+//        currBBStkTop++;
+    }
     if (popParams) {
       TypeReference[] parameterTypes = target.getParameterTypes();
       int pTypesLength = parameterTypes.length;

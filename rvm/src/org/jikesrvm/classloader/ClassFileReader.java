@@ -295,8 +295,17 @@ public class ClassFileReader {
         {
             // get a method reference
             int bits = constantPool[i];
-            int bootstrapMethodIndex = ConstantPool.unpackTempCPIndex1(bits);
+//            int bootstrapMethodIndex = ConstantPool.unpackTempCPIndex1(bits);
             int nameTypeIndex = ConstantPool.unpackTempCPIndex2(bits);
+            int nameTypeBits = constantPool[nameTypeIndex];
+            int memberIndex = ConstantPool.unpackTempCPIndex1(nameTypeBits);
+            int typeIndex = ConstantPool.unpackTempCPIndex2(nameTypeBits);
+            VM.sysWrite("member: ", memberIndex);
+            VM.sysWriteln(" type: ", typeIndex);
+            Atom memberName = ConstantPool.getUtf(constantPool, memberIndex);
+            Atom typeName = ConstantPool.getUtf(constantPool, typeIndex);
+            VM.sysWrite(memberName.toString());
+            VM.sysWriteln(" ", typeName.toString());
             break;
         }
         case TAG_METHOD_HANDLE:
@@ -339,7 +348,13 @@ public class ClassFileReader {
             default:
                 throw new ClassFormatError("Unknown method reference: "+refKind);
             }
+            break;
         case TAG_METHOD_TYPE:
+            // Get the method type string
+            VM.sysWriteln("method type: ", Integer.toHexString(constantPool[i]));
+            Atom methodType = ConstantPool.getUtf(constantPool, constantPool[i]);
+            // Create the method type reference
+            
             break;
       }
     }

@@ -341,6 +341,17 @@ public class AssemblerOpt extends AssemblerBase {
 
   /**
    *  Emit the given instruction, assuming that
+   * it is a MIR_ConvertDW2QW instruction
+   * and has a CDQ operator
+   *
+   * @param inst the instruction to assemble
+   */
+  private void doCDQ(Instruction inst) {
+    emitCDQ();
+  }
+
+  /**
+   *  Emit the given instruction, assuming that
    * it is a MIR_Unary instruction
    * and has a CVTTSD2SIQ operator
    *
@@ -398,17 +409,6 @@ public class AssemblerOpt extends AssemblerBase {
         }
       }
     }
-  }
-
-  /**
-   *  Emit the given instruction, assuming that
-   * it is a MIR_ConvertDW2QW instruction
-   * and has a CDQ operator
-   *
-   * @param inst the instruction to assemble
-   */
-  private void doCDQ(Instruction inst) {
-    emitCDQ();
   }
 
   /**
@@ -17972,11 +17972,11 @@ public class AssemblerOpt extends AssemblerBase {
       case IA32_CDO_opcode:
         doCDO(inst);
         break;
-      case IA32_CVTTSD2SIQ_opcode:
-        doCVTTSD2SIQ(inst);
-        break;
       case IA32_CDQ_opcode:
         doCDQ(inst);
+        break;
+      case IA32_CVTTSD2SIQ_opcode:
+        doCVTTSD2SIQ(inst);
         break;
       case IA32_ADDSS_opcode:
         doADDSS(inst);

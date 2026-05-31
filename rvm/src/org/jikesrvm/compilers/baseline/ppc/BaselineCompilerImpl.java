@@ -4903,5 +4903,12 @@ public final class BaselineCompilerImpl extends BaselineCompiler {
     asm.emitLAddr(JTOC, linkageAreaSize - BYTES_IN_STACKSLOT, FP);    // restore JTOC
     asm.emitADDI(FP, linkageAreaSize, FP);        // remove linkage area
   }
+
+  @Override
+  protected void emit_invokedynamic(int callSiteIndex)
+  {
+    // TODO Auto-generated method stub
+    
+  }
 }
 

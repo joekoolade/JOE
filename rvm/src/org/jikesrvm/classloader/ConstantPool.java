@@ -17,6 +17,8 @@ import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_INT;
 import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_LONG;
 import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;
 
+import java.lang.invoke.MethodType;
+
 import org.jikesrvm.VM;
 import org.jikesrvm.runtime.Statics;
 import org.vmmagic.pragma.Uninterruptible;
@@ -140,6 +142,15 @@ public final class ConstantPool {
     return (String) Statics.getSlotContentsAsObject(offset);
   }
 
+  static MethodType getMethodTypeLiteral(int[] constantPool, int constantPoolIndex)
+  {
+      if (VM.VerifyAssertions) {
+          VM._assert(getLiteralDescription(constantPool, constantPoolIndex) == CP_STRING);
+      }
+      Offset offset = getLiteralOffset(constantPool, constantPoolIndex);
+      return (MethodType) Statics.getSlotContentsAsObject(offset);
+  }
+  
   @Uninterruptible
   static TypeReference getTypeRef(int[] constantPool, int constantPoolIndex) {
     if (constantPoolIndex != 0) {
